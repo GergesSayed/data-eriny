@@ -84,39 +84,7 @@ const App = {
         }
     },
 
-    initLoginScreen() {
-        const userSelect = document.getElementById('login-user-select');
-        const quickUsers = document.getElementById('login-quick-users');
-        const users = Storage.getUsers();
-
-        if (userSelect) {
-            userSelect.innerHTML = users.map(u => `
-                <option value="${u.id}">
-                    ${u.avatar || '👤'} ${u.name} (${u.role === 'admin' ? 'مدير عام' : 'موظف مبيعات'})
-                </option>
-            `).join('');
-
-            userSelect.onchange = () => {
-                const selectedId = userSelect.value;
-                const user = Storage.getUser(selectedId);
-                const passInput = document.getElementById('login-password');
-                if (passInput && user) {
-                    passInput.value = user.password || (user.role === 'admin' ? 'admin123' : '123');
-                }
-            };
-        }
-
-        if (quickUsers) {
-            quickUsers.innerHTML = users.map(u => `
-                <button type="button" onclick="App.quickLogin('${u.id}')" style="background: rgba(124, 58, 237, 0.18); color: #c4b5fd; border: 1px solid rgba(124, 58, 237, 0.4); padding: 5px 12px; border-radius: 12px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.2s;" title="دخول سريع بـ ${u.name}">
-                    ${u.avatar || '👤'} ${u.name.split(' ')[0]} ${u.role === 'admin' ? '👑' : ''}
-                </button>
-            `).join('');
-        }
-    },
-
     checkAuth() {
-        this.initLoginScreen();
         const currentUser = Storage.getCurrentUser();
         const loginScreen = document.getElementById('login-screen');
         const sidebar = document.getElementById('sidebar');
@@ -135,66 +103,38 @@ const App = {
     },
 
     handleLogin() {
-        const userSelect = document.getElementById('login-user-select');
+        const userInput = document.getElementById('login-username');
         const passInput = document.getElementById('login-password');
-        const userId = userSelect ? userSelect.value : 'admin';
+        const username = userInput ? userInput.value.trim() : '';
         const password = passInput ? passInput.value : '';
 
-        const user = Storage.getUser(userId);
-        if (!user) {
-            this.showToast('❌ الحساب المحدد غير موجود', 'error');
+        if (!username) {
+            this.showToast('⚠️ يرجى إدخال اسم المستخدم', 'warning');
             return;
         }
 
-        if (user.password && user.password !== password) {
-            this.showToast('❌ كلمة المرور غير صحيحة', 'error');
+        const res = Storage.login(username, password);
+        if (!res.success) {
+            this.showToast(`❌ ${res.message}`, 'error');
             return;
         }
 
-        localStorage.setItem(Storage.KEYS.CURRENT_USER, user.id);
-        this.showToast(`🎉 أهلاً بك يا ${user.name}`, 'success');
+        if (res.user.status === 'frozen') {
+            this.showToast('⛔ هذا الحساب مجمد حالياً من قبل المدير العام', 'error');
+            return;
+        }
+
+        if (res.user.status === 'pending_approval') {
+            this.showToast('⏳ الحساب بانتظار موافقة وتفعيل المدير العام', 'warning');
+            return;
+        }
+
+        localStorage.setItem(Storage.KEYS.CURRENT_USER, res.user.id);
+        this.showToast(`🎉 أهلاً بك يا ${res.user.name}`, 'success');
         this.checkAuth();
 
-        const isAdmin = Storage.isAdmin(user);
+        const isAdmin = Storage.isAdmin(res.user);
         this.navigateTo(isAdmin ? 'dashboard' : 'companies');
-    },
-
-    loginWithGoogle() {
-        const email = prompt('ادخل بريد Google (Gmail) الخاص بك لتسجيل الدخول أو تقديم طلب انضمام:');
-        if (!email || !email.includes('@')) {
-            if (email) this.showToast('⚠️ يرجى إدخال بريد إلكتروني صحيح (Gmail)', 'warning');
-            return;
-        }
-
-        const name = prompt('ادخل اسمك بالكامل:', email.split('@')[0]);
-
-        const user = Storage.registerGoogleUser({ email, name });
-
-        if (user.status === 'pending_approval') {
-            alert(`⏳ تم استلام طلب تسجيلك بنجاح ببريد (${user.email})!\n\nحسابك حالياً في حالة (بانتظار موافقة وتفعيل المدير العام).\nيرجى التواصل مع الإدارة لإتاحة الصلاحيات ودخول النظام.`);
-            return;
-        }
-
-        if (user.status === 'frozen') {
-            alert(`⛔ حسابك مجمد حالياً بقرار من الإدارة.`);
-            return;
-        }
-
-        // Active user -> Login!
-        localStorage.setItem(Storage.KEYS.CURRENT_USER, user.id);
-        this.showToast(`🎉 مرحباً بك يا ${user.name}`, 'success');
-        this.checkAuth();
-        const isAdmin = Storage.isAdmin(user);
-        this.navigateTo(isAdmin ? 'dashboard' : 'companies');
-    },
-
-    quickLogin(userId) {
-        const userSelect = document.getElementById('login-user-select');
-        const passInput = document.getElementById('login-password');
-        const user = Storage.getUser(userId);
-        if (userSelect && user) userSelect.value = user.id;
-        if (passInput && user) passInput.value = user.password || (user.role === 'admin' ? 'admin123' : '123');
-        this.handleLogin();
     },
 
     toggleLoginPasswordVisibility() {
