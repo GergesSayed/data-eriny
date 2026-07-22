@@ -195,44 +195,15 @@ const App = {
         const filterAssignedGroup = document.getElementById('filter-assigned-group') || document.getElementById('filter-assigned')?.parentElement;
         if (filterAssignedGroup) filterAssignedGroup.style.display = isAdmin ? 'block' : 'none';
 
-        // Topbar User Avatar & Active User Bar
+        // Topbar User Avatar & Name
         const avatarEl = document.getElementById('current-user-avatar');
         if (avatarEl) {
             avatarEl.textContent = current.avatar || '👤';
             avatarEl.style.background = current.color || '#7c3aed';
         }
-        const select = document.getElementById('user-switcher-select');
-        if (select && select.value !== current.id) {
-            select.value = current.id;
-        }
-
-        // Active User Status Banner Update
-        const activeNameEl = document.getElementById('active-user-display-name');
-        const activeRoleEl = document.getElementById('active-user-display-role');
-        const pillsContainer = document.getElementById('quick-user-pills');
-
-        if (activeNameEl) {
-            activeNameEl.innerHTML = `${current.avatar || '👤'} ${current.name}`;
-            activeNameEl.style.borderColor = current.color || '#7c3aed';
-        }
-        if (activeRoleEl) {
-            activeRoleEl.textContent = isAdmin ? '👑 المدير العام (عرض وتصديق كافة الشركات)' : `👨‍💼 مسؤول مبيعات (${Storage.getRegionLabel(current.region)})`;
-        }
-
-        if (pillsContainer) {
-            const users = Storage.getUsers() || [];
-            pillsContainer.innerHTML = users.map(u => {
-                const isActive = u.id === current.id;
-                const bg = isActive ? (u.color || '#7c3aed') : 'var(--bg-surface)';
-                const color = isActive ? '#ffffff' : 'var(--text-primary)';
-                const border = isActive ? 'none' : '1px solid var(--border-color)';
-                const shadow = isActive ? '0 2px 8px rgba(0,0,0,0.2)' : 'none';
-
-                return `
-                    <button onclick="App.switchUser('${u.id}')" style="background:${bg}; color:${color}; border:${border}; box-shadow:${shadow}; padding:4px 10px; border-radius:16px; font-size:11px; font-weight:700; cursor:pointer; transition:all 0.2s;" title="تحويل الحساب لـ ${u.name}">
-                        ${u.avatar || '👤'} ${u.name.split(' ')[0]} ${isActive ? '✓' : ''}
-                    </button>`;
-            }).join('');
+        const nameEl = document.getElementById('current-user-name');
+        if (nameEl) {
+            nameEl.textContent = `${current.role === 'admin' ? '👑 ' : '👤 '}${current.name}`;
         }
     },
 

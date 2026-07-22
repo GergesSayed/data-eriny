@@ -157,33 +157,17 @@
                     <span>شركة جديدة</span>
                 </button>
                 <div class="topbar-divider"></div>
-                <div class="topbar-user" style="display:flex; align-items:center; gap:8px; position:relative;">
+                <div class="topbar-user" style="display:flex; align-items:center; gap:10px; position:relative;">
                     <div class="user-avatar" id="current-user-avatar" style="background:#7c3aed; color:#fff; font-weight:bold; font-size:14px; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center;">
                         👤
                     </div>
-                    <select id="user-switcher-select" style="padding:6px 12px; border-radius:8px; border: 1.5px solid var(--border-color); background:var(--bg-secondary); color:var(--text-primary); font-size:12px; font-weight:700; cursor:pointer; outline:none; border:1.5px solid #7c3aed;">
-                    </select>
+                    <span id="current-user-name" style="font-weight:700; font-size:13px; color:var(--text-primary);">👑 المدير العام</span>
                     <button class="btn btn-ghost btn-sm" onclick="App.logoutSystem()" title="تسجيل الخروج من الحساب" style="color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.35); background: rgba(239, 68, 68, 0.08); padding: 5px 12px; font-size: 12px; font-weight: 700; border-radius: 8px;">
                         <i class="fas fa-sign-out-alt"></i> <span>خروج</span>
                     </button>
                 </div>
             </div>
         </header>
-
-        <!-- Active User Status & Quick Switch Bar -->
-        <div id="active-user-bar" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.12), rgba(79, 70, 229, 0.12)); border-bottom: 1px solid rgba(124, 58, 237, 0.25); padding: 8px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; font-size: 13px; z-index: 800;">
-            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                <span id="active-user-status-dot" style="width: 10px; height: 10px; border-radius: 50%; background: #10b981; display: inline-block; box-shadow: 0 0 8px #10b981;"></span>
-                <span style="color: var(--text-secondary); font-weight: 700;">الحساب النشط حالياً:</span>
-                <span id="active-user-display-name" style="font-weight: 800; color: #7c3aed; font-size: 13px; background: rgba(124, 58, 237, 0.15); padding: 3px 12px; border-radius: 20px; border: 1px solid rgba(124, 58, 237, 0.3);">👑 المدير العام</span>
-                <span id="active-user-display-role" style="font-size: 11px; color: var(--text-muted); background: var(--bg-surface); padding: 2px 8px; border-radius: 12px; border: 1px solid var(--border-color);">عرض جميع الشركات والتصديق</span>
-            </div>
-
-            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                <span style="font-size: 11px; color: var(--text-muted); font-weight: 700;">⚡ اضغط هنا للتبديل الفوري بين الحسابات:</span>
-                <div id="quick-user-pills" style="display: flex; gap: 6px; flex-wrap: wrap;"></div>
-            </div>
-        </div>
 
         <!-- Content Area -->
         <main class="content">
@@ -1425,16 +1409,16 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <script src="js/storage.js?v=4.0.0"></script>
-    <script src="js/excel-handler.js?v=4.0.0"></script>
-    <script src="js/dashboard.js?v=4.0.0"></script>
-    <script src="js/companies.js?v=4.0.0"></script>
-    <script src="js/calls.js?v=4.0.0"></script>
-    <script src="js/pipeline.js?v=4.0.0"></script>
-    <script src="js/reports.js?v=4.0.0"></script>
-    <script src="js/scraper.js?v=4.0.0"></script>
-    <script src="js/team.js?v=4.0.0"></script>
-    <script src="js/settings.js?v=4.0.0"></script>
-    <script src="js/app.js?v=4.0.0"></script>
+    <script src="js/storage.js?v=4.1.0"></script>
+    <script src="js/excel-handler.js?v=4.1.0"></script>
+    <script src="js/dashboard.js?v=4.1.0"></script>
+    <script src="js/companies.js?v=4.1.0"></script>
+    <script src="js/calls.js?v=4.1.0"></script>
+    <script src="js/pipeline.js?v=4.1.0"></script>
+    <script src="js/reports.js?v=4.1.0"></script>
+    <script src="js/scraper.js?v=4.1.0"></script>
+    <script src="js/team.js?v=4.1.0"></script>
+    <script src="js/settings.js?v=4.1.0"></script>
+    <script src="js/app.js?v=4.1.0"></script>
 </body>
 </html>
