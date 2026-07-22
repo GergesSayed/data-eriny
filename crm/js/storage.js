@@ -15,15 +15,22 @@ const Storage = {
     },
 
     DEFAULT_USERS: [
-        { id: 'admin', username: 'admin', email: 'admin@fleet.com', password: 'admin123', name: 'المدير العام (عرض الكل)', role: 'admin', status: 'active', avatar: '👑', color: '#7c3aed' },
-        { id: 'agent_1', username: 'ahmed', email: 'ahmed@fleet.com', password: '123', name: 'أحمد محمود', role: 'agent', status: 'active', avatar: '👨‍💼', color: '#10b981' },
-        { id: 'agent_2', username: 'mohamed', email: 'mohamed@fleet.com', password: '123', name: 'محمد علي', role: 'agent', status: 'active', avatar: '👨‍💼', color: '#3b82f6' },
-        { id: 'agent_3', username: 'sara', email: 'sara@fleet.com', password: '123', name: 'سارة مصطفى', role: 'agent', status: 'active', avatar: '👩‍💼', color: '#ec4899' }
+        { id: 'admin', username: 'admin', email: 'admin@fleet.com', password: 'admin123', name: 'المدير العام (عرض الكل)', role: 'admin', status: 'active', avatar: '👑', color: '#7c3aed' }
     ],
 
     // ---- User Profiles & Auth ----
     getUsers() {
         let stored = this._get(this.KEYS.USERS);
+
+        // Remove legacy test users (agent_1, agent_2, agent_3) if they exist
+        if (stored && Array.isArray(stored)) {
+            const originalLength = stored.length;
+            stored = stored.filter(u => u.id !== 'agent_1' && u.id !== 'agent_2' && u.id !== 'agent_3');
+            if (stored.length !== originalLength) {
+                this._set(this.KEYS.USERS, stored);
+            }
+        }
+
         if (!stored || !Array.isArray(stored) || stored.length === 0 || !stored[0].username) {
             this._set(this.KEYS.USERS, this.DEFAULT_USERS);
             return this.DEFAULT_USERS;
