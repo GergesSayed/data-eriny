@@ -105,36 +105,96 @@ const App = {
     handleLogin() {
         const userInput = document.getElementById('login-username');
         const passInput = document.getElementById('login-password');
+        const errorAlert = document.getElementById('login-error-alert');
+        const submitBtn = document.getElementById('btn-login-submit');
+
         const username = userInput ? userInput.value.trim() : '';
         const password = passInput ? passInput.value : '';
 
-        if (!username) {
-            this.showToast('⚠️ يرجى إدخال اسم المستخدم', 'warning');
+        // Reset previous errors
+        if (errorAlert) errorAlert.style.display = 'none';
+        if (userInput) userInput.style.borderColor = 'rgba(124, 58, 237, 0.4)';
+        if (passInput) passInput.style.borderColor = 'rgba(124, 58, 237, 0.4)';
+
+        if (!username || !password) {
+            this.showLoginError('⚠️ يرجى إدخال اسم المستخدم وكلمة المرور كامليْن');
+            if (!username && userInput) userInput.style.borderColor = '#ef4444';
+            if (!password && passInput) passInput.style.borderColor = '#ef4444';
             return;
         }
 
-        const res = Storage.login(username, password);
-        if (!res.success) {
-            this.showToast(`❌ ${res.message}`, 'error');
-            return;
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-left: 8px;"></i> جاري التحقق...';
         }
 
-        if (res.user.status === 'frozen') {
-            this.showToast('⛔ هذا الحساب مجمد حالياً من قبل المدير العام', 'error');
-            return;
+        setTimeout(() => {
+            const res = Storage.login(username, password);
+
+            if (!res.success) {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-sign-in-alt" style="margin-left: 8px;"></i> دخول النظام';
+                }
+                this.showLoginError(`❌ ${res.message}. يرجى التثبت وإعادة المحاولة.`);
+                if (userInput) userInput.style.borderColor = '#ef4444';
+                if (passInput) passInput.style.borderColor = '#ef4444';
+                return;
+            }
+
+            if (res.user.status === 'frozen') {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-sign-in-alt" style="margin-left: 8px;"></i> دخول النظام';
+                }
+                this.showLoginError('⛔ هذا الحساب مجمد حالياً بقرار من المدير العام');
+                return;
+            }
+
+            if (res.user.status === 'pending_approval') {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-sign-in-alt" style="margin-left: 8px;"></i> دخول النظام';
+                }
+                this.showLoginError('⏳ الحساب بانتظار موافقة وتفعيل المدير العام');
+                return;
+            }
+
+            localStorage.setItem(Storage.KEYS.CURRENT_USER, res.user.id);
+            this.showToast(`🎉 أهلاً بك يا ${res.user.name}`, 'success');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-sign-in-alt" style="margin-left: 8px;"></i> دخول النظام';
+            }
+            this.checkAuth();
+
+            const isAdmin = Storage.isAdmin(res.user);
+            this.navigateTo(isAdmin ? 'dashboard' : 'companies');
+        }, 300);
+    },
+
+    showLoginError(msg) {
+        const errorAlert = document.getElementById('login-error-alert');
+        const errorText = document.getElementById('login-error-text');
+        const loginCard = document.getElementById('login-card-dialog');
+
+        if (errorText) errorText.textContent = msg;
+        if (errorAlert) errorAlert.style.display = 'block';
+
+        if (loginCard) {
+            loginCard.style.transform = 'scale(0.98)';
+            setTimeout(() => loginCard.style.transform = 'scale(1)', 150);
         }
 
-        if (res.user.status === 'pending_approval') {
-            this.showToast('⏳ الحساب بانتظار موافقة وتفعيل المدير العام', 'warning');
-            return;
-        }
-
-        localStorage.setItem(Storage.KEYS.CURRENT_USER, res.user.id);
-        this.showToast(`🎉 أهلاً بك يا ${res.user.name}`, 'success');
-        this.checkAuth();
-
-        const isAdmin = Storage.isAdmin(res.user);
-        this.navigateTo(isAdmin ? 'dashboard' : 'companies');
+        const userInput = document.getElementById('login-username');
+        const passInput = document.getElementById('login-password');
+        const clearErr = () => {
+            if (errorAlert) errorAlert.style.display = 'none';
+            if (userInput) userInput.style.borderColor = 'rgba(124, 58, 237, 0.4)';
+            if (passInput) passInput.style.borderColor = 'rgba(124, 58, 237, 0.4)';
+        };
+        if (userInput) userInput.oninput = clearErr;
+        if (passInput) passInput.oninput = clearErr;
     },
 
     toggleLoginPasswordVisibility() {

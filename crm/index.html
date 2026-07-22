@@ -22,20 +22,28 @@
 
     <!-- Fullscreen Login Screen -->
     <div id="login-screen" style="position: fixed; inset: 0; z-index: 99999; background: radial-gradient(circle at top right, #1e1b4b, #0f172a, #020617); display: flex; align-items: center; justify-content: center; padding: 20px; font-family: 'Cairo', sans-serif;">
-        <div style="width: 100%; max-width: 440px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 24px; padding: 36px 28px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 30px rgba(124, 58, 237, 0.2); text-align: center;">
+        <div id="login-card-dialog" style="width: 100%; max-width: 440px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 24px; padding: 36px 28px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 30px rgba(124, 58, 237, 0.2); text-align: center; transition: transform 0.15s ease;">
             
             <div style="display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; background: linear-gradient(135deg, #7c3aed, #4f46e5); border-radius: 18px; margin-bottom: 16px; box-shadow: 0 8px 24px rgba(124, 58, 237, 0.4); color: #fff; font-size: 28px;">
                 <i class="fas fa-truck-moving"></i>
             </div>
             <h1 style="font-size: 1.6rem; font-weight: 800; color: #f8fafc; margin: 0 0 6px 0;">تسجيل الدخول للنظام</h1>
-            <p style="font-size: 0.85rem; color: #94a3b8; margin: 0 0 24px 0;">نظام إدارة ومبيعات عملاء الأساطيل — Fleet CRM</p>
+            <p style="font-size: 0.85rem; color: #94a3b8; margin: 0 0 20px 0;">نظام إدارة ومبيعات عملاء الأساطيل — Fleet CRM</p>
+
+            <!-- Error Alert Banner -->
+            <div id="login-error-alert" style="display: none; background: rgba(239, 68, 68, 0.15); border: 1.5px solid rgba(239, 68, 68, 0.45); color: #fca5a5; padding: 12px 16px; border-radius: 14px; margin-bottom: 20px; font-size: 0.85rem; font-weight: 700; text-align: right; transition: all 0.2s ease;">
+                <div style="display: flex; align-items: flex-start; gap: 10px;">
+                    <span style="color: #ef4444; font-size: 16px; margin-top: 1px;"><i class="fas fa-exclamation-circle"></i></span>
+                    <div id="login-error-text">اسم المستخدم أو كلمة المرور غير صحيحة. يرجى التثبت وإعادة المحاولة.</div>
+                </div>
+            </div>
 
             <form id="form-login" onsubmit="event.preventDefault(); App.handleLogin();" style="text-align: right;">
                 <div style="margin-bottom: 16px;">
                     <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #cbd5e1; margin-bottom: 8px;">اسم المستخدم (Username) *</label>
                     <div style="position: relative;">
                         <span style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: #7c3aed; font-size: 15px;"><i class="fas fa-user"></i></span>
-                        <input type="text" id="login-username" required placeholder="أدخل اسم المستخدم (مثلاً: admin)..." style="width: 100%; padding: 12px 42px 12px 14px; border-radius: 12px; background: rgba(30, 41, 59, 0.9); border: 1.5px solid rgba(124, 58, 237, 0.4); color: #f8fafc; font-size: 14px; font-weight: 700; font-family: 'Cairo'; outline: none; box-sizing: border-box;">
+                        <input type="text" id="login-username" required placeholder="أدخل اسم المستخدم (مثلاً: admin)..." style="width: 100%; padding: 12px 42px 12px 14px; border-radius: 12px; background: rgba(30, 41, 59, 0.9); border: 1.5px solid rgba(124, 58, 237, 0.4); color: #f8fafc; font-size: 14px; font-weight: 700; font-family: 'Cairo'; outline: none; box-sizing: border-box; transition: border-color 0.2s ease;">
                     </div>
                 </div>
 
@@ -43,7 +51,7 @@
                     <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #cbd5e1; margin-bottom: 8px;">كلمة المرور (Password) *</label>
                     <div style="position: relative;">
                         <span style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: #7c3aed; font-size: 15px;"><i class="fas fa-lock"></i></span>
-                        <input type="password" id="login-password" required placeholder="أدخل كلمة المرور..." style="width: 100%; padding: 12px 42px 12px 42px; border-radius: 12px; background: rgba(30, 41, 59, 0.9); border: 1.5px solid rgba(124, 58, 237, 0.4); color: #f8fafc; font-size: 14px; font-family: 'Cairo'; outline: none; box-sizing: border-box;">
+                        <input type="password" id="login-password" required placeholder="أدخل كلمة المرور..." style="width: 100%; padding: 12px 42px 12px 42px; border-radius: 12px; background: rgba(30, 41, 59, 0.9); border: 1.5px solid rgba(124, 58, 237, 0.4); color: #f8fafc; font-size: 14px; font-family: 'Cairo'; outline: none; box-sizing: border-box; transition: border-color 0.2s ease;">
                         <button type="button" onclick="App.toggleLoginPasswordVisibility()" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 14px;" title="إظهار / إخفاء">
                             <i class="fas fa-eye" id="login-eye-icon"></i>
                         </button>
@@ -58,7 +66,7 @@
                     <span style="color: #a78bfa; font-weight: 600;">دخول آمن مشفر 🔒</span>
                 </div>
 
-                <button type="submit" style="width: 100%; padding: 14px; border-radius: 12px; background: linear-gradient(135deg, #7c3aed, #4f46e5); color: #ffffff; border: none; font-size: 1rem; font-weight: 800; font-family: 'Cairo'; cursor: pointer; box-shadow: 0 4px 20px rgba(124, 58, 237, 0.5); transition: transform 0.15s ease;">
+                <button type="submit" id="btn-login-submit" style="width: 100%; padding: 14px; border-radius: 12px; background: linear-gradient(135deg, #7c3aed, #4f46e5); color: #ffffff; border: none; font-size: 1rem; font-weight: 800; font-family: 'Cairo'; cursor: pointer; box-shadow: 0 4px 20px rgba(124, 58, 237, 0.5); transition: transform 0.15s ease;">
                     <i class="fas fa-sign-in-alt" style="margin-left: 8px;"></i> دخول النظام
                 </button>
             </form>
@@ -1409,16 +1417,16 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <script src="js/storage.js?v=4.1.0"></script>
-    <script src="js/excel-handler.js?v=4.1.0"></script>
-    <script src="js/dashboard.js?v=4.1.0"></script>
-    <script src="js/companies.js?v=4.1.0"></script>
-    <script src="js/calls.js?v=4.1.0"></script>
-    <script src="js/pipeline.js?v=4.1.0"></script>
-    <script src="js/reports.js?v=4.1.0"></script>
-    <script src="js/scraper.js?v=4.1.0"></script>
-    <script src="js/team.js?v=4.1.0"></script>
-    <script src="js/settings.js?v=4.1.0"></script>
-    <script src="js/app.js?v=4.1.0"></script>
+    <script src="js/storage.js?v=4.2.0"></script>
+    <script src="js/excel-handler.js?v=4.2.0"></script>
+    <script src="js/dashboard.js?v=4.2.0"></script>
+    <script src="js/companies.js?v=4.2.0"></script>
+    <script src="js/calls.js?v=4.2.0"></script>
+    <script src="js/pipeline.js?v=4.2.0"></script>
+    <script src="js/reports.js?v=4.2.0"></script>
+    <script src="js/scraper.js?v=4.2.0"></script>
+    <script src="js/team.js?v=4.2.0"></script>
+    <script src="js/settings.js?v=4.2.0"></script>
+    <script src="js/app.js?v=4.2.0"></script>
 </body>
 </html>
