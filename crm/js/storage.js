@@ -58,12 +58,16 @@ const Storage = {
         return u.id === 'admin' || u.username === 'admin' || u.role === 'admin';
     },
 
+    isLoggedIn() {
+        const userId = localStorage.getItem(this.KEYS.CURRENT_USER);
+        return !!userId && !!this.getUser(userId);
+    },
+
     getCurrentUser() {
-        const userId = localStorage.getItem(this.KEYS.CURRENT_USER) || 'admin';
+        const userId = localStorage.getItem(this.KEYS.CURRENT_USER);
+        if (!userId) return null;
         let user = this.getUser(userId);
-        if (!user) {
-            user = this.resetToAdmin();
-        }
+        if (!user) return null;
         if (user.id === 'admin' || user.username === 'admin') {
             user.role = 'admin';
         }

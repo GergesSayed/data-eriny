@@ -84,54 +84,107 @@ const App = {
         }
     },
 
-    checkAuth() {
-        const currentUser = Storage.getCurrentUser();
-        const overlay = document.getElementById('login-modal-overlay');
-        const loginForm = document.getElementById('form-login-system');
+    initLoginScreen() {
+        const userSelect = document.getElementById('login-user-select');
+        const quickUsers = document.getElementById('login-quick-users');
+        const users = Storage.getUsers();
 
-        if (!currentUser) {
-            if (overlay) overlay.style.display = 'flex';
-        } else {
-            if (overlay) overlay.style.display = 'none';
-            this.updateUserUI();
+        if (userSelect) {
+            userSelect.innerHTML = users.map(u => `
+                <option value="${u.id}">
+                    ${u.avatar || '👤'} ${u.name} (${u.role === 'admin' ? 'مدير عام' : 'موظف مبيعات'})
+                </option>
+            `).join('');
+
+            userSelect.onchange = () => {
+                const selectedId = userSelect.value;
+                const user = Storage.getUser(selectedId);
+                const passInput = document.getElementById('login-password');
+                if (passInput && user) {
+                    passInput.value = user.password || (user.role === 'admin' ? 'admin123' : '123');
+                }
+            };
         }
 
-        if (loginForm && !loginForm.dataset.bound) {
-            loginForm.dataset.bound = 'true';
-            loginForm.onsubmit = (e) => {
-                e.preventDefault();
-                const u = document.getElementById('login-username').value;
-                const p = document.getElementById('login-password').value;
-                this.loginSystem(u, p);
-            };
+        if (quickUsers) {
+            quickUsers.innerHTML = users.map(u => `
+                <button type="button" onclick="App.quickLogin('${u.id}')" style="background: rgba(124, 58, 237, 0.18); color: #c4b5fd; border: 1px solid rgba(124, 58, 237, 0.4); padding: 5px 12px; border-radius: 12px; font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.2s;" title="دخول سريع بـ ${u.name}">
+                    ${u.avatar || '👤'} ${u.name.split(' ')[0]} ${u.role === 'admin' ? '👑' : ''}
+                </button>
+            `).join('');
         }
     },
 
-    loginSystem(username, password) {
-        const res = Storage.login(username, password);
-        if (!res.success) {
-            this.showToast(`❌ ${res.message}`, 'error');
+    checkAuth() {
+        this.initLoginScreen();
+        const currentUser = Storage.getCurrentUser();
+        const loginScreen = document.getElementById('login-screen');
+        const sidebar = document.getElementById('sidebar');
+        const mainWrapper = document.querySelector('.main-wrapper');
+
+        if (!currentUser) {
+            if (loginScreen) loginScreen.style.display = 'flex';
+            if (sidebar) sidebar.style.display = 'none';
+            if (mainWrapper) mainWrapper.style.display = 'none';
+        } else {
+            if (loginScreen) loginScreen.style.display = 'none';
+            if (sidebar) sidebar.style.display = 'flex';
+            if (mainWrapper) mainWrapper.style.display = 'flex';
+            this.updateUserUI();
+        }
+    },
+
+    handleLogin() {
+        const userSelect = document.getElementById('login-user-select');
+        const passInput = document.getElementById('login-password');
+        const userId = userSelect ? userSelect.value : 'admin';
+        const password = passInput ? passInput.value : '';
+
+        const user = Storage.getUser(userId);
+        if (!user) {
+            this.showToast('❌ الحساب المحدد غير موجود', 'error');
             return;
         }
-        const overlay = document.getElementById('login-modal-overlay');
-        if (overlay) overlay.style.display = 'none';
-        this.showToast(`🎉 أهلاً بك يا ${res.user.name}`);
-        this.updateUserUI();
-        const isAdmin = res.user.role === 'admin';
+
+        if (user.password && user.password !== password) {
+            this.showToast('❌ كلمة المرور غير صحيحة', 'error');
+            return;
+        }
+
+        localStorage.setItem(Storage.KEYS.CURRENT_USER, user.id);
+        this.showToast(`🎉 أهلاً بك يا ${user.name}`, 'success');
+        this.checkAuth();
+
+        const isAdmin = Storage.isAdmin(user);
         this.navigateTo(isAdmin ? 'dashboard' : 'companies');
     },
 
-    quickLogin(username, password) {
-        const uInput = document.getElementById('login-username');
-        const pInput = document.getElementById('login-password');
-        if (uInput) uInput.value = username;
-        if (pInput) pInput.value = password;
-        this.loginSystem(username, password);
+    quickLogin(userId) {
+        const userSelect = document.getElementById('login-user-select');
+        const passInput = document.getElementById('login-password');
+        const user = Storage.getUser(userId);
+        if (userSelect && user) userSelect.value = user.id;
+        if (passInput && user) passInput.value = user.password || (user.role === 'admin' ? 'admin123' : '123');
+        this.handleLogin();
+    },
+
+    toggleLoginPasswordVisibility() {
+        const passInput = document.getElementById('login-password');
+        const icon = document.getElementById('login-eye-icon');
+        if (!passInput) return;
+        if (passInput.type === 'password') {
+            passInput.type = 'text';
+            if (icon) icon.className = 'fas fa-eye-slash';
+        } else {
+            passInput.type = 'password';
+            if (icon) icon.className = 'fas fa-eye';
+        }
     },
 
     logoutSystem() {
         Storage.logout();
-        window.location.reload();
+        this.showToast('👋 تم تسجيل الخروج بنجاح', 'info');
+        this.checkAuth();
     },
 
     updateUserUI() {

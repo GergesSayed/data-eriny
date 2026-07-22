@@ -1,6 +1,6 @@
 {
   "total": 4033,
-  "with_phone": 2984,
+  "with_phone": 3008,
   "target": 5000,
   "completed_searches": [
     "security company|30.10625,31.45",
@@ -6909,5 +6909,5 @@
     "real_estate_facility": 22
   },
   "status": "stopped",
-  "timestamp": "2026-07-22T16:21:44.821317"
+  "timestamp": "2026-07-22T16:24:50.787479"
 }
