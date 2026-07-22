@@ -15,10 +15,10 @@ const Storage = {
     },
 
     DEFAULT_USERS: [
-        { id: 'admin', username: 'admin', password: 'admin123', name: 'المدير العام (عرض الكل)', role: 'admin', avatar: '👑', color: '#7c3aed' },
-        { id: 'agent_1', username: 'ahmed', password: '123', name: 'أحمد محمود', role: 'agent', avatar: '👨‍💼', color: '#10b981' },
-        { id: 'agent_2', username: 'mohamed', password: '123', name: 'محمد علي', role: 'agent', avatar: '👨‍💼', color: '#3b82f6' },
-        { id: 'agent_3', username: 'sara', password: '123', name: 'سارة مصطفى', role: 'agent', avatar: '👩‍💼', color: '#ec4899' }
+        { id: 'admin', username: 'admin', email: 'admin@fleet.com', password: 'admin123', name: 'المدير العام (عرض الكل)', role: 'admin', status: 'active', avatar: '👑', color: '#7c3aed' },
+        { id: 'agent_1', username: 'ahmed', email: 'ahmed@fleet.com', password: '123', name: 'أحمد محمود', role: 'agent', status: 'active', avatar: '👨‍💼', color: '#10b981' },
+        { id: 'agent_2', username: 'mohamed', email: 'mohamed@fleet.com', password: '123', name: 'محمد علي', role: 'agent', status: 'active', avatar: '👨‍💼', color: '#3b82f6' },
+        { id: 'agent_3', username: 'sara', email: 'sara@fleet.com', password: '123', name: 'سارة مصطفى', role: 'agent', status: 'active', avatar: '👩‍💼', color: '#ec4899' }
     ],
 
     // ---- User Profiles & Auth ----
@@ -29,6 +29,11 @@ const Storage = {
             return this.DEFAULT_USERS;
         }
 
+        // Always ensure default users have active status if not specified
+        stored.forEach(u => {
+            if (!u.status) u.status = 'active';
+        });
+
         // Always ensure admin user exists with admin role
         let adminUser = stored.find(u => u.id === 'admin' || u.username === 'admin');
         if (!adminUser) {
@@ -36,10 +41,71 @@ const Storage = {
             this._set(this.KEYS.USERS, stored);
         } else if (adminUser.role !== 'admin') {
             adminUser.role = 'admin';
+            adminUser.status = 'active';
             this._set(this.KEYS.USERS, stored);
         }
 
         return stored;
+    },
+
+    getPendingUsers() {
+        return (this.getUsers() || []).filter(u => u.status === 'pending_approval');
+    },
+
+    registerGoogleUser({ email, name }) {
+        let users = this.getUsers();
+        let existing = users.find(u => (u.email && u.email.toLowerCase() === email.toLowerCase().trim()) || (u.username && u.username.toLowerCase() === email.split('@')[0].toLowerCase()));
+
+        if (existing) {
+            return existing;
+        }
+
+        const newUser = {
+            id: 'u_' + Date.now(),
+            email: email.trim(),
+            username: email.split('@')[0],
+            name: name || email.split('@')[0],
+            password: '123',
+            role: 'agent',
+            status: 'pending_approval',
+            avatar: '👤',
+            color: '#3b82f6',
+            registeredAt: new Date().toISOString().split('T')[0]
+        };
+
+        users.push(newUser);
+        this._set(this.KEYS.USERS, users);
+        this.addActivity('auth', newUser.id, 'طلب تسجيل جديد', `طلب تسجيل جديد عبر Google: ${name} (${email})`);
+        return newUser;
+    },
+
+    approveUser(userId, role = 'agent') {
+        let users = this.getUsers();
+        const user = users.find(u => u.id === userId);
+        if (user) {
+            user.status = 'active';
+            user.role = role;
+            this._set(this.KEYS.USERS, users);
+            this.addActivity('auth', 'admin', 'موافقة على مستخدم', `تم اعتماد تفعيل حساب: ${user.name} كـ ${role === 'admin' ? 'مدير' : 'موظف مبيعات'}`);
+        }
+        return user;
+    },
+
+    rejectUser(userId) {
+        let users = this.getUsers();
+        const updated = users.filter(u => u.id !== userId);
+        this._set(this.KEYS.USERS, updated);
+        this.addActivity('auth', 'admin', 'رفض مستخدم', `تم رفض طلب التسجيل لـ: ${userId}`);
+    },
+
+    toggleUserFreeze(userId) {
+        let users = this.getUsers();
+        const user = users.find(u => u.id === userId);
+        if (user && user.id !== 'admin') {
+            user.status = user.status === 'frozen' ? 'active' : 'frozen';
+            this._set(this.KEYS.USERS, users);
+        }
+        return user;
     },
 
     getUser(id) {

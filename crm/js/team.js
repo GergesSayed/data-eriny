@@ -74,11 +74,48 @@ const Team = {
             const totalAssigned = allCompanies.filter(c => c && c.assignedTo).length;
             const totalUnassigned = allCompanies.length - totalAssigned;
 
+            const pendingUsers = Storage.getPendingUsers();
+            const pendingHtml = pendingUsers.length === 0 ? '' : `
+                <div class="card" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(217, 119, 6, 0.08)); border: 1.5px solid #f59e0b; border-radius: 16px; padding: 20px; margin-bottom: 24px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+                        <h3 style="margin: 0; color: #f59e0b; font-size: 1.1rem; font-weight: 800;">
+                            <i class="fas fa-bell" style="margin-left: 8px;"></i> طلبات التسجيل والانضمام المعلقة (${pendingUsers.length})
+                        </h3>
+                        <span class="badge" style="background: #f59e0b; color: #000; font-weight: 800;">بانتظار موافقة المدير العام</span>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        ${pendingUsers.map(u => `
+                            <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(245, 158, 11, 0.2); color: #f59e0b; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800;">👤</div>
+                                    <div>
+                                        <span style="font-weight: 800; color: var(--text-primary); font-size: 14px;">${u.name}</span>
+                                        <span style="display: block; font-size: 12px; color: var(--text-muted); direction: ltr; text-align: right;">📧 ${u.email || u.username}</span>
+                                    </div>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                    <button class="btn btn-success btn-sm" style="font-size: 12px; font-weight: 800; padding: 6px 14px; background:#10b981; color:#fff;" onclick="Team.approveUser('${u.id}', 'agent')">
+                                        <i class="fas fa-check"></i> موافقة وتفعيل (موظف مبيعات)
+                                    </button>
+                                    <button class="btn btn-primary btn-sm" style="font-size: 12px; font-weight: 800; padding: 6px 14px; background: #7c3aed; color:#fff;" onclick="Team.approveUser('${u.id}', 'admin')">
+                                        <i class="fas fa-crown"></i> موافقة وتعيين كـ أدمن
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" style="font-size: 12px; font-weight: 800; padding: 6px 12px; background: #ef4444; color:#fff;" onclick="Team.rejectUser('${u.id}')">
+                                        <i class="fas fa-times"></i> رفض
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
             teamPage.innerHTML = `
+                ${pendingHtml}
                 <div class="page-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
                     <div>
-                        <h1 class="page-title"><i class="fas fa-users-cog"></i> متابعة أداء وتواصل الفريق الحية</h1>
-                        <p class="page-subtitle">متابعة إنجاز كل موظف: كم شركة تم التواصل معاها، المتبقي بدون اتصالات، والعملاء المهتمين وغير المهتمين</p>
+                        <h1 class="page-title"><i class="fas fa-users-cog"></i> لوحة التحكم في الموظفين والصلاحيات المعتمَدة</h1>
+                        <p class="page-subtitle">اعتماد الطلبات، وتعيين الأدوار والمناطق، ومتابعة إنجازات الفريق الحية</p>
                     </div>
                     <button class="btn btn-primary" id="btn-add-user" onclick="Team.openUserModal()">
                         <i class="fas fa-user-plus"></i> إضافة موظف جديد
@@ -643,5 +680,29 @@ const Team = {
             App.showToast(`🗑️ تم إلغاء إسناد الشركة وتفريغها`);
         }
         this.renderAssignList(currentModalTargetUserId);
+    },
+
+    approveUser(userId, role = 'agent') {
+        const user = Storage.approveUser(userId, role);
+        if (user) {
+            App.showToast(`✅ تم اعتماد وتفعيل حساب ${user.name} بنجاح كـ ${role === 'admin' ? 'مدير عام' : 'موظف مبيعات'}`, 'success');
+            this.render();
+        }
+    },
+
+    rejectUser(userId) {
+        if (confirm('هل أنت متأكد من رفض وإلغاء طلب التسجيل هذا؟')) {
+            Storage.rejectUser(userId);
+            App.showToast('🗑️ تم رفض طلب التسجيل', 'info');
+            this.render();
+        }
+    },
+
+    toggleFreeze(userId) {
+        const user = Storage.toggleUserFreeze(userId);
+        if (user) {
+            App.showToast(`تم ${user.status === 'frozen' ? 'تجميد' : 'إعادة تفعيل'} حساب ${user.name}`, 'info');
+            this.render();
+        }
     }
 };

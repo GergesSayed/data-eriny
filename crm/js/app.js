@@ -159,6 +159,35 @@ const App = {
         this.navigateTo(isAdmin ? 'dashboard' : 'companies');
     },
 
+    loginWithGoogle() {
+        const email = prompt('ادخل بريد Google (Gmail) الخاص بك لتسجيل الدخول أو تقديم طلب انضمام:');
+        if (!email || !email.includes('@')) {
+            if (email) this.showToast('⚠️ يرجى إدخال بريد إلكتروني صحيح (Gmail)', 'warning');
+            return;
+        }
+
+        const name = prompt('ادخل اسمك بالكامل:', email.split('@')[0]);
+
+        const user = Storage.registerGoogleUser({ email, name });
+
+        if (user.status === 'pending_approval') {
+            alert(`⏳ تم استلام طلب تسجيلك بنجاح ببريد (${user.email})!\n\nحسابك حالياً في حالة (بانتظار موافقة وتفعيل المدير العام).\nيرجى التواصل مع الإدارة لإتاحة الصلاحيات ودخول النظام.`);
+            return;
+        }
+
+        if (user.status === 'frozen') {
+            alert(`⛔ حسابك مجمد حالياً بقرار من الإدارة.`);
+            return;
+        }
+
+        // Active user -> Login!
+        localStorage.setItem(Storage.KEYS.CURRENT_USER, user.id);
+        this.showToast(`🎉 مرحباً بك يا ${user.name}`, 'success');
+        this.checkAuth();
+        const isAdmin = Storage.isAdmin(user);
+        this.navigateTo(isAdmin ? 'dashboard' : 'companies');
+    },
+
     quickLogin(userId) {
         const userSelect = document.getElementById('login-user-select');
         const passInput = document.getElementById('login-password');
