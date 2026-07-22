@@ -1,0 +1,268 @@
+{
+  "mode": "exhaustive",
+  "max_companies": 0,
+  "focus_areas": {
+    "cairo_central": {
+      "enabled": true,
+      "name": "وسط القاهرة",
+      "cities": ["القاهرة", "وسط البلد", "عابدين", "السيدة زينب", "الأزهر"]
+    },
+    "cairo_east": {
+      "enabled": true,
+      "name": "شرق القاهرة",
+      "cities": ["مدينة نصر", "مصر الجديدة", "المعادي", "الزيتون", "عين شمس", "المرج", "المطرية"]
+    },
+    "cairo_north": {
+      "enabled": true,
+      "name": "شمال القاهرة",
+      "cities": ["شبرا", "شبرا الخيمة", "السلام", "الخانكة", "القناطر الخيرية"]
+    },
+    "cairo_south": {
+      "enabled": true,
+      "name": "جنوب القاهرة",
+      "cities": ["حلوان", "التبين", "15 مايو", "المعصرة", "طرة"]
+    },
+    "new_cairo": {
+      "enabled": true,
+      "name": "القاهرة الجديدة",
+      "cities": ["التجمع الخامس", "القاهرة الجديدة", "الشروق", "بدر", "العبور", "العاشر من رمضان"]
+    },
+    "giza_central": {
+      "enabled": true,
+      "name": "وسط الجيزة",
+      "cities": ["الجيزة", "الدقي", "المهندسين", "العجوزة", "إمبابة", "بولاق الدكرور", "فيصل", "الهرم"]
+    },
+    "giza_west": {
+      "enabled": true,
+      "name": "غرب الجيزة",
+      "cities": ["6 أكتوبر", "الشيخ زايد", "أبو رواش", "الواحات"]
+    },
+    "giza_south": {
+      "enabled": true,
+      "name": "جنوب الجيزة",
+      "cities": ["الحوامدية", "البدرشين", "العياط", "الصف"]
+    },
+    "industrial_zones": {
+      "enabled": true,
+      "name": "المناطق الصناعية",
+      "cities": ["المنطقة الصناعية أبو رواش", "المنطقة الصناعية 6 أكتوبر", "المنطقة الصناعية العاشر من رمضان", "المنطقة الصناعية بدر", "المنطقة الصناعية السلام", "المنطقة الصناعية الروبيكي"]
+    },
+    "qalyubia": {
+      "enabled": true,
+      "name": "القليوبية",
+      "cities": ["بنها", "شبرا الخيمة", "قليوب", "الخانكة"]
+    }
+  },
+  "sectors": {
+    "transport_freight": {
+      "enabled": true, "priority": "A+", "name": "نقل بضائع وشحن بري",
+      "queries": ["شركة نقل بضائع", "نقل ثقيل", "شحن بري", "نقل بضائع بالتريلات", "شركة نقليات"]
+    },
+    "shipping": {
+      "enabled": true, "priority": "A+", "name": "شحن دولي",
+      "queries": ["شركة شحن", "freight forwarding", "شحن دولي", "cargo company", "شحن جوي وبحري"]
+    },
+    "logistics": {
+      "enabled": true, "priority": "A+", "name": "لوجستيات",
+      "queries": ["شركة لوجستيات", "logistics company", "سلسلة امداد", "supply chain", "3PL company"]
+    },
+    "courier": {
+      "enabled": true, "priority": "A+", "name": "شحن سريع وكوريير",
+      "queries": ["شركة شحن سريع", "courier company", "بريد سريع", "express shipping", "شركة توصيل طرود"]
+    },
+    "delivery": {
+      "enabled": true, "priority": "A+", "name": "توصيل طلبات",
+      "queries": ["شركة توصيل", "delivery company", "توصيل طلبات", "لاست مايل"]
+    },
+    "bus_company": {
+      "enabled": true, "priority": "A+", "name": "نقل ركاب وأتوبيسات",
+      "queries": ["شركة أتوبيسات", "نقل ركاب", "bus company", "شركة نقل جماعي", "أتوبيس سياحي"]
+    },
+    "car_rental": {
+      "enabled": true, "priority": "A+", "name": "تأجير سيارات",
+      "queries": ["تأجير سيارات", "car rental", "ايجار سيارات", "تأجير باصات"]
+    },
+    "limousine": {
+      "enabled": true, "priority": "A+", "name": "ليموزين",
+      "queries": ["شركة ليموزين", "limousine service", "نقل خاص", "VIP transport"]
+    },
+    "moving_company": {
+      "enabled": true, "priority": "A+", "name": "نقل أثاث وعفش",
+      "queries": ["شركة نقل اثاث", "نقل عفش", "moving company", "شركة نقل موبيليا"]
+    },
+    "refrigerated": {
+      "enabled": true, "priority": "A+", "name": "نقل مبرد",
+      "queries": ["نقل مبرد", "شحن مبرد", "ثلاجات نقل", "cold chain", "refrigerated transport"]
+    },
+    "tanker": {
+      "enabled": true, "priority": "A+", "name": "صهاريج ونقل سوائل",
+      "queries": ["صهاريج نقل", "نقل مياه", "نقل بترول", "tanker company"]
+    },
+    "security": {
+      "enabled": true, "priority": "A", "name": "أمن وحراسة",
+      "queries": ["شركة أمن", "شركة حراسة", "security company", "نقل أموال", "cash in transit"]
+    },
+    "waste_management": {
+      "enabled": true, "priority": "A", "name": "نظافة وإدارة مخلفات",
+      "queries": ["شركة نظافة", "جمع قمامة", "إدارة مخلفات", "waste management", "تدوير"]
+    },
+    "ambulance": {
+      "enabled": true, "priority": "A", "name": "إسعاف خاص ونقل طبي",
+      "queries": ["إسعاف خاص", "نقل طبي", "ambulance service"]
+    },
+    "food_factory": {
+      "enabled": true, "priority": "B", "name": "مصانع أغذية",
+      "queries": ["مصنع أغذية", "food factory", "مصنع حلويات", "مصنع بسكويت", "مصنع شيبسي"]
+    },
+    "dairy": {
+      "enabled": true, "priority": "B", "name": "ألبان ومنتجات حيوانية",
+      "queries": ["شركة ألبان", "مصنع ألبان", "dairy company", "مصنع جبن", "مصنع زبادي"]
+    },
+    "beverages": {
+      "enabled": true, "priority": "B", "name": "مشروبات ومياه",
+      "queries": ["شركة مشروبات", "مصنع مشروبات", "مصنع عصائر", "مياه معدنية", "bottling company"]
+    },
+    "meat_poultry": {
+      "enabled": true, "priority": "B", "name": "لحوم ودواجن",
+      "queries": ["مصنع لحوم", "شركة دواجن", "مسلخ", "مجزر", "poultry farm"]
+    },
+    "food_distribution": {
+      "enabled": true, "priority": "B", "name": "توزيع أغذية",
+      "queries": ["شركة توزيع أغذية", "موزع مواد غذائية", "food distributor", "توزيع مواد غذائية"]
+    },
+    "pharma_company": {
+      "enabled": true, "priority": "B", "name": "شركات أدوية",
+      "queries": ["شركة أدوية", "pharmaceutical company", "مصنع أدوية"]
+    },
+    "pharma_distribution": {
+      "enabled": true, "priority": "B", "name": "توزيع أدوية",
+      "queries": ["شركة توزيع أدوية", "مخزن أدوية", "pharmacy warehouse", "pharma distributor"]
+    },
+    "medical_supplies": {
+      "enabled": true, "priority": "B", "name": "مستلزمات طبية",
+      "queries": ["شركة مستلزمات طبية", "أجهزة طبية", "medical supplies", "medical equipment"]
+    },
+    "petroleum": {
+      "enabled": true, "priority": "B", "name": "بترول وطاقة",
+      "queries": ["شركة بترول", "خدمات بترولية", "oil company", "petroleum services"]
+    },
+    "gas_station": {
+      "enabled": true, "priority": "B", "name": "محطات وقود",
+      "queries": ["محطة بنزين", "gas station", "محطة وقود", "محطة خدمة"]
+    },
+    "construction": {
+      "enabled": true, "priority": "B", "name": "مقاولات",
+      "queries": ["شركة مقاولات", "مقاولات عمومية", "construction company", "شركة تشييد"]
+    },
+    "hospital": {
+      "enabled": true, "priority": "B", "name": "مستشفيات",
+      "queries": ["مستشفى خاص", "مستشفى", "private hospital", "مركز طبي كبير"]
+    },
+    "school": {
+      "enabled": true, "priority": "B", "name": "مدارس ومعاهد",
+      "queries": ["مدرسة خاصة", "مدرسة دولية", "international school", "private school"]
+    },
+    "university": {
+      "enabled": true, "priority": "B", "name": "جامعات",
+      "queries": ["جامعة خاصة", "private university", "معهد عالي"]
+    },
+    "tourism": {
+      "enabled": true, "priority": "B", "name": "سياحة وسفريات",
+      "queries": ["شركة سياحة", "tourism company", "شركة سفريات", "travel agency"]
+    },
+    "hotel": {
+      "enabled": true, "priority": "B", "name": "فنادق ومنتجعات",
+      "queries": ["فندق", "hotel", "منتجع", "resort"]
+    },
+    "cement_steel": {
+      "enabled": true, "priority": "C", "name": "أسمنت وحديد",
+      "queries": ["مصنع أسمنت", "مصنع حديد", "حديد وصلب", "steel factory", "cement factory"]
+    },
+    "building_materials": {
+      "enabled": true, "priority": "C", "name": "مواد بناء",
+      "queries": ["محل مواد بناء", "building materials", "مستودع مواد بناء", "شركة رخام وجرانيت"]
+    },
+    "real_estate": {
+      "enabled": true, "priority": "C", "name": "تطوير عقاري",
+      "queries": ["شركة تطوير عقاري", "real estate developer", "شركة عقارات"]
+    },
+    "factory_plastic": {
+      "enabled": true, "priority": "C", "name": "مصانع بلاستيك",
+      "queries": ["مصنع بلاستيك", "plastic factory", "مصنع عبوات"]
+    },
+    "factory_chemical": {
+      "enabled": true, "priority": "C", "name": "مصانع كيماويات",
+      "queries": ["مصنع كيماويات", "chemical factory", "مصنع دهانات", "paint factory"]
+    },
+    "factory_textile": {
+      "enabled": true, "priority": "C", "name": "مصانع نسيج وملابس",
+      "queries": ["مصنع ملابس", "مصنع نسيج", "textile factory", "garment factory"]
+    },
+    "factory_paper": {
+      "enabled": true, "priority": "C", "name": "مصانع ورق وتغليف",
+      "queries": ["مصنع ورق", "مصنع كرتون", "مصنع تغليف", "packaging factory"]
+    },
+    "factory_furniture": {
+      "enabled": true, "priority": "C", "name": "مصانع أثاث",
+      "queries": ["مصنع اثاث", "مصنع موبيليا", "furniture factory"]
+    },
+    "factory_electrical": {
+      "enabled": true, "priority": "C", "name": "مصانع كهربائية",
+      "queries": ["مصنع أجهزة كهربائية", "مصنع كابلات", "electrical factory"]
+    },
+    "factory_general": {
+      "enabled": true, "priority": "C", "name": "مصانع عامة",
+      "queries": ["مصنع", "factory", "مصانع المنطقة الصناعية"]
+    },
+    "detergents": {
+      "enabled": true, "priority": "C", "name": "منظفات",
+      "queries": ["مصنع منظفات", "شركة منظفات", "detergent factory"]
+    },
+    "agriculture": {
+      "enabled": true, "priority": "C", "name": "زراعة",
+      "queries": ["شركة زراعية", "مزرعة", "تصدير خضار", "agriculture company", "farm"]
+    },
+    "supermarket": {
+      "enabled": true, "priority": "C", "name": "سوبر ماركت",
+      "queries": ["سوبر ماركت", "هايبر ماركت", "supermarket", "hypermarket"]
+    },
+    "restaurant_chain": {
+      "enabled": true, "priority": "C", "name": "سلاسل مطاعم",
+      "queries": ["سلسلة مطاعم", "restaurant chain", "مطعم فرنشايز", "fast food chain"]
+    },
+    "ecommerce": {
+      "enabled": true, "priority": "C", "name": "تجارة إلكترونية",
+      "queries": ["شركة تجارة الكترونية", "ecommerce company", "متجر الكتروني"]
+    },
+    "cleaning": {
+      "enabled": true, "priority": "C", "name": "تنظيف",
+      "queries": ["شركة تنظيف", "cleaning company", "شركة نظافة منازل"]
+    },
+    "telecom": {
+      "enabled": true, "priority": "C", "name": "اتصالات",
+      "queries": ["شركة اتصالات", "telecom company", "شركة انترنت"]
+    }
+  },
+  "performance": {
+    "delay_min": 1,
+    "delay_max": 3,
+    "restart_browser_every": 50,
+    "max_zero_results_before_restart": 15,
+    "max_zero_results_before_backoff": 25,
+    "backoff_base_seconds": 120,
+    "backoff_max_seconds": 600,
+    "scroll_rounds": 6,
+    "headless": true
+  },
+  "grid": {
+    "enabled": true,
+    "cairo_giza_bounds": {
+      "south": 29.85,
+      "north": 30.20,
+      "west": 31.05,
+      "east": 31.50
+    },
+    "rows": 7,
+    "cols": 9
+  }
+}

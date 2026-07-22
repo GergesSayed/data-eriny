@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 متابعة سحب البيانات — Live Monitor</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #7c3aed, #4f46e5);
+            border-radius: 16px;
+            margin-bottom: 24px;
+        }
+        .header h1 { font-size: 28px; margin-bottom: 8px; }
+        .header p { opacity: 0.8; font-size: 14px; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+        .stat-card:hover { transform: translateY(-3px); }
+        .stat-card .number {
+            font-size: 36px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #a78bfa, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .stat-card .label { font-size: 13px; color: #94a3b8; margin-top: 4px; }
+
+        .progress-section {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        .progress-bar-container {
+            background: #334155;
+            border-radius: 999px;
+            height: 32px;
+            overflow: hidden;
+            margin: 16px 0;
+            position: relative;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #7c3aed, #a78bfa, #818cf8);
+            border-radius: 999px;
+            transition: width 1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            min-width: 60px;
+        }
+        .progress-bar.pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .log-section {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        .log-section h3 { margin-bottom: 12px; color: #a78bfa; }
+        #logOutput {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            line-height: 1.8;
+            color: #94a3b8;
+        }
+        .log-line { padding: 2px 0; }
+        .log-line.success { color: #4ade80; }
+        .log-line.info { color: #60a5fa; }
+        .log-line.warning { color: #fbbf24; }
+        .log-line.sector { color: #c084fc; font-weight: bold; font-size: 14px; margin-top: 8px; }
+
+        .sectors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 8px;
+        }
+        .sector-item {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .sector-count { 
+            font-weight: 700; 
+            color: #a78bfa;
+            background: #312e81;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .controls {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        .controls button {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 0 4px;
+        }
+        .controls button:hover { background: #6366f1; }
+        .controls button.danger { background: #dc2626; }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .status-badge.running { background: #166534; color: #4ade80; }
+        .status-badge.done { background: #1e3a5f; color: #60a5fa; }
+        .status-badge.stopped { background: #7f1d1d; color: #fca5a5; }
+
+        h3 { font-size: 16px; margin-bottom: 12px; }
+        .refresh-info { text-align: center; color: #475569; font-size: 12px; margin-top: 8px; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>📊 متابعة سحب البيانات — Live Monitor</h1>
+    <p>يتحدث تلقائياً كل 5 ثواني</p>
+    <div style="margin-top: 8px;">
+        <span class="status-badge running" id="statusBadge">● شغال</span>
+    </div>
+</div>
+
+<div class="grid">
+    <div class="stat-card">
+        <div class="number" id="totalCompanies">0</div>
+        <div class="label">إجمالي الشركات</div>
+    </div>
+    <div class="stat-card">
+        <div class="number" id="withPhone">0</div>
+        <div class="label">بأرقام تليفون</div>
+    </div>
+    <div class="stat-card">
+        <div class="number" id="searchesDone">0</div>
+        <div class="label">عمليات بحث مكتملة</div>
+    </div>
+    <div class="stat-card">
+        <div class="number" id="speed">0</div>
+        <div class="label">شركة / دقيقة</div>
+    </div>
+    <div class="stat-card">
+        <div class="number" id="eta">—</div>
+        <div class="label">الوقت المتبقي (تقديري)</div>
+    </div>
+</div>
+
+<div class="progress-section">
+    <h3>📈 التقدم نحو الهدف (<span id="targetPlaceholder">30,000</span> شركة)</h3>
+    <div class="progress-bar-container">
+        <div class="progress-bar pulse" id="progressBar" style="width: 0%">0%</div>
+    </div>
+    <div id="scaleLabels" style="display: flex; justify-content: space-between; font-size: 12px; color: #64748b;">
+        <span>0</span>
+        <span>20,000</span>
+        <span>40,000</span>
+        <span>60,000</span>
+        <span>80,000</span>
+        <span>100,000</span>
+        <span>120,000</span>
+        <span>140,000</span>
+        <span>160,000</span>
+        <span>180,000</span>
+        <span>200,000</span>
+    </div>
+</div>
+
+<div class="log-section">
+    <h3>📂 توزيع القطاعات</h3>
+    <div class="sectors-grid" id="sectorsGrid"></div>
+</div>
+
+<div class="log-section">
+    <h3>📋 سجل العمليات المباشر</h3>
+    <div id="logOutput">جاري التحميل...</div>
+</div>
+
+<div class="controls">
+    <button onclick="forceRefresh()">🔄 تحديث الآن</button>
+    <button onclick="window.open('output/crm_import_ready.json')">📥 تحميل JSON</button>
+</div>
+<div class="refresh-info">آخر تحديث: <span id="lastUpdate">—</span></div>
+
+<script>
+let TARGET = 5000;
+let startTime = Date.now();
+let lastCount = 0;
+let history = [];
+
+async function loadData() {
+    try {
+        // Load progress file
+        const progressResp = await fetch('output/_ultra_progress.json?' + Date.now());
+        let progressData = null;
+        if (progressResp.ok) {
+            progressData = await progressResp.json();
+            if (progressData && progressData.target) {
+                TARGET = progressData.target;
+            }
+        }
+
+        // Load cache to count
+        const cacheResp = await fetch('output/_ultra_cache.json?' + Date.now());
+        let companies = [];
+        if (cacheResp.ok) {
+            companies = await cacheResp.json();
+        } else {
+            // Try CRM import file
+            const crmResp = await fetch('output/crm_import_ready.json?' + Date.now());
+            if (crmResp.ok) companies = await crmResp.json();
+        }
+
+        const total = companies.length;
+        const withPhone = companies.filter(c => c.phone1).length;
+        const searches = progressData ? progressData.completed_searches?.length || 0 : 0;
+        const stats = progressData ? progressData.stats || {} : {};
+
+        // Update UI
+        document.getElementById('totalCompanies').textContent = total.toLocaleString();
+        document.getElementById('withPhone').textContent = withPhone.toLocaleString();
+        document.getElementById('searchesDone').textContent = searches.toLocaleString();
+        document.getElementById('targetPlaceholder').textContent = TARGET.toLocaleString();
+
+        // Update scale labels dynamically
+        const scaleLabels = document.getElementById('scaleLabels');
+        if (scaleLabels) {
+            const steps = 6;
+            let spans = '';
+            for (let i = 0; i <= steps; i++) {
+                const val = Math.round((TARGET / steps) * i);
+                spans += `<span>${val.toLocaleString()}</span>`;
+            }
+            scaleLabels.innerHTML = spans;
+        }
+
+        // Progress bar
+        const pct = Math.min((total / TARGET) * 100, 100);
+        document.getElementById('progressBar').style.width = pct + '%';
+        document.getElementById('progressBar').textContent = pct.toFixed(1) + '%';
+
+        // Speed calc
+        history.push({ time: Date.now(), count: total });
+        if (history.length > 12) history.shift();
+        if (history.length >= 2) {
+            const first = history[0];
+            const last = history[history.length - 1];
+            const elapsed = (last.time - first.time) / 60000; // minutes
+            const gained = last.count - first.count;
+            const speed = elapsed > 0 ? Math.round(gained / elapsed) : 0;
+            document.getElementById('speed').textContent = speed;
+
+            if (speed > 0) {
+                const remaining = TARGET - total;
+                const etaMinutes = remaining / speed;
+                if (etaMinutes < 60) {
+                    document.getElementById('eta').textContent = Math.round(etaMinutes) + ' دقيقة';
+                } else {
+                    document.getElementById('eta').textContent = (etaMinutes / 60).toFixed(1) + ' ساعة';
+                }
+            }
+        }
+
+        // Sectors
+        const sectorsGrid = document.getElementById('sectorsGrid');
+        const sorted = Object.entries(stats).sort((a, b) => b[1] - a[1]);
+        sectorsGrid.innerHTML = sorted.map(([name, count]) =>
+            `<div class="sector-item">
+                <span>${name}</span>
+                <span class="sector-count">${count}</span>
+            </div>`
+        ).join('');
+
+        // Status
+        if (total >= TARGET) {
+            document.getElementById('statusBadge').className = 'status-badge done';
+            document.getElementById('statusBadge').textContent = '✅ اكتمل';
+            document.getElementById('progressBar').classList.remove('pulse');
+        } else if (total === lastCount && history.length > 6) {
+            document.getElementById('statusBadge').className = 'status-badge stopped';
+            document.getElementById('statusBadge').textContent = '⏸ متوقف';
+        } else {
+            document.getElementById('statusBadge').className = 'status-badge running';
+            document.getElementById('statusBadge').textContent = '● شغال';
+        }
+
+        lastCount = total;
+        document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('ar-EG');
+
+    } catch (err) {
+        document.getElementById('logOutput').textContent = 'في انتظار بدء السحب...\n' + err.message;
+    }
+}
+
+async function loadLog() {
+    try {
+        const resp = await fetch('output/scraper.log?' + Date.now());
+        if (resp.ok) {
+            const text = await resp.text();
+            const lines = text.split('\n').slice(-30);
+            const logDiv = document.getElementById('logOutput');
+            logDiv.innerHTML = lines.map(line => {
+                let cls = '';
+                if (line.includes('+') && line.includes('شركة')) cls = 'success';
+                else if (line.includes('📂') || line.includes('==')) cls = 'sector';
+                else if (line.includes('⚠') || line.includes('warning')) cls = 'warning';
+                else cls = 'info';
+                return `<div class="log-line ${cls}">${line}</div>`;
+            }).join('');
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+    } catch {}
+}
+
+function forceRefresh() { loadData(); loadLog(); }
+
+// Auto-refresh every 5 seconds
+setInterval(() => { loadData(); loadLog(); }, 5000);
+loadData();
+loadLog();
+</script>
+
+</body>
+</html>

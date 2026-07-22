@@ -1,0 +1,515 @@
+{
+  "mode": "tire_lead_generation_cairo_giza",
+  "max_companies": 0,
+  "lead_profile": {
+    "objective": "Companies in Cairo and Giza likely to buy tires for fleets or operating vehicles",
+    "buyer_signals": [
+      "fleet vehicles",
+      "trucks",
+      "buses",
+      "delivery vehicles",
+      "rental cars",
+      "heavy equipment",
+      "field service vehicles",
+      "distribution vans"
+    ],
+    "priority_rule": "A+ = strongest repeat tire demand, A = strong demand, B/C = secondary fleet demand"
+  },
+  "focus_areas": {
+    "cairo_central": {
+      "enabled": true,
+      "name": "وسط القاهرة",
+      "cities": [
+        "القاهرة",
+        "وسط البلد",
+        "عابدين",
+        "السيدة زينب",
+        "الأزهر"
+      ]
+    },
+    "cairo_east": {
+      "enabled": true,
+      "name": "شرق القاهرة",
+      "cities": [
+        "مدينة نصر",
+        "مصر الجديدة",
+        "المعادى",
+        "الزيتون",
+        "عين شمس",
+        "المرج",
+        "المطرية"
+      ]
+    },
+    "cairo_north": {
+      "enabled": true,
+      "name": "شمال القاهرة",
+      "cities": [
+        "شبرا",
+        "روض الفرج",
+        "الزاوية الحمراء",
+        "السلام",
+        "النهضة"
+      ]
+    },
+    "cairo_south": {
+      "enabled": true,
+      "name": "جنوب القاهرة",
+      "cities": [
+        "حلوان",
+        "التبين",
+        "15 مايو",
+        "المعصرة",
+        "طرة"
+      ]
+    },
+    "new_cairo": {
+      "enabled": true,
+      "name": "القاهرة الجديدة والشرق",
+      "cities": [
+        "التجمع الخامس",
+        "القاهرة الجديدة",
+        "الشروق",
+        "بدر"
+      ]
+    },
+    "giza_central": {
+      "enabled": true,
+      "name": "وسط الجيزة",
+      "cities": [
+        "الجيزة",
+        "الدقي",
+        "المهندسين",
+        "العجوزة",
+        "إمبابة",
+        "بولاق الدكرور",
+        "فيصل",
+        "الهرم"
+      ]
+    },
+    "giza_west": {
+      "enabled": true,
+      "name": "غرب الجيزة",
+      "cities": [
+        "6 أكتوبر",
+        "الشيخ زايد",
+        "أبو رواش",
+        "الواحات"
+      ]
+    },
+    "giza_south": {
+      "enabled": true,
+      "name": "جنوب الجيزة",
+      "cities": [
+        "الحوامدية",
+        "البدرشين",
+        "العياط",
+        "الصف"
+      ]
+    },
+    "industrial_zones": {
+      "enabled": true,
+      "name": "المناطق الصناعية داخل نطاق القاهرة والجيزة",
+      "cities": [
+        "المنطقة الصناعية أبو رواش",
+        "المنطقة الصناعية 6 أكتوبر",
+        "المنطقة الصناعية بدر",
+        "المنطقة الصناعية السلام",
+        "المنطقة الصناعية شق الثعبان"
+      ]
+    },
+    "qalyubia": {
+      "enabled": false,
+      "name": "القليوبية - خارج نطاق الطلب الحالي",
+      "cities": [
+        "بنها",
+        "شبرا الخيمة",
+        "قليوب",
+        "الخانكة"
+      ]
+    }
+  },
+  "sectors": {
+    "trucking_transport": {
+      "enabled": true,
+      "priority": "A+",
+      "name": "نقل بضائع وشاحنات وتريلات",
+      "queries": [
+        "شركة نقل بضائع",
+        "نقل ثقيل",
+        "نقل تريلات",
+        "شركة نقليات",
+        "اسطول شاحنات"
+      ]
+    },
+    "logistics_shipping": {
+      "enabled": true,
+      "priority": "A+",
+      "name": "لوجستيات وشحن دولي وداخلي",
+      "queries": [
+        "شركة لوجستيات",
+        "خدمات لوجستية",
+        "freight forwarding",
+        "cargo company",
+        "شركة شحن"
+      ]
+    },
+    "courier_delivery": {
+      "enabled": true,
+      "priority": "A+",
+      "name": "شحن سريع وتوصيل وLast Mile",
+      "queries": [
+        "شركة شحن سريع",
+        "شركة توصيل طلبات",
+        "courier company",
+        "last mile delivery",
+        "شركة توزيع طرود"
+      ]
+    },
+    "bus_passenger_transport": {
+      "enabled": true,
+      "priority": "A+",
+      "name": "أتوبيسات ونقل ركاب",
+      "queries": [
+        "شركة اتوبيسات",
+        "نقل ركاب",
+        "bus company",
+        "اتوبيسات سياحية",
+        "شركة نقل جماعي"
+      ]
+    },
+    "car_rental_taxi_limousine": {
+      "enabled": true,
+      "priority": "A+",
+      "name": "تأجير سيارات وتاكسي وليموزين",
+      "queries": [
+        "تأجير سيارات",
+        "ليموزين",
+        "شركة تاكسي",
+        "car rental",
+        "chauffeur service"
+      ]
+    },
+    "construction_heavy_equipment": {
+      "enabled": true,
+      "priority": "A+",
+      "name": "مقاولات ومعدات ثقيلة",
+      "queries": [
+        "شركة مقاولات معدات",
+        "معدات ثقيلة",
+        "شركة مقاولات",
+        "خرسانة جاهزة",
+        "شركة حفر ونقل"
+      ]
+    },
+    "waste_cleaning_fleets": {
+      "enabled": true,
+      "priority": "A+",
+      "name": "نظافة وإدارة مخلفات",
+      "queries": [
+        "شركة نظافة",
+        "إدارة مخلفات",
+        "جمع قمامة",
+        "waste management",
+        "شركة كنس ونظافة"
+      ]
+    },
+    "food_beverage_distribution": {
+      "enabled": true,
+      "priority": "A+",
+      "name": "توزيع أغذية ومشروبات",
+      "queries": [
+        "توزيع مواد غذائية",
+        "شركة توزيع أغذية",
+        "شركة مشروبات توزيع",
+        "موزع مواد غذائية",
+        "food distributor"
+      ]
+    },
+    "ecommerce_delivery_fleets": {
+      "enabled": true,
+      "priority": "A+",
+      "name": "تجارة إلكترونية ومخازن توصيل",
+      "queries": [
+        "شركة تجارة إلكترونية توصيل",
+        "ecommerce delivery",
+        "مخزن توصيل",
+        "fulfillment delivery",
+        "شركة دليفري"
+      ]
+    },
+    "petroleum_gas_water_fleets": {
+      "enabled": true,
+      "priority": "A+",
+      "name": "بترول وغاز ومياه وصهاريج",
+      "queries": [
+        "شركة بترول خدمات",
+        "نقل بترول",
+        "توزيع غاز",
+        "صهاريج نقل",
+        "توزيع مياه"
+      ]
+    },
+    "refrigerated_cold_chain": {
+      "enabled": true,
+      "priority": "A",
+      "name": "نقل مبرد وسلاسل تبريد",
+      "queries": [
+        "نقل مبرد",
+        "cold chain",
+        "ثلاجات نقل",
+        "شركة تبريد نقل",
+        "توزيع مجمدات"
+      ]
+    },
+    "pharma_distribution": {
+      "enabled": true,
+      "priority": "A",
+      "name": "توزيع أدوية ومخازن طبية",
+      "queries": [
+        "توزيع أدوية",
+        "مخزن أدوية",
+        "pharma distributor",
+        "pharmacy warehouse",
+        "شركة أدوية توزيع"
+      ]
+    },
+    "school_university_buses": {
+      "enabled": true,
+      "priority": "A",
+      "name": "مدارس وجامعات لها أتوبيسات",
+      "queries": [
+        "مدرسة خاصة اتوبيسات",
+        "مدرسة انترناشونال",
+        "school bus",
+        "جامعة خاصة",
+        "معهد خاص"
+      ]
+    },
+    "tourism_travel_transport": {
+      "enabled": true,
+      "priority": "A",
+      "name": "سياحة ورحلات ونقل سياحي",
+      "queries": [
+        "شركة سياحة",
+        "شركة رحلات",
+        "اتوبيس سياحي",
+        "travel agency bus",
+        "tour operator"
+      ]
+    },
+    "security_cash_transit": {
+      "enabled": true,
+      "priority": "A",
+      "name": "أمن وحراسة ونقل أموال",
+      "queries": [
+        "شركة أمن",
+        "شركة حراسة",
+        "نقل أموال",
+        "security company",
+        "cash in transit"
+      ]
+    },
+    "medical_ambulance_transport": {
+      "enabled": true,
+      "priority": "A",
+      "name": "إسعاف خاص ونقل طبي",
+      "queries": [
+        "إسعاف خاص",
+        "نقل طبي",
+        "مستشفى خاص أسطول",
+        "ambulance service",
+        "medical transport"
+      ]
+    },
+    "supermarkets_chains": {
+      "enabled": true,
+      "priority": "A",
+      "name": "سلاسل سوبر ماركت وتوصيل بقالة",
+      "queries": [
+        "سوبر ماركت فروع",
+        "هايبر ماركت",
+        "سلسلة سوبر ماركت",
+        "supermarket chain",
+        "grocery delivery"
+      ]
+    },
+    "building_materials_cement_steel": {
+      "enabled": true,
+      "priority": "A",
+      "name": "مواد بناء وحديد وأسمنت",
+      "queries": [
+        "مواد بناء",
+        "حديد واسمنت",
+        "مصنع خرسانة",
+        "رمل وزلط نقل",
+        "محجر نقل"
+      ]
+    },
+    "equipment_rental_cranes": {
+      "enabled": true,
+      "priority": "A",
+      "name": "تأجير معدات وأوناش ورافعات",
+      "queries": [
+        "تأجير معدات",
+        "معدات ثقيلة للايجار",
+        "crane rental",
+        "forklift rental",
+        "ونش رفع"
+      ]
+    },
+    "industrial_factories": {
+      "enabled": true,
+      "priority": "B",
+      "name": "مصانع وشركات صناعية عامة",
+      "queries": [
+        "مصنع",
+        "شركة صناعية",
+        "المنطقة الصناعية مصنع",
+        "factory",
+        "industrial company"
+      ]
+    },
+    "food_factories": {
+      "enabled": true,
+      "priority": "B",
+      "name": "مصانع أغذية وألبان ولحوم",
+      "queries": [
+        "مصنع أغذية",
+        "مصنع ألبان",
+        "مصنع لحوم",
+        "مصنع دواجن",
+        "food factory"
+      ]
+    },
+    "beverage_bottling": {
+      "enabled": true,
+      "priority": "B",
+      "name": "مصانع مشروبات ومياه",
+      "queries": [
+        "مصنع مشروبات",
+        "مصنع عصائر",
+        "مياه معدنية",
+        "bottling company",
+        "شركة مشروبات"
+      ]
+    },
+    "manufacturing_packaging": {
+      "enabled": true,
+      "priority": "B",
+      "name": "بلاستيك وكيماويات وتغليف",
+      "queries": [
+        "مصنع بلاستيك",
+        "مصنع كيماويات",
+        "مصنع منظفات",
+        "مصنع كرتون",
+        "packaging factory"
+      ]
+    },
+    "textile_furniture_electrical": {
+      "enabled": true,
+      "priority": "B",
+      "name": "نسيج وأثاث وكهرباء",
+      "queries": [
+        "مصنع ملابس",
+        "مصنع نسيج",
+        "مصنع أثاث",
+        "مصنع أجهزة كهربائية",
+        "furniture factory"
+      ]
+    },
+    "telecom_field_service": {
+      "enabled": true,
+      "priority": "B",
+      "name": "اتصالات وخدمات صيانة ميدانية",
+      "queries": [
+        "شركة اتصالات صيانة",
+        "خدمات صيانة ميدانية",
+        "field service company",
+        "شركة شبكات",
+        "telecom contractor"
+      ]
+    },
+    "agriculture_landscape": {
+      "enabled": true,
+      "priority": "C",
+      "name": "زراعة ومزارع ولاندسكيب",
+      "queries": [
+        "مزرعة",
+        "شركة زراعية",
+        "لاندسكيب",
+        "شركة استصلاح",
+        "agriculture company"
+      ]
+    },
+    "hospitals_clinics": {
+      "enabled": true,
+      "priority": "C",
+      "name": "مستشفيات ومراكز طبية كبيرة",
+      "queries": [
+        "مستشفى خاص",
+        "مركز طبي كبير",
+        "مجمع طبي",
+        "private hospital"
+      ]
+    },
+    "hotels_resorts": {
+      "enabled": true,
+      "priority": "C",
+      "name": "فنادق ومنتجعات لها نقل تشغيل",
+      "queries": [
+        "فندق",
+        "منتجع",
+        "hotel shuttle",
+        "resort transport"
+      ]
+    },
+    "real_estate_facility": {
+      "enabled": true,
+      "priority": "C",
+      "name": "تطوير عقاري وإدارة مرافق",
+      "queries": [
+        "شركة تطوير عقاري",
+        "facility management",
+        "إدارة مرافق",
+        "شركة صيانة عقارات"
+      ]
+    }
+  },
+  "performance": {
+    "delay_min": 0.4,
+    "delay_max": 1.0,
+    "restart_browser_every": 75,
+    "max_zero_results_before_restart": 28,
+    "max_zero_results_before_backoff": 45,
+    "backoff_base_seconds": 60,
+    "backoff_max_seconds": 240,
+    "scroll_rounds": 4,
+    "headless": true,
+    "small_result_scroll_rounds": 1,
+    "render_wait_max_seconds": 5,
+    "post_render_sleep_min": 0.2,
+    "post_render_sleep_max": 0.55,
+    "scroll_wait_min": 0.25,
+    "scroll_wait_max": 0.55,
+    "page_load_timeout_seconds": 18
+  },
+  "grid": {
+    "enabled": true,
+    "cairo_giza_bounds": {
+      "south": 29.7,
+      "north": 30.35,
+      "west": 30.75,
+      "east": 31.75
+    },
+    "rows": 4,
+    "cols": 5,
+    "result_bounds": {
+      "south": 29.55,
+      "north": 30.45,
+      "west": 30.7,
+      "east": 31.8
+    },
+    "result_bounds_margin": 0.02
+  },
+  "speed_profile": "fast_balanced_google_maps"
+}

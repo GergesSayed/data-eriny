@@ -1,0 +1,18 @@
+# Python Cache & Logs
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+*.tmp
+
+# Large Scraper Output Screenshots & Tmp Files
+scraper/output/*.png
+scraper/output/*.tmp
+scraper/output/.save_*
+output/*.png
+output/*.tmp
+
+# OS & System Junk
+.DS_Store
+Thumbs.db

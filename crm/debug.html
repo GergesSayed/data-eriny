@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>تشخيص المشكلة</title>
+<style>
+  body { font-family: Arial; padding: 20px; background: #1a1a2e; color: #eee; }
+  .box { background: #16213e; border-radius: 12px; padding: 16px; margin: 12px 0; }
+  .ok { color: #10b981; } .err { color: #ef4444; } .warn { color: #f59e0b; }
+  button { background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin: 6px; font-size: 14px; }
+  pre { background: #0f0f23; padding: 12px; border-radius: 8px; overflow-x: auto; font-size: 12px; max-height: 300px; overflow-y: auto; }
+  h2 { color: #818cf8; }
+</style>
+</head>
+<body>
+<h1>🔍 صفحة تشخيص النظام</h1>
+<div class="box">
+  <h2>1️⃣ حالة السيرفر</h2>
+  <div id="server-status">جاري الفحص...</div>
+</div>
+<div class="box">
+  <h2>2️⃣ ملف الشركات (crm_import_ready.json)</h2>
+  <div id="json-status">جاري الفحص...</div>
+</div>
+<div class="box">
+  <h2>3️⃣ IndexedDB</h2>
+  <div id="db-status">جاري الفحص...</div>
+  <button onclick="clearDB()">🗑️ مسح IndexedDB وإعادة البدء</button>
+</div>
+<div class="box">
+  <h2>4️⃣ localStorage</h2>
+  <div id="ls-status">جاري الفحص...</div>
+  <button onclick="clearLS()">🗑️ مسح localStorage</button>
+</div>
+<div class="box">
+  <h2>5️⃣ المستخدم الحالي</h2>
+  <div id="user-status">جاري الفحص...</div>
+</div>
+<div class="box">
+  <h2>6️⃣ استيراد فوري للاختبار</h2>
+  <button onclick="testImport()">⬇️ استيراد الشركات في الـ IndexedDB الآن</button>
+  <div id="import-status"></div>
+</div>
+<div class="box">
+  <h2>7️⃣ نتيجة</h2>
+  <div id="final-result"></div>
+  <button onclick="window.location.href='http://localhost:8888/'">🚀 فتح النظام</button>
+</div>
+
+<script>
+async function check() {
+  // 1. Server
+  try {
+    const r = await fetch('http://localhost:8888/api/scraper-stats?' + Date.now());
+    if (r.ok) {
+      const d = await r.json();
+      const total = d.stats ? Object.values(d.stats).reduce((s,v)=>s+v,0) : '?';
+      document.getElementById('server-status').innerHTML = `<span class="ok">✅ شغّال - ${total} شركة في السيرفر</span><pre>${JSON.stringify({status:d.status, scraper_running:d.scraper_running, total_sectors: d.stats}, null, 2)}</pre>`;
+    } else {
+      document.getElementById('server-status').innerHTML = `<span class="err">❌ السيرفر مش شغّال (${r.status})</span>`;
+    }
+  } catch(e) {
+    document.getElementById('server-status').innerHTML = `<span class="err">❌ مش قادر يتصل بالسيرفر: ${e.message}</span>`;
+  }
+
+  // 2. JSON file
+  try {
+    const r = await fetch('http://localhost:8888/output/crm_import_ready.json?' + Date.now());
+    if (r.ok) {
+      const d = await r.json();
+      document.getElementById('json-status').innerHTML = `<span class="ok">✅ الملف موجود - ${d.length} شركة</span><br><small>أول شركة: ${d[0]?.nameAr || d[0]?.nameEn || 'بدون اسم'}</small>`;
+    } else {
+      document.getElementById('json-status').innerHTML = `<span class="err">❌ ملف مش موجود (${r.status})</span>`;
+    }
+  } catch(e) {
+    document.getElementById('json-status').innerHTML = `<span class="err">❌ خطأ: ${e.message}</span>`;
+  }
+
+  // 3. IndexedDB
+  try {
+    const req = indexedDB.open('FleetCRM_DB', 2);
+    req.onsuccess = (e) => {
+      const db = e.target.result;
+      const tx = db.transaction(['companies'], 'readonly');
+      const store = tx.objectStore('companies');
+      const countReq = store.count();
+      countReq.onsuccess = () => {
+        const count = countReq.result;
+        document.getElementById('db-status').innerHTML = count > 0
+          ? `<span class="ok">✅ IndexedDB فيها ${count} شركة</span>`
+          : `<span class="err">❌ IndexedDB فاضية - صفر شركات</span>`;
+      };
+    };
+    req.onerror = () => {
+      document.getElementById('db-status').innerHTML = `<span class="err">❌ فشل فتح IndexedDB</span>`;
+    };
+    req.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains('companies')) {
+        db.createObjectStore('companies', { keyPath: 'id' });
+      }
+    };
+  } catch(e) {
+    document.getElementById('db-status').innerHTML = `<span class="err">❌ ${e.message}</span>`;
+  }
+
+  // 4. localStorage
+  const keys = Object.keys(localStorage).filter(k => k.includes('fleetcrm'));
+  const lsData = {};
+  keys.forEach(k => {
+    const v = localStorage.getItem(k);
+    lsData[k] = v && v.length > 100 ? v.substring(0, 100) + '...' : v;
+  });
+  document.getElementById('ls-status').innerHTML = `<pre>${JSON.stringify(lsData, null, 2)}</pre>`;
+
+  // 5. Current user
+  const currentUser = JSON.parse(localStorage.getItem('fleetcrm_current_user') || 'null');
+  if (currentUser) {
+    document.getElementById('user-status').innerHTML = `<span class="ok">✅ مسجّل دخول: ${currentUser.name} (${currentUser.role}) - ID: ${currentUser.id}</span>`;
+  } else {
+    document.getElementById('user-status').innerHTML = `<span class="err">❌ مفيش مستخدم مسجّل دخول - لازم تعمل login أول</span>`;
+  }
+
+  // 7. Final result
+  let msg = '';
+  document.getElementById('final-result').innerHTML = 'انتظر لحد ما كل الفحوصات تخلص...';
+  setTimeout(() => {
+    const serverOk = document.getElementById('server-status').innerHTML.includes('✅');
+    const jsonOk = document.getElementById('json-status').innerHTML.includes('✅');
+    const dbOk = document.getElementById('db-status').innerHTML.includes('✅');
+    const userOk = document.getElementById('user-status').innerHTML.includes('✅');
+    if (!serverOk) msg += '⚠️ السيرفر مش شغّال - شغّل server.py أول<br>';
+    if (!jsonOk) msg += '⚠️ ملف الشركات مش موجود<br>';
+    if (!dbOk) msg += '⚠️ IndexedDB فاضية - اضغط "استيراد الشركات" أدناه<br>';
+    if (!userOk) msg += '⚠️ مفيش مستخدم - بعد فتح النظام اعمل login<br>';
+    if (serverOk && jsonOk && !dbOk) msg += '✅ المشكلة واضحة: IndexedDB فاضية رغم إن السيرفر شغّال<br>👉 اضغط "استيراد الشركات" دلوقتي!';
+    if (serverOk && jsonOk && dbOk && userOk) msg += '✅ كل حاجة تمام - المشكلة في عرض الشركات فقط. افتح النظام وجرّب';
+    document.getElementById('final-result').innerHTML = msg || '✅ كل حاجة تمام';
+  }, 2000);
+}
+
+async function testImport() {
+  const statusEl = document.getElementById('import-status');
+  statusEl.innerHTML = '⏳ جاري الاستيراد...';
+  try {
+    const r = await fetch('http://localhost:8888/output/crm_import_ready.json?' + Date.now());
+    const data = await r.json();
+    statusEl.innerHTML = `⏳ تحميل ${data.length} شركة...`;
+
+    // Save to localStorage immediately
+    localStorage.setItem('fleetcrm_companies', JSON.stringify(data));
+    localStorage.removeItem('fleetcrm_last_import_mtime');
+
+    const req = indexedDB.open('FleetCRM_DB', 2);
+    req.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains('companies')) {
+        db.createObjectStore('companies', { keyPath: 'id' });
+      }
+    };
+    req.onsuccess = (e) => {
+      const db = e.target.result;
+      const tx = db.transaction(['companies'], 'readwrite');
+      const store = tx.objectStore('companies');
+      store.clear();
+      const now = new Date().toISOString();
+      data.forEach((c, i) => {
+        if (!c.id) c.id = 'imp_' + i;
+        if (!c.nameAr) c.nameAr = '';
+        if (!c.nameEn) c.nameEn = '';
+        if (!c.status) c.status = 'new';
+        if (!c.createdAt) c.createdAt = now;
+        store.put(c);
+      });
+      tx.oncomplete = () => {
+        statusEl.innerHTML = `<span class="ok">✅ تم تخزين ${data.length} شركة بنجاح!</span><br>👉 <strong>افتح النظام دلوقتي وهتلاقي الشركات فوراً</strong>`;
+        check();
+      };
+      tx.onerror = () => {
+        statusEl.innerHTML = `<span class="ok">✅ تم تخزين ${data.length} شركة في localStorage بنجاح!</span><br>👉 <strong>افتح النظام دلوقتي وهتلاقي الشركات فوراً</strong>`;
+        check();
+      };
+    };
+  } catch(e) {
+    statusEl.innerHTML = `<span class="err">❌ خطأ: ${e.message}</span>`;
+  }
+}
+
+function clearDB() {
+  const req = indexedDB.deleteDatabase('FleetCRM_DB');
+  req.onsuccess = () => { alert('تم مسح IndexedDB - هيتعمل import جديد عند فتح النظام'); check(); };
+}
+
+function clearLS() {
+  Object.keys(localStorage).filter(k=>k.includes('fleetcrm')).forEach(k=>localStorage.removeItem(k));
+  alert('تم مسح localStorage'); check();
+}
+
+check();
+</script>
+</body>
+</html>

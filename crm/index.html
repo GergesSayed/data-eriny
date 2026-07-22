@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fleet CRM — نظام إدارة عملاء الأساطيل</title>
+    <meta name="description" content="نظام إدارة علاقات العملاء لبيع الإطارات للشركات ذات الأساطيل في مصر">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loader">
+            <div class="loader-ring"></div>
+            <div class="loader-text">Fleet CRM</div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-icon">
+                <i class="fas fa-truck-moving"></i>
+            </div>
+            <div class="brand-text">
+                <h2>Fleet CRM</h2>
+                <span>إدارة بيع الإطارات</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="#dashboard" class="nav-link active" data-page="dashboard">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>لوحة التحكم</span>
+                <small>Dashboard</small>
+            </a>
+            <a href="#companies" class="nav-link" data-page="companies">
+                <i class="fas fa-building"></i>
+                <span>الشركات</span>
+                <small>Companies</small>
+            </a>
+            <a href="#calls" class="nav-link" data-page="calls">
+                <i class="fas fa-phone-alt"></i>
+                <span>سجل المكالمات</span>
+                <small>Call Log</small>
+            </a>
+            <a href="#pipeline" class="nav-link" data-page="pipeline">
+                <i class="fas fa-filter"></i>
+                <span>خط المبيعات</span>
+                <small>Sales Pipeline</small>
+            </a>
+            <a href="#reports" class="nav-link" data-page="reports">
+                <i class="fas fa-chart-pie"></i>
+                <span>التقارير</span>
+                <small>Reports</small>
+            </a>
+            <a href="#scraper" class="nav-link" data-page="scraper">
+                <i class="fas fa-download"></i>
+                <span>سحب البيانات</span>
+                <small>Data Collector</small>
+            </a>
+            <a href="#team" class="nav-link" data-page="team" id="nav-item-team" onclick="App.navigateTo('team')">
+                <i class="fas fa-users-cog"></i>
+                <span>متابعة الفريق</span>
+                <small>Team Audit & Users</small>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-stats">
+                <div class="sidebar-stat">
+                    <span class="stat-num" id="sidebar-total-companies">0</span>
+                    <span class="stat-label">شركة</span>
+                </div>
+                <div class="sidebar-stat">
+                    <span class="stat-num" id="sidebar-total-deals">0</span>
+                    <span class="stat-label">صفقة</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Wrapper -->
+    <div class="main-wrapper">
+        <!-- Top Bar -->
+        <header class="topbar">
+            <div class="topbar-right">
+                <button id="toggle-sidebar" class="btn-icon" title="القائمة">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="global-search" placeholder="بحث عن شركة، جهة اتصال... / Search...">
+                    <div id="search-results" class="search-dropdown"></div>
+                </div>
+            </div>
+            <div class="topbar-left">
+                <button class="btn btn-sm" id="btn-team-management" style="background:#7c3aed; color:#fff; font-weight:700;" title="إدارة الموظفين ومتابعة الإنجاز" onclick="App.navigateTo('team')">
+                    <i class="fas fa-users-cog"></i>
+                    <span>متابعة الفريق والموظفين</span>
+                </button>
+                <button class="btn btn-accent btn-sm" id="btn-quick-call" title="تسجيل مكالمة سريعة">
+                    <i class="fas fa-phone-alt"></i>
+                    <span>مكالمة</span>
+                </button>
+                <button class="btn btn-primary btn-sm" id="btn-quick-add" title="إضافة شركة">
+                    <i class="fas fa-plus"></i>
+                    <span>شركة جديدة</span>
+                </button>
+                <div class="topbar-divider"></div>
+                <div class="topbar-user" style="display:flex; align-items:center; gap:8px; position:relative;">
+                    <div class="user-avatar" id="current-user-avatar" style="background:#7c3aed; color:#fff; font-weight:bold; font-size:14px; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center;">
+                        👤
+                    </div>
+                    <select id="user-switcher-select" style="padding:6px 12px; border-radius:8px; border: 1.5px solid var(--border-color); background:var(--bg-secondary); color:var(--text-primary); font-size:12px; font-weight:700; cursor:pointer; outline:none; border:1.5px solid #7c3aed;">
+                    </select>
+                </div>
+            </div>
+        </header>
+
+        <!-- Active User Status & Quick Switch Bar -->
+        <div id="active-user-bar" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.12), rgba(79, 70, 229, 0.12)); border-bottom: 1px solid rgba(124, 58, 237, 0.25); padding: 8px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; font-size: 13px; z-index: 800;">
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <span id="active-user-status-dot" style="width: 10px; height: 10px; border-radius: 50%; background: #10b981; display: inline-block; box-shadow: 0 0 8px #10b981;"></span>
+                <span style="color: var(--text-secondary); font-weight: 700;">الحساب النشط حالياً:</span>
+                <span id="active-user-display-name" style="font-weight: 800; color: #7c3aed; font-size: 13px; background: rgba(124, 58, 237, 0.15); padding: 3px 12px; border-radius: 20px; border: 1px solid rgba(124, 58, 237, 0.3);">👑 المدير العام</span>
+                <span id="active-user-display-role" style="font-size: 11px; color: var(--text-muted); background: var(--bg-surface); padding: 2px 8px; border-radius: 12px; border: 1px solid var(--border-color);">عرض جميع الشركات والتصديق</span>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <span style="font-size: 11px; color: var(--text-muted); font-weight: 700;">⚡ اضغط هنا للتبديل الفوري بين الحسابات:</span>
+                <div id="quick-user-pills" style="display: flex; gap: 6px; flex-wrap: wrap;"></div>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <main class="content">
+            <!-- ===================== DASHBOARD PAGE ===================== -->
+            <section id="page-dashboard" class="page active">
+                <div class="page-header">
+                    <div>
+                        <h1><i class="fas fa-tachometer-alt"></i> لوحة التحكم <small>Dashboard</small></h1>
+                        <p class="page-subtitle">نظرة عامة على أداء المبيعات</p>
+                    </div>
+                    <div class="page-header-actions">
+                        <span class="date-display" id="current-date"></span>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card stat-card--primary">
+                        <div class="stat-card__icon"><i class="fas fa-building"></i></div>
+                        <div class="stat-card__info">
+                            <h3 id="dash-total-companies">0</h3>
+                            <p>إجمالي الشركات <br><small>Total Companies</small></p>
+                        </div>
+                        <div class="stat-card__trend up">
+                            <i class="fas fa-arrow-up"></i>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-card--accent">
+                        <div class="stat-card__icon"><i class="fas fa-phone-alt"></i></div>
+                        <div class="stat-card__info">
+                            <h3 id="dash-calls-today">0</h3>
+                            <p>مكالمات اليوم <br><small>Today's Calls</small></p>
+                        </div>
+                        <div class="stat-card__trend up">
+                            <i class="fas fa-arrow-up"></i>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-card--success">
+                        <div class="stat-card__icon"><i class="fas fa-handshake"></i></div>
+                        <div class="stat-card__info">
+                            <h3 id="dash-open-deals">0</h3>
+                            <p>صفقات مفتوحة <br><small>Open Deals</small></p>
+                        </div>
+                        <div class="stat-card__trend">
+                            <i class="fas fa-minus"></i>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-card--warning">
+                        <div class="stat-card__icon"><i class="fas fa-coins"></i></div>
+                        <div class="stat-card__info">
+                            <h3 id="dash-pipeline-value">0</h3>
+                            <p>قيمة الصفقات (ج.م) <br><small>Pipeline Value (EGP)</small></p>
+                        </div>
+                        <div class="stat-card__trend up">
+                            <i class="fas fa-arrow-up"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="charts-grid">
+                    <div class="card chart-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-chart-doughnut"></i> الشركات حسب القطاع <small>Companies by Sector</small></h3>
+                        </div>
+                        <div class="card-body chart-container">
+                            <canvas id="chart-sectors"></canvas>
+                        </div>
+                    </div>
+                    <div class="card chart-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-chart-line"></i> المكالمات خلال الأسبوع <small>Weekly Calls</small></h3>
+                        </div>
+                        <div class="card-body chart-container">
+                            <canvas id="chart-calls-weekly"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Row -->
+                <div class="dashboard-bottom">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-bell"></i> متابعات اليوم <small>Today's Follow-ups</small></h3>
+                            <span class="badge badge-warning" id="followup-count">0</span>
+                        </div>
+                        <div class="card-body">
+                            <div id="followups-list" class="followups-list">
+                                <div class="empty-state small">
+                                    <i class="fas fa-check-circle"></i>
+                                    <p>لا توجد متابعات لليوم</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-history"></i> آخر النشاطات <small>Recent Activity</small></h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="activity-list" class="activity-list">
+                                <div class="empty-state small">
+                                    <i class="fas fa-inbox"></i>
+                                    <p>لا توجد نشاطات بعد</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===================== COMPANIES PAGE ===================== -->
+            <section id="page-companies" class="page">
+                <div class="page-header">
+                    <div>
+                        <h1><i class="fas fa-building"></i> الشركات <small>Companies</small></h1>
+                        <p class="page-subtitle">قاعدة بيانات الشركات والمصانع المستهدفة</p>
+                    </div>
+                    <div class="page-header-actions">
+                        <button class="btn btn-outline btn-sm" id="btn-import-excel">
+                            <i class="fas fa-file-import"></i> استيراد Excel
+                        </button>
+                        <button class="btn btn-outline btn-sm" id="btn-export-excel">
+                            <i class="fas fa-file-export"></i> تصدير Excel
+                        </button>
+                        <button class="btn btn-primary btn-sm" id="btn-add-company">
+                            <i class="fas fa-plus"></i> إضافة شركة
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="filters-bar">
+                    <div class="filter-group">
+                        <select id="filter-sector" class="filter-select">
+                            <option value="">كل القطاعات</option>
+                            <option value="transport">🚛 نقل وشحن</option>
+                            <option value="food">🍔 أغذية ومشروبات</option>
+                            <option value="pharma">💊 أدوية</option>
+                            <option value="construction">🏗️ مقاولات</option>
+                            <option value="petroleum">🛢️ بترول وطاقة</option>
+                            <option value="distribution">📦 توزيع ولوجستيات</option>
+                            <option value="security">🛡️ أمن وحراسة</option>
+                            <option value="rental">🚗 تأجير سيارات</option>
+                            <option value="manufacturing">🏭 مصانع</option>
+                            <option value="education">🎓 مدارس وجامعات</option>
+                            <option value="healthcare">🏥 مستشفيات</option>
+                            <option value="tourism">✈️ سياحة</option>
+                            <option value="public_transport">🚌 نقل جماعي</option>
+                            <option value="delivery">🛵 توصيل ودليفري</option>
+                            <option value="government">🏛️ جهات حكومية</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <select id="filter-city" class="filter-select">
+                            <option value="">كل المناطق</option>
+                            <option value="cairo">القاهرة</option>
+                            <option value="giza">الجيزة</option>
+                            <option value="qalyubia">القليوبية</option>
+                            <option value="6october">6 أكتوبر</option>
+                            <option value="10thramadan">العاشر من رمضان</option>
+                            <option value="obour">العبور</option>
+                            <option value="shorouk">الشروق</option>
+                            <option value="helwan">حلوان</option>
+                            <option value="nasr_city">مدينة نصر</option>
+                            <option value="maadi">المعادي</option>
+                            <option value="new_cairo">القاهرة الجديدة</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <select id="filter-priority" class="filter-select">
+                            <option value="">كل الأولويات</option>
+                            <option value="A">🔴 أولوية A (عالية)</option>
+                            <option value="B">🟡 أولوية B (متوسطة)</option>
+                            <option value="C">🟢 أولوية C (منخفضة)</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <select id="filter-fleet-type" class="filter-select">
+                            <option value="">كل أنواع الأساطيل</option>
+                            <option value="heavy">نقل ثقيل</option>
+                            <option value="light">نقل خفيف</option>
+                            <option value="passenger">ركاب</option>
+                            <option value="mixed">مختلط</option>
+                        </select>
+                    </div>
+                    <div class="filter-group" id="filter-assigned-group">
+                        <select id="filter-assigned" class="filter-select" style="border:1px solid #7c3aed;">
+                            <option value="">👤 كل الموظفين / المسند إليهم</option>
+                            <option value="my_leads">⭐ شركاتي أنا فقط (My Leads)</option>
+                            <option value="unassigned">⚪ غير مسندة لأحد (Unassigned)</option>
+                        </select>
+                    </div>
+                    <div class="filter-group search-filter">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="filter-search" placeholder="بحث بالاسم أو الرقم...">
+                    </div>
+                    <button class="btn btn-ghost btn-sm" id="btn-clear-filters">
+                        <i class="fas fa-times"></i> مسح الفلاتر
+                    </button>
+                </div>
+
+                <!-- Bulk Assignment Actions Bar -->
+                <div id="bulk-actions-bar" style="display:none; background: rgba(124, 58, 237, 0.1); border: 1px solid #7c3aed; padding: 10px 16px; border-radius: 10px; margin-bottom: 16px; align-items: center; justify-content: space-between;">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <span style="font-weight:700; color:#7c3aed;" id="selected-companies-count">0 شركة محددة</span>
+                        <select id="bulk-assign-user-select" class="filter-select" style="max-width:200px;">
+                            <option value="">تخصيص لـ...</option>
+                        </select>
+                        <button class="btn btn-primary btn-sm" id="btn-apply-bulk-assign">
+                            <i class="fas fa-user-check"></i> تطبيق التعيين
+                        </button>
+                    </div>
+                    <button class="btn btn-ghost btn-sm" id="btn-cancel-bulk-selection">إلغاء التحديد</button>
+                </div>
+
+                <!-- Company Stats Bar -->
+                <div class="table-stats-bar">
+                    <span id="companies-count-display">0 شركة</span>
+                    <div class="table-view-toggle">
+                        <button class="btn-icon active" id="btn-view-table" title="عرض جدول"><i class="fas fa-table"></i></button>
+                        <button class="btn-icon" id="btn-view-cards" title="عرض بطاقات"><i class="fas fa-th-large"></i></button>
+                    </div>
+                </div>
+
+                <!-- Table View -->
+                <div class="table-container" id="companies-table-view">
+                    <table class="data-table" id="companies-table">
+                        <thead>
+                            <tr>
+                                <th id="th-select-all-companies" style="width:36px; text-align:center;"><input type="checkbox" id="select-all-companies" title="تحديد الكل"></th>
+                                <th class="sortable" data-sort="nameAr">الشركة <small>Company</small></th>
+                                <th class="sortable" data-sort="sector">القطاع <small>Sector</small></th>
+                                <th class="sortable" data-sort="city">المنطقة <small>Area</small></th>
+                                <th>الهاتف <small>Phone</small></th>
+                                <th class="sortable" data-sort="fleetSize">الأسطول <small>Fleet</small></th>
+                                <th class="sortable" data-sort="priority">الأولوية <small>Priority</small></th>
+                                <th>المسند إليه <small>Assigned</small></th>
+                                <th>نتيجة المكالمة <small>Call Result</small></th>
+                                <th>جهة الاتصال <small>Contact</small></th>
+                                <th>إجراءات <small>Actions</small></th>
+                            </tr>
+                        </thead>
+                        <tbody id="companies-tbody"></tbody>
+                    </table>
+                    <div id="companies-empty" class="empty-state" style="display:none;">
+                        <i class="fas fa-building"></i>
+                        <h3>لا توجد شركات بعد</h3>
+                        <p>عندك شركات مسحوبة؟ استوردها فوراً للنظام بضغطة واحدة!</p>
+                        <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:8px;">
+                            <button onclick="App.forceImportNow()" style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;padding:12px 24px;border-radius:12px;font-weight:800;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(16,185,129,0.5);">
+                                <i class="fas fa-file-import"></i> استيراد الشركات من السكرابر الآن
+                            </button>
+                            <button class="btn btn-primary" onclick="document.getElementById('btn-add-company').click()">
+                                <i class="fas fa-plus"></i> إضافة شركة يدوياً
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cards View -->
+                <div class="cards-container" id="companies-cards-view" style="display:none;"></div>
+
+                <!-- Pagination -->
+                <div class="pagination" id="companies-pagination"></div>
+            </section>
+
+            <!-- ===================== CALLS PAGE ===================== -->
+            <section id="page-calls" class="page">
+                <div class="page-header">
+                    <div>
+                        <h1><i class="fas fa-phone-alt"></i> سجل المكالمات <small>Call Log</small></h1>
+                        <p class="page-subtitle">تتبع جميع المكالمات والمتابعات</p>
+                    </div>
+                    <div class="page-header-actions">
+                        <button class="btn btn-outline btn-sm" onclick="Calls.clearAllCalls()" title="مسح المكالمات التجريبية">
+                            <i class="fas fa-trash"></i> مسح السجل التجريبي
+                        </button>
+                        <button class="btn btn-primary btn-sm" id="btn-add-call">
+                            <i class="fas fa-plus"></i> تسجيل مكالمة
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Call Stats -->
+                <div class="stats-grid stats-grid--small">
+                    <div class="stat-card stat-card--mini stat-card--primary">
+                        <div class="stat-card__icon"><i class="fas fa-phone"></i></div>
+                        <div class="stat-card__info">
+                            <h3 id="calls-total-today">0</h3>
+                            <p>مكالمات اليوم</p>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-card--mini stat-card--success">
+                        <div class="stat-card__icon"><i class="fas fa-thumbs-up"></i></div>
+                        <div class="stat-card__info">
+                            <h3 id="calls-interested">0</h3>
+                            <p>مهتمين</p>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-card--mini stat-card--warning">
+                        <div class="stat-card__icon"><i class="fas fa-redo"></i></div>
+                        <div class="stat-card__info">
+                            <h3 id="calls-followup">0</h3>
+                            <p>متابعة</p>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-card--mini stat-card--danger">
+                        <div class="stat-card__icon"><i class="fas fa-times"></i></div>
+                        <div class="stat-card__info">
+                            <h3 id="calls-not-interested">0</h3>
+                            <p>غير مهتمين</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Calls Stats & View Toggle Bar -->
+                <div class="table-stats-bar" style="margin-top: 16px; margin-bottom: 12px;">
+                    <span id="calls-count-display" style="font-weight:700; color:var(--text-secondary);">0 مكالمة مسجلة</span>
+                    <div class="table-view-toggle">
+                        <button class="btn-icon active" id="btn-calls-group-company" onclick="Calls.setGroupMode('company')" title="تجميع حسب الشركة (Grouped by Company)" style="padding:6px 12px; width:auto; border-radius:8px; font-size:12px; display:inline-flex; align-items:center; gap:6px;">
+                            <i class="fas fa-layer-group"></i> تجميع حسب الشركة
+                        </button>
+                        <button class="btn-icon" id="btn-calls-group-flat" onclick="Calls.setGroupMode('flat')" title="جدول متسلسل (Flat List)" style="padding:6px 12px; width:auto; border-radius:8px; font-size:12px; display:inline-flex; align-items:center; gap:6px;">
+                            <i class="fas fa-list"></i> جدول متسلسل
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Grouped View Container (Default) -->
+                <div id="calls-grouped-container" style="display: flex; flex-direction: column; gap: 16px;"></div>
+
+                <!-- Calls Flat Table Container -->
+                <div class="table-container" id="calls-table-container" style="display: none; margin-top: 12px;">
+                    <table class="data-table" id="calls-table">
+                        <thead>
+                            <tr>
+                                <th>التاريخ <small>Date</small></th>
+                                <th>الوقت <small>Time</small></th>
+                                <th>الشركة <small>Company</small></th>
+                                <th>الموظف <small>Agent</small></th>
+                                <th>جهة الاتصال <small>Contact</small></th>
+                                <th>النتيجة <small>Result</small></th>
+                                <th>المتابعة <small>Follow-up</small></th>
+                                <th>ملاحظات <small>Notes</small></th>
+                                <th>إجراءات <small>Actions</small></th>
+                            </tr>
+                        </thead>
+                        <tbody id="calls-tbody"></tbody>
+                    </table>
+                </div>
+
+                <div id="calls-empty" class="empty-state" style="display:none;">
+                    <i class="fas fa-phone-slash"></i>
+                    <h3>لا توجد مكالمات بعد</h3>
+                    <p>سجل أول مكالمة مع عميل محتمل وسيتم تجميع مكالمات كل شركة تحت اسمها مباشرة!</p>
+                </div>
+
+                <div class="pagination" id="calls-pagination"></div>
+            </section>
+
+            <!-- ===================== PIPELINE PAGE ===================== -->
+            <section id="page-pipeline" class="page">
+                <div class="page-header">
+                    <div>
+                        <h1><i class="fas fa-filter"></i> خط المبيعات <small>Sales Pipeline</small></h1>
+                        <p class="page-subtitle">تتبع مراحل الصفقات من الاتصال الأولي حتى إتمام البيع</p>
+                    </div>
+                    <div class="page-header-actions">
+                        <button class="btn btn-outline btn-sm" onclick="Pipeline.clearAllDeals()" title="مسح الصفقات التجريبية">
+                            <i class="fas fa-trash"></i> مسح السجل التجريبي
+                        </button>
+                        <div class="pipeline-total">
+                            <span>إجمالي القيمة:</span>
+                            <strong id="pipeline-total-value">0 ج.م</strong>
+                        </div>
+                        <button class="btn btn-primary btn-sm" id="btn-add-deal">
+                            <i class="fas fa-plus"></i> إضافة صفقة
+                        </button>
+                    </div>
+                </div>
+
+                <div class="kanban-board" id="kanban-board">
+                    <div class="kanban-column" data-stage="initial_contact">
+                        <div class="kanban-column__header">
+                            <div class="kanban-column__title">
+                                <span class="stage-dot stage-dot--initial"></span>
+                                <h3>اتصال أولي</h3>
+                                <small>Initial Contact</small>
+                            </div>
+                            <span class="kanban-column__count" id="stage-count-initial_contact">0</span>
+                        </div>
+                        <div class="kanban-column__cards" data-stage="initial_contact"></div>
+                    </div>
+                    <div class="kanban-column" data-stage="interested">
+                        <div class="kanban-column__header">
+                            <div class="kanban-column__title">
+                                <span class="stage-dot stage-dot--interested"></span>
+                                <h3>مهتم</h3>
+                                <small>Interested</small>
+                            </div>
+                            <span class="kanban-column__count" id="stage-count-interested">0</span>
+                        </div>
+                        <div class="kanban-column__cards" data-stage="interested"></div>
+                    </div>
+                    <div class="kanban-column" data-stage="proposal">
+                        <div class="kanban-column__header">
+                            <div class="kanban-column__title">
+                                <span class="stage-dot stage-dot--proposal"></span>
+                                <h3>عرض سعر</h3>
+                                <small>Proposal</small>
+                            </div>
+                            <span class="kanban-column__count" id="stage-count-proposal">0</span>
+                        </div>
+                        <div class="kanban-column__cards" data-stage="proposal"></div>
+                    </div>
+                    <div class="kanban-column" data-stage="negotiation">
+                        <div class="kanban-column__header">
+                            <div class="kanban-column__title">
+                                <span class="stage-dot stage-dot--negotiation"></span>
+                                <h3>تفاوض</h3>
+                                <small>Negotiation</small>
+                            </div>
+                            <span class="kanban-column__count" id="stage-count-negotiation">0</span>
+                        </div>
+                        <div class="kanban-column__cards" data-stage="negotiation"></div>
+                    </div>
+                    <div class="kanban-column" data-stage="won">
+                        <div class="kanban-column__header">
+                            <div class="kanban-column__title">
+                                <span class="stage-dot stage-dot--won"></span>
+                                <h3>تم البيع ✓</h3>
+                                <small>Won</small>
+                            </div>
+                            <span class="kanban-column__count" id="stage-count-won">0</span>
+                        </div>
+                        <div class="kanban-column__cards" data-stage="won"></div>
+                    </div>
+                    <div class="kanban-column kanban-column--lost" data-stage="lost">
+                        <div class="kanban-column__header">
+                            <div class="kanban-column__title">
+                                <span class="stage-dot stage-dot--lost"></span>
+                                <h3>خسارة</h3>
+                                <small>Lost</small>
+                            </div>
+                            <span class="kanban-column__count" id="stage-count-lost">0</span>
+                        </div>
+                        <div class="kanban-column__cards" data-stage="lost"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===================== REPORTS PAGE ===================== -->
+            <section id="page-reports" class="page">
+                <div class="page-header">
+                    <div>
+                        <h1><i class="fas fa-chart-pie"></i> التقارير <small>Reports</small></h1>
+                        <p class="page-subtitle">تحليلات الأداء والمبيعات</p>
+                    </div>
+                    <div class="page-header-actions">
+                        <select id="report-period" class="filter-select">
+                            <option value="week">هذا الأسبوع</option>
+                            <option value="month" selected>هذا الشهر</option>
+                            <option value="quarter">هذا الربع</option>
+                            <option value="year">هذه السنة</option>
+                            <option value="all">الكل</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="reports-grid">
+                    <div class="card report-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-phone"></i> تقرير المكالمات <small>Calls Report</small></h3>
+                        </div>
+                        <div class="card-body chart-container">
+                            <canvas id="chart-calls-report"></canvas>
+                        </div>
+                    </div>
+                    <div class="card report-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-funnel-dollar"></i> تقرير المبيعات <small>Sales Report</small></h3>
+                        </div>
+                        <div class="card-body chart-container">
+                            <canvas id="chart-sales-report"></canvas>
+                        </div>
+                    </div>
+                    <div class="card report-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-industry"></i> تحليل القطاعات <small>Sector Analysis</small></h3>
+                        </div>
+                        <div class="card-body chart-container">
+                            <canvas id="chart-sector-analysis"></canvas>
+                        </div>
+                    </div>
+                    <div class="card report-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-map-marked-alt"></i> التوزيع الجغرافي <small>Geographic Distribution</small></h3>
+                        </div>
+                        <div class="card-body chart-container">
+                            <canvas id="chart-geo-report"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Performance Table -->
+                <div class="card" style="margin-top: 1.5rem;">
+                    <div class="card-header">
+                        <h3><i class="fas fa-trophy"></i> ملخص الأداء <small>Performance Summary</small></h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="performance-grid" id="performance-summary">
+                            <div class="perf-item">
+                                <div class="perf-label">معدل الاستجابة <small>Response Rate</small></div>
+                                <div class="perf-bar"><div class="perf-fill" id="perf-response-rate" style="width:0%"></div></div>
+                                <div class="perf-value" id="perf-response-value">0%</div>
+                            </div>
+                            <div class="perf-item">
+                                <div class="perf-label">معدل التحويل <small>Conversion Rate</small></div>
+                                <div class="perf-bar"><div class="perf-fill perf-fill--accent" id="perf-conversion-rate" style="width:0%"></div></div>
+                                <div class="perf-value" id="perf-conversion-value">0%</div>
+                            </div>
+                            <div class="perf-item">
+                                <div class="perf-label">متوسط قيمة الصفقة <small>Avg Deal Value</small></div>
+                                <div class="perf-bar"><div class="perf-fill perf-fill--success" id="perf-avg-deal" style="width:0%"></div></div>
+                                <div class="perf-value" id="perf-avg-deal-value">0 ج.م</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===================== SCRAPER / SETTINGS PAGE ===================== -->
+            <section id="page-scraper" class="page">
+                <div class="page-header">
+                    <div>
+                        <h1><i class="fas fa-cogs"></i> إعدادات الاستخراج <small>Scraper Settings</small></h1>
+                        <p class="page-subtitle">تحكم كامل في استخراج بيانات الشركات من Google Maps</p>
+                    </div>
+                    <div class="page-header-actions">
+                        <button class="btn btn-accent btn-sm" id="btn-toggle-scraper-header" title="تشغيل السكرابر (Maps)">
+                            <i class="fas fa-play"></i> <span>تشغيل السكرابر</span>
+                        </button>
+                        <button class="btn btn-primary btn-sm" id="btn-toggle-enricher-header" title="تشغيل إثراء LinkedIn">
+                            <i class="fab fa-linkedin"></i> <span>إثراء LinkedIn</span>
+                        </button>
+                        <button class="btn btn-success btn-sm" id="btn-save-scraper-config" title="حفظ الإعدادات">
+                            <i class="fas fa-save"></i> <span>حفظ الإعدادات</span>
+                        </button>
+                        <button class="btn btn-outline btn-sm" id="btn-export-config" title="تصدير الإعدادات">
+                            <i class="fas fa-download"></i> <span>تصدير</span>
+                        </button>
+                        <button onclick="App.forceImportNow()" style="background: linear-gradient(135deg,#10b981,#059669); color:#fff; border:none; padding:8px 18px; border-radius:10px; font-weight:800; font-size:13px; cursor:pointer; display:inline-flex; align-items:center; gap:8px; box-shadow:0 4px 15px rgba(16,185,129,0.4);">
+                            <i class="fas fa-file-import"></i> استيراد الشركات للـ CRM الآن
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Status Summary Cards -->
+                <div class="stats-grid" style="margin-bottom: 1.5rem;">
+                    <div class="stat-card stat-card--primary">
+                        <div class="stat-card__icon"><i class="fas fa-building"></i></div>
+                        <div class="stat-card__info">
+                            <h3 id="scraper-total-companies">0</h3>
+                            <p>إجمالي الشركات <br><small>Total Companies</small></p>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-card--accent">
+                        <div class="stat-card__icon"><i class="fas fa-search"></i></div>
+                        <div class="stat-card__info">
+                            <h3 id="scraper-total-searches">0</h3>
+                            <p>عمليات البحث <br><small>Searches Done</small></p>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-card--success">
+                        <div class="stat-card__icon"><i class="fas fa-phone"></i></div>
+                        <div class="stat-card__info">
+                            <h3 id="scraper-with-phone">0</h3>
+                            <p>لديها هاتف <br><small>With Phone</small></p>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-card--warning">
+                        <div class="stat-card__icon"><i class="fas fa-clock"></i></div>
+                        <div class="stat-card__info">
+                            <h3 id="scraper-last-update">—</h3>
+                            <p>آخر تحديث <br><small>Last Update</small></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Tabs -->
+                <div class="scraper-tabs">
+                    <button class="scraper-tab active" data-tab="tab-sectors"><i class="fas fa-industry"></i> القطاعات</button>
+                    <button class="scraper-tab" data-tab="tab-areas"><i class="fas fa-map-marked-alt"></i> المناطق والمدن</button>
+                    <button class="scraper-tab" data-tab="tab-performance"><i class="fas fa-sliders-h"></i> الأداء والتقنية</button>
+                    <button class="scraper-tab" data-tab="tab-grid"><i class="fas fa-th"></i> الشبكة الجغرافية</button>
+                    <button class="scraper-tab" data-tab="tab-monitor"><i class="fas fa-chart-bar"></i> المراقبة</button>
+                </div>
+
+                <!-- Tab: Sectors -->
+                <div id="tab-sectors" class="scraper-tab-content active">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-industry"></i> القطاعات والنشاطات <small>Sectors & Activities</small></h3>
+                            <div style="display:flex; gap:0.5rem;">
+                                <button class="btn btn-sm btn-outline" id="btn-select-all-sectors"><i class="fas fa-check-double"></i> تحديد الكل</button>
+                                <button class="btn btn-sm btn-outline" id="btn-deselect-all-sectors"><i class="fas fa-times"></i> إلغاء الكل</button>
+                                <button class="btn btn-sm btn-accent" id="btn-select-fleet-sectors"><i class="fas fa-truck"></i> أساطيل فقط (A+/A)</button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted" style="margin-bottom:1rem;">
+                                <i class="fas fa-info-circle"></i>
+                                اختر القطاعات التي ترغب في استخراج بيانات شركاتها. القطاعات المصنفة <strong>A+</strong> هي الأكثر احتمالاً لامتلاك أسطول سيارات.
+                            </p>
+                            <div id="sectors-checkboxes" class="settings-grid"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Areas -->
+                <div id="tab-areas" class="scraper-tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-map-marked-alt"></i> المناطق والمدن المستهدفة <small>Target Areas</small></h3>
+                            <div style="display:flex; gap:0.5rem;">
+                                <button class="btn btn-sm btn-outline" id="btn-select-all-areas"><i class="fas fa-check-double"></i> تحديد الكل</button>
+                                <button class="btn btn-sm btn-outline" id="btn-deselect-all-areas"><i class="fas fa-times"></i> إلغاء الكل</button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted" style="margin-bottom:1rem;">
+                                <i class="fas fa-info-circle"></i>
+                                اختر المناطق التي ترغب في البحث فيها. كل منطقة تحتوي على مدن فرعية يمكنك تخصيصها.
+                            </p>
+                            <div id="areas-checkboxes" class="settings-grid"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Performance -->
+                <div id="tab-performance" class="scraper-tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-sliders-h"></i> إعدادات الأداء والتقنية <small>Performance Settings</small></h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="settings-form">
+                                <div class="setting-group">
+                                    <label>التأخير بين البحثات (ثواني)</label>
+                                    <div class="range-group">
+                                        <span>أقل: </span>
+                                        <input type="range" id="perf-delay-min" min="2" max="15" value="4" class="range-input">
+                                        <span id="perf-delay-min-val" class="range-val">4s</span>
+                                        <span style="margin: 0 0.5rem;">—</span>
+                                        <span>أكثر: </span>
+                                        <input type="range" id="perf-delay-max" min="5" max="20" value="9" class="range-input">
+                                        <span id="perf-delay-max-val" class="range-val">9s</span>
+                                    </div>
+                                    <small class="text-muted">تأخير عشوائي بين كل عملية بحث لتجنب الحظر</small>
+                                </div>
+
+                                <div class="setting-group">
+                                    <label>إعادة تشغيل المتصفح كل (بحث)</label>
+                                    <div class="range-group">
+                                        <input type="range" id="perf-restart-every" min="20" max="150" value="50" class="range-input">
+                                        <span id="perf-restart-every-val" class="range-val">50</span>
+                                    </div>
+                                    <small class="text-muted">يعيد تشغيل المتصفح بـ fingerprint جديد لتجنب الحظر</small>
+                                </div>
+
+                                <div class="setting-group">
+                                    <label>عمليات البحث الصفرية قبل إعادة التشغيل</label>
+                                    <div class="range-group">
+                                        <input type="range" id="perf-zero-restart" min="1" max="10" value="3" class="range-input">
+                                        <span id="perf-zero-restart-val" class="range-val">3</span>
+                                    </div>
+                                    <small class="text-muted">عدد عمليات البحث المتتالية التي ترجع 0 نتائج قبل إعادة تشغيل المتصفح</small>
+                                </div>
+
+                                <div class="setting-group">
+                                    <label>عمليات البحث الصفرية قبل الانتظار (Backoff)</label>
+                                    <div class="range-group">
+                                        <input type="range" id="perf-zero-backoff" min="3" max="15" value="5" class="range-input">
+                                        <span id="perf-zero-backoff-val" class="range-val">5</span>
+                                    </div>
+                                </div>
+
+                                <div class="setting-group">
+                                    <label>مدة الانتظار الأساسية (ثواني)</label>
+                                    <div class="range-group">
+                                        <input type="range" id="perf-backoff-base" min="30" max="300" step="10" value="120" class="range-input">
+                                        <span id="perf-backoff-base-val" class="range-val">120s</span>
+                                    </div>
+                                </div>
+
+                                <div class="setting-group">
+                                    <label>عدد جولات التمرير (Scroll Rounds)</label>
+                                    <div class="range-group">
+                                        <input type="range" id="perf-scroll-rounds" min="3" max="20" value="10" class="range-input">
+                                        <span id="perf-scroll-rounds-val" class="range-val">10</span>
+                                    </div>
+                                    <small class="text-muted">كلما زاد العدد، زادت النتائج لكل بحث (أبطأ)</small>
+                                </div>
+
+                                <div class="setting-group">
+                                    <label class="toggle-label">
+                                        <input type="checkbox" id="perf-headless" checked>
+                                        <span>وضع الخلفية (Headless)</span>
+                                    </label>
+                                    <small class="text-muted">إخفاء نافذة المتصفح. إيقافه يُظهر المتصفح لمراقبة العمل</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Grid -->
+                <div id="tab-grid" class="scraper-tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-th"></i> الشبكة الجغرافية <small>Geographic Grid</small></h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="setting-group">
+                                <label class="toggle-label">
+                                    <input type="checkbox" id="grid-enabled" checked>
+                                    <span>تفعيل الشبكة الجغرافية (Geographic Grid)</span>
+                                </label>
+                                <small class="text-muted">تقسم القاهرة والجيزة إلى خلايا صغيرة لتجاوز حد الـ 120 نتيجة لكل بحث</small>
+                            </div>
+
+                            <div class="form-grid" style="margin-top:1rem;">
+                                <div class="form-group">
+                                    <label>حد جنوبي (Latitude)</label>
+                                    <input type="number" id="grid-south" value="29.85" step="0.01">
+                                </div>
+                                <div class="form-group">
+                                    <label>حد شمالي (Latitude)</label>
+                                    <input type="number" id="grid-north" value="30.20" step="0.01">
+                                </div>
+                                <div class="form-group">
+                                    <label>حد غربي (Longitude)</label>
+                                    <input type="number" id="grid-west" value="31.05" step="0.01">
+                                </div>
+                                <div class="form-group">
+                                    <label>حد شرقي (Longitude)</label>
+                                    <input type="number" id="grid-east" value="31.50" step="0.01">
+                                </div>
+                                <div class="form-group">
+                                    <label>عدد الصفوف (Rows)</label>
+                                    <input type="number" id="grid-rows" value="7" min="1" max="20">
+                                </div>
+                                <div class="form-group">
+                                    <label>عدد الأعمدة (Cols)</label>
+                                    <input type="number" id="grid-cols" value="9" min="1" max="20">
+                                </div>
+                            </div>
+                            <div class="grid-info" style="margin-top:1rem; padding:1rem; background:var(--bg-secondary); border-radius:0.5rem;">
+                                <p><i class="fas fa-calculator"></i> <strong>إجمالي الخلايا: <span id="grid-total-cells">63</span></strong></p>
+                                <p class="text-muted">كل خلية ≈ 3km × 3km. زيادة الخلايا = نتائج أكثر لكنه أبطأ.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Monitor -->
+                <div id="tab-monitor" class="scraper-tab-content">
+                    <div id="scraper-content"></div>
+                </div>
+            </section>
+
+            <!-- Page: Team Management & Audit -->
+            <section id="page-team" class="page"></section>
+        </main>
+    </div>
+
+    <!-- ===================== MODALS ===================== -->
+    
+    <!-- Company Modal -->
+    <div id="modal-company" class="modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-dialog modal-lg">
+            <div class="modal-header">
+                <h2 id="modal-company-title"><i class="fas fa-building"></i> إضافة شركة جديدة</h2>
+                <button class="modal-close" data-modal="modal-company"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="form-company">
+                    <input type="hidden" id="company-id">
+                    
+                    <div class="form-section">
+                        <h3 class="form-section-title"><i class="fas fa-info-circle"></i> بيانات الشركة الأساسية</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="company-nameAr">اسم الشركة (عربي) *</label>
+                                <input type="text" id="company-nameAr" required placeholder="مثال: شركة النقل المتحدة">
+                            </div>
+                            <div class="form-group">
+                                <label for="company-nameEn">Company Name (English)</label>
+                                <input type="text" id="company-nameEn" placeholder="e.g. United Transport Co.">
+                            </div>
+                            <div class="form-group">
+                                <label for="company-sector">القطاع *</label>
+                                <select id="company-sector" required>
+                                    <option value="">اختر القطاع</option>
+                                    <option value="transport">🚛 نقل وشحن</option>
+                                    <option value="food">🍔 أغذية ومشروبات</option>
+                                    <option value="pharma">💊 أدوية</option>
+                                    <option value="construction">🏗️ مقاولات</option>
+                                    <option value="petroleum">🛢️ بترول وطاقة</option>
+                                    <option value="distribution">📦 توزيع ولوجستيات</option>
+                                    <option value="security">🛡️ أمن وحراسة</option>
+                                    <option value="rental">🚗 تأجير سيارات</option>
+                                    <option value="manufacturing">🏭 مصانع</option>
+                                    <option value="education">🎓 مدارس وجامعات</option>
+                                    <option value="healthcare">🏥 مستشفيات</option>
+                                    <option value="tourism">✈️ سياحة</option>
+                                    <option value="public_transport">🚌 نقل جماعي</option>
+                                    <option value="delivery">🛵 توصيل ودليفري</option>
+                                    <option value="government">🏛️ جهات حكومية</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="company-subSector">القطاع الفرعي</label>
+                                <input type="text" id="company-subSector" placeholder="تفاصيل إضافية">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="form-section-title"><i class="fas fa-map-marker-alt"></i> الموقع والعنوان</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="company-city">المنطقة / المدينة *</label>
+                                <select id="company-city" required>
+                                    <option value="">اختر المنطقة</option>
+                                    <option value="cairo">القاهرة</option>
+                                    <option value="giza">الجيزة</option>
+                                    <option value="qalyubia">القليوبية</option>
+                                    <option value="6october">6 أكتوبر</option>
+                                    <option value="10thramadan">العاشر من رمضان</option>
+                                    <option value="obour">العبور</option>
+                                    <option value="shorouk">الشروق</option>
+                                    <option value="helwan">حلوان</option>
+                                    <option value="nasr_city">مدينة نصر</option>
+                                    <option value="maadi">المعادي</option>
+                                    <option value="new_cairo">القاهرة الجديدة</option>
+                                    <option value="badr">مدينة بدر</option>
+                                    <option value="sadat">مدينة السادات</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="company-governorate">المحافظة</label>
+                                <input type="text" id="company-governorate" placeholder="القاهرة">
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="company-address">العنوان التفصيلي</label>
+                                <input type="text" id="company-address" placeholder="الشارع، المبنى، الطابق">
+                            </div>
+                            <div class="form-group">
+                                <label for="company-google_maps_url">رابط موقع الشركة (Google Maps Link)</label>
+                                <input type="url" id="company-google_maps_url" placeholder="https://www.google.com/maps/place/...">
+                            </div>
+                            <div class="form-group">
+                                <label for="company-rating">التقييم على Google Maps</label>
+                                <input type="number" id="company-rating" placeholder="مثال: 4.5" step="0.1" min="0" max="5">
+                            </div>
+                            <div class="form-group">
+                                <label for="company-reviews_count">عدد تقييمات Google Maps</label>
+                                <input type="text" id="company-reviews_count" placeholder="مثال: 120 أو 1.2 ألف">
+                            </div>
+                            <div class="form-group">
+                                <label for="company-operating_status">حالة نشاط الشركة</label>
+                                <select id="company-operating_status">
+                                    <option value="active">🟢 تعمل ونشطة / Active</option>
+                                    <option value="temporarily_closed">🟡 مغلقة مؤقتاً / Temporarily Closed</option>
+                                    <option value="permanently_closed">🔴 مغلقة نهائياً / Permanently Closed</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="company-working_hours">ساعات العمل / حالة الفتح</label>
+                                <input type="text" id="company-working_hours" placeholder="مثال: مفتوح الآن · يغلق في 5 م">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="form-section-title"><i class="fas fa-phone"></i> بيانات الاتصال</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="company-phone1">هاتف 1</label>
+                                <input type="tel" id="company-phone1" placeholder="02-XXXXXXXX">
+                            </div>
+                            <div class="form-group">
+                                <label for="company-phone2">هاتف 2</label>
+                                <input type="tel" id="company-phone2" placeholder="02-XXXXXXXX">
+                            </div>
+                            <div class="form-group">
+                                <label for="company-mobile">موبايل</label>
+                                <input type="tel" id="company-mobile" placeholder="01XXXXXXXXX">
+                            </div>
+                            <div class="form-group">
+                                <label for="company-email">البريد الإلكتروني</label>
+                                <input type="email" id="company-email" placeholder="info@company.com">
+                            </div>
+                            <div class="form-group">
+                                <label for="company-website">الموقع الإلكتروني</label>
+                                <input type="url" id="company-website" placeholder="https://www.company.com">
+                            </div>
+                            <div class="form-group">
+                                <label for="company-linkedin">LinkedIn</label>
+                                <input type="url" id="company-linkedin" placeholder="https://linkedin.com/company/...">
+                            </div>
+                            <div class="form-group">
+                                <label for="company-facebook">Facebook</label>
+                                <input type="url" id="company-facebook" placeholder="https://facebook.com/...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="form-section-title"><i class="fas fa-truck"></i> بيانات الأسطول</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="company-fleetSize">حجم الأسطول (تقديري)</label>
+                                <input type="number" id="company-fleetSize" placeholder="عدد السيارات" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="company-fleetType">نوع الأسطول</label>
+                                <select id="company-fleetType">
+                                    <option value="">غير محدد</option>
+                                    <option value="heavy">نقل ثقيل (تريلات / لوري)</option>
+                                    <option value="light">نقل خفيف (فان / بيك أب)</option>
+                                    <option value="passenger">ركاب (سيارات / باصات)</option>
+                                    <option value="mixed">مختلط</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="company-branchesCount">عدد الفروع</label>
+                                <input type="number" id="company-branchesCount" placeholder="عدد الفروع" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="company-companySize">حجم الشركة</label>
+                                <select id="company-companySize">
+                                    <option value="">غير محدد</option>
+                                    <option value="large">كبيرة (500+ موظف)</option>
+                                    <option value="medium">متوسطة (50-500 موظف)</option>
+                                    <option value="small">صغيرة (أقل من 50 موظف)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="form-section-title"><i class="fas fa-user-tie"></i> جهة الاتصال الرئيسية</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="company-contactPerson">الاسم</label>
+                                <input type="text" id="company-contactPerson" placeholder="اسم المسؤول">
+                            </div>
+                            <div class="form-group">
+                                <label for="company-contactTitle">المسمى الوظيفي</label>
+                                <select id="company-contactTitle">
+                                    <option value="">اختر</option>
+                                    <option value="مدير مشتريات">مدير مشتريات</option>
+                                    <option value="مدير أسطول">مدير أسطول</option>
+                                    <option value="مدير نقل">مدير نقل</option>
+                                    <option value="مدير صيانة">مدير صيانة</option>
+                                    <option value="مدير عام">مدير عام</option>
+                                    <option value="صاحب الشركة">صاحب الشركة</option>
+                                    <option value="مسؤول مشتريات">مسؤول مشتريات</option>
+                                    <option value="أخرى">أخرى</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="company-contactPhone">تليفون المسؤول</label>
+                                <input type="tel" id="company-contactPhone" placeholder="01XXXXXXXXX">
+                            </div>
+                            <div class="form-group">
+                                <label for="company-contactEmail">إيميل المسؤول</label>
+                                <input type="email" id="company-contactEmail" placeholder="name@company.com">
+                            </div>
+                            <div class="form-group">
+                                <label for="company-linkedinContactUrl">LinkedIn المسؤول</label>
+                                <input type="url" id="company-linkedinContactUrl" placeholder="https://linkedin.com/in/...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="form-section-title"><i class="fas fa-star"></i> التصنيف</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="company-priority">أولوية البيع</label>
+                                <select id="company-priority">
+                                    <option value="B">🟡 B — متوسطة</option>
+                                    <option value="A">🔴 A — عالية</option>
+                                    <option value="C">🟢 C — منخفضة</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="company-source">مصدر البيانات</label>
+                                <select id="company-source">
+                                    <option value="manual">إدخال يدوي</option>
+                                    <option value="yellowpages">دليل الصفحات الصفراء</option>
+                                    <option value="google">Google Maps</option>
+                                    <option value="linkedin">LinkedIn</option>
+                                    <option value="referral">إحالة</option>
+                                    <option value="website">موقع إلكتروني</option>
+                                    <option value="exhibition">معرض</option>
+                                    <option value="other">أخرى</option>
+                                </select>
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="company-notes">ملاحظات</label>
+                                <textarea id="company-notes" rows="3" placeholder="أي ملاحظات إضافية..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" data-modal="modal-company">إلغاء</button>
+                <button class="btn btn-primary" id="btn-save-company"><i class="fas fa-save"></i> حفظ الشركة</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Call Modal -->
+    <div id="modal-call" class="modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h2 id="modal-call-title"><i class="fas fa-phone-alt"></i> تسجيل مكالمة جديدة</h2>
+                <button class="modal-close" data-modal="modal-call"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="form-call">
+                    <input type="hidden" id="call-id">
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label for="call-companyId">الشركة *</label>
+                            <select id="call-companyId" required style="width:100%; padding:10px 14px; border-radius:10px; background:var(--bg-tertiary); color:var(--text-primary); border:1px solid var(--border-color); font-size:14px; font-weight:600;">
+                                <option value="">اختر الشركة...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="call-date">التاريخ *</label>
+                            <input type="date" id="call-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="call-time">الوقت</label>
+                            <input type="time" id="call-time">
+                        </div>
+                        <div class="form-group">
+                            <label for="call-contactPerson">جهة الاتصال</label>
+                            <input type="text" id="call-contactPerson" placeholder="اسم الشخص">
+                        </div>
+                        <div class="form-group">
+                            <label for="call-result">نتيجة المكالمة *</label>
+                            <select id="call-result" required>
+                                <option value="">اختر النتيجة</option>
+                                <option value="interested">✅ مهتم</option>
+                                <option value="not_interested">❌ غير مهتم</option>
+                                <option value="callback">📞 معاد الاتصال</option>
+                                <option value="no_answer">📵 لا يرد</option>
+                                <option value="wrong_number">🚫 رقم خطأ</option>
+                                <option value="meeting_scheduled">📅 تم تحديد موعد</option>
+                                <option value="proposal_sent">📧 تم إرسال عرض سعر</option>
+                                <option value="visited">🏢 تم الزيارة</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="call-followUpDate">تاريخ المتابعة</label>
+                            <input type="date" id="call-followUpDate">
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="call-notes">ملاحظات</label>
+                            <textarea id="call-notes" rows="3" placeholder="تفاصيل المكالمة..."></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" data-modal="modal-call">إلغاء</button>
+                <button class="btn btn-primary" id="btn-save-call"><i class="fas fa-save"></i> حفظ المكالمة</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Deal Modal -->
+    <div id="modal-deal" class="modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h2 id="modal-deal-title"><i class="fas fa-handshake"></i> إضافة صفقة جديدة</h2>
+                <button class="modal-close" data-modal="modal-deal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="form-deal">
+                    <input type="hidden" id="deal-id">
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label for="deal-companyId">الشركة *</label>
+                            <select id="deal-companyId" required>
+                                <option value="">اختر الشركة</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="deal-title">عنوان الصفقة *</label>
+                            <input type="text" id="deal-title" required placeholder="مثال: توريد 100 إطار نقل ثقيل">
+                        </div>
+                        <div class="form-group">
+                            <label for="deal-value">القيمة (ج.م) *</label>
+                            <input type="number" id="deal-value" required placeholder="250000" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="deal-stage">المرحلة</label>
+                            <select id="deal-stage">
+                                <option value="initial_contact">اتصال أولي</option>
+                                <option value="interested">مهتم</option>
+                                <option value="proposal">عرض سعر</option>
+                                <option value="negotiation">تفاوض</option>
+                                <option value="won">تم البيع</option>
+                                <option value="lost">خسارة</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="deal-tireType">نوع الإطارات</label>
+                            <select id="deal-tireType">
+                                <option value="all">جميع الأنواع</option>
+                                <option value="truck">إطارات نقل ثقيل</option>
+                                <option value="light_truck">إطارات نقل خفيف</option>
+                                <option value="passenger">إطارات ملاكي</option>
+                                <option value="bus">إطارات باصات</option>
+                                <option value="suv">إطارات SUV</option>
+                                <option value="forklift">إطارات رافعات</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="deal-quantity">الكمية (إطار)</label>
+                            <input type="number" id="deal-quantity" placeholder="100" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="deal-expectedCloseDate">تاريخ الإغلاق المتوقع</label>
+                            <input type="date" id="deal-expectedCloseDate">
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="deal-notes">ملاحظات</label>
+                            <textarea id="deal-notes" rows="3" placeholder="تفاصيل الصفقة..."></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" data-modal="modal-deal">إلغاء</button>
+                <button class="btn btn-primary" id="btn-save-deal"><i class="fas fa-save"></i> حفظ الصفقة</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div id="modal-confirm" class="modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-dialog modal-sm">
+            <div class="modal-header">
+                <h2><i class="fas fa-exclamation-triangle"></i> تأكيد</h2>
+                <button class="modal-close" data-modal="modal-confirm"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <p id="confirm-message">هل أنت متأكد؟</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" data-modal="modal-confirm">إلغاء</button>
+                <button class="btn btn-danger" id="btn-confirm-action">تأكيد الحذف</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Company Detail Modal -->
+    <div id="modal-company-detail" class="modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-dialog modal-lg">
+            <div class="modal-header">
+                <h2><i class="fas fa-building"></i> <span id="detail-company-name">تفاصيل الشركة</span></h2>
+                <button class="modal-close" data-modal="modal-company-detail"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" id="company-detail-body">
+                <!-- Filled dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" data-modal="modal-company-detail">إغلاق</button>
+                <button class="btn btn-accent" id="btn-detail-call"><i class="fas fa-phone"></i> تسجيل مكالمة</button>
+                <button class="btn btn-primary" id="btn-detail-edit"><i class="fas fa-edit"></i> تعديل</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Screen Overlay -->
+    <div id="login-modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(15, 23, 42, 0.95); backdrop-filter:blur(10px); z-index:999999; align-items:center; justify-content:center;">
+        <div style="background:var(--bg-secondary); border:1px solid var(--border-color); width:90%; max-width:420px; border-radius:16px; padding:32px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5); text-align:center;">
+            <div style="font-size:42px; margin-bottom:12px;">🚛</div>
+            <h2 style="font-size:22px; font-weight:800; color:var(--text-primary); margin-bottom:6px;">Fleet CRM — تسجيل الدخول</h2>
+            <p style="font-size:13px; color:var(--text-muted); margin-bottom:24px;">أدخل اسم المستخدم وكلمة المرور لدخول نظام إدارة المبيعات</p>
+
+            <form id="form-login-system" style="text-align:right;">
+                <div style="margin-bottom:16px;">
+                    <label style="font-size:12px; font-weight:700; color:var(--text-primary); display:block; margin-bottom:6px;">اسم المستخدم (Username)</label>
+                    <input type="text" id="login-username" required placeholder="أدخل اسم المستخدم" style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-primary); font-size:14px;">
+                </div>
+                <div style="margin-bottom:20px;">
+                    <label style="font-size:12px; font-weight:700; color:var(--text-primary); display:block; margin-bottom:6px;">كلمة المرور (Password)</label>
+                    <input type="password" id="login-password" required placeholder="أدخل كلمة المرور" style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-primary); font-size:14px;">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%; padding:12px; font-size:15px; font-weight:700; justify-content:center;">
+                    <i class="fas fa-sign-in-alt"></i> تسجيل الدخول
+                </button>
+            </form>
+
+            <div style="margin-top:24px; padding-top:16px; border-top:1px solid var(--border-color); font-size:11px; color:var(--text-muted);">
+                <div style="font-weight:700; margin-bottom:8px;">💡 تجربة الدخول السريع اختبر النظام:</div>
+                <div style="display:flex; gap:6px; flex-wrap:wrap; justify-content:center;">
+                    <button class="btn btn-ghost btn-sm" onclick="App.quickLogin('admin', 'admin123')">👑 المدير العام</button>
+                    <button class="btn btn-ghost btn-sm" onclick="App.quickLogin('ahmed', '123')">👨‍💼 أحمد (مبيعات 1)</button>
+                    <button class="btn btn-ghost btn-sm" onclick="App.quickLogin('mohamed', '123')">👨‍💼 محمد (مبيعات 2)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <!-- Hidden file input for Excel import -->
+    <input type="file" id="excel-file-input" accept=".xlsx,.xls,.csv" style="display:none;">
+
+    <!-- External Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <script src="js/storage.js?v=3.6.0"></script>
+    <script src="js/excel-handler.js?v=3.6.0"></script>
+    <script src="js/dashboard.js?v=3.6.0"></script>
+    <script src="js/companies.js?v=3.6.0"></script>
+    <script src="js/calls.js?v=3.6.0"></script>
+    <script src="js/pipeline.js?v=3.6.0"></script>
+    <script src="js/reports.js?v=3.6.0"></script>
+    <script src="js/scraper.js?v=3.6.0"></script>
+    <script src="js/team.js?v=3.6.0"></script>
+    <script src="js/settings.js?v=3.6.0"></script>
+    <script src="js/app.js?v=3.6.0"></script>
+</body>
+</html>
