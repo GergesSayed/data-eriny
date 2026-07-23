@@ -10,6 +10,19 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
+    <!-- Immediate Zero-Flash Auth Check -->
+    <script>
+        (function() {
+            try {
+                var u = sessionStorage.getItem('fleetcrm_current_user') || localStorage.getItem('fleetcrm_current_user');
+                if (!u) {
+                    document.write('<style>#login-screen{display:flex !important;} #sidebar, .main-wrapper{display:none !important;}</style>');
+                } else {
+                    document.write('<style>#login-screen{display:none !important;} #sidebar{display:flex !important;} .main-wrapper{display:block !important;}</style>');
+                }
+            } catch(e) {}
+        })();
+    </script>
 </head>
 <body>
     <!-- Loading Overlay -->
@@ -21,7 +34,7 @@
     </div>
 
     <!-- Fullscreen Enterprise Login Screen -->
-    <div id="login-screen" class="login-screen-bg">
+    <div id="login-screen" class="login-screen-bg" style="display: none;">
         <!-- Animated Background Mesh Orbs -->
         <div class="login-bg-mesh">
             <div class="login-bg-orb login-bg-orb-1"></div>
@@ -1419,16 +1432,16 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <script src="js/storage.js?v=7.0.0"></script>
-    <script src="js/excel-handler.js?v=7.0.0"></script>
-    <script src="js/dashboard.js?v=7.0.0"></script>
-    <script src="js/companies.js?v=7.0.0"></script>
-    <script src="js/calls.js?v=7.0.0"></script>
-    <script src="js/pipeline.js?v=7.0.0"></script>
-    <script src="js/reports.js?v=7.0.0"></script>
-    <script src="js/scraper.js?v=7.0.0"></script>
-    <script src="js/team.js?v=7.0.0"></script>
-    <script src="js/settings.js?v=7.0.0"></script>
-    <script src="js/app.js?v=7.0.0"></script>
+    <script src="js/storage.js?v=8.0.0"></script>
+    <script src="js/excel-handler.js?v=8.0.0"></script>
+    <script src="js/dashboard.js?v=8.0.0"></script>
+    <script src="js/companies.js?v=8.0.0"></script>
+    <script src="js/calls.js?v=8.0.0"></script>
+    <script src="js/pipeline.js?v=8.0.0"></script>
+    <script src="js/reports.js?v=8.0.0"></script>
+    <script src="js/scraper.js?v=8.0.0"></script>
+    <script src="js/team.js?v=8.0.0"></script>
+    <script src="js/settings.js?v=8.0.0"></script>
+    <script src="js/app.js?v=8.0.0"></script>
 </body>
 </html>

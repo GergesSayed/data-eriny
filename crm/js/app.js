@@ -11,6 +11,9 @@ const App = {
             if (loadingOverlay) loadingOverlay.classList.add('hidden');
         };
 
+        // Immediately check auth to prevent login flash on refresh
+        this.checkAuth();
+
         try {
             // Ensure clean initial state flags if needed
             try {
