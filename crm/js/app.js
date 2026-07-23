@@ -94,12 +94,33 @@ const App = {
             if (loginScreen) loginScreen.style.display = 'flex';
             if (sidebar) sidebar.style.display = 'none';
             if (mainWrapper) mainWrapper.style.display = 'none';
+            this.initLoginCapsWarning();
         } else {
             if (loginScreen) loginScreen.style.display = 'none';
             if (sidebar) sidebar.style.display = 'flex';
             if (mainWrapper) mainWrapper.style.display = 'flex';
             this.updateUserUI();
         }
+    },
+
+    initLoginCapsWarning() {
+        const passInput = document.getElementById('login-password');
+        const capsWarning = document.getElementById('login-caps-warning');
+        if (passInput && capsWarning) {
+            const checkCaps = (e) => {
+                if (e.getModifierState && e.getModifierState('CapsLock')) {
+                    capsWarning.style.display = 'block';
+                } else {
+                    capsWarning.style.display = 'none';
+                }
+            };
+            passInput.onkeydown = checkCaps;
+            passInput.onkeyup = checkCaps;
+        }
+    },
+
+    showForgotPwInfo() {
+        alert('🔒 لإعادة تعيين كلمة المرور الخاصة بحسابك، يرجى التواصل مع المدير العام للنظام لإصدار كلمة مرور جديدة.');
     },
 
     handleLogin() {
