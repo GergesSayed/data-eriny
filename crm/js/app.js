@@ -233,6 +233,10 @@ const App = {
 
     logoutSystem() {
         Storage.logout();
+        const userInput = document.getElementById('login-username');
+        const passInput = document.getElementById('login-password');
+        if (userInput) userInput.value = '';
+        if (passInput) passInput.value = '';
         this.showToast('👋 تم تسجيل الخروج بنجاح', 'info');
         this.checkAuth();
     },
