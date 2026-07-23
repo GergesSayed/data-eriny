@@ -100,29 +100,35 @@ const Team = {
                                     <button class="btn btn-success btn-sm" style="font-size: 12px; font-weight: 800; padding: 6px 14px; background:#10b981; color:#fff;" onclick="Team.approveUser('${u.id}', 'agent')">
                                         <i class="fas fa-check"></i> موافقة وتفعيل (موظف مبيعات)
                                     </button>
-                                    <button class="btn btn-primary btn-sm" style="font-size: 12px; font-weight: 800; padding: 6px 14px; background: #7c3aed; color:#fff;" onclick="Team.approveUser('${u.id}', 'admin')">
-                                        <i class="fas fa-crown"></i> موافقة وتعيين كـ أدمن
-                                    </button>
-                                    <button class="btn btn-danger btn-sm" style="font-size: 12px; font-weight: 800; padding: 6px 12px; background: #ef4444; color:#fff;" onclick="Team.rejectUser('${u.id}')">
-                                        <i class="fas fa-times"></i> رفض
-                                    </button>
-                                </div>
+                                ${Storage.canModify() ? `
+                                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                        <button class="btn btn-success btn-sm" style="font-size: 12px; font-weight: 800; padding: 6px 14px; background:#10b981; color:#fff;" onclick="Team.approveUser('${u.id}', 'agent')">
+                                            <i class="fas fa-check"></i> موافقة (مسؤول مبيعات)
+                                        </button>
+                                        <button class="btn btn-info btn-sm" style="font-size: 12px; font-weight: 800; padding: 6px 14px; background:#06b6d4; color:#fff;" onclick="Team.approveUser('${u.id}', 'supervisor')">
+                                            <i class="fas fa-eye"></i> موافقة (مشرف قراءة)
+                                        </button>
+                                        <button class="btn btn-danger btn-sm" style="font-size: 12px; font-weight: 800; padding: 6px 12px; background: #ef4444; color:#fff;" onclick="Team.rejectUser('${u.id}')">
+                                            <i class="fas fa-times"></i> رفض
+                                        </button>
+                                    </div>
+                                ` : '<span style="font-size:12px; color:#f59e0b;">بانتظار اعتماده من المدير</span>'}
                             </div>
                         `).join('')}
                     </div>
                 </div>
             `;
 
-            teamPage.innerHTML = `
+            empPage.innerHTML = `
                 ${pendingHtml}
                 <div class="page-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
                     <div>
-                        <h1 class="page-title"><i class="fas fa-users-cog"></i> لوحة التحكم في الموظفين والصلاحيات المعتمَدة</h1>
-                        <p class="page-subtitle">اعتماد الطلبات، وتعيين الأدوار والمناطق، ومتابعة إنجازات الفريق الحية</p>
+                        <h1 class="page-title"><i class="fas fa-users-cog"></i> إدارة الموظفين وصلاحيات الوصول للنظام</h1>
+                        <p class="page-subtitle">إنشاء وتعيين حسابات الموظفين، وتحديد مستويات التحكم، وإعادة ضبط كلمة المرور والحالة</p>
                     </div>
                     ${Storage.canModify() ? `
-                        <button class="btn btn-primary" id="btn-add-user" onclick="Team.openUserModal()">
-                            <i class="fas fa-user-plus"></i> إضافة موظف جديد
+                        <button class="btn btn-primary" id="btn-add-user" onclick="Team.openUserModal()" style="background:var(--gradient-primary); padding:10px 22px; font-weight:800; border-radius:12px; box-shadow:0 4px 15px rgba(124, 58, 237, 0.4);">
+                            <i class="fas fa-user-plus" style="margin-left:6px;"></i> إضافة موظف جديد
                         </button>
                     ` : ''}
                 </div>
@@ -133,7 +139,7 @@ const Team = {
                         <h4 style="margin: 0; font-size: 1rem; font-weight: 800; color: #f8fafc;">
                             <i class="fas fa-shield-halved" style="color: #7c3aed; margin-left: 8px;"></i> نظام إدارة الأدوار ومستويات الوصول (Roles & Permissions Matrix)
                         </h4>
-                        <span style="font-size: 0.78rem; color: #94a3b8;">يمكنك تخصيص وتعديل صلاحية أي موظف فوراً من زر التعديل ✏️</span>
+                        <span style="font-size: 0.78rem; color: #94a3b8;">يمكنك تغيير صلاحية أي موظف فوراً من زر التعديل ✏️</span>
                     </div>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px;">
                         <div style="background: rgba(124, 58, 237, 0.1); border: 1px solid rgba(124, 58, 237, 0.3); border-radius: 12px; padding: 12px 14px;">
@@ -151,59 +157,26 @@ const Team = {
                     </div>
                 </div>
 
-                <!-- Team Overview Summary Cards -->
-                <div class="stats-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:16px; margin-bottom:24px;">
-                    <div class="stat-card" style="background:var(--bg-secondary); border-radius:12px; padding:16px; border:1px solid var(--border-color);">
-                        <div style="font-size:12px; color:var(--text-muted); font-weight:700;">👥 عدد أعضاء الفريق</div>
-                        <div style="font-size:28px; font-weight:800; color:var(--text-primary); margin-top:4px;">${users.length} <small style="font-size:14px; font-weight:normal;">حسابات</small></div>
-                    </div>
-                    <div class="stat-card" style="background:var(--bg-secondary); border-radius:12px; padding:16px; border:1px solid var(--border-color);">
-                        <div style="font-size:12px; color:var(--text-muted); font-weight:700;">📌 شركات مسندة للموظفين</div>
-                        <div style="font-size:28px; font-weight:800; color:#7c3aed; margin-top:4px;">${totalAssigned} <small style="font-size:14px; font-weight:normal;">شركة</small></div>
-                    </div>
-                    <div class="stat-card" style="background:var(--bg-secondary); border-radius:12px; padding:16px; border:1px solid var(--border-color);">
-                        <div style="font-size:12px; color:var(--text-muted); font-weight:700;">⚪ شركات غير مسندة لأحد</div>
-                        <div style="font-size:28px; font-weight:800; color:#f59e0b; margin-top:4px;">${totalUnassigned} <small style="font-size:14px; font-weight:normal;">شركة</small></div>
-                    </div>
-                    <div class="stat-card" style="background:var(--bg-secondary); border-radius:12px; padding:16px; border:1px solid var(--border-color);">
-                        <div style="font-size:12px; color:var(--text-muted); font-weight:700;">📞 إجمالي مكالمات الفريق</div>
-                        <div style="font-size:28px; font-weight:800; color:#10b981; margin-top:4px;">${allCalls.length} <small style="font-size:14px; font-weight:normal;">مكالمة</small></div>
-                    </div>
-                </div>
-
-                <!-- Employee Audit Table -->
+                <!-- Employees List Table -->
                 <div class="table-container" style="background:var(--bg-secondary); border-radius:16px; border:1px solid var(--border-color); padding:20px; box-shadow:var(--shadow-sm);">
-                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
-                        <div>
-                            <h3 style="margin:0; font-size:17px; font-weight:800; color:var(--text-primary);">
-                                <i class="fas fa-users-gear" style="color:#7c3aed; margin-left:8px;"></i> جدول الموظفين وتفاصيل الصلاحيات الفردية
-                            </h3>
-                            <p style="margin:4px 0 0 0; font-size:12px; color:var(--text-muted);">فصل دقيق لكافة مستويات الوصول (مدير عام 👑، مشرف قراءة فقط 👁️، مسؤول مبيعات 👨‍💼)</p>
-                        </div>
-                        ${Storage.canModify() ? `
-                            <button class="btn btn-primary" onclick="Team.openUserModal()" style="background:var(--gradient-primary); padding:10px 20px; font-weight:800; border-radius:12px; box-shadow:0 4px 15px rgba(124, 58, 237, 0.4);">
-                                <i class="fas fa-user-plus" style="margin-left:6px;"></i> إضافة موظف جديد تحديد الصلاحيات
-                            </button>
-                        ` : ''}
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;">
+                        <h3 style="margin:0; font-size:16px; font-weight:800; color:var(--text-primary);"><i class="fas fa-users-gear" style="color:#7c3aed; margin-left:8px;"></i> قائمة الموظفين والحسابات المعتمَدة</h3>
+                        <span class="badge" style="background:var(--bg-surface); color:var(--text-secondary); border:1px solid var(--border-color);">إجمالي ${users.length} حسابات</span>
                     </div>
 
                     <table class="data-table">
                         <thead>
                             <tr>
                                 <th>الموظف <small>Employee</small></th>
+                                <th>بيانات الدخول <small>Username / Password</small></th>
                                 <th>مستوى الصلاحية والتحكم <small>Role & Scope</small></th>
                                 <th>المنطقة ورقم ERP</th>
-                                <th>الشركات المسندة</th>
-                                <th>تم التواصل <small>Contacted</small></th>
-                                <th>متبقية لم يتصل <small>Remaining</small></th>
-                                <th>عملاء مهتمين <small>Interested</small></th>
-                                <th>غير مهتمين <small>Uninterested</small></th>
-                                <th>صفقات ناجحة <small>Won Deals</small></th>
-                                <th>إجراءات <small>Actions</small></th>
+                                <th>حالة الحساب <small>Status</small></th>
+                                ${Storage.canModify() ? `<th>إجراءات الحساب <small>Actions</small></th>` : ''}
                             </tr>
                         </thead>
                         <tbody>
-                            ${usersStats.map(u => {
+                            ${users.map(u => {
                                 let roleBadge = '';
                                 let permDetail = '';
 
@@ -218,15 +191,26 @@ const Team = {
                                     permDetail = `<div style="font-size:10px; color:#94a3b8; margin-top:4px; font-weight:700;"><i class="fas fa-briefcase" style="color:#3b82f6; margin-left:3px;"></i> شركاته المسندة فقط • 📞 تسجيل المكالمات</div>`;
                                 }
 
+                                const isFrozen = u.status === 'frozen';
+                                const statusBadge = isFrozen
+                                    ? `<span class="badge" style="background:rgba(239,68,68,0.2); color:#ef4444; border:1px solid #ef4444; font-weight:800;">⛔ مجمد</span>`
+                                    : `<span class="badge" style="background:rgba(16,185,129,0.2); color:#10b981; border:1px solid #10b981; font-weight:800;">🟢 نشط</span>`;
+
                                 return `
                                 <tr>
                                     <td>
                                         <div style="display:flex; align-items:center; gap:10px;">
-                                            <span style="background:${u.color || '#7c3aed'}; color:#fff; width:36px; height:36px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:bold; box-shadow:0 4px 10px rgba(0,0,0,0.2);">${u.avatar || (u.role === 'admin' ? '👑' : u.role === 'supervisor' ? '👁️' : '👨‍💼')}</span>
+                                            <span style="background:${u.color || '#7c3aed'}; color:#fff; width:38px; height:38px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:bold;">${u.avatar || (u.role === 'admin' ? '👑' : u.role === 'supervisor' ? '👁️' : '👨‍💼')}</span>
                                             <div>
                                                 <div style="font-weight:800; color:var(--text-primary); font-size:14px;">${u.name}</div>
-                                                <small style="color:var(--text-muted); font-size:11px; direction:ltr; text-align:right; display:block;">👤 @${u.username || 'user'}</small>
+                                                <small style="color:var(--text-muted); font-size:11px;">تاريخ الإنشاء: ${u.createdAt ? u.createdAt.split('T')[0] : 'سابق'}</small>
                                             </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div style="direction:ltr; text-align:right;">
+                                            <code style="font-weight:800; color:var(--text-primary); font-size:12px;">👤 @${u.username || 'user'}</code>
+                                            <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">🔑 Pass: <span style="font-family:monospace; color:#a78bfa;">${u.password || '123'}</span></div>
                                         </div>
                                     </td>
                                     <td>
@@ -237,32 +221,16 @@ const Team = {
                                         <div style="font-size:11px;"><span class="badge" style="background:var(--bg-surface); border:1px solid var(--border-color);">${Storage.getRegionLabel(u.region)}</span></div>
                                         <code style="font-size:10px; color:var(--accent);">${u.erpCode || 'بدون ERP'}</code>
                                     </td>
-                                    <td><b style="color:#7c3aed; font-size:16px;">${u.assignedCount}</b> شركة</td>
-                                    <td>
-                                        <span class="badge" style="background:#10b98122; color:#10b981; border:1px solid #10b981; font-weight:700;">
-                                            ✅ ${u.contactedCount} شركة ${u.assignedCount > 0 ? `(${Math.round((u.contactedCount/u.assignedCount)*100)}%)` : ''}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span class="badge" style="background:#f59e0b22; color:#f59e0b; border:1px solid #f59e0b; font-weight:700;">
-                                            ⏳ ${u.remainingCount} شركة
-                                        </span>
-                                    </td>
-                                    <td><span class="badge" style="background:#7c3aed22; color:#7c3aed; border:1px solid #7c3aed; font-weight:700;">💚 ${u.interestedCount} مهتم</span></td>
-                                    <td><span class="badge" style="background:#ef444422; color:#ef4444; border:1px solid #ef4444;">🔴 ${u.notInterestedCount} غير مهتم</span></td>
-                                    <td><b>${u.wonDealsCount}</b> (${u.totalRevenue.toLocaleString()} ج.م)</td>
-                                    <td>
-                                        <div class="table-actions">
-                                            <button class="btn btn-primary btn-sm" onclick="Team.openEmployeeProgressModal('${u.id}')" title="تقرير تواصل شركات هذا الموظف تفصيلياً" style="background:var(--gradient-primary); color:#fff; font-weight:700;">
-                                                <i class="fas fa-list-check"></i> تقرير المتابعة
-                                            </button>
-                                            ${Storage.canModify() ? `
-                                                <button class="btn btn-ghost btn-sm" onclick="Team.openAssignCompaniesModal('${u.id}')" title="تخصيص وإسناد الشركات لهذا الموظف">
-                                                    <i class="fas fa-tasks"></i> تخصيص الشركات
+                                    <td>${statusBadge}</td>
+                                    ${Storage.canModify() ? `
+                                        <td>
+                                            <div class="table-actions">
+                                                <button class="btn btn-ghost btn-sm" onclick="Team.openUserModal('${u.id}')" title="تعديل الحساب والصلاحية" style="font-weight:700;">
+                                                    <i class="fas fa-edit"></i> تعديل الصلاحية
                                                 </button>
                                                 ${u.id !== 'admin' ? `
-                                                    <button class="btn-icon btn-edit" onclick="Team.openUserModal('${u.id}')" title="تعديل الحساب والصلاحية">
-                                                        <i class="fas fa-edit"></i>
+                                                    <button class="btn btn-ghost btn-sm" onclick="Team.toggleFreeze('${u.id}')" title="${isFrozen ? 'تفعيل الحساب' : 'تجميد الحساب'}" style="color:${isFrozen ? '#10b981' : '#f59e0b'};">
+                                                        <i class="fas ${isFrozen ? 'fa-fire' : 'fa-snowflake'}"></i> ${isFrozen ? 'تفعيل' : 'تجميد'}
                                                     </button>
                                                     <button class="btn-icon btn-delete" onclick="Team.deleteUser('${u.id}')" title="حذف الحساب">
                                                         <i class="fas fa-trash"></i>
@@ -562,6 +530,7 @@ const Team = {
         const modal = document.getElementById('modal-user-form');
         if (modal) modal.remove();
         this.render();
+        this.renderEmployeesPage();
         if (typeof App !== 'undefined' && App.refreshUserSwitcher) App.refreshUserSwitcher();
         if (typeof Companies !== 'undefined' && Companies.refreshUserFilter) Companies.refreshUserFilter();
     },
@@ -575,6 +544,7 @@ const Team = {
         }
         App.showToast('✅ تم حذف الحساب');
         this.render();
+        this.renderEmployeesPage();
         if (typeof App !== 'undefined' && App.refreshUserSwitcher) App.refreshUserSwitcher();
         if (typeof Companies !== 'undefined' && Companies.refreshUserFilter) Companies.refreshUserFilter();
     },
@@ -750,8 +720,9 @@ const Team = {
     approveUser(userId, role = 'agent') {
         const user = Storage.approveUser(userId, role);
         if (user) {
-            App.showToast(`✅ تم اعتماد وتفعيل حساب ${user.name} بنجاح كـ ${role === 'admin' ? 'مدير عام' : 'موظف مبيعات'}`, 'success');
+            App.showToast(`✅ تم اعتماد وتفعيل حساب ${user.name} بنجاح كـ ${role === 'admin' ? 'مدير عام' : role === 'supervisor' ? 'مشرف قراءة' : 'مسؤول مبيعات'}`, 'success');
             this.render();
+            this.renderEmployeesPage();
         }
     },
 
@@ -760,6 +731,7 @@ const Team = {
             Storage.rejectUser(userId);
             App.showToast('🗑️ تم رفض طلب التسجيل', 'info');
             this.render();
+            this.renderEmployeesPage();
         }
     },
 
@@ -768,6 +740,7 @@ const Team = {
         if (user) {
             App.showToast(`تم ${user.status === 'frozen' ? 'تجميد' : 'إعادة تفعيل'} حساب ${user.name}`, 'info');
             this.render();
+            this.renderEmployeesPage();
         }
     }
 };

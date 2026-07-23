@@ -415,7 +415,7 @@ const App = {
             page = 'companies'; // Default page for sales agents
         }
 
-        const validPages = ['dashboard', 'companies', 'calls', 'pipeline', 'reports', 'scraper', 'team'];
+        const validPages = ['dashboard', 'companies', 'calls', 'pipeline', 'reports', 'scraper', 'team', 'employees'];
         if (!validPages.includes(page)) page = canViewAll ? 'dashboard' : 'companies';
 
         this.currentPage = page;
@@ -441,6 +441,7 @@ const App = {
             case 'reports': Reports.render(); break;
             case 'scraper': ScraperPage.render(); break;
             case 'team': if (typeof Team !== 'undefined') Team.render(); break;
+            case 'employees': if (typeof Team !== 'undefined') Team.renderEmployeesPage(); break;
         }
 
         // Close sidebar on mobile
