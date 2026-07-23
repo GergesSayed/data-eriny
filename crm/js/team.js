@@ -539,7 +539,7 @@ const Team = {
 
         const modalHtml = `
             <div class="modal show" id="modal-user-form" style="z-index:99999; display:flex; align-items:center; justify-content:center; position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px);">
-                <div class="modal-dialog modal-sm" style="background:var(--bg-secondary); border-radius:16px; border:1px solid var(--border-color); overflow:hidden; width:92vw; max-width:540px; box-shadow:var(--shadow-lg); animation: modalSlideUp 0.3s ease;">
+                <div class="modal-dialog modal-sm" style="background:var(--bg-secondary); border-radius:16px; border:1px solid var(--border-color); overflow:hidden; width:92vw; max-width:560px; box-shadow:var(--shadow-lg); animation: modalSlideUp 0.3s ease;">
                     <div class="modal-header" style="background:var(--bg-surface); padding:16px 20px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
                         <h2 style="font-size:16px; font-weight:700; color:var(--text-primary); margin:0;">
                             <i class="fas ${user ? 'fa-user-edit' : 'fa-user-plus'}" style="color:#7c3aed;"></i>
@@ -576,14 +576,42 @@ const Team = {
                             <small style="color:var(--text-muted); font-size:11px; margin-top:4px; display:block;">⚠️ يمنع تكرار البريد الإلكتروني لأي موظف آخر بالنظام.</small>
                         </div>
 
-                        <!-- Password field -->
-                        <div class="form-group">
-                            <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">
-                                <i class="fas fa-lock" style="color:#f59e0b;"></i> كلمة المرور (Password) *
-                            </label>
-                            <input type="text" id="user-input-password" class="form-control" placeholder="${user ? 'اتركه كما هو أو أدخل كلمة جديدة' : '8 أرقام وحروف على الأقل'}" value="${user ? user.password || '' : ''}" ${user ? '' : 'required'} style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-primary); font-size:13px; outline:none;">
-                            <div style="font-size:11px; color:#f59e0b; margin-top:4px; font-weight:600;">
-                                <i class="fas fa-shield-alt"></i> يجب ألا تقل عن 8 خانات وتحتوي على أرقام وحروف معاً.
+                        <!-- Password & Confirm Password Fields Row -->
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                            <!-- Password field -->
+                            <div class="form-group">
+                                <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">
+                                    <i class="fas fa-lock" style="color:#f59e0b;"></i> كلمة المرور (Password) *
+                                </label>
+                                <div style="position:relative;">
+                                    <input type="password" id="user-input-password" class="form-control" placeholder="${user ? 'اتركه كما هو لعدم التغيير' : '8 أرقام وحروف على الأقل'}" value="${user ? user.password || '' : ''}" ${user ? '' : 'required'} style="width:100%; padding:10px 38px 10px 14px; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-primary); font-size:13px; outline:none;">
+                                    <button type="button" onclick="Team.togglePwInputVisibility('user-input-password', 'pw-eye-icon-1')" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:13px;">
+                                        <i class="fas fa-eye" id="pw-eye-icon-1"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Confirm Password field -->
+                            <div class="form-group">
+                                <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">
+                                    <i class="fas fa-check-double" style="color:#10b981;"></i> إعادة كتابة كلمة المرور *
+                                </label>
+                                <div style="position:relative;">
+                                    <input type="password" id="user-input-confirm-password" class="form-control" placeholder="أعد كتابة كلمة المرور لتأكيدها" value="${user ? user.password || '' : ''}" ${user ? '' : 'required'} style="width:100%; padding:10px 38px 10px 14px; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-primary); font-size:13px; outline:none;">
+                                    <button type="button" onclick="Team.togglePwInputVisibility('user-input-confirm-password', 'pw-eye-icon-2')" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:13px;">
+                                        <i class="fas fa-eye" id="pw-eye-icon-2"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Live Password Validation Hints -->
+                        <div id="pw-validation-box" style="background:rgba(30,41,59,0.6); border:1px solid var(--border-color); border-radius:10px; padding:10px 14px; font-size:11px;">
+                            <div style="font-weight:700; color:var(--text-secondary); margin-bottom:4px;">🔒 شروط صحة كلمة المرور:</div>
+                            <div style="display:flex; flex-direction:column; gap:3px;">
+                                <span id="pw-rule-length" style="color:#94a3b8;"><i class="fas fa-circle-notch"></i> 8 أرقام/حروف على الأقل</span>
+                                <span id="pw-rule-complex" style="color:#94a3b8;"><i class="fas fa-circle-notch"></i> تشمل حروف وأرقام معاً</span>
+                                <span id="pw-rule-match" style="color:#94a3b8;"><i class="fas fa-circle-notch"></i> مطابقة كلمتي المرور (إعادة الكتابة)</span>
                             </div>
                         </div>
 
@@ -635,10 +663,73 @@ const Team = {
         if (existingModal) existingModal.remove();
         document.body.insertAdjacentHTML('beforeend', modalHtml);
 
+        // Bind live password validation listener
+        const p1 = document.getElementById('user-input-password');
+        const p2 = document.getElementById('user-input-confirm-password');
+        const updateLiveRules = () => {
+            const val1 = p1 ? p1.value : '';
+            const val2 = p2 ? p2.value : '';
+            
+            const rLen = document.getElementById('pw-rule-length');
+            const rComp = document.getElementById('pw-rule-complex');
+            const rMatch = document.getElementById('pw-rule-match');
+
+            if (rLen) {
+                if (val1.length >= 8) {
+                    rLen.style.color = '#10b981';
+                    rLen.innerHTML = '<i class="fas fa-check-circle"></i> 8 أرقام/حروف على الأقل';
+                } else {
+                    rLen.style.color = '#94a3b8';
+                    rLen.innerHTML = '<i class="fas fa-circle-notch"></i> 8 أرقام/حروف على الأقل';
+                }
+            }
+
+            if (rComp) {
+                const hasLetter = /[a-zA-Z\u0600-\u06FF]/.test(val1);
+                const hasNumber = /[0-9]/.test(val1);
+                if (hasLetter && hasNumber) {
+                    rComp.style.color = '#10b981';
+                    rComp.innerHTML = '<i class="fas fa-check-circle"></i> تشمل حروف وأرقام معاً';
+                } else {
+                    rComp.style.color = '#94a3b8';
+                    rComp.innerHTML = '<i class="fas fa-circle-notch"></i> تشمل حروف وأرقام معاً';
+                }
+            }
+
+            if (rMatch) {
+                if (val1 && val2 && val1 === val2) {
+                    rMatch.style.color = '#10b981';
+                    rMatch.innerHTML = '<i class="fas fa-check-circle"></i> كلمتا المرور متطابقتان بنجاح!';
+                } else if (val2 && val1 !== val2) {
+                    rMatch.style.color = '#ef4444';
+                    rMatch.innerHTML = '<i class="fas fa-times-circle"></i> كلمتا المرور غير متطابقتين!';
+                } else {
+                    rMatch.style.color = '#94a3b8';
+                    rMatch.innerHTML = '<i class="fas fa-circle-notch"></i> مطابقة كلمتي المرور (إعادة الكتابة)';
+                }
+            }
+        };
+
+        if (p1) p1.oninput = updateLiveRules;
+        if (p2) p2.oninput = updateLiveRules;
+
         document.getElementById('form-user-submit').onsubmit = (e) => {
             e.preventDefault();
             this.saveUser();
         };
+    },
+
+    togglePwInputVisibility(inputId, iconId) {
+        const field = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+        if (!field) return;
+        if (field.type === 'password') {
+            field.type = 'text';
+            if (icon) icon.className = 'fas fa-eye-slash';
+        } else {
+            field.type = 'password';
+            if (icon) icon.className = 'fas fa-eye';
+        }
     },
 
     saveUser() {
@@ -647,9 +738,18 @@ const Team = {
         const lastName = document.getElementById('user-input-lastname').value;
         const email = document.getElementById('user-input-email').value;
         const password = document.getElementById('user-input-password').value;
+        const confirmPassword = document.getElementById('user-input-confirm-password').value;
         const erpCode = document.getElementById('user-input-erp').value;
         const region = document.getElementById('user-input-region').value;
         const role = document.getElementById('user-input-role').value;
+
+        // Check password matching
+        if (!id || password || confirmPassword) {
+            if (password !== confirmPassword) {
+                App.showToast('❌ كلمتا المرور غير متطابقتين! يرجى إعادة كتابة كلمة المرور بشكل صحسح وتأكيدها.', 'error');
+                return;
+            }
+        }
 
         if (id) {
             const updatePayload = { firstName, lastName, email, erpCode, region, role };
@@ -684,7 +784,7 @@ const Team = {
 
         const modalHtml = `
             <div class="modal show" id="modal-reset-password" style="z-index:99999; display:flex; align-items:center; justify-content:center; position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px);">
-                <div class="modal-dialog modal-sm" style="background:var(--bg-secondary); border-radius:16px; border:1px solid var(--border-color); overflow:hidden; width:92vw; max-width:440px; box-shadow:var(--shadow-lg); animation: modalSlideUp 0.3s ease;">
+                <div class="modal-dialog modal-sm" style="background:var(--bg-secondary); border-radius:16px; border:1px solid var(--border-color); overflow:hidden; width:92vw; max-width:460px; box-shadow:var(--shadow-lg); animation: modalSlideUp 0.3s ease;">
                     <div class="modal-header" style="background:var(--bg-surface); padding:16px 20px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
                         <h2 style="font-size:16px; font-weight:700; color:var(--text-primary); margin:0;">
                             <i class="fas fa-key" style="color:#f59e0b;"></i>
@@ -705,10 +805,28 @@ const Team = {
                             <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">
                                 <i class="fas fa-lock" style="color:#f59e0b;"></i> كلمة المرور الجديدة *
                             </label>
-                            <input type="text" id="reset-new-password" class="form-control" placeholder="أدخل كلمة المرور الجديدة..." required style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-primary); font-size:13px; outline:none;">
-                            <div style="font-size:11px; color:#f59e0b; margin-top:6px; font-weight:600;">
-                                <i class="fas fa-info-circle"></i> الشروط: 8 أرقام/حروف على الأقل وتتكون من أرقام وحروف معاً.
+                            <div style="position:relative;">
+                                <input type="password" id="reset-new-password" class="form-control" placeholder="أدخل كلمة المرور الجديدة..." required style="width:100%; padding:10px 38px 10px 14px; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-primary); font-size:13px; outline:none;">
+                                <button type="button" onclick="Team.togglePwInputVisibility('reset-new-password', 'reset-eye-1')" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:13px;">
+                                    <i class="fas fa-eye" id="reset-eye-1"></i>
+                                </button>
                             </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">
+                                <i class="fas fa-check-double" style="color:#10b981;"></i> إعادة كتابة كلمة المرور للتأكيد *
+                            </label>
+                            <div style="position:relative;">
+                                <input type="password" id="reset-confirm-password" class="form-control" placeholder="أعد كتابة كلمة المرور لتأكيدها..." required style="width:100%; padding:10px 38px 10px 14px; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-primary); font-size:13px; outline:none;">
+                                <button type="button" onclick="Team.togglePwInputVisibility('reset-confirm-password', 'reset-eye-2')" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:13px;">
+                                    <i class="fas fa-eye" id="reset-eye-2"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div style="font-size:11px; color:#f59e0b; font-weight:600;">
+                            <i class="fas fa-info-circle"></i> الشروط: 8 أرقام/حروف على الأقل وتتكون من أرقام وحروف معاً.
                         </div>
 
                         <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:8px; padding-top:14px; border-top:1px solid var(--border-light);">
@@ -729,6 +847,13 @@ const Team = {
         document.getElementById('form-reset-password-submit').onsubmit = (e) => {
             e.preventDefault();
             const newPassword = document.getElementById('reset-new-password').value;
+            const confirmPassword = document.getElementById('reset-confirm-password').value;
+
+            if (newPassword !== confirmPassword) {
+                App.showToast('❌ كلمتا المرور غير متطابقتين! يرجى إعادة كتابة كلمة المرور لتأكيدها.', 'error');
+                return;
+            }
+
             const res = Storage.resetUserPassword(userId, newPassword);
             if (!res.success) {
                 App.showToast(`❌ ${res.message}`, 'error');
