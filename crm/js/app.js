@@ -479,13 +479,27 @@ const App = {
                 const page = link.dataset.page;
                 if (page) {
                     this.navigateTo(page);
+                    // Close sidebar on mobile after navigation
+                    if (window.innerWidth <= 1024) {
+                        document.getElementById('sidebar')?.classList.remove('open');
+                        document.getElementById('sidebar-overlay')?.classList.remove('active');
+                    }
                 }
             });
         });
 
         // Sidebar toggle
         document.getElementById('toggle-sidebar')?.addEventListener('click', () => {
-            document.getElementById('sidebar').classList.toggle('open');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            sidebar.classList.toggle('open');
+            overlay?.classList.toggle('active', sidebar.classList.contains('open'));
+        });
+
+        // Sidebar overlay click to close
+        document.getElementById('sidebar-overlay')?.addEventListener('click', () => {
+            document.getElementById('sidebar')?.classList.remove('open');
+            document.getElementById('sidebar-overlay')?.classList.remove('active');
         });
 
         // Team management button
