@@ -127,6 +127,30 @@ const Team = {
                     ` : ''}
                 </div>
 
+                <!-- Roles & Permissions Matrix Guide Panel -->
+                <div style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.9)); border: 1px solid rgba(124, 58, 237, 0.25); border-radius: 16px; padding: 18px 22px; margin-bottom: 24px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 12px;">
+                        <h4 style="margin: 0; font-size: 1rem; font-weight: 800; color: #f8fafc;">
+                            <i class="fas fa-shield-halved" style="color: #7c3aed; margin-left: 8px;"></i> نظام إدارة الأدوار ومستويات الوصول (Roles & Permissions Matrix)
+                        </h4>
+                        <span style="font-size: 0.78rem; color: #94a3b8;">يمكنك تخصيص وتعديل صلاحية أي موظف فوراً من زر التعديل ✏️</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px;">
+                        <div style="background: rgba(124, 58, 237, 0.1); border: 1px solid rgba(124, 58, 237, 0.3); border-radius: 12px; padding: 12px 14px;">
+                            <div style="font-weight: 800; color: #c4b5fd; font-size: 0.9rem; margin-bottom: 4px;">👑 مدير عام (Admin)</div>
+                            <p style="font-size: 0.78rem; color: #cbd5e1; margin: 0; line-height: 1.4;">تحكم شامل بكافة الخصائص • إضافة وتعديل الشركات • إسناد الشركات للموظفين • إدارة وصلاحيات الفريق كاملاً.</p>
+                        </div>
+                        <div style="background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 12px; padding: 12px 14px;">
+                            <div style="font-weight: 800; color: #22d3ee; font-size: 0.9rem; margin-bottom: 4px;">👁️ مشرف (Supervisor)</div>
+                            <p style="font-size: 0.78rem; color: #cbd5e1; margin: 0; line-height: 1.4;">استعراض ومتابعة شاملة لجميع الشاشات والشركات والمكالمات والتقارير <b style="color:#22d3ee;">(🔒 قراءة فقط دون صلاحية إضافة أو تعديل أو حذف)</b>.</p>
+                        </div>
+                        <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 12px 14px;">
+                            <div style="font-weight: 800; color: #60a5fa; font-size: 0.9rem; margin-bottom: 4px;">👨‍💼 مسؤول مبيعات (Sales Agent)</div>
+                            <p style="font-size: 0.78rem; color: #cbd5e1; margin: 0; line-height: 1.4;">رؤية واستعراض الشركات المسندة له فقط من قبل المدير العام • تسجيل وتوثيق مكالماته اليومية وإضافة الصفقات.</p>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Team Overview Summary Cards -->
                 <div class="stats-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:16px; margin-bottom:24px;">
                     <div class="stat-card" style="background:var(--bg-secondary); border-radius:12px; padding:16px; border:1px solid var(--border-color);">
@@ -148,13 +172,27 @@ const Team = {
                 </div>
 
                 <!-- Employee Audit Table -->
-                <div class="table-container" style="background:var(--bg-secondary); border-radius:12px; border:1px solid var(--border-color); padding:16px;">
-                    <h3 style="margin-bottom:16px; font-size:16px; font-weight:700;"><i class="fas fa-chart-line"></i> تقرير إنجازات وتواصل الموظفين التفصيلي</h3>
+                <div class="table-container" style="background:var(--bg-secondary); border-radius:16px; border:1px solid var(--border-color); padding:20px; box-shadow:var(--shadow-sm);">
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+                        <div>
+                            <h3 style="margin:0; font-size:17px; font-weight:800; color:var(--text-primary);">
+                                <i class="fas fa-users-gear" style="color:#7c3aed; margin-left:8px;"></i> جدول الموظفين وتفاصيل الصلاحيات الفردية
+                            </h3>
+                            <p style="margin:4px 0 0 0; font-size:12px; color:var(--text-muted);">فصل دقيق لكافة مستويات الوصول (مدير عام 👑، مشرف قراءة فقط 👁️، مسؤول مبيعات 👨‍💼)</p>
+                        </div>
+                        ${Storage.canModify() ? `
+                            <button class="btn btn-primary" onclick="Team.openUserModal()" style="background:var(--gradient-primary); padding:10px 20px; font-weight:800; border-radius:12px; box-shadow:0 4px 15px rgba(124, 58, 237, 0.4);">
+                                <i class="fas fa-user-plus" style="margin-left:6px;"></i> إضافة موظف جديد تحديد الصلاحيات
+                            </button>
+                        ` : ''}
+                    </div>
+
                     <table class="data-table">
                         <thead>
                             <tr>
                                 <th>الموظف <small>Employee</small></th>
-                                <th>المنطقة والرقم</th>
+                                <th>مستوى الصلاحية والتحكم <small>Role & Scope</small></th>
+                                <th>المنطقة ورقم ERP</th>
                                 <th>الشركات المسندة</th>
                                 <th>تم التواصل <small>Contacted</small></th>
                                 <th>متبقية لم يتصل <small>Remaining</small></th>
@@ -165,16 +203,35 @@ const Team = {
                             </tr>
                         </thead>
                         <tbody>
-                            ${usersStats.map(u => `
+                            ${usersStats.map(u => {
+                                let roleBadge = '';
+                                let permDetail = '';
+
+                                if (u.role === 'admin' || u.id === 'admin') {
+                                    roleBadge = `<span class="badge" style="background:rgba(124, 58, 237, 0.2); color:#c4b5fd; border:1px solid #7c3aed; font-weight:800; padding:5px 10px;">👑 مدير عام (Admin)</span>`;
+                                    permDetail = `<div style="font-size:10px; color:#a78bfa; margin-top:4px; font-weight:700;"><i class="fas fa-check-double" style="color:#10b981; margin-left:3px;"></i> تحكم وتعديل وإسناد وإدارة كاملة</div>`;
+                                } else if (u.role === 'supervisor') {
+                                    roleBadge = `<span class="badge" style="background:rgba(6, 182, 212, 0.2); color:#22d3ee; border:1px solid #06b6d4; font-weight:800; padding:5px 10px;">👁️ مشرف (Supervisor)</span>`;
+                                    permDetail = `<div style="font-size:10px; color:#22d3ee; margin-top:4px; font-weight:700;"><i class="fas fa-eye" style="color:#06b6d4; margin-left:3px;"></i> رؤية كل الشاشات • 🔒 قراءة فقط (بدون تعديل)</div>`;
+                                } else {
+                                    roleBadge = `<span class="badge" style="background:rgba(59, 130, 246, 0.2); color:#60a5fa; border:1px solid #3b82f6; font-weight:800; padding:5px 10px;">👨‍💼 مسؤول مبيعات (Sales Agent)</span>`;
+                                    permDetail = `<div style="font-size:10px; color:#94a3b8; margin-top:4px; font-weight:700;"><i class="fas fa-briefcase" style="color:#3b82f6; margin-left:3px;"></i> شركاته المسندة فقط • 📞 تسجيل المكالمات</div>`;
+                                }
+
+                                return `
                                 <tr>
                                     <td>
-                                        <div style="display:flex; align-items:center; gap:8px;">
-                                            <span style="background:${u.color}; color:#fff; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px;">${u.avatar || '👤'}</span>
+                                        <div style="display:flex; align-items:center; gap:10px;">
+                                            <span style="background:${u.color || '#7c3aed'}; color:#fff; width:36px; height:36px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:bold; box-shadow:0 4px 10px rgba(0,0,0,0.2);">${u.avatar || (u.role === 'admin' ? '👑' : u.role === 'supervisor' ? '👁️' : '👨‍💼')}</span>
                                             <div>
-                                                <div style="font-weight:700; color:var(--text-primary);">${u.name}</div>
-                                                <small style="color:var(--text-muted);">${u.role === 'admin' ? '👑 مدير عام' : '👨‍💼 مسؤول مبيعات'}</small>
+                                                <div style="font-weight:800; color:var(--text-primary); font-size:14px;">${u.name}</div>
+                                                <small style="color:var(--text-muted); font-size:11px; direction:ltr; text-align:right; display:block;">👤 @${u.username || 'user'}</small>
                                             </div>
                                         </div>
+                                    </td>
+                                    <td>
+                                        ${roleBadge}
+                                        ${permDetail}
                                     </td>
                                     <td>
                                         <div style="font-size:11px;"><span class="badge" style="background:var(--bg-surface); border:1px solid var(--border-color);">${Storage.getRegionLabel(u.region)}</span></div>
@@ -204,18 +261,18 @@ const Team = {
                                                     <i class="fas fa-tasks"></i> تخصيص الشركات
                                                 </button>
                                                 ${u.id !== 'admin' ? `
-                                                    <button class="btn-icon btn-edit" onclick="Team.openUserModal('${u.id}')" title="تعديل الحساب">
+                                                    <button class="btn-icon btn-edit" onclick="Team.openUserModal('${u.id}')" title="تعديل الحساب والصلاحية">
                                                         <i class="fas fa-edit"></i>
                                                     </button>
-                                                    <button class="btn-icon btn-delete" onclick="Team.deleteUser('${u.id}')" title="حذف">
+                                                    <button class="btn-icon btn-delete" onclick="Team.deleteUser('${u.id}')" title="حذف الحساب">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
                                                 ` : ''}
                                             ` : ''}
                                         </div>
                                     </td>
-                                </tr>
-                            `).join('')}
+                                </tr>`;
+                            }).join('')}
                         </tbody>
                     </table>
                 </div>
