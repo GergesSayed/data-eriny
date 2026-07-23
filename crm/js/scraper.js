@@ -517,33 +517,57 @@ const ScraperPage = {
     },
 
     async toggleProcess(type) {
+        const btn = document.getElementById(type === 'scraper' ? 'btn-toggle-scraper' : 'btn-toggle-enricher');
+        const originalText = btn ? btn.innerHTML : '';
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-left:6px;"></i> جاري الاستجابة...';
+        }
+
         try {
-            const statusResp = await fetch('http://localhost:8888/api/status');
-            if (!statusResp.ok) return;
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 2000);
+
+            const statusResp = await fetch('http://localhost:8888/api/status?' + Date.now(), { signal: controller.signal });
+            clearTimeout(timeoutId);
+
+            if (!statusResp.ok) throw new Error('خادم السكرابر غير متصل (Offline)');
             const status = await statusResp.json();
             
             const isRunning = type === 'scraper' ? status.scraper_running : status.enricher_running;
             
             if (isRunning) {
                 if (confirm(`هل تريد إيقاف ${type === 'scraper' ? 'السكرابر (Google Maps)' : 'إثراء LinkedIn'}؟`)) {
-                    const resp = await fetch(`http://localhost:8888/api/stop?target=${type}`);
+                    const stopCtrl = new AbortController();
+                    const stopTimer = setTimeout(() => stopCtrl.abort(), 2000);
+                    const resp = await fetch(`http://localhost:8888/api/stop?target=${type}`, { signal: stopCtrl.signal });
+                    clearTimeout(stopTimer);
                     const data = await resp.json();
                     if (data.status === 'stopped') {
-                        App.showToast('تم إيقاف العملية بنجاح', 'info');
+                        App.showToast('✅ تم إيقاف العملية بنجاح', 'info');
                     }
                 }
             } else {
-                const resp = await fetch(`http://localhost:8888/api/run-${type}`);
+                const runCtrl = new AbortController();
+                const runTimer = setTimeout(() => runCtrl.abort(), 2500);
+                const resp = await fetch(`http://localhost:8888/api/run-${type}`, { signal: runCtrl.signal });
+                clearTimeout(runTimer);
                 const data = await resp.json();
                 if (data.status === 'started') {
-                    App.showToast(`تم تشغيل ${type === 'scraper' ? 'السكرابر (Google Maps)' : 'إثراء LinkedIn'} في الخلفية`, 'success');
+                    App.showToast(`🚀 تم تشغيل ${type === 'scraper' ? 'السكرابر (Google Maps)' : 'إثراء LinkedIn'} في الخلفية بنجاح!`, 'success');
                 } else if (data.status === 'error') {
-                    alert('خطأ في تشغيل السكربت: ' + data.message);
+                    alert('⚠️ خطأ في تشغيل السكربت: ' + data.message);
                 }
             }
-            this.fetchData();
+            await this.fetchData();
         } catch (err) {
-            alert('فشل الاتصال بخادم السكرابر: ' + err.message);
+            console.error('Scraper toggle failed:', err);
+            alert(`💡 لتشغيل السكرابر المحلي من جهازك:\nيرجى تشغيل ملف START.bat لربط السكرابر التلقائي بالـ CRM.\n\nسبب عدم الاستجابة: ${err.message}`);
+        } finally {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
         }
     },
 

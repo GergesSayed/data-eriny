@@ -29,32 +29,51 @@ processes = {
 process_lock = threading.RLock()
 
 def get_script_pids(script_name):
+    # Fast PID file check first
+    p_key = 'scraper' if 'ultra_scraper' in script_name else 'enricher'
+    pid_file = os.path.join(SCRAPER_DIR, 'output', f'_{p_key}.pid')
+    if os.path.exists(pid_file):
+        try:
+            with open(pid_file, 'r') as f:
+                pid = int(f.read().strip())
+                if sys.platform == 'win32':
+                    import ctypes
+                    kernel32 = ctypes.windll.kernel32
+                    h_process = kernel32.OpenProcess(0x1000, False, pid)
+                    if h_process:
+                        kernel32.CloseHandle(h_process)
+                        return [pid]
+                else:
+                    os.kill(pid, 0)
+                    return [pid]
+        except Exception:
+            pass
+
+    # Fast tasklist fallback (50ms vs 3000ms PowerShell WMI)
     try:
-        cmd = ['powershell', '-Command', f'Get-CimInstance Win32_Process | Where-Object {{ $_.Name -match "python" -and $_.CommandLine -like "*{script_name}*" -and $_.CommandLine -notlike "*Get-CimInstance*" }} | Select-Object -ExpandProperty ProcessId']
-        creation_flags = 0
-        if sys.platform == 'win32':
-            creation_flags = 0x08000000 # CREATE_NO_WINDOW
-        output = subprocess.check_output(cmd, creationflags=creation_flags, timeout=3).decode('utf-8', errors='ignore')
+        creation_flags = 0x08000000 if sys.platform == 'win32' else 0
+        cmd = ['tasklist', '/FI', 'IMAGENAME eq python.exe', '/FO', 'CSV', '/NH']
+        output = subprocess.check_output(cmd, creationflags=creation_flags, timeout=1).decode('utf-8', errors='ignore')
         pids = []
         for line in output.split('\n'):
-            line = line.strip()
-            if line.isdigit():
-                pids.append(int(line))
+            parts = line.split(',')
+            if len(parts) >= 2:
+                pid_str = parts[1].replace('"', '').strip()
+                if pid_str.isdigit():
+                    pids.append(int(pid_str))
         return pids
     except Exception:
         return []
 
 def is_script_running(script_name):
-    # 1. Fast check: see if we have an active subprocess handle tracked in memory
     p_key = 'scraper' if 'ultra_scraper' in script_name else 'enricher'
     with process_lock:
         p = processes.get(p_key)
         if p is not None:
             if p.poll() is None:
                 return True
-            processes[p_key] = None # Reset finished subprocess
+            processes[p_key] = None
 
-    # 2. Slow fallback check (only if not launched by this server session)
     return len(get_script_pids(script_name)) > 0
 
 
