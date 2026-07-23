@@ -150,12 +150,12 @@ const Storage = {
     },
 
     isLoggedIn() {
-        const userId = localStorage.getItem(this.KEYS.CURRENT_USER);
+        const userId = sessionStorage.getItem(this.KEYS.CURRENT_USER) || localStorage.getItem(this.KEYS.CURRENT_USER);
         return !!userId && !!this.getUser(userId);
     },
 
     getCurrentUser() {
-        const userId = localStorage.getItem(this.KEYS.CURRENT_USER);
+        const userId = sessionStorage.getItem(this.KEYS.CURRENT_USER) || localStorage.getItem(this.KEYS.CURRENT_USER);
         if (!userId) return null;
         let user = this.getUser(userId);
         if (!user) return null;
@@ -163,6 +163,20 @@ const Storage = {
             user.role = 'admin';
         }
         return user;
+    },
+
+    setCurrentUser(userId, remember = false) {
+        if (!userId) {
+            sessionStorage.removeItem(this.KEYS.CURRENT_USER);
+            localStorage.removeItem(this.KEYS.CURRENT_USER);
+            return;
+        }
+        sessionStorage.setItem(this.KEYS.CURRENT_USER, userId);
+        if (remember) {
+            localStorage.setItem(this.KEYS.CURRENT_USER, userId);
+        } else {
+            localStorage.removeItem(this.KEYS.CURRENT_USER);
+        }
     },
 
     resetToAdmin() {
@@ -178,16 +192,16 @@ const Storage = {
             }
             this._set(this.KEYS.USERS, users);
         }
-        localStorage.setItem(this.KEYS.CURRENT_USER, 'admin');
+        this.setCurrentUser('admin', false);
         return this.DEFAULT_USERS[0];
     },
 
-    login(username, password) {
+    login(username, password, remember = false) {
         const user = this.getUserByUsername(username);
         if (!user) return { success: false, message: 'اسم المستخدم غير موجود' };
         if (user.password !== password) return { success: false, message: 'كلمة المرور غير صحيحة' };
         
-        localStorage.setItem(this.KEYS.CURRENT_USER, user.id);
+        this.setCurrentUser(user.id, remember);
         this.addActivity('auth', user.id, 'تسجيل دخول', `دخول المستخدم: ${user.name}`);
         return { success: true, user };
     },
@@ -197,6 +211,7 @@ const Storage = {
         if (user) {
             this.addActivity('auth', user.id, 'تسجيل خروج', `خروج المستخدم: ${user.name}`);
         }
+        sessionStorage.removeItem(this.KEYS.CURRENT_USER);
         localStorage.removeItem(this.KEYS.CURRENT_USER);
     },
 

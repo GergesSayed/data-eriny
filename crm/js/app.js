@@ -14,6 +14,11 @@ const App = {
         try {
             // Ensure clean initial state flags if needed
             try {
+                if (!localStorage.getItem('fleetcrm_auth_reset_v5')) {
+                    localStorage.removeItem('fleetcrm_current_user');
+                    sessionStorage.removeItem('fleetcrm_current_user');
+                    localStorage.setItem('fleetcrm_auth_reset_v5', 'true');
+                }
                 if (!localStorage.getItem('fleetcrm_deals_cleared_v3')) {
                     localStorage.setItem('fleetcrm_calls', '[]');
                     localStorage.setItem('fleetcrm_deals', '[]');
@@ -144,13 +149,16 @@ const App = {
             return;
         }
 
+        const rememberEl = document.getElementById('login-remember');
+        const remember = rememberEl ? rememberEl.checked : false;
+
         if (submitBtn) {
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-left: 8px;"></i> جاري التحقق...';
         }
 
         setTimeout(() => {
-            const res = Storage.login(username, password);
+            const res = Storage.login(username, password, remember);
 
             if (!res.success) {
                 if (submitBtn) {
@@ -181,7 +189,6 @@ const App = {
                 return;
             }
 
-            localStorage.setItem(Storage.KEYS.CURRENT_USER, res.user.id);
             this.showToast(`🎉 أهلاً بك يا ${res.user.name}`, 'success');
             if (submitBtn) {
                 submitBtn.disabled = false;
