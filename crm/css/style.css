@@ -1707,7 +1707,7 @@ a:hover { color: var(--accent); }
     inset: 0;
     z-index: 99999;
     background: #030712;
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: center;
     padding: 1.5rem;
