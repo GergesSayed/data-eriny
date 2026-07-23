@@ -11,9 +11,6 @@ const App = {
             if (loadingOverlay) loadingOverlay.classList.add('hidden');
         };
 
-        // Immediately check auth to prevent login flash on refresh
-        this.checkAuth();
-
         try {
             // Ensure clean initial state flags if needed
             try {
@@ -99,11 +96,14 @@ const App = {
         const mainWrapper = document.querySelector('.main-wrapper');
 
         if (!currentUser) {
+            // Remove the head-script class so CSS !important rules don't block login display
+            document.documentElement.classList.remove('user-logged-in');
             if (loginScreen) loginScreen.style.display = 'flex';
             if (sidebar) sidebar.style.display = 'none';
             if (mainWrapper) mainWrapper.style.display = 'none';
             this.initLoginCapsWarning();
         } else {
+            document.documentElement.classList.add('user-logged-in');
             if (loginScreen) loginScreen.style.display = 'none';
             if (sidebar) sidebar.style.display = 'flex';
             if (mainWrapper) mainWrapper.style.display = 'flex';
