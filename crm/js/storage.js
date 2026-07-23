@@ -122,7 +122,32 @@ const Storage = {
 
     getUserByUsername(username) {
         if (!username) return null;
-        return this.getUsers().find(u => u.username && u.username.toLowerCase() === username.toLowerCase().trim()) || null;
+        const query = username.toLowerCase().trim();
+        return this.getUsers().find(u => 
+            (u.email && u.email.toLowerCase().trim() === query) ||
+            (u.username && u.username.toLowerCase().trim() === query)
+        ) || null;
+    },
+
+    getUserByEmail(email) {
+        if (!email) return null;
+        const query = email.toLowerCase().trim();
+        return this.getUsers().find(u => u.email && u.email.toLowerCase().trim() === query) || null;
+    },
+
+    validatePasswordStrength(password) {
+        if (!password || typeof password !== 'string') {
+            return { valid: false, message: 'يرجى إدخال كلمة المرور' };
+        }
+        if (password.length < 8) {
+            return { valid: false, message: 'كلمة المرور يجب أن تكون 8 أرقام/حروف على الأقل' };
+        }
+        const hasLetter = /[a-zA-Z\u0600-\u06FF]/.test(password);
+        const hasNumber = /[0-9]/.test(password);
+        if (!hasLetter || !hasNumber) {
+            return { valid: false, message: 'كلمة المرور يجب أن تشمل أرقاماً وحروفاً معاً' };
+        }
+        return { valid: true };
     },
 
     isAdmin(user) {
@@ -196,9 +221,9 @@ const Storage = {
         return this.DEFAULT_USERS[0];
     },
 
-    login(username, password, remember = false) {
-        const user = this.getUserByUsername(username);
-        if (!user) return { success: false, message: 'اسم المستخدم غير موجود' };
+    login(identifier, password, remember = false) {
+        const user = this.getUserByUsername(identifier);
+        if (!user) return { success: false, message: 'البريد الإلكتروني أو اسم المستخدم غير موجود' };
         if (user.password !== password) return { success: false, message: 'كلمة المرور غير صحيحة' };
         
         this.setCurrentUser(user.id, remember);
@@ -229,24 +254,55 @@ const Storage = {
 
     addUser(userData) {
         const users = this.getUsers();
-        if (users.some(u => u.username && u.username.toLowerCase() === userData.username.toLowerCase().trim())) {
-            return { success: false, message: 'اسم المستخدم مستخدم بالفعل' };
+        
+        const firstName = (userData.firstName || '').trim();
+        const lastName = (userData.lastName || '').trim();
+        const email = (userData.email || '').trim().toLowerCase();
+        const password = (userData.password || '').trim();
+        const username = (userData.username || email.split('@')[0] || 'user').trim().toLowerCase();
+        
+        if (!email) {
+            return { success: false, message: 'يرجى إدخال البريد الإلكتروني (Email)' };
         }
+
+        // Validate unique email
+        if (users.some(u => u.email && u.email.toLowerCase().trim() === email)) {
+            return { success: false, message: 'هذا البريد الإلكتروني مُسجّل بالفعل لموظف آخر!' };
+        }
+
+        // Validate unique username if given
+        if (username && users.some(u => u.username && u.username.toLowerCase().trim() === username)) {
+            return { success: false, message: 'اسم المستخدم/الإيميل مستخدم بالفعل لحساب آخر' };
+        }
+
+        // Validate password strength
+        const passCheck = this.validatePasswordStrength(password);
+        if (!passCheck.valid) {
+            return { success: false, message: passCheck.message };
+        }
+
+        const fullName = `${firstName} ${lastName}`.trim() || userData.name || email.split('@')[0];
+
         const newUser = {
             id: 'usr_' + Date.now(),
-            username: userData.username.trim(),
-            password: userData.password.trim(),
-            name: userData.name.trim(),
+            firstName,
+            lastName,
+            email,
+            username,
+            password,
+            name: fullName,
             role: userData.role || 'agent',
+            permissions: userData.permissions || [],
             erpCode: userData.erpCode ? userData.erpCode.trim() : '',
             region: userData.region || 'cairo',
-            avatar: userData.role === 'admin' ? '👑' : '👨‍💼',
+            avatar: userData.role === 'admin' ? '👑' : userData.role === 'supervisor' ? '👁️' : '👨‍💼',
             color: userData.color || '#3b82f6',
+            status: 'active',
             createdAt: new Date().toISOString()
         };
         users.push(newUser);
         this._set(this.KEYS.USERS, users);
-        this.addActivity('user', newUser.id, 'إضافة موظف جديد', `تم إضافة: ${newUser.name}`);
+        this.addActivity('user', newUser.id, 'إضافة موظف جديد', `تم إضافة الموظف: ${newUser.name} (${email})`);
         return { success: true, user: newUser };
     },
 
@@ -255,16 +311,52 @@ const Storage = {
         const index = users.findIndex(u => u.id === id);
         if (index === -1) return { success: false, message: 'المستخدم غير موجود' };
 
-        // Check username collision
-        if (userData.username) {
-            const existing = users.find(u => u.id !== id && u.username && u.username.toLowerCase() === userData.username.toLowerCase().trim());
-            if (existing) return { success: false, message: 'اسم المستخدم مستخدم لحساب آخر' };
+        const email = (userData.email || users[index].email || '').trim().toLowerCase();
+        if (email) {
+            const existingEmail = users.find(u => u.id !== id && u.email && u.email.toLowerCase().trim() === email);
+            if (existingEmail) return { success: false, message: 'هذا البريد الإلكتروني مستخدم بالفعل لحساب موظف آخر!' };
         }
 
-        users[index] = { ...users[index], ...userData };
+        if (userData.username) {
+            const existingUser = users.find(u => u.id !== id && u.username && u.username.toLowerCase().trim() === userData.username.toLowerCase().trim());
+            if (existingUser) return { success: false, message: 'اسم المستخدم مستخدم لحساب آخر' };
+        }
+
+        if (userData.password) {
+            const passCheck = this.validatePasswordStrength(userData.password);
+            if (!passCheck.valid) {
+                return { success: false, message: passCheck.message };
+            }
+        }
+
+        const firstName = userData.firstName !== undefined ? userData.firstName.trim() : (users[index].firstName || '');
+        const lastName = userData.lastName !== undefined ? userData.lastName.trim() : (users[index].lastName || '');
+        let name = users[index].name;
+        if (firstName || lastName) {
+            name = `${firstName} ${lastName}`.trim();
+        } else if (userData.name) {
+            name = userData.name.trim();
+        }
+
+        users[index] = {
+            ...users[index],
+            ...userData,
+            firstName,
+            lastName,
+            name,
+            email
+        };
         this._set(this.KEYS.USERS, users);
         this.addActivity('user', id, 'تعديل بيانات موظف', `تعديل حساب: ${users[index].name}`);
         return { success: true, user: users[index] };
+    },
+
+    resetUserPassword(id, newPassword) {
+        const passCheck = this.validatePasswordStrength(newPassword);
+        if (!passCheck.valid) {
+            return { success: false, message: passCheck.message };
+        }
+        return this.updateUser(id, { password: newPassword });
     },
 
     deleteUser(id) {

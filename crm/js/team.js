@@ -278,8 +278,8 @@ const Team = {
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>الموظف <small>Employee</small></th>
-                                <th>بيانات الدخول <small>Username / Password</small></th>
+                                <th>الموظف <small>Employee Name</small></th>
+                                <th>بيانات الدخول <small>Email & Login</small></th>
                                 <th>مستوى الصلاحية والتحكم <small>Role & Scope</small></th>
                                 <th>المنطقة ورقم ERP</th>
                                 <th>حالة الحساب <small>Status</small></th>
@@ -320,8 +320,8 @@ const Team = {
                                     </td>
                                     <td>
                                         <div style="direction:ltr; text-align:right;">
-                                            <code style="font-weight:800; color:var(--text-primary); font-size:12px;">👤 @${u.username || 'user'}</code>
-                                            <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">🔑 Pass: <span style="font-family:monospace; color:#a78bfa;">${u.password || '123'}</span></div>
+                                            <code style="font-weight:800; color:#3b82f6; font-size:12px;"><i class="fas fa-envelope"></i> ${u.email || u.username + '@fleet.com'}</code>
+                                            <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">🔑 كلمة المرور: <span style="font-family:monospace; color:#a78bfa;">${u.password || '••••••••'}</span></div>
                                         </div>
                                     </td>
                                     <td>
@@ -335,21 +335,24 @@ const Team = {
                                     <td>${statusBadge}</td>
                                     ${Storage.canModify() ? `
                                         <td>
-                                            <div class="table-actions">
+                                            <div class="table-actions" style="display:flex; gap:6px; flex-wrap:wrap;">
                                                 <button class="btn btn-ghost btn-sm" onclick="Team.openUserModal('${u.id}')" title="تعديل الحساب والصلاحية" style="font-weight:700;">
-                                                    <i class="fas fa-edit"></i> تعديل الصلاحية
+                                                    <i class="fas fa-edit"></i> تعديل
+                                                </button>
+                                                <button class="btn btn-ghost btn-sm" onclick="Team.openResetPasswordModal('${u.id}')" title="إعادة تعيين كلمة المرور" style="color:#f59e0b; border:1px solid rgba(245, 158, 11, 0.3); font-weight:700;">
+                                                    <i class="fas fa-key"></i> كلمة المرور
                                                 </button>
                                                 ${u.id !== 'admin' ? `
-                                                    <button class="btn btn-ghost btn-sm" onclick="Team.toggleFreeze('${u.id}')" title="${isFrozen ? 'تفعيل الحساب' : 'تجميد الحساب'}" style="color:${isFrozen ? '#10b981' : '#f59e0b'};">
+                                                    <button class="btn btn-ghost btn-sm" onclick="Team.toggleFreeze('${u.id}')" title="${isFrozen ? 'تفعيل الحساب' : 'تجميد الحساب'}" style="color:${isFrozen ? '#10b981' : '#ef4444'};">
                                                         <i class="fas ${isFrozen ? 'fa-fire' : 'fa-snowflake'}"></i> ${isFrozen ? 'تفعيل' : 'تجميد'}
                                                     </button>
                                                     <button class="btn-icon btn-delete" onclick="Team.deleteUser('${u.id}')" title="حذف الحساب">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
                                                 ` : ''}
-                                            ` : ''}
-                                        </div>
-                                    </td>
+                                            </div>
+                                        </td>
+                                    ` : ''}
                                 </tr>`;
                             }).join('')}
                         </tbody>
@@ -527,13 +530,20 @@ const Team = {
             user = Storage.getUser(userId);
         }
 
+        let firstName = '';
+        let lastName = '';
+        if (user) {
+            firstName = user.firstName || (user.name ? user.name.split(' ')[0] : '');
+            lastName = user.lastName || (user.name ? user.name.split(' ').slice(1).join(' ') : '');
+        }
+
         const modalHtml = `
             <div class="modal show" id="modal-user-form" style="z-index:99999; display:flex; align-items:center; justify-content:center; position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px);">
-                <div class="modal-dialog modal-sm" style="background:var(--bg-secondary); border-radius:16px; border:1px solid var(--border-color); overflow:hidden; width:92vw; max-width:480px; box-shadow:var(--shadow-lg); animation: modalSlideUp 0.3s ease;">
+                <div class="modal-dialog modal-sm" style="background:var(--bg-secondary); border-radius:16px; border:1px solid var(--border-color); overflow:hidden; width:92vw; max-width:540px; box-shadow:var(--shadow-lg); animation: modalSlideUp 0.3s ease;">
                     <div class="modal-header" style="background:var(--bg-surface); padding:16px 20px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
                         <h2 style="font-size:16px; font-weight:700; color:var(--text-primary); margin:0;">
                             <i class="fas ${user ? 'fa-user-edit' : 'fa-user-plus'}" style="color:#7c3aed;"></i>
-                            <span>${user ? 'تعديل بيانات حساب الموظف' : 'إضافة موظف جديد للفريق'}</span>
+                            <span>${user ? 'تعديل بيانات الموظف وصلاحياته' : 'إضافة موظف جديد للفريق'}</span>
                         </h2>
                         <button class="modal-close" onclick="document.getElementById('modal-user-form').remove()" style="background:transparent; border:none; color:var(--text-muted); font-size:18px; cursor:pointer;"><i class="fas fa-times"></i></button>
                     </div>
@@ -541,61 +551,79 @@ const Team = {
                     <form id="form-user-submit" style="padding:20px; display:flex; flex-direction:column; gap:14px;">
                         <input type="hidden" id="user-edit-id" value="${user ? user.id : ''}">
 
-                        <div class="form-group">
-                            <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">
-                                <i class="fas fa-user" style="color:#7c3aed;"></i> اسم الموظف الكامل *
-                            </label>
-                            <input type="text" id="user-input-name" class="form-control" placeholder="مثال: أحمد محمود" value="${user ? user.name : ''}" required style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-primary); font-size:13px; outline:none;">
+                        <!-- First & Last Name row -->
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                            <div class="form-group">
+                                <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">
+                                    <i class="fas fa-user" style="color:#7c3aed;"></i> الاسم الأول *
+                                </label>
+                                <input type="text" id="user-input-firstname" class="form-control" placeholder="مثال: أحمد" value="${firstName}" required style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-primary); font-size:13px; outline:none;">
+                            </div>
+                            <div class="form-group">
+                                <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">
+                                    <i class="fas fa-user-tag" style="color:#7c3aed;"></i> اسم العائلة / الثاني *
+                                </label>
+                                <input type="text" id="user-input-lastname" class="form-control" placeholder="مثال: محمود" value="${lastName}" required style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-primary); font-size:13px; outline:none;">
+                            </div>
                         </div>
 
+                        <!-- Email (Login Username) -->
                         <div class="form-group">
                             <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">
-                                <i class="fas fa-barcode" style="color:var(--accent);"></i> رقم الموظف في ERP (ERP ID)
+                                <i class="fas fa-envelope" style="color:#3b82f6;"></i> البريد الإلكتروني (Email للتسجيل والدخول) *
                             </label>
-                            <input type="text" id="user-input-erp" class="form-control" placeholder="مثال: EMP-1042" value="${user ? user.erpCode || '' : ''}" style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-primary); font-size:13px; outline:none;">
+                            <input type="email" id="user-input-email" class="form-control" placeholder="مثال: ahmed@company.com" value="${user ? user.email || '' : ''}" required style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-primary); font-size:13px; outline:none;">
+                            <small style="color:var(--text-muted); font-size:11px; margin-top:4px; display:block;">⚠️ يمنع تكرار البريد الإلكتروني لأي موظف آخر بالنظام.</small>
                         </div>
 
+                        <!-- Password field -->
                         <div class="form-group">
                             <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">
-                                <i class="fas fa-map-marked-alt" style="color:#ec4899;"></i> المنطقة والتصنيف الجغرافي
+                                <i class="fas fa-lock" style="color:#f59e0b;"></i> كلمة المرور (Password) *
                             </label>
-                            <select id="user-input-region" class="form-control" style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-primary); font-size:13px; outline:none;">
-                                <option value="cairo" ${!user || user.region === 'cairo' ? 'selected' : ''}>🏙️ القاهرة الكبرى والمدن الجديدة</option>
-                                <option value="alex" ${user && user.region === 'alex' ? 'selected' : ''}>🌊 الإسكندرية والساحل الشمالي</option>
-                                <option value="upper_egypt" ${user && user.region === 'upper_egypt' ? 'selected' : ''}>🏜️ الصعيد والوجه القبلي</option>
-                                <option value="delta" ${user && user.region === 'delta' ? 'selected' : ''}>🚢 الدلتا ومدن القناة</option>
-                            </select>
+                            <input type="text" id="user-input-password" class="form-control" placeholder="${user ? 'اتركه كما هو أو أدخل كلمة جديدة' : '8 أرقام وحروف على الأقل'}" value="${user ? user.password || '' : ''}" ${user ? '' : 'required'} style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-primary); font-size:13px; outline:none;">
+                            <div style="font-size:11px; color:#f59e0b; margin-top:4px; font-weight:600;">
+                                <i class="fas fa-shield-alt"></i> يجب ألا تقل عن 8 خانات وتحتوي على أرقام وحروف معاً.
+                            </div>
                         </div>
 
-                        <div class="form-group">
-                            <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">
-                                <i class="fas fa-at" style="color:#3b82f6;"></i> اسم المستخدم لدخول النظام (Username) *
-                            </label>
-                            <input type="text" id="user-input-username" class="form-control" placeholder="مثال: ahmed" value="${user ? user.username || '' : ''}" required style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-primary); font-size:13px; outline:none;">
+                        <!-- ERP Code & Region -->
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                            <div class="form-group">
+                                <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">
+                                    <i class="fas fa-barcode" style="color:var(--accent);"></i> رقم الموظف في ERP
+                                </label>
+                                <input type="text" id="user-input-erp" class="form-control" placeholder="مثال: EMP-1042" value="${user ? user.erpCode || '' : ''}" style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-primary); font-size:13px; outline:none;">
+                            </div>
+                            <div class="form-group">
+                                <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">
+                                    <i class="fas fa-map-marked-alt" style="color:#ec4899;"></i> المنطقة والتصنيف الجغرافي
+                                </label>
+                                <select id="user-input-region" class="form-control" style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-primary); font-size:13px; outline:none;">
+                                    <option value="cairo" ${!user || user.region === 'cairo' ? 'selected' : ''}>🏙️ القاهرة الكبرى</option>
+                                    <option value="alex" ${user && user.region === 'alex' ? 'selected' : ''}>🌊 الإسكندرية والساحل</option>
+                                    <option value="upper_egypt" ${user && user.region === 'upper_egypt' ? 'selected' : ''}>🏜️ الصعيد والوجه القبلي</option>
+                                    <option value="delta" ${user && user.region === 'delta' ? 'selected' : ''}>🚢 الدلتا ومدن القناة</option>
+                                </select>
+                            </div>
                         </div>
 
+                        <!-- Role -->
                         <div class="form-group">
                             <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">
-                                <i class="fas fa-key" style="color:#f59e0b;"></i> كلمة المرور (Password) *
-                            </label>
-                            <input type="text" id="user-input-password" class="form-control" placeholder="كلمة المرور للدخول" value="${user ? user.password || '' : '123'}" required style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-primary); font-size:13px; outline:none;">
-                        </div>
-
-                        <div class="form-group">
-                            <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">
-                                <i class="fas fa-user-shield" style="color:#10b981;"></i> دور الموظف والصلاحية
+                                <i class="fas fa-user-shield" style="color:#10b981;"></i> المستوى الوظيفي والصلاحية *
                             </label>
                             <select id="user-input-role" class="form-control" style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-primary); font-size:13px; outline:none;">
-                                <option value="agent" ${user && user.role === 'agent' ? 'selected' : ''}>👨‍💼 مسؤول مبيعات (يرى شركاته المخصصة فقط)</option>
-                                <option value="supervisor" ${user && user.role === 'supervisor' ? 'selected' : ''}>👁️ مشرف (يرى كل شيء للقراءة فقط دون تعديل)</option>
-                                <option value="admin" ${user && user.role === 'admin' ? 'selected' : ''}>👑 مدير عام (تحكم وإشراف شامل بكل الصلاحيات)</option>
+                                <option value="agent" ${!user || user.role === 'agent' ? 'selected' : ''}>👨‍💼 مسؤول مبيعات (Sales Agent - رؤية وتوثيق شركاته فقط)</option>
+                                <option value="supervisor" ${user && user.role === 'supervisor' ? 'selected' : ''}>👁️ مشرف (Supervisor - رؤية كل الشاشات قراءة فقط)</option>
+                                <option value="admin" ${user && user.role === 'admin' ? 'selected' : ''}>👑 مدير عام (Admin - تحكم كامل وإشراف شامل)</option>
                             </select>
                         </div>
 
                         <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:8px; padding-top:14px; border-top:1px solid var(--border-light);">
                             <button type="button" class="btn btn-ghost" onclick="document.getElementById('modal-user-form').remove()" style="padding:8px 16px;">إلغاء</button>
                             <button type="submit" class="btn btn-primary" style="padding:8px 20px; background:var(--gradient-primary); font-weight:700;">
-                                <i class="fas fa-save"></i> ${user ? 'حفظ التعديلات' : 'إنشاء الحساب'}
+                                <i class="fas fa-save"></i> ${user ? 'حفظ التعديلات' : 'إنشاء حساب الموظف'}
                             </button>
                         </div>
                     </form>
@@ -615,27 +643,31 @@ const Team = {
 
     saveUser() {
         const id = document.getElementById('user-edit-id').value;
-        const name = document.getElementById('user-input-name').value;
+        const firstName = document.getElementById('user-input-firstname').value;
+        const lastName = document.getElementById('user-input-lastname').value;
+        const email = document.getElementById('user-input-email').value;
+        const password = document.getElementById('user-input-password').value;
         const erpCode = document.getElementById('user-input-erp').value;
         const region = document.getElementById('user-input-region').value;
-        const username = document.getElementById('user-input-username').value;
-        const password = document.getElementById('user-input-password').value;
         const role = document.getElementById('user-input-role').value;
 
         if (id) {
-            const res = Storage.updateUser(id, { name, erpCode, region, username, password, role });
+            const updatePayload = { firstName, lastName, email, erpCode, region, role };
+            if (password) updatePayload.password = password;
+
+            const res = Storage.updateUser(id, updatePayload);
             if (!res.success) {
                 App.showToast(`❌ ${res.message}`, 'error');
                 return;
             }
-            App.showToast('✅ تم تعديل حساب الموظف بنجاح');
+            App.showToast('✅ تم تعديل حساب الموظف بنجاح', 'success');
         } else {
-            const res = Storage.addUser({ name, erpCode, region, username, password, role });
+            const res = Storage.addUser({ firstName, lastName, email, password, erpCode, region, role });
             if (!res.success) {
                 App.showToast(`❌ ${res.message}`, 'error');
                 return;
             }
-            App.showToast('✅ تم إنشاء حساب الموظف بنجاح');
+            App.showToast('✅ تم إنشاء حساب الموظف بنجاح', 'success');
         }
 
         const modal = document.getElementById('modal-user-form');
@@ -644,6 +676,68 @@ const Team = {
         this.renderEmployeesPage();
         if (typeof App !== 'undefined' && App.refreshUserSwitcher) App.refreshUserSwitcher();
         if (typeof Companies !== 'undefined' && Companies.refreshUserFilter) Companies.refreshUserFilter();
+    },
+
+    openResetPasswordModal(userId) {
+        const user = Storage.getUser(userId);
+        if (!user) return;
+
+        const modalHtml = `
+            <div class="modal show" id="modal-reset-password" style="z-index:99999; display:flex; align-items:center; justify-content:center; position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px);">
+                <div class="modal-dialog modal-sm" style="background:var(--bg-secondary); border-radius:16px; border:1px solid var(--border-color); overflow:hidden; width:92vw; max-width:440px; box-shadow:var(--shadow-lg); animation: modalSlideUp 0.3s ease;">
+                    <div class="modal-header" style="background:var(--bg-surface); padding:16px 20px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
+                        <h2 style="font-size:16px; font-weight:700; color:var(--text-primary); margin:0;">
+                            <i class="fas fa-key" style="color:#f59e0b;"></i>
+                            <span>إعادة تعيين كلمة المرور لـ: ${user.name}</span>
+                        </h2>
+                        <button class="modal-close" onclick="document.getElementById('modal-reset-password').remove()" style="background:transparent; border:none; color:var(--text-muted); font-size:18px; cursor:pointer;"><i class="fas fa-times"></i></button>
+                    </div>
+
+                    <form id="form-reset-password-submit" style="padding:20px; display:flex; flex-direction:column; gap:14px;">
+                        <div class="form-group">
+                            <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">
+                                <i class="fas fa-envelope" style="color:#3b82f6;"></i> البريد الإلكتروني للموظف
+                            </label>
+                            <input type="text" class="form-control" value="${user.email || user.username + '@fleet.com'}" disabled style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-surface); color:var(--text-muted); font-size:13px;">
+                        </div>
+
+                        <div class="form-group">
+                            <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">
+                                <i class="fas fa-lock" style="color:#f59e0b;"></i> كلمة المرور الجديدة *
+                            </label>
+                            <input type="text" id="reset-new-password" class="form-control" placeholder="أدخل كلمة المرور الجديدة..." required style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-primary); font-size:13px; outline:none;">
+                            <div style="font-size:11px; color:#f59e0b; margin-top:6px; font-weight:600;">
+                                <i class="fas fa-info-circle"></i> الشروط: 8 أرقام/حروف على الأقل وتتكون من أرقام وحروف معاً.
+                            </div>
+                        </div>
+
+                        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:8px; padding-top:14px; border-top:1px solid var(--border-light);">
+                            <button type="button" class="btn btn-ghost" onclick="document.getElementById('modal-reset-password').remove()" style="padding:8px 16px;">إلغاء</button>
+                            <button type="submit" class="btn btn-primary" style="padding:8px 20px; background:linear-gradient(135deg, #f59e0b, #d97706); color:#000; font-weight:800;">
+                                <i class="fas fa-check"></i> تغيير كلمة المرور
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        `;
+
+        const existingModal = document.getElementById('modal-reset-password');
+        if (existingModal) existingModal.remove();
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+        document.getElementById('form-reset-password-submit').onsubmit = (e) => {
+            e.preventDefault();
+            const newPassword = document.getElementById('reset-new-password').value;
+            const res = Storage.resetUserPassword(userId, newPassword);
+            if (!res.success) {
+                App.showToast(`❌ ${res.message}`, 'error');
+                return;
+            }
+            App.showToast(`🔑 تم تغيير كلمة مرور ${user.name} بنجاح`, 'success');
+            document.getElementById('modal-reset-password').remove();
+            this.renderEmployeesPage();
+        };
     },
 
     deleteUser(id) {
