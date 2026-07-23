@@ -47,8 +47,8 @@ const App = {
                 }
             }
 
-            // Try to import from scraper FIRST, before rendering anything
-            await this.forceImportNow(null);
+            // Try to import from scraper in background (non-blocking)
+            this.forceImportNow(null).catch(() => {});
 
             // Initialize routing
             this.initRouting();
@@ -321,7 +321,10 @@ const App = {
 
     async autoImportScrapedData() {
         try {
-            const statsResp = await fetch('http://localhost:8888/api/scraper-stats?' + Date.now());
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 1500);
+            const statsResp = await fetch('http://localhost:8888/api/scraper-stats?' + Date.now(), { signal: controller.signal });
+            clearTimeout(timeoutId);
             if (!statsResp.ok) return;
             const stats = await statsResp.json();
 
@@ -345,8 +348,11 @@ const App = {
 
     async forceImportNow(stats) {
         try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 1500);
             const SCRAPER_URL = 'http://localhost:8888/output/crm_import_ready.json';
-            const resp = await fetch(SCRAPER_URL + '?' + Date.now());
+            const resp = await fetch(SCRAPER_URL + '?' + Date.now(), { signal: controller.signal });
+            clearTimeout(timeoutId);
             if (!resp.ok) return;
 
             const data = await resp.json();
