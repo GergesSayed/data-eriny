@@ -353,6 +353,16 @@
                     </div>
                 </div>
 
+                <!-- Prominent Quick Filter Badges Bar -->
+                <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; align-items: center; background: rgba(30, 41, 59, 0.4); padding: 10px 16px; border-radius: 14px; border: 1px solid var(--border-color);">
+                    <span style="font-size: 12px; font-weight: 800; color: #a78bfa; margin-left: 6px;"><i class="fas fa-bolt" style="color:#f59e0b;"></i> أزرار التصفية السريعة:</span>
+                    <button type="button" class="btn btn-sm company-quick-pill active" onclick="Companies.setQuickFilter('', this)" style="background: rgba(124, 58, 237, 0.25); color: #c4b5fd; border: 1px solid #7c3aed; border-radius: 20px; font-size: 12px; font-weight: 800; padding: 5px 14px; cursor: pointer;">عرض الكل</button>
+                    <button type="button" class="btn btn-sm company-quick-pill" onclick="Companies.setQuickFilter('recent_7days', this)" style="background: rgba(16, 185, 129, 0.18); color: #10b981; border: 1px solid #10b981; border-radius: 20px; font-size: 12px; font-weight: 800; padding: 5px 14px; cursor: pointer;">🆕 المضافة حديثاً (7 أيام)</button>
+                    <button type="button" class="btn btn-sm company-quick-pill" onclick="Companies.setQuickFilter('large_fleet', this)" style="background: rgba(6, 182, 212, 0.18); color: #22d3ee; border: 1px solid #06b6d4; border-radius: 20px; font-size: 12px; font-weight: 800; padding: 5px 14px; cursor: pointer;">🚛 أساطيل ضخمة (50+ مركبة)</button>
+                    <button type="button" class="btn btn-sm company-quick-pill" onclick="Companies.setQuickFilter('fleet_desc', this)" style="background: rgba(245, 158, 11, 0.18); color: #f59e0b; border: 1px solid #f59e0b; border-radius: 20px; font-size: 12px; font-weight: 800; padding: 5px 14px; cursor: pointer;">⬆️ الأكثر في الأسطول أولاً</button>
+                    <button type="button" class="btn btn-sm company-quick-pill" onclick="Companies.setQuickFilter('fleet_asc', this)" style="background: rgba(239, 68, 68, 0.18); color: #fca5a5; border: 1px solid #ef4444; border-radius: 20px; font-size: 12px; font-weight: 800; padding: 5px 14px; cursor: pointer;">⬇️ الأقل في الأسطول أولاً</button>
+                </div>
+
                 <!-- Filters -->
                 <div class="filters-bar">
                     <div class="filter-group">
@@ -409,6 +419,23 @@
                         </select>
                     </div>
                     <div class="filter-group">
+                        <select id="filter-fleet-size" class="filter-select" style="border:1px solid #10b981; font-weight:700;">
+                            <option value="">🚛 حجم الأسطول (الكل)</option>
+                            <option value="large_fleet">🚛 أساطيل كبرى ضخمة (50+ مركبة)</option>
+                            <option value="medium_fleet">🚚 أساطيل متوسطة (15 - 49 مركبة)</option>
+                            <option value="small_fleet">🚗 أساطيل صغيرة (< 15 مركبة)</option>
+                            <option value="no_fleet">⚪ أساطيل غير محددة / جديدة</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <select id="filter-added-date" class="filter-select" style="border:1px solid #06b6d4; font-weight:700;">
+                            <option value="">📅 تاريخ الإضافة (الكل)</option>
+                            <option value="today">⚡ مضافة اليوم</option>
+                            <option value="recent_7days">🆕 مضافة حديثاً (آخر 7 أيام)</option>
+                            <option value="recent_30days">🗓️ مضافة هذا الشهر (آخر 30 يوم)</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
                         <select id="filter-sort" class="filter-select" style="border:1px solid #3b82f6; font-weight:700;">
                             <option value="latest">🆕 الأحدث إضافة أولاً</option>
                             <option value="oldest">📜 الأقدم إضافة أولاً</option>
@@ -416,16 +443,6 @@
                             <option value="fleet_asc">🚗 الأقل حجماً في الأسطول (الأصغر أولاً)</option>
                             <option value="priority">🔴 حسب الأولوية (A -> C)</option>
                             <option value="name">🔤 حسب الاسم أبجدي</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <select id="filter-quick-preset" class="filter-select" style="border:1px solid #10b981; font-weight:700;">
-                            <option value="">⚡ تصفية سريعة (الكل)</option>
-                            <option value="recent_7days">🆕 مضافة حديثاً (آخر 7 أيام)</option>
-                            <option value="recent_30days">📅 مضافة هذا الشهر (آخر 30 يوم)</option>
-                            <option value="large_fleet">🚛 أساطيل ضخمة (50+ مركبة)</option>
-                            <option value="medium_fleet">🚚 أساطيل متوسطة (15 - 49 مركبة)</option>
-                            <option value="small_fleet">🚗 أساطيل صغيرة (< 15 مركبة)</option>
                         </select>
                     </div>
                     <div class="filter-group" id="filter-assigned-group">
@@ -1455,16 +1472,16 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <script src="js/storage.js?v=12.0.0"></script>
-    <script src="js/excel-handler.js?v=12.0.0"></script>
-    <script src="js/dashboard.js?v=12.0.0"></script>
-    <script src="js/companies.js?v=12.0.0"></script>
-    <script src="js/calls.js?v=12.0.0"></script>
-    <script src="js/pipeline.js?v=12.0.0"></script>
-    <script src="js/reports.js?v=12.0.0"></script>
-    <script src="js/scraper.js?v=12.0.0"></script>
-    <script src="js/team.js?v=12.0.0"></script>
-    <script src="js/settings.js?v=12.0.0"></script>
-    <script src="js/app.js?v=12.0.0"></script>
+    <script src="js/storage.js?v=13.0.0"></script>
+    <script src="js/excel-handler.js?v=13.0.0"></script>
+    <script src="js/dashboard.js?v=13.0.0"></script>
+    <script src="js/companies.js?v=13.0.0"></script>
+    <script src="js/calls.js?v=13.0.0"></script>
+    <script src="js/pipeline.js?v=13.0.0"></script>
+    <script src="js/reports.js?v=13.0.0"></script>
+    <script src="js/scraper.js?v=13.0.0"></script>
+    <script src="js/team.js?v=13.0.0"></script>
+    <script src="js/settings.js?v=13.0.0"></script>
+    <script src="js/app.js?v=13.0.0"></script>
 </body>
 </html>

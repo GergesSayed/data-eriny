@@ -69,8 +69,9 @@ const Companies = {
         document.getElementById('filter-city')?.addEventListener('change', () => this.render());
         document.getElementById('filter-priority')?.addEventListener('change', () => this.render());
         document.getElementById('filter-fleet-type')?.addEventListener('change', () => this.render());
+        document.getElementById('filter-fleet-size')?.addEventListener('change', () => this.render());
+        document.getElementById('filter-added-date')?.addEventListener('change', () => this.render());
         document.getElementById('filter-sort')?.addEventListener('change', () => this.render());
-        document.getElementById('filter-quick-preset')?.addEventListener('change', () => this.render());
         document.getElementById('filter-assigned')?.addEventListener('change', () => this.render());
         document.getElementById('filter-search')?.addEventListener('input', () => {
             this.currentPage = 1;
@@ -101,8 +102,38 @@ const Companies = {
         });
     },
 
+    setQuickFilter(presetKey, btnEl) {
+        document.querySelectorAll('.company-quick-pill').forEach(b => {
+            b.style.opacity = '0.6';
+            b.classList.remove('active');
+        });
+        if (btnEl) {
+            btnEl.style.opacity = '1';
+            btnEl.classList.add('active');
+        }
+
+        const fleetSel = document.getElementById('filter-fleet-size');
+        const dateSel = document.getElementById('filter-added-date');
+        const sortSel = document.getElementById('filter-sort');
+
+        if (presetKey === 'fleet_desc' || presetKey === 'fleet_asc') {
+            if (sortSel) sortSel.value = presetKey;
+        } else if (presetKey === 'large_fleet') {
+            if (fleetSel) fleetSel.value = 'large_fleet';
+        } else if (presetKey === 'recent_7days') {
+            if (dateSel) dateSel.value = 'recent_7days';
+        } else if (!presetKey) {
+            if (fleetSel) fleetSel.value = '';
+            if (dateSel) dateSel.value = '';
+            if (sortSel) sortSel.value = 'latest';
+        }
+
+        this.currentPage = 1;
+        this.render();
+    },
+
     clearFilters() {
-        ['filter-sector', 'filter-city', 'filter-priority', 'filter-fleet-type', 'filter-sort', 'filter-quick-preset', 'filter-assigned', 'filter-search'].forEach(id => {
+        ['filter-sector', 'filter-city', 'filter-priority', 'filter-fleet-type', 'filter-fleet-size', 'filter-added-date', 'filter-sort', 'filter-assigned', 'filter-search'].forEach(id => {
             const el = document.getElementById(id);
             if (el) el.value = '';
         });
@@ -121,8 +152,9 @@ const Companies = {
         const city = document.getElementById('filter-city')?.value;
         const priority = document.getElementById('filter-priority')?.value;
         const fleetType = document.getElementById('filter-fleet-type')?.value;
+        const fleetSize = document.getElementById('filter-fleet-size')?.value;
+        const addedDate = document.getElementById('filter-added-date')?.value;
         const sortMode = document.getElementById('filter-sort')?.value || 'latest';
-        const quickPreset = document.getElementById('filter-quick-preset')?.value;
         const assigned = document.getElementById('filter-assigned')?.value;
         const search = document.getElementById('filter-search')?.value?.toLowerCase().trim();
 
@@ -131,30 +163,41 @@ const Companies = {
         if (priority) companies = companies.filter(c => c.priority === priority);
         if (fleetType) companies = companies.filter(c => c.fleetType === fleetType);
         
-        // Quick Presets
-        if (quickPreset) {
-            const now = Date.now();
-            if (quickPreset === 'recent_7days') {
-                companies = companies.filter(c => {
-                    const ts = c.createdAt ? new Date(c.createdAt).getTime() : (c.id && !isNaN(c.id) ? Number(c.id) : 0);
-                    return (now - ts) <= (7 * 24 * 60 * 60 * 1000);
-                });
-            } else if (quickPreset === 'recent_30days') {
-                companies = companies.filter(c => {
-                    const ts = c.createdAt ? new Date(c.createdAt).getTime() : (c.id && !isNaN(c.id) ? Number(c.id) : 0);
-                    return (now - ts) <= (30 * 24 * 60 * 60 * 1000);
-                });
-            } else if (quickPreset === 'large_fleet') {
+        // Fleet Size Filter
+        if (fleetSize) {
+            if (fleetSize === 'large_fleet') {
                 companies = companies.filter(c => (Number(c.fleetSize) || 0) >= 50);
-            } else if (quickPreset === 'medium_fleet') {
+            } else if (fleetSize === 'medium_fleet') {
                 companies = companies.filter(c => {
                     const size = Number(c.fleetSize) || 0;
                     return size >= 15 && size < 50;
                 });
-            } else if (quickPreset === 'small_fleet') {
+            } else if (fleetSize === 'small_fleet') {
                 companies = companies.filter(c => {
                     const size = Number(c.fleetSize) || 0;
                     return size > 0 && size < 15;
+                });
+            } else if (fleetSize === 'no_fleet') {
+                companies = companies.filter(c => !c.fleetSize || Number(c.fleetSize) === 0);
+            }
+        }
+
+        // Added Date Filter
+        if (addedDate) {
+            const now = Date.now();
+            const todayStr = new Date().toISOString().split('T')[0];
+
+            if (addedDate === 'today') {
+                companies = companies.filter(c => c.createdAt && c.createdAt.startsWith(todayStr));
+            } else if (addedDate === 'recent_7days') {
+                companies = companies.filter(c => {
+                    const ts = c.createdAt ? new Date(c.createdAt).getTime() : (c.id && !isNaN(c.id) ? Number(c.id) : 0);
+                    return (now - ts) <= (7 * 24 * 60 * 60 * 1000);
+                });
+            } else if (addedDate === 'recent_30days') {
+                companies = companies.filter(c => {
+                    const ts = c.createdAt ? new Date(c.createdAt).getTime() : (c.id && !isNaN(c.id) ? Number(c.id) : 0);
+                    return (now - ts) <= (30 * 24 * 60 * 60 * 1000);
                 });
             }
         }
