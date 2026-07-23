@@ -1768,27 +1768,16 @@ a:hover { color: var(--accent); }
     position: relative;
     z-index: 10;
     width: 100%;
-    max-width: 960px;
-    background: rgba(15, 23, 42, 0.75);
+    max-width: 460px;
+    background: rgba(15, 23, 42, 0.85);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(124, 58, 237, 0.25);
+    border: 1px solid rgba(124, 58, 237, 0.35);
     border-radius: 28px;
-    box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.8), 0 0 50px rgba(124, 58, 237, 0.15);
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.8), 0 0 50px rgba(124, 58, 237, 0.2);
     overflow: hidden;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-@media (max-width: 860px) {
-    .login-portal-container {
-        grid-template-columns: 1fr;
-        max-width: 460px;
-    }
-    .login-hero-side {
-        display: none !important;
-    }
+    margin: 0 auto;
 }
 
 /* Left Hero Showcase Side */
