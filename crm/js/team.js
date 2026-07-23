@@ -23,13 +23,12 @@ const Team = {
             const teamPage = document.getElementById('page-team');
             if (!teamPage) return;
 
-            // Only Admin can view team management & performance audit
-            if (!Storage.isAdmin(currentUser)) {
+            if (!Storage.canViewAll(currentUser)) {
                 teamPage.innerHTML = `
                     <div class="empty-state" style="padding:60px 20px;">
                         <i class="fas fa-lock" style="font-size:48px; color:var(--text-muted); margin-bottom:16px;"></i>
                         <h2>شاشة غير مصرح بها</h2>
-                        <p style="color:var(--text-muted);">هذه الشاشة مخصصة للمدير العام لمتابعة أداء الموظفين وتعيين الحسابات.</p>
+                        <p style="color:var(--text-muted);">هذه الشاشة مخصصة للمشرفين والمدير العام لمتابعة أداء الموظفين وتعيين الحسابات.</p>
                     </div>`;
                 return;
             }
@@ -39,18 +38,12 @@ const Team = {
             const allCalls = Storage.getCalls() || [];
             const allDeals = Storage.getDeals() || [];
 
-            // Set of all active valid user identifiers
             const activeUserKeys = new Set(users.flatMap(u => [u.id, u.username, u.name].filter(Boolean)));
 
-            // Compute detailed lead audit stats per user
             const usersStats = users.map(user => {
                 const assignedCompanies = allCompanies.filter(c => c && (c.assignedTo === user.id || c.assignedTo === user.username || (user.name && c.assignedTo === user.name)));
-
-                // Contacted vs Remaining companies
                 const contactedCompanies = assignedCompanies.filter(c => c.lastCallResult || c.status === 'interested' || c.status === 'contacted' || c.status === 'unqualified');
                 const remainingCompanies = assignedCompanies.filter(c => !c.lastCallResult && c.status !== 'interested' && c.status !== 'contacted' && c.status !== 'unqualified');
-
-                // Breakdown by lead condition
                 const interestedLeads = assignedCompanies.filter(c => c.status === 'interested' || c.lastCallResult === 'interested' || c.lastCallResult === 'meeting_scheduled' || c.lastCallResult === 'proposal_sent');
                 const notInterestedLeads = assignedCompanies.filter(c => c.lastCallResult === 'not_interested' || c.lastCallResult === 'wrong_number');
 
@@ -73,10 +66,132 @@ const Team = {
                 };
             });
 
-            // Overall Team Totals (only counting companies assigned to active users)
             const totalAssigned = allCompanies.filter(c => c && c.assignedTo && activeUserKeys.has(c.assignedTo)).length;
             const totalUnassigned = allCompanies.length - totalAssigned;
 
+            teamPage.innerHTML = `
+                <div class="page-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+                    <div>
+                        <h1 class="page-title"><i class="fas fa-chart-line"></i> متابعة إنجازات وتواصل الفريق الحية</h1>
+                        <p class="page-subtitle">متابعة نسب التواصل، والشركات المسندة، ورصد المكالمات والصفقات الناجحة لكل موظف</p>
+                    </div>
+                </div>
+
+                <!-- Team Overview Summary Cards -->
+                <div class="stats-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:16px; margin-bottom:24px;">
+                    <div class="stat-card" style="background:var(--bg-secondary); border-radius:12px; padding:16px; border:1px solid var(--border-color);">
+                        <div style="font-size:12px; color:var(--text-muted); font-weight:700;">👥 عدد أعضاء الفريق</div>
+                        <div style="font-size:28px; font-weight:800; color:var(--text-primary); margin-top:4px;">${users.length} <small style="font-size:14px; font-weight:normal;">حسابات</small></div>
+                    </div>
+                    <div class="stat-card" style="background:var(--bg-secondary); border-radius:12px; padding:16px; border:1px solid var(--border-color);">
+                        <div style="font-size:12px; color:var(--text-muted); font-weight:700;">📌 شركات مسندة للموظفين</div>
+                        <div style="font-size:28px; font-weight:800; color:#7c3aed; margin-top:4px;">${totalAssigned} <small style="font-size:14px; font-weight:normal;">شركة</small></div>
+                    </div>
+                    <div class="stat-card" style="background:var(--bg-secondary); border-radius:12px; padding:16px; border:1px solid var(--border-color);">
+                        <div style="font-size:12px; color:var(--text-muted); font-weight:700;">⚪ شركات غير مسندة لأحد</div>
+                        <div style="font-size:28px; font-weight:800; color:#f59e0b; margin-top:4px;">${totalUnassigned} <small style="font-size:14px; font-weight:normal;">شركة</small></div>
+                    </div>
+                    <div class="stat-card" style="background:var(--bg-secondary); border-radius:12px; padding:16px; border:1px solid var(--border-color);">
+                        <div style="font-size:12px; color:var(--text-muted); font-weight:700;">📞 إجمالي مكالمات الفريق</div>
+                        <div style="font-size:28px; font-weight:800; color:#10b981; margin-top:4px;">${allCalls.length} <small style="font-size:14px; font-weight:normal;">مكالمة</small></div>
+                    </div>
+                </div>
+
+                <!-- Employee Audit Table -->
+                <div class="table-container" style="background:var(--bg-secondary); border-radius:16px; border:1px solid var(--border-color); padding:20px; box-shadow:var(--shadow-sm);">
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+                        <div>
+                            <h3 style="margin:0; font-size:17px; font-weight:800; color:var(--text-primary);">
+                                <i class="fas fa-list-check" style="color:#7c3aed; margin-left:8px;"></i> تقرير إنجازات وتواصل الموظفين التفصيلي
+                            </h3>
+                            <p style="margin:4px 0 0 0; font-size:12px; color:var(--text-muted);">متابعة دقيقة لموقف التواصل والردود والصفقات لكل مسؤول مبيعات</p>
+                        </div>
+                    </div>
+
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>الموظف <small>Employee</small></th>
+                                <th>المنطقة ورقم ERP</th>
+                                <th>الشركات المسندة</th>
+                                <th>تم التواصل <small>Contacted</small></th>
+                                <th>متبقية لم يتصل <small>Remaining</small></th>
+                                <th>عملاء مهتمين <small>Interested</small></th>
+                                <th>غير مهتمين <small>Uninterested</small></th>
+                                <th>صفقات ناجحة <small>Won Deals</small></th>
+                                <th>إجراءات <small>Actions</small></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${usersStats.map(u => `
+                                <tr>
+                                    <td>
+                                        <div style="display:flex; align-items:center; gap:10px;">
+                                            <span style="background:${u.color || '#7c3aed'}; color:#fff; width:36px; height:36px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:bold;">${u.avatar || (u.role === 'admin' ? '👑' : u.role === 'supervisor' ? '👁️' : '👨‍💼')}</span>
+                                            <div>
+                                                <div style="font-weight:800; color:var(--text-primary); font-size:14px;">${u.name}</div>
+                                                <small style="color:var(--text-muted); font-size:11px; direction:ltr; text-align:right; display:block;">👤 @${u.username || 'user'}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div style="font-size:11px;"><span class="badge" style="background:var(--bg-surface); border:1px solid var(--border-color);">${Storage.getRegionLabel(u.region)}</span></div>
+                                        <code style="font-size:10px; color:var(--accent);">${u.erpCode || 'بدون ERP'}</code>
+                                    </td>
+                                    <td><b style="color:#7c3aed; font-size:16px;">${u.assignedCount}</b> شركة</td>
+                                    <td>
+                                        <span class="badge" style="background:#10b98122; color:#10b981; border:1px solid #10b981; font-weight:700;">
+                                            ✅ ${u.contactedCount} شركة ${u.assignedCount > 0 ? `(${Math.round((u.contactedCount/u.assignedCount)*100)}%)` : ''}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge" style="background:#f59e0b22; color:#f59e0b; border:1px solid #f59e0b; font-weight:700;">
+                                            ⏳ ${u.remainingCount} شركة
+                                        </span>
+                                    </td>
+                                    <td><span class="badge" style="background:#7c3aed22; color:#7c3aed; border:1px solid #7c3aed; font-weight:700;">💚 ${u.interestedCount} مهتم</span></td>
+                                    <td><span class="badge" style="background:#ef444422; color:#ef4444; border:1px solid #ef4444;">🔴 ${u.notInterestedCount} غير مهتم</span></td>
+                                    <td><b>${u.wonDealsCount}</b> (${u.totalRevenue.toLocaleString()} ج.م)</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="btn btn-primary btn-sm" onclick="Team.openEmployeeProgressModal('${u.id}')" title="تقرير تواصل شركات هذا الموظف تفصيلياً" style="background:var(--gradient-primary); color:#fff; font-weight:700;">
+                                                <i class="fas fa-list-check"></i> تقرير المتابعة
+                                            </button>
+                                            ${Storage.canModify() ? `
+                                                <button class="btn btn-ghost btn-sm" onclick="Team.openAssignCompaniesModal('${u.id}')" title="تخصيص وإسناد الشركات لهذا الموظف">
+                                                    <i class="fas fa-tasks"></i> تخصيص الشركات
+                                                </button>
+                                            ` : ''}
+                                        </div>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        } catch (err) {
+            console.error('Error rendering Team module:', err);
+        }
+    },
+
+    renderEmployeesPage() {
+        try {
+            const currentUser = Storage.getCurrentUser();
+            const empPage = document.getElementById('page-employees');
+            if (!empPage) return;
+
+            if (!Storage.canViewAll(currentUser)) {
+                empPage.innerHTML = `
+                    <div class="empty-state" style="padding:60px 20px;">
+                        <i class="fas fa-lock" style="font-size:48px; color:var(--text-muted); margin-bottom:16px;"></i>
+                        <h2>شاشة غير مصرح بها</h2>
+                        <p style="color:var(--text-muted);">هذه الشاشة مخصصة للمشرفين والمدير العام لإدارة حسابات الموظفين والصلاحيات.</p>
+                    </div>`;
+                return;
+            }
+
+            const users = Storage.getUsers() || [];
             const pendingUsers = Storage.getPendingUsers();
             const pendingHtml = pendingUsers.length === 0 ? '' : `
                 <div class="card" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(217, 119, 6, 0.08)); border: 1.5px solid #f59e0b; border-radius: 16px; padding: 20px; margin-bottom: 24px;">
@@ -84,7 +199,7 @@ const Team = {
                         <h3 style="margin: 0; color: #f59e0b; font-size: 1.1rem; font-weight: 800;">
                             <i class="fas fa-bell" style="margin-left: 8px;"></i> طلبات التسجيل والانضمام المعلقة (${pendingUsers.length})
                         </h3>
-                        <span class="badge" style="background: #f59e0b; color: #000; font-weight: 800;">بانتظار موافقة المدير العام</span>
+                        <span class="badge" style="background: #f59e0b; color: #000; font-weight: 800;">بانتظار اعتماد المدير العام</span>
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 10px;">
                         ${pendingUsers.map(u => `
@@ -96,10 +211,6 @@ const Team = {
                                         <span style="display: block; font-size: 12px; color: var(--text-muted); direction: ltr; text-align: right;">📧 ${u.email || u.username}</span>
                                     </div>
                                 </div>
-                                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                                    <button class="btn btn-success btn-sm" style="font-size: 12px; font-weight: 800; padding: 6px 14px; background:#10b981; color:#fff;" onclick="Team.approveUser('${u.id}', 'agent')">
-                                        <i class="fas fa-check"></i> موافقة وتفعيل (موظف مبيعات)
-                                    </button>
                                 ${Storage.canModify() ? `
                                     <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                                         <button class="btn btn-success btn-sm" style="font-size: 12px; font-weight: 800; padding: 6px 14px; background:#10b981; color:#fff;" onclick="Team.approveUser('${u.id}', 'agent')">
