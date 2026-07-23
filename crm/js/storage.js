@@ -482,16 +482,19 @@ const Storage = {
 
     ensureAssignedSampleCompanies() {
         if (!this.companiesMemory || this.companiesMemory.length === 0) return;
-        const assigned = this.companiesMemory.filter(c => c && c.assignedTo);
-        if (assigned.length === 0) {
-            const users = (this.getUsers() || []).filter(u => u.role !== 'admin');
-            const targetAgent = users.length > 0 ? users[0].id : 'agent_1';
-            this.companiesMemory.forEach((c, idx) => {
-                if (idx < 6) {
-                    c.assignedTo = targetAgent;
-                    c.assignedAt = new Date().toISOString();
-                }
-            });
+        const users = this.getUsers() || [];
+        const validUserKeys = new Set(users.flatMap(u => [u.id, u.username, u.name].filter(Boolean)));
+
+        let updated = false;
+        // Clean up orphan assignments pointing to deleted users (e.g. agent_1, agent_2)
+        this.companiesMemory.forEach(c => {
+            if (c && c.assignedTo && !validUserKeys.has(c.assignedTo)) {
+                c.assignedTo = '';
+                updated = true;
+            }
+        });
+
+        if (updated) {
             this.saveAllCompaniesToDB(this.companiesMemory);
         }
     },

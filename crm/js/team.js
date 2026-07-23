@@ -39,9 +39,12 @@ const Team = {
             const allCalls = Storage.getCalls() || [];
             const allDeals = Storage.getDeals() || [];
 
+            // Set of all active valid user identifiers
+            const activeUserKeys = new Set(users.flatMap(u => [u.id, u.username, u.name].filter(Boolean)));
+
             // Compute detailed lead audit stats per user
             const usersStats = users.map(user => {
-                const assignedCompanies = allCompanies.filter(c => c && c.assignedTo === user.id);
+                const assignedCompanies = allCompanies.filter(c => c && (c.assignedTo === user.id || c.assignedTo === user.username || (user.name && c.assignedTo === user.name)));
 
                 // Contacted vs Remaining companies
                 const contactedCompanies = assignedCompanies.filter(c => c.lastCallResult || c.status === 'interested' || c.status === 'contacted' || c.status === 'unqualified');
@@ -70,8 +73,8 @@ const Team = {
                 };
             });
 
-            // Overall Team Totals
-            const totalAssigned = allCompanies.filter(c => c && c.assignedTo).length;
+            // Overall Team Totals (only counting companies assigned to active users)
+            const totalAssigned = allCompanies.filter(c => c && c.assignedTo && activeUserKeys.has(c.assignedTo)).length;
             const totalUnassigned = allCompanies.length - totalAssigned;
 
             const pendingUsers = Storage.getPendingUsers();
