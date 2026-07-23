@@ -15,14 +15,17 @@
         (function() {
             try {
                 var u = sessionStorage.getItem('fleetcrm_current_user') || localStorage.getItem('fleetcrm_current_user');
-                if (!u) {
-                    document.write('<style>#login-screen{display:flex !important;} #sidebar, .main-wrapper{display:none !important;}</style>');
-                } else {
-                    document.write('<style>#login-screen{display:none !important;} #sidebar{display:flex !important;} .main-wrapper{display:block !important;}</style>');
+                if (u) {
+                    document.documentElement.classList.add('user-logged-in');
                 }
             } catch(e) {}
         })();
     </script>
+    <style>
+        html.user-logged-in #login-screen { display: none !important; }
+        html.user-logged-in #sidebar { display: flex !important; }
+        html.user-logged-in .main-wrapper { display: flex !important; }
+    </style>
 </head>
 <body>
     <!-- Loading Overlay -->
@@ -1432,16 +1435,16 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <script src="js/storage.js?v=9.0.0"></script>
-    <script src="js/excel-handler.js?v=9.0.0"></script>
-    <script src="js/dashboard.js?v=9.0.0"></script>
-    <script src="js/companies.js?v=9.0.0"></script>
-    <script src="js/calls.js?v=9.0.0"></script>
-    <script src="js/pipeline.js?v=9.0.0"></script>
-    <script src="js/reports.js?v=9.0.0"></script>
-    <script src="js/scraper.js?v=9.0.0"></script>
-    <script src="js/team.js?v=9.0.0"></script>
-    <script src="js/settings.js?v=9.0.0"></script>
-    <script src="js/app.js?v=9.0.0"></script>
+    <script src="js/storage.js?v=9.1.0"></script>
+    <script src="js/excel-handler.js?v=9.1.0"></script>
+    <script src="js/dashboard.js?v=9.1.0"></script>
+    <script src="js/companies.js?v=9.1.0"></script>
+    <script src="js/calls.js?v=9.1.0"></script>
+    <script src="js/pipeline.js?v=9.1.0"></script>
+    <script src="js/reports.js?v=9.1.0"></script>
+    <script src="js/scraper.js?v=9.1.0"></script>
+    <script src="js/team.js?v=9.1.0"></script>
+    <script src="js/settings.js?v=9.1.0"></script>
+    <script src="js/app.js?v=9.1.0"></script>
 </body>
 </html>

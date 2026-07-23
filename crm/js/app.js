@@ -243,6 +243,8 @@ const App = {
 
     logoutSystem() {
         Storage.logout();
+        // Remove the instant-auth CSS class so login screen becomes visible
+        document.documentElement.classList.remove('user-logged-in');
         const userInput = document.getElementById('login-username');
         const passInput = document.getElementById('login-password');
         if (userInput) userInput.value = '';
