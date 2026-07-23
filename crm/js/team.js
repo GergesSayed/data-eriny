@@ -120,9 +120,11 @@ const Team = {
                         <h1 class="page-title"><i class="fas fa-users-cog"></i> لوحة التحكم في الموظفين والصلاحيات المعتمَدة</h1>
                         <p class="page-subtitle">اعتماد الطلبات، وتعيين الأدوار والمناطق، ومتابعة إنجازات الفريق الحية</p>
                     </div>
-                    <button class="btn btn-primary" id="btn-add-user" onclick="Team.openUserModal()">
-                        <i class="fas fa-user-plus"></i> إضافة موظف جديد
-                    </button>
+                    ${Storage.canModify() ? `
+                        <button class="btn btn-primary" id="btn-add-user" onclick="Team.openUserModal()">
+                            <i class="fas fa-user-plus"></i> إضافة موظف جديد
+                        </button>
+                    ` : ''}
                 </div>
 
                 <!-- Team Overview Summary Cards -->
@@ -197,16 +199,18 @@ const Team = {
                                             <button class="btn btn-primary btn-sm" onclick="Team.openEmployeeProgressModal('${u.id}')" title="تقرير تواصل شركات هذا الموظف تفصيلياً" style="background:var(--gradient-primary); color:#fff; font-weight:700;">
                                                 <i class="fas fa-list-check"></i> تقرير المتابعة
                                             </button>
-                                            <button class="btn btn-ghost btn-sm" onclick="Team.openAssignCompaniesModal('${u.id}')" title="تخصيص وإسناد الشركات لهذا الموظف">
-                                                <i class="fas fa-tasks"></i> تخصيص الشركات
-                                            </button>
-                                            ${u.id !== 'admin' ? `
-                                                <button class="btn-icon btn-edit" onclick="Team.openUserModal('${u.id}')" title="تعديل الحساب">
-                                                    <i class="fas fa-edit"></i>
+                                            ${Storage.canModify() ? `
+                                                <button class="btn btn-ghost btn-sm" onclick="Team.openAssignCompaniesModal('${u.id}')" title="تخصيص وإسناد الشركات لهذا الموظف">
+                                                    <i class="fas fa-tasks"></i> تخصيص الشركات
                                                 </button>
-                                                <button class="btn-icon btn-delete" onclick="Team.deleteUser('${u.id}')" title="حذف">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
+                                                ${u.id !== 'admin' ? `
+                                                    <button class="btn-icon btn-edit" onclick="Team.openUserModal('${u.id}')" title="تعديل الحساب">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="btn-icon btn-delete" onclick="Team.deleteUser('${u.id}')" title="حذف">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                ` : ''}
                                             ` : ''}
                                         </div>
                                     </td>
@@ -447,7 +451,8 @@ const Team = {
                             </label>
                             <select id="user-input-role" class="form-control" style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-primary); font-size:13px; outline:none;">
                                 <option value="agent" ${user && user.role === 'agent' ? 'selected' : ''}>👨‍💼 مسؤول مبيعات (يرى شركاته المخصصة فقط)</option>
-                                <option value="admin" ${user && user.role === 'admin' ? 'selected' : ''}>👑 مدير عام (يرى ويخصص كل الشركات)</option>
+                                <option value="supervisor" ${user && user.role === 'supervisor' ? 'selected' : ''}>👁️ مشرف (يرى كل شيء للقراءة فقط دون تعديل)</option>
+                                <option value="admin" ${user && user.role === 'admin' ? 'selected' : ''}>👑 مدير عام (تحكم وإشراف شامل بكل الصلاحيات)</option>
                             </select>
                         </div>
 

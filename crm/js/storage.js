@@ -131,6 +131,24 @@ const Storage = {
         return u.id === 'admin' || u.username === 'admin' || u.role === 'admin';
     },
 
+    isSupervisor(user) {
+        const u = user || this.getCurrentUser();
+        if (!u) return false;
+        return u.role === 'supervisor';
+    },
+
+    canViewAll(user) {
+        const u = user || this.getCurrentUser();
+        if (!u) return false;
+        return u.id === 'admin' || u.username === 'admin' || u.role === 'admin' || u.role === 'supervisor';
+    },
+
+    canModify(user) {
+        const u = user || this.getCurrentUser();
+        if (!u) return false;
+        return u.id === 'admin' || u.username === 'admin' || u.role === 'admin';
+    },
+
     isLoggedIn() {
         const userId = localStorage.getItem(this.KEYS.CURRENT_USER);
         return !!userId && !!this.getUser(userId);
@@ -253,11 +271,11 @@ const Storage = {
         const currentUser = this.getCurrentUser();
         const all = this.getCompanies();
         if (!currentUser) return all;
-        if (this.isAdmin(currentUser)) {
-            return all; // Admin sees everything
+        if (this.canViewAll(currentUser)) {
+            return all; // Admin & Supervisor see everything
         }
-        // Employee sees ONLY companies assigned to them by Admin
-        return all.filter(c => c.assignedTo === currentUser.id);
+        // Sales Agent sees ONLY companies assigned to them
+        return all.filter(c => c && (c.assignedTo === currentUser.id || c.assignedTo === currentUser.username));
     },
 
     assignCompany(companyId, userId) {

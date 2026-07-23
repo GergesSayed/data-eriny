@@ -281,7 +281,7 @@ const Companies = {
                             <button class="btn-icon btn-call" onclick="App.logCallForCompany('${c.id}')" title="مكالمة">
                                 <i class="fas fa-phone"></i>
                             </button>
-                            ${currentUser && currentUser.role === 'admin' ? `
+                            ${Storage.canModify(currentUser) ? `
                                 <button class="btn-icon btn-edit" onclick="Companies.edit('${c.id}')" title="تعديل">
                                     <i class="fas fa-edit"></i>
                                 </button>
@@ -363,7 +363,7 @@ const Companies = {
                             <button class="btn-icon btn-call" onclick="App.logCallForCompany('${c.id}')" title="مكالمة">
                                 <i class="fas fa-phone"></i>
                             </button>
-                            ${currentUser && currentUser.role === 'admin' ? `
+                            ${Storage.canModify(currentUser) ? `
                                 <button class="btn-icon btn-edit" onclick="Companies.edit('${c.id}')" title="تعديل">
                                     <i class="fas fa-edit"></i>
                                 </button>
@@ -887,7 +887,7 @@ const Companies = {
                     <span class="badge" style="background:${assignedUser.color || '#7c3aed'}22; color:${assignedUser.color || '#7c3aed'}; border:1px solid ${assignedUser.color || '#7c3aed'}66; padding:4px 8px; font-weight:700; font-size:0.75rem; border-radius:6px; display:inline-flex; align-items:center; gap:4px;" title="تاريخ التعيين: ${c.assignedAt ? new Date(c.assignedAt).toLocaleDateString('ar-EG') : ''}">
                         ${assignedUser.avatar || '👤'} ${assignedUser.name}
                     </span>
-                    ${currentUser && currentUser.role === 'admin' ? `
+                    ${Storage.canModify() ? `
                         <select onchange="Companies.assignToUser('${c.id}', this.value)" style="padding:2px 6px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-muted); font-size:11px; cursor:pointer;" title="تغيير الموظف المسند إليه أو إلغاء التعيين">
                             <option value="${assignedUser.id}" selected>✏️ تغيير</option>
                             <option value="">⚪ إلغاء التعيين</option>
@@ -896,14 +896,14 @@ const Companies = {
                     ` : ''}
                 </div>`;
         } else {
-            return `
+            return Storage.canModify() ? `
                 <div onclick="event.stopPropagation();" style="display:inline-block;">
                     <select onchange="Companies.assignToUser('${c.id}', this.value)" style="padding:4px 8px; border-radius:6px; border:1px dashed #7c3aed; background:rgba(124, 58, 237, 0.1); color:#7c3aed; font-size:0.75rem; font-weight:700; cursor:pointer;" title="اختر الموظف لإسناد هذه الشركة له">
                         <option value="" selected>➕ إسناد لموظف...</option>
                         <option value="current_user">🙋‍♂️ حجز لي (${currentUser ? currentUser.name.split(' ')[0] : 'أنا'})</option>
                         ${users.map(u => `<option value="${u.id}">👤 ${u.name} (${u.role === 'admin' ? 'مدير' : 'موظف'})</option>`).join('')}
                     </select>
-                </div>`;
+                </div>` : `<span style="color:var(--text-muted); font-size:11px;">⚪ غير مسندة</span>`;
         }
     },
 

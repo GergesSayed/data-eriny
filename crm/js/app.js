@@ -242,12 +242,14 @@ const App = {
         if (!current) return;
 
         const isAdmin = Storage.isAdmin(current);
+        const canViewAll = Storage.canViewAll(current);
+        const canModify = Storage.canModify(current);
 
-        // Toggle Sidebar elements based on role: Sales Agent sees ONLY Companies & Calls
+        // Toggle Sidebar elements based on role: Sales Agent sees ONLY Companies & Calls, Admin & Supervisor see ALL
         document.querySelectorAll('.sidebar-nav .nav-link').forEach(link => {
             const page = link.dataset.page;
             
-            if (!isAdmin) {
+            if (!canViewAll) {
                 if (page === 'companies' || page === 'calls') {
                     link.style.display = 'flex';
                 } else {
@@ -258,7 +260,7 @@ const App = {
             }
         });
 
-        // Hide Admin-only buttons on Companies page and topbar for Sales Agents
+        // Hide write/modification buttons for non-admins (e.g. Supervisors & Sales Agents)
         const btnAddComp = document.getElementById('btn-add-company');
         const btnImportExcel = document.getElementById('btn-import-excel');
         const btnExportExcel = document.getElementById('btn-export-excel');
@@ -266,25 +268,26 @@ const App = {
         const btnTeam = document.getElementById('btn-team-management');
         const btnQuickAdd = document.getElementById('btn-quick-add');
 
-        if (btnAddComp) btnAddComp.style.display = isAdmin ? 'inline-flex' : 'none';
-        if (btnImportExcel) btnImportExcel.style.display = isAdmin ? 'inline-flex' : 'none';
-        if (btnExportExcel) btnExportExcel.style.display = isAdmin ? 'inline-flex' : 'none';
-        if (btnTeam) btnTeam.style.display = isAdmin ? 'inline-flex' : 'none';
-        if (btnQuickAdd) btnQuickAdd.style.display = isAdmin ? 'inline-flex' : 'none';
-        if (bulkBar && !isAdmin) bulkBar.style.display = 'none';
+        if (btnAddComp) btnAddComp.style.display = canModify ? 'inline-flex' : 'none';
+        if (btnImportExcel) btnImportExcel.style.display = canModify ? 'inline-flex' : 'none';
+        if (btnExportExcel) btnExportExcel.style.display = canViewAll ? 'inline-flex' : 'none';
+        if (btnTeam) btnTeam.style.display = canViewAll ? 'inline-flex' : 'none';
+        if (btnQuickAdd) btnQuickAdd.style.display = canModify ? 'inline-flex' : 'none';
+        if (bulkBar && !canModify) bulkBar.style.display = 'none';
 
         const filterAssignedGroup = document.getElementById('filter-assigned-group') || document.getElementById('filter-assigned')?.parentElement;
-        if (filterAssignedGroup) filterAssignedGroup.style.display = isAdmin ? 'block' : 'none';
+        if (filterAssignedGroup) filterAssignedGroup.style.display = canViewAll ? 'block' : 'none';
 
         // Topbar User Avatar & Name
         const avatarEl = document.getElementById('current-user-avatar');
         if (avatarEl) {
-            avatarEl.textContent = current.avatar || '👤';
+            avatarEl.textContent = current.avatar || (current.role === 'admin' ? '👑' : current.role === 'supervisor' ? '👁️' : '👤');
             avatarEl.style.background = current.color || '#7c3aed';
         }
         const nameEl = document.getElementById('current-user-name');
         if (nameEl) {
-            nameEl.textContent = `${current.role === 'admin' ? '👑 ' : '👤 '}${current.name}`;
+            const roleBadge = current.role === 'admin' ? '👑 ' : current.role === 'supervisor' ? '👁️ (مشرف) ' : '👤 ';
+            nameEl.textContent = `${roleBadge}${current.name}`;
         }
     },
 
@@ -404,16 +407,16 @@ const App = {
 
     navigateTo(page) {
         const currentUser = Storage.getCurrentUser();
-        const isAdmin = Storage.isAdmin(currentUser);
+        const canViewAll = Storage.canViewAll(currentUser);
 
         // Role-based restrictions: Sales Agents CAN ONLY access companies & calls
-        if (!isAdmin && page !== 'companies' && page !== 'calls') {
-            this.showToast('🔒 شاشة "متابعة الفريق" مخصصة للمدير العام فقط. قم بالتحويل لحساب المدير من أعلى الصفحة.', 'warning');
-            page = 'companies'; // Default page for employees
+        if (!canViewAll && page !== 'companies' && page !== 'calls') {
+            this.showToast('🔒 هذه الشاشة مخصصة للمشرفين والمدير العام فقط.', 'warning');
+            page = 'companies'; // Default page for sales agents
         }
 
         const validPages = ['dashboard', 'companies', 'calls', 'pipeline', 'reports', 'scraper', 'team'];
-        if (!validPages.includes(page)) page = isAdmin ? 'dashboard' : 'companies';
+        if (!validPages.includes(page)) page = canViewAll ? 'dashboard' : 'companies';
 
         this.currentPage = page;
 
