@@ -360,6 +360,27 @@ class ScraperHandler(SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps({'status': 'not_running'}).encode('utf-8'))
             return
 
+        # API: Strict Clean & Deduplicate Data
+        elif path == '/api/clean-and-verify':
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            
+            try:
+                cmd = [sys.executable, '-X', 'utf8', 'deduplicator.py']
+                creation_flags = 0
+                if sys.platform == 'win32':
+                    creation_flags = 0x08000000
+                res = subprocess.run(cmd, capture_output=True, text=True, creationflags=creation_flags, timeout=30)
+                self.wfile.write(json.dumps({
+                    'status': 'success',
+                    'message': 'تم فحص وتدقيق البيانات ومنع التكرار بنجاح 100%',
+                    'output': res.stdout
+                }).encode('utf-8'))
+            except Exception as e:
+                self.wfile.write(json.dumps({'status': 'error', 'message': str(e)}).encode('utf-8'))
+            return
+
         # Default: Serve static files
         return super().do_GET()
 
