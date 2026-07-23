@@ -787,6 +787,223 @@ const Storage = {
         return addedCount;
     },
 
+    // ---- Data Audit & Deduplication Engine ----
+    auditCompanyData() {
+        const companies = this.getCompanies();
+        const report = {
+            total: companies.length,
+            invalidCount: 0,
+            missingPhone: 0,
+            missingSector: 0,
+            missingCity: 0,
+            duplicateGroups: [],
+            totalDuplicates: 0,
+            cleanDataCount: 0
+        };
+
+        const phoneMap = new Map();
+        const nameMap = new Map();
+        const emailMap = new Map();
+
+        const normalizeStr = (str) => {
+            if (!str) return '';
+            return String(str).toLowerCase().trim()
+                .replace(/[أإآ]/g, 'ا')
+                .replace(/ة/g, 'ه')
+                .replace(/ى/g, 'ي')
+                .replace(/[^a-z0-9\u0600-\u06FF]/gi, '');
+        };
+
+        const normalizePhone = (num) => {
+            if (!num) return '';
+            const cleaned = String(num).replace(/[^0-9]/g, '');
+            if (cleaned.length >= 8) {
+                return cleaned.slice(-8); // compare last 8 digits
+            }
+            return cleaned;
+        };
+
+        companies.forEach(c => {
+            const nameArNorm = normalizeStr(c.nameAr);
+            const nameEnNorm = normalizeStr(c.nameEn);
+            const mainPhoneNorm = normalizePhone(c.phone1 || c.mobile || c.phone2);
+            const emailNorm = (c.email || '').toLowerCase().trim();
+
+            let isInvalid = !c.nameAr && !c.nameEn;
+            if (isInvalid) report.invalidCount++;
+            if (!c.phone1 && !c.mobile && !c.phone2) report.missingPhone++;
+            if (!c.sector || c.sector === 'unknown') report.missingSector++;
+            if (!c.city || c.city === 'unknown') report.missingCity++;
+
+            // Check duplicate by name
+            if (nameArNorm && nameArNorm.length > 2) {
+                if (!nameMap.has(nameArNorm)) nameMap.set(nameArNorm, []);
+                nameMap.get(nameArNorm).push(c);
+            }
+            if (nameEnNorm && nameEnNorm.length > 2) {
+                if (!nameMap.has(nameEnNorm)) nameMap.set(nameEnNorm, []);
+                nameMap.get(nameEnNorm).push(c);
+            }
+
+            // Check duplicate by phone
+            if (mainPhoneNorm && mainPhoneNorm.length >= 8) {
+                if (!phoneMap.has(mainPhoneNorm)) phoneMap.set(mainPhoneNorm, []);
+                phoneMap.get(mainPhoneNorm).push(c);
+            }
+
+            // Check duplicate by email
+            if (emailNorm && emailNorm.includes('@')) {
+                if (!emailMap.has(emailNorm)) emailMap.set(emailNorm, []);
+                emailMap.get(emailNorm).push(c);
+            }
+        });
+
+        const seenGroupKeys = new Set();
+        const processMap = (map, reason) => {
+            map.forEach((list, key) => {
+                if (list.length > 1) {
+                    const uniqueIds = Array.from(new Set(list.map(item => item.id)));
+                    if (uniqueIds.length > 1) {
+                        const groupKey = uniqueIds.sort().join('_');
+                        if (!seenGroupKeys.has(groupKey)) {
+                            seenGroupKeys.add(groupKey);
+                            const items = uniqueIds.map(id => companies.find(item => item.id === id)).filter(Boolean);
+                            report.duplicateGroups.push({
+                                reason,
+                                key,
+                                items
+                            });
+                            report.totalDuplicates += (items.length - 1);
+                        }
+                    }
+                }
+            });
+        };
+
+        processMap(nameMap, 'تطابق الاسم');
+        processMap(phoneMap, 'تطابق رقم الهاتف');
+        processMap(emailMap, 'تطابق الإيميل');
+
+        report.cleanDataCount = report.total - report.invalidCount - report.totalDuplicates;
+        return report;
+    },
+
+    autoCleanAndMergeDuplicates() {
+        const companies = [...this.getCompanies()];
+        let mergedCount = 0;
+        let cleanedCount = 0;
+
+        const normalizeStr = (str) => {
+            if (!str) return '';
+            return String(str).toLowerCase().trim()
+                .replace(/[أإآ]/g, 'ا')
+                .replace(/ة/g, 'ه')
+                .replace(/ى/g, 'ي')
+                .replace(/[^a-z0-9\u0600-\u06FF]/gi, '');
+        };
+
+        const normalizePhone = (num) => {
+            if (!num) return '';
+            const cleaned = String(num).replace(/[^0-9]/g, '');
+            return cleaned.length >= 8 ? cleaned.slice(-8) : cleaned;
+        };
+
+        // 1. Remove completely empty records
+        const validCompanies = companies.filter(c => {
+            const hasName = (c.nameAr && c.nameAr.trim().length > 0) || (c.nameEn && c.nameEn.trim().length > 0);
+            if (!hasName) cleanedCount++;
+            return hasName;
+        });
+
+        // 2. Merge Duplicates
+        const mergedList = [];
+        const processedIds = new Set();
+
+        validCompanies.forEach(c => {
+            if (processedIds.has(c.id)) return;
+
+            const nameNorm = normalizeStr(c.nameAr || c.nameEn);
+            const phoneNorm = normalizePhone(c.phone1 || c.mobile || c.phone2);
+            const emailNorm = (c.email || '').toLowerCase().trim();
+
+            // Find all matching duplicates
+            const duplicates = validCompanies.filter(other => {
+                if (other.id === c.id || processedIds.has(other.id)) return false;
+                const oNameNorm = normalizeStr(other.nameAr || other.nameEn);
+                const oPhoneNorm = normalizePhone(other.phone1 || other.mobile || other.phone2);
+                const oEmailNorm = (other.email || '').toLowerCase().trim();
+
+                const nameMatch = nameNorm && oNameNorm && nameNorm === oNameNorm;
+                const phoneMatch = phoneNorm && oPhoneNorm && phoneNorm.length >= 8 && phoneNorm === oPhoneNorm;
+                const emailMatch = emailNorm && oEmailNorm && emailNorm.includes('@') && emailNorm === oEmailNorm;
+
+                return nameMatch || phoneMatch || emailMatch;
+            });
+
+            if (duplicates.length > 0) {
+                // Merge all duplicates into primary copy 'c'
+                duplicates.forEach(dup => {
+                    processedIds.add(dup.id);
+                    mergedCount++;
+
+                    // Combine fields
+                    if (!c.nameEn && dup.nameEn) c.nameEn = dup.nameEn;
+                    if (!c.phone1 && dup.phone1) c.phone1 = dup.phone1;
+                    if (!c.phone2 && dup.phone2) c.phone2 = dup.phone2;
+                    if (!c.mobile && dup.mobile) c.mobile = dup.mobile;
+                    if (!c.email && dup.email) c.email = dup.email;
+                    if (!c.website && dup.website) c.website = dup.website;
+                    if (!c.address && dup.address) c.address = dup.address;
+                    if (!c.contactPerson && dup.contactPerson) c.contactPerson = dup.contactPerson;
+                    if (!c.contactTitle && dup.contactTitle) c.contactTitle = dup.contactTitle;
+                    if (!c.fleetSize && dup.fleetSize) c.fleetSize = dup.fleetSize;
+                    if (!c.linkedin && dup.linkedin) c.linkedin = dup.linkedin;
+                    if (!c.facebook && dup.facebook) c.facebook = dup.facebook;
+                    if (!c.google_maps_url && dup.google_maps_url) c.google_maps_url = dup.google_maps_url;
+                    if (!c.assignedTo && dup.assignedTo) c.assignedTo = dup.assignedTo;
+
+                    // Re-link calls from duplicate ID to main company ID
+                    const calls = this.getCalls();
+                    let callsUpdated = false;
+                    calls.forEach(call => {
+                        if (call.companyId === dup.id) {
+                            call.companyId = c.id;
+                            callsUpdated = true;
+                        }
+                    });
+                    if (callsUpdated) this._set(this.KEYS.CALLS, calls);
+
+                    // Re-link deals from duplicate ID to main company ID
+                    const deals = this.getDeals();
+                    let dealsUpdated = false;
+                    deals.forEach(deal => {
+                        if (deal.companyId === dup.id) {
+                            deal.companyId = c.id;
+                            dealsUpdated = true;
+                        }
+                    });
+                    if (dealsUpdated) this._set(this.KEYS.DEALS, deals);
+                });
+            }
+
+            processedIds.add(c.id);
+
+            // Ensure canonical mappings and priorities
+            c.sector = this.mapScraperSectorToCRM(c.sector);
+            c.city = this.mapScraperCityToCRM(c.city);
+            c.priority = this.calculatePriority(c.sector);
+
+            mergedList.push(c);
+        });
+
+        this.companiesMemory = mergedList;
+        this.saveAllCompaniesToDB(mergedList);
+        localStorage.removeItem(this.KEYS.COMPANIES);
+
+        this.addActivity('system', 'audit', 'تنظيف ودمج البيانات', `تم دمج ${mergedCount} شركة مكررة وتنظيف ${cleanedCount} سجل فارغ`);
+        return { mergedCount, cleanedCount, remainingTotal: mergedList.length };
+    },
+
     // ---- Calls ----
     getCalls() {
         return this._get(this.KEYS.CALLS);

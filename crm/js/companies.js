@@ -622,6 +622,94 @@ const Companies = {
         this.clearSelection();
     },
 
+    // ---- Data Audit & Quality Engine ----
+    openAuditModal() {
+        const report = Storage.auditCompanyData();
+        const body = document.getElementById('data-audit-body');
+        if (!body) return;
+
+        let duplicatesHtml = '';
+        if (report.duplicateGroups.length === 0) {
+            duplicatesHtml = `
+                <div style="background:rgba(16, 185, 129, 0.15); border:1px solid #10b981; border-radius:12px; padding:16px; text-align:center; color:#10b981; margin-top:16px;">
+                    <i class="fas fa-check-circle" style="font-size:28px; margin-bottom:8px;"></i>
+                    <h3 style="margin:0 0 4px 0; font-size:1.1rem; color:#10b981;">بيانات رائعة! لا يوجد أي شركات مكررة على النظام 🎉</h3>
+                    <p style="margin:0; font-size:0.85rem; color:#94a3b8;">جميع الشركات المسجلة تتضمن بيانات فريدة وغير مكررة بنسبة 100%.</p>
+                </div>`;
+        } else {
+            duplicatesHtml = `
+                <div style="margin-top:20px;">
+                    <h4 style="color:#f8fafc; font-size:0.95rem; font-weight:800; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-copy" style="color:#f59e0b;"></i> المجموعات المكتشفة كـ شركات مكررة (${report.duplicateGroups.length} مجموعة):
+                    </h4>
+                    <div style="max-height:260px; overflow-y:auto; display:flex; flex-direction:column; gap:10px; padding-left:4px;">
+                        ${report.duplicateGroups.map((g, idx) => `
+                            <div style="background:rgba(30, 41, 59, 0.6); border:1px solid rgba(245, 158, 11, 0.3); border-radius:10px; padding:12px;">
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                                    <span style="font-size:0.8rem; font-weight:800; color:#f59e0b;">مجموعة ${idx + 1}: ${g.reason} ("${g.key}")</span>
+                                    <span style="font-size:0.75rem; color:#94a3b8;">${g.items.length} سجلات مكررة</span>
+                                </div>
+                                <div style="display:flex; flex-direction:column; gap:4px;">
+                                    ${g.items.map(item => `
+                                        <div style="font-size:0.78rem; background:rgba(15, 23, 42, 0.5); padding:6px 10px; border-radius:6px; display:flex; justify-content:space-between;">
+                                            <span><strong>${item.nameAr || item.nameEn}</strong> (${item.city || 'المنطقة غير محددة'})</span>
+                                            <span style="color:#94a3b8;">📞 ${item.phone1 || item.mobile || 'بدون هاتف'} | ID: ${item.id}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>`;
+        }
+
+        body.innerHTML = `
+            <!-- Stats Dashboard Grid -->
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap:12px; margin-bottom:16px;">
+                <div style="background:rgba(99, 102, 241, 0.12); border:1px solid rgba(99, 102, 241, 0.3); border-radius:12px; padding:12px; text-align:center;">
+                    <div style="font-size:1.5rem; font-weight:800; color:#818cf8;">${report.total}</div>
+                    <div style="font-size:0.75rem; color:#94a3b8; font-weight:700;">إجمالي الشركات</div>
+                </div>
+                <div style="background:rgba(16, 185, 129, 0.12); border:1px solid rgba(16, 185, 129, 0.3); border-radius:12px; padding:12px; text-align:center;">
+                    <div style="font-size:1.5rem; font-weight:800; color:#10b981;">${report.cleanDataCount}</div>
+                    <div style="font-size:0.75rem; color:#94a3b8; font-weight:700;">شركات فريدة وسليمة 100%</div>
+                </div>
+                <div style="background:rgba(245, 158, 11, 0.12); border:1px solid rgba(245, 158, 11, 0.3); border-radius:12px; padding:12px; text-align:center;">
+                    <div style="font-size:1.5rem; font-weight:800; color:#f59e0b;">${report.totalDuplicates}</div>
+                    <div style="font-size:0.75rem; color:#94a3b8; font-weight:700;">سجلات مكررة مكتشفة</div>
+                </div>
+                <div style="background:rgba(239, 68, 68, 0.12); border:1px solid rgba(239, 68, 68, 0.3); border-radius:12px; padding:12px; text-align:center;">
+                    <div style="font-size:1.5rem; font-weight:800; color:#ef4444;">${report.missingPhone}</div>
+                    <div style="font-size:0.75rem; color:#94a3b8; font-weight:700;">بدون أرقام تليفون</div>
+                </div>
+            </div>
+
+            <!-- Health Summary Box -->
+            <div style="background:rgba(30, 41, 59, 0.5); border:1px solid var(--border-color); border-radius:12px; padding:14px; font-size:0.85rem; color:#cbd5e1; line-height:1.6;">
+                <div style="font-weight:800; color:#f8fafc; margin-bottom:6px; display:flex; align-items:center; gap:8px;">
+                    <i class="fas fa-microchip" style="color:#06b6d4;"></i> تقرير فحص جودة قاعدة البيانات:
+                </div>
+                <ul style="margin:0; padding-right:20px; color:#a78bfa;">
+                    <li>نسبة اكتمال أرقام الهواتف: <strong style="color:#f8fafc;">${Math.round(((report.total - report.missingPhone) / (report.total || 1)) * 100)}%</strong></li>
+                    <li>نسبة اكتمال تصنيف القطاعات والمناطق: <strong style="color:#f8fafc;">${Math.round(((report.total - report.missingSector) / (report.total || 1)) * 100)}%</strong></li>
+                    <li>دقة وتفرد البيانات (Deduplication Score): <strong style="color:#10b981;">${Math.round((report.cleanDataCount / (report.total || 1)) * 100)}%</strong></li>
+                </ul>
+            </div>
+
+            ${duplicatesHtml}
+        `;
+
+        App.openModal('modal-data-audit');
+    },
+
+    runAutoCleanAndMerge() {
+        const res = Storage.autoCleanAndMergeDuplicates();
+        App.showToast(`✅ تم دمج ${res.mergedCount} شركة مكررة وتنظيف البيانات بنجاح! الإجمالي الآن: ${res.remainingTotal} شركة`, 'success');
+        this.openAuditModal();
+        this.render();
+        if (typeof Dashboard !== 'undefined') Dashboard.render();
+    },
+
     // ---- CRUD ----
     openAddModal() {
         if (!Storage.isAdmin()) {
