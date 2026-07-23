@@ -69,6 +69,8 @@ const Companies = {
         document.getElementById('filter-city')?.addEventListener('change', () => this.render());
         document.getElementById('filter-priority')?.addEventListener('change', () => this.render());
         document.getElementById('filter-fleet-type')?.addEventListener('change', () => this.render());
+        document.getElementById('filter-sort')?.addEventListener('change', () => this.render());
+        document.getElementById('filter-quick-preset')?.addEventListener('change', () => this.render());
         document.getElementById('filter-assigned')?.addEventListener('change', () => this.render());
         document.getElementById('filter-search')?.addEventListener('input', () => {
             this.currentPage = 1;
@@ -99,6 +101,19 @@ const Companies = {
         });
     },
 
+    clearFilters() {
+        ['filter-sector', 'filter-city', 'filter-priority', 'filter-fleet-type', 'filter-sort', 'filter-quick-preset', 'filter-assigned', 'filter-search'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = '';
+        });
+        const sortSelect = document.getElementById('filter-sort');
+        if (sortSelect) sortSelect.value = 'latest';
+        this.currentPage = 1;
+        this.sortField = 'createdAt';
+        this.sortDir = 'desc';
+        this.render();
+    },
+
     getFilteredCompanies() {
         let companies = Storage.getScopedCompanies();
 
@@ -106,6 +121,8 @@ const Companies = {
         const city = document.getElementById('filter-city')?.value;
         const priority = document.getElementById('filter-priority')?.value;
         const fleetType = document.getElementById('filter-fleet-type')?.value;
+        const sortMode = document.getElementById('filter-sort')?.value || 'latest';
+        const quickPreset = document.getElementById('filter-quick-preset')?.value;
         const assigned = document.getElementById('filter-assigned')?.value;
         const search = document.getElementById('filter-search')?.value?.toLowerCase().trim();
 
@@ -114,6 +131,34 @@ const Companies = {
         if (priority) companies = companies.filter(c => c.priority === priority);
         if (fleetType) companies = companies.filter(c => c.fleetType === fleetType);
         
+        // Quick Presets
+        if (quickPreset) {
+            const now = Date.now();
+            if (quickPreset === 'recent_7days') {
+                companies = companies.filter(c => {
+                    const ts = c.createdAt ? new Date(c.createdAt).getTime() : (c.id && !isNaN(c.id) ? Number(c.id) : 0);
+                    return (now - ts) <= (7 * 24 * 60 * 60 * 1000);
+                });
+            } else if (quickPreset === 'recent_30days') {
+                companies = companies.filter(c => {
+                    const ts = c.createdAt ? new Date(c.createdAt).getTime() : (c.id && !isNaN(c.id) ? Number(c.id) : 0);
+                    return (now - ts) <= (30 * 24 * 60 * 60 * 1000);
+                });
+            } else if (quickPreset === 'large_fleet') {
+                companies = companies.filter(c => (Number(c.fleetSize) || 0) >= 50);
+            } else if (quickPreset === 'medium_fleet') {
+                companies = companies.filter(c => {
+                    const size = Number(c.fleetSize) || 0;
+                    return size >= 15 && size < 50;
+                });
+            } else if (quickPreset === 'small_fleet') {
+                companies = companies.filter(c => {
+                    const size = Number(c.fleetSize) || 0;
+                    return size > 0 && size < 15;
+                });
+            }
+        }
+
         if (assigned) {
             const currentUser = Storage.getCurrentUser();
             if (assigned === 'my_leads') {
@@ -136,8 +181,46 @@ const Companies = {
             );
         }
 
-        // Sort
+        // Helper to extract timestamp
+        const getCreatedTimestamp = (c) => {
+            if (c.createdAt) {
+                const ts = new Date(c.createdAt).getTime();
+                if (!isNaN(ts)) return ts;
+            }
+            if (c.id) {
+                const num = Number(c.id.replace(/[^0-9]/g, ''));
+                if (!isNaN(num) && num > 10000) return num;
+            }
+            return 0;
+        };
+
+        // Sort based on sortMode
         companies.sort((a, b) => {
+            if (sortMode === 'latest') {
+                return getCreatedTimestamp(b) - getCreatedTimestamp(a);
+            }
+            if (sortMode === 'oldest') {
+                return getCreatedTimestamp(a) - getCreatedTimestamp(b);
+            }
+            if (sortMode === 'fleet_desc') {
+                return (Number(b.fleetSize) || 0) - (Number(a.fleetSize) || 0);
+            }
+            if (sortMode === 'fleet_asc') {
+                return (Number(a.fleetSize) || 0) - (Number(b.fleetSize) || 0);
+            }
+            if (sortMode === 'priority') {
+                const order = { A: 1, B: 2, C: 3 };
+                const pA = order[a.priority] || 2;
+                const pB = order[b.priority] || 2;
+                return pA - pB;
+            }
+            if (sortMode === 'name') {
+                const nameA = a.nameAr || a.nameEn || '';
+                const nameB = b.nameAr || b.nameEn || '';
+                return nameA.localeCompare(nameB, 'ar');
+            }
+
+            // Fallback column header sort
             let valA = a[this.sortField] || '';
             let valB = b[this.sortField] || '';
 
