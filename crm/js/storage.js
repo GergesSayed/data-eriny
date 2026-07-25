@@ -647,6 +647,7 @@ const Storage = {
                         // Merge IndexedDB with current memory (favoring whichever has more or union)
                         if (idbMapped.length >= this.companiesMemory.length) {
                             this.companiesMemory = idbMapped;
+                            this._set(this.KEYS.COMPANIES, idbMapped);
                         }
                         this.ensureAssignedSampleCompanies();
                         resolve();
@@ -722,7 +723,6 @@ const Storage = {
     setCompanies(companies) {
         this.companiesMemory = companies;
         this.saveAllCompaniesToDB(companies);
-        localStorage.removeItem(this.KEYS.COMPANIES);
     },
 
     addCompanies(newCompanies) {
@@ -765,7 +765,7 @@ const Storage = {
                     }
                 });
                 transaction.oncomplete = () => {
-                    localStorage.removeItem(this.KEYS.COMPANIES);
+                    this._set(this.KEYS.COMPANIES, this.companiesMemory);
                     resolve();
                 };
             };
@@ -800,7 +800,6 @@ const Storage = {
         }
         this.companiesMemory = companies;
         this.saveAllCompaniesToDB(companies);
-        localStorage.removeItem(this.KEYS.COMPANIES);
         
         this.addActivity('company', company.id, company.id ? 'تعديل شركة' : 'إضافة شركة', company.nameAr);
         return company;
@@ -810,7 +809,6 @@ const Storage = {
         const companies = this.getCompanies().filter(c => c.id !== id);
         this.companiesMemory = companies;
         this.saveAllCompaniesToDB(companies);
-        localStorage.removeItem(this.KEYS.COMPANIES);
 
         // Also delete related calls and deals
         const calls = this.getCalls().filter(c => c.companyId !== id);
@@ -843,7 +841,6 @@ const Storage = {
         });
         this.companiesMemory = existing;
         this.saveAllCompaniesToDB(existing);
-        localStorage.removeItem(this.KEYS.COMPANIES);
         return addedCount;
     },
 
@@ -1058,7 +1055,6 @@ const Storage = {
 
         this.companiesMemory = mergedList;
         this.saveAllCompaniesToDB(mergedList);
-        localStorage.removeItem(this.KEYS.COMPANIES);
 
         this.addActivity('system', 'audit', 'تنظيف ودمج البيانات', `تم دمج ${mergedCount} شركة مكررة وتنظيف ${cleanedCount} سجل فارغ`);
         return { mergedCount, cleanedCount, remainingTotal: mergedList.length };
