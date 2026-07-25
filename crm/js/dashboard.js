@@ -12,11 +12,16 @@ const Dashboard = {
     render() {
         const stats = Storage.getStats();
         this.updateStatCards(stats);
-        this.renderSectorChart(stats);
-        this.renderWeeklyCallsChart(stats);
         this.renderFollowUps();
         this.renderActivities();
         this.updateCurrentDate();
+
+        // Render charts after layout paint to ensure non-zero canvas dimensions
+        setTimeout(() => {
+            const freshStats = Storage.getStats();
+            this.renderSectorChart(freshStats);
+            this.renderWeeklyCallsChart(freshStats);
+        }, 50);
     },
 
     updateStatCards(stats) {

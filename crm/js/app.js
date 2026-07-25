@@ -89,6 +89,11 @@ const App = {
                 hash = isAdmin ? 'dashboard' : 'companies';
             }
             this.navigateTo(hash);
+            setTimeout(() => {
+                if (this.currentPage === 'dashboard' && typeof Dashboard !== 'undefined') {
+                    Dashboard.render();
+                }
+            }, 100);
 
             // Keep checking every 60 seconds for new scraper data — only locally
             if (Storage.isRemoteHosted && !Storage.isRemoteHosted()) {
