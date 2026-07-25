@@ -32,6 +32,9 @@ const App = {
             // Initialize Database
             await Storage.initDB();
 
+            // Check authentication session first so main-wrapper layout is visible
+            this.checkAuth();
+
             // Migrate existing companies' sectors/cities to canonical keys if not done yet
             if (!localStorage.getItem('fleetcrm_city_sector_mapped_v7')) {
                 const companies = Storage.getCompanies();
@@ -62,7 +65,6 @@ const App = {
 
             this.renderGlobalSearch();
             this.renderNotifications();
-            this.checkAuth();
             this.bindEvents();
 
             // Initialize all modules safely
@@ -76,9 +78,6 @@ const App = {
             // Initialize User Switcher
             this.initUserSwitcher();
 
-            // Check authentication session
-            this.checkAuth();
-
             // Navigate to current hash or appropriate home
             const currentUser = Storage.getCurrentUser();
             const isAdmin = Storage.isAdmin(currentUser);
@@ -87,11 +86,6 @@ const App = {
                 hash = isAdmin ? 'dashboard' : 'companies';
             }
             this.navigateTo(hash);
-            setTimeout(() => {
-                if (this.currentPage === 'dashboard' && typeof Dashboard !== 'undefined') {
-                    Dashboard.render();
-                }
-            }, 100);
 
             // Keep checking every 60 seconds for new scraper data — only locally
             if (Storage.isRemoteHosted && !Storage.isRemoteHosted()) {
