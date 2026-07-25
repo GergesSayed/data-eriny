@@ -19,9 +19,10 @@ const Dashboard = {
         // Render charts after layout paint to ensure non-zero canvas dimensions
         setTimeout(() => {
             const freshStats = Storage.getStats();
+            this.updateStatCards(freshStats);
             this.renderSectorChart(freshStats);
             this.renderWeeklyCallsChart(freshStats);
-        }, 50);
+        }, 150);
     },
 
     updateStatCards(stats) {

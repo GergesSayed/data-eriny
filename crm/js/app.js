@@ -126,6 +126,12 @@ const App = {
             if (sidebar) sidebar.style.display = 'flex';
             if (mainWrapper) mainWrapper.style.display = 'flex';
             this.updateUserUI();
+
+            setTimeout(() => {
+                if (this.currentPage === 'dashboard' && typeof Dashboard !== 'undefined') {
+                    Dashboard.render();
+                }
+            }, 150);
         }
     },
 
