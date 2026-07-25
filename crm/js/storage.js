@@ -1841,6 +1841,11 @@ const Storage = {
         return r ? `${r.icon} ${r.ar}` : resultKey;
     },
 
+    formatCurrency(amount) {
+        const num = Number(amount) || 0;
+        return num.toLocaleString('ar-EG') + ' ج.م';
+    },
+
     // ---- Clear All Data ----
     clearAll() {
         Object.values(this.KEYS).forEach(key => localStorage.removeItem(key));

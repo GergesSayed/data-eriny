@@ -25,14 +25,19 @@ const Dashboard = {
     },
 
     updateStatCards(stats) {
-        this._animateNumber('dash-total-companies', stats.totalCompanies);
-        this._animateNumber('dash-calls-today', stats.callsToday);
-        this._animateNumber('dash-open-deals', stats.openDeals);
-        document.getElementById('dash-pipeline-value').textContent = Storage.formatCurrency(stats.pipelineValue);
+        this._animateNumber('dash-total-companies', stats.totalCompanies || 0);
+        this._animateNumber('dash-calls-today', stats.callsToday || 0);
+        this._animateNumber('dash-open-deals', stats.openDeals || 0);
+        
+        const valEl = document.getElementById('dash-pipeline-value');
+        if (valEl) valEl.textContent = Storage.formatCurrency(stats.pipelineValue || 0);
         
         // Sidebar stats
-        document.getElementById('sidebar-total-companies').textContent = stats.totalCompanies;
-        document.getElementById('sidebar-total-deals').textContent = stats.openDeals;
+        const sideComp = document.getElementById('sidebar-total-companies');
+        if (sideComp) sideComp.textContent = stats.totalCompanies || 0;
+        
+        const sideDeals = document.getElementById('sidebar-total-deals');
+        if (sideDeals) sideDeals.textContent = stats.openDeals || 0;
     },
 
     _animateNumber(elementId, target) {
