@@ -24,6 +24,48 @@ const Storage = {
     isCloud(){var e=window.location.hostname;return e.includes("vercel.app")||e.includes("netlify.app")||e.includes("github.io")},
 
     DEFAULT_ADMIN_PW: 'admin123',
+
+    exportFullSystemBackup() {
+        const backupData = {
+            version: '16.0.0',
+            exportedAt: new Date().toISOString(),
+            companies: this.getCompanies(),
+            calls: this.getCalls(),
+            deals: this.getDeals(),
+            users: this.getUsers().map(u => ({ ...u, password: '***' })),
+            activities: this.getActivities(100)
+        };
+        const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `FleetCRM_Full_Backup_${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        this.addActivity('system', 'backup', 'استخراج نسخة احتياطية', 'تم تصدير ملف النسخة الاحتياطية الشاملة للسيستم');
+    },
+
+    importFullSystemBackup(jsonData) {
+        try {
+            const data = typeof jsonData === 'string' ? JSON.parse(jsonData) : jsonData;
+            if (!data || !Array.isArray(data.companies)) {
+                return { success: false, message: 'ملف النسخة الاحتياطية غير صالح أو تالف' };
+            }
+            if (data.companies.length > 0) {
+                this.setCompanies(data.companies);
+            }
+            if (Array.isArray(data.calls) && data.calls.length > 0) {
+                this._set(this.KEYS.CALLS, data.calls);
+            }
+            if (Array.isArray(data.deals) && data.deals.length > 0) {
+                this._set(this.KEYS.DEALS, data.deals);
+            }
+            this.addActivity('system', 'restore', 'استعادة نسخة احتياطية', `تم استعادة ${data.companies.length} شركة و${(data.calls || []).length} مكالمة`);
+            return { success: true, count: data.companies.length };
+        } catch (e) {
+            return { success: false, message: 'خطأ في قراءة ملف النسخة الاحتياطية: ' + e.message };
+        }
+    },
     DEFAULT_USERS: [
         { id: 'admin', username: 'admin', email: 'admin@fleet.com', password: 'admin123', name: 'المدير العام (عرض الكل)', role: 'admin', status: 'active', avatar: '👑', color: '#7c3aed' }
     ],
