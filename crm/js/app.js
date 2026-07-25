@@ -57,7 +57,9 @@ const App = {
             // Initialize routing
             this.initRouting();
 
-            // Bind global events
+            this.renderGlobalSearch();
+            this.renderNotifications();
+            this.checkAuth();
             this.bindEvents();
 
             // Initialize all modules safely
@@ -508,6 +510,13 @@ const App = {
             document.getElementById('sidebar-overlay')?.classList.remove('active');
         });
 
+        // Close notifications dropdown on outside click
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.notification-center-wrapper')) {
+                document.getElementById('notifications-dropdown')?.classList.remove('show');
+            }
+        });
+
         // Team management button
         document.getElementById('btn-team-management')?.addEventListener('click', () => this.navigateTo('team'));
 
@@ -607,6 +616,59 @@ const App = {
                 if (openModal) this.closeModal(openModal.id);
             }
         });
+    },
+
+    renderNotifications() {
+        const list = document.getElementById('notifications-list');
+        const badge = document.getElementById('notif-badge-count');
+        const headerCount = document.getElementById('notif-header-count');
+        if (!list) return;
+
+        const followUps = Storage.getTodaysFollowUps() || [];
+        const count = followUps.length;
+        if (badge) {
+            badge.style.display = count > 0 ? 'inline-block' : 'none';
+            badge.textContent = count;
+        }
+        if (headerCount) {
+            headerCount.textContent = `${count} اليوم`;
+        }
+
+        if (count === 0) {
+            list.innerHTML = `
+                <div style="padding:16px; text-align:center; color:#94a3b8; font-size:12px;">
+                    <i class="fas fa-check-circle" style="font-size:24px; color:#10b981; margin-bottom:6px; display:block;"></i>
+                    لا توجد أي متابعات مستحقة اليوم 🎉
+                </div>`;
+            return;
+        }
+
+        list.innerHTML = followUps.map(c => {
+            const company = Storage.getCompany(c.companyId);
+            const companyName = company ? (company.nameAr || company.nameEn) : 'شركة غير معروفة';
+            return `
+                <div class="search-dropdown-item" onclick="Companies.showDetail('${c.companyId}')" style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; border-bottom:1px solid rgba(255,255,255,0.06);">
+                    <div>
+                        <div style="font-weight:700; font-size:12px; color:#f8fafc;">${companyName}</div>
+                        <div style="font-size:10px; color:#a78bfa;">📞 ${c.contactPerson || 'مسؤول الاتصال'} — ${Storage.getCallResultLabel(c.result)}</div>
+                    </div>
+                    <button class="btn btn-accent btn-sm" onclick="event.stopPropagation(); App.logCallForCompany('${c.companyId}')" style="font-size:10px; padding:3px 8px;">
+                        <i class="fas fa-phone"></i> اتصل
+                    </button>
+                </div>`;
+        }).join('');
+    },
+
+    toggleNotificationDropdown() {
+        const dropdown = document.getElementById('notifications-dropdown');
+        if (!dropdown) return;
+        const isShown = dropdown.classList.contains('show');
+        if (!isShown) {
+            this.renderNotifications();
+            dropdown.classList.add('show');
+        } else {
+            dropdown.classList.remove('show');
+        }
     },
 
     searchSelect(companyId) {

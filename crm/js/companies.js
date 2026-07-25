@@ -1147,5 +1147,47 @@ const Companies = {
         Storage.assignCompany(companyId, currentUser.id);
         App.showToast(`✅ تم حجز هذه الشركة لـ: ${currentUser.name}`);
         this.render();
+    },
+
+    printCompanyCard() {
+        const body = document.getElementById('company-detail-body');
+        const companyName = document.getElementById('detail-company-name')?.textContent || 'بطاقة الشركة';
+        if (!body) return;
+
+        const printWindow = window.open('', '_blank', 'width=900,height=800');
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html lang="ar" dir="rtl">
+            <head>
+                <meta charset="UTF-8">
+                <title>${companyName} - Fleet CRM Report</title>
+                <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800&display=swap" rel="stylesheet">
+                <style>
+                    body { font-family: 'Cairo', sans-serif; padding: 30px; color: #1e293b; background: #fff; line-height: 1.6; }
+                    h1 { color: #4f46e5; border-bottom: 2px solid #6366f1; padding-bottom: 10px; font-size: 22px; }
+                    h3 { color: #374151; margin-top: 20px; font-size: 16px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 6px; }
+                    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+                    .detail-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+                    .label { color: #64748b; font-weight: bold; }
+                    .value { color: #0f172a; font-weight: 700; }
+                    .badge { padding: 3px 8px; border-radius: 6px; font-size: 11px; background: #e0e7ff; color: #3730a3; }
+                    @media print { body { padding: 0; } }
+                </style>
+            </head>
+            <body>
+                <h1>🏢 بطاقة تقرير الشركة: ${companyName}</h1>
+                <div>${body.innerHTML}</div>
+                <div style="margin-top:40px; text-align:center; font-size:11px; color:#94a3b8; border-top:1px solid #e2e8f0; padding-top:10px;">
+                    تم استخراج هذا التقرير من نظام Fleet CRM Enterprise — ${new Date().toLocaleDateString('ar-EG')}
+                </div>
+                <script>
+                    window.onload = function() {
+                        window.print();
+                    };
+                </script>
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
     }
 };
