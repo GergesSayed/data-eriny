@@ -32,7 +32,6 @@
     </script>
     <style>
         html.user-logged-in #login-screen { display: none !important; }
-        html.user-logged-in #sidebar { display: flex !important; }
         html.user-logged-in .main-wrapper { display: flex !important; }
     </style>
 </head>
@@ -227,9 +226,13 @@
                     </div>
                 </div>
 
+                <button class="btn btn-sm" id="btn-cloud-sync" style="background:linear-gradient(135deg, #06b6d4, #3b82f6); color:#fff; font-weight:800;" title="مزامنة فورية لكافة الشركات والمكالمات أونلاين" onclick="App.triggerCloudSyncNow()">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <span>مزامنة أونلاين</span>
+                </button>
                 <button class="btn btn-sm" id="btn-team-management" style="background:#7c3aed; color:#fff; font-weight:700;" title="إدارة الموظفين ومتابعة الإنجاز" onclick="App.navigateTo('team')">
                     <i class="fas fa-users-cog"></i>
-                    <span>متابعة الفريق والموظفين</span>
+                    <span>الفريق</span>
                 </button>
                 <button class="btn btn-accent btn-sm" id="btn-quick-call" title="تسجيل مكالمة سريعة">
                     <i class="fas fa-phone-alt"></i>
@@ -1525,16 +1528,16 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <script src="js/storage.js?v=31.0.0"></script>
-    <script src="js/excel-handler.js?v=31.0.0"></script>
-    <script src="js/dashboard.js?v=31.0.0"></script>
-    <script src="js/companies.js?v=31.0.0"></script>
-    <script src="js/calls.js?v=31.0.0"></script>
-    <script src="js/pipeline.js?v=31.0.0"></script>
-    <script src="js/reports.js?v=31.0.0"></script>
-    <script src="js/scraper.js?v=31.0.0"></script>
-    <script src="js/team.js?v=31.0.0"></script>
-    <script src="js/settings.js?v=31.0.0"></script>
-    <script src="js/app.js?v=31.0.0"></script>
+    <script src="js/storage.js?v=32.0.0"></script>
+    <script src="js/excel-handler.js?v=32.0.0"></script>
+    <script src="js/dashboard.js?v=32.0.0"></script>
+    <script src="js/companies.js?v=32.0.0"></script>
+    <script src="js/calls.js?v=32.0.0"></script>
+    <script src="js/pipeline.js?v=32.0.0"></script>
+    <script src="js/reports.js?v=32.0.0"></script>
+    <script src="js/scraper.js?v=32.0.0"></script>
+    <script src="js/team.js?v=32.0.0"></script>
+    <script src="js/settings.js?v=32.0.0"></script>
+    <script src="js/app.js?v=32.0.0"></script>
 </body>
 </html>

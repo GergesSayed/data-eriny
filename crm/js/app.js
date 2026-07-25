@@ -521,6 +521,30 @@ const App = {
         }
     },
 
+    async triggerCloudSyncNow() {
+        const companies = Storage.getCompanies();
+        if (!companies || companies.length === 0) {
+            this.showToast('⚠️ لا توجد شركات حالية للمزامنة', 'warning');
+            return;
+        }
+        this.showToast(`☁️ جاري مزامنة ${companies.length.toLocaleString()} شركة للسحابة أونلاين...`, 'info');
+        try {
+            const resp = await fetch('http://localhost:8888/api/sync-cloud', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(companies)
+            });
+            if (resp.ok) {
+                const res = await resp.json();
+                this.showToast(`✅ تم رفع ومزامنة ${res.count.toLocaleString()} شركة للسحابة بنجاح!`, 'success');
+            } else {
+                this.showToast('⚠️ يتعذر الاتصال بمحرك المزامنة المحلي. تأكد من تشغيل السيستم محلياً', 'warning');
+            }
+        } catch (e) {
+            this.showToast('ℹ️ تتم المزامنة تلقائياً بمجرد فتح السيستم محلياً', 'info');
+        }
+    },
+
     bindEvents() {
         // Navigation links click listener
         document.querySelectorAll('.nav-link').forEach(link => {
