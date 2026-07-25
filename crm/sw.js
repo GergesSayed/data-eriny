@@ -1,17 +1,17 @@
 /* Fleet CRM — Progressive Web App Service Worker */
-const CACHE_NAME = 'fleetcrm-v26.0.0';
+const CACHE_NAME = 'fleetcrm-v27.0.0';
 const ASSETS_TO_CACHE = [
   './index.html',
   './css/style.css',
-  './js/storage.js?v=26.0.0',
-  './js/app.js?v=26.0.0',
-  './js/companies.js?v=26.0.0',
-  './js/calls.js?v=26.0.0',
-  './js/pipeline.js?v=26.0.0',
-  './js/dashboard.js?v=26.0.0',
-  './js/reports.js?v=26.0.0',
-  './js/team.js?v=26.0.0',
-  './data/companies.json?v=26.0.0',
+  './js/storage.js?v=27.0.0',
+  './js/app.js?v=27.0.0',
+  './js/companies.js?v=27.0.0',
+  './js/calls.js?v=27.0.0',
+  './js/pipeline.js?v=27.0.0',
+  './js/dashboard.js?v=27.0.0',
+  './js/reports.js?v=27.0.0',
+  './js/team.js?v=27.0.0',
+  './data/companies.json?v=27.0.0',
   './manifest.json'
 ];
 
@@ -38,19 +38,30 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Only cache GET requests
+  // Only handle GET requests
   if (event.request.method !== 'GET') return;
   
+  // Network-First strategy: Always fetch latest from network, fallback to cache if offline
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      return fetch(event.request).catch(() => {
-        if (event.request.headers.get('accept').includes('text/html')) {
-          return caches.match('./index.html');
+    fetch(event.request)
+      .then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          const responseClone = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseClone);
+          });
         }
-      });
-    })
+        return networkResponse;
+      })
+      .catch(() => {
+        return caches.match(event.request).then((cachedResponse) => {
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+          if (event.request.headers.get('accept')?.includes('text/html')) {
+            return caches.match('./index.html');
+          }
+        });
+      })
   );
 });

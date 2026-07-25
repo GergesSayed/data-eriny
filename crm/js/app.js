@@ -50,9 +50,10 @@ const App = {
                 }
             }
 
-            // Auto-load 4,000+ bundled fleet companies if database is empty or has < 100 companies
-            if (Storage.getCompanies().length < 100) {
+            // Auto-load 4,000+ bundled fleet companies on mobile/desktop if database is empty or needs v27 sync
+            if (!localStorage.getItem('fleetcrm_app_v27_sync') || Storage.getCompanies().length < 100) {
                 await this.forceImportNow(null);
+                localStorage.setItem('fleetcrm_app_v27_sync', 'true');
             }
 
             // Initialize routing
