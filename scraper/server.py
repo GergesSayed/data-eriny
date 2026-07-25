@@ -133,6 +133,50 @@ class ScraperHandler(SimpleHTTPRequestHandler):
         parsed_url = urllib.parse.urlparse(self.path)
         path = parsed_url.path
 
+        if path == '/api/sync-cloud':
+            content_length = int(self.headers.get('Content-Length', 0))
+            post_data = self.rfile.read(content_length)
+            try:
+                companies_data = json.loads(post_data.decode('utf-8'))
+                if not isinstance(companies_data, list):
+                    companies_data = companies_data.get('companies', [])
+
+                if isinstance(companies_data, list) and len(companies_data) > 0:
+                    workspace_root = os.path.dirname(SCRAPER_DIR)
+                    crm_data_path = os.path.join(workspace_root, 'crm', 'data', 'companies.json')
+                    scraper_data_path = os.path.join(SCRAPER_DIR, 'output', 'crm_import_ready.json')
+
+                    os.makedirs(os.path.dirname(crm_data_path), exist_ok=True)
+                    with open(crm_data_path, 'w', encoding='utf-8') as f:
+                        json.dump(companies_data, f, ensure_ascii=False, indent=2)
+
+                    with open(scraper_data_path, 'w', encoding='utf-8') as f:
+                        json.dump(companies_data, f, ensure_ascii=False, indent=2)
+
+                    # Trigger background git commit & push to deploy automatically to Vercel
+                    def git_push_background():
+                        try:
+                            subprocess.run(['git', 'add', crm_data_path, scraper_data_path], cwd=workspace_root, check=False)
+                            msg = f"Auto-sync {len(companies_data)} companies dataset to cloud"
+                            subprocess.run(['git', 'commit', '-m', msg], cwd=workspace_root, check=False)
+                            subprocess.run(['git', 'push', 'origin', 'main'], cwd=workspace_root, check=False)
+                        except Exception as ge:
+                            print(f"Git push background error: {ge}")
+
+                    threading.Thread(target=git_push_background, daemon=True).start()
+
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(json.dumps({'status': 'synced', 'count': len(companies_data)}).encode('utf-8'))
+                    return
+            except Exception as e:
+                self.send_response(500)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({'status': 'error', 'message': str(e)}).encode('utf-8'))
+                return
+
         if path == '/api/save-config':
             content_length = int(self.headers.get('Content-Length', 0))
             post_data = self.rfile.read(content_length)

@@ -695,6 +695,9 @@ const Storage = {
             console.warn('localStorage save fail:', e);
         }
 
+        // Trigger automatic zero-click background cloud sync
+        this.autoSyncToCloud(companies);
+
         return new Promise((resolve) => {
             try {
                 const request = indexedDB.open('FleetCRM_DB', 2);
@@ -711,6 +714,31 @@ const Storage = {
                 resolve();
             }
         });
+    },
+
+    autoSyncTimer: null,
+    autoSyncToCloud(companies) {
+        if (!companies || companies.length === 0) return;
+        clearTimeout(this.autoSyncTimer);
+        this.autoSyncTimer = setTimeout(async () => {
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 3000);
+                const resp = await fetch('http://localhost:8888/api/sync-cloud', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(companies),
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+                if (resp.ok) {
+                    const res = await resp.json();
+                    console.log(`☁️ Auto-synced ${res.count} companies to Vercel cloud automatically!`);
+                }
+            } catch (err) {
+                // Ignore if not running local sync server
+            }
+        }, 2000);
     },
 
     // ---- Companies ----
