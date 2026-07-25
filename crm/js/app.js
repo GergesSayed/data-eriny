@@ -423,12 +423,10 @@ const App = {
                 if (!company.createdAt) company.createdAt = now;
                 if (!company.lastUpdated) company.lastUpdated = today;
 
-                const isDup = existingIds.has(company.id) ||
-                    ((company.nameAr || company.nameEn) && existingNames.has(company.nameAr || company.nameEn));
+                const isDup = existingIds.has(company.id);
                 if (!isDup) {
                     Storage.companiesMemory.push(company);
                     existingIds.add(company.id);
-                    if (company.nameAr) existingNames.add(company.nameAr);
                     added++;
                 }
             });
