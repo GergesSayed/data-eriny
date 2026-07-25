@@ -50,10 +50,10 @@ const App = {
                 }
             }
 
-            // Auto-load 4,000+ bundled fleet companies on mobile/desktop if database is empty or needs v27 sync
-            if (!localStorage.getItem('fleetcrm_app_v27_sync') || Storage.getCompanies().length < 100) {
+            // Auto-load 3,913 clean master fleet companies on mobile/desktop if database is empty or has < 3500 companies
+            if (!localStorage.getItem('fleetcrm_app_v29_sync') || Storage.getCompanies().length < 3500) {
                 await this.forceImportNow(null);
-                localStorage.setItem('fleetcrm_app_v27_sync', 'true');
+                localStorage.setItem('fleetcrm_app_v29_sync', 'true');
             }
 
             // Initialize routing
@@ -399,32 +399,41 @@ const App = {
 
             if (!Array.isArray(data) || data.length === 0) return;
 
-            const now = new Date().toISOString();
-            const today = now.split('T')[0];
-            const existing = Storage.getCompanies();
-            const existingIds = new Set(existing.map(c => c.id));
-            const existingNames = new Set(existing.map(c => c.nameAr || c.nameEn).filter(Boolean));
-            let added = 0;
+            // If existing database is small (< 3500 companies), replace with full master dataset
+            if (existing.length < 3500 && data.length >= 3500) {
+                Storage.companiesMemory = data.map((c, i) => {
+                    const company = { ...c };
+                    if (!company.id) company.id = 'imp_' + i;
+                    company.sector = Storage.mapScraperSectorToCRM(c.sector);
+                    company.city = Storage.mapScraperCityToCRM(c.city);
+                    company.priority = Storage.calculatePriority(company.sector);
+                    if (!company.status) company.status = 'new';
+                    if (!company.createdAt) company.createdAt = now;
+                    if (!company.lastUpdated) company.lastUpdated = today;
+                    return company;
+                });
+                added = data.length;
+            } else {
+                data.forEach((c, i) => {
+                    const company = { ...c };
+                    if (!company.id) company.id = 'imp_' + i;
+                    if (!company.nameAr) company.nameAr = '';
+                    if (!company.nameEn) company.nameEn = '';
+                    company.sector = Storage.mapScraperSectorToCRM(c.sector);
+                    company.city = Storage.mapScraperCityToCRM(c.city);
+                    company.priority = Storage.calculatePriority(company.sector);
+                    if (!company.status) company.status = 'new';
+                    if (!company.createdAt) company.createdAt = now;
+                    if (!company.lastUpdated) company.lastUpdated = today;
 
-            data.forEach((c, i) => {
-                const company = { ...c };
-                if (!company.id) company.id = 'imp_' + i;
-                if (!company.nameAr) company.nameAr = '';
-                if (!company.nameEn) company.nameEn = '';
-                company.sector = Storage.mapScraperSectorToCRM(c.sector);
-                company.city = Storage.mapScraperCityToCRM(c.city);
-                company.priority = Storage.calculatePriority(company.sector);
-                if (!company.status) company.status = 'new';
-                if (!company.createdAt) company.createdAt = now;
-                if (!company.lastUpdated) company.lastUpdated = today;
-
-                const isDup = existingIds.has(company.id);
-                if (!isDup) {
-                    Storage.companiesMemory.push(company);
-                    existingIds.add(company.id);
-                    added++;
-                }
-            });
+                    const isDup = existingIds.has(company.id);
+                    if (!isDup) {
+                        Storage.companiesMemory.push(company);
+                        existingIds.add(company.id);
+                        added++;
+                    }
+                });
+            }
 
             // Save to IndexedDB in background
             Storage.saveAllCompaniesToDB(Storage.companiesMemory);
