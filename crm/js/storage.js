@@ -25,7 +25,7 @@ const Storage = {
 
     DEFAULT_ADMIN_PW: 'admin123',
     DEFAULT_USERS: [
-        { id: 'admin', username: 'admin', email: 'admin@fleet.com', password: '', name: 'المدير العام (عرض الكل)', role: 'admin', status: 'active', avatar: '👑', color: '#7c3aed' }
+        { id: 'admin', username: 'admin', email: 'admin@fleet.com', password: 'admin123', name: 'المدير العام (عرض الكل)', role: 'admin', status: 'active', avatar: '👑', color: '#7c3aed' }
     ],
 
     // ---- User Profiles & Auth ----
