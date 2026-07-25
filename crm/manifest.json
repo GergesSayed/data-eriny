@@ -1,18 +1,18 @@
 {
-  "name": "Fleet CRM — نظام إدارة مبيعات الإطارات",
+  "name": "Fleet CRM — نظام إدارة أساطيل وإطارات السيارات",
   "short_name": "Fleet CRM",
-  "description": "نظام إدارة علاقات العملاء لبيع الإطارات للشركات ذات الأساطيل في مصر",
-  "start_url": "/#dashboard",
+  "description": "نظام احترافي لإدارة علاقات العملاء وبيع الإطارات والخدمات اللوجستية للأساطيل في مصر",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0b0e17",
-  "theme_color": "#6366f1",
-  "orientation": "any",
-  "lang": "ar",
+  "theme_color": "#7c3aed",
+  "orientation": "portrait-primary",
   "dir": "rtl",
+  "lang": "ar",
   "icons": [
     {
       "src": "https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/svgs/solid/truck-moving.svg",
-      "sizes": "any",
+      "sizes": "192x192 512x512",
       "type": "image/svg+xml",
       "purpose": "any maskable"
     }

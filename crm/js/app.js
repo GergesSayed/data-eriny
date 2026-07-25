@@ -57,6 +57,11 @@ const App = {
             // Initialize routing
             this.initRouting();
 
+            // Register PWA Service Worker for offline capability
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW reg error:', err));
+            }
+
             this.renderGlobalSearch();
             this.renderNotifications();
             this.checkAuth();
@@ -168,8 +173,8 @@ const App = {
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-left: 8px;"></i> جاري التحقق...';
         }
 
-        setTimeout(() => {
-            const res = Storage.login(username, password, remember);
+        setTimeout(async () => {
+            const res = await Storage.login(username, password, remember);
 
             if (!res.success) {
                 if (submitBtn) {

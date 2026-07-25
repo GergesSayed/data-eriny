@@ -231,11 +231,19 @@ const Storage = {
         return this.DEFAULT_USERS[0];
     },
 
-    login(identifier, password, remember = false) {
+    async login(identifier, password, remember = false) {
         const user = this.getUserByUsername(identifier);
         if (!user) return { success: false, message: 'البريد الإلكتروني أو اسم المستخدم غير موجود' };
-        if (user.password !== password) return { success: false, message: 'كلمة المرور غير صحيحة' };
         
+        const isMatch = await this.checkPw(password, user.password);
+        if (!isMatch) return { success: false, message: 'كلمة المرور غير صحيحة' };
+        
+        // Auto-upgrade stored password to salted hash if plain text
+        if (!user.password.includes(':')) {
+            user.password = await this.hashPw(password);
+            this.updateUser(user.id, { password: user.password });
+        }
+
         this.setCurrentUser(user.id, remember);
         this.addActivity('auth', user.id, 'تسجيل دخول', `دخول المستخدم: ${user.name}`);
         return { success: true, user };
