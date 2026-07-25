@@ -50,10 +50,10 @@ const App = {
                 }
             }
 
-            // Auto-load 3,913 clean master fleet companies on mobile/desktop if database is empty or has < 3500 companies
-            if (!localStorage.getItem('fleetcrm_app_v29_sync') || Storage.getCompanies().length < 3500) {
+            // Auto-load 10,000+ full preserved fleet companies on mobile/desktop if database is empty or has < 10000 companies
+            if (!localStorage.getItem('fleetcrm_app_v34_sync') || Storage.getCompanies().length < 10000) {
                 await this.forceImportNow(null);
-                localStorage.setItem('fleetcrm_app_v29_sync', 'true');
+                localStorage.setItem('fleetcrm_app_v34_sync', 'true');
             }
 
             // Initialize routing
@@ -399,8 +399,8 @@ const App = {
 
             if (!Array.isArray(data) || data.length === 0) return;
 
-            // If existing database is small (< 3500 companies), replace with full master dataset
-            if (existing.length < 3500 && data.length >= 3500) {
+            // If existing database is small (< 10000 companies), replace with full master dataset
+            if (existing.length < 10000 && data.length >= 10000) {
                 Storage.companiesMemory = data.map((c, i) => {
                     const company = { ...c };
                     if (!company.id) company.id = 'imp_' + i;

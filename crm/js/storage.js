@@ -575,7 +575,7 @@ const Storage = {
     async initDB() {
         // 1. Fetch central cloud master dataset first to ensure 100% data consistency across all browsers and devices
         try {
-            const cloudResp = await fetch('./data/companies.json?v=33.0.0');
+            const cloudResp = await fetch('./data/companies.json?v=34.0.0');
             if (cloudResp.ok) {
                 const cloudData = await cloudResp.json();
                 if (Array.isArray(cloudData) && cloudData.length > 0) {
