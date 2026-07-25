@@ -47,11 +47,9 @@ const App = {
                 }
             }
 
-            // Try to import from scraper in background (non-blocking) — only if running locally
-            if (Storage.isRemoteHosted && !Storage.isRemoteHosted()) {
-                this.forceImportNow(null).catch(() => {});
-            } else {
-                console.log('🌐 Running on cloud hosting — scraper auto-import disabled. Use "استيراد Excel" or add companies manually.');
+            // Auto-load 4,000+ bundled fleet companies if database is empty or has < 100 companies
+            if (Storage.getCompanies().length < 100) {
+                await this.forceImportNow(null);
             }
 
             // Initialize routing
@@ -377,14 +375,33 @@ const App = {
 
     async forceImportNow(stats) {
         try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 1500);
-            const SCRAPER_URL = 'http://localhost:8888/output/crm_import_ready.json';
-            const resp = await fetch(SCRAPER_URL + '?' + Date.now(), { signal: controller.signal });
-            clearTimeout(timeoutId);
-            if (!resp.ok) return;
+            let data = null;
+            // 1. Try local scraper server first if running locally
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 1200);
+                const SCRAPER_URL = 'http://localhost:8888/output/crm_import_ready.json';
+                const resp = await fetch(SCRAPER_URL + '?' + Date.now(), { signal: controller.signal });
+                clearTimeout(timeoutId);
+                if (resp.ok) {
+                    data = await resp.json();
+                }
+            } catch (e) {
+                // Local scraper not available
+            }
 
-            const data = await resp.json();
+            // 2. Fallback to bundled cloud dataset ./data/companies.json
+            if (!Array.isArray(data) || data.length === 0) {
+                try {
+                    const cloudResp = await fetch('./data/companies.json?v=22.0.0');
+                    if (cloudResp.ok) {
+                        data = await cloudResp.json();
+                    }
+                } catch (e) {
+                    console.warn('Bundled companies.json load error:', e);
+                }
+            }
+
             if (!Array.isArray(data) || data.length === 0) return;
 
             const now = new Date().toISOString();
