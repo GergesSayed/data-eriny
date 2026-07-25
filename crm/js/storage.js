@@ -582,6 +582,8 @@ const Storage = {
                 c.priority = this.calculatePriority(c.sector);
                 return c;
             });
+        } else {
+            this.seedSampleData();
         }
 
         return new Promise((resolve) => {

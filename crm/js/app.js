@@ -496,6 +496,12 @@ const App = {
         }
     },
 
+    refreshCurrentPage() {
+        if (this.currentPage) {
+            this.navigateTo(this.currentPage);
+        }
+    },
+
     bindEvents() {
         // Navigation links click listener
         document.querySelectorAll('.nav-link').forEach(link => {
