@@ -572,18 +572,36 @@ const Storage = {
     },
 
     // ---- IndexedDB helper functions ----
-    initDB() {
-        // Pre-load from localStorage synchronously so companies memory is ready immediately
-        const local = this._get(this.KEYS.COMPANIES);
-        if (local && Array.isArray(local) && local.length > 0) {
-            this.companiesMemory = local.map(c => {
-                c.sector = this.mapScraperSectorToCRM(c.sector);
-                c.city = this.mapScraperCityToCRM(c.city);
-                c.priority = this.calculatePriority(c.sector);
-                return c;
-            });
-        } else {
-            this.seedSampleData();
+    async initDB() {
+        // 1. Fetch central cloud master dataset first to ensure 100% data consistency across all browsers and devices
+        try {
+            const cloudResp = await fetch('./data/companies.json?v=33.0.0');
+            if (cloudResp.ok) {
+                const cloudData = await cloudResp.json();
+                if (Array.isArray(cloudData) && cloudData.length > 0) {
+                    this.companiesMemory = cloudData.map((c, idx) => {
+                        const company = { ...c };
+                        if (!company.id) company.id = 'comp_' + idx;
+                        company.sector = this.mapScraperSectorToCRM(company.sector);
+                        company.city = this.mapScraperCityToCRM(company.city);
+                        company.priority = this.calculatePriority(company.sector);
+                        return company;
+                    });
+                    this._set(this.KEYS.COMPANIES, this.companiesMemory);
+                }
+            }
+        } catch (cloudErr) {
+            console.warn('Central cloud dataset fetch warning:', cloudErr);
+        }
+
+        // 2. Fallback to LocalStorage cache if offline
+        if (!this.companiesMemory || this.companiesMemory.length === 0) {
+            let cached = this._get(this.KEYS.COMPANIES);
+            if (cached && Array.isArray(cached) && cached.length > 0) {
+                this.companiesMemory = cached;
+            } else {
+                this.seedSampleData();
+            }
         }
 
         return new Promise((resolve) => {
@@ -646,10 +664,12 @@ const Storage = {
                             return c;
                         });
                         
-                        // Merge IndexedDB with current memory (favoring whichever has more or union)
-                        if (idbMapped.length >= this.companiesMemory.length) {
+                        // Cloud dataset is master single source of truth; sync IndexedDB with master memory if available
+                        if (this.companiesMemory.length === 0 && idbMapped.length > 0) {
                             this.companiesMemory = idbMapped;
                             this._set(this.KEYS.COMPANIES, idbMapped);
+                        } else if (this.companiesMemory.length > 0) {
+                            this.saveAllCompaniesToDB(this.companiesMemory);
                         }
                         this.ensureAssignedSampleCompanies();
                         resolve();
