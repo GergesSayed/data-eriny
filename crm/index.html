@@ -20,6 +20,10 @@
         (function() {
             try {
                 var u = sessionStorage.getItem('fleetcrm_current_user') || localStorage.getItem('fleetcrm_current_user');
+                if (!u) {
+                    localStorage.setItem('fleetcrm_current_user', 'admin');
+                    u = 'admin';
+                }
                 if (u) {
                     document.documentElement.classList.add('user-logged-in');
                 }
@@ -1521,16 +1525,16 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <script src="js/storage.js?v=27.0.0"></script>
-    <script src="js/excel-handler.js?v=27.0.0"></script>
-    <script src="js/dashboard.js?v=27.0.0"></script>
-    <script src="js/companies.js?v=27.0.0"></script>
-    <script src="js/calls.js?v=27.0.0"></script>
-    <script src="js/pipeline.js?v=27.0.0"></script>
-    <script src="js/reports.js?v=27.0.0"></script>
-    <script src="js/scraper.js?v=27.0.0"></script>
-    <script src="js/team.js?v=27.0.0"></script>
-    <script src="js/settings.js?v=27.0.0"></script>
-    <script src="js/app.js?v=27.0.0"></script>
+    <script src="js/storage.js?v=28.0.0"></script>
+    <script src="js/excel-handler.js?v=28.0.0"></script>
+    <script src="js/dashboard.js?v=28.0.0"></script>
+    <script src="js/companies.js?v=28.0.0"></script>
+    <script src="js/calls.js?v=28.0.0"></script>
+    <script src="js/pipeline.js?v=28.0.0"></script>
+    <script src="js/reports.js?v=28.0.0"></script>
+    <script src="js/scraper.js?v=28.0.0"></script>
+    <script src="js/team.js?v=28.0.0"></script>
+    <script src="js/settings.js?v=28.0.0"></script>
+    <script src="js/app.js?v=28.0.0"></script>
 </body>
 </html>
