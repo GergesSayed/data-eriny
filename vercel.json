@@ -1,15 +1,9 @@
 {
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ],
   "headers": [
     {
       "source": "/crm/css/style.css",
       "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=604800"
-        }
+        { "key": "Cache-Control", "value": "public, max-age=604800" }
       ]
     }
   ]
