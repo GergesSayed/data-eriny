@@ -10,9 +10,47 @@ __pycache__/
 scraper/output/*.png
 scraper/output/*.tmp
 scraper/output/.save_*
+scraper/output/_crm_write.lock
+scraper/output/*.log
+scraper/output/_ultra_cache.json
+scraper/output/_ultra_progress.json
+scraper/output/_phone_enrichment_progress.json
+scraper/output/scraper_config.json
 output/*.png
 output/*.tmp
+
+# Scraper backups (large data)
+scraper/output_backups/
+
+# Scratch/test files
+scraper/scratch/
 
 # OS & System Junk
 .DS_Store
 Thumbs.db
+*.iso
+
+# IDE & Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment & Secrets
+.env
+.env.local
+.env.production
+*.key
+*.pem
+
+# Node (if added later)
+node_modules/
+package-lock.json
+
+# Large Data Files
+*.iso
+*.dmg
+*.exe
+*.zip
+*.tar.gz
+*.rar

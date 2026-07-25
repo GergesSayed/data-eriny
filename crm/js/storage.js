@@ -11,11 +11,21 @@ const Storage = {
         ACTIVITIES: 'fleetcrm_activities',
         SETTINGS: 'fleetcrm_settings',
         USERS: 'fleetcrm_users',
-        CURRENT_USER: 'fleetcrm_current_user'
+        CURRENT_USER: 'fleetcrm_current_user',
+        HASH_UPGRADE_KEY: 'fleetcrm_hash_v2'
     },
 
+    /* Crypto & Environment Helpers */
+    _h2b(e){return Array.from(new Uint8Array(e)).map(e=>e.toString(16).padStart(2,"0")).join("")},
+    async _sha(e){return this._h2b(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(e)))},
+    _gs(){var e=new Uint8Array(16);crypto.getRandomValues(e);return this._h2b(e)},
+    async hashPw(e){var t=this._gs();return t+":"+await this._sha(t+e)},
+    async checkPw(e,t){if(!t||!t.includes(":")||32!==t.split(":")[0].length)return e===t;var n=t.split(":");return await this._sha(n[0]+e)===n[1]},
+    isCloud(){var e=window.location.hostname;return e.includes("vercel.app")||e.includes("netlify.app")||e.includes("github.io")},
+
+    DEFAULT_ADMIN_PW: 'admin123',
     DEFAULT_USERS: [
-        { id: 'admin', username: 'admin', email: 'admin@fleet.com', password: 'admin123', name: 'المدير العام (عرض الكل)', role: 'admin', status: 'active', avatar: '👑', color: '#7c3aed' }
+        { id: 'admin', username: 'admin', email: 'admin@fleet.com', password: '', name: 'المدير العام (عرض الكل)', role: 'admin', status: 'active', avatar: '👑', color: '#7c3aed' }
     ],
 
     // ---- User Profiles & Auth ----

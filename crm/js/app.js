@@ -47,8 +47,12 @@ const App = {
                 }
             }
 
-            // Try to import from scraper in background (non-blocking)
-            this.forceImportNow(null).catch(() => {});
+            // Try to import from scraper in background (non-blocking) — only if running locally
+            if (Storage.isRemoteHosted && !Storage.isRemoteHosted()) {
+                this.forceImportNow(null).catch(() => {});
+            } else {
+                console.log('🌐 Running on cloud hosting — scraper auto-import disabled. Use "استيراد Excel" or add companies manually.');
+            }
 
             // Initialize routing
             this.initRouting();
@@ -79,8 +83,10 @@ const App = {
             }
             this.navigateTo(hash);
 
-            // Keep checking every 60 seconds for new scraper data
-            setInterval(() => this.autoImportScrapedData(), 60000);
+            // Keep checking every 60 seconds for new scraper data — only locally
+            if (Storage.isRemoteHosted && !Storage.isRemoteHosted()) {
+                setInterval(() => this.autoImportScrapedData(), 60000);
+            }
         } catch (err) {
             console.error('App init error:', err);
         } finally {
