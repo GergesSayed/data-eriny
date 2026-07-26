@@ -804,6 +804,7 @@ const Storage = {
     },
 
     async pullFromCloud() {
+        const isOnMobile = this.isMobile();
         try {
             const resp = await fetch('/api/sync', {
                 headers: { 'Authorization': 'Bearer fleetcrm_sync_v4' }
@@ -817,16 +818,21 @@ const Storage = {
             const localTimestamp = parseInt(localStorage.getItem('fleetcrm_last_sync_time') || '0');
             let updated = false;
 
-            // Pull companies if cloud is newer or has more data
+            // Pull companies — skip large datasets on mobile to prevent freezing
             if (data.companies && Array.isArray(data.companies) && data.companies.length > 0) {
-                if (cloudTimestamp > localTimestamp || data.companies.length !== this.companiesMemory.length) {
-                    this.companiesMemory = data.companies.map(c => {
+                const pullCompanies = isOnMobile
+                    ? data.companies.slice(0, 50)   // Mobile: max 50 companies
+                    : data.companies;                // Desktop: all companies
+
+                if (cloudTimestamp > localTimestamp || pullCompanies.length !== this.companiesMemory.length) {
+                    this.companiesMemory = pullCompanies.map(c => {
                         if (!c.id) c.id = 'cloud_' + Math.random().toString(36).substr(2, 9);
                         c.sector = this.mapScraperSectorToCRM(c.sector);
                         c.city = this.mapScraperCityToCRM(c.city);
                         c.priority = this.calculatePriority(c.sector);
                         return c;
                     });
+                    this._set(this.KEYS.COMPANIES, this.companiesMemory);
                     this.saveAllCompaniesToDB(this.companiesMemory);
                     updated = true;
                 }

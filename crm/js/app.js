@@ -29,11 +29,11 @@ const App = {
                 console.error('Storage flag error:', e);
             }
 
-            // Initialize Database + Pull latest from cloud (background)
+            // Initialize Database
             await Storage.initDB();
-            Storage.pullFromCloud().then(() => {
-                this.refreshCurrentPage();
-            }).catch(() => {});
+
+            // Pull latest from cloud BEFORE showing content (avoids flash of wrong data)
+            const cloudUpdated = await Storage.pullFromCloud().catch(() => false);
 
             // Check authentication session first so main-wrapper layout is visible
             this.checkAuth();
