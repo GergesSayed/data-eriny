@@ -525,21 +525,25 @@ const App = {
             link.classList.toggle('active', link.dataset.page === page);
         });
 
-        // Cleanup previous page
-        if (this.currentPage === 'scraper' && typeof ScraperPage !== 'undefined' && ScraperPage.destroy) {
+        // Cleanup previous page resources
+        if (page !== 'scraper' && typeof ScraperPage !== 'undefined' && ScraperPage.destroy) {
             ScraperPage.destroy();
         }
 
-        // Re-render page data
-        switch (page) {
-            case 'dashboard': Dashboard.render(); break;
-            case 'companies': Companies.render(); break;
-            case 'calls': Calls.render(); break;
-            case 'pipeline': Pipeline.render(); Pipeline.initDragAndDrop(); break;
-            case 'reports': Reports.render(); break;
-            case 'scraper': ScraperPage.render(); break;
-            case 'team': if (typeof Team !== 'undefined') Team.render(); break;
-            case 'employees': if (typeof Team !== 'undefined') Team.renderEmployeesPage(); break;
+        // Re-render page data (with error protection)
+        try {
+            switch (page) {
+                case 'dashboard': if (typeof Dashboard !== 'undefined') Dashboard.render(); break;
+                case 'companies': if (typeof Companies !== 'undefined') Companies.render(); break;
+                case 'calls': if (typeof Calls !== 'undefined') Calls.render(); break;
+                case 'pipeline': if (typeof Pipeline !== 'undefined') { Pipeline.render(); Pipeline.initDragAndDrop(); } break;
+                case 'reports': if (typeof Reports !== 'undefined') Reports.render(); break;
+                case 'scraper': if (typeof ScraperPage !== 'undefined') ScraperPage.render(); break;
+                case 'team': if (typeof Team !== 'undefined') Team.render(); break;
+                case 'employees': if (typeof Team !== 'undefined') Team.renderEmployeesPage(); break;
+            }
+        } catch (e) {
+            console.error('Navigate render error:', e);
         }
 
         // Close sidebar + overlay on mobile navigation
