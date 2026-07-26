@@ -577,7 +577,7 @@ const App = {
                 this.showToast('📥 تم سحب أحدث البيانات من السحابة', 'success');
                 this.refreshCurrentPage();
             } else {
-                this.showToast('ℹ️ المزامنة السحابية غير متاحة حالياً (يجب إعداد Vercel KV)', 'info');
+                this.showToast('ℹ️ المزامنة السحابية غير متاحة حالياً (يجب إعداد Supabase)', 'info');
             }
         }
     },

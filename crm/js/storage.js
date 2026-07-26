@@ -808,30 +808,66 @@ const Storage = {
             const resp = await fetch('/api/sync', {
                 headers: { 'Authorization': 'Bearer fleetcrm_sync_v4' }
             });
-            if (resp.ok) {
-                const data = await resp.json();
-                if (data && data.companies && Array.isArray(data.companies) && data.companies.length > 0) {
-                    if (data.companies.length > this.companiesMemory.length) {
-                        this.companiesMemory = data.companies.map(c => {
-                            c.sector = this.mapScraperSectorToCRM(c.sector);
-                            c.city = this.mapScraperCityToCRM(c.city);
-                            c.priority = this.calculatePriority(c.sector);
-                            return c;
-                        });
-                        this.saveAllCompaniesToDB(this.companiesMemory);
-                        console.log(`📥 Pulled ${this.companiesMemory.length} companies from cloud`);
-                    }
+            if (!resp.ok) return false;
+
+            const data = await resp.json();
+            if (!data) return false;
+
+            const cloudTimestamp = data.timestamp || 0;
+            const localTimestamp = parseInt(localStorage.getItem('fleetcrm_last_sync_time') || '0');
+            let updated = false;
+
+            // Pull companies if cloud is newer or has more data
+            if (data.companies && Array.isArray(data.companies) && data.companies.length > 0) {
+                if (cloudTimestamp > localTimestamp || data.companies.length !== this.companiesMemory.length) {
+                    this.companiesMemory = data.companies.map(c => {
+                        if (!c.id) c.id = 'cloud_' + Math.random().toString(36).substr(2, 9);
+                        c.sector = this.mapScraperSectorToCRM(c.sector);
+                        c.city = this.mapScraperCityToCRM(c.city);
+                        c.priority = this.calculatePriority(c.sector);
+                        return c;
+                    });
+                    this.saveAllCompaniesToDB(this.companiesMemory);
+                    updated = true;
                 }
-                if (data && data.calls && Array.isArray(data.calls)) {
-                    this._set(this.KEYS.CALLS, data.calls);
-                }
-                if (data && data.deals && Array.isArray(data.deals)) {
-                    this._set(this.KEYS.DEALS, data.deals);
-                }
-                return true;
             }
+
+            // Pull other collections
+            if (data.users && Array.isArray(data.users) && data.users.length > 0) {
+                const localUsers = this.getUsers ? this.getUsers() : [];
+                if (data.users.length !== localUsers.length || cloudTimestamp > localTimestamp) {
+                    this._set(this.KEYS.USERS, data.users);
+                    updated = true;
+                }
+            }
+
+            if (data.calls && Array.isArray(data.calls)) {
+                const localCalls = this.getCalls ? (this.getCalls() || []) : [];
+                if (data.calls.length !== localCalls.length || cloudTimestamp > localTimestamp) {
+                    this._set(this.KEYS.CALLS, data.calls);
+                    updated = true;
+                }
+            }
+
+            if (data.deals && Array.isArray(data.deals)) {
+                const localDeals = this.getDeals ? (this.getDeals() || []) : [];
+                if (data.deals.length !== localDeals.length || cloudTimestamp > localTimestamp) {
+                    this._set(this.KEYS.DEALS, data.deals);
+                    updated = true;
+                }
+            }
+
+            if (data.activities && Array.isArray(data.activities)) {
+                this._set(this.KEYS.ACTIVITIES, data.activities);
+            }
+
+            if (cloudTimestamp > 0) {
+                localStorage.setItem('fleetcrm_last_sync_time', cloudTimestamp);
+            }
+
+            return updated;
         } catch (err) {
-            // Offline or API unavailable
+            // Offline — no connection to API
         }
         return false;
     },

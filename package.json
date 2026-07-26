@@ -1,8 +1,8 @@
 {
   "name": "fleet-crm",
-  "version": "4.4.0",
+  "version": "4.5.0",
   "private": true,
   "dependencies": {
-    "@vercel/kv": "^1.0.0"
+    "@supabase/supabase-js": "^2.45.0"
   }
 }
