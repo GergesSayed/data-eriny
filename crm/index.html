@@ -24,6 +24,12 @@
                     document.documentElement.classList.add('user-logged-in');
                 }
             } catch(e) {}
+            window.__IS_MOBILE = (function(){
+                if (/Android|iPhone|iPad|iPod|webOS/i.test(navigator.userAgent)) return true;
+                if (window.innerWidth < 1025 && 'ontouchstart' in window) return true;
+                return false;
+            })();
+            window.__FORCE_HIDE_OVERLAY = false;
         })();
     </script>
     <style>

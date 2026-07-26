@@ -22,7 +22,7 @@ const Storage = {
     async hashPw(e){var t=this._gs();return t+":"+await this._sha(t+e)},
     async checkPw(e,t){if(!t||!t.includes(":")||32!==t.split(":")[0].length)return e===t;var n=t.split(":");return await this._sha(n[0]+e)===n[1]},
     isCloud(){var e=window.location.hostname;return e.includes("vercel.app")||e.includes("netlify.app")||e.includes("github.io")},
-    isMobile(){return /Android|iPhone|iPad|iPod|webOS/i.test(navigator.userAgent)||(window.innerWidth<1025&&'ontouchstart' in window)},
+    isMobile(){return window.__IS_MOBILE===true||/Android|iPhone|iPad|iPod|webOS/i.test(navigator.userAgent)||(window.innerWidth<1025&&'ontouchstart' in window)},
 
     DEFAULT_ADMIN_PW: 'Admin@2026!ChangeMe',
 
@@ -617,10 +617,13 @@ const Storage = {
             }
         }
 
-        // 2. Fallback to LocalStorage cache if offline
+        // 2. Fallback to LocalStorage cache — limit on mobile
         if (!this.companiesMemory || this.companiesMemory.length === 0) {
             let cached = this._get(this.KEYS.COMPANIES);
             if (cached && Array.isArray(cached) && cached.length > 0) {
+                if (isOnMobile && cached.length > 50) {
+                    cached = cached.slice(0, 50);
+                }
                 this.companiesMemory = cached;
             } else {
                 this.seedSampleData();

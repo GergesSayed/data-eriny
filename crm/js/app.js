@@ -11,6 +11,12 @@ const App = {
             if (loadingOverlay) loadingOverlay.classList.add('hidden');
         };
 
+        // Force-hide overlay after 5 seconds max — prevents infinite loading on slow devices
+        const forceTimeout = setTimeout(() => {
+            hideOverlay();
+            if (!Storage.getCurrentUser()) this.checkAuth();
+        }, 5000);
+
         try {
             // Ensure clean initial state flags if needed
             try {
@@ -53,8 +59,8 @@ const App = {
                 }
             }
 
-            // Auto-load companies dataset — skip 10k+ full dataset on mobile (4MB freezes browser)
-            const isMobile = Storage.isMobile ? Storage.isMobile() : false;
+            // Auto-load companies — skip on mobile (4MB freezes browser)
+            const isMobile = (window.__IS_MOBILE === true) || (typeof Storage !== 'undefined' && Storage.isMobile && Storage.isMobile());
             if (!isMobile && (!localStorage.getItem('fleetcrm_app_v34_sync') || Storage.getCompanies().length < 10000)) {
                 await this.forceImportNow(null);
                 localStorage.setItem('fleetcrm_app_v34_sync', 'true');
@@ -104,6 +110,7 @@ const App = {
         } catch (err) {
             console.error('App init error:', err);
         } finally {
+            clearTimeout(forceTimeout);
             hideOverlay();
             setTimeout(hideOverlay, 300);
         }
@@ -400,7 +407,7 @@ const App = {
 
             // 2. Fallback to bundled cloud dataset ./data/companies.json (skip on mobile — 4MB)
             if (!Array.isArray(data) || data.length === 0) {
-                const isMobile = typeof Storage !== 'undefined' && Storage.isMobile ? Storage.isMobile() : false;
+                const isMobile = (window.__IS_MOBILE === true) || (typeof Storage !== 'undefined' && Storage.isMobile && Storage.isMobile());
                 if (!isMobile) {
                     try {
                         const cloudResp = await fetch('./data/companies.json?v=22.0.0');
