@@ -29,8 +29,11 @@ const App = {
                 console.error('Storage flag error:', e);
             }
 
-            // Initialize Database
+            // Initialize Database + Pull latest from cloud (background)
             await Storage.initDB();
+            Storage.pullFromCloud().then(() => {
+                this.refreshCurrentPage();
+            }).catch(() => {});
 
             // Check authentication session first so main-wrapper layout is visible
             this.checkAuth();
@@ -92,11 +95,12 @@ const App = {
             }
             this.navigateTo(hash);
 
-            // Keep checking every 60 seconds for new scraper data — only locally (not on Vercel/Netlify)
-            if (typeof Storage.isCloud === 'function' && !Storage.isCloud()) {
-                if (this._scraperPollInterval) clearInterval(this._scraperPollInterval);
-                this._scraperPollInterval = setInterval(() => this.autoImportScrapedData(), 60000);
-            }
+            // Periodic cloud sync pull — check for remote changes every 60 seconds
+            this._cloudSyncInterval = setInterval(() => {
+                Storage.pullFromCloud().then(pulled => {
+                    if (pulled) this.refreshCurrentPage();
+                }).catch(() => {});
+            }, 60000);
         } catch (err) {
             console.error('App init error:', err);
         } finally {
@@ -545,26 +549,36 @@ const App = {
     },
 
     async triggerCloudSyncNow() {
-        const companies = Storage.getCompanies();
-        if (!companies || companies.length === 0) {
-            this.showToast('⚠️ لا توجد شركات حالية للمزامنة', 'warning');
-            return;
-        }
-        this.showToast(`☁️ جاري مزامنة ${companies.length.toLocaleString()} شركة للسحابة أونلاين...`, 'info');
+        this.showToast('☁️ جاري مزامنة البيانات مع السحابة...', 'info');
         try {
-            const resp = await fetch('http://localhost:8888/api/sync-cloud', {
+            const syncData = {
+                companies: Storage.getCompanies() || [],
+                users: Storage.getUsers ? (Storage.getUsers() || []) : [],
+                calls: Storage.getCalls ? (Storage.getCalls() || []) : [],
+                deals: Storage.getDeals ? (Storage.getDeals() || []) : [],
+                activities: Storage.getActivities ? (Storage.getActivities() || []) : []
+            };
+            const resp = await fetch('/api/sync', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(companies)
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer fleetcrm_sync_v4'
+                },
+                body: JSON.stringify(syncData)
             });
             if (resp.ok) {
-                const res = await resp.json();
-                this.showToast(`✅ تم رفع ومزامنة ${res.count.toLocaleString()} شركة للسحابة بنجاح!`, 'success');
+                this.showToast('✅ تم رفع ومزامنة جميع البيانات للسحابة بنجاح', 'success');
             } else {
-                this.showToast('⚠️ يتعذر الاتصال بمحرك المزامنة المحلي. تأكد من تشغيل السيستم محلياً', 'warning');
+                this.showToast('⚠️ تعذر الاتصال بخادم المزامنة السحابية', 'warning');
             }
         } catch (e) {
-            this.showToast('ℹ️ تتم المزامنة تلقائياً بمجرد فتح السيستم محلياً', 'info');
+            const pulled = await Storage.pullFromCloud();
+            if (pulled) {
+                this.showToast('📥 تم سحب أحدث البيانات من السحابة', 'success');
+                this.refreshCurrentPage();
+            } else {
+                this.showToast('ℹ️ المزامنة السحابية غير متاحة حالياً (يجب إعداد Vercel KV)', 'info');
+            }
         }
     },
 
@@ -584,15 +598,7 @@ const App = {
             });
         });
 
-        // Sidebar toggle
-        document.getElementById('toggle-sidebar')?.addEventListener('click', () => {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebar-overlay');
-            sidebar.classList.toggle('open');
-            overlay?.classList.toggle('active', sidebar.classList.contains('open'));
-        });
-
-        // Sidebar overlay click to close
+        // Sidebar overlay click to close (inline onclick handles toggle button)
         document.getElementById('sidebar-overlay')?.addEventListener('click', () => {
             document.getElementById('sidebar')?.classList.remove('open');
             document.getElementById('sidebar-overlay')?.classList.remove('active');

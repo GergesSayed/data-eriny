@@ -195,7 +195,7 @@
         <!-- Top Bar -->
         <header class="topbar">
             <div class="topbar-right">
-                <button id="toggle-sidebar" class="btn-icon" title="القائمة">
+                <button id="toggle-sidebar" class="btn-icon" title="القائمة" onclick="(function(){var s=document.getElementById('sidebar');var o=document.getElementById('sidebar-overlay');s.classList.toggle('open');if(o)o.classList.toggle('active',s.classList.contains('open'));})()">
                     <i class="fas fa-bars"></i>
                 </button>
                 <div class="search-box">

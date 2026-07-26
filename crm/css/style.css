@@ -220,6 +220,8 @@ a:hover { color: var(--accent); }
     flex-direction: column;
     gap: 0.25rem;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
 }
 
 .nav-link {
@@ -1562,6 +1564,17 @@ a:hover { color: var(--accent); }
     .sidebar .nav-link {
         padding: 0.85rem 1rem;
         min-height: 48px;
+    }
+
+    /* Touch & iOS improvements */
+    .sidebar, .topbar, .modal-dialog, .content {
+        -webkit-overflow-scrolling: touch;
+    }
+    .sidebar-nav {
+        padding-bottom: env(safe-area-inset-bottom, 1rem);
+    }
+    .sidebar-footer {
+        padding-bottom: env(safe-area-inset-bottom, 0.75rem);
     }
 
     /* Page Headers */

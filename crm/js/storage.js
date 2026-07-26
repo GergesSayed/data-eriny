@@ -775,26 +775,65 @@ const Storage = {
     autoSyncTimer: null,
     autoSyncToCloud(companies) {
         if (!companies || companies.length === 0) return;
+        if (this.isMobile()) return; // Skip background sync on mobile to save battery
         clearTimeout(this.autoSyncTimer);
         this.autoSyncTimer = setTimeout(async () => {
             try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 3000);
-                const resp = await fetch('http://localhost:8888/api/sync-cloud', {
+                const syncData = {
+                    companies: companies,
+                    users: this.getUsers(),
+                    calls: this.getCalls ? (this.getCalls() || []) : [],
+                    deals: this.getDeals ? (this.getDeals() || []) : [],
+                    activities: this.getActivities ? (this.getActivities() || []) : []
+                };
+                const resp = await fetch('/api/sync', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(companies),
-                    signal: controller.signal
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer fleetcrm_sync_v4'
+                    },
+                    body: JSON.stringify(syncData)
                 });
-                clearTimeout(timeoutId);
                 if (resp.ok) {
-                    const res = await resp.json();
-                    console.log(`☁️ Auto-synced ${res.count} companies to Vercel cloud automatically!`);
+                    console.log('☁️ Cloud sync successful');
                 }
             } catch (err) {
-                // Ignore if not running local sync server
+                // Silent fail — offline or API not available
             }
-        }, 2000);
+        }, 3000);
+    },
+
+    async pullFromCloud() {
+        try {
+            const resp = await fetch('/api/sync', {
+                headers: { 'Authorization': 'Bearer fleetcrm_sync_v4' }
+            });
+            if (resp.ok) {
+                const data = await resp.json();
+                if (data && data.companies && Array.isArray(data.companies) && data.companies.length > 0) {
+                    if (data.companies.length > this.companiesMemory.length) {
+                        this.companiesMemory = data.companies.map(c => {
+                            c.sector = this.mapScraperSectorToCRM(c.sector);
+                            c.city = this.mapScraperCityToCRM(c.city);
+                            c.priority = this.calculatePriority(c.sector);
+                            return c;
+                        });
+                        this.saveAllCompaniesToDB(this.companiesMemory);
+                        console.log(`📥 Pulled ${this.companiesMemory.length} companies from cloud`);
+                    }
+                }
+                if (data && data.calls && Array.isArray(data.calls)) {
+                    this._set(this.KEYS.CALLS, data.calls);
+                }
+                if (data && data.deals && Array.isArray(data.deals)) {
+                    this._set(this.KEYS.DEALS, data.deals);
+                }
+                return true;
+            }
+        } catch (err) {
+            // Offline or API unavailable
+        }
+        return false;
     },
 
     // ---- Companies ----
