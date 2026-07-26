@@ -854,29 +854,21 @@ const Storage = {
             if (data.users && Array.isArray(data.users) && data.users.length > 0) {
                 const localUsers = this.getUsers ? this.getUsers() : [];
                 let usersChanged = false;
-                const cloudUsers = data.users;
                 
-                cloudUsers.forEach(cu => {
+                data.users.forEach(cu => {
                     const localUser = localUsers.find(lu => lu.id === cu.id || lu.email === cu.email);
                     if (!localUser) {
+                        // New user from cloud — add it
                         localUsers.push(cu);
                         usersChanged = true;
-                    } else if (cu.password && cu.password.includes(':')) {
-                        // Cloud has hashed password — trust cloud (shared source of truth)
-                        const cloudHash = cu.password.split(':')[1];
-                        const localHash = (localUser.password && localUser.password.includes(':')) ? localUser.password.split(':')[1] : null;
-                        if (cloudHash !== localHash) {
-                            Object.assign(localUser, cu);
-                            usersChanged = true;
-                        }
                     } else if (!localUser.password || !localUser.password.includes(':')) {
-                        // Both plaintext, cloud has different value
-                        if (localUser.password !== cu.password) {
-                            Object.assign(localUser, cu);
+                        // Local has plaintext or no password — trust cloud
+                        if (cu.password && cu.password !== localUser.password) {
+                            localUser.password = cu.password;
                             usersChanged = true;
                         }
                     }
-                    // If cloud has plaintext but local has hashed: keep local (preserves password change)
+                    // If local has hashed password: KEEP IT (preserves password changes)
                 });
                 
                 if (usersChanged) {
