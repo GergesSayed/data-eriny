@@ -321,7 +321,7 @@ const Team = {
                                     <td>
                                         <div style="direction:ltr; text-align:right;">
                                             <code style="font-weight:800; color:#3b82f6; font-size:12px;"><i class="fas fa-envelope"></i> ${u.email || u.username + '@fleet.com'}</code>
-                                            <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">🔑 كلمة المرور: <span style="font-family:monospace; color:#a78bfa;">${u.password || '••••••••'}</span></div>
+                                            <div style=\"font-size:11px; color:var(--text-muted); margin-top:2px;\">🔑 كلمة المرور: <span style=\"font-family:monospace; color:#a78bfa;\">••••••••</span></div>
                                         </div>
                                     </td>
                                     <td>
@@ -437,6 +437,7 @@ const Team = {
         const listEl = document.getElementById('modal-employee-progress-list');
         if (!listEl) return;
 
+        const esc = (s) => (typeof Storage !== 'undefined' && Storage.escapeHtml ? Storage.escapeHtml(s || '') : (s || ''));
         const allCompanies = Storage.getCompanies() || [];
         let assignedCompanies = allCompanies.filter(c => c && c.assignedTo === userId);
 
@@ -483,8 +484,8 @@ const Team = {
                         return `
                             <tr style="border-bottom:1px solid var(--border-light);">
                                 <td style="padding:10px;">
-                                    <div style="font-weight:700; color:var(--text-primary);">${c.nameAr || c.nameEn}</div>
-                                    <small style="color:var(--text-muted);">${c.phone1 || c.mobile || 'لا يوجد هاتف'}</small>
+                                    <div style="font-weight:700; color:var(--text-primary);">${esc(c.nameAr || c.nameEn)}</div>
+                                    <small style="color:var(--text-muted);">${esc(c.phone1 || c.mobile || 'لا يوجد هاتف')}</small>
                                 </td>
                                 <td style="padding:10px; font-size:12px;">
                                     <span class="badge" style="background:var(--bg-surface); border:1px solid var(--border-color); padding:2px 8px;">
@@ -493,7 +494,7 @@ const Team = {
                                 </td>
                                 <td style="padding:10px;">${statusBadge}</td>
                                 <td style="padding:10px; font-size:12px; font-family:Inter; color:var(--text-secondary);">${c.lastCallDate || '—'}</td>
-                                <td style="padding:10px; font-size:12px; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--text-muted);">${c.lastCallNotes || 'لا توجد ملاحظات'}</td>
+                                <td style="padding:10px; font-size:12px; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--text-muted);">${esc(c.lastCallNotes || 'لا توجد ملاحظات')}</td>
                                 <td style="padding:10px; text-align:center;">
                                     <button class="btn btn-ghost btn-sm" onclick="Companies.showDetail('${c.id}')" title="تفاصيل الشركة">
                                         <i class="fas fa-eye"></i> التفاصيل
@@ -732,7 +733,7 @@ const Team = {
         }
     },
 
-    saveUser() {
+    async saveUser() {
         const id = document.getElementById('user-edit-id').value;
         const firstName = document.getElementById('user-input-firstname').value;
         const lastName = document.getElementById('user-input-lastname').value;
@@ -743,10 +744,9 @@ const Team = {
         const region = document.getElementById('user-input-region').value;
         const role = document.getElementById('user-input-role').value;
 
-        // Check password matching
         if (!id || password || confirmPassword) {
             if (password !== confirmPassword) {
-                App.showToast('❌ كلمتا المرور غير متطابقتين! يرجى إعادة كتابة كلمة المرور بشكل صحسح وتأكيدها.', 'error');
+                App.showToast('❌ كلمتا المرور غير متطابقتين! يرجى إعادة كتابة كلمة المرور بشكل صحيح وتأكيدها.', 'error');
                 return;
             }
         }
@@ -755,14 +755,14 @@ const Team = {
             const updatePayload = { firstName, lastName, email, erpCode, region, role };
             if (password) updatePayload.password = password;
 
-            const res = Storage.updateUser(id, updatePayload);
+            const res = await Storage.updateUser(id, updatePayload);
             if (!res.success) {
                 App.showToast(`❌ ${res.message}`, 'error');
                 return;
             }
             App.showToast('✅ تم تعديل حساب الموظف بنجاح', 'success');
         } else {
-            const res = Storage.addUser({ firstName, lastName, email, password, erpCode, region, role });
+            const res = await Storage.addUser({ firstName, lastName, email, password, erpCode, region, role });
             if (!res.success) {
                 App.showToast(`❌ ${res.message}`, 'error');
                 return;
@@ -844,7 +844,7 @@ const Team = {
         if (existingModal) existingModal.remove();
         document.body.insertAdjacentHTML('beforeend', modalHtml);
 
-        document.getElementById('form-reset-password-submit').onsubmit = (e) => {
+        document.getElementById('form-reset-password-submit').onsubmit = async (e) => {
             e.preventDefault();
             const newPassword = document.getElementById('reset-new-password').value;
             const confirmPassword = document.getElementById('reset-confirm-password').value;
@@ -854,7 +854,7 @@ const Team = {
                 return;
             }
 
-            const res = Storage.resetUserPassword(userId, newPassword);
+            const res = await Storage.resetUserPassword(userId, newPassword);
             if (!res.success) {
                 App.showToast(`❌ ${res.message}`, 'error');
                 return;
@@ -866,17 +866,21 @@ const Team = {
     },
 
     deleteUser(id) {
-        if (!confirm('هل أنت تأكد من رغبتك في حذف حساب هذا الموظف؟')) return;
-        const res = Storage.deleteUser(id);
-        if (!res.success) {
-            App.showToast(`❌ ${res.message}`, 'error');
-            return;
-        }
-        App.showToast('✅ تم حذف الحساب');
-        this.render();
-        this.renderEmployeesPage();
-        if (typeof App !== 'undefined' && App.refreshUserSwitcher) App.refreshUserSwitcher();
-        if (typeof Companies !== 'undefined' && Companies.refreshUserFilter) Companies.refreshUserFilter();
+        App.openModal('modal-confirm');
+        document.getElementById('confirm-message').textContent = 'هل أنت متأكد من رغبتك في حذف حساب هذا الموظف؟';
+        document.getElementById('btn-confirm-action').onclick = () => {
+            const res = Storage.deleteUser(id);
+            App.closeModal('modal-confirm');
+            if (!res.success) {
+                App.showToast(`❌ ${res.message}`, 'error');
+                return;
+            }
+            App.showToast('✅ تم حذف الحساب');
+            this.render();
+            this.renderEmployeesPage();
+            if (typeof App !== 'undefined' && App.refreshUserSwitcher) App.refreshUserSwitcher();
+            if (typeof Companies !== 'undefined' && Companies.refreshUserFilter) Companies.refreshUserFilter();
+        };
     },
 
     openAssignCompaniesModal(userId) {
@@ -938,6 +942,7 @@ const Team = {
     },
 
     renderAssignList(targetUserId) {
+        const esc = (s) => (typeof Storage !== 'undefined' && Storage.escapeHtml ? Storage.escapeHtml(s || '') : (s || ''));
         const listEl = document.getElementById('modal-assign-companies-list');
         const countEl = document.getElementById('modal-assign-summary-count');
         if (!listEl) return;
@@ -999,8 +1004,8 @@ const Team = {
                         return `
                             <tr style="border-bottom:1px solid var(--border-light); ${isTargetUser ? 'background:rgba(124, 58, 237, 0.12);' : ''}">
                                 <td style="padding:10px;">
-                                    <div style="font-weight:700; color:var(--text-primary);">${c.nameAr || c.nameEn || 'بدون اسم'}</div>
-                                    <small style="color:var(--text-muted);">${c.phone1 || c.mobile || 'لا يوجد هاتف'}</small>
+                                    <div style="font-weight:700; color:var(--text-primary);">${esc(c.nameAr || c.nameEn || 'بدون اسم')}</div>
+                                    <small style="color:var(--text-muted);">${esc(c.phone1 || c.mobile || 'لا يوجد هاتف')}</small>
                                 </td>
                                 <td style="padding:10px; font-size:12px;">
                                     <span class="badge" style="background:var(--bg-surface); border:1px solid var(--border-color); padding:2px 8px;">
@@ -1057,12 +1062,15 @@ const Team = {
     },
 
     rejectUser(userId) {
-        if (confirm('هل أنت متأكد من رفض وإلغاء طلب التسجيل هذا؟')) {
+        App.openModal('modal-confirm');
+        document.getElementById('confirm-message').textContent = 'هل أنت متأكد من رفض وإلغاء طلب التسجيل هذا؟';
+        document.getElementById('btn-confirm-action').onclick = () => {
             Storage.rejectUser(userId);
-            App.showToast('🗑️ تم رفض طلب التسجيل', 'info');
+            App.closeModal('modal-confirm');
+            App.showToast('تم رفض طلب التسجيل', 'info');
             this.render();
             this.renderEmployeesPage();
-        }
+        };
     },
 
     toggleFreeze(userId) {

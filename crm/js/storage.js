@@ -23,7 +23,15 @@ const Storage = {
     async checkPw(e,t){if(!t||!t.includes(":")||32!==t.split(":")[0].length)return e===t;var n=t.split(":");return await this._sha(n[0]+e)===n[1]},
     isCloud(){var e=window.location.hostname;return e.includes("vercel.app")||e.includes("netlify.app")||e.includes("github.io")},
 
-    DEFAULT_ADMIN_PW: 'admin123',
+    DEFAULT_ADMIN_PW: 'Admin@2026!ChangeMe',
+
+    // Sanitize HTML entities to prevent XSS
+    escapeHtml(str) {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.appendChild(document.createTextNode(str));
+        return div.innerHTML;
+    },
 
     exportFullSystemBackup() {
         const backupData = {
@@ -67,7 +75,7 @@ const Storage = {
         }
     },
     DEFAULT_USERS: [
-        { id: 'admin', username: 'admin', email: 'admin@fleet.com', password: 'admin123', name: 'المدير العام (عرض الكل)', role: 'admin', status: 'active', avatar: '👑', color: '#7c3aed' }
+        { id: 'admin', username: 'admin', email: 'admin@fleet.com', password: 'admin123', name: 'المدير العام (عرض الكل)', role: 'admin', status: 'active', avatar: '👑', color: '#7c3aed', _needsPasswordChange: true }
     ],
 
     // ---- User Profiles & Auth ----
@@ -111,7 +119,7 @@ const Storage = {
         return (this.getUsers() || []).filter(u => u.status === 'pending_approval');
     },
 
-    registerGoogleUser({ email, name }) {
+    async registerGoogleUser({ email, name }) {
         let users = this.getUsers();
         let existing = users.find(u => (u.email && u.email.toLowerCase() === email.toLowerCase().trim()) || (u.username && u.username.toLowerCase() === email.split('@')[0].toLowerCase()));
 
@@ -119,12 +127,14 @@ const Storage = {
             return existing;
         }
 
+        const randomPw = Array.from(crypto.getRandomValues(new Uint8Array(10)), b => b.toString(16).padStart(2, '0')).join('');
+        const hashedPw = await this.hashPw(randomPw);
         const newUser = {
             id: 'u_' + Date.now(),
             email: email.trim(),
             username: email.split('@')[0],
             name: name || email.split('@')[0],
-            password: '123',
+            password: hashedPw,
             role: 'agent',
             status: 'pending_approval',
             avatar: '👤',
@@ -312,7 +322,7 @@ const Storage = {
         return r ? `${r.icon} ${r.ar}` : (regionKey || 'القاهرة الكبرى');
     },
 
-    addUser(userData) {
+    async addUser(userData) {
         const users = this.getUsers();
         
         const firstName = (userData.firstName || '').trim();
@@ -325,17 +335,14 @@ const Storage = {
             return { success: false, message: 'يرجى إدخال البريد الإلكتروني (Email)' };
         }
 
-        // Validate unique email
         if (users.some(u => u.email && u.email.toLowerCase().trim() === email)) {
             return { success: false, message: 'هذا البريد الإلكتروني مُسجّل بالفعل لموظف آخر!' };
         }
 
-        // Validate unique username if given
         if (username && users.some(u => u.username && u.username.toLowerCase().trim() === username)) {
             return { success: false, message: 'اسم المستخدم/الإيميل مستخدم بالفعل لحساب آخر' };
         }
 
-        // Validate password strength
         const passCheck = this.validatePasswordStrength(password);
         if (!passCheck.valid) {
             return { success: false, message: passCheck.message };
@@ -349,7 +356,7 @@ const Storage = {
             lastName,
             email,
             username,
-            password,
+            password: await this.hashPw(password),
             name: fullName,
             role: userData.role || 'agent',
             permissions: userData.permissions || [],
@@ -366,7 +373,7 @@ const Storage = {
         return { success: true, user: newUser };
     },
 
-    updateUser(id, userData) {
+    async updateUser(id, userData) {
         const users = this.getUsers();
         const index = users.findIndex(u => u.id === id);
         if (index === -1) return { success: false, message: 'المستخدم غير موجود' };
@@ -387,6 +394,7 @@ const Storage = {
             if (!passCheck.valid) {
                 return { success: false, message: passCheck.message };
             }
+            userData.password = await this.hashPw(userData.password);
         }
 
         const firstName = userData.firstName !== undefined ? userData.firstName.trim() : (users[index].firstName || '');
@@ -411,12 +419,13 @@ const Storage = {
         return { success: true, user: users[index] };
     },
 
-    resetUserPassword(id, newPassword) {
+    async resetUserPassword(id, newPassword) {
         const passCheck = this.validatePasswordStrength(newPassword);
         if (!passCheck.valid) {
             return { success: false, message: passCheck.message };
         }
-        return this.updateUser(id, { password: newPassword });
+        const hashed = await this.hashPw(newPassword);
+        return this.updateUser(id, { password: hashed });
     },
 
     deleteUser(id) {
@@ -563,7 +572,18 @@ const Storage = {
         try {
             localStorage.setItem(key, JSON.stringify(data));
         } catch (e) {
-            console.error(`Error writing ${key}:`, e);
+            if (e.name === 'QuotaExceededError' || e.code === 22) {
+                console.warn(`localStorage quota exceeded for ${key}, attempting cleanup`);
+                try {
+                    const largeKeys = [this.KEYS.COMPANIES, this.KEYS.ACTIVITIES];
+                    largeKeys.forEach(k => { if (k !== key) localStorage.removeItem(k); });
+                    localStorage.setItem(key, JSON.stringify(data));
+                } catch (e2) {
+                    console.error(`Cannot write ${key} to localStorage after cleanup:`, e2.message);
+                }
+            } else {
+                console.error(`Error writing ${key}:`, e);
+            }
         }
     },
 
@@ -581,7 +601,7 @@ const Storage = {
                 if (Array.isArray(cloudData) && cloudData.length > 0) {
                     this.companiesMemory = cloudData.map((c, idx) => {
                         const company = { ...c };
-                        if (!company.id) company.id = 'comp_' + idx;
+                        if (!company.id) company.id = 'cloud_' + idx;
                         company.sector = this.mapScraperSectorToCRM(company.sector);
                         company.city = this.mapScraperCityToCRM(company.city);
                         company.priority = this.calculatePriority(company.sector);
@@ -708,16 +728,29 @@ const Storage = {
     },
 
     saveAllCompaniesToDB(companies) {
-        // Immediate fallback save to localStorage
+        // Fallback save to localStorage — skip for datasets > 3000 companies to avoid QuotaExceededError
         try {
-            this._set(this.KEYS.COMPANIES, companies);
+            if (companies.length <= 3000) {
+                this._set(this.KEYS.COMPANIES, companies);
+            } else {
+                this._set(this.KEYS.COMPANIES, []);
+            }
         } catch (e) {
             console.warn('localStorage save fail:', e);
         }
 
+        // Debounced IndexedDB write — batch rapid updates into one write per 1.5s
+        if (this._idbWriteTimer) clearTimeout(this._idbWriteTimer);
+        this._idbWriteTimer = setTimeout(() => {
+            this._idbWriteTimer = null;
+            this._writeToIDB(companies);
+        }, 1500);
+
         // Trigger automatic zero-click background cloud sync
         this.autoSyncToCloud(companies);
+    },
 
+    _writeToIDB(companies) {
         return new Promise((resolve) => {
             try {
                 const request = indexedDB.open('FleetCRM_DB', 2);
@@ -1671,7 +1704,7 @@ const Storage = {
         const now = new Date().toISOString();
         const today2 = now.split('T')[0];
         sampleCompanies.forEach((c, idx) => {
-            if (!c.id) c.id = 'seed_' + Date.now() + '_' + idx;
+            if (!c.id) c.id = 'seed_' + idx;
             if (!c.createdAt) c.createdAt = now;
             if (!c.lastUpdated) c.lastUpdated = today2;
             if (!c.status) c.status = 'new';
@@ -1885,11 +1918,6 @@ const Storage = {
     getCallResultLabel(resultKey) {
         const r = this.CALL_RESULTS[resultKey];
         return r ? `${r.icon} ${r.ar}` : resultKey;
-    },
-
-    formatCurrency(amount) {
-        const num = Number(amount) || 0;
-        return num.toLocaleString('ar-EG') + ' ج.م';
     },
 
     // ---- Clear All Data ----

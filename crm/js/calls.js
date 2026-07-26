@@ -26,13 +26,14 @@ const Calls = {
     },
 
     clearAllCalls() {
-        if (confirm('هل أنت تأكد من مسح جميع المكالمات المسجلة من السجل؟')) {
+        App.openModal('modal-confirm');
+        document.getElementById('confirm-message').textContent = 'هل أنت متأكد من مسح جميع المكالمات المسجلة من السجل؟';
+        document.getElementById('btn-confirm-action').onclick = () => {
             Storage.clearAllCalls();
+            App.closeModal('modal-confirm');
             this.render();
-            if (typeof App !== 'undefined' && App.showToast) {
-                App.showToast('🗑️ تم مسح سجل المكالمات بنجاح');
-            }
-        }
+            App.showToast('🗑️ تم مسح سجل المكالمات بنجاح');
+        };
     },
 
     renderStats() {
@@ -105,6 +106,7 @@ const Calls = {
     },
 
     renderGroupedByCompany(calls, currentUser, container) {
+        const esc = (s) => Storage.escapeHtml(s || '');
         // Group calls by companyId
         const groupsMap = new Map();
         calls.forEach(call => {
@@ -118,7 +120,7 @@ const Calls = {
         const groupCards = [];
         groupsMap.forEach((companyCalls, compId) => {
             const company = Storage.getCompany(compId);
-            const companyName = company ? (company.nameAr || company.nameEn) : 'شركة غير معروفة';
+            const companyName = company ? esc(company.nameAr || company.nameEn) : 'شركة غير معروفة';
             const sectorLabel = company ? Storage.getSectorLabel(company.sector) : '—';
             const cityLabel = company ? Storage.getCityLabel(company.city) : '—';
 
@@ -165,8 +167,8 @@ const Calls = {
                                         </div>
                                     </div>
                                     <div style="flex: 1; min-width: 220px; font-size: 12.5px; color: var(--text-secondary);">
-                                        ${call.notes ? `📝 ${call.notes}` : '<span style="color: var(--text-muted); font-style: italic;">لا توجد ملاحظات مدونة</span>'}
-                                        ${call.followUpDate ? `<span style="display: block; font-size: 11px; color: var(--warning); margin-top: 3px; font-weight: 600;"><i class="fas fa-calendar-check"></i> موعد المتابعة القادمة: ${call.followUpDate}</span>` : ''}
+                                        ${call.notes ? `📝 ${esc(call.notes)}` : '<span style="color: var(--text-muted); font-style: italic;">لا توجد ملاحظات مدونة</span>'}
+                                        ${call.followUpDate ? `<span style="display: block; font-size: 11px; color: var(--warning); margin-top: 3px; font-weight: 600;"><i class="fas fa-calendar-check"></i> موعد المتابعة القادمة: ${esc(call.followUpDate)}</span>` : ''}
                                     </div>
                                     ${currentUser && currentUser.role === 'admin' ? `
                                         <div class="table-actions">
@@ -186,6 +188,7 @@ const Calls = {
     },
 
     renderFlatTable(calls, currentUser) {
+        const esc = (s) => Storage.escapeHtml(s || '');
         const total = calls.length;
         const totalPages = Math.ceil(total / this.pageSize);
         if (this.currentPage > totalPages) this.currentPage = Math.max(1, totalPages);
@@ -198,7 +201,7 @@ const Calls = {
 
         tbody.innerHTML = pageCalls.map(call => {
             const company = Storage.getCompany(call.companyId);
-            const companyName = company ? (company.nameAr || company.nameEn) : 'غير معروفة';
+            const companyName = company ? esc(company.nameAr || company.nameEn) : 'غير معروفة';
             const resultLabel = Storage.getCallResultLabel(call.result);
             const agentName = this.getCallAgentName(call);
 
@@ -215,7 +218,7 @@ const Calls = {
                     <td>${call.contactPerson || '—'}</td>
                     <td><span class="result-badge result-${call.result}">${resultLabel}</span></td>
                     <td style="font-family:Inter; font-size:0.8rem;">${call.followUpDate || '—'}</td>
-                    <td style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:0.8rem; color:var(--text-secondary);">${call.notes || '—'}</td>
+                    <td style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:0.8rem; color:var(--text-secondary);">${esc(call.notes || '—')}</td>
                     <td>
                         <div class="table-actions">
                             ${currentUser && currentUser.role === 'admin' ? `

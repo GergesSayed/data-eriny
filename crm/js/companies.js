@@ -333,26 +333,27 @@ const Companies = {
         if (empty) empty.style.display = 'none';
 
         tbody.innerHTML = companies.map(c => {
+            const esc = (s) => Storage.escapeHtml(s || '');
             const sectorLabel = Storage.getSectorLabel(c.sector);
             const cityLabel = Storage.getCityLabel(c.city);
-            const phone = c.phone1 || c.mobile || c.phone2 || '—';
+            const phone = esc(c.phone1 || c.mobile || c.phone2 || '—');
             const fleet = c.fleetSize ? `🚛 ${c.fleetSize}` : '—';
-            const contact = c.contactPerson || '—';
-            const contactTitle = c.contactTitle || '';
-            const linkedinLink = typeof c.linkedinUrl === 'string' ? c.linkedinUrl : (typeof c.linkedin === 'string' ? c.linkedin : '');
+            const contact = esc(c.contactPerson || '—');
+            const contactTitle = esc(c.contactTitle || '');
+            const linkedinLink = esc(typeof c.linkedinUrl === 'string' ? c.linkedinUrl : (typeof c.linkedin === 'string' ? c.linkedin : ''));
             const linkedinIcon = linkedinLink ? ` <a href="${linkedinLink}" target="_blank" style="color: #0077b5; margin-right: 6px; font-size: 14px;" title="LinkedIn الشركة" onclick="event.stopPropagation();"><i class="fab fa-linkedin"></i></a>` : '';
-            const facebookLink = typeof c.facebook === 'string' ? c.facebook : '';
+            const facebookLink = esc(typeof c.facebook === 'string' ? c.facebook : '');
             const facebookIcon = facebookLink ? ` <a href="${facebookLink}" target="_blank" style="color: #1877f2; margin-right: 6px; font-size: 14px;" title="Facebook الشركة" onclick="event.stopPropagation();"><i class="fab fa-facebook-f"></i></a>` : '';
-            const mapsLink = typeof c.google_maps_url === 'string' ? c.google_maps_url : '';
+            const mapsLink = esc(typeof c.google_maps_url === 'string' ? c.google_maps_url : '');
             const mapsIcon = mapsLink ? ` <a href="${mapsLink}" target="_blank" style="color: #ea4335; margin-right: 6px; font-size: 14px;" title="موقع الشركة على خرائط جوجل" onclick="event.stopPropagation();"><i class="fas fa-map-marker-alt"></i></a>` : '';
-            const contactLinkedin = typeof c.linkedinContactUrl === 'string' ? c.linkedinContactUrl : (typeof c.contactLinkedin === 'string' ? c.contactLinkedin : '');
+            const contactLinkedin = esc(typeof c.linkedinContactUrl === 'string' ? c.linkedinContactUrl : (typeof c.contactLinkedin === 'string' ? c.contactLinkedin : ''));
             const contactLinkedinIcon = contactLinkedin ? ` <a href="${contactLinkedin}" target="_blank" style="color: #0077b5; margin-right: 6px; font-size: 12px;" title="LinkedIn المسؤول" onclick="event.stopPropagation();"><i class="fab fa-linkedin"></i></a>` : '';
 
             const isChecked = this.selectedCompanies && this.selectedCompanies.has(c.id) ? 'checked' : '';
             const assignedBadge = this.buildAssignedWidget(c);
 
-            const mainName = c.nameAr || c.nameEn || 'شركة بدون اسم';
-            const subName = (c.nameAr && c.nameEn) ? c.nameEn : '';
+            const mainName = esc(c.nameAr || c.nameEn || 'شركة بدون اسم');
+            const subName = (c.nameAr && c.nameEn) ? esc(c.nameEn) : '';
 
             let callResultBadge = '';
             if (c.lastCallResult) {
@@ -446,17 +447,22 @@ const Companies = {
         if (empty) empty.style.display = 'none';
 
         cardsView.innerHTML = companies.map(c => {
+            const esc = (s) => Storage.escapeHtml(s || '');
             const sectorLabel = Storage.getSectorLabel(c.sector);
             const cityLabel = Storage.getCityLabel(c.city);
-            const phone = c.phone1 || c.mobile || '—';
-            const mapsLink = c.google_maps_url;
+            const phone = esc(c.phone1 || c.mobile || '—');
+            const mapsLink = esc(c.google_maps_url);
             const mapsIcon = mapsLink ? ` <a href="${mapsLink}" target="_blank" style="color: #ea4335; margin-right: 6px; font-size: 14px;" title="موقع الشركة على خرائط جوجل" onclick="event.stopPropagation();"><i class="fas fa-map-marker-alt"></i></a>` : '';
-            const linkedinLink = c.linkedinUrl || c.linkedin;
+            const linkedinLink = esc(c.linkedinUrl || c.linkedin);
             const linkedinIcon = linkedinLink ? ` <a href="${linkedinLink}" target="_blank" style="color: #0077b5; margin-right: 6px; font-size: 14px;" title="LinkedIn الشركة" onclick="event.stopPropagation();"><i class="fab fa-linkedin"></i></a>` : '';
-            const facebookLink = c.facebook;
+            const facebookLink = esc(c.facebook);
             const facebookIcon = facebookLink ? ` <a href="${facebookLink}" target="_blank" style="color: #1877f2; margin-right: 6px; font-size: 14px;" title="Facebook الشركة" onclick="event.stopPropagation();"><i class="fab fa-facebook-f"></i></a>` : '';
-            const contactLinkedin = c.linkedinContactUrl || c.contactLinkedin;
+            const contactLinkedin = esc(c.linkedinContactUrl || c.contactLinkedin);
             const contactLinkedinIcon = contactLinkedin ? ` <a href="${contactLinkedin}" target="_blank" style="color: #0077b5; margin-right: 6px; font-size: 12px;" title="LinkedIn المسؤول" onclick="event.stopPropagation();"><i class="fab fa-linkedin"></i></a>` : '';
+            const nameAr = esc(c.nameAr);
+            const nameEn = esc(c.nameEn);
+            const contactPerson = esc(c.contactPerson);
+            const contactTitle = esc(c.contactTitle);
 
             const assignedBadge = this.buildAssignedWidget(c);
 
@@ -465,12 +471,12 @@ const Companies = {
                     <div class="company-card__header">
                         <div>
                             <div class="company-card__name" style="display:flex; align-items:center;">
-                                <span>${c.nameAr || ''}</span>
+                                <span>${nameAr}</span>
                                 ${linkedinIcon}
                                 ${facebookIcon}
                                 ${mapsIcon}
                             </div>
-                            <div class="company-card__name-en">${c.nameEn || ''}</div>
+                            <div class="company-card__name-en">${nameEn}</div>
                         </div>
                         <span class="badge priority-badge priority-${c.priority || 'B'}">${c.priority || 'B'}</span>
                     </div>
@@ -481,7 +487,7 @@ const Companies = {
                         <div class="company-card__detail"><i class="fas fa-user-tag"></i> المسند إليه: ${assignedBadge}</div>
                         ${c.rating ? `<div class="company-card__detail"><i class="fas fa-star" style="color:#f59e0b;"></i> التقييم: ${c.rating} / 5</div>` : ''}
                         ${c.fleetSize ? `<div class="company-card__detail"><i class="fas fa-truck"></i> أسطول: ${c.fleetSize} سيارة</div>` : ''}
-                        ${c.contactPerson ? `<div class="company-card__detail" style="display:flex; align-items:center; gap: 4px;"><i class="fas fa-user"></i> <span>${c.contactPerson}${c.contactTitle ? ' — ' + c.contactTitle : ''}</span>${contactLinkedinIcon}</div>` : ''}
+                        ${c.contactPerson ? `<div class="company-card__detail" style="display:flex; align-items:center; gap: 4px;"><i class="fas fa-user"></i> <span>${contactPerson}${contactTitle ? ' — ' + contactTitle : ''}</span>${contactLinkedinIcon}</div>` : ''}
                     </div>
                     <div class="company-card__footer">
                         <span class="sector-badge" style="font-size:0.65rem;">${sectorLabel}</span>
@@ -538,17 +544,6 @@ const Companies = {
         this.viewMode = mode;
         document.getElementById('btn-view-table').classList.toggle('active', mode === 'table');
         document.getElementById('btn-view-cards').classList.toggle('active', mode === 'cards');
-        this.render();
-    },
-
-    clearFilters() {
-        if (document.getElementById('filter-sector')) document.getElementById('filter-sector').value = '';
-        if (document.getElementById('filter-city')) document.getElementById('filter-city').value = '';
-        if (document.getElementById('filter-priority')) document.getElementById('filter-priority').value = '';
-        if (document.getElementById('filter-fleet-type')) document.getElementById('filter-fleet-type').value = '';
-        if (document.getElementById('filter-assigned')) document.getElementById('filter-assigned').value = '';
-        if (document.getElementById('filter-search')) document.getElementById('filter-search').value = '';
-        this.currentPage = 1;
         this.render();
     },
 
@@ -811,6 +806,7 @@ const Companies = {
         const company = Storage.getCompany(id);
         if (!company) return;
 
+        const esc = (s) => Storage.escapeHtml(s || '');
         document.getElementById('detail-company-name').textContent = company.nameAr || company.nameEn;
 
         const calls = Storage.getCallsForCompany(id);
@@ -987,15 +983,15 @@ const Companies = {
                 <div>
                     <div class="detail-section">
                         <h3><i class="fas fa-info-circle"></i> معلومات الشركة</h3>
-                        ${this._detailRow('الاسم (عربي)', company.nameAr)}
-                        ${this._detailRow('الاسم (إنجليزي)', company.nameEn)}
+                        ${this._detailRow('الاسم (عربي)', esc(company.nameAr))}
+                        ${this._detailRow('الاسم (إنجليزي)', esc(company.nameEn))}
                         ${this._detailRow('القطاع', Storage.getSectorLabel(company.sector))}
-                        ${this._detailRow('نشاط الخرائط', company.sector_details)}
+                        ${this._detailRow('نشاط الخرائط', esc(company.sector_details))}
                         ${this._detailRow('حالة النشاط', statusLabel)}
                         ${this._detailRow('المنطقة', Storage.getCityLabel(company.city))}
-                        ${this._detailRow('المحافظة', company.governorate)}
-                        ${this._detailRow('العنوان', company.address)}
-                        ${this._detailRow('الموقع على الخريطة', company.google_maps_url ? `<a href="${company.google_maps_url}" target="_blank" style="color:#ea4335;"><i class="fas fa-map-marker-alt"></i> عرض على Google Maps</a>` : '—')}
+                        ${this._detailRow('المحافظة', esc(company.governorate))}
+                        ${this._detailRow('العنوان', esc(company.address))}
+                        ${this._detailRow('الموقع على الخريطة', company.google_maps_url ? `<a href="${esc(company.google_maps_url)}" target="_blank" style="color:#ea4335;"><i class="fas fa-map-marker-alt"></i> عرض على Google Maps</a>` : '—')}
                         ${this._detailRow('تقييم الشركة (Maps)', company.rating ? `⭐ ${company.rating} / 5 ${company.reviews_count ? `(${company.reviews_count} تقييم)` : ''}` : '—')}
                         ${this._detailRow('حجم الشركة', company.companySize || '—')}
                         ${this._detailRow('عدد الفروع', company.branchesCount || '—')}
@@ -1010,21 +1006,21 @@ const Companies = {
                 <div>
                     <div class="detail-section">
                         <h3><i class="fas fa-phone"></i> بيانات الاتصال</h3>
-                        ${this._detailRow('هاتف 1', company.phone1, true)}
-                        ${this._detailRow('هاتف 2', company.phone2, true)}
-                        ${this._detailRow('موبايل', company.mobile, true)}
-                        ${this._detailRow('البريد', company.email ? `<a href="mailto:${company.email}">${company.email}</a>` : '—')}
-                        ${this._detailRow('الموقع', company.website ? `<a href="${company.website}" target="_blank">${company.website}</a>` : '—')}
-                        ${this._detailRow('LinkedIn الشركة', (company.linkedinUrl || company.linkedin) ? `<a href="${company.linkedinUrl || company.linkedin}" target="_blank" style="color:#0077b5;"><i class="fab fa-linkedin"></i> عرض الصفحة</a>` : '—')}
-                        ${this._detailRow('Facebook', company.facebook ? `<a href="${company.facebook}" target="_blank" style="color:#1877f2;"><i class="fab fa-facebook-f"></i> عرض الصفحة</a>` : '—')}
+                        ${this._detailRow('هاتف 1', esc(company.phone1), true)}
+                        ${this._detailRow('هاتف 2', esc(company.phone2), true)}
+                        ${this._detailRow('موبايل', esc(company.mobile), true)}
+                        ${this._detailRow('البريد', company.email ? `<a href="mailto:${esc(company.email)}">${esc(company.email)}</a>` : '—')}
+                        ${this._detailRow('الموقع', company.website ? `<a href="${esc(company.website)}" target="_blank">${esc(company.website)}</a>` : '—')}
+                        ${this._detailRow('LinkedIn الشركة', (company.linkedinUrl || company.linkedin) ? `<a href="${esc(company.linkedinUrl || company.linkedin)}" target="_blank" style="color:#0077b5;"><i class="fab fa-linkedin"></i> عرض الصفحة</a>` : '—')}
+                        ${this._detailRow('Facebook', company.facebook ? `<a href="${esc(company.facebook)}" target="_blank" style="color:#1877f2;"><i class="fab fa-facebook-f"></i> عرض الصفحة</a>` : '—')}
                     </div>
                     <div class="detail-section">
                         <h3><i class="fas fa-user-tie"></i> جهة الاتصال</h3>
-                        ${this._detailRow('الاسم', company.contactPerson + (company.linkedinContactUrl ? ` <a href="${company.linkedinContactUrl}" target="_blank" style="color:#0077b5; margin-right:6px;"><i class="fab fa-linkedin"></i></a>` : ''))}
-                        ${this._detailRow('المسمى', company.contactTitle)}
-                        ${this._detailRow('التليفون', company.contactPhone, true)}
-                        ${this._detailRow('الإيميل', company.contactEmail ? `<a href="mailto:${company.contactEmail}">${company.contactEmail}</a>` : '—')}
-                        ${this._detailRow('LinkedIn المسؤول', company.linkedinContactUrl ? `<a href="${company.linkedinContactUrl}" target="_blank" style="color:#0077b5;"><i class="fab fa-linkedin"></i> عرض الملف الشخصي</a>` : '—')}
+                        ${this._detailRow('الاسم', esc(company.contactPerson) + (company.linkedinContactUrl ? ` <a href="${esc(company.linkedinContactUrl)}" target="_blank" style="color:#0077b5; margin-right:6px;"><i class="fab fa-linkedin"></i></a>` : ''))}
+                        ${this._detailRow('المسمى', esc(company.contactTitle))}
+                        ${this._detailRow('التليفون', esc(company.contactPhone), true)}
+                        ${this._detailRow('الإيميل', company.contactEmail ? `<a href="mailto:${esc(company.contactEmail)}">${esc(company.contactEmail)}</a>` : '—')}
+                        ${this._detailRow('LinkedIn المسؤول', company.linkedinContactUrl ? `<a href="${esc(company.linkedinContactUrl)}" target="_blank" style="color:#0077b5;"><i class="fab fa-linkedin"></i> عرض الملف الشخصي</a>` : '—')}
                     </div>
                 </div>
             </div>
@@ -1043,7 +1039,7 @@ const Companies = {
                 </div>
             </div>
 
-            ${company.notes ? `<div class="detail-section"><h3><i class="fas fa-sticky-note"></i> ملاحظات</h3><p style="font-size:0.85rem; color:var(--text-secondary);">${company.notes}</p></div>` : ''}
+            ${company.notes ? `<div class="detail-section"><h3><i class="fas fa-sticky-note"></i> ملاحظات</h3><p style="font-size:0.85rem; color:var(--text-secondary);">${esc(company.notes)}</p></div>` : ''}
 
             <div class="detail-section detail-calls-history">
                 <h3><i class="fas fa-history"></i> سجل المكالمات (${calls.length})</h3>

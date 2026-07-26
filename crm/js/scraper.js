@@ -289,6 +289,7 @@ const ScraperPage = {
     },
 
     updateUI(statsData) {
+        const esc = (s) => (typeof Storage !== 'undefined' && Storage.escapeHtml ? Storage.escapeHtml(s || '') : (s || ''));
         const total = statsData.total;
         const withPhone = statsData.with_phone;
         const searches = statsData.completed_searches_count;
@@ -361,10 +362,10 @@ const ScraperPage = {
             ? recentReversed.map(c => `
                 <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;margin:4px 0;background:var(--bg-tertiary);border-radius:8px;">
                     <div>
-                        <div style="font-size:13px;font-weight:600;">${c.nameAr || c.nameEn || '—'}</div>
+                        <div style="font-size:13px;font-weight:600;">${esc(c.nameAr || c.nameEn || '—')}</div>
                         <div style="font-size:11px;color:var(--text-muted);">${Storage.getCityLabel(c.city)} • ${Storage.getSectorLabel(c.sector)}</div>
                     </div>
-                    <span style="font-size:12px;color:${c.phone1 ? '#10b981' : '#ef4444'};">${c.phone1 || 'بدون رقم'}</span>
+                    <span style="font-size:12px;color:${c.phone1 ? '#10b981' : '#ef4444'};">${esc(c.phone1 || 'بدون رقم')}</span>
                 </div>
             `).join('')
             : '<p style="color:var(--text-muted);text-align:center;padding:20px;">لا توجد بيانات بعد</p>';
@@ -376,13 +377,13 @@ const ScraperPage = {
                 <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;margin:4px 0;background:var(--bg-tertiary);border-radius:8px;">
                     <div>
                         <div style="font-size:13px;font-weight:600;display:flex;align-items:center;gap:4px;">
-                            <span>${c.nameAr || c.nameEn || '—'}</span>
-                            ${(c.linkedinUrl || c.linkedin) ? `<a href="${c.linkedinUrl || c.linkedin}" target="_blank" style="color:#0077b5;font-size:12px;"><i class="fab fa-linkedin"></i></a>` : ''}
+                            <span>${esc(c.nameAr || c.nameEn || '—')}</span>
+                            ${(c.linkedinUrl || c.linkedin) ? `<a href="${esc(c.linkedinUrl || c.linkedin)}" target="_blank" style="color:#0077b5;font-size:12px;"><i class="fab fa-linkedin"></i></a>` : ''}
                         </div>
-                        <div style="font-size:11px;color:var(--text-muted);">${c.contactPerson || 'بدون مسؤول'} ${c.contactTitle ? '• ' + c.contactTitle : ''}</div>
+                        <div style="font-size:11px;color:var(--text-muted);">${esc(c.contactPerson || 'بدون مسؤول')} ${c.contactTitle ? '• ' + esc(c.contactTitle) : ''}</div>
                     </div>
                     ${c.linkedinContactUrl ? `
-                        <a href="${c.linkedinContactUrl}" target="_blank" style="background:#0077b5;color:#fff;padding:4px 8px;border-radius:6px;font-size:10px;text-decoration:none;display:flex;align-items:center;gap:4px;">
+                        <a href="${esc(c.linkedinContactUrl)}" target="_blank" style="background:#0077b5;color:#fff;padding:4px 8px;border-radius:6px;font-size:10px;text-decoration:none;display:flex;align-items:center;gap:4px;">
                             <i class="fab fa-linkedin"></i> المسؤول
                         </a>
                     ` : '<span style="font-size:10px;color:var(--text-muted);">لا يوجد مسؤول</span>'}
@@ -423,12 +424,15 @@ const ScraperPage = {
             const data = await resp.json();
             if (data) {
                 if (data.length === 0) {
-                    if (confirm('⚠️ هل تريد مسح جميع البيانات الحالية في الـ CRM لمزامنة الحالة الفارغة؟')) {
+                    App.openModal('modal-confirm');
+                    document.getElementById('confirm-message').textContent = '⚠️ هل تريد مسح جميع البيانات الحالية في الـ CRM لمزامنة الحالة الفارغة؟';
+                    document.getElementById('btn-confirm-action').onclick = () => {
                         Storage.clearAll();
-                        alert('✅ تم مسح قاعدة بيانات الـ CRM بنجاح!');
+                        App.closeModal('modal-confirm');
+                        App.showToast('✅ تم مسح قاعدة بيانات الـ CRM بنجاح!');
                         this.fetchData();
-                        document.getElementById('sidebar-total-companies').textContent = 0;
-                    }
+                        document.getElementById('sidebar-total-companies').textContent = '0';
+                    };
                     return;
                 }
                 const formatted = data.map((c, i) => {
@@ -606,59 +610,49 @@ const ScraperPage = {
     async executeLiveScraperBatch() {
         if (!this.isScraperActive) return;
 
+        // DEMO MODE: Generates sample data for demonstration only.
+        // Real scraping requires a running local Python server on port 8888.
+        // The generated companies are clearly labeled as demo data.
         this.batchCounter = (this.batchCounter || 0) + 1;
         const now = new Date();
         const timeStr = now.toLocaleTimeString('ar-EG');
 
-        const sectors = ['transport', 'food', 'petroleum', 'contracting', 'logistics', 'tourism_fleet', 'manufacturing'];
-        const cities = ['cairo', 'giza', 'alex', '10thramadan', '6october', 'suez', 'delta', 'upper_egypt'];
+        const sectors = ['transport', 'food', 'petroleum', 'construction', 'distribution', 'tourism', 'manufacturing'];
+        const cities = ['cairo', 'giza', 'new_cairo', '10thramadan', '6october', 'obour', 'nasr_city'];
         
         const sector = sectors[this.batchCounter % sectors.length];
         const city = cities[this.batchCounter % cities.length];
 
-        const prefixes = ['شركة', 'مجموعة', 'المصرية لـ', 'الشركة العربية لـ', 'الوطنية لـ', 'شركة الدلتا لـ', 'النيل لـ'];
-        const suffixes = ['والخدمات الإضافية', 'والأسطول التجاري', 'والاستثمار اللوجستي', 'للتوزيع السريع', 'والنقل الثقيل'];
-        const sectorNames = {
+        const sectorLabels = {
             transport: 'النقل الثقيل والبضائع',
             food: 'الصناعات الغذائية والتوزيع',
             petroleum: 'الخدمات البترولية ونقل الوقود',
-            contracting: 'المقاولات والمعدات الثقيلة',
-            logistics: 'الشحن والخدمات اللوجستية',
-            tourism_fleet: 'النقل الجماعي والرحلات',
+            construction: 'المقاولات والمعدات الثقيلة',
+            distribution: 'الشحن والخدمات اللوجستية',
+            tourism: 'النقل الجماعي والرحلات',
             manufacturing: 'التصنيع والتجميع'
         };
 
-        const companyCount = Math.floor(Math.random() * 8) + 12;
+        const companyCount = Math.floor(Math.random() * 5) + 5;
         const batchCompanies = [];
 
         for (let i = 0; i < companyCount; i++) {
             const randomNum = Math.floor(1000 + Math.random() * 9000);
-            const phonePrefixes = ['010', '011', '012', '015'];
-            const phonePrefix = phonePrefixes[Math.floor(Math.random() * phonePrefixes.length)];
-            const landlinePrefix = city === 'cairo' || city === 'giza' ? '02' : (city === 'alex' ? '03' : '040');
-            
-            const p1 = phonePrefix + Math.floor(1000000 + Math.random() * 9000000);
-            const p2 = landlinePrefix + Math.floor(2000000 + Math.random() * 8000000);
-
-            const pName = prefixes[i % prefixes.length] + ' ' + (sectorNames[sector] || 'الأسطول') + ' ' + suffixes[i % suffixes.length] + ' #' + randomNum;
-            const pEn = 'Egypt Fleet Enterprise #' + randomNum;
+            const demoName = `[DEMO] شركة ${sectorLabels[sector] || 'الأسطول'} التجارية #${randomNum}`;
+            const demoEn = `[DEMO] Egypt Fleet Enterprise #${randomNum}`;
 
             batchCompanies.push({
-                id: 'sc_live_' + Date.now() + '_' + i,
-                nameAr: pName,
-                nameEn: pEn,
+                id: 'sc_demo_' + Date.now() + '_' + i,
+                nameAr: demoName,
+                nameEn: demoEn,
                 sector: sector,
                 city: city,
-                phone1: p1,
-                phone2: p2,
-                address: `المنطقة الصناعية، block ${i+1}، ${Storage.getCityLabel(city)}`,
-                fleetSize: Math.floor(20 + Math.random() * 150),
-                contactPerson: 'م. ' + ['أحمد', 'محمد', 'مصطفى', 'محمود', 'سامح', 'شريف', 'طارق'][i % 7] + ' ' + ['فتحي', 'إبراهيم', 'حسن', 'عبد العزيز', 'فاروق'][i % 5],
-                contactTitle: ['مدير الأسطول', 'مدير حركة النقل', 'مدير المشتريات واللوجستيات', 'مدير الصيانة'][i % 4],
+                fleetSize: Math.floor(20 + Math.random() * 80),
+                contactPerson: '',
+                contactTitle: '',
                 priority: Math.random() > 0.3 ? 'A' : 'B',
-                erpCode: `ERP-LIVE-${randomNum}`,
                 status: 'new',
-                notes: 'المصدر: سحب الخرائط التلقائي المستمر (Live Map Scraper)',
+                notes: '⚠️ بيانات تجريبية (Demo) — ليست شركة حقيقية. يرجى تشغيل السكرابر المحلي للحصول على بيانات حقيقية.',
                 createdAt: now.toISOString(),
                 lastUpdated: now.toISOString().split('T')[0]
             });
@@ -668,8 +662,7 @@ const ScraperPage = {
 
         const term = document.getElementById('sc-live-terminal');
         if (term) {
-            const logLine = `[${timeStr}] [SCRAPER-LIVE] Batch #${this.batchCounter} finished. Extracted ${companyCount} verified B2B fleet records for Sector: ${Storage.getSectorLabel(sector)} in City: ${Storage.getCityLabel(city)}.\n` +
-                            `[${timeStr}] [CRM-STORAGE] Merged ${companyCount} new prospects. Total Database Size: ${Storage.getCompanies().length.toLocaleString()} companies.\n`;
+            const logLine = `[${timeStr}] [DEMO-MODE] Batch #${this.batchCounter} finished. Generated ${companyCount} demo fleet records for Sector: ${Storage.getSectorLabel(sector)} — ⚠️ These are DEMO records, not real data.\n`;
             term.textContent += logLine;
             term.scrollTop = term.scrollHeight;
         }

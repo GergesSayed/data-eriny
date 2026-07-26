@@ -80,11 +80,10 @@ npx -y http-server . -p 8080 -c-1 --cors
 ```
 data-eriny/
 ├── index.html              # صفحة التوجيه الرئيسية
-├── vercel.json             # إعدادات Vercel للنشر
-├── netlify.toml            # إعدادات Netlify (احتياطي)
 ├── start_system.bat        # تشغيل النظام كاملاً
 ├── crm/                    # واجهة CRM الأمامية
-│   ├── index.html          # التطبيق الرئيسي (1,513 سطر)
+│   ├── _redirects          # Netlify SPA routing
+│   ├── index.html          # التطبيق الرئيسي
 │   ├── css/style.css       # التصميم (2,392 سطر)
 │   └── js/                 # منطق التطبيق (11 ملف)
 │       ├── app.js          # المتحكم الرئيسي + التوجيه

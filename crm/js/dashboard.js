@@ -197,6 +197,7 @@ const Dashboard = {
     },
 
     renderFollowUps() {
+        const esc = (s) => Storage.escapeHtml(s || '');
         const container = document.getElementById('followups-list');
         const countBadge = document.getElementById('followup-count');
         if (!container) return;
@@ -215,13 +216,13 @@ const Dashboard = {
 
         container.innerHTML = followups.map(call => {
             const company = Storage.getCompany(call.companyId);
-            const companyName = company ? company.nameAr : 'شركة غير معروفة';
+            const companyName = company ? esc(company.nameAr) : 'شركة غير معروفة';
             return `
                 <div class="followup-item">
                     <div class="followup-icon"><i class="fas fa-bell"></i></div>
                     <div class="followup-info">
                         <div class="name">${companyName}</div>
-                        <div class="detail">${call.contactPerson || ''} — ${Storage.getCallResultLabel(call.result)}</div>
+                        <div class="detail">${esc(call.contactPerson || '')} — ${Storage.getCallResultLabel(call.result)}</div>
                     </div>
                     <div class="followup-action">
                         <button class="btn btn-accent btn-sm" onclick="App.logCallForCompany('${call.companyId}')">
@@ -233,6 +234,7 @@ const Dashboard = {
     },
 
     renderActivities() {
+        const esc = (s) => Storage.escapeHtml(s || '');
         const container = document.getElementById('activity-list');
         if (!container) return;
 
@@ -260,8 +262,8 @@ const Dashboard = {
                 <div class="activity-item">
                     <div class="${iconClass}"><i class="${icon}"></i></div>
                     <div class="activity-info">
-                        <div class="name">${act.action}</div>
-                        <div class="detail">${act.detail || ''} — ${timeAgo}</div>
+                        <div class="name">${esc(act.action)}</div>
+                        <div class="detail">${esc(act.detail || '')} — ${timeAgo}</div>
                     </div>
                 </div>`;
         }).join('');

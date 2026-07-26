@@ -17,14 +17,15 @@ const Pipeline = {
     },
 
     clearAllDeals() {
-        if (confirm('هل أنت متأكد من مسح جميع الصفقات التجريبية من خط المبيعات؟')) {
+        App.openModal('modal-confirm');
+        document.getElementById('confirm-message').textContent = 'هل أنت متأكد من مسح جميع الصفقات من خط المبيعات؟';
+        document.getElementById('btn-confirm-action').onclick = () => {
             Storage.clearAllDeals();
+            App.closeModal('modal-confirm');
             this.render();
             if (typeof Dashboard !== 'undefined') Dashboard.render();
-            if (typeof App !== 'undefined' && App.showToast) {
-                App.showToast('🗑️ تم مسح خط المبيعات بنجاح');
-            }
-        }
+            App.showToast('🗑️ تم مسح خط المبيعات بنجاح');
+        };
     },
 
     renderColumns(dealsByStage) {
@@ -51,28 +52,29 @@ const Pipeline = {
     },
 
     renderCard(deal) {
+        const esc = (s) => Storage.escapeHtml(s || '');
         const company = Storage.getCompany(deal.companyId);
-        const companyName = company ? company.nameAr : 'شركة غير معروفة';
+        const companyName = company ? esc(company.nameAr) : 'شركة غير معروفة';
         const tireTypes = {
             all: 'جميع الأنواع', truck: 'نقل ثقيل', light_truck: 'نقل خفيف',
             passenger: 'ملاكي', bus: 'باصات', suv: 'SUV', forklift: 'رافعات'
         };
         const tireLabel = tireTypes[deal.tireType] || '';
-        const linkedinLink = company ? (company.linkedinUrl || company.linkedin) : null;
+        const linkedinLink = company ? esc(company.linkedinUrl || company.linkedin) : null;
         const linkedinIcon = linkedinLink ? ` <a href="${linkedinLink}" target="_blank" style="color: #0077b5; margin-right: 6px;" title="LinkedIn الشركة" onclick="event.stopPropagation();"><i class="fab fa-linkedin"></i></a>` : '';
 
         return `
             <div class="kanban-card" draggable="true" data-deal-id="${deal.id}"
                  ondragstart="Pipeline.onDragStart(event)" ondragend="Pipeline.onDragEnd(event)">
-                <div class="kanban-card__title">${deal.title}</div>
-                <div class="kanban-card__company" style="display:flex; align-items:center;">
+                <div class="kanban-card__title">${esc(deal.title)}</div>
+            <div class="kanban-card__company" style="display:flex; align-items:center;">
                     <i class="fas fa-building" style="margin-left:4px;"></i> <span>${companyName}</span> ${linkedinIcon}
                 </div>
-                ${tireLabel ? `<div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:0.3rem;"><i class="fas fa-circle-dot" style="font-size:0.5rem;"></i> ${tireLabel}</div>` : ''}
+                ${tireLabel ? `<div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:0.3rem;"><i class="fas fa-circle-dot" style="font-size:0.5rem;"></i> ${esc(tireLabel)}</div>` : ''}
                 <div class="kanban-card__value">${Storage.formatCurrency(deal.value)} ج.م</div>
-                ${deal.quantity ? `<div style="font-size:0.7rem; color:var(--text-muted); margin-top:0.2rem;">الكمية: ${deal.quantity} إطار</div>` : ''}
+                ${deal.quantity ? `<div style="font-size:0.7rem; color:var(--text-muted); margin-top:0.2rem;">الكمية: ${esc(String(deal.quantity))} إطار</div>` : ''}
                 <div class="kanban-card__footer">
-                    <span>${deal.expectedCloseDate || ''}</span>
+                    <span>${esc(deal.expectedCloseDate || '')}</span>
                     <div class="table-actions">
                         <button class="btn-icon btn-edit" onclick="Pipeline.edit('${deal.id}')" title="تعديل">
                             <i class="fas fa-edit"></i>

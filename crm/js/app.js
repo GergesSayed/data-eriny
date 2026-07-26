@@ -68,13 +68,16 @@ const App = {
             this.renderNotifications();
             this.bindEvents();
 
-            // Initialize all modules safely
-            try { if (typeof Dashboard !== 'undefined') Dashboard.init(); } catch (e) { console.error('Dashboard init:', e); }
-            try { if (typeof Companies !== 'undefined') Companies.init(); } catch (e) { console.error('Companies init:', e); }
-            try { if (typeof Calls !== 'undefined') Calls.init(); } catch (e) { console.error('Calls init:', e); }
-            try { if (typeof Pipeline !== 'undefined') Pipeline.init(); } catch (e) { console.error('Pipeline init:', e); }
-            try { if (typeof Reports !== 'undefined') Reports.init(); } catch (e) { console.error('Reports init:', e); }
-            try { if (typeof Team !== 'undefined') Team.init(); } catch (e) { console.error('Team init:', e); }
+            // Initialize all modules safely with error boundaries
+            const safeInit = (name, check, fn) => {
+                try { if (typeof check !== 'undefined') fn(); } catch (e) { console.error(name + ' init:', e); }
+            };
+            safeInit('Dashboard', Dashboard, () => Dashboard.init());
+            safeInit('Companies', Companies, () => Companies.init());
+            safeInit('Calls', Calls, () => Calls.init());
+            safeInit('Pipeline', Pipeline, () => Pipeline.init());
+            safeInit('Reports', Reports, () => Reports.init());
+            safeInit('Team', Team, () => Team.init());
 
             // Initialize User Switcher
             this.initUserSwitcher();
@@ -88,9 +91,10 @@ const App = {
             }
             this.navigateTo(hash);
 
-            // Keep checking every 60 seconds for new scraper data — only locally
-            if (Storage.isRemoteHosted && !Storage.isRemoteHosted()) {
-                setInterval(() => this.autoImportScrapedData(), 60000);
+            // Keep checking every 60 seconds for new scraper data — only locally (not on Vercel/Netlify)
+            if (typeof Storage.isCloud === 'function' && !Storage.isCloud()) {
+                if (this._scraperPollInterval) clearInterval(this._scraperPollInterval);
+                this._scraperPollInterval = setInterval(() => this.autoImportScrapedData(), 60000);
             }
         } catch (err) {
             console.error('App init error:', err);
@@ -198,6 +202,10 @@ const App = {
                 }
                 this.showLoginError('⛔ هذا الحساب مجمد حالياً بقرار من المدير العام');
                 return;
+            }
+
+            if (res.user._needsPasswordChange) {
+                this.showToast('⚠️ يرجى تغيير كلمة المرور الافتراضية فوراً من شاشة إدارة الموظفين', 'warning');
             }
 
             if (res.user.status === 'pending_approval') {
@@ -399,7 +407,12 @@ const App = {
 
             if (!Array.isArray(data) || data.length === 0) return;
 
-            // If existing database is small (< 10000 companies), replace with full master dataset
+            const existing = Storage.companiesMemory || [];
+            const now = new Date().toISOString();
+            const today = now.split('T')[0];
+            let added = 0;
+            const existingIds = new Set(existing.map(c => c.id));
+
             if (existing.length < 10000 && data.length >= 10000) {
                 Storage.companiesMemory = data.map((c, i) => {
                     const company = { ...c };
@@ -496,6 +509,11 @@ const App = {
         document.querySelectorAll('.nav-link').forEach(link => {
             link.classList.toggle('active', link.dataset.page === page);
         });
+
+        // Cleanup previous page
+        if (this.currentPage === 'scraper' && typeof ScraperPage !== 'undefined' && ScraperPage.destroy) {
+            ScraperPage.destroy();
+        }
 
         // Re-render page data
         switch (page) {
@@ -640,6 +658,7 @@ const App = {
         const searchResults = document.getElementById('search-results');
 
         searchInput?.addEventListener('input', (e) => {
+            const esc = (s) => Storage.escapeHtml(s || '');
             const query = e.target.value.toLowerCase().trim();
             if (query.length < 2) {
                 searchResults.classList.remove('show');
@@ -658,10 +677,10 @@ const App = {
                 searchResults.innerHTML = '<div class="search-dropdown-item"><span class="result-name">لا توجد نتائج</span></div>';
             } else {
                 searchResults.innerHTML = companies.map(c => `
-                    <div class="search-dropdown-item" onclick="App.searchSelect('${c.id}')">
+                    <div class="search-dropdown-item" onclick="App.searchSelect('${esc(c.id)}')">
                         <i class="fas fa-building" style="color:var(--primary-light);"></i>
                         <div>
-                            <div class="result-name">${c.nameAr || c.nameEn}</div>
+                            <div class="result-name">${esc(c.nameAr || c.nameEn)}</div>
                             <div class="result-sector">${Storage.getSectorLabel(c.sector)} — ${Storage.getCityLabel(c.city)}</div>
                         </div>
                     </div>
@@ -684,6 +703,7 @@ const App = {
     },
 
     renderNotifications() {
+        const esc = (s) => Storage.escapeHtml(s || '');
         const list = document.getElementById('notifications-list');
         const badge = document.getElementById('notif-badge-count');
         const headerCount = document.getElementById('notif-header-count');
@@ -710,14 +730,14 @@ const App = {
 
         list.innerHTML = followUps.map(c => {
             const company = Storage.getCompany(c.companyId);
-            const companyName = company ? (company.nameAr || company.nameEn) : 'شركة غير معروفة';
+            const companyName = company ? esc(company.nameAr || company.nameEn) : 'شركة غير معروفة';
             return `
-                <div class="search-dropdown-item" onclick="Companies.showDetail('${c.companyId}')" style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; border-bottom:1px solid rgba(255,255,255,0.06);">
+                <div class="search-dropdown-item" onclick="Companies.showDetail('${esc(c.companyId)}')" style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; border-bottom:1px solid rgba(255,255,255,0.06);">
                     <div>
                         <div style="font-weight:700; font-size:12px; color:#f8fafc;">${companyName}</div>
-                        <div style="font-size:10px; color:#a78bfa;">📞 ${c.contactPerson || 'مسؤول الاتصال'} — ${Storage.getCallResultLabel(c.result)}</div>
+                        <div style="font-size:10px; color:#a78bfa;">📞 ${esc(c.contactPerson || 'مسؤول الاتصال')} — ${Storage.getCallResultLabel(c.result)}</div>
                     </div>
-                    <button class="btn btn-accent btn-sm" onclick="event.stopPropagation(); App.logCallForCompany('${c.companyId}')" style="font-size:10px; padding:3px 8px;">
+                    <button class="btn btn-accent btn-sm" onclick="event.stopPropagation(); App.logCallForCompany('${esc(c.companyId)}')" style="font-size:10px; padding:3px 8px;">
                         <i class="fas fa-phone"></i> اتصل
                     </button>
                 </div>`;
@@ -839,3 +859,15 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
         App.init();
     });
 }
+
+// ---- Global Error Handler ----
+window.addEventListener('error', (e) => {
+    console.error('Global error caught:', e.message, 'in', e.filename, 'line', e.lineno);
+    if (typeof App !== 'undefined' && App.showToast) {
+        App.showToast('⚠️ حدث خطأ غير متوقع في النظام', 'error');
+    }
+});
+
+window.addEventListener('unhandledrejection', (e) => {
+    console.error('Unhandled promise rejection:', e.reason);
+});
