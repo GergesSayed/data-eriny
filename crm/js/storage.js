@@ -443,8 +443,8 @@ const Storage = {
         if (!passCheck.valid) {
             return { success: false, message: passCheck.message };
         }
-        const hashed = await this.hashPw(newPassword);
-        const result = await this.updateUser(id, { password: hashed });
+        // Pass plaintext — updateUser will hash it internally
+        const result = await this.updateUser(id, { password: newPassword });
         if (result.success) this._syncUsersToCloud();
         return result;
     },
