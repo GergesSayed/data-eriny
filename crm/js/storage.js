@@ -291,10 +291,18 @@ const Storage = {
         const isMatch = await this.checkPw(password, user.password);
         if (!isMatch) return { success: false, message: 'كلمة المرور غير صحيحة' };
         
-        // Auto-upgrade stored password to salted hash if plain text
+        // Auto-upgrade plaintext password to salted hash
         if (!user.password.includes(':')) {
             user.password = await this.hashPw(password);
-            this.updateUser(user.id, { password: user.password });
+            // Direct save to avoid double-hashing in updateUser
+            const users = this.getUsers();
+            const idx = users.findIndex(u => u.id === user.id);
+            if (idx !== -1) {
+                users[idx].password = user.password;
+                delete users[idx]._needsPasswordChange;
+                this._set(this.KEYS.USERS, users);
+                this._syncUsersToCloud();
+            }
         }
 
         this.setCurrentUser(user.id, remember);
@@ -397,6 +405,7 @@ const Storage = {
                 return { success: false, message: passCheck.message };
             }
             userData.password = await this.hashPw(userData.password);
+            userData._needsPasswordChange = false;
         }
 
         const firstName = userData.firstName !== undefined ? userData.firstName.trim() : (users[index].firstName || '');
@@ -443,8 +452,7 @@ const Storage = {
         if (!passCheck.valid) {
             return { success: false, message: passCheck.message };
         }
-        // Pass plaintext — updateUser will hash it internally
-        const result = await this.updateUser(id, { password: newPassword });
+        const result = await this.updateUser(id, { password: newPassword, _needsPasswordChange: false });
         if (result.success) this._syncUsersToCloud();
         return result;
     },
