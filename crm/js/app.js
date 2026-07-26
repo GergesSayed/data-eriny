@@ -50,8 +50,9 @@ const App = {
                 }
             }
 
-            // Auto-load 10,000+ full preserved fleet companies on mobile/desktop if database is empty or has < 10000 companies
-            if (!localStorage.getItem('fleetcrm_app_v34_sync') || Storage.getCompanies().length < 10000) {
+            // Auto-load companies dataset — skip 10k+ full dataset on mobile (4MB freezes browser)
+            const isMobile = Storage.isMobile ? Storage.isMobile() : false;
+            if (!isMobile && (!localStorage.getItem('fleetcrm_app_v34_sync') || Storage.getCompanies().length < 10000)) {
                 await this.forceImportNow(null);
                 localStorage.setItem('fleetcrm_app_v34_sync', 'true');
             }
@@ -393,15 +394,18 @@ const App = {
                 // Local scraper not available
             }
 
-            // 2. Fallback to bundled cloud dataset ./data/companies.json
+            // 2. Fallback to bundled cloud dataset ./data/companies.json (skip on mobile — 4MB)
             if (!Array.isArray(data) || data.length === 0) {
-                try {
-                    const cloudResp = await fetch('./data/companies.json?v=22.0.0');
-                    if (cloudResp.ok) {
-                        data = await cloudResp.json();
+                const isMobile = typeof Storage !== 'undefined' && Storage.isMobile ? Storage.isMobile() : false;
+                if (!isMobile) {
+                    try {
+                        const cloudResp = await fetch('./data/companies.json?v=22.0.0');
+                        if (cloudResp.ok) {
+                            data = await cloudResp.json();
+                        }
+                    } catch (e) {
+                        console.warn('Bundled companies.json load error:', e);
                     }
-                } catch (e) {
-                    console.warn('Bundled companies.json load error:', e);
                 }
             }
 

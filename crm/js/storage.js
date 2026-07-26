@@ -22,6 +22,7 @@ const Storage = {
     async hashPw(e){var t=this._gs();return t+":"+await this._sha(t+e)},
     async checkPw(e,t){if(!t||!t.includes(":")||32!==t.split(":")[0].length)return e===t;var n=t.split(":");return await this._sha(n[0]+e)===n[1]},
     isCloud(){var e=window.location.hostname;return e.includes("vercel.app")||e.includes("netlify.app")||e.includes("github.io")},
+    isMobile(){return /Android|iPhone|iPad|iPod|webOS/i.test(navigator.userAgent)||(window.innerWidth<1025&&'ontouchstart' in window)},
 
     DEFAULT_ADMIN_PW: 'Admin@2026!ChangeMe',
 
@@ -593,25 +594,27 @@ const Storage = {
 
     // ---- IndexedDB helper functions ----
     async initDB() {
-        // 1. Fetch central cloud master dataset first to ensure 100% data consistency across all browsers and devices
-        try {
-            const cloudResp = await fetch('./data/companies.json?v=34.0.0');
-            if (cloudResp.ok) {
-                const cloudData = await cloudResp.json();
-                if (Array.isArray(cloudData) && cloudData.length > 0) {
-                    this.companiesMemory = cloudData.map((c, idx) => {
-                        const company = { ...c };
-                        if (!company.id) company.id = 'cloud_' + idx;
-                        company.sector = this.mapScraperSectorToCRM(company.sector);
-                        company.city = this.mapScraperCityToCRM(company.city);
-                        company.priority = this.calculatePriority(company.sector);
-                        return company;
-                    });
-                    this._set(this.KEYS.COMPANIES, this.companiesMemory);
+        const isOnMobile = this.isMobile();
+        if (!isOnMobile) {
+            try {
+                const cloudResp = await fetch('./data/companies.json?v=34.0.0');
+                if (cloudResp.ok) {
+                    const cloudData = await cloudResp.json();
+                    if (Array.isArray(cloudData) && cloudData.length > 0) {
+                        this.companiesMemory = cloudData.map((c, idx) => {
+                            const company = { ...c };
+                            if (!company.id) company.id = 'cloud_' + idx;
+                            company.sector = this.mapScraperSectorToCRM(company.sector);
+                            company.city = this.mapScraperCityToCRM(company.city);
+                            company.priority = this.calculatePriority(company.sector);
+                            return company;
+                        });
+                        this._set(this.KEYS.COMPANIES, this.companiesMemory);
+                    }
                 }
+            } catch (cloudErr) {
+                console.warn('Central cloud dataset fetch warning:', cloudErr);
             }
-        } catch (cloudErr) {
-            console.warn('Central cloud dataset fetch warning:', cloudErr);
         }
 
         // 2. Fallback to LocalStorage cache if offline
