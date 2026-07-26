@@ -2,7 +2,7 @@
    Fleet CRM — Supabase Client v4.5
    ============================================ */
 const SUPABASE_URL = 'https://vefitfgvdgjqipkkttry.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_VGgiYSdBu-GHP-o4e-Up2Q_kfxk-QQR';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlZml0Zmd2ZGdqcWlwa2t0dHJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUwNjQ0MzMsImV4cCI6MjEwMDY0MDQzM30.G4PnsfUnAI9gdNPFoSJuWKlE9VCmUXAkHOxzJb51Rrk';
 
 window.SupabaseClient = (function() {
     let realtimeChannel = null;

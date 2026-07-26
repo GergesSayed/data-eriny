@@ -51,6 +51,10 @@ CREATE POLICY "anon_sync_log_select" ON sync_log FOR SELECT USING (true);
 -- 6. Enable real-time for master_data
 ALTER PUBLICATION supabase_realtime ADD TABLE master_data;
 
--- 7. Indexes
+-- 7. GRANT permissions to anon role
+GRANT SELECT, INSERT, UPDATE ON public.master_data TO anon;
+GRANT SELECT, INSERT ON public.sync_log TO anon;
+
+-- 8. Indexes
 CREATE INDEX IF NOT EXISTS idx_master_data_updated ON master_data (updated_at DESC);
 CREATE INDEX IF NOT EXISTS idx_sync_log_created ON sync_log (created_at DESC);
