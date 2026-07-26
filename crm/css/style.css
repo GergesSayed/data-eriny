@@ -2455,13 +2455,29 @@ a:hover { color: var(--accent); }
         bottom: 0 !important;
         z-index: 10000 !important;
         width: 280px !important;
-        transform: translateX(100%) !important;
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        box-shadow: -4px 0 25px rgba(0, 0, 0, 0.5) !important;
+        background: #0f172a !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        will-change: transform !important;
+        transform: translate3d(100%, 0, 0) !important;
+        transition: transform 0.2s cubic-bezier(0, 0, 0.2, 1) !important;
+        box-shadow: -4px 0 25px rgba(0, 0, 0, 0.6) !important;
     }
 
     .sidebar.open {
-        transform: translateX(0) !important;
+        transform: translate3d(0, 0, 0) !important;
+    }
+
+    .sidebar-overlay {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        background: rgba(0, 0, 0, 0.65) !important;
+    }
+
+    #toggle-sidebar {
+        touch-action: manipulation !important;
+        -webkit-tap-highlight-color: transparent !important;
+        cursor: pointer !important;
     }
 
     .main-wrapper {

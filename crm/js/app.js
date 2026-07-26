@@ -524,19 +524,29 @@ const App = {
         }
     },
 
-    toggleSidebar() {
+    toggleSidebar(e) {
+        if (e && e.preventDefault) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('sidebar-overlay');
         if (!sidebar) return;
-        const isOpen = sidebar.classList.contains('open');
-        if (isOpen) {
-            this.closeSidebar();
+        
+        const isCurrentlyOpen = sidebar.classList.contains('open');
+        if (isCurrentlyOpen) {
+            sidebar.classList.remove('open');
+            if (overlay) {
+                overlay.classList.remove('active');
+                overlay.style.display = 'none';
+                overlay.style.pointerEvents = 'none';
+            }
         } else {
             sidebar.classList.add('open');
             if (overlay) {
                 overlay.style.display = 'block';
                 overlay.style.pointerEvents = 'auto';
-                setTimeout(() => overlay.classList.add('active'), 10);
+                overlay.classList.add('active');
             }
         }
     },
@@ -635,6 +645,16 @@ const App = {
     },
 
     bindEvents() {
+        const toggleBtn = document.getElementById('toggle-sidebar');
+        if (toggleBtn) {
+            const fastToggle = (e) => {
+                if (e) { e.preventDefault(); e.stopPropagation(); }
+                this.toggleSidebar();
+            };
+            toggleBtn.ontouchstart = fastToggle;
+            toggleBtn.onclick = fastToggle;
+        }
+
         // Navigation links click listener
         document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', (e) => {
