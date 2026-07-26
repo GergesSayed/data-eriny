@@ -1488,6 +1488,15 @@ a:hover { color: var(--accent); }
     .main-wrapper {
         margin-right: 0;
     }
+    #toggle-sidebar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+        font-size: 1.2rem;
+    }
     .charts-grid {
         grid-template-columns: 1fr;
     }
@@ -1508,6 +1517,7 @@ a:hover { color: var(--accent); }
     /* Content & Layout */
     .content {
         padding: 0.75rem;
+        padding-bottom: 5rem;
     }
     .content-wrapper {
         padding-top: var(--topbar-height);
@@ -1515,30 +1525,43 @@ a:hover { color: var(--accent); }
 
     /* Topbar */
     .topbar {
-        padding: 0 0.75rem;
-        gap: 8px;
+        padding: 0 0.5rem;
+        gap: 6px;
         height: auto;
-        min-height: 56px;
+        min-height: 52px;
         flex-wrap: wrap;
     }
-    .topbar-actions .btn span {
+    .topbar-right {
+        flex: 0 0 auto;
+        gap: 0.5rem;
+    }
+    .topbar-left {
+        flex: 1 1 auto;
+        justify-content: flex-end;
+        gap: 4px;
+        flex-wrap: wrap;
+    }
+    .topbar-left .btn {
+        padding: 5px 8px;
+        font-size: 0.7rem;
+    }
+    .topbar-left .btn span {
         display: none;
     }
     .search-box {
-        width: 140px;
-        font-size: 0.75rem;
+        width: 120px;
+        font-size: 0.72rem;
     }
     #global-search-container {
         order: 10;
         width: 100%;
         margin-top: 0.25rem;
     }
-    .topbar-left .btn span {
-        display: none;
-    }
-    .topbar-left .btn {
-        padding: 6px 10px;
-        min-width: auto;
+
+    /* Sidebar Nav Links — larger touch targets for mobile fingers */
+    .sidebar .nav-link {
+        padding: 0.85rem 1rem;
+        min-height: 48px;
     }
 
     /* Page Headers */
@@ -1651,7 +1674,7 @@ a:hover { color: var(--accent); }
         padding: 14px;
     }
 
-    /* Forms */
+    /* Modals */
     .form-grid {
         grid-template-columns: 1fr;
     }

@@ -531,9 +531,10 @@ const App = {
             case 'employees': if (typeof Team !== 'undefined') Team.renderEmployeesPage(); break;
         }
 
-        // Close sidebar on mobile
+        // Close sidebar + overlay on mobile navigation
         if (window.innerWidth <= 1024) {
             document.getElementById('sidebar')?.classList.remove('open');
+            document.getElementById('sidebar-overlay')?.classList.remove('active');
         }
     },
 
