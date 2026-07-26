@@ -371,6 +371,7 @@ const Storage = {
         users.push(newUser);
         this._set(this.KEYS.USERS, users);
         this.addActivity('user', newUser.id, 'إضافة موظف جديد', `تم إضافة الموظف: ${newUser.name} (${email})`);
+        this._syncUsersToCloud();
         return { success: true, user: newUser };
     },
 
@@ -417,7 +418,24 @@ const Storage = {
         };
         this._set(this.KEYS.USERS, users);
         this.addActivity('user', id, 'تعديل بيانات موظف', `تعديل حساب: ${users[index].name}`);
+        this._syncUsersToCloud();
         return { success: true, user: users[index] };
+    },
+
+    _syncUsersToCloud() {
+        if (!window.SupabaseClient) return;
+        setTimeout(async () => {
+            try {
+                await window.SupabaseClient.pushMasterData({
+                    companies: this.companiesMemory || [],
+                    users: this.getUsers(),
+                    calls: this.getCalls ? this.getCalls() : [],
+                    deals: this.getDeals ? this.getDeals() : [],
+                    activities: this.getActivities ? this.getActivities() : []
+                });
+                localStorage.setItem('fleetcrm_last_sync_time', Date.now());
+            } catch (err) {}
+        }, 500);
     },
 
     async resetUserPassword(id, newPassword) {
@@ -426,7 +444,9 @@ const Storage = {
             return { success: false, message: passCheck.message };
         }
         const hashed = await this.hashPw(newPassword);
-        return this.updateUser(id, { password: hashed });
+        const result = await this.updateUser(id, { password: hashed });
+        if (result.success) this._syncUsersToCloud();
+        return result;
     },
 
     deleteUser(id) {
@@ -833,8 +853,34 @@ const Storage = {
 
             if (data.users && Array.isArray(data.users) && data.users.length > 0) {
                 const localUsers = this.getUsers ? this.getUsers() : [];
-                if (data.users.length !== localUsers.length || cloudTimestamp > localTimestamp) {
-                    this._set(this.KEYS.USERS, data.users);
+                let usersChanged = false;
+                const cloudUsers = data.users;
+                
+                cloudUsers.forEach(cu => {
+                    const localUser = localUsers.find(lu => lu.id === cu.id || lu.email === cu.email);
+                    if (!localUser) {
+                        localUsers.push(cu);
+                        usersChanged = true;
+                    } else if (cu.password && cu.password.includes(':')) {
+                        // Cloud has hashed password — trust cloud (shared source of truth)
+                        const cloudHash = cu.password.split(':')[1];
+                        const localHash = (localUser.password && localUser.password.includes(':')) ? localUser.password.split(':')[1] : null;
+                        if (cloudHash !== localHash) {
+                            Object.assign(localUser, cu);
+                            usersChanged = true;
+                        }
+                    } else if (!localUser.password || !localUser.password.includes(':')) {
+                        // Both plaintext, cloud has different value
+                        if (localUser.password !== cu.password) {
+                            Object.assign(localUser, cu);
+                            usersChanged = true;
+                        }
+                    }
+                    // If cloud has plaintext but local has hashed: keep local (preserves password change)
+                });
+                
+                if (usersChanged) {
+                    this._set(this.KEYS.USERS, localUsers);
                     updated = true;
                 }
             }
