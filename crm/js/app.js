@@ -154,7 +154,7 @@ const App = {
         } else {
             document.documentElement.classList.add('user-logged-in');
             if (loginScreen) loginScreen.style.display = 'none';
-            if (sidebar) sidebar.style.display = 'flex';
+            if (sidebar) sidebar.style.removeProperty('display');
             if (mainWrapper) mainWrapper.style.display = 'flex';
             this.updateUserUI();
 
