@@ -778,54 +778,44 @@ const Storage = {
     autoSyncTimer: null,
     autoSyncToCloud(companies) {
         if (!companies || companies.length === 0) return;
-        if (this.isMobile()) return; // Skip background sync on mobile to save battery
+        if (this.isMobile()) return;
+        if (!window.SupabaseClient) return;
         clearTimeout(this.autoSyncTimer);
         this.autoSyncTimer = setTimeout(async () => {
             try {
-                const syncData = {
+                const quickHash = companies.length + '_' + (companies[0]?.id || '');
+                if (quickHash === localStorage.getItem('fleetcrm_last_synced_hash')) return;
+
+                const ok = await window.SupabaseClient.pushMasterData({
                     companies: companies,
                     users: this.getUsers(),
-                    calls: this.getCalls ? (this.getCalls() || []) : [],
-                    deals: this.getDeals ? (this.getDeals() || []) : [],
-                    activities: this.getActivities ? (this.getActivities() || []) : []
-                };
-                const resp = await fetch('/api/sync', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer fleetcrm_sync_v4'
-                    },
-                    body: JSON.stringify(syncData)
+                    calls: this.getCalls ? this.getCalls() : [],
+                    deals: this.getDeals ? this.getDeals() : [],
+                    activities: this.getActivities ? this.getActivities() : []
                 });
-                if (resp.ok) {
-                    console.log('☁️ Cloud sync successful');
+                if (ok) {
+                    localStorage.setItem('fleetcrm_last_synced_hash', quickHash);
+                    localStorage.setItem('fleetcrm_last_sync_time', Date.now());
                 }
-            } catch (err) {
-                // Silent fail — offline or API not available
-            }
-        }, 3000);
+            } catch (err) {}
+        }, 4000);
     },
 
     async pullFromCloud() {
+        if (!window.SupabaseClient) return false;
         const isOnMobile = this.isMobile();
         try {
-            const resp = await fetch('/api/sync', {
-                headers: { 'Authorization': 'Bearer fleetcrm_sync_v4' }
-            });
-            if (!resp.ok) return false;
-
-            const data = await resp.json();
+            const data = await window.SupabaseClient.fetchMasterData();
             if (!data) return false;
 
-            const cloudTimestamp = data.timestamp || 0;
+            const cloudTimestamp = data.updated_at ? new Date(data.updated_at).getTime() : 0;
             const localTimestamp = parseInt(localStorage.getItem('fleetcrm_last_sync_time') || '0');
             let updated = false;
 
-            // Pull companies — skip large datasets on mobile to prevent freezing
             if (data.companies && Array.isArray(data.companies) && data.companies.length > 0) {
                 const pullCompanies = isOnMobile
-                    ? data.companies.slice(0, 50)   // Mobile: max 50 companies
-                    : data.companies;                // Desktop: all companies
+                    ? data.companies.slice(0, 50)
+                    : data.companies;
 
                 if (cloudTimestamp > localTimestamp || pullCompanies.length !== this.companiesMemory.length) {
                     this.companiesMemory = pullCompanies.map(c => {
@@ -841,7 +831,6 @@ const Storage = {
                 }
             }
 
-            // Pull other collections
             if (data.users && Array.isArray(data.users) && data.users.length > 0) {
                 const localUsers = this.getUsers ? this.getUsers() : [];
                 if (data.users.length !== localUsers.length || cloudTimestamp > localTimestamp) {
@@ -876,7 +865,7 @@ const Storage = {
 
             return updated;
         } catch (err) {
-            // Offline — no connection to API
+            // Offline
         }
         return false;
     },

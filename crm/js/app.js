@@ -107,6 +107,29 @@ const App = {
                     if (pulled) this.refreshCurrentPage();
                 }).catch(() => {});
             }, 60000);
+
+            // Real-time Supabase subscription for instant cross-device sync
+            if (window.SupabaseClient) {
+                window.SupabaseClient.subscribeToChanges((newData) => {
+                    if (newData && newData.companies) {
+                        const isOnMobile = window.__IS_MOBILE === true;
+                        const companies = isOnMobile
+                            ? (Array.isArray(newData.companies) ? newData.companies.slice(0, 50) : [])
+                            : (Array.isArray(newData.companies) ? newData.companies : []);
+
+                        if (companies.length > 0 && companies.length !== Storage.getCompanies().length) {
+                            companies.forEach(c => {
+                                c.sector = Storage.mapScraperSectorToCRM(c.sector);
+                                c.city = Storage.mapScraperCityToCRM(c.city);
+                                c.priority = Storage.calculatePriority(c.sector);
+                            });
+                            Storage.setCompanies(companies);
+                            Storage.saveAllCompaniesToDB(companies);
+                            this.refreshCurrentPage();
+                        }
+                    }
+                });
+            }
         } catch (err) {
             console.error('App init error:', err);
         } finally {
@@ -560,36 +583,27 @@ const App = {
     },
 
     async triggerCloudSyncNow() {
-        this.showToast('☁️ جاري مزامنة البيانات مع السحابة...', 'info');
+        if (!window.SupabaseClient) {
+            this.showToast('ℹ️ جاري الاتصال بقاعدة البيانات السحابية...', 'info');
+            return;
+        }
+        this.showToast('☁️ جاري مزامنة البيانات مع Supabase...', 'info');
         try {
-            const syncData = {
+            const ok = await window.SupabaseClient.pushMasterData({
                 companies: Storage.getCompanies() || [],
                 users: Storage.getUsers ? (Storage.getUsers() || []) : [],
                 calls: Storage.getCalls ? (Storage.getCalls() || []) : [],
                 deals: Storage.getDeals ? (Storage.getDeals() || []) : [],
                 activities: Storage.getActivities ? (Storage.getActivities() || []) : []
-            };
-            const resp = await fetch('/api/sync', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer fleetcrm_sync_v4'
-                },
-                body: JSON.stringify(syncData)
             });
-            if (resp.ok) {
-                this.showToast('✅ تم رفع ومزامنة جميع البيانات للسحابة بنجاح', 'success');
+            if (ok) {
+                localStorage.setItem('fleetcrm_last_sync_time', Date.now());
+                this.showToast('✅ تم رفع جميع البيانات للسحابة بنجاح', 'success');
             } else {
-                this.showToast('⚠️ تعذر الاتصال بخادم المزامنة السحابية', 'warning');
+                this.showToast('⚠️ فشل الاتصال بـ Supabase', 'warning');
             }
         } catch (e) {
-            const pulled = await Storage.pullFromCloud();
-            if (pulled) {
-                this.showToast('📥 تم سحب أحدث البيانات من السحابة', 'success');
-                this.refreshCurrentPage();
-            } else {
-                this.showToast('ℹ️ المزامنة السحابية غير متاحة حالياً (يجب إعداد Supabase)', 'info');
-            }
+            this.showToast('⚠️ تعذر الاتصال بقاعدة البيانات السحابية', 'warning');
         }
     },
 

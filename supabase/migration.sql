@@ -15,13 +15,12 @@ CREATE TABLE IF NOT EXISTS master_data (
     updated_by  TEXT
 );
 
--- 2. Activity log for auditing (optional, for tracking who changed what)
+-- 2. Changes log table (optional tracking)
 CREATE TABLE IF NOT EXISTS sync_log (
     id          BIGSERIAL PRIMARY KEY,
-    action      TEXT NOT NULL,           -- 'SYNC_PUSH' / 'SYNC_PULL'
+    action      TEXT NOT NULL,
     user_agent  TEXT,
-    ip_address  TEXT,
-    changes     JSONB,
+    changes_count INTEGER DEFAULT 0,
     created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -30,31 +29,28 @@ INSERT INTO master_data (id, companies, users, calls, deals, activities)
 VALUES (
     1,
     '[]'::jsonb,
-    '[{"id":"admin","username":"admin","email":"admin@fleet.com","password":"admin123","name":"المدير العام (عرض الكل)","role":"admin","status":"active","avatar":"👑","color":"#7c3aed","_needsPasswordChange":true}]'::jsonb,
+    '[{"id":"admin","username":"admin","email":"admin@fleet.com","password":"admin123","name":"المدير العام","role":"admin","status":"active","avatar":"👑","color":"#7c3aed","_needsPasswordChange":true}]'::jsonb,
     '[]'::jsonb,
     '[]'::jsonb,
     '[]'::jsonb
 )
 ON CONFLICT (id) DO NOTHING;
 
--- 4. Enable Row Level Security (RLS)
+-- 4. Enable RLS
 ALTER TABLE master_data ENABLE ROW LEVEL SECURITY;
 ALTER TABLE sync_log ENABLE ROW LEVEL SECURITY;
 
--- 5. RLS Policies — allow read/write for authenticated users using service_role
-CREATE POLICY "Allow full access via service_role"
-    ON master_data FOR ALL
-    USING (true)
-    WITH CHECK (true);
+-- 5. RLS Policies — allow full anon access (internal CRM)
+DROP POLICY IF EXISTS "anon_full_access" ON master_data;
+CREATE POLICY "anon_full_access" ON master_data FOR ALL USING (true) WITH CHECK (true);
 
-CREATE POLICY "Allow insert to sync_log"
-    ON sync_log FOR INSERT
-    WITH CHECK (true);
+DROP POLICY IF EXISTS "anon_sync_log" ON sync_log;
+CREATE POLICY "anon_sync_log_insert" ON sync_log FOR INSERT WITH CHECK (true);
+CREATE POLICY "anon_sync_log_select" ON sync_log FOR SELECT USING (true);
 
-CREATE POLICY "Allow select from sync_log"
-    ON sync_log FOR SELECT
-    USING (true);
+-- 6. Enable real-time for master_data
+ALTER PUBLICATION supabase_realtime ADD TABLE master_data;
 
--- 6. Indexes
+-- 7. Indexes
 CREATE INDEX IF NOT EXISTS idx_master_data_updated ON master_data (updated_at DESC);
 CREATE INDEX IF NOT EXISTS idx_sync_log_created ON sync_log (created_at DESC);
