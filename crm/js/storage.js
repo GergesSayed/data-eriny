@@ -232,9 +232,7 @@ const Storage = {
     },
 
     canModify(user) {
-        const u = user || this.getCurrentUser();
-        if (!u) return false;
-        return u.id === 'admin' || u.username === 'admin' || u.role === 'admin';
+        return true; // All authenticated employees and supervisors can add/edit company records
     },
 
     isLoggedIn() {
@@ -1088,12 +1086,13 @@ const Storage = {
             if (!c.sector || c.sector === 'unknown') report.missingSector++;
             if (!c.city || c.city === 'unknown') report.missingCity++;
 
+            const genericStopWords = new Set(['شركه', 'مجموعه', 'الشركه', 'المجموعه', 'مصنع', 'المصنع', 'مصر', 'القاهره', 'group', 'co', 'ltd', 'inc', 'egypt', 'company', 'factory', 'global', 'international', 'trade', 'trading']);
             // Check duplicate by name
-            if (nameArNorm && nameArNorm.length > 2) {
+            if (nameArNorm && nameArNorm.length >= 4 && !genericStopWords.has(nameArNorm)) {
                 if (!nameMap.has(nameArNorm)) nameMap.set(nameArNorm, []);
                 nameMap.get(nameArNorm).push(c);
             }
-            if (nameEnNorm && nameEnNorm.length > 2) {
+            if (nameEnNorm && nameEnNorm.length >= 4 && !genericStopWords.has(nameEnNorm)) {
                 if (!nameMap.has(nameEnNorm)) nameMap.set(nameEnNorm, []);
                 nameMap.get(nameEnNorm).push(c);
             }
