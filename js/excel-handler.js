@@ -67,7 +67,38 @@ const ExcelHandler = {
     },
 
     // ---- Export Companies to Excel ----
+    triggerImport() {
+        let input = document.getElementById('excel-file-input');
+        if (!input) {
+            input = document.createElement('input');
+            input.type = 'file';
+            input.id = 'excel-file-input';
+            input.accept = '.xlsx, .xls, .csv';
+            input.style.display = 'none';
+            document.body.appendChild(input);
+        }
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                this.importCompanies(file, (count) => {
+                    if (count > 0 && typeof Companies !== 'undefined') {
+                        Companies.render();
+                        if (typeof Dashboard !== 'undefined') Dashboard.render();
+                    }
+                });
+                e.target.value = '';
+            }
+        };
+        input.click();
+    },
+
     exportCompanies(companies, filename = 'fleet_crm_companies') {
+        if (!companies || !Array.isArray(companies) || companies.length === 0) {
+            companies = typeof Companies !== 'undefined' && Companies.getFilteredCompanies ? Companies.getFilteredCompanies() : Storage.getCompanies();
+        }
+        if (!companies || companies.length === 0) {
+            companies = Storage.getCompanies();
+        }
         if (!window.XLSX) {
             App.showToast('مكتبة Excel غير متاحة', 'error');
             return;
