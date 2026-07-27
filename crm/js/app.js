@@ -514,24 +514,18 @@ const App = {
     },
 
     closeSidebar(e) {
-        if (e && e.stopPropagation) {
-            try { e.stopPropagation(); } catch(err){}
-        }
+        if (e && e.stopPropagation) { try { e.stopPropagation(); } catch(err){} }
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('sidebar-overlay');
         if (sidebar) sidebar.classList.remove('open');
         if (overlay) {
             overlay.classList.remove('active');
             overlay.style.display = 'none';
-            overlay.style.pointerEvents = 'none';
         }
     },
 
     toggleSidebar(e) {
-        if (e && e.preventDefault) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
+        if (e && e.stopPropagation) { try { e.stopPropagation(); } catch(err){} }
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('sidebar-overlay');
         if (!sidebar) return;
@@ -542,7 +536,6 @@ const App = {
             if (overlay) {
                 overlay.classList.remove('active');
                 overlay.style.display = 'none';
-                overlay.style.pointerEvents = 'none';
             }
         } else {
             sidebar.classList.add('open');
