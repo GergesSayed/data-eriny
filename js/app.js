@@ -513,7 +513,10 @@ const App = {
         }
     },
 
-    closeSidebar() {
+    closeSidebar(e) {
+        if (e && e.stopPropagation) {
+            try { e.stopPropagation(); } catch(err){}
+        }
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('sidebar-overlay');
         if (sidebar) sidebar.classList.remove('open');
@@ -670,11 +673,16 @@ const App = {
             });
         });
 
-        // Sidebar overlay click to close (inline onclick handles toggle button)
-        document.getElementById('sidebar-overlay')?.addEventListener('click', () => {
-            document.getElementById('sidebar')?.classList.remove('open');
-            document.getElementById('sidebar-overlay')?.classList.remove('active');
-        });
+        // Sidebar overlay touch & click to close
+        const overlay = document.getElementById('sidebar-overlay');
+        if (overlay) {
+            const handleOverlayClose = (e) => {
+                if (e && e.preventDefault) { e.preventDefault(); e.stopPropagation(); }
+                this.closeSidebar(e);
+            };
+            overlay.ontouchstart = handleOverlayClose;
+            overlay.onclick = handleOverlayClose;
+        }
 
         // Close notifications dropdown on outside click
         document.addEventListener('click', (e) => {
