@@ -1256,6 +1256,20 @@ const Storage = {
         this.companiesMemory = mergedList;
         this.saveAllCompaniesToDB(mergedList);
 
+        // Update cloud timestamp and push cleaned dataset immediately so cloud never reverts
+        const now = Date.now();
+        localStorage.setItem('fleetcrm_last_synced_hash', mergedList.length + '_' + (mergedList[0]?.id || ''));
+        localStorage.setItem('fleetcrm_last_sync_time', now);
+        if (window.SupabaseClient) {
+            window.SupabaseClient.pushMasterData({
+                companies: mergedList,
+                users: this.getUsers(),
+                calls: this.getCalls ? this.getCalls() : [],
+                deals: this.getDeals ? this.getDeals() : [],
+                activities: this.getActivities ? this.getActivities() : []
+            });
+        }
+
         this.addActivity('system', 'audit', 'تنظيف ودمج البيانات', `تم دمج ${mergedCount} شركة مكررة وتنظيف ${cleanedCount} سجل فارغ`);
         return { mergedCount, cleanedCount, remainingTotal: mergedList.length };
     },

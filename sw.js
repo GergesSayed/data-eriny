@@ -1,17 +1,17 @@
 /* Fleet CRM — Progressive Web App Service Worker */
-const CACHE_NAME = 'fleetcrm-v15000-all-buttons-fixed.0.0';
+const CACHE_NAME = 'fleetcrm-v16000-modal-close-cloud-sync-fix.0.0';
 const ASSETS_TO_CACHE = [
   './index.html',
   './css/style.css',
-  './js/storage.js?v=15000-all-buttons-fixed.0.0',
-  './js/app.js?v=15000-all-buttons-fixed.0.0',
-  './js/companies.js?v=15000-all-buttons-fixed.0.0',
-  './js/calls.js?v=15000-all-buttons-fixed.0.0',
-  './js/pipeline.js?v=15000-all-buttons-fixed.0.0',
-  './js/dashboard.js?v=15000-all-buttons-fixed.0.0',
-  './js/reports.js?v=15000-all-buttons-fixed.0.0',
-  './js/team.js?v=15000-all-buttons-fixed.0.0',
-  './data/companies.json?v=15000-all-buttons-fixed.0.0',
+  './js/storage.js?v=16000-modal-close-cloud-sync-fix.0.0',
+  './js/app.js?v=16000-modal-close-cloud-sync-fix.0.0',
+  './js/companies.js?v=16000-modal-close-cloud-sync-fix.0.0',
+  './js/calls.js?v=16000-modal-close-cloud-sync-fix.0.0',
+  './js/pipeline.js?v=16000-modal-close-cloud-sync-fix.0.0',
+  './js/dashboard.js?v=16000-modal-close-cloud-sync-fix.0.0',
+  './js/reports.js?v=16000-modal-close-cloud-sync-fix.0.0',
+  './js/team.js?v=16000-modal-close-cloud-sync-fix.0.0',
+  './data/companies.json?v=16000-modal-close-cloud-sync-fix.0.0',
   './manifest.json'
 ];
 
