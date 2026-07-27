@@ -64,11 +64,11 @@ const App = {
                 }
             }
 
-            // Auto-load companies in background without blocking startup UI
-            if (!localStorage.getItem('fleetcrm_app_v40_sync') || Storage.getCompanies().length < 10000) {
+            // Initial load from cloud if memory is empty
+            if (!localStorage.getItem('fleetcrm_initial_seeded_v1') && Storage.getCompanies().length === 0) {
                 setTimeout(() => {
                     this.forceImportNow(null).then(() => {
-                        localStorage.setItem('fleetcrm_app_v40_sync', 'true');
+                        localStorage.setItem('fleetcrm_initial_seeded_v1', 'true');
                     }).catch(() => {});
                 }, 500);
             }

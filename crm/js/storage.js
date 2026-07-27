@@ -832,7 +832,7 @@ const Storage = {
             if (data.companies && Array.isArray(data.companies) && data.companies.length > 0) {
                 const pullCompanies = data.companies; // Pull 100% of all scraped master companies on all devices
 
-                if (cloudTimestamp > localTimestamp || pullCompanies.length !== this.companiesMemory.length) {
+                if (cloudTimestamp > localTimestamp && this.companiesMemory.length === 0) {
                     this.companiesMemory = pullCompanies.map(c => {
                         if (!c.id) c.id = 'cloud_' + Math.random().toString(36).substr(2, 9);
                         c.sector = this.mapScraperSectorToCRM(c.sector);
