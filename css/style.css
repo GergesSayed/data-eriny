@@ -2114,16 +2114,21 @@ a:hover { color: var(--accent); }
     z-index: 99999;
     background: #030712;
     display: none;
-    pointer-events: none !important;
     align-items: center;
     justify-content: center;
     padding: 1.5rem;
     font-family: var(--font-ar);
     overflow-y: auto;
 }
-.user-logged-in .login-screen-bg {
+html:not(.user-logged-in) .login-screen-bg {
+    display: flex !important;
+    pointer-events: auto !important;
+    z-index: 99999 !important;
+}
+html.user-logged-in .login-screen-bg {
     display: none !important;
     pointer-events: none !important;
+    z-index: -1 !important;
 }
 
 /* Background Animated Gradient Mesh */

@@ -148,15 +148,21 @@ const App = {
         const mainWrapper = document.querySelector('.main-wrapper');
 
         if (!currentUser) {
-            // Remove the head-script class so CSS !important rules don't block login display
+            // Remove user-logged-in class so CSS enables login screen pointer-events
             document.documentElement.classList.remove('user-logged-in');
-            if (loginScreen) loginScreen.style.display = 'flex';
+            if (loginScreen) {
+                loginScreen.style.display = 'flex';
+                loginScreen.style.pointerEvents = 'auto';
+            }
             if (sidebar) sidebar.style.display = 'none';
             if (mainWrapper) mainWrapper.style.display = 'none';
             this.initLoginCapsWarning();
         } else {
             document.documentElement.classList.add('user-logged-in');
-            if (loginScreen) loginScreen.style.display = 'none';
+            if (loginScreen) {
+                loginScreen.style.display = 'none';
+                loginScreen.style.pointerEvents = 'none';
+            }
             if (sidebar) sidebar.style.removeProperty('display');
             if (mainWrapper) mainWrapper.style.display = 'flex';
             this.updateUserUI();
