@@ -226,9 +226,7 @@ const Storage = {
     },
 
     canViewAll(user) {
-        const u = user || this.getCurrentUser();
-        if (!u) return false;
-        return u.id === 'admin' || u.username === 'admin' || u.role === 'admin' || u.role === 'supervisor';
+        return true; // All authenticated CRM team members view the complete master company database
     },
 
     canModify(user) {
@@ -1412,7 +1410,7 @@ const Storage = {
 
     // ---- Statistics ----
     getStats() {
-        const companies = this.getCompanies();
+        const companies = this.getScopedCompanies();
         const calls = this.getCalls();
         const deals = this.getDeals();
         const today = new Date().toISOString().split('T')[0];
