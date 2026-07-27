@@ -93,11 +93,16 @@ const ExcelHandler = {
     },
 
     exportCompanies(companies, filename = 'fleet_crm_companies') {
-        if (!companies || !Array.isArray(companies) || companies.length === 0) {
-            companies = typeof Companies !== 'undefined' && Companies.getFilteredCompanies ? Companies.getFilteredCompanies() : Storage.getCompanies();
+        if (!Array.isArray(companies)) {
+            filename = typeof filename === 'string' ? filename : 'fleet_crm_companies';
+            companies = (typeof Companies !== 'undefined' && Companies.getFilteredCompanies) ? Companies.getFilteredCompanies() : Storage.getCompanies();
         }
-        if (!companies || companies.length === 0) {
+        if (!Array.isArray(companies) || companies.length === 0) {
             companies = Storage.getCompanies();
+        }
+        if (!companies || !Array.isArray(companies) || companies.length === 0) {
+            App.showToast('⚠️ لا توجد شركات للتصدير', 'warning');
+            return;
         }
         if (!window.XLSX) {
             App.showToast('مكتبة Excel غير متاحة', 'error');

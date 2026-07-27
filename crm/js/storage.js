@@ -679,6 +679,28 @@ const Storage = {
 
     async _seedInitialJsonData() {
         if (this.companiesMemory && this.companiesMemory.length > 0) return;
+
+        // 1. Prioritize Supabase Cloud Master Dataset on empty cache / new device
+        if (window.SupabaseClient) {
+            try {
+                const cloudData = await window.SupabaseClient.fetchMasterData();
+                if (cloudData && Array.isArray(cloudData.companies) && cloudData.companies.length > 0) {
+                    this.companiesMemory = cloudData.companies.map((c, idx) => {
+                        const company = { ...c };
+                        if (!company.id) company.id = 'cloud_' + idx;
+                        company.sector = this.mapScraperSectorToCRM(company.sector);
+                        company.city = this.mapScraperCityToCRM(company.city);
+                        company.priority = this.calculatePriority(company.sector);
+                        return company;
+                    });
+                    this._set(this.KEYS.COMPANIES, this.companiesMemory);
+                    this.saveAllCompaniesToDB(this.companiesMemory);
+                    return;
+                }
+            } catch (cloudErr) {}
+        }
+
+        // 2. Only if Cloud has 0 companies, fallback to static JSON
         try {
             const cloudResp = await fetch('./data/companies.json?v=40.0.0');
             if (cloudResp.ok) {
