@@ -1,17 +1,17 @@
 /* Fleet CRM — Progressive Web App Service Worker */
-const CACHE_NAME = 'fleetcrm-v1005.0.0';
+const CACHE_NAME = 'fleetcrm-v2000.0.0';
 const ASSETS_TO_CACHE = [
   './index.html',
   './css/style.css',
-  './js/storage.js?v=1005.0.0',
-  './js/app.js?v=1005.0.0',
-  './js/companies.js?v=1005.0.0',
-  './js/calls.js?v=1005.0.0',
-  './js/pipeline.js?v=1005.0.0',
-  './js/dashboard.js?v=1005.0.0',
-  './js/reports.js?v=1005.0.0',
-  './js/team.js?v=1005.0.0',
-  './data/companies.json?v=1005.0.0',
+  './js/storage.js?v=2000.0.0',
+  './js/app.js?v=2000.0.0',
+  './js/companies.js?v=2000.0.0',
+  './js/calls.js?v=2000.0.0',
+  './js/pipeline.js?v=2000.0.0',
+  './js/dashboard.js?v=2000.0.0',
+  './js/reports.js?v=2000.0.0',
+  './js/team.js?v=2000.0.0',
+  './data/companies.json?v=2000.0.0',
   './manifest.json'
 ];
 

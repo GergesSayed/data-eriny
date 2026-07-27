@@ -38,8 +38,8 @@ const App = {
             // Initialize Database
             await Storage.initDB();
 
-            // Pull latest from cloud BEFORE showing content (avoids flash of wrong data)
-            const cloudUpdated = await Storage.pullFromCloud().catch(() => false);
+            // Pull latest from cloud asynchronously in background without blocking UI
+            Storage.pullFromCloud().catch(() => false);
 
             // Check authentication session first so main-wrapper layout is visible
             this.checkAuth();
@@ -59,10 +59,13 @@ const App = {
                 }
             }
 
-            // Auto-load companies on all devices (mobile & desktop)
+            // Auto-load companies in background without blocking startup UI
             if (!localStorage.getItem('fleetcrm_app_v40_sync') || Storage.getCompanies().length < 10000) {
-                await this.forceImportNow(null);
-                localStorage.setItem('fleetcrm_app_v40_sync', 'true');
+                setTimeout(() => {
+                    this.forceImportNow(null).then(() => {
+                        localStorage.setItem('fleetcrm_app_v40_sync', 'true');
+                    }).catch(() => {});
+                }, 500);
             }
 
             // Initialize routing
