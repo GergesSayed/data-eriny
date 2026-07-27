@@ -1,5 +1,5 @@
 /* Fleet CRM — Progressive Web App Service Worker */
-const CACHE_NAME = 'fleetcrm-v1000.0.0';
+const CACHE_NAME = 'fleetcrm-v1001.0.0';
 const ASSETS_TO_CACHE = [
   './index.html',
   './css/style.css',
