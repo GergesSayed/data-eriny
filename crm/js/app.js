@@ -524,6 +524,7 @@ const App = {
         if (overlay) {
             overlay.classList.remove('active');
             overlay.style.display = 'none';
+            overlay.style.pointerEvents = 'none';
         }
     },
 
@@ -539,6 +540,7 @@ const App = {
             if (overlay) {
                 overlay.classList.remove('active');
                 overlay.style.display = 'none';
+                overlay.style.pointerEvents = 'none';
             }
         } else {
             sidebar.classList.add('open');
