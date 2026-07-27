@@ -558,6 +558,10 @@ const App = {
     },
 
     navigateTo(page) {
+        const activePageEl = document.getElementById(`page-${page}`);
+        if (this.currentPage === page && activePageEl && activePageEl.classList.contains('active')) {
+            return;
+        }
         const currentUser = Storage.getCurrentUser();
         const canViewAll = Storage.canViewAll(currentUser);
 
