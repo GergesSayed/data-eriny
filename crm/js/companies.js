@@ -337,14 +337,14 @@ const Companies = {
             }
 
             return `
-                <tr class="${isChecked ? 'row-selected' : ''}">
+                <tr class="${isChecked ? 'row-selected' : ''}" onclick="Companies.showDetail('${c.id}')" style="cursor: pointer;">
                     ${isAdmin ? `
-                        <td style="text-align:center;">
-                            <input type="checkbox" class="company-checkbox" data-id="${c.id}" ${isChecked} onchange="Companies.toggleSelectCompany('${c.id}', this.checked)">
+                        <td style="text-align:center;" onclick="event.stopPropagation();">
+                            <input type="checkbox" class="company-checkbox" data-id="${c.id}" ${isChecked} onchange="Companies.toggleSelectCompany('${c.id}', this.checked)" onclick="event.stopPropagation();">
                         </td>
                     ` : ''}
                     <td>
-                        <div class="company-name-cell" onclick="Companies.showDetail('${c.id}')">
+                        <div class="company-name-cell">
                             <div style="display:flex; align-items:center; gap: 4px;">
                                 <span class="name-ar">${mainName}</span>
                                 ${linkedinIcon}

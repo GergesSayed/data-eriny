@@ -668,8 +668,11 @@ a:hover { color: var(--accent); }
 }
 
 .followups-list, .activity-list {
-    max-height: 300px;
-    overflow-y: auto;
+    max-height: 320px;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-y !important;
+    pointer-events: auto !important;
 }
 
 .followup-item, .activity-item {
@@ -1216,11 +1219,13 @@ a:hover { color: var(--accent); }
     inset: 0;
     z-index: 2000;
     display: none;
+    pointer-events: none !important;
     align-items: center;
     justify-content: center;
 }
 .modal.show {
-    display: flex;
+    display: flex !important;
+    pointer-events: auto !important;
     animation: modalFadeIn 0.25s ease;
 }
 .modal-overlay {

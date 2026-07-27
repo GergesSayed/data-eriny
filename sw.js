@@ -1,17 +1,17 @@
 /* Fleet CRM — Progressive Web App Service Worker */
-const CACHE_NAME = 'fleetcrm-v8000-login-fix.0.0';
+const CACHE_NAME = 'fleetcrm-v9000-mobile-a2z.0.0';
 const ASSETS_TO_CACHE = [
   './index.html',
   './css/style.css',
-  './js/storage.js?v=8000-login-fix.0.0',
-  './js/app.js?v=8000-login-fix.0.0',
-  './js/companies.js?v=8000-login-fix.0.0',
-  './js/calls.js?v=8000-login-fix.0.0',
-  './js/pipeline.js?v=8000-login-fix.0.0',
-  './js/dashboard.js?v=8000-login-fix.0.0',
-  './js/reports.js?v=8000-login-fix.0.0',
-  './js/team.js?v=8000-login-fix.0.0',
-  './data/companies.json?v=8000-login-fix.0.0',
+  './js/storage.js?v=9000-mobile-a2z.0.0',
+  './js/app.js?v=9000-mobile-a2z.0.0',
+  './js/companies.js?v=9000-mobile-a2z.0.0',
+  './js/calls.js?v=9000-mobile-a2z.0.0',
+  './js/pipeline.js?v=9000-mobile-a2z.0.0',
+  './js/dashboard.js?v=9000-mobile-a2z.0.0',
+  './js/reports.js?v=9000-mobile-a2z.0.0',
+  './js/team.js?v=9000-mobile-a2z.0.0',
+  './data/companies.json?v=9000-mobile-a2z.0.0',
   './manifest.json'
 ];
 

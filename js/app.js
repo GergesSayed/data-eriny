@@ -871,6 +871,8 @@ const App = {
         const modal = document.getElementById(modalId);
         if (modal) {
             modal.classList.add('show');
+            modal.style.display = 'flex';
+            modal.style.pointerEvents = 'auto';
             document.body.style.overflow = 'hidden';
         }
     },
@@ -879,6 +881,8 @@ const App = {
         const modal = document.getElementById(modalId);
         if (modal) {
             modal.classList.remove('show');
+            modal.style.display = 'none';
+            modal.style.pointerEvents = 'none';
             document.body.style.overflow = '';
         }
     },
