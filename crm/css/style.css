@@ -2554,22 +2554,23 @@ a:hover { color: var(--accent); }
     }
 
     .topbar-left {
-        gap: 0.4rem !important;
+        gap: 0.35rem !important;
+        flex-wrap: nowrap !important;
     }
 
-    .topbar-actions {
-        gap: 0.3rem !important;
-    }
-
-    .topbar-actions .btn span {
+    .topbar-left .btn span {
         display: none !important; /* Icons only on mobile topbar for clean design */
     }
 
-    .topbar-actions .btn {
-        padding: 0.45rem 0.6rem !important;
-        min-width: 0 !important;
-        border-radius: 10px !important;
-        font-size: 0.9rem !important;
+    .topbar-left .btn {
+        padding: 0.4rem 0.55rem !important;
+        min-width: 36px !important;
+        height: 36px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border-radius: 8px !important;
+        font-size: 0.95rem !important;
         touch-action: manipulation !important;
         -webkit-tap-highlight-color: transparent !important;
     }
