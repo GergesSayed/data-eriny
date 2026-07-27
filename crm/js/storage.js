@@ -618,44 +618,29 @@ const Storage = {
 
     // ---- IndexedDB helper functions ----
     async initDB() {
-        // 1. Fetch central cloud master dataset on all devices (mobile and desktop)
-        try {
-            const cloudResp = await fetch('./data/companies.json?v=40.0.0');
-            if (cloudResp.ok) {
-                const cloudData = await cloudResp.json();
-                if (Array.isArray(cloudData) && cloudData.length > 0) {
-                    this.companiesMemory = cloudData.map((c, idx) => {
-                        const company = { ...c };
-                        if (!company.id) company.id = 'cloud_' + idx;
-                        company.sector = this.mapScraperSectorToCRM(company.sector);
-                        company.city = this.mapScraperCityToCRM(company.city);
-                        company.priority = this.calculatePriority(company.sector);
-                        return company;
-                    });
-                    this._set(this.KEYS.COMPANIES, this.companiesMemory);
-                }
-            }
-        } catch (cloudErr) {
-            console.warn('Central cloud dataset fetch warning:', cloudErr);
+        // 1. Check LocalStorage cache first
+        let cached = this._get(this.KEYS.COMPANIES);
+        if (cached && Array.isArray(cached) && cached.length > 0) {
+            this.companiesMemory = cached.map(c => {
+                c.sector = this.mapScraperSectorToCRM(c.sector);
+                c.city = this.mapScraperCityToCRM(c.city);
+                c.priority = this.calculatePriority(c.sector);
+                return c;
+            });
         }
 
-        // 2. Fallback to LocalStorage cache if offline
-        if (!this.companiesMemory || this.companiesMemory.length === 0) {
-            let cached = this._get(this.KEYS.COMPANIES);
-            if (cached && Array.isArray(cached) && cached.length > 0) {
-                this.companiesMemory = cached;
-            } else {
-                this.seedSampleData();
-            }
-        }
-
+        // 2. Open IndexedDB and load persisted user data
         return new Promise((resolve) => {
             try {
                 const request = indexedDB.open('FleetCRM_DB', 2);
                 
                 request.onerror = (event) => {
                     console.warn('IndexedDB failed to open, relying on localStorage:', event);
-                    resolve();
+                    if (!this.companiesMemory || this.companiesMemory.length === 0) {
+                        this._seedInitialJsonData().then(() => resolve());
+                    } else {
+                        resolve();
+                    }
                 };
                 
                 request.onsuccess = (event) => {
@@ -692,6 +677,30 @@ const Storage = {
         });
     },
 
+    async _seedInitialJsonData() {
+        if (this.companiesMemory && this.companiesMemory.length > 0) return;
+        try {
+            const cloudResp = await fetch('./data/companies.json?v=40.0.0');
+            if (cloudResp.ok) {
+                const cloudData = await cloudResp.json();
+                if (Array.isArray(cloudData) && cloudData.length > 0) {
+                    this.companiesMemory = cloudData.map((c, idx) => {
+                        const company = { ...c };
+                        if (!company.id) company.id = 'cloud_' + idx;
+                        company.sector = this.mapScraperSectorToCRM(company.sector);
+                        company.city = this.mapScraperCityToCRM(company.city);
+                        company.priority = this.calculatePriority(company.sector);
+                        return company;
+                    });
+                    this._set(this.KEYS.COMPANIES, this.companiesMemory);
+                    this.saveAllCompaniesToDB(this.companiesMemory);
+                    return;
+                }
+            }
+        } catch (e) {}
+        this.seedSampleData();
+    },
+
     loadCompaniesFromDB(db) {
         return new Promise((resolve) => {
             try {
@@ -709,20 +718,18 @@ const Storage = {
                             return c;
                         });
                         
-                        // Cloud dataset is master single source of truth; sync IndexedDB with master memory if available
-                        if (this.companiesMemory.length === 0 && idbMapped.length > 0) {
-                            this.companiesMemory = idbMapped;
-                            this._set(this.KEYS.COMPANIES, idbMapped);
-                        } else if (this.companiesMemory.length > 0) {
-                            this.saveAllCompaniesToDB(this.companiesMemory);
-                        }
+                        // Trust IndexedDB user modified data
+                        this.companiesMemory = idbMapped;
+                        this._set(this.KEYS.COMPANIES, idbMapped);
                         this.ensureAssignedSampleCompanies();
                         resolve();
                     } else {
-                        if (this.companiesMemory.length === 0) {
-                            this.seedSampleData();
+                        if (!this.companiesMemory || this.companiesMemory.length === 0) {
+                            this._seedInitialJsonData().then(() => resolve());
+                        } else {
+                            this.saveAllCompaniesToDB(this.companiesMemory);
+                            resolve();
                         }
-                        resolve();
                     }
                 };
                 
