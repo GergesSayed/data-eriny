@@ -8,7 +8,12 @@ const App = {
     async init() {
         const hideOverlay = () => {
             const loadingOverlay = document.getElementById('loading-overlay');
-            if (loadingOverlay) loadingOverlay.classList.add('hidden');
+            if (loadingOverlay) {
+                loadingOverlay.classList.add('hidden');
+                loadingOverlay.style.display = 'none';
+                loadingOverlay.style.pointerEvents = 'none';
+                loadingOverlay.style.zIndex = '-100';
+            }
         };
 
         // Force-hide overlay after 5 seconds max — prevents infinite loading on slow devices

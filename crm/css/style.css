@@ -139,8 +139,11 @@ a:hover { color: var(--accent); }
     transition: opacity 0.5s ease, visibility 0.5s ease;
 }
 .loading-overlay.hidden {
-    opacity: 0;
-    visibility: hidden;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    display: none !important;
+    pointer-events: none !important;
+    z-index: -100 !important;
 }
 .loader {
     text-align: center;
