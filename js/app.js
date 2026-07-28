@@ -185,9 +185,16 @@ const App = {
             if (loginScreen) {
                 loginScreen.style.display = 'none';
                 loginScreen.style.pointerEvents = 'none';
+                loginScreen.style.zIndex = '-1';
             }
             if (sidebar) sidebar.style.removeProperty('display');
-            if (mainWrapper) mainWrapper.style.display = 'flex';
+            if (mainWrapper) mainWrapper.style.removeProperty('display');
+
+            // Force unlock body overflow & pointer events for mobile devices
+            document.body.style.overflow = '';
+            document.body.style.pointerEvents = 'auto';
+            document.documentElement.style.pointerEvents = 'auto';
+
             this.updateUserUI();
 
             setTimeout(() => {
