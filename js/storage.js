@@ -922,7 +922,6 @@ const Storage = {
                 const request = indexedDB.open('FleetCRM_DB', 3);
                 request.onsuccess = (event) => {
                     const db = event.target.result;
-                    // Guard: store might not exist yet on first upgrade
                     if (!db.objectStoreNames.contains('companies')) { resolve(); return; }
                     try {
                         const transaction = db.transaction(['companies'], 'readwrite');
@@ -949,7 +948,6 @@ const Storage = {
         });
     },
 
-    autoSyncTimer: null,
     autoSyncTimer: null,
     autoSyncToCloud(companies = this.companiesMemory) {
         if (!Array.isArray(companies)) companies = this.companiesMemory || [];

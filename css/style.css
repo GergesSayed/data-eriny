@@ -132,11 +132,10 @@ a:hover { color: var(--accent); }
     position: fixed;
     inset: 0;
     background: var(--bg-primary);
-    display: none !important;
-    pointer-events: none !important;
+    display: flex;
     align-items: center;
     justify-content: center;
-    z-index: -100 !important;
+    z-index: 10000;
     transition: opacity 0.5s ease, visibility 0.5s ease;
 }
 .loading-overlay.hidden {
@@ -144,8 +143,6 @@ a:hover { color: var(--accent); }
     visibility: hidden !important;
     display: none !important;
     pointer-events: none !important;
-    z-index: -100 !important;
-}
     z-index: -100 !important;
 }
 .loader {
@@ -2474,22 +2471,6 @@ html.user-logged-in .login-screen-bg {
    ========================================================================== */
 
 @media screen and (max-width: 1024px) {
-    html {
-        height: auto !important;
-        overflow-x: hidden !important;
-        overflow-y: auto !important;
-        -webkit-overflow-scrolling: touch !important;
-    }
-    body {
-        display: block !important;
-        height: auto !important;
-        min-height: 100% !important;
-        overflow-x: hidden !important;
-        overflow-y: auto !important;
-        -webkit-overflow-scrolling: touch !important;
-        position: relative !important;
-    }
-
     .sidebar {
         position: fixed !important;
         top: 0 !important;
@@ -2515,11 +2496,6 @@ html.user-logged-in .login-screen-bg {
         -webkit-backdrop-filter: none !important;
         background: rgba(0, 0, 0, 0.65) !important;
     }
-    .sidebar-overlay:not(.active) {
-        display: none !important;
-        pointer-events: none !important;
-        visibility: hidden !important;
-    }
 
     #toggle-sidebar {
         touch-action: manipulation !important;
@@ -2528,12 +2504,8 @@ html.user-logged-in .login-screen-bg {
     }
 
     .main-wrapper {
-        display: block !important;
         margin-right: 0 !important;
         width: 100% !important;
-        min-height: 100vh !important;
-        position: relative !important;
-        height: auto !important;
     }
 
     .mobile-bottom-nav {
@@ -2569,7 +2541,6 @@ html.user-logged-in .login-screen-bg {
         text-decoration: none !important;
         touch-action: manipulation !important;
         -webkit-tap-highlight-color: transparent !important;
-        cursor: pointer !important;
     }
 
     .mobile-nav-item i {
@@ -2586,15 +2557,7 @@ html.user-logged-in .login-screen-bg {
     }
 
     .content {
-        display: block !important;
-        padding-bottom: 90px !important;
-        width: 100% !important;
-        box-sizing: border-box !important;
-    }
-
-    button, a, input, select, .company-card, .btn, .nav-link, .mobile-nav-item {
-        touch-action: manipulation !important;
-        -webkit-tap-highlight-color: rgba(124, 58, 237, 0.2) !important;
+        padding-bottom: 80px !important;
     }
 }
 
