@@ -846,10 +846,10 @@
                         <p class="page-subtitle">تحكم كامل في استخراج بيانات الشركات من Google Maps</p>
                     </div>
                     <div class="page-header-actions">
-                        <button class="btn btn-accent btn-sm" id="btn-toggle-scraper-header" title="تشغيل السكرابر (Maps)">
+                        <button class="btn btn-accent btn-sm" id="btn-toggle-scraper-header" onclick="ScraperPage.toggleProcess('scraper')" title="تشغيل السكرابر (Maps)">
                             <i class="fas fa-play"></i> <span>تشغيل السكرابر</span>
                         </button>
-                        <button class="btn btn-primary btn-sm" id="btn-toggle-enricher-header" title="تشغيل إثراء LinkedIn">
+                        <button class="btn btn-primary btn-sm" id="btn-toggle-enricher-header" onclick="ScraperPage.toggleProcess('enricher')" title="تشغيل إثراء LinkedIn">
                             <i class="fab fa-linkedin"></i> <span>إثراء LinkedIn</span>
                         </button>
                         <button class="btn btn-success btn-sm" id="btn-save-scraper-config" title="حفظ الإعدادات">
@@ -1553,7 +1553,7 @@
     <script src="js/calls.js?v=42001"></script>
     <script src="js/pipeline.js?v=42001"></script>
     <script src="js/reports.js?v=42001"></script>
-    <script src="js/scraper.js?v=42001"></script>
+    <script src="js/scraper.js?v=42005"></script>
     <script src="js/team.js?v=42001"></script>
     <script src="js/settings.js?v=42001"></script>
     <script src="js/app.js?v=42002"></script>

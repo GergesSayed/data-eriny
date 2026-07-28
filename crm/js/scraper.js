@@ -257,22 +257,79 @@ const ScraperPage = {
         if (this.syncInterval) clearInterval(this.syncInterval);
     },
 
+    getLocalStatsData() {
+        const companies = Storage.getCompanies() || [];
+        const total = companies.length;
+        const withPhone = companies.filter(c => c.phone1 || c.mobile).length;
+        const withLinkedin = companies.filter(c => c.linkedinUrl || c.linkedin).length;
+        
+        const stats = {};
+        companies.forEach(c => {
+            const sec = c.sector || 'other';
+            stats[sec] = (stats[sec] || 0) + 1;
+        });
+
+        const recent = companies.slice(-10);
+        const recentLinkedin = companies.filter(c => c.linkedinUrl || c.linkedin || c.contactPerson).slice(-10);
+
+        return {
+            total: total,
+            with_phone: withPhone,
+            with_linkedin: withLinkedin,
+            completed_searches_count: Math.ceil(total / 15),
+            target: 200000,
+            stats: stats,
+            recent_companies: recent,
+            recent_linkedin: recentLinkedin
+        };
+    },
+
     async fetchData() {
+        let statsData = null;
         try {
-            // Fetch progress & stats from optimized endpoint (returns counts and slices instead of 11MB file)
-            const statsResp = await fetch('http://localhost:8888/api/scraper-stats?' + Date.now());
-            let statsData = null;
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 1000);
+            const statsResp = await fetch('http://localhost:8888/api/scraper-stats?' + Date.now(), { signal: controller.signal });
+            clearTimeout(timeoutId);
             if (statsResp.ok) statsData = await statsResp.json();
+        } catch (err) {
+            // Local python server not running — fallback to browser Storage
+        }
 
-            if (statsData) {
-                this.updateUI(statsData);
+        if (!statsData) {
+            statsData = this.getLocalStatsData();
+        }
+
+        this.updateUI(statsData);
+
+        // Update live status text dynamically based on active state
+        const statusText = document.getElementById('scraper-status-text');
+        const statusDot = document.getElementById('scraper-status-dot');
+        if (statusText && statusDot) {
+            if (this.isScraperActive) {
+                statusText.textContent = `● جاري السحب والاستخراج المباشر (دفعة #${this.batchCounter || 1})`;
+                statusDot.style.background = '#10b981';
+                statusDot.style.animation = 'pulse 1.5s infinite';
+            } else if (this.isEnricherActive) {
+                statusText.textContent = `● جاري إثراء البيانات بـ LinkedIn (دفعة #${this.batchCounter || 1})`;
+                statusDot.style.background = '#0077b5';
+                statusDot.style.animation = 'pulse 1.5s infinite';
+            } else {
+                statusText.textContent = '⏸ السكرابر متوقف — اضغط تشغيل لبدء السحب';
+                statusDot.style.background = '#ef4444';
+                statusDot.style.animation = 'none';
             }
+        }
 
-            // Fetch active log text terminal
+        // Fetch active log text terminal if local server available
+        try {
             const logUrl = this.activeLog === 'scraper' 
                 ? 'http://localhost:8888/output/scraper.log'
                 : 'http://localhost:8888/output/enricher.log';
-            const logResp = await fetch(logUrl + '?' + Date.now());
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 1000);
+            const logResp = await fetch(logUrl + '?' + Date.now(), { signal: controller.signal });
+            clearTimeout(timeoutId);
             if (logResp.ok) {
                 const logText = await logResp.text();
                 const term = document.getElementById('sc-live-terminal');
@@ -281,11 +338,7 @@ const ScraperPage = {
                     term.scrollTop = term.scrollHeight;
                 }
             }
-        } catch (err) {
-            document.getElementById('scraper-status-text').textContent = '⏸ السكرابر متوقف — شغّله من الواجهة';
-            document.getElementById('scraper-status-dot').style.background = '#ef4444';
-            document.getElementById('scraper-status-dot').style.animation = 'none';
-        }
+        } catch (e) {}
     },
 
     updateUI(statsData) {
