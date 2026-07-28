@@ -618,15 +618,20 @@ const Storage = {
 
     // ---- IndexedDB helper functions ----
     async initDB() {
-        // 1. Check LocalStorage cache first
-        let cached = this._get(this.KEYS.COMPANIES);
-        if (cached && Array.isArray(cached) && cached.length > 0) {
-            this.companiesMemory = cached.map(c => {
-                c.sector = this.mapScraperSectorToCRM(c.sector);
-                c.city = this.mapScraperCityToCRM(c.city);
-                c.priority = this.calculatePriority(c.sector);
-                return c;
-            });
+        if (localStorage.getItem('fleetcrm_user_wiped_companies') === 'true') {
+            this.companiesMemory = [];
+            this._set(this.KEYS.COMPANIES, []);
+        } else {
+            // 1. Check LocalStorage cache first
+            let cached = this._get(this.KEYS.COMPANIES);
+            if (cached && Array.isArray(cached) && cached.length > 0) {
+                this.companiesMemory = cached.map(c => {
+                    c.sector = this.mapScraperSectorToCRM(c.sector);
+                    c.city = this.mapScraperCityToCRM(c.city);
+                    c.priority = this.calculatePriority(c.sector);
+                    return c;
+                });
+            }
         }
 
         // 2. Open IndexedDB and load persisted user data
@@ -944,11 +949,9 @@ const Storage = {
             const localTimestamp = parseInt(localStorage.getItem('fleetcrm_last_sync_time') || '0');
             let updated = false;
 
-            if (data.companies && Array.isArray(data.companies) && data.companies.length > 0) {
-                const pullCompanies = data.companies; // Pull 100% of all scraped master companies on all devices
-
-                if (cloudTimestamp > localTimestamp && this.companiesMemory.length === 0) {
-                    this.companiesMemory = pullCompanies.map(c => {
+            if (data.companies && Array.isArray(data.companies)) {
+                if (cloudTimestamp > localTimestamp) {
+                    this.companiesMemory = data.companies.map(c => {
                         if (!c.id) c.id = 'cloud_' + Math.random().toString(36).substr(2, 9);
                         c.sector = this.mapScraperSectorToCRM(c.sector);
                         c.city = this.mapScraperCityToCRM(c.city);
@@ -957,6 +960,12 @@ const Storage = {
                     });
                     this._set(this.KEYS.COMPANIES, this.companiesMemory);
                     this.saveAllCompaniesToDB(this.companiesMemory);
+                    localStorage.setItem('fleetcrm_last_sync_time', cloudTimestamp);
+                    if (data.companies.length === 0) {
+                        localStorage.setItem('fleetcrm_user_wiped_companies', 'true');
+                    } else {
+                        localStorage.removeItem('fleetcrm_user_wiped_companies');
+                    }
                     updated = true;
                 }
             }
@@ -1115,6 +1124,9 @@ const Storage = {
     deleteCompany(id) {
         const companies = this.getCompanies().filter(c => c.id !== id);
         this.companiesMemory = companies;
+        if (companies.length === 0) {
+            localStorage.setItem('fleetcrm_user_wiped_companies', 'true');
+        }
         this.saveAllCompaniesToDB(companies);
 
         // Also delete related calls and deals
