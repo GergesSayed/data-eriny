@@ -456,7 +456,9 @@ const Companies = {
             const esc = (s) => Storage.escapeHtml(s || '');
             const sectorLabel = Storage.getSectorLabel(c.sector);
             const cityLabel = Storage.getCityLabel(c.city);
-            const phone = esc(c.phone1 || c.mobile || '—');
+            const rawPhone = String(c.phone1 || c.mobile || c.phone2 || '');
+            const cleanPhone = rawPhone.replace(/[^0-9+]/g, '');
+            const phone = esc(rawPhone || '—');
             const mapsLink = esc(c.google_maps_url);
             const mapsIcon = mapsLink ? ` <a href="${mapsLink}" target="_blank" style="color: #ea4335; margin-right: 6px; font-size: 14px;" title="موقع الشركة على خرائط جوجل" onclick="event.stopPropagation();"><i class="fas fa-map-marker-alt"></i></a>` : '';
             const linkedinLink = esc(c.linkedinUrl || c.linkedin);
@@ -473,7 +475,7 @@ const Companies = {
             const assignedBadge = this.buildAssignedWidget(c);
 
             return `
-                <div class="company-card" data-priority="${c.priority || 'B'}" onclick="Companies.showDetail('${c.id}')">
+                <div class="company-card" data-priority="${c.priority || 'B'}" onclick="Companies.showDetail('${c.id}')" style="cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: rgba(99, 102, 241, 0.2);">
                     <div class="company-card__header">
                         <div>
                             <div class="company-card__name" style="display:flex; align-items:center;">
@@ -497,8 +499,8 @@ const Companies = {
                     </div>
                     <div class="company-card__footer" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; padding-top: 10px; border-top: 1px solid var(--border-light); margin-top: 8px;">
                         <div style="display: flex; gap: 6px; align-items: center;">
-                            ${phone && phone !== '—' ? `
-                                <a href="tel:${phone.replace(/[^0-9+]/g, '')}" class="btn btn-sm" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;" onclick="event.stopPropagation();" title="اتصال مباشر">
+                            ${cleanPhone ? `
+                                <a href="tel:${cleanPhone}" class="btn btn-sm" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;" onclick="event.stopPropagation();" title="اتصال مباشر">
                                     <i class="fas fa-phone"></i> اتصال
                                 </a>
                             ` : ''}

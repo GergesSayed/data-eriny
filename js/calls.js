@@ -262,29 +262,39 @@ const Calls = {
     },
 
     openAddModal(companyId = '') {
-        const form = document.getElementById('form-call');
-        if (form) form.reset();
+        try {
+            const form = document.getElementById('form-call');
+            if (form) form.reset();
 
-        document.getElementById('call-id').value = '';
-        document.getElementById('modal-call-title').innerHTML = '<i class="fas fa-phone-alt"></i> تسجيل مكالمة جديدة';
+            const callIdEl = document.getElementById('call-id');
+            if (callIdEl) callIdEl.value = '';
 
-        // Set today's date & time
-        document.getElementById('call-date').value = new Date().toISOString().split('T')[0];
-        const now = new Date();
-        document.getElementById('call-time').value =
-            String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+            const titleEl = document.getElementById('modal-call-title');
+            if (titleEl) titleEl.innerHTML = '<i class="fas fa-phone-alt"></i> تسجيل مكالمة جديدة';
 
-        this.populateCompanyDropdown('call-companyId', companyId);
+            const dateEl = document.getElementById('call-date');
+            if (dateEl) dateEl.value = new Date().toISOString().split('T')[0];
 
-        // Pre-fill contact person if available
-        if (companyId) {
-            const company = Storage.getCompany(companyId);
-            if (company && company.contactPerson) {
-                document.getElementById('call-contactPerson').value = company.contactPerson;
+            const now = new Date();
+            const timeEl = document.getElementById('call-time');
+            if (timeEl) {
+                timeEl.value = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
             }
-        }
 
-        App.openModal('modal-call');
+            this.populateCompanyDropdown('call-companyId', companyId);
+
+            if (companyId) {
+                const company = Storage.getCompany(companyId);
+                const contactEl = document.getElementById('call-contactPerson');
+                if (company && company.contactPerson && contactEl) {
+                    contactEl.value = company.contactPerson;
+                }
+            }
+
+            App.openModal('modal-call');
+        } catch (err) {
+            console.error('Calls.openAddModal error:', err);
+        }
     },
 
     populateCompanyDropdown(selectId, selectedCompanyId = '') {
