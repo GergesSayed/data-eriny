@@ -331,42 +331,47 @@ const Calls = {
     },
 
     save() {
-        const currentUser = Storage.getCurrentUser();
-        const companyId = document.getElementById('call-companyId')?.value;
-        const result = document.getElementById('call-result')?.value;
+        try {
+            const currentUser = Storage.getCurrentUser();
+            const companyId = document.getElementById('call-companyId')?.value;
+            const result = document.getElementById('call-result')?.value;
 
-        if (!companyId) {
-            App.showToast('⚠️ يرجى اختيار الشركة أولاً', 'warning');
-            return;
+            if (!companyId) {
+                App.showToast('⚠️ يرجى اختيار الشركة أولاً', 'warning');
+                return;
+            }
+
+            if (!result) {
+                App.showToast('⚠️ يرجى اختيار نتيجة المكالمة', 'warning');
+                return;
+            }
+
+            const call = {
+                companyId: companyId,
+                date: document.getElementById('call-date')?.value || new Date().toISOString().split('T')[0],
+                time: document.getElementById('call-time')?.value || '12:00',
+                contactPerson: document.getElementById('call-contactPerson')?.value || '',
+                result: result,
+                followUpDate: document.getElementById('call-followUpDate')?.value || '',
+                notes: document.getElementById('call-notes')?.value || '',
+                userId: currentUser ? currentUser.id : 'admin',
+                createdByName: currentUser ? currentUser.name : 'المدير العام'
+            };
+
+            const id = document.getElementById('call-id')?.value;
+            if (id) call.id = id;
+
+            Storage.saveCall(call);
+            App.closeModal('modal-call');
+            App.showToast(id ? 'تم تحديث المكالمة' : 'تم تسجيل المكالمة بنجاح', 'success');
+
+            try { this.render(); } catch (e) { console.warn('Calls.render skipped:', e); }
+            try { if (typeof Dashboard !== 'undefined') Dashboard.render(); } catch (e) {}
+            try { if (typeof Companies !== 'undefined') Companies.render(); } catch (e) {}
+        } catch (err) {
+            console.error('Calls.save() error:', err);
+            alert('خطأ في حفظ المكالمة: ' + err.message);
         }
-
-        if (!result) {
-            App.showToast('⚠️ يرجى اختيار نتيجة المكالمة', 'warning');
-            return;
-        }
-
-        const call = {
-            companyId: companyId,
-            date: document.getElementById('call-date')?.value || new Date().toISOString().split('T')[0],
-            time: document.getElementById('call-time')?.value || '12:00',
-            contactPerson: document.getElementById('call-contactPerson')?.value || '',
-            result: result,
-            followUpDate: document.getElementById('call-followUpDate')?.value || '',
-            notes: document.getElementById('call-notes')?.value || '',
-            userId: currentUser ? currentUser.id : 'admin',
-            createdByName: currentUser ? currentUser.name : 'المدير العام'
-        };
-
-        const id = document.getElementById('call-id')?.value;
-        if (id) call.id = id;
-
-        Storage.saveCall(call);
-        App.closeModal('modal-call');
-        App.showToast(id ? 'تم تحديث المكالمة' : 'تم تسجيل المكالمة بنجاح', 'success');
-
-        try { this.render(); } catch (e) { console.warn('Calls.render skipped:', e); }
-        try { if (typeof Dashboard !== 'undefined') Dashboard.render(); } catch (e) { console.warn('Dashboard.render skipped:', e); }
-        try { if (typeof Companies !== 'undefined') Companies.render(); } catch (e) { console.warn('Companies.render skipped:', e); }
     },
 
     confirmDelete(id) {

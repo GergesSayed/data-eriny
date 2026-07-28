@@ -1,17 +1,17 @@
 /* Fleet CRM — Progressive Web App Service Worker */
-const CACHE_NAME = 'fleetcrm-v42000-employee-call-modal-fix.0.0';
+const CACHE_NAME = 'fleetcrm-v42001';
 const ASSETS_TO_CACHE = [
   './index.html',
   './css/style.css',
-  './js/storage.js?v=42000-employee-call-modal-fix.0.0',
-  './js/app.js?v=42000-employee-call-modal-fix.0.0',
-  './js/companies.js?v=42000-employee-call-modal-fix.0.0',
-  './js/calls.js?v=42000-employee-call-modal-fix.0.0',
-  './js/pipeline.js?v=42000-employee-call-modal-fix.0.0',
-  './js/dashboard.js?v=42000-employee-call-modal-fix.0.0',
-  './js/reports.js?v=42000-employee-call-modal-fix.0.0',
-  './js/team.js?v=42000-employee-call-modal-fix.0.0',
-  './data/companies.json?v=42000-employee-call-modal-fix.0.0',
+  './js/storage.js?v=42001',
+  './js/app.js?v=42001',
+  './js/companies.js?v=42001',
+  './js/calls.js?v=42001',
+  './js/pipeline.js?v=42001',
+  './js/dashboard.js?v=42001',
+  './js/reports.js?v=42001',
+  './js/team.js?v=42001',
+  './data/companies.json?v=42001',
   './manifest.json'
 ];
 
