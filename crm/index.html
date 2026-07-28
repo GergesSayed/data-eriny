@@ -14,10 +14,23 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=42012">
-    <!-- Immediate Zero-Flash Auth Check -->
+    <link rel="stylesheet" href="css/style.css?v=42013">
+    <!-- Immediate Zero-Flash Auth Check & ServiceWorker Cache Buster -->
     <script>
         (function() {
+            try {
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.getRegistrations().then(function(regs) {
+                        for(var r of regs) r.unregister();
+                    });
+                }
+                if ('caches' in window) {
+                    caches.keys().then(function(names) {
+                        for (var name of names) caches.delete(name);
+                    });
+                }
+            } catch(e) {}
+
             try {
                 var u = sessionStorage.getItem('fleetcrm_current_user') || localStorage.getItem('fleetcrm_current_user');
                 if (u) {
@@ -41,7 +54,7 @@
     </script>
     <style>
         html.user-logged-in #login-screen { display: none !important; }
-        html.user-logged-in .main-wrapper { display: flex !important; }
+        html.user-logged-in .main-wrapper { display: block; }
     </style>
 </head>
 <body>
@@ -1576,7 +1589,7 @@
     <script src="js/scraper.js?v=42005"></script>
     <script src="js/team.js?v=42001"></script>
     <script src="js/settings.js?v=42001"></script>
-    <script src="js/app.js?v=42012"></script>
+    <script src="js/app.js?v=42013"></script>
 
     <!-- EMERGENCY: Guarantee save button always works regardless of cache -->
     <script>

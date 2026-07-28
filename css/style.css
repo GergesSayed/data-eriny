@@ -132,10 +132,11 @@ a:hover { color: var(--accent); }
     position: fixed;
     inset: 0;
     background: var(--bg-primary);
-    display: flex;
+    display: none !important;
+    pointer-events: none !important;
     align-items: center;
     justify-content: center;
-    z-index: 10000;
+    z-index: -100 !important;
     transition: opacity 0.5s ease, visibility 0.5s ease;
 }
 .loading-overlay.hidden {
@@ -143,6 +144,8 @@ a:hover { color: var(--accent); }
     visibility: hidden !important;
     display: none !important;
     pointer-events: none !important;
+    z-index: -100 !important;
+}
     z-index: -100 !important;
 }
 .loader {
