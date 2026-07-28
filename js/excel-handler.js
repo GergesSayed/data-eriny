@@ -44,29 +44,55 @@ const ExcelHandler = {
         this.REVERSE_MAP = {};
         Object.entries(this.COLUMN_MAP).forEach(([key, header]) => {
             this.REVERSE_MAP[header] = key;
-            // Also map by Arabic-only part
             const arPart = header.split(' / ')[0];
             this.REVERSE_MAP[arPart] = key;
-            // And English-only part
             const enPart = header.split(' / ')[1];
             if (enPart) this.REVERSE_MAP[enPart] = key;
-            // Common variations
             this.REVERSE_MAP[key] = key;
         });
-        // Additional common column name mappings
         const extras = {
-            'الشركة': 'nameAr', 'Company': 'nameAr', 'company_name': 'nameAr',
-            'الهاتف': 'phone1', 'Phone': 'phone1', 'phone': 'phone1',
-            'الإيميل': 'email', 'Email': 'email',
-            'المدينة': 'city', 'City': 'city',
-            'Fleet': 'fleetSize', 'أسطول': 'fleetSize',
-            'أولوية البيع': 'priority', 'Priority': 'priority',
-            'الموقع': 'website', 'Website': 'website'
+            'الشركة': 'nameAr', 'Company': 'nameAr', 'company_name': 'nameAr', 'اسم الشركة': 'nameAr', 'الاسم': 'nameAr', 'Name': 'nameAr',
+            'الهاتف': 'phone1', 'Phone': 'phone1', 'phone': 'phone1', 'تليفون': 'phone1', 'رقم الهاتف': 'phone1', 'موبايل': 'mobile', 'Mobile': 'mobile',
+            'الإيميل': 'email', 'Email': 'email', 'البريد': 'email',
+            'المدينة': 'city', 'City': 'city', 'المنطقة': 'city', 'Area': 'city', 'المحافظة': 'governorate',
+            'Fleet': 'fleetSize', 'أسطول': 'fleetSize', 'حجم الأسطول': 'fleetSize', 'عدد السيارات': 'fleetSize',
+            'أولوية البيع': 'priority', 'Priority': 'priority', 'الأولوية': 'priority',
+            'الموقع': 'website', 'Website': 'website', 'موقع الشركة': 'website',
+            'العنوان': 'address', 'Address': 'address',
+            'جهة الاتصال': 'contactPerson', 'المسؤول': 'contactPerson', 'Contact': 'contactPerson', 'اسم المسؤول': 'contactPerson',
+            'ملاحظات': 'notes', 'Notes': 'notes'
         };
         Object.assign(this.REVERSE_MAP, extras);
     },
 
-    // ---- Export Companies to Excel ----
+    _mapHeaderToKey(header) {
+        if (!header) return null;
+        this._buildReverseMap();
+        const trimmed = String(header).trim();
+        if (this.REVERSE_MAP[trimmed]) return this.REVERSE_MAP[trimmed];
+
+        const norm = trimmed.toLowerCase()
+            .replace(/[أإآ]/g, 'ا')
+            .replace(/ة/g, 'ه')
+            .replace(/ى/g, 'ي')
+            .replace(/[^a-z0-9\u0600-\u06FF]/gi, '');
+
+        if (norm.includes('شركة') || norm.includes('company') || norm.includes('اسم') || norm.includes('name')) return 'nameAr';
+        if (norm.includes('هاتف') || norm.includes('تليفون') || norm.includes('موبايل') || norm.includes('phone') || norm.includes('mobile') || norm.includes('tel')) return 'phone1';
+        if (norm.includes('قطاع') || norm.includes('نشاط') || norm.includes('sector')) return 'sector';
+        if (norm.includes('مدينة') || norm.includes('منطقة') || norm.includes('محافظة') || norm.includes('city') || norm.includes('area') || norm.includes('location')) return 'city';
+        if (norm.includes('اسطول') || norm.includes('سيارات') || norm.includes('fleet')) return 'fleetSize';
+        if (norm.includes('عنوان') || norm.includes('address')) return 'address';
+        if (norm.includes('إيميل') || norm.includes('اميل') || norm.includes('بريد') || norm.includes('email')) return 'email';
+        if (norm.includes('موقع') || norm.includes('site') || norm.includes('web')) return 'website';
+        if (norm.includes('مسؤول') || norm.includes('جهة') || norm.includes('اتصال') || norm.includes('contact')) return 'contactPerson';
+        if (norm.includes('ملاحظ') || norm.includes('note')) return 'notes';
+        if (norm.includes('اولوية') || norm.includes('priority')) return 'priority';
+
+        return null;
+    },
+
+    // ---- Export Companies to Excel / CSV ----
     triggerImport() {
         let input = document.getElementById('excel-file-input');
         if (!input) {
@@ -104,8 +130,10 @@ const ExcelHandler = {
             App.showToast('⚠️ لا توجد شركات للتصدير', 'warning');
             return;
         }
+
+        // Native CSV Fallback if SheetJS library isn't loaded
         if (!window.XLSX) {
-            App.showToast('مكتبة Excel غير متاحة', 'error');
+            this._exportCSVFallback(companies, filename);
             return;
         }
 
@@ -116,7 +144,6 @@ const ExcelHandler = {
             const row = {};
             keys.forEach((key, i) => {
                 let value = comp[key] || '';
-                // Translate coded values
                 if (key === 'sector' && value) {
                     const s = Storage.SECTORS[value];
                     value = s ? s.ar : value;
@@ -135,8 +162,6 @@ const ExcelHandler = {
         });
 
         const ws = XLSX.utils.json_to_sheet(data);
-
-        // Set column widths
         ws['!cols'] = headers.map(h => ({ wch: Math.max(h.length, 15) }));
 
         const wb = XLSX.utils.book_new();
@@ -180,28 +205,56 @@ const ExcelHandler = {
             XLSX.utils.book_append_sheet(wb, ws4, 'سجل المكالمات');
         }
 
-        // Download
         const dateStr = new Date().toISOString().split('T')[0];
         XLSX.writeFile(wb, `${filename}_${dateStr}.xlsx`);
-        App.showToast(`تم تصدير ${companies.length} شركة إلى Excel`, 'success');
+        App.showToast(`تم تصدير ${companies.length} شركة إلى Excel بنجاح`, 'success');
     },
 
-    // ---- Import Companies from Excel ----
-    importCompanies(file, callback) {
-        if (!window.XLSX) {
-            App.showToast('مكتبة Excel غير متاحة', 'error');
-            return;
-        }
+    _exportCSVFallback(companies, filename) {
+        const headers = Object.values(this.COLUMN_MAP);
+        const keys = Object.keys(this.COLUMN_MAP);
 
+        let csvContent = '\uFEFF' + headers.map(h => `"${h}"`).join(',') + '\n';
+
+        companies.forEach(comp => {
+            const row = keys.map(key => {
+                let val = comp[key] || '';
+                if (key === 'sector' && val && Storage.SECTORS[val]) val = Storage.SECTORS[val].ar;
+                if (key === 'city' && val && Storage.CITIES[val]) val = Storage.CITIES[val].ar;
+                if (key === 'fleetType' && val && Storage.FLEET_TYPES[val]) val = Storage.FLEET_TYPES[val].ar;
+                const str = String(val).replace(/"/g, '""');
+                return `"${str}"`;
+            });
+            csvContent += row.join(',') + '\n';
+        });
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${filename}_${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+        App.showToast(`تم تصدير ${companies.length} شركة إلى ملف CSV بنجاح`, 'success');
+    },
+
+    // ---- Import Companies from Excel / CSV ----
+    importCompanies(file, callback) {
         this._buildReverseMap();
+
+        const isCsv = file.name.endsWith('.csv');
 
         const reader = new FileReader();
         reader.onload = (e) => {
             try {
+                if (!window.XLSX || isCsv) {
+                    const text = new TextDecoder('utf-8').decode(e.target.result);
+                    this._importTextRows(text, callback);
+                    return;
+                }
+
                 const data = new Uint8Array(e.target.result);
                 const workbook = XLSX.read(data, { type: 'array' });
-
-                // Read first sheet
                 const sheetName = workbook.SheetNames[0];
                 const sheet = workbook.Sheets[sheetName];
                 const rows = XLSX.utils.sheet_to_json(sheet);
@@ -212,62 +265,92 @@ const ExcelHandler = {
                     return;
                 }
 
-                // Map columns
                 const companies = rows.map(row => {
                     const company = {};
                     Object.entries(row).forEach(([header, value]) => {
-                        const key = this.REVERSE_MAP[header.trim()];
-                        if (key) {
-                            company[key] = value;
+                        const key = this._mapHeaderToKey(header);
+                        if (key && value !== undefined && value !== null) {
+                            company[key] = String(value).trim();
                         }
                     });
 
-                    // Reverse-translate sector
-                    if (company.sector) {
+                    if (company.sector && Storage.SECTORS) {
                         const sectorEntry = Object.entries(Storage.SECTORS).find(
                             ([k, v]) => v.ar === company.sector || v.en === company.sector || k === company.sector
                         );
                         if (sectorEntry) company.sector = sectorEntry[0];
                     }
 
-                    // Reverse-translate city
-                    if (company.city) {
+                    if (company.city && Storage.CITIES) {
                         const cityEntry = Object.entries(Storage.CITIES).find(
                             ([k, v]) => v.ar === company.city || v.en === company.city || k === company.city
                         );
                         if (cityEntry) company.city = cityEntry[0];
                     }
 
-                    // Reverse-translate fleet type
-                    if (company.fleetType) {
+                    if (company.fleetType && Storage.FLEET_TYPES) {
                         const ftEntry = Object.entries(Storage.FLEET_TYPES).find(
                             ([k, v]) => v.ar === company.fleetType || v.en === company.fleetType || k === company.fleetType
                         );
                         if (ftEntry) company.fleetType = ftEntry[0];
                     }
 
-                    // Convert numbers
                     if (company.fleetSize) company.fleetSize = parseInt(company.fleetSize) || 0;
                     if (company.branchesCount) company.branchesCount = parseInt(company.branchesCount) || 0;
 
-                    // Calculate priority based on sector if not explicitly provided
                     if (!company.priority || !['A', 'B', 'C'].includes(company.priority)) {
                         company.priority = Storage.calculatePriority(Storage.mapScraperSectorToCRM(company.sector));
                     }
 
                     return company;
-                }).filter(c => c.nameAr || c.nameEn); // Must have at least a name
+                }).filter(c => (c.nameAr && c.nameAr.length > 0) || (c.nameEn && c.nameEn.length > 0) || (c.phone1 && c.phone1.length > 0));
 
                 const addedCount = Storage.importCompanies(companies);
-                App.showToast(`تم استيراد ${addedCount} شركة جديدة (تم تجاهل ${companies.length - addedCount} مكرر)`, 'success');
+                App.showToast(`تم استيراد ${addedCount} شركة جديدة بنجاح!`, 'success');
                 if (callback) callback(addedCount);
             } catch (err) {
                 console.error('Import error:', err);
-                App.showToast('خطأ في قراءة الملف: ' + err.message, 'error');
-                if (callback) callback(0);
+                // Fallback to text parsing if XLSX.read failed
+                try {
+                    const text = new TextDecoder('utf-8').decode(e.target.result);
+                    this._importTextRows(text, callback);
+                } catch (e2) {
+                    App.showToast('خطأ في قراءة الملف: ' + err.message, 'error');
+                    if (callback) callback(0);
+                }
             }
         };
         reader.readAsArrayBuffer(file);
+    },
+
+    _importTextRows(text, callback) {
+        const lines = text.split(/\r\n|\n/).filter(l => l.trim().length > 0);
+        if (lines.length <= 1) {
+            App.showToast('الملف فارغ أو غير مالي ببيانات', 'warning');
+            if (callback) callback(0);
+            return;
+        }
+
+        const headers = lines[0].split(',').map(h => h.replace(/^["']|["']$/g, '').trim());
+        const companies = [];
+
+        for (let i = 1; i < lines.length; i++) {
+            const values = lines[i].split(',').map(v => v.replace(/^["']|["']$/g, '').trim());
+            const company = {};
+            headers.forEach((header, idx) => {
+                const key = this._mapHeaderToKey(header);
+                if (key && values[idx] !== undefined && values[idx] !== '') {
+                    company[key] = values[idx];
+                }
+            });
+            if (company.nameAr || company.nameEn || company.phone1) {
+                companies.push(company);
+            }
+        }
+
+        const addedCount = Storage.importCompanies(companies);
+        App.showToast(`تم استيراد ${addedCount} شركة بنجاح!`, 'success');
+        if (callback) callback(addedCount);
     },
 
     // ---- Export Calls to Excel ----

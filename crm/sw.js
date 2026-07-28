@@ -1,17 +1,17 @@
 /* Fleet CRM — Progressive Web App Service Worker */
-const CACHE_NAME = 'fleetcrm-v18000-cloud-master-priority-excel-fix.0.0';
+const CACHE_NAME = 'fleetcrm-v19000-excel-fuzzy-matching-and-native-csv-fallback.0.0';
 const ASSETS_TO_CACHE = [
   './index.html',
   './css/style.css',
-  './js/storage.js?v=18000-cloud-master-priority-excel-fix.0.0',
-  './js/app.js?v=18000-cloud-master-priority-excel-fix.0.0',
-  './js/companies.js?v=18000-cloud-master-priority-excel-fix.0.0',
-  './js/calls.js?v=18000-cloud-master-priority-excel-fix.0.0',
-  './js/pipeline.js?v=18000-cloud-master-priority-excel-fix.0.0',
-  './js/dashboard.js?v=18000-cloud-master-priority-excel-fix.0.0',
-  './js/reports.js?v=18000-cloud-master-priority-excel-fix.0.0',
-  './js/team.js?v=18000-cloud-master-priority-excel-fix.0.0',
-  './data/companies.json?v=18000-cloud-master-priority-excel-fix.0.0',
+  './js/storage.js?v=19000-excel-fuzzy-matching-and-native-csv-fallback.0.0',
+  './js/app.js?v=19000-excel-fuzzy-matching-and-native-csv-fallback.0.0',
+  './js/companies.js?v=19000-excel-fuzzy-matching-and-native-csv-fallback.0.0',
+  './js/calls.js?v=19000-excel-fuzzy-matching-and-native-csv-fallback.0.0',
+  './js/pipeline.js?v=19000-excel-fuzzy-matching-and-native-csv-fallback.0.0',
+  './js/dashboard.js?v=19000-excel-fuzzy-matching-and-native-csv-fallback.0.0',
+  './js/reports.js?v=19000-excel-fuzzy-matching-and-native-csv-fallback.0.0',
+  './js/team.js?v=19000-excel-fuzzy-matching-and-native-csv-fallback.0.0',
+  './data/companies.json?v=19000-excel-fuzzy-matching-and-native-csv-fallback.0.0',
   './manifest.json'
 ];
 
