@@ -895,6 +895,25 @@ const App = {
         }
     },
 
+    confirm(title, message, onConfirm) {
+        const titleEl = document.getElementById('modal-confirm-title') || document.querySelector('#modal-confirm .modal-header h3');
+        const msgEl = document.getElementById('confirm-message');
+        const confirmBtn = document.getElementById('btn-confirm-action');
+
+        if (titleEl && title) titleEl.innerHTML = title;
+        if (msgEl && message) msgEl.textContent = message;
+
+        if (confirmBtn) {
+            confirmBtn.onclick = () => {
+                this.closeModal('modal-confirm');
+                if (typeof onConfirm === 'function') {
+                    onConfirm();
+                }
+            };
+        }
+        this.openModal('modal-confirm');
+    },
+
     // ---- Toast Notifications ----
     showToast(message, type = 'info') {
         const container = document.getElementById('toast-container');

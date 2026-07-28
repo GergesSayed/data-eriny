@@ -136,10 +136,16 @@ const Companies = {
     },
 
     confirmWipeAllCompanies() {
+        if (!Storage.isAdmin()) {
+            App.showToast('🔒 مسح الشركات مقتصر على المدير العام فقط', 'warning');
+            return;
+        }
         App.confirm('⚠️ مسح جميع الشركات بالكامل', 'هل أنت متأكد من رغبتك في مسح وتفريغ جميع الشركات من المنظومة والسحابة بالكامل؟ لا يمكن التراجع عن هذا الإجراء.', () => {
             Storage.deleteAllCompanies();
             this.currentPage = 1;
+            this.selectedCompanies.clear();
             this.render();
+            if (typeof Dashboard !== 'undefined') Dashboard.render();
             App.showToast('تم مسح وتفريغ جميع الشركات بالكامل بنجاح', 'success');
         });
     },
@@ -781,19 +787,12 @@ const Companies = {
         const company = Storage.getCompany(id);
         if (!company) return;
 
-        document.getElementById('confirm-message').textContent =
-            `هل أنت متأكد من حذف "${company.nameAr}"؟ سيتم حذف جميع المكالمات والصفقات المرتبطة بها.`;
-
-        const confirmBtn = document.getElementById('btn-confirm-action');
-        confirmBtn.onclick = () => {
+        App.confirm('🗑️ حذف الشركة', `هل أنت متأكد من حذف "${company.nameAr || company.nameEn}"؟ سيتم حذف جميع المكالمات والصفقات المرتبطة بها.`, () => {
             Storage.deleteCompany(id);
-            App.closeModal('modal-confirm');
-            App.showToast('تم حذف الشركة', 'success');
+            App.showToast('تم حذف الشركة بنجاح', 'success');
             this.render();
-            Dashboard.render();
-        };
-
-        App.openModal('modal-confirm');
+            if (typeof Dashboard !== 'undefined') Dashboard.render();
+        });
     },
 
     showDetail(id) {
