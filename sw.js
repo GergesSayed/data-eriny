@@ -1,17 +1,17 @@
 /* Fleet CRM — Progressive Web App Service Worker */
-const CACHE_NAME = 'fleetcrm-v30000-data-companies-json-emptied-permanently.0.0';
+const CACHE_NAME = 'fleetcrm-v31000-real-curated-companies-imported.0.0';
 const ASSETS_TO_CACHE = [
   './index.html',
   './css/style.css',
-  './js/storage.js?v=30000-data-companies-json-emptied-permanently.0.0',
-  './js/app.js?v=30000-data-companies-json-emptied-permanently.0.0',
-  './js/companies.js?v=30000-data-companies-json-emptied-permanently.0.0',
-  './js/calls.js?v=30000-data-companies-json-emptied-permanently.0.0',
-  './js/pipeline.js?v=30000-data-companies-json-emptied-permanently.0.0',
-  './js/dashboard.js?v=30000-data-companies-json-emptied-permanently.0.0',
-  './js/reports.js?v=30000-data-companies-json-emptied-permanently.0.0',
-  './js/team.js?v=30000-data-companies-json-emptied-permanently.0.0',
-  './data/companies.json?v=30000-data-companies-json-emptied-permanently.0.0',
+  './js/storage.js?v=31000-real-curated-companies-imported.0.0',
+  './js/app.js?v=31000-real-curated-companies-imported.0.0',
+  './js/companies.js?v=31000-real-curated-companies-imported.0.0',
+  './js/calls.js?v=31000-real-curated-companies-imported.0.0',
+  './js/pipeline.js?v=31000-real-curated-companies-imported.0.0',
+  './js/dashboard.js?v=31000-real-curated-companies-imported.0.0',
+  './js/reports.js?v=31000-real-curated-companies-imported.0.0',
+  './js/team.js?v=31000-real-curated-companies-imported.0.0',
+  './data/companies.json?v=31000-real-curated-companies-imported.0.0',
   './manifest.json'
 ];
 
