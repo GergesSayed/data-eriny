@@ -742,6 +742,7 @@ const Storage = {
     deleteAllCompanies() {
         this.companiesMemory = [];
         this._set(this.KEYS.COMPANIES, []);
+        localStorage.setItem('fleetcrm_user_wiped_companies', 'true');
         
         // Clear IndexedDB store
         try {
@@ -770,6 +771,11 @@ const Storage = {
     },
 
     async _seedInitialJsonData() {
+        if (localStorage.getItem('fleetcrm_user_wiped_companies') === 'true') {
+            this.companiesMemory = [];
+            this._set(this.KEYS.COMPANIES, []);
+            return;
+        }
         if (this.companiesMemory && this.companiesMemory.length > 0) return;
 
         // 1. Prioritize Supabase Cloud Master Dataset on empty cache / new device
@@ -804,6 +810,12 @@ const Storage = {
 
     loadCompaniesFromDB(db) {
         return new Promise((resolve) => {
+            if (localStorage.getItem('fleetcrm_user_wiped_companies') === 'true') {
+                this.companiesMemory = [];
+                this._set(this.KEYS.COMPANIES, []);
+                resolve();
+                return;
+            }
             try {
                 const transaction = db.transaction(['companies'], 'readonly');
                 const store = transaction.objectStore('companies');
@@ -899,12 +911,12 @@ const Storage = {
 
     autoSyncTimer: null,
     autoSyncToCloud(companies) {
-        if (!companies || companies.length === 0) return;
+        if (!Array.isArray(companies)) return;
         if (!window.SupabaseClient) return;
         clearTimeout(this.autoSyncTimer);
         this.autoSyncTimer = setTimeout(async () => {
             try {
-                const quickHash = companies.length + '_' + (companies[0]?.id || '');
+                const quickHash = companies.length + '_' + (companies[0]?.id || 'empty');
                 if (quickHash === localStorage.getItem('fleetcrm_last_synced_hash')) return;
 
                 const ok = await window.SupabaseClient.pushMasterData({
@@ -919,7 +931,7 @@ const Storage = {
                     localStorage.setItem('fleetcrm_last_sync_time', Date.now());
                 }
             } catch (err) {}
-        }, 3000);
+        }, 1500);
     },
 
     async pullFromCloud() {
@@ -1134,6 +1146,9 @@ const Storage = {
                 addedCount++;
             }
         });
+        if (addedCount > 0) {
+            localStorage.removeItem('fleetcrm_user_wiped_companies');
+        }
         this.companiesMemory = existing;
         this.saveAllCompaniesToDB(existing);
         return addedCount;

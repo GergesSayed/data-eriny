@@ -1,17 +1,17 @@
 /* Fleet CRM — Progressive Web App Service Worker */
-const CACHE_NAME = 'fleetcrm-v25000-wipe-all-companies-executed.0.0';
+const CACHE_NAME = 'fleetcrm-v27000-companies-wipe-permanence-fixed.0.0';
 const ASSETS_TO_CACHE = [
   './index.html',
   './css/style.css',
-  './js/storage.js?v=25000-wipe-all-companies-executed.0.0',
-  './js/app.js?v=25000-wipe-all-companies-executed.0.0',
-  './js/companies.js?v=25000-wipe-all-companies-executed.0.0',
-  './js/calls.js?v=25000-wipe-all-companies-executed.0.0',
-  './js/pipeline.js?v=25000-wipe-all-companies-executed.0.0',
-  './js/dashboard.js?v=25000-wipe-all-companies-executed.0.0',
-  './js/reports.js?v=25000-wipe-all-companies-executed.0.0',
-  './js/team.js?v=25000-wipe-all-companies-executed.0.0',
-  './data/companies.json?v=25000-wipe-all-companies-executed.0.0',
+  './js/storage.js?v=27000-companies-wipe-permanence-fixed.0.0',
+  './js/app.js?v=27000-companies-wipe-permanence-fixed.0.0',
+  './js/companies.js?v=27000-companies-wipe-permanence-fixed.0.0',
+  './js/calls.js?v=27000-companies-wipe-permanence-fixed.0.0',
+  './js/pipeline.js?v=27000-companies-wipe-permanence-fixed.0.0',
+  './js/dashboard.js?v=27000-companies-wipe-permanence-fixed.0.0',
+  './js/reports.js?v=27000-companies-wipe-permanence-fixed.0.0',
+  './js/team.js?v=27000-companies-wipe-permanence-fixed.0.0',
+  './data/companies.json?v=27000-companies-wipe-permanence-fixed.0.0',
   './manifest.json'
 ];
 
