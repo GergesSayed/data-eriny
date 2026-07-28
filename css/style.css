@@ -2496,6 +2496,11 @@ html.user-logged-in .login-screen-bg {
         -webkit-backdrop-filter: none !important;
         background: rgba(0, 0, 0, 0.65) !important;
     }
+    .sidebar-overlay:not(.active) {
+        display: none !important;
+        pointer-events: none !important;
+        visibility: hidden !important;
+    }
 
     #toggle-sidebar {
         touch-action: manipulation !important;

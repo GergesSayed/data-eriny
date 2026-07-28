@@ -656,10 +656,7 @@ const App = {
         }
 
         // Close sidebar + overlay on mobile navigation
-        if (window.innerWidth <= 1024) {
-            document.getElementById('sidebar')?.classList.remove('open');
-            document.getElementById('sidebar-overlay')?.classList.remove('active');
-        }
+        this.closeSidebar();
     },
 
     refreshCurrentPage() {
