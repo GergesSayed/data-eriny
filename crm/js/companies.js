@@ -63,20 +63,22 @@ const Companies = {
         }
     },
 
+    onFilterChange() {
+        this.currentPage = 1;
+        this.render();
+    },
+
     bindEvents() {
         // Filters
-        document.getElementById('filter-sector')?.addEventListener('change', () => this.render());
-        document.getElementById('filter-city')?.addEventListener('change', () => this.render());
-        document.getElementById('filter-priority')?.addEventListener('change', () => this.render());
-        document.getElementById('filter-fleet-type')?.addEventListener('change', () => this.render());
-        document.getElementById('filter-fleet-size')?.addEventListener('change', () => this.render());
-        document.getElementById('filter-added-date')?.addEventListener('change', () => this.render());
-        document.getElementById('filter-sort')?.addEventListener('change', () => this.render());
-        document.getElementById('filter-assigned')?.addEventListener('change', () => this.render());
-        document.getElementById('filter-search')?.addEventListener('input', () => {
-            this.currentPage = 1;
-            this.render();
-        });
+        document.getElementById('filter-sector')?.addEventListener('change', () => this.onFilterChange());
+        document.getElementById('filter-city')?.addEventListener('change', () => this.onFilterChange());
+        document.getElementById('filter-priority')?.addEventListener('change', () => this.onFilterChange());
+        document.getElementById('filter-fleet-type')?.addEventListener('change', () => this.onFilterChange());
+        document.getElementById('filter-fleet-size')?.addEventListener('change', () => this.onFilterChange());
+        document.getElementById('filter-added-date')?.addEventListener('change', () => this.onFilterChange());
+        document.getElementById('filter-sort')?.addEventListener('change', () => this.onFilterChange());
+        document.getElementById('filter-assigned')?.addEventListener('change', () => this.onFilterChange());
+        document.getElementById('filter-search')?.addEventListener('input', () => this.onFilterChange());
         document.getElementById('btn-clear-filters')?.addEventListener('click', () => this.clearFilters());
 
         // View toggle
@@ -97,6 +99,7 @@ const Companies = {
                     this.sortField = field;
                     this.sortDir = 'asc';
                 }
+                this.currentPage = 1;
                 this.render();
             });
         });
@@ -139,6 +142,17 @@ const Companies = {
         });
         const sortSelect = document.getElementById('filter-sort');
         if (sortSelect) sortSelect.value = 'latest';
+
+        document.querySelectorAll('.company-quick-pill').forEach(b => {
+            b.style.opacity = '0.6';
+            b.classList.remove('active');
+        });
+        const firstPill = document.querySelector('.company-quick-pill');
+        if (firstPill) {
+            firstPill.style.opacity = '1';
+            firstPill.classList.add('active');
+        }
+
         this.currentPage = 1;
         this.sortField = 'createdAt';
         this.sortDir = 'desc';

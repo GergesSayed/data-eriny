@@ -14,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=22000-modal-confirm-close-fix.0.0">
+    <link rel="stylesheet" href="css/style.css?v=23000-companies-filters-onchange-reset-page.0.0">
     <!-- Immediate Zero-Flash Auth Check -->
     <script>
         (function() {
@@ -410,27 +410,27 @@
                 <!-- Filters -->
                 <div class="filters-bar">
                     <div class="filter-group">
-                        <select id="filter-sector" class="filter-select">
+                        <select id="filter-sector" class="filter-select" onchange="Companies.onFilterChange()">
                             <option value="">كل القطاعات</option>
-                            <option value="transport">?? نقل وشحن</option>
-                            <option value="food">?? أغذية ومشروبات</option>
-                            <option value="pharma">?? أدوية</option>
-                            <option value="construction">??? مقاولات</option>
-                            <option value="petroleum">??? بترول وطاقة</option>
-                            <option value="distribution">?? توزيع ولوجستيات</option>
-                            <option value="security">??? أمن وحراسة</option>
-                            <option value="rental">?? تأجير سيارات</option>
-                            <option value="manufacturing">?? مصانع</option>
-                            <option value="education">?? مدارس وجامعات</option>
-                            <option value="healthcare">?? مستشفيات</option>
-                            <option value="tourism">?? سياحة</option>
-                            <option value="public_transport">?? نقل جماعي</option>
-                            <option value="delivery">?? توصيل ودليفري</option>
-                            <option value="government">??? جهات حكومية</option>
+                            <option value="transport">🚚 نقل وشحن</option>
+                            <option value="food">🥫 أغذية ومشروبات</option>
+                            <option value="pharma">💊 أدوية</option>
+                            <option value="construction">🏗️ مقاولات</option>
+                            <option value="petroleum">⛽ بترول وطاقة</option>
+                            <option value="distribution">📦 توزيع ولوجستيات</option>
+                            <option value="security">🛡️ أمن وحراسة</option>
+                            <option value="rental">🚗 تأجير سيارات</option>
+                            <option value="manufacturing">🏭 مصانع</option>
+                            <option value="education">🎓 مدارس وجامعات</option>
+                            <option value="healthcare">🏥 مستشفيات</option>
+                            <option value="tourism">🏨 سياحة</option>
+                            <option value="public_transport">🚌 نقل جماعي</option>
+                            <option value="delivery">🛵 توصيل ودليفري</option>
+                            <option value="government">🏛️ جهات حكومية</option>
                         </select>
                     </div>
                     <div class="filter-group">
-                        <select id="filter-city" class="filter-select">
+                        <select id="filter-city" class="filter-select" onchange="Companies.onFilterChange()">
                             <option value="">كل المناطق</option>
                             <option value="cairo">القاهرة</option>
                             <option value="giza">الجيزة</option>
@@ -446,15 +446,15 @@
                         </select>
                     </div>
                     <div class="filter-group">
-                        <select id="filter-priority" class="filter-select">
+                        <select id="filter-priority" class="filter-select" onchange="Companies.onFilterChange()">
                             <option value="">كل الأولويات</option>
-                            <option value="A">?? أولوية A (عالية)</option>
-                            <option value="B">?? أولوية B (متوسطة)</option>
-                            <option value="C">?? أولوية C (منخفضة)</option>
+                            <option value="A">🔴 أولوية A (عالية)</option>
+                            <option value="B">🟡 أولوية B (متوسطة)</option>
+                            <option value="C">🟢 أولوية C (منخفضة)</option>
                         </select>
                     </div>
                     <div class="filter-group">
-                        <select id="filter-fleet-type" class="filter-select">
+                        <select id="filter-fleet-type" class="filter-select" onchange="Companies.onFilterChange()">
                             <option value="">كل أنواع الأساطيل</option>
                             <option value="heavy">نقل ثقيل</option>
                             <option value="light">نقل خفيف</option>
@@ -463,44 +463,44 @@
                         </select>
                     </div>
                     <div class="filter-group">
-                        <select id="filter-fleet-size" class="filter-select" style="border:1px solid #10b981; font-weight:700;">
-                            <option value="">?? حجم الأسطول (الكل)</option>
-                            <option value="large_fleet">?? أساطيل كبرى ضخمة (50+ مركبة)</option>
-                            <option value="medium_fleet">?? أساطيل متوسطة (15 - 49 مركبة)</option>
-                            <option value="small_fleet">?? أساطيل صغيرة (< 15 مركبة)</option>
-                            <option value="no_fleet">? أساطيل غير محددة / جديدة</option>
+                        <select id="filter-fleet-size" class="filter-select" onchange="Companies.onFilterChange()" style="border:1px solid #10b981; font-weight:700;">
+                            <option value="">🚛 حجم الأسطول (الكل)</option>
+                            <option value="large_fleet">🏆 أساطيل كبرى ضخمة (50+ مركبة)</option>
+                            <option value="medium_fleet">🚚 أساطيل متوسطة (15 - 49 مركبة)</option>
+                            <option value="small_fleet">🚐 أساطيل صغيرة (&lt; 15 مركبة)</option>
+                            <option value="no_fleet">❓ أساطيل غير محددة / جديدة</option>
                         </select>
                     </div>
                     <div class="filter-group">
-                        <select id="filter-added-date" class="filter-select" style="border:1px solid #06b6d4; font-weight:700;">
-                            <option value="">?? تاريخ الإضافة (الكل)</option>
-                            <option value="today">? مضافة اليوم</option>
-                            <option value="recent_7days">?? مضافة حديثاً (آخر 7 أيام)</option>
-                            <option value="recent_30days">??? مضافة هذا الشهر (آخر 30 يوم)</option>
+                        <select id="filter-added-date" class="filter-select" onchange="Companies.onFilterChange()" style="border:1px solid #06b6d4; font-weight:700;">
+                            <option value="">📅 تاريخ الإضافة (الكل)</option>
+                            <option value="today">⚡ مضافة اليوم</option>
+                            <option value="recent_7days">✨ مضافة حديثاً (آخر 7 أيام)</option>
+                            <option value="recent_30days">🗓️ مضافة هذا الشهر (آخر 30 يوم)</option>
                         </select>
                     </div>
                     <div class="filter-group">
-                        <select id="filter-sort" class="filter-select" style="border:1px solid #3b82f6; font-weight:700;">
-                            <option value="latest">?? الأحدث إضافة أولاً</option>
-                            <option value="oldest">?? الأقدم إضافة أولاً</option>
-                            <option value="fleet_desc">?? الأكثر حجماً في الأسطول (الأكبر أولاً)</option>
-                            <option value="fleet_asc">?? الأقل حجماً في الأسطول (الأصغر أولاً)</option>
-                            <option value="priority">?? حسب الأولوية (A -> C)</option>
-                            <option value="name">?? حسب الاسم أبجدي</option>
+                        <select id="filter-sort" class="filter-select" onchange="Companies.onFilterChange()" style="border:1px solid #3b82f6; font-weight:700;">
+                            <option value="latest">🆕 الأحدث إضافة أولاً</option>
+                            <option value="oldest">📜 الأقدم إضافة أولاً</option>
+                            <option value="fleet_desc">🚛 الأكثر حجماً في الأسطول (الأكبر أولاً)</option>
+                            <option value="fleet_asc">🚐 الأقل حجماً في الأسطول (الأصغر أولاً)</option>
+                            <option value="priority">🎯 حسب الأولوية (A -&gt; C)</option>
+                            <option value="name">🔤 حسب الاسم أبجدي</option>
                         </select>
                     </div>
                     <div class="filter-group" id="filter-assigned-group">
-                        <select id="filter-assigned" class="filter-select" style="border:1px solid #7c3aed;">
-                            <option value="">?? كل الموظفين / المسند إليهم</option>
-                            <option value="my_leads">? شركاتي أنا فقط (My Leads)</option>
-                            <option value="unassigned">? غير مسندة لأحد (Unassigned)</option>
+                        <select id="filter-assigned" class="filter-select" onchange="Companies.onFilterChange()" style="border:1px solid #7c3aed;">
+                            <option value="">👤 كل الموظفين / المسند إليهم</option>
+                            <option value="my_leads">⭐ شركاتي أنا فقط (My Leads)</option>
+                            <option value="unassigned">⚪ غير مسندة لأحد (Unassigned)</option>
                         </select>
                     </div>
                     <div class="filter-group search-filter">
                         <i class="fas fa-search"></i>
-                        <input type="text" id="filter-search" placeholder="بحث بالاسم أو الرقم...">
+                        <input type="text" id="filter-search" placeholder="بحث بالاسم أو الرقم..." oninput="Companies.onFilterChange()">
                     </div>
-                    <button class="btn btn-ghost btn-sm" id="btn-clear-filters">
+                    <button class="btn btn-ghost btn-sm" id="btn-clear-filters" onclick="Companies.clearFilters()">
                         <i class="fas fa-times"></i> مسح الفلاتر
                     </button>
                 </div>
@@ -1542,17 +1542,17 @@
         }
     </script>
 
-    <script src="js/supabase-client.js?v=22000-modal-confirm-close-fix.0.0"></script>
-    <script src="js/storage.js?v=22000-modal-confirm-close-fix.0.0"></script>
-    <script src="js/excel-handler.js?v=22000-modal-confirm-close-fix.0.0"></script>
-    <script src="js/dashboard.js?v=22000-modal-confirm-close-fix.0.0"></script>
-    <script src="js/companies.js?v=22000-modal-confirm-close-fix.0.0"></script>
-    <script src="js/calls.js?v=22000-modal-confirm-close-fix.0.0"></script>
-    <script src="js/pipeline.js?v=22000-modal-confirm-close-fix.0.0"></script>
-    <script src="js/reports.js?v=22000-modal-confirm-close-fix.0.0"></script>
-    <script src="js/scraper.js?v=22000-modal-confirm-close-fix.0.0"></script>
-    <script src="js/team.js?v=22000-modal-confirm-close-fix.0.0"></script>
-    <script src="js/settings.js?v=22000-modal-confirm-close-fix.0.0"></script>
-    <script src="js/app.js?v=22000-modal-confirm-close-fix.0.0"></script>
+    <script src="js/supabase-client.js?v=23000-companies-filters-onchange-reset-page.0.0"></script>
+    <script src="js/storage.js?v=23000-companies-filters-onchange-reset-page.0.0"></script>
+    <script src="js/excel-handler.js?v=23000-companies-filters-onchange-reset-page.0.0"></script>
+    <script src="js/dashboard.js?v=23000-companies-filters-onchange-reset-page.0.0"></script>
+    <script src="js/companies.js?v=23000-companies-filters-onchange-reset-page.0.0"></script>
+    <script src="js/calls.js?v=23000-companies-filters-onchange-reset-page.0.0"></script>
+    <script src="js/pipeline.js?v=23000-companies-filters-onchange-reset-page.0.0"></script>
+    <script src="js/reports.js?v=23000-companies-filters-onchange-reset-page.0.0"></script>
+    <script src="js/scraper.js?v=23000-companies-filters-onchange-reset-page.0.0"></script>
+    <script src="js/team.js?v=23000-companies-filters-onchange-reset-page.0.0"></script>
+    <script src="js/settings.js?v=23000-companies-filters-onchange-reset-page.0.0"></script>
+    <script src="js/app.js?v=23000-companies-filters-onchange-reset-page.0.0"></script>
 </body>
 </html>
