@@ -1029,9 +1029,10 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
 
 // ---- Global Error Handler ----
 window.addEventListener('error', (e) => {
-    console.error('Global error caught:', e.message, 'in', e.filename, 'line', e.lineno);
+    const detail = `${e.message} | ${(e.filename||'').split('/').pop()}:${e.lineno}`;
+    console.error('Global error caught:', detail);
     if (typeof App !== 'undefined' && App.showToast) {
-        App.showToast('⚠️ حدث خطأ غير متوقع في النظام', 'error');
+        App.showToast('⚠️ خطأ: ' + detail, 'error');
     }
 });
 
