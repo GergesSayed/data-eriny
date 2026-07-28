@@ -14,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=21000-prevent-detail-modal-bubbling.0.0">
+    <link rel="stylesheet" href="css/style.css?v=22000-modal-confirm-close-fix.0.0">
     <!-- Immediate Zero-Flash Auth Check -->
     <script>
         (function() {
@@ -1469,17 +1469,17 @@
 
     <!-- Confirm Modal -->
     <div id="modal-confirm" class="modal">
-        <div class="modal-overlay"></div>
+        <div class="modal-overlay" onclick="App.closeModal('modal-confirm')"></div>
         <div class="modal-dialog modal-sm">
             <div class="modal-header">
                 <h2><i class="fas fa-exclamation-triangle"></i> تأكيد</h2>
-                <button class="modal-close" data-modal="modal-confirm"><i class="fas fa-times"></i></button>
+                <button class="modal-close" data-modal="modal-confirm" onclick="App.closeModal('modal-confirm')"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
                 <p id="confirm-message">هل أنت متأكد؟</p>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-ghost" data-modal="modal-confirm">إلغاء</button>
+                <button class="btn btn-ghost" data-modal="modal-confirm" onclick="App.closeModal('modal-confirm')">إلغاء</button>
                 <button class="btn btn-danger" id="btn-confirm-action">تأكيد الحذف</button>
             </div>
         </div>
@@ -1542,17 +1542,17 @@
         }
     </script>
 
-    <script src="js/supabase-client.js?v=21000-prevent-detail-modal-bubbling.0.0"></script>
-    <script src="js/storage.js?v=21000-prevent-detail-modal-bubbling.0.0"></script>
-    <script src="js/excel-handler.js?v=21000-prevent-detail-modal-bubbling.0.0"></script>
-    <script src="js/dashboard.js?v=21000-prevent-detail-modal-bubbling.0.0"></script>
-    <script src="js/companies.js?v=21000-prevent-detail-modal-bubbling.0.0"></script>
-    <script src="js/calls.js?v=21000-prevent-detail-modal-bubbling.0.0"></script>
-    <script src="js/pipeline.js?v=21000-prevent-detail-modal-bubbling.0.0"></script>
-    <script src="js/reports.js?v=21000-prevent-detail-modal-bubbling.0.0"></script>
-    <script src="js/scraper.js?v=21000-prevent-detail-modal-bubbling.0.0"></script>
-    <script src="js/team.js?v=21000-prevent-detail-modal-bubbling.0.0"></script>
-    <script src="js/settings.js?v=21000-prevent-detail-modal-bubbling.0.0"></script>
-    <script src="js/app.js?v=21000-prevent-detail-modal-bubbling.0.0"></script>
+    <script src="js/supabase-client.js?v=22000-modal-confirm-close-fix.0.0"></script>
+    <script src="js/storage.js?v=22000-modal-confirm-close-fix.0.0"></script>
+    <script src="js/excel-handler.js?v=22000-modal-confirm-close-fix.0.0"></script>
+    <script src="js/dashboard.js?v=22000-modal-confirm-close-fix.0.0"></script>
+    <script src="js/companies.js?v=22000-modal-confirm-close-fix.0.0"></script>
+    <script src="js/calls.js?v=22000-modal-confirm-close-fix.0.0"></script>
+    <script src="js/pipeline.js?v=22000-modal-confirm-close-fix.0.0"></script>
+    <script src="js/reports.js?v=22000-modal-confirm-close-fix.0.0"></script>
+    <script src="js/scraper.js?v=22000-modal-confirm-close-fix.0.0"></script>
+    <script src="js/team.js?v=22000-modal-confirm-close-fix.0.0"></script>
+    <script src="js/settings.js?v=22000-modal-confirm-close-fix.0.0"></script>
+    <script src="js/app.js?v=22000-modal-confirm-close-fix.0.0"></script>
 </body>
 </html>

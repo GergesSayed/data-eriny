@@ -1,17 +1,17 @@
 /* Fleet CRM — Progressive Web App Service Worker */
-const CACHE_NAME = 'fleetcrm-v21000-prevent-detail-modal-bubbling.0.0';
+const CACHE_NAME = 'fleetcrm-v22000-modal-confirm-close-fix.0.0';
 const ASSETS_TO_CACHE = [
   './index.html',
   './css/style.css',
-  './js/storage.js?v=21000-prevent-detail-modal-bubbling.0.0',
-  './js/app.js?v=21000-prevent-detail-modal-bubbling.0.0',
-  './js/companies.js?v=21000-prevent-detail-modal-bubbling.0.0',
-  './js/calls.js?v=21000-prevent-detail-modal-bubbling.0.0',
-  './js/pipeline.js?v=21000-prevent-detail-modal-bubbling.0.0',
-  './js/dashboard.js?v=21000-prevent-detail-modal-bubbling.0.0',
-  './js/reports.js?v=21000-prevent-detail-modal-bubbling.0.0',
-  './js/team.js?v=21000-prevent-detail-modal-bubbling.0.0',
-  './data/companies.json?v=21000-prevent-detail-modal-bubbling.0.0',
+  './js/storage.js?v=22000-modal-confirm-close-fix.0.0',
+  './js/app.js?v=22000-modal-confirm-close-fix.0.0',
+  './js/companies.js?v=22000-modal-confirm-close-fix.0.0',
+  './js/calls.js?v=22000-modal-confirm-close-fix.0.0',
+  './js/pipeline.js?v=22000-modal-confirm-close-fix.0.0',
+  './js/dashboard.js?v=22000-modal-confirm-close-fix.0.0',
+  './js/reports.js?v=22000-modal-confirm-close-fix.0.0',
+  './js/team.js?v=22000-modal-confirm-close-fix.0.0',
+  './data/companies.json?v=22000-modal-confirm-close-fix.0.0',
   './manifest.json'
 ];
 
