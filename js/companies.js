@@ -369,18 +369,18 @@ const Companies = {
                         <div style="font-size:0.65rem; color:var(--text-muted);">${contactTitle}</div>
                     </td>
                     <td>
-                        <div class="table-actions">
-                            <button class="btn-icon btn-view" onclick="Companies.showDetail('${c.id}')" title="تفاصيل">
+                        <div class="table-actions" onclick="event.stopPropagation();">
+                            <button class="btn-icon btn-view" onclick="event.stopPropagation(); Companies.showDetail('${c.id}')" title="تفاصيل">
                                 <i class="fas fa-eye"></i>
                             </button>
-                            <button class="btn-icon btn-call" onclick="App.logCallForCompany('${c.id}')" title="مكالمة">
+                            <button class="btn-icon btn-call" onclick="event.stopPropagation(); App.logCallForCompany('${c.id}')" title="مكالمة">
                                 <i class="fas fa-phone"></i>
                             </button>
                             ${Storage.canModify(currentUser) ? `
-                                <button class="btn-icon btn-edit" onclick="Companies.edit('${c.id}')" title="تعديل">
+                                <button class="btn-icon btn-edit" onclick="event.stopPropagation(); Companies.edit('${c.id}')" title="تعديل">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="btn-icon btn-delete" onclick="Companies.confirmDelete('${c.id}')" title="حذف">
+                                <button class="btn-icon btn-delete" onclick="event.stopPropagation(); Companies.confirmDelete('${c.id}')" title="حذف">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             ` : ''}
@@ -460,12 +460,15 @@ const Companies = {
                     <div class="company-card__footer">
                         <span class="sector-badge" style="font-size:0.65rem;">${sectorLabel}</span>
                         <div class="table-actions" onclick="event.stopPropagation();">
-                            <button class="btn-icon btn-call" onclick="App.logCallForCompany('${c.id}')" title="مكالمة">
+                            <button class="btn-icon btn-call" onclick="event.stopPropagation(); App.logCallForCompany('${c.id}')" title="مكالمة">
                                 <i class="fas fa-phone"></i>
                             </button>
                             ${Storage.canModify(currentUser) ? `
-                                <button class="btn-icon btn-edit" onclick="Companies.edit('${c.id}')" title="تعديل">
+                                <button class="btn-icon btn-edit" onclick="event.stopPropagation(); Companies.edit('${c.id}')" title="تعديل">
                                     <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-icon btn-delete" onclick="event.stopPropagation(); Companies.confirmDelete('${c.id}')" title="حذف">
+                                    <i class="fas fa-trash"></i>
                                 </button>
                             ` : ''}
                         </div>

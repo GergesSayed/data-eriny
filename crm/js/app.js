@@ -873,6 +873,9 @@ const App = {
 
     // ---- Modal Management ----
     openModal(modalId) {
+        if (modalId !== 'modal-company-detail') {
+            this.closeModal('modal-company-detail');
+        }
         const modal = document.getElementById(modalId);
         if (modal) {
             modal.classList.add('show');
