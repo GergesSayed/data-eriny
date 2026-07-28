@@ -380,14 +380,18 @@ const App = {
         if (btnQuickAdd) btnQuickAdd.style.display = canModify ? 'inline-flex' : 'none';
         if (bulkBar && !canModify) bulkBar.style.display = 'none';
 
-        // Strictly restrict Data Audit, Data Wipe, and Cloud Sync buttons to Admin ONLY
+        // Strictly restrict Data Audit, Data Wipe, Cloud Sync, and Clear Log buttons to Admin ONLY
         const btnAuditData = document.getElementById('btn-audit-data');
         const btnWipeAllCompanies = document.getElementById('btn-wipe-all-companies');
         const btnCloudSync = document.getElementById('btn-cloud-sync');
+        const btnClearCalls = document.getElementById('btn-clear-calls');
+        const btnClearDeals = document.getElementById('btn-clear-deals');
 
         if (btnAuditData) btnAuditData.style.display = isAdmin ? 'inline-flex' : 'none';
         if (btnWipeAllCompanies) btnWipeAllCompanies.style.display = isAdmin ? 'inline-flex' : 'none';
         if (btnCloudSync) btnCloudSync.style.display = isAdmin ? 'inline-flex' : 'none';
+        if (btnClearCalls) btnClearCalls.style.display = isAdmin ? 'inline-flex' : 'none';
+        if (btnClearDeals) btnClearDeals.style.display = isAdmin ? 'inline-flex' : 'none';
 
         const filterAssignedGroup = document.getElementById('filter-assigned-group') || document.getElementById('filter-assigned')?.parentElement;
         if (filterAssignedGroup) filterAssignedGroup.style.display = canViewAll ? 'block' : 'none';

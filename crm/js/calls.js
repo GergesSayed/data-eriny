@@ -26,6 +26,10 @@ const Calls = {
     },
 
     clearAllCalls() {
+        if (!Storage.isAdmin()) {
+            App.showToast('⛔ عذراً، مسح سجل المكالمات مقتصر على المدير العام فقط!', 'error');
+            return;
+        }
         App.openModal('modal-confirm');
         document.getElementById('confirm-message').textContent = 'هل أنت متأكد من مسح جميع المكالمات المسجلة من السجل؟';
         document.getElementById('btn-confirm-action').onclick = () => {

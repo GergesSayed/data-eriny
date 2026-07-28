@@ -17,6 +17,10 @@ const Pipeline = {
     },
 
     clearAllDeals() {
+        if (!Storage.isAdmin()) {
+            App.showToast('⛔ عذراً، مسح الصفقات مقتصر على المدير العام فقط!', 'error');
+            return;
+        }
         App.openModal('modal-confirm');
         document.getElementById('confirm-message').textContent = 'هل أنت متأكد من مسح جميع الصفقات من خط المبيعات؟';
         document.getElementById('btn-confirm-action').onclick = () => {
