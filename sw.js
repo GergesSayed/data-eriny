@@ -1,17 +1,17 @@
 /* Fleet CRM — Progressive Web App Service Worker */
-const CACHE_NAME = 'fleetcrm-v28000-guaranteed-wipe-persistence.0.0';
+const CACHE_NAME = 'fleetcrm-v29000-auto-import-override-fixed.0.0';
 const ASSETS_TO_CACHE = [
   './index.html',
   './css/style.css',
-  './js/storage.js?v=28000-guaranteed-wipe-persistence.0.0',
-  './js/app.js?v=28000-guaranteed-wipe-persistence.0.0',
-  './js/companies.js?v=28000-guaranteed-wipe-persistence.0.0',
-  './js/calls.js?v=28000-guaranteed-wipe-persistence.0.0',
-  './js/pipeline.js?v=28000-guaranteed-wipe-persistence.0.0',
-  './js/dashboard.js?v=28000-guaranteed-wipe-persistence.0.0',
-  './js/reports.js?v=28000-guaranteed-wipe-persistence.0.0',
-  './js/team.js?v=28000-guaranteed-wipe-persistence.0.0',
-  './data/companies.json?v=28000-guaranteed-wipe-persistence.0.0',
+  './js/storage.js?v=29000-auto-import-override-fixed.0.0',
+  './js/app.js?v=29000-auto-import-override-fixed.0.0',
+  './js/companies.js?v=29000-auto-import-override-fixed.0.0',
+  './js/calls.js?v=29000-auto-import-override-fixed.0.0',
+  './js/pipeline.js?v=29000-auto-import-override-fixed.0.0',
+  './js/dashboard.js?v=29000-auto-import-override-fixed.0.0',
+  './js/reports.js?v=29000-auto-import-override-fixed.0.0',
+  './js/team.js?v=29000-auto-import-override-fixed.0.0',
+  './data/companies.json?v=29000-auto-import-override-fixed.0.0',
   './manifest.json'
 ];
 

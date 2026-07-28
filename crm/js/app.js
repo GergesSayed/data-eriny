@@ -64,15 +64,6 @@ const App = {
                 }
             }
 
-            // Initial load from cloud if memory is empty
-            if (!localStorage.getItem('fleetcrm_initial_seeded_v1') && Storage.getCompanies().length === 0) {
-                setTimeout(() => {
-                    this.forceImportNow(null).then(() => {
-                        localStorage.setItem('fleetcrm_initial_seeded_v1', 'true');
-                    }).catch(() => {});
-                }, 500);
-            }
-
             // Initialize routing
             this.initRouting();
 
@@ -398,6 +389,7 @@ const App = {
     },
 
     async autoImportScrapedData() {
+        if (localStorage.getItem('fleetcrm_user_wiped_companies') === 'true') return;
         try {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 1500);
@@ -415,8 +407,8 @@ const App = {
 
             const dbTotal = Storage.getCompanies().length;
 
-            // Import if scraper has more companies than DB, or DB is nearly empty
-            if (scraperTotal > dbTotal || dbTotal < 50) {
+            // Import only if scraper has strictly more companies than DB
+            if (scraperTotal > dbTotal) {
                 await this.forceImportNow(stats);
             }
         } catch (err) {
@@ -425,6 +417,9 @@ const App = {
     },
 
     async forceImportNow(stats) {
+        if (localStorage.getItem('fleetcrm_user_wiped_companies') === 'true' && !stats) {
+            return;
+        }
         try {
             let data = null;
             // 1. Try local scraper server first if running locally
