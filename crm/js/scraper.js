@@ -610,77 +610,9 @@ const ScraperPage = {
     async executeLiveScraperBatch() {
         if (!this.isScraperActive) return;
 
-        // DEMO MODE: Generates sample data for demonstration only.
-        // Real scraping requires a running local Python server on port 8888.
-        // The generated companies are clearly labeled as demo data.
-        this.batchCounter = (this.batchCounter || 0) + 1;
-        const now = new Date();
-        const timeStr = now.toLocaleTimeString('ar-EG');
-
-        const sectors = ['transport', 'food', 'petroleum', 'construction', 'distribution', 'tourism', 'manufacturing'];
-        const cities = ['cairo', 'giza', 'new_cairo', '10thramadan', '6october', 'obour', 'nasr_city'];
-        
-        const sector = sectors[this.batchCounter % sectors.length];
-        const city = cities[this.batchCounter % cities.length];
-
-        const sectorLabels = {
-            transport: 'النقل الثقيل والبضائع',
-            food: 'الصناعات الغذائية والتوزيع',
-            petroleum: 'الخدمات البترولية ونقل الوقود',
-            construction: 'المقاولات والمعدات الثقيلة',
-            distribution: 'الشحن والخدمات اللوجستية',
-            tourism: 'النقل الجماعي والرحلات',
-            manufacturing: 'التصنيع والتجميع'
-        };
-
-        const companyCount = Math.floor(Math.random() * 5) + 5;
-        const batchCompanies = [];
-
-        for (let i = 0; i < companyCount; i++) {
-            const randomNum = Math.floor(1000 + Math.random() * 9000);
-            const demoName = `[DEMO] شركة ${sectorLabels[sector] || 'الأسطول'} التجارية #${randomNum}`;
-            const demoEn = `[DEMO] Egypt Fleet Enterprise #${randomNum}`;
-
-            batchCompanies.push({
-                id: 'sc_demo_' + Date.now() + '_' + i,
-                nameAr: demoName,
-                nameEn: demoEn,
-                sector: sector,
-                city: city,
-                fleetSize: Math.floor(20 + Math.random() * 80),
-                contactPerson: '',
-                contactTitle: '',
-                priority: Math.random() > 0.3 ? 'A' : 'B',
-                status: 'new',
-                notes: '⚠️ بيانات تجريبية (Demo) — ليست شركة حقيقية. يرجى تشغيل السكرابر المحلي للحصول على بيانات حقيقية.',
-                createdAt: now.toISOString(),
-                lastUpdated: now.toISOString().split('T')[0]
-            });
-        }
-
-        await Storage.addCompanies(batchCompanies);
-
-        const term = document.getElementById('sc-live-terminal');
-        if (term) {
-            const logLine = `[${timeStr}] [DEMO-MODE] Batch #${this.batchCounter} finished. Generated ${companyCount} demo fleet records for Sector: ${Storage.getSectorLabel(sector)} — ⚠️ These are DEMO records, not real data.\n`;
-            term.textContent += logLine;
-            term.scrollTop = term.scrollHeight;
-        }
-
-        this.updateProcessButtons();
-        
-        const sideCounter = document.getElementById('sidebar-total-companies');
-        if (sideCounter) sideCounter.textContent = Storage.getCompanies().length.toLocaleString();
-
-        const scTotal = document.getElementById('sc-total');
-        if (scTotal) scTotal.textContent = Storage.getCompanies().length.toLocaleString();
-
-        if (typeof Companies !== 'undefined' && App.currentPage === 'companies') {
-            Companies.render();
-        }
-        if (typeof Dashboard !== 'undefined' && App.currentPage === 'dashboard') {
-            Dashboard.render();
-        }
+        // Execute verified extraction for real Egyptian fleet companies
+        await this.runOnlineCloudScraper();
+        this.stopContinuousScraper();
     },
 
     async executeLiveEnricherBatch() {
@@ -818,6 +750,9 @@ const ScraperPage = {
                 term.scrollTop = term.scrollHeight;
             }
 
+            // Filter out any old demo companies from memory
+            let cleanCompanies = Storage.getCompanies().filter(c => !c.id.startsWith('sc_demo_') && !(c.nameAr && c.nameAr.includes('[DEMO]')));
+            Storage.setCompanies(cleanCompanies);
             await Storage.addCompanies(formatted);
 
             App.showToast(`🎉 تم السحب والمسح بنجاح! تم استخراج وإضافة ${formatted.length} شركة ومصنع أسطول موثقة 100%!`, 'success');
