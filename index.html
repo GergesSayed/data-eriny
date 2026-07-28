@@ -14,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=24000-companies-dataset-enrichment.0.0">
+    <link rel="stylesheet" href="css/style.css?v=25000-wipe-all-companies-executed.0.0">
     <!-- Immediate Zero-Flash Auth Check -->
     <script>
         (function() {
@@ -390,6 +390,9 @@
                         </button>
                         <button class="btn btn-outline btn-sm" id="btn-export-excel" onclick="ExcelHandler.exportCompanies()">
                             <i class="fas fa-file-export"></i> تصدير Excel
+                        </button>
+                        <button class="btn btn-danger btn-sm" id="btn-wipe-all-companies" onclick="Companies.confirmWipeAllCompanies()">
+                            <i class="fas fa-trash-alt"></i> مسح جميع الشركات
                         </button>
                         <button class="btn btn-primary btn-sm" id="btn-add-company" onclick="Companies.openAddModal()">
                             <i class="fas fa-plus"></i> إضافة شركة

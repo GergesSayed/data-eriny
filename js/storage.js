@@ -739,6 +739,36 @@ const Storage = {
         return company;
     },
 
+    deleteAllCompanies() {
+        this.companiesMemory = [];
+        this._set(this.KEYS.COMPANIES, []);
+        
+        // Clear IndexedDB store
+        try {
+            const request = indexedDB.open('FleetCRM_DB', 2);
+            request.onsuccess = (event) => {
+                const db = event.target.result;
+                const transaction = db.transaction(['companies'], 'readwrite');
+                const store = transaction.objectStore('companies');
+                store.clear();
+            };
+        } catch (e) {}
+
+        // Clear Supabase Cloud Dataset
+        if (window.SupabaseClient) {
+            window.SupabaseClient.pushMasterData({
+                companies: [],
+                users: this.getUsers(),
+                calls: this.getCalls ? this.getCalls() : [],
+                deals: this.getDeals ? this.getDeals() : [],
+                activities: this.getActivities ? this.getActivities() : []
+            });
+        }
+        localStorage.setItem('fleetcrm_last_synced_hash', '0_wiped');
+        localStorage.setItem('fleetcrm_last_sync_time', Date.now());
+        this.addActivity('company', 'all', 'مسح جميع الشركات', 'تم مسح وتفريغ قاعدة بيانات الشركات بالكامل');
+    },
+
     async _seedInitialJsonData() {
         if (this.companiesMemory && this.companiesMemory.length > 0) return;
 
@@ -746,7 +776,7 @@ const Storage = {
         if (window.SupabaseClient) {
             try {
                 const cloudData = await window.SupabaseClient.fetchMasterData();
-                if (cloudData && Array.isArray(cloudData.companies) && cloudData.companies.length > 0) {
+                if (cloudData && Array.isArray(cloudData.companies)) {
                     this.companiesMemory = cloudData.companies.map((c, idx) => this._normalizeCompanyData(c, idx));
                     this._set(this.KEYS.COMPANIES, this.companiesMemory);
                     this.saveAllCompaniesToDB(this.companiesMemory);
@@ -757,10 +787,10 @@ const Storage = {
 
         // 2. Only if Cloud has 0 companies, fallback to static JSON
         try {
-            const cloudResp = await fetch('./data/companies.json?v=40.0.0');
+            const cloudResp = await fetch('./data/companies.json?v=50.0.0');
             if (cloudResp.ok) {
                 const cloudData = await cloudResp.json();
-                if (Array.isArray(cloudData) && cloudData.length > 0) {
+                if (Array.isArray(cloudData)) {
                     this.companiesMemory = cloudData.map((c, idx) => this._normalizeCompanyData(c, idx));
                     this._set(this.KEYS.COMPANIES, this.companiesMemory);
                     this.saveAllCompaniesToDB(this.companiesMemory);
@@ -768,7 +798,8 @@ const Storage = {
                 }
             }
         } catch (e) {}
-        this.seedSampleData();
+        this.companiesMemory = [];
+        this._set(this.KEYS.COMPANIES, []);
     },
 
     loadCompaniesFromDB(db) {

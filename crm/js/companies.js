@@ -135,6 +135,15 @@ const Companies = {
         this.render();
     },
 
+    confirmWipeAllCompanies() {
+        App.confirm('⚠️ مسح جميع الشركات بالكامل', 'هل أنت متأكد من رغبتك في مسح وتفريغ جميع الشركات من المنظومة والسحابة بالكامل؟ لا يمكن التراجع عن هذا الإجراء.', () => {
+            Storage.deleteAllCompanies();
+            this.currentPage = 1;
+            this.render();
+            App.showToast('تم مسح وتفريغ جميع الشركات بالكامل بنجاح', 'success');
+        });
+    },
+
     clearFilters() {
         ['filter-sector', 'filter-city', 'filter-priority', 'filter-fleet-type', 'filter-fleet-size', 'filter-added-date', 'filter-sort', 'filter-assigned', 'filter-search'].forEach(id => {
             const el = document.getElementById(id);
