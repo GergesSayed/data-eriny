@@ -950,7 +950,8 @@ const Storage = {
             let updated = false;
 
             if (data.companies && Array.isArray(data.companies)) {
-                if (cloudTimestamp > localTimestamp) {
+                const countDiff = !this.companiesMemory || data.companies.length !== this.companiesMemory.length;
+                if (cloudTimestamp > localTimestamp || countDiff) {
                     this.companiesMemory = data.companies.map(c => {
                         if (!c.id) c.id = 'cloud_' + Math.random().toString(36).substr(2, 9);
                         c.sector = this.mapScraperSectorToCRM(c.sector);
@@ -960,7 +961,7 @@ const Storage = {
                     });
                     this._set(this.KEYS.COMPANIES, this.companiesMemory);
                     this.saveAllCompaniesToDB(this.companiesMemory);
-                    localStorage.setItem('fleetcrm_last_sync_time', cloudTimestamp);
+                    localStorage.setItem('fleetcrm_last_sync_time', Math.max(cloudTimestamp, Date.now()));
                     if (data.companies.length === 0) {
                         localStorage.setItem('fleetcrm_user_wiped_companies', 'true');
                     } else {

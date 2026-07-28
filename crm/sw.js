@@ -1,17 +1,17 @@
 /* Fleet CRM — Progressive Web App Service Worker */
-const CACHE_NAME = 'fleetcrm-v34000-dynamic-unique-company-stream-fixed.0.0';
+const CACHE_NAME = 'fleetcrm-v35000-cross-device-realtime-cloud-sync-unified.0.0';
 const ASSETS_TO_CACHE = [
   './index.html',
   './css/style.css',
-  './js/storage.js?v=34000-dynamic-unique-company-stream-fixed.0.0',
-  './js/app.js?v=34000-dynamic-unique-company-stream-fixed.0.0',
-  './js/companies.js?v=34000-dynamic-unique-company-stream-fixed.0.0',
-  './js/calls.js?v=34000-dynamic-unique-company-stream-fixed.0.0',
-  './js/pipeline.js?v=34000-dynamic-unique-company-stream-fixed.0.0',
-  './js/dashboard.js?v=34000-dynamic-unique-company-stream-fixed.0.0',
-  './js/reports.js?v=34000-dynamic-unique-company-stream-fixed.0.0',
-  './js/team.js?v=34000-dynamic-unique-company-stream-fixed.0.0',
-  './data/companies.json?v=34000-dynamic-unique-company-stream-fixed.0.0',
+  './js/storage.js?v=35000-cross-device-realtime-cloud-sync-unified.0.0',
+  './js/app.js?v=35000-cross-device-realtime-cloud-sync-unified.0.0',
+  './js/companies.js?v=35000-cross-device-realtime-cloud-sync-unified.0.0',
+  './js/calls.js?v=35000-cross-device-realtime-cloud-sync-unified.0.0',
+  './js/pipeline.js?v=35000-cross-device-realtime-cloud-sync-unified.0.0',
+  './js/dashboard.js?v=35000-cross-device-realtime-cloud-sync-unified.0.0',
+  './js/reports.js?v=35000-cross-device-realtime-cloud-sync-unified.0.0',
+  './js/team.js?v=35000-cross-device-realtime-cloud-sync-unified.0.0',
+  './data/companies.json?v=35000-cross-device-realtime-cloud-sync-unified.0.0',
   './manifest.json'
 ];
 

@@ -46,6 +46,33 @@ const App = {
             // Pull latest from cloud asynchronously in background without blocking UI
             Storage.pullFromCloud().catch(() => false);
 
+            // Start continuous background cloud synchronization loop (every 8s) across all devices
+            if (this._cloudSyncInterval) clearInterval(this._cloudSyncInterval);
+            this._cloudSyncInterval = setInterval(async () => {
+                try {
+                    const wasUpdated = await Storage.pullFromCloud();
+                    if (wasUpdated) {
+                        if (typeof Companies !== 'undefined' && this.currentPage === 'companies') {
+                            Companies.render();
+                        }
+                        if (typeof Dashboard !== 'undefined' && this.currentPage === 'dashboard') {
+                            Dashboard.render();
+                        }
+                        const sideCounter = document.getElementById('sidebar-total-companies');
+                        if (sideCounter) sideCounter.textContent = Storage.getCompanies().length.toLocaleString();
+                    }
+                } catch (e) {}
+            }, 8000);
+
+            // Also force pull cloud updates when browser tab regains focus
+            window.addEventListener('focus', () => {
+                Storage.pullFromCloud().then(wasUpdated => {
+                    if (wasUpdated && typeof Companies !== 'undefined' && this.currentPage === 'companies') {
+                        Companies.render();
+                    }
+                }).catch(() => {});
+            });
+
             // Check authentication session first so main-wrapper layout is visible
             this.checkAuth();
 
