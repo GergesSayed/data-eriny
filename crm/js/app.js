@@ -380,6 +380,15 @@ const App = {
         if (btnQuickAdd) btnQuickAdd.style.display = canModify ? 'inline-flex' : 'none';
         if (bulkBar && !canModify) bulkBar.style.display = 'none';
 
+        // Strictly restrict Data Audit, Data Wipe, and Cloud Sync buttons to Admin ONLY
+        const btnAuditData = document.getElementById('btn-audit-data');
+        const btnWipeAllCompanies = document.getElementById('btn-wipe-all-companies');
+        const btnCloudSync = document.getElementById('btn-cloud-sync');
+
+        if (btnAuditData) btnAuditData.style.display = isAdmin ? 'inline-flex' : 'none';
+        if (btnWipeAllCompanies) btnWipeAllCompanies.style.display = isAdmin ? 'inline-flex' : 'none';
+        if (btnCloudSync) btnCloudSync.style.display = isAdmin ? 'inline-flex' : 'none';
+
         const filterAssignedGroup = document.getElementById('filter-assigned-group') || document.getElementById('filter-assigned')?.parentElement;
         if (filterAssignedGroup) filterAssignedGroup.style.display = canViewAll ? 'block' : 'none';
 
@@ -656,6 +665,10 @@ const App = {
     },
 
     async triggerCloudSyncNow() {
+        if (!Storage.isAdmin()) {
+            this.showToast('⛔ عذراً، المزامنة اليدوية أونلاين مقتصرة على المدير العام فقط!', 'error');
+            return;
+        }
         if (!window.SupabaseClient) {
             this.showToast('ℹ️ جاري الاتصال بقاعدة البيانات السحابية...', 'info');
             return;

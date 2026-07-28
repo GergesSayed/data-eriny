@@ -619,6 +619,10 @@ const Companies = {
 
     // ---- Data Audit & Quality Engine ----
     openAuditModal() {
+        if (!Storage.isAdmin()) {
+            App.showToast('⛔ عذراً، فحص البيانات مقتصر على المدير العام فقط!', 'error');
+            return;
+        }
         const report = Storage.auditCompanyData();
         const body = document.getElementById('data-audit-body');
         if (!body) return;
