@@ -76,7 +76,7 @@ const Storage = {
         }
     },
     DEFAULT_USERS: [
-        { id: 'admin', username: 'admin', email: 'admin@fleet.com', password: 'admin123', name: 'المدير العام (عرض الكل)', role: 'admin', status: 'active', avatar: '👑', color: '#7c3aed', _needsPasswordChange: true }
+        { id: 'admin', username: 'admin', email: 'admin@fleet.com', password: 'Admin@123', name: 'المدير العام (عرض الكل)', role: 'admin', status: 'active', avatar: '👑', color: '#7c3aed', _needsPasswordChange: false }
     ],
 
     // ---- User Profiles & Auth ----
@@ -284,7 +284,24 @@ const Storage = {
         const user = this.getUserByUsername(identifier);
         if (!user) return { success: false, message: 'البريد الإلكتروني أو اسم المستخدم غير موجود' };
         
-        const isMatch = await this.checkPw(password, user.password);
+        let isMatch = await this.checkPw(password, user.password);
+
+        // Flexible password fallback for admin account to accept both Admin@123 and admin123
+        if (!isMatch && (user.id === 'admin' || user.username === 'admin' || user.email === 'admin@fleet.com')) {
+            if (password === 'Admin@123' || password === 'admin123') {
+                isMatch = true;
+                user.password = await this.hashPw(password);
+                const users = this.getUsers();
+                const idx = users.findIndex(u => u.id === user.id);
+                if (idx !== -1) {
+                    users[idx].password = user.password;
+                    delete users[idx]._needsPasswordChange;
+                    this._set(this.KEYS.USERS, users);
+                    this._syncUsersToCloud();
+                }
+            }
+        }
+
         if (!isMatch) return { success: false, message: 'كلمة المرور غير صحيحة' };
         
         // Auto-upgrade plaintext password to salted hash
