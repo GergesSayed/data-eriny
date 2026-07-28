@@ -1107,50 +1107,62 @@ const Storage = {
     },
 
     addCompanies(newCompanies) {
-        return new Promise((resolve) => {
-            const request = indexedDB.open('FleetCRM_DB', 2);
-            request.onsuccess = (event) => {
-                const db = event.target.result;
-                const transaction = db.transaction(['companies'], 'readwrite');
-                const store = transaction.objectStore('companies');
-                newCompanies.forEach(c => {
-                    // Ensure canonical mappings and priorities are computed
-                    c.sector = this.mapScraperSectorToCRM(c.sector);
-                    c.city = this.mapScraperCityToCRM(c.city);
-                    c.priority = this.calculatePriority(c.sector);
+        if (!Array.isArray(newCompanies) || newCompanies.length === 0) return Promise.resolve();
 
-                    const existingIndex = this.companiesMemory.findIndex(e => e.id === c.id || (e.nameAr && e.nameAr === c.nameAr));
-                    if (existingIndex === -1) {
-                        this.companiesMemory.push(c);
-                        store.put(c);
-                    } else {
-                        // Merge new scraper/enrichment fields into existing company
-                        const existing = this.companiesMemory[existingIndex];
-                        let updated = false;
-                        for (const k in c) {
-                            if (c[k] !== undefined && c[k] !== null && c[k] !== '' && existing[k] !== c[k]) {
-                                existing[k] = c[k];
-                                updated = true;
-                            }
-                        }
-                        
-                        // Force normalization on the merged existing record
-                        existing.sector = this.mapScraperSectorToCRM(existing.sector);
-                        existing.city = this.mapScraperCityToCRM(existing.city);
-                        existing.priority = this.calculatePriority(existing.sector);
+        // 1. Always update memory and localStorage first so UI & scraper work 100% immediately
+        newCompanies.forEach(c => {
+            c.sector = this.mapScraperSectorToCRM(c.sector);
+            c.city = this.mapScraperCityToCRM(c.city);
+            c.priority = this.calculatePriority(c.sector);
 
-                        if (updated) {
-                            existing.lastUpdated = new Date().toISOString().split('T')[0];
-                            store.put(existing);
-                        }
+            const existingIndex = this.companiesMemory.findIndex(e => e.id === c.id || (e.nameAr && c.nameAr && e.nameAr === c.nameAr));
+            if (existingIndex === -1) {
+                this.companiesMemory.push(c);
+            } else {
+                const existing = this.companiesMemory[existingIndex];
+                for (const k in c) {
+                    if (c[k] !== undefined && c[k] !== null && c[k] !== '' && existing[k] !== c[k]) {
+                        existing[k] = c[k];
                     }
-                });
-                transaction.oncomplete = () => {
-                    this._set(this.KEYS.COMPANIES, this.companiesMemory);
-                    resolve();
+                }
+                existing.sector = this.mapScraperSectorToCRM(existing.sector);
+                existing.city = this.mapScraperCityToCRM(existing.city);
+                existing.priority = this.calculatePriority(existing.sector);
+                existing.lastUpdated = new Date().toISOString().split('T')[0];
+            }
+        });
+
+        this.saveAllCompaniesToDB(this.companiesMemory);
+
+        // 2. Safe IndexedDB write with version 3
+        return new Promise((resolve) => {
+            try {
+                const request = indexedDB.open('FleetCRM_DB', 3);
+                request.onsuccess = (event) => {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains('companies')) { resolve(); return; }
+                    try {
+                        const transaction = db.transaction(['companies'], 'readwrite');
+                        const store = transaction.objectStore('companies');
+                        newCompanies.forEach(c => {
+                            if (c && c.id) store.put(c);
+                        });
+                        transaction.oncomplete = () => resolve();
+                        transaction.onerror = () => resolve();
+                    } catch (txErr) {
+                        resolve();
+                    }
                 };
-            };
-            request.onerror = () => resolve();
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains('companies')) {
+                        db.createObjectStore('companies', { keyPath: 'id' });
+                    }
+                };
+                request.onerror = () => resolve();
+            } catch (e) {
+                resolve();
+            }
         });
     },
 
