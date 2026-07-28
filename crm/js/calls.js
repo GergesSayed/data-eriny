@@ -363,8 +363,10 @@ const Calls = {
         Storage.saveCall(call);
         App.closeModal('modal-call');
         App.showToast(id ? 'تم تحديث المكالمة' : 'تم تسجيل المكالمة بنجاح', 'success');
-        this.render();
-        Dashboard.render();
+
+        try { this.render(); } catch (e) { console.warn('Calls.render skipped:', e); }
+        try { if (typeof Dashboard !== 'undefined') Dashboard.render(); } catch (e) { console.warn('Dashboard.render skipped:', e); }
+        try { if (typeof Companies !== 'undefined') Companies.render(); } catch (e) { console.warn('Companies.render skipped:', e); }
     },
 
     confirmDelete(id) {
@@ -375,8 +377,8 @@ const Calls = {
             Storage.deleteCall(id);
             App.closeModal('modal-confirm');
             App.showToast('تم حذف المكالمة', 'success');
-            this.render();
-            Dashboard.render();
+            try { this.render(); } catch (e) {}
+            try { if (typeof Dashboard !== 'undefined') Dashboard.render(); } catch (e) {}
         };
         App.openModal('modal-confirm');
     }
