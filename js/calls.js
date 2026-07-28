@@ -38,7 +38,7 @@ const Calls = {
 
     renderStats() {
         const today = new Date().toISOString().split('T')[0];
-        const calls = Storage.getCalls();
+        const calls = Storage.getScopedCalls();
         const todayCalls = calls.filter(c => c.date === today);
 
         document.getElementById('calls-total-today').textContent = todayCalls.length;
@@ -68,7 +68,7 @@ const Calls = {
 
     renderTable() {
         const currentUser = Storage.getCurrentUser();
-        const calls = Storage.getCalls().sort((a, b) => {
+        const calls = Storage.getScopedCalls().sort((a, b) => {
             const dateA = new Date(a.date + 'T' + (a.time || '23:59'));
             const dateB = new Date(b.date + 'T' + (b.time || '23:59'));
             return dateB - dateA;

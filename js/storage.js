@@ -228,11 +228,15 @@ const Storage = {
     },
 
     canViewAll(user) {
-        return true; // All authenticated CRM team members view the complete master company database
+        const u = user || this.getCurrentUser();
+        if (!u) return false;
+        return this.isAdmin(u) || this.isSupervisor(u);
     },
 
     canModify(user) {
-        return true; // All authenticated employees and supervisors can add/edit company records
+        const u = user || this.getCurrentUser();
+        if (!u) return false;
+        return this.isAdmin(u) || this.isSupervisor(u);
     },
 
     isLoggedIn() {
@@ -1130,6 +1134,10 @@ const Storage = {
     },
 
     deleteCompany(id) {
+        if (!this.canModify()) {
+            console.warn('Unauthorized company delete attempt blocked');
+            return false;
+        }
         const companies = this.getCompanies().filter(c => c.id !== id);
         this.companiesMemory = companies;
         if (companies.length === 0) {
@@ -1408,6 +1416,17 @@ const Storage = {
     // ---- Calls ----
     getCalls() {
         return this._get(this.KEYS.CALLS);
+    },
+
+    getScopedCalls() {
+        const currentUser = this.getCurrentUser();
+        const all = this.getCalls() || [];
+        if (!currentUser) return all;
+        if (this.canViewAll(currentUser)) {
+            return all; // Admin & Supervisor view all calls
+        }
+        // Regular Employee sees ONLY their own calls
+        return all.filter(c => c && (c.userId === currentUser.id || c.createdByName === currentUser.name || c.assignedTo === currentUser.id));
     },
 
     getCall(id) {

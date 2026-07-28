@@ -1,17 +1,17 @@
 /* Fleet CRM — Progressive Web App Service Worker */
-const CACHE_NAME = 'fleetcrm-v38000-strict-single-admin-account-enforced.0.0';
+const CACHE_NAME = 'fleetcrm-v39000-strict-employee-data-scoping-lockdown.0.0';
 const ASSETS_TO_CACHE = [
   './index.html',
   './css/style.css',
-  './js/storage.js?v=38000-strict-single-admin-account-enforced.0.0',
-  './js/app.js?v=38000-strict-single-admin-account-enforced.0.0',
-  './js/companies.js?v=38000-strict-single-admin-account-enforced.0.0',
-  './js/calls.js?v=38000-strict-single-admin-account-enforced.0.0',
-  './js/pipeline.js?v=38000-strict-single-admin-account-enforced.0.0',
-  './js/dashboard.js?v=38000-strict-single-admin-account-enforced.0.0',
-  './js/reports.js?v=38000-strict-single-admin-account-enforced.0.0',
-  './js/team.js?v=38000-strict-single-admin-account-enforced.0.0',
-  './data/companies.json?v=38000-strict-single-admin-account-enforced.0.0',
+  './js/storage.js?v=39000-strict-employee-data-scoping-lockdown.0.0',
+  './js/app.js?v=39000-strict-employee-data-scoping-lockdown.0.0',
+  './js/companies.js?v=39000-strict-employee-data-scoping-lockdown.0.0',
+  './js/calls.js?v=39000-strict-employee-data-scoping-lockdown.0.0',
+  './js/pipeline.js?v=39000-strict-employee-data-scoping-lockdown.0.0',
+  './js/dashboard.js?v=39000-strict-employee-data-scoping-lockdown.0.0',
+  './js/reports.js?v=39000-strict-employee-data-scoping-lockdown.0.0',
+  './js/team.js?v=39000-strict-employee-data-scoping-lockdown.0.0',
+  './data/companies.json?v=39000-strict-employee-data-scoping-lockdown.0.0',
   './manifest.json'
 ];
 
