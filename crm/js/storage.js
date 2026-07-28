@@ -957,7 +957,7 @@ const Storage = {
             try {
                 const calls = this.getCalls ? (this.getCalls() || []) : [];
                 const deals = this.getDeals ? (this.getDeals() || []) : [];
-                const quickHash = `${companies.length}_${calls.length}_${deals.length}_${calls[calls.length - 1]?.id || ''}_${deals[deals.length - 1]?.id || ''}`;
+                const quickHash = `${companies.length}_${calls.length}_${deals.length}_${companies[companies.length - 1]?.id || ''}_${calls[calls.length - 1]?.id || ''}`;
                 if (quickHash === localStorage.getItem('fleetcrm_last_synced_hash')) return;
 
                 const ok = await window.SupabaseClient.pushMasterData({
@@ -972,7 +972,7 @@ const Storage = {
                     localStorage.setItem('fleetcrm_last_sync_time', Date.now());
                 }
             } catch (err) {}
-        }, 1000);
+        }, 500);
     },
 
     async pullFromCloud() {
@@ -986,24 +986,53 @@ const Storage = {
             let updated = false;
 
             if (data.companies && Array.isArray(data.companies)) {
-                const countDiff = !this.companiesMemory || data.companies.length !== this.companiesMemory.length;
-                if (cloudTimestamp > localTimestamp || countDiff) {
-                    this.companiesMemory = data.companies.map(c => {
-                        if (!c.id) c.id = 'cloud_' + Math.random().toString(36).substr(2, 9);
-                        c.sector = this.mapScraperSectorToCRM(c.sector);
-                        c.city = this.mapScraperCityToCRM(c.city);
-                        c.priority = this.calculatePriority(c.sector);
-                        return c;
+                if (data.companies.length === 0 && localStorage.getItem('fleetcrm_user_wiped_companies') === 'true') {
+                    this.companiesMemory = [];
+                    this._set(this.KEYS.COMPANIES, []);
+                } else if (data.companies.length > 0) {
+                    localStorage.removeItem('fleetcrm_user_wiped_companies');
+                    const localList = this.companiesMemory || [];
+                    const compMap = new Map();
+
+                    // Load local companies first (preserves newly scraped/added companies)
+                    localList.forEach(c => {
+                        if (c && (c.id || c.nameAr)) {
+                            const key = String(c.id || c.nameAr);
+                            compMap.set(key, c);
+                        }
                     });
-                    this._set(this.KEYS.COMPANIES, this.companiesMemory);
-                    this.saveAllCompaniesToDB(this.companiesMemory);
-                    localStorage.setItem('fleetcrm_last_sync_time', Math.max(cloudTimestamp, Date.now()));
-                    if (data.companies.length === 0) {
-                        localStorage.setItem('fleetcrm_user_wiped_companies', 'true');
-                    } else {
-                        localStorage.removeItem('fleetcrm_user_wiped_companies');
+
+                    // Merge cloud companies
+                    data.companies.forEach((c, idx) => {
+                        if (c) {
+                            if (!c.id) c.id = 'cloud_' + idx;
+                            c.sector = this.mapScraperSectorToCRM(c.sector);
+                            c.city = this.mapScraperCityToCRM(c.city);
+                            c.priority = this.calculatePriority(c.sector);
+
+                            const key = String(c.id);
+                            const keyByName = c.nameAr ? String(c.nameAr) : null;
+
+                            if (!compMap.has(key) && (!keyByName || !compMap.has(keyByName))) {
+                                compMap.set(key, c);
+                            } else {
+                                const existingKey = compMap.has(key) ? key : keyByName;
+                                const existing = compMap.get(existingKey);
+                                compMap.set(existingKey, { ...c, ...existing });
+                            }
+                        }
+                    });
+
+                    const mergedCompanies = Array.from(compMap.values());
+                    if (mergedCompanies.length !== localList.length || cloudTimestamp > localTimestamp) {
+                        this.companiesMemory = mergedCompanies;
+                        this._set(this.KEYS.COMPANIES, this.companiesMemory);
+                        this.saveAllCompaniesToDB(this.companiesMemory);
+                        if (cloudTimestamp > 0) {
+                            localStorage.setItem('fleetcrm_last_sync_time', Math.max(cloudTimestamp, Date.now()));
+                        }
+                        updated = true;
                     }
-                    updated = true;
                 }
             }
 
