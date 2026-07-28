@@ -1337,7 +1337,7 @@
         </div>
     </div>
 
-    <!-- Call Modal -->
+    <!-- Call Modal - v42001 -->
     <div id="modal-call" class="modal">
         <div class="modal-overlay" onclick="App.closeModal('modal-call')"></div>
         <div class="modal-dialog">
@@ -1557,5 +1557,32 @@
     <script src="js/team.js?v=42001"></script>
     <script src="js/settings.js?v=42001"></script>
     <script src="js/app.js?v=42001"></script>
+
+    <!-- EMERGENCY: Guarantee save button always works regardless of cache -->
+    <script>
+    (function() {
+        function attachSaveBtn() {
+            var btn = document.getElementById('btn-save-call');
+            if (btn) {
+                btn.onclick = function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    try {
+                        if (typeof Calls !== 'undefined' && typeof Calls.save === 'function') {
+                            Calls.save();
+                        } else {
+                            alert('خطأ: Calls.save غير موجود - يرجى تحديث الصفحة');
+                        }
+                    } catch(err) {
+                        alert('خطأ: ' + err.message);
+                    }
+                };
+            }
+        }
+        document.addEventListener('DOMContentLoaded', attachSaveBtn);
+        setTimeout(attachSaveBtn, 1000);
+        setTimeout(attachSaveBtn, 3000);
+    })();
+    </script>
 </body>
 </html>
