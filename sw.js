@@ -1,17 +1,17 @@
 /* Fleet CRM — Progressive Web App Service Worker */
-const CACHE_NAME = 'fleetcrm-v23000-companies-filters-onchange-reset-page.0.0';
+const CACHE_NAME = 'fleetcrm-v24000-companies-dataset-enrichment.0.0';
 const ASSETS_TO_CACHE = [
   './index.html',
   './css/style.css',
-  './js/storage.js?v=23000-companies-filters-onchange-reset-page.0.0',
-  './js/app.js?v=23000-companies-filters-onchange-reset-page.0.0',
-  './js/companies.js?v=23000-companies-filters-onchange-reset-page.0.0',
-  './js/calls.js?v=23000-companies-filters-onchange-reset-page.0.0',
-  './js/pipeline.js?v=23000-companies-filters-onchange-reset-page.0.0',
-  './js/dashboard.js?v=23000-companies-filters-onchange-reset-page.0.0',
-  './js/reports.js?v=23000-companies-filters-onchange-reset-page.0.0',
-  './js/team.js?v=23000-companies-filters-onchange-reset-page.0.0',
-  './data/companies.json?v=23000-companies-filters-onchange-reset-page.0.0',
+  './js/storage.js?v=24000-companies-dataset-enrichment.0.0',
+  './js/app.js?v=24000-companies-dataset-enrichment.0.0',
+  './js/companies.js?v=24000-companies-dataset-enrichment.0.0',
+  './js/calls.js?v=24000-companies-dataset-enrichment.0.0',
+  './js/pipeline.js?v=24000-companies-dataset-enrichment.0.0',
+  './js/dashboard.js?v=24000-companies-dataset-enrichment.0.0',
+  './js/reports.js?v=24000-companies-dataset-enrichment.0.0',
+  './js/team.js?v=24000-companies-dataset-enrichment.0.0',
+  './data/companies.json?v=24000-companies-dataset-enrichment.0.0',
   './manifest.json'
 ];
 
