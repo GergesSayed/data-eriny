@@ -950,20 +950,23 @@ const Storage = {
     },
 
     autoSyncTimer: null,
-    autoSyncToCloud(companies) {
-        if (!Array.isArray(companies)) return;
+    autoSyncTimer: null,
+    autoSyncToCloud(companies = this.companiesMemory) {
+        if (!Array.isArray(companies)) companies = this.companiesMemory || [];
         if (!window.SupabaseClient) return;
         clearTimeout(this.autoSyncTimer);
         this.autoSyncTimer = setTimeout(async () => {
             try {
-                const quickHash = companies.length + '_' + (companies[0]?.id || 'empty');
+                const calls = this.getCalls ? (this.getCalls() || []) : [];
+                const deals = this.getDeals ? (this.getDeals() || []) : [];
+                const quickHash = `${companies.length}_${calls.length}_${deals.length}_${calls[calls.length - 1]?.id || ''}_${deals[deals.length - 1]?.id || ''}`;
                 if (quickHash === localStorage.getItem('fleetcrm_last_synced_hash')) return;
 
                 const ok = await window.SupabaseClient.pushMasterData({
                     companies: companies,
                     users: this.getUsers(),
-                    calls: this.getCalls ? this.getCalls() : [],
-                    deals: this.getDeals ? this.getDeals() : [],
+                    calls: calls,
+                    deals: deals,
                     activities: this.getActivities ? this.getActivities() : []
                 });
                 if (ok) {
@@ -971,7 +974,7 @@ const Storage = {
                     localStorage.setItem('fleetcrm_last_sync_time', Date.now());
                 }
             } catch (err) {}
-        }, 1500);
+        }, 1000);
     },
 
     async pullFromCloud() {
@@ -1034,16 +1037,44 @@ const Storage = {
 
             if (data.calls && Array.isArray(data.calls)) {
                 const localCalls = this.getCalls ? (this.getCalls() || []) : [];
-                if (data.calls.length !== localCalls.length || cloudTimestamp > localTimestamp) {
-                    this._set(this.KEYS.CALLS, data.calls);
+                const callMap = new Map();
+                localCalls.forEach(c => { if (c && c.id) callMap.set(String(c.id), c); });
+                data.calls.forEach(c => {
+                    if (c && c.id) {
+                        const key = String(c.id);
+                        if (!callMap.has(key)) {
+                            callMap.set(key, c);
+                        } else {
+                            const existing = callMap.get(key);
+                            callMap.set(key, { ...existing, ...c });
+                        }
+                    }
+                });
+                const mergedCalls = Array.from(callMap.values());
+                if (mergedCalls.length !== localCalls.length || JSON.stringify(mergedCalls) !== JSON.stringify(localCalls)) {
+                    this._set(this.KEYS.CALLS, mergedCalls);
                     updated = true;
                 }
             }
 
             if (data.deals && Array.isArray(data.deals)) {
                 const localDeals = this.getDeals ? (this.getDeals() || []) : [];
-                if (data.deals.length !== localDeals.length || cloudTimestamp > localTimestamp) {
-                    this._set(this.KEYS.DEALS, data.deals);
+                const dealMap = new Map();
+                localDeals.forEach(d => { if (d && d.id) dealMap.set(String(d.id), d); });
+                data.deals.forEach(d => {
+                    if (d && d.id) {
+                        const key = String(d.id);
+                        if (!dealMap.has(key)) {
+                            dealMap.set(key, d);
+                        } else {
+                            const existing = dealMap.get(key);
+                            dealMap.set(key, { ...existing, ...d });
+                        }
+                    }
+                });
+                const mergedDeals = Array.from(dealMap.values());
+                if (mergedDeals.length !== localDeals.length || JSON.stringify(mergedDeals) !== JSON.stringify(localDeals)) {
+                    this._set(this.KEYS.DEALS, mergedDeals);
                     updated = true;
                 }
             }
@@ -1449,8 +1480,20 @@ const Storage = {
         if (this.canViewAll(currentUser)) {
             return all; // Admin & Supervisor view all calls
         }
-        // Regular Employee sees ONLY their own calls
-        return all.filter(c => c && (c.userId === currentUser.id || c.createdByName === currentUser.name || c.assignedTo === currentUser.id));
+        const uid = String(currentUser.id || '').toLowerCase();
+        const uname = String(currentUser.name || currentUser.username || '').toLowerCase();
+
+        return all.filter(c => {
+            if (!c) return false;
+            if (c.userId && String(c.userId).toLowerCase() === uid) return true;
+            if (c.createdByName && String(c.createdByName).toLowerCase() === uname) return true;
+            if (c.assignedTo && String(c.assignedTo).toLowerCase() === uid) return true;
+            if (c.companyId) {
+                const comp = this.getCompany(c.companyId);
+                if (comp && comp.assignedTo && String(comp.assignedTo).toLowerCase() === uid) return true;
+            }
+            return false;
+        });
     },
 
     getCall(id) {
@@ -1506,12 +1549,17 @@ const Storage = {
         const company = this.getCompany(call.companyId);
         const companyName = company ? company.nameAr : 'شركة';
         this.addActivity('call', call.id, 'تسجيل مكالمة', companyName);
+
+        // Force immediate cloud sync so call is saved to cloud across all devices/browsers
+        this.autoSyncToCloud(this.companiesMemory);
+
         return call;
     },
 
     deleteCall(id) {
         const calls = this.getCalls().filter(c => c.id !== id);
         this._set(this.KEYS.CALLS, calls);
+        this.autoSyncToCloud(this.companiesMemory);
     },
 
     clearAllCalls() {
