@@ -654,10 +654,10 @@ const Storage = {
             }
         }
 
-        // 2. Open IndexedDB and load persisted user data
+        // 2. Open IndexedDB and load persisted user data (version 3 forces onupgradeneeded if store is missing)
         return new Promise((resolve) => {
             try {
-                const request = indexedDB.open('FleetCRM_DB', 2);
+                const request = indexedDB.open('FleetCRM_DB', 3);
                 
                 request.onerror = (event) => {
                     console.warn('IndexedDB failed to open, relying on localStorage:', event);
@@ -771,9 +771,10 @@ const Storage = {
         
         // Clear IndexedDB store
         try {
-            const request = indexedDB.open('FleetCRM_DB', 2);
+            const request = indexedDB.open('FleetCRM_DB', 3);
             request.onsuccess = (event) => {
                 const db = event.target.result;
+                if (!db.objectStoreNames.contains('companies')) return;
                 const transaction = db.transaction(['companies'], 'readwrite');
                 const store = transaction.objectStore('companies');
                 store.clear();
@@ -918,14 +919,28 @@ const Storage = {
     _writeToIDB(companies) {
         return new Promise((resolve) => {
             try {
-                const request = indexedDB.open('FleetCRM_DB', 2);
+                const request = indexedDB.open('FleetCRM_DB', 3);
                 request.onsuccess = (event) => {
                     const db = event.target.result;
-                    const transaction = db.transaction(['companies'], 'readwrite');
-                    const store = transaction.objectStore('companies');
-                    store.clear();
-                    companies.forEach(c => store.put(c));
-                    transaction.oncomplete = () => resolve();
+                    // Guard: store might not exist yet on first upgrade
+                    if (!db.objectStoreNames.contains('companies')) { resolve(); return; }
+                    try {
+                        const transaction = db.transaction(['companies'], 'readwrite');
+                        const store = transaction.objectStore('companies');
+                        store.clear();
+                        companies.forEach(c => store.put(c));
+                        transaction.oncomplete = () => resolve();
+                        transaction.onerror = () => resolve();
+                    } catch (txErr) {
+                        console.warn('IDB transaction error:', txErr);
+                        resolve();
+                    }
+                };
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains('companies')) {
+                        db.createObjectStore('companies', { keyPath: 'id' });
+                    }
                 };
                 request.onerror = () => resolve();
             } catch (e) {
