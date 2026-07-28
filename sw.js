@@ -1,5 +1,5 @@
 /* Fleet CRM — Progressive Web App Service Worker */
-const CACHE_NAME = 'fleetcrm-v42000-employee-call-modal-fix.0.0';
+const CACHE_NAME = 'fleetcrm-v42015';
 const ASSETS_TO_CACHE = [
   './index.html',
   './css/style.css',
