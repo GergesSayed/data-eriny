@@ -331,26 +331,33 @@ const Calls = {
     },
 
     save() {
-        const form = document.getElementById('form-call');
-        if (!form.checkValidity()) {
-            form.reportValidity();
+        const currentUser = Storage.getCurrentUser();
+        const companyId = document.getElementById('call-companyId')?.value;
+        const result = document.getElementById('call-result')?.value;
+
+        if (!companyId) {
+            App.showToast('⚠️ يرجى اختيار الشركة أولاً', 'warning');
             return;
         }
 
-        const currentUser = Storage.getCurrentUser();
+        if (!result) {
+            App.showToast('⚠️ يرجى اختيار نتيجة المكالمة', 'warning');
+            return;
+        }
+
         const call = {
-            companyId: document.getElementById('call-companyId').value,
-            date: document.getElementById('call-date').value,
-            time: document.getElementById('call-time').value,
-            contactPerson: document.getElementById('call-contactPerson').value,
-            result: document.getElementById('call-result').value,
-            followUpDate: document.getElementById('call-followUpDate').value,
-            notes: document.getElementById('call-notes').value,
+            companyId: companyId,
+            date: document.getElementById('call-date')?.value || new Date().toISOString().split('T')[0],
+            time: document.getElementById('call-time')?.value || '12:00',
+            contactPerson: document.getElementById('call-contactPerson')?.value || '',
+            result: result,
+            followUpDate: document.getElementById('call-followUpDate')?.value || '',
+            notes: document.getElementById('call-notes')?.value || '',
             userId: currentUser ? currentUser.id : 'admin',
             createdByName: currentUser ? currentUser.name : 'المدير العام'
         };
 
-        const id = document.getElementById('call-id').value;
+        const id = document.getElementById('call-id')?.value;
         if (id) call.id = id;
 
         Storage.saveCall(call);

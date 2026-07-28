@@ -487,7 +487,16 @@ const Storage = {
             return all; // Admin & Supervisor see everything
         }
         // Sales Agent sees ONLY companies assigned to them
-        return all.filter(c => c && (c.assignedTo === currentUser.id || c.assignedTo === currentUser.username));
+        const uid = String(currentUser.id || '').toLowerCase();
+        const uname = String(currentUser.username || '').toLowerCase();
+        const uemail = String(currentUser.email || '').toLowerCase();
+        const ufullname = String(currentUser.name || '').toLowerCase();
+
+        return all.filter(c => {
+            if (!c || !c.assignedTo) return false;
+            const target = String(c.assignedTo).toLowerCase();
+            return target === uid || target === uname || target === uemail || target === ufullname;
+        });
     },
 
     assignCompany(companyId, userId) {
