@@ -1556,7 +1556,7 @@
     <script src="js/scraper.js?v=42005"></script>
     <script src="js/team.js?v=42001"></script>
     <script src="js/settings.js?v=42001"></script>
-    <script src="js/app.js?v=42008"></script>
+    <script src="js/app.js?v=42009"></script>
 
     <!-- EMERGENCY: Guarantee save button always works regardless of cache -->
     <script>
@@ -1582,6 +1582,38 @@
         document.addEventListener('DOMContentLoaded', attachSaveBtn);
         setTimeout(attachSaveBtn, 1000);
         setTimeout(attachSaveBtn, 3000);
+    <!-- EMERGENCY MOBILE UNFREEZE & TOUCH WATCHDOG -->
+    <script>
+    (function() {
+        function forceUnfreeze() {
+            var loader = document.getElementById('loading-overlay');
+            if (loader) {
+                loader.classList.add('hidden');
+                loader.style.display = 'none';
+                loader.style.pointerEvents = 'none';
+                loader.style.zIndex = '-100';
+            }
+            var sideOverlay = document.getElementById('sidebar-overlay');
+            if (sideOverlay && !sideOverlay.classList.contains('active')) {
+                sideOverlay.style.display = 'none';
+                sideOverlay.style.pointerEvents = 'none';
+            }
+            if (!document.querySelector('.modal.show')) {
+                document.body.style.overflow = '';
+                document.body.style.pointerEvents = 'auto';
+            }
+            document.documentElement.style.pointerEvents = 'auto';
+        }
+
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            forceUnfreeze();
+        } else {
+            document.addEventListener('DOMContentLoaded', forceUnfreeze);
+            window.addEventListener('load', forceUnfreeze);
+        }
+        setTimeout(forceUnfreeze, 300);
+        setTimeout(forceUnfreeze, 800);
+        setTimeout(forceUnfreeze, 2000);
     })();
     </script>
 </body>

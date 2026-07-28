@@ -925,7 +925,11 @@ const App = {
             modal.classList.remove('show');
             modal.style.display = 'none';
             modal.style.pointerEvents = 'none';
+        }
+        const anyModalOpen = document.querySelector('.modal.show');
+        if (!anyModalOpen) {
             document.body.style.overflow = '';
+            document.body.style.pointerEvents = 'auto';
         }
     },
 
