@@ -11,6 +11,9 @@ const Companies = {
     selectedCompanies: new Set(),
 
     init() {
+        if (window.innerWidth <= 768 || (typeof Storage !== 'undefined' && Storage.isMobile && Storage.isMobile())) {
+            this.viewMode = 'cards';
+        }
         this.bindEvents();
         this.refreshUserFilter();
         this.render();
@@ -295,8 +298,14 @@ const Companies = {
         const start = (this.currentPage - 1) * this.pageSize;
         const pageCompanies = companies.slice(start, start + this.pageSize);
 
-        // Update count
-        document.getElementById('companies-count-display').textContent = `${total} شركة`;
+        // Update count & view mode toggle buttons
+        const countDisplay = document.getElementById('companies-count-display');
+        if (countDisplay) countDisplay.textContent = `${total} شركة`;
+
+        const btnTable = document.getElementById('btn-view-table');
+        const btnCards = document.getElementById('btn-view-cards');
+        if (btnTable) btnTable.classList.toggle('active', this.viewMode === 'table');
+        if (btnCards) btnCards.classList.toggle('active', this.viewMode === 'cards');
 
         if (this.viewMode === 'table') {
             this.renderTable(pageCompanies, total);
@@ -486,19 +495,22 @@ const Companies = {
                         ${c.fleetSize ? `<div class="company-card__detail"><i class="fas fa-truck"></i> أسطول: ${c.fleetSize} سيارة</div>` : ''}
                         ${c.contactPerson ? `<div class="company-card__detail" style="display:flex; align-items:center; gap: 4px;"><i class="fas fa-user"></i> <span>${contactPerson}${contactTitle ? ' — ' + contactTitle : ''}</span>${contactLinkedinIcon}</div>` : ''}
                     </div>
-                    <div class="company-card__footer">
-                        <span class="sector-badge" style="font-size:0.65rem;">${sectorLabel}</span>
-                        <div class="table-actions" onclick="event.stopPropagation();">
-                            <button class="btn-icon btn-call" onclick="event.stopPropagation(); App.logCallForCompany('${c.id}')" title="مكالمة">
-                                <i class="fas fa-phone"></i>
+                    <div class="company-card__footer" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; padding-top: 10px; border-top: 1px solid var(--border-light); margin-top: 8px;">
+                        <div style="display: flex; gap: 6px; align-items: center;">
+                            ${phone && phone !== '—' ? `
+                                <a href="tel:${phone.replace(/[^0-9+]/g, '')}" class="btn btn-sm" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;" onclick="event.stopPropagation();" title="اتصال مباشر">
+                                    <i class="fas fa-phone"></i> اتصال
+                                </a>
+                            ` : ''}
+                            <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); App.logCallForCompany('${c.id}')" style="font-size: 12px; padding: 6px 14px; border-radius: 8px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(124, 58, 237, 0.3);">
+                                <i class="fas fa-phone-alt"></i> + تسجيل مكالمة
                             </button>
+                        </div>
+                        <div class="table-actions" onclick="event.stopPropagation();">
+                            <button class="btn-icon btn-view" onclick="event.stopPropagation(); Companies.showDetail('${c.id}')" title="تفاصيل"><i class="fas fa-eye"></i></button>
                             ${Storage.canModify(currentUser) ? `
-                                <button class="btn-icon btn-edit" onclick="event.stopPropagation(); Companies.edit('${c.id}')" title="تعديل">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn-icon btn-delete" onclick="event.stopPropagation(); Companies.confirmDelete('${c.id}')" title="حذف">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                                <button class="btn-icon btn-edit" onclick="event.stopPropagation(); Companies.edit('${c.id}')" title="تعديل"><i class="fas fa-edit"></i></button>
+                                <button class="btn-icon btn-delete" onclick="event.stopPropagation(); Companies.confirmDelete('${c.id}')" title="حذف"><i class="fas fa-trash"></i></button>
                             ` : ''}
                         </div>
                     </div>
