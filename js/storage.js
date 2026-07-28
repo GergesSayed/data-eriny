@@ -76,7 +76,7 @@ const Storage = {
         }
     },
     DEFAULT_USERS: [
-        { id: 'admin', username: 'admin', email: 'admin@fleet.com', password: 'Admin@123', name: 'المدير العام (عرض الكل)', role: 'admin', status: 'active', avatar: '👑', color: '#7c3aed', _needsPasswordChange: false }
+        { id: 'admin', username: 'admin@fleet.com', email: 'admin@fleet.com', password: 'Admin@123', name: 'المدير العام (عرض الكل)', role: 'admin', status: 'active', avatar: '👑', color: '#7c3aed', _needsPasswordChange: false }
     ],
 
     // ---- User Profiles & Auth ----
@@ -102,12 +102,14 @@ const Storage = {
             if (!u.status) u.status = 'active';
         });
 
-        // Always ensure admin user exists with admin role
-        let adminUser = stored.find(u => u.id === 'admin' || u.username === 'admin');
+        // Strictly enforce admin user details
+        let adminUser = stored.find(u => u.id === 'admin' || u.username === 'admin' || u.email === 'admin@fleet.com');
         if (!adminUser) {
             stored.unshift(this.DEFAULT_USERS[0]);
             this._set(this.KEYS.USERS, stored);
-        } else if (adminUser.role !== 'admin') {
+        } else {
+            adminUser.username = 'admin@fleet.com';
+            adminUser.email = 'admin@fleet.com';
             adminUser.role = 'admin';
             adminUser.status = 'active';
             this._set(this.KEYS.USERS, stored);
@@ -281,42 +283,30 @@ const Storage = {
     },
 
     async login(identifier, password, remember = false) {
-        const user = this.getUserByUsername(identifier);
-        if (!user) return { success: false, message: 'البريد الإلكتروني أو اسم المستخدم غير موجود' };
-        
-        let isMatch = await this.checkPw(password, user.password);
+        const query = (identifier || '').toLowerCase().trim();
 
-        // Flexible password fallback for admin account to accept both Admin@123 and admin123
-        if (!isMatch && (user.id === 'admin' || user.username === 'admin' || user.email === 'admin@fleet.com')) {
-            if (password === 'Admin@123' || password === 'admin123') {
-                isMatch = true;
-                user.password = await this.hashPw(password);
-                const users = this.getUsers();
-                const idx = users.findIndex(u => u.id === user.id);
-                if (idx !== -1) {
-                    users[idx].password = user.password;
-                    delete users[idx]._needsPasswordChange;
-                    this._set(this.KEYS.USERS, users);
-                    this._syncUsersToCloud();
-                }
+        // Enforce strict single credential rule for Admin: admin@fleet.com / Admin@123
+        if (query === 'admin' || query === 'admin@fleet.com') {
+            if (query !== 'admin@fleet.com') {
+                return { success: false, message: 'اسم المستخدم مرفوض! يجب استخدام البريد الإلكتروني الرسمي: admin@fleet.com' };
             }
+            if (password !== 'Admin@123') {
+                return { success: false, message: 'كلمة المرور غير صحيحة!' };
+            }
+            const adminUser = this.getUser('admin') || this.DEFAULT_USERS[0];
+            adminUser.username = 'admin@fleet.com';
+            adminUser.email = 'admin@fleet.com';
+            adminUser.role = 'admin';
+            this.setCurrentUser(adminUser.id, remember);
+            this.addActivity('auth', adminUser.id, 'تسجيل دخول', `دخول المدير العام: ${adminUser.name}`);
+            return { success: true, user: adminUser };
         }
 
+        const user = this.getUserByUsername(query);
+        if (!user) return { success: false, message: 'البريد الإلكتروني غير موجود' };
+
+        const isMatch = await this.checkPw(password, user.password);
         if (!isMatch) return { success: false, message: 'كلمة المرور غير صحيحة' };
-        
-        // Auto-upgrade plaintext password to salted hash
-        if (!user.password.includes(':')) {
-            user.password = await this.hashPw(password);
-            // Direct save to avoid double-hashing in updateUser
-            const users = this.getUsers();
-            const idx = users.findIndex(u => u.id === user.id);
-            if (idx !== -1) {
-                users[idx].password = user.password;
-                delete users[idx]._needsPasswordChange;
-                this._set(this.KEYS.USERS, users);
-                this._syncUsersToCloud();
-            }
-        }
 
         this.setCurrentUser(user.id, remember);
         this.addActivity('auth', user.id, 'تسجيل دخول', `دخول المستخدم: ${user.name}`);
