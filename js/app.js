@@ -629,9 +629,13 @@ const App = {
             pageEl.classList.add('active');
         }
 
-        // Update active nav link
+        // Update active nav link & mobile bottom nav item
         document.querySelectorAll('.nav-link').forEach(link => {
             link.classList.toggle('active', link.dataset.page === page);
+        });
+        document.querySelectorAll('.mobile-nav-item').forEach(item => {
+            const href = item.getAttribute('href') || '';
+            item.classList.toggle('active', href.replace('#', '') === page);
         });
 
         // Cleanup previous page resources

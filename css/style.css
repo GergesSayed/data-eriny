@@ -2471,6 +2471,22 @@ html.user-logged-in .login-screen-bg {
    ========================================================================== */
 
 @media screen and (max-width: 1024px) {
+    html {
+        height: auto !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+    body {
+        display: block !important;
+        height: auto !important;
+        min-height: 100% !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        position: relative !important;
+    }
+
     .sidebar {
         position: fixed !important;
         top: 0 !important;
@@ -2509,8 +2525,12 @@ html.user-logged-in .login-screen-bg {
     }
 
     .main-wrapper {
+        display: block !important;
         margin-right: 0 !important;
         width: 100% !important;
+        min-height: 100vh !important;
+        position: relative !important;
+        height: auto !important;
     }
 
     .mobile-bottom-nav {
@@ -2546,6 +2566,7 @@ html.user-logged-in .login-screen-bg {
         text-decoration: none !important;
         touch-action: manipulation !important;
         -webkit-tap-highlight-color: transparent !important;
+        cursor: pointer !important;
     }
 
     .mobile-nav-item i {
@@ -2562,7 +2583,15 @@ html.user-logged-in .login-screen-bg {
     }
 
     .content {
-        padding-bottom: 80px !important;
+        display: block !important;
+        padding-bottom: 90px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    button, a, input, select, .company-card, .btn, .nav-link, .mobile-nav-item {
+        touch-action: manipulation !important;
+        -webkit-tap-highlight-color: rgba(124, 58, 237, 0.2) !important;
     }
 }
 
