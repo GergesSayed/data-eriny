@@ -1,17 +1,17 @@
 /* Fleet CRM — Progressive Web App Service Worker */
-const CACHE_NAME = 'fleetcrm-v36000-admin-credentials-unified.0.0';
+const CACHE_NAME = 'fleetcrm-v37000-login-password-change-msg-removed.0.0';
 const ASSETS_TO_CACHE = [
   './index.html',
   './css/style.css',
-  './js/storage.js?v=36000-admin-credentials-unified.0.0',
-  './js/app.js?v=36000-admin-credentials-unified.0.0',
-  './js/companies.js?v=36000-admin-credentials-unified.0.0',
-  './js/calls.js?v=36000-admin-credentials-unified.0.0',
-  './js/pipeline.js?v=36000-admin-credentials-unified.0.0',
-  './js/dashboard.js?v=36000-admin-credentials-unified.0.0',
-  './js/reports.js?v=36000-admin-credentials-unified.0.0',
-  './js/team.js?v=36000-admin-credentials-unified.0.0',
-  './data/companies.json?v=36000-admin-credentials-unified.0.0',
+  './js/storage.js?v=37000-login-password-change-msg-removed.0.0',
+  './js/app.js?v=37000-login-password-change-msg-removed.0.0',
+  './js/companies.js?v=37000-login-password-change-msg-removed.0.0',
+  './js/calls.js?v=37000-login-password-change-msg-removed.0.0',
+  './js/pipeline.js?v=37000-login-password-change-msg-removed.0.0',
+  './js/dashboard.js?v=37000-login-password-change-msg-removed.0.0',
+  './js/reports.js?v=37000-login-password-change-msg-removed.0.0',
+  './js/team.js?v=37000-login-password-change-msg-removed.0.0',
+  './data/companies.json?v=37000-login-password-change-msg-removed.0.0',
   './manifest.json'
 ];
 

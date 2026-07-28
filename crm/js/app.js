@@ -270,9 +270,7 @@ const App = {
                 return;
             }
 
-            if (res.user._needsPasswordChange) {
-                this.showToast('⚠️ يرجى تغيير كلمة المرور الافتراضية فوراً من شاشة إدارة الموظفين', 'warning');
-            }
+
 
             if (res.user.status === 'pending_approval') {
                 if (submitBtn) {
