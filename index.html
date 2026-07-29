@@ -14,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=43020">
+    <link rel="stylesheet" href="css/style.css?v=43030">
     <!-- Immediate Zero-Flash Auth Check & ServiceWorker Cache Buster -->
     <script>
         (function() {
@@ -54,7 +54,7 @@
     </script>
     <style>
         html.user-logged-in #login-screen { display: none !important; }
-        html.user-logged-in .main-wrapper { display: block; }
+        /* main-wrapper مع position:fixed يظهر تلقائياً - لا نحتاج override هنا */
     </style>
 </head>
 <body>
@@ -1627,9 +1627,7 @@
                     loginScreen.style.setProperty('z-index', '-100', 'important');
                 }
                 var mainWrapper = document.querySelector('.main-wrapper');
-                if (mainWrapper && window.innerWidth <= 1024) {
-                    mainWrapper.style.removeProperty('display');
-                }
+                // main-wrapper position:fixed يعمل تلقائياً - لا حاجة لتغيير display
                 if (!document.querySelector('.modal.show')) {
                     document.body.style.overflow = '';
                     document.body.style.pointerEvents = 'auto';
