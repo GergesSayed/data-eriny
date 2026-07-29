@@ -736,12 +736,10 @@ const App = {
     bindEvents() {
         const toggleBtn = document.getElementById('toggle-sidebar');
         if (toggleBtn) {
-            const fastToggle = (e) => {
-                if (e) { e.preventDefault(); e.stopPropagation(); }
+            toggleBtn.onclick = (e) => {
+                if (e && e.stopPropagation) e.stopPropagation();
                 this.toggleSidebar();
             };
-            toggleBtn.ontouchstart = fastToggle;
-            toggleBtn.onclick = fastToggle;
         }
 
         // Navigation links click listener
@@ -759,15 +757,13 @@ const App = {
             });
         });
 
-        // Sidebar overlay touch & click to close
+        // Sidebar overlay click to close
         const overlay = document.getElementById('sidebar-overlay');
         if (overlay) {
-            const handleOverlayClose = (e) => {
-                if (e && e.preventDefault) { e.preventDefault(); e.stopPropagation(); }
+            overlay.onclick = (e) => {
+                if (e && e.stopPropagation) e.stopPropagation();
                 this.closeSidebar(e);
             };
-            overlay.ontouchstart = handleOverlayClose;
-            overlay.onclick = handleOverlayClose;
         }
 
         // Close notifications dropdown on outside click
