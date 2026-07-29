@@ -211,9 +211,13 @@ const App = {
         } else {
             document.documentElement.classList.add('user-logged-in');
             if (loginScreen) {
-                loginScreen.style.display = 'none';
-                loginScreen.style.pointerEvents = 'none';
-                loginScreen.style.zIndex = '-1';
+                loginScreen.style.setProperty('display', 'none', 'important');
+                loginScreen.style.setProperty('pointer-events', 'none', 'important');
+                loginScreen.style.setProperty('z-index', '-100', 'important');
+                loginScreen.style.setProperty('visibility', 'hidden', 'important');
+                loginScreen.style.setProperty('opacity', '0', 'important');
+                const mesh = loginScreen.querySelector('.login-bg-mesh');
+                if (mesh) mesh.style.setProperty('display', 'none', 'important');
             }
             if (sidebar) sidebar.style.removeProperty('display');
             if (mainWrapper) mainWrapper.style.removeProperty('display');
