@@ -14,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=42106">
+    <link rel="stylesheet" href="css/style.css?v=42110">
     <!-- Immediate Zero-Flash Auth Check & ServiceWorker Cache Buster -->
     <script>
         (function() {
@@ -98,6 +98,26 @@
                 var tgt = document.getElementById('debug-last-target');
                 if (cnt) cnt.textContent = count;
                 if (tgt) tgt.textContent = tag.substring(0, 20);
+            }, {passive: true});
+
+            // Global Mobile Touch Delegator: Guarantees 100% click execution on Mobile Chrome
+            var lastTouchTime = 0;
+            document.addEventListener('touchend', function(e) {
+                if (window.innerWidth <= 1024) {
+                    var now = Date.now();
+                    if (now - lastTouchTime < 100) return;
+                    lastTouchTime = now;
+                    var touch = e.changedTouches ? e.changedTouches[0] : null;
+                    if (touch) {
+                        var target = document.elementFromPoint(touch.clientX, touch.clientY);
+                        if (target) {
+                            var clickable = target.closest('button, a, select, input, .company-card, .btn, .btn-icon, .nav-link, .stat-card, [onclick]');
+                            if (clickable && typeof clickable.click === 'function') {
+                                try { clickable.click(); } catch(err) {}
+                            }
+                        }
+                    }
+                }
             }, {passive: true});
         })();
     </script>
