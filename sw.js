@@ -1,67 +1,20 @@
-/* Fleet CRM — Progressive Web App Service Worker */
-const CACHE_NAME = 'fleetcrm-v42000-employee-call-modal-fix.0.0';
-const ASSETS_TO_CACHE = [
-  './index.html',
-  './css/style.css',
-  './js/storage.js?v=42000-employee-call-modal-fix.0.0',
-  './js/app.js?v=42000-employee-call-modal-fix.0.0',
-  './js/companies.js?v=42000-employee-call-modal-fix.0.0',
-  './js/calls.js?v=42000-employee-call-modal-fix.0.0',
-  './js/pipeline.js?v=42000-employee-call-modal-fix.0.0',
-  './js/dashboard.js?v=42000-employee-call-modal-fix.0.0',
-  './js/reports.js?v=42000-employee-call-modal-fix.0.0',
-  './js/team.js?v=42000-employee-call-modal-fix.0.0',
-  './data/companies.json?v=42000-employee-call-modal-fix.0.0',
-  './manifest.json'
-];
-
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
-    }).then(() => self.skipWaiting())
-  );
+/* EMERGENCY PWA SERVICE WORKER PURGE & KILL — ALL CACHES WIPED — FORCE NETWORK ONLY */
+self.addEventListener('install', (e) => {
+    self.skipWaiting();
 });
 
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((keys) => {
-      return Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key);
-          }
+self.addEventListener('activate', (e) => {
+    e.waitUntil(
+        caches.keys().then((keys) => {
+            return Promise.all(keys.map((k) => caches.delete(k)));
+        }).then(() => {
+            return self.registration.unregister();
+        }).then(() => {
+            return self.clients.claim();
         })
-      );
-    }).then(() => self.clients.claim())
-  );
+    );
 });
 
-self.addEventListener('fetch', (event) => {
-  // Only handle GET requests
-  if (event.request.method !== 'GET') return;
-  
-  // Network-First strategy: Always fetch latest from network, fallback to cache if offline
-  event.respondWith(
-    fetch(event.request)
-      .then((networkResponse) => {
-        if (networkResponse && networkResponse.status === 200) {
-          const responseClone = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseClone);
-          });
-        }
-        return networkResponse;
-      })
-      .catch(() => {
-        return caches.match(event.request).then((cachedResponse) => {
-          if (cachedResponse) {
-            return cachedResponse;
-          }
-          if (event.request.headers.get('accept')?.includes('text/html')) {
-            return caches.match('./index.html');
-          }
-        });
-      })
-  );
+self.addEventListener('fetch', (e) => {
+    e.respondWith(fetch(e.request));
 });
