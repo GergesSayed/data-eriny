@@ -1554,14 +1554,16 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script>
         if (!window.XLSX) {
-            document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"><\/script>');
+            var s = document.createElement('script');
+            s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+            document.head.appendChild(s);
         }
     </script>
 
     <script src="js/supabase-client.js?v=42001"></script>
     <script src="js/storage.js?v=42006"></script>
     <script src="js/excel-handler.js?v=42001"></script>
-    <script src="js/dashboard.js?v=42001"></script>
+    <script src="js/dashboard.js?v=42025"></script>
     <script src="js/companies.js?v=42019"></script>
     <script src="js/calls.js?v=42010"></script>
     <script src="js/pipeline.js?v=42001"></script>

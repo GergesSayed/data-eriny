@@ -64,71 +64,75 @@ const Dashboard = {
     },
 
     renderSectorChart(stats) {
-        if (typeof Chart === 'undefined') return;
-        const ctx = document.getElementById('chart-sectors');
-        if (!ctx) return;
+        try {
+            if (typeof Chart === 'undefined') return;
+            const ctx = document.getElementById('chart-sectors');
+            if (!ctx) return;
 
-        if (this.charts.sectors) this.charts.sectors.destroy();
+            if (this.charts.sectors) this.charts.sectors.destroy();
 
-        const sectorData = stats.companiesBySector;
-        const labels = [];
-        const data = [];
-        const colors = [
-            '#6366f1', '#22d3ee', '#10b981', '#f59e0b', '#ef4444',
-            '#8b5cf6', '#06b6d4', '#14b8a6', '#f97316', '#ec4899',
-            '#3b82f6', '#84cc16', '#a855f7', '#64748b', '#e11d48'
-        ];
+            const sectorData = stats.companiesBySector;
+            const labels = [];
+            const data = [];
+            const colors = [
+                '#6366f1', '#22d3ee', '#10b981', '#f59e0b', '#ef4444',
+                '#8b5cf6', '#06b6d4', '#14b8a6', '#f97316', '#ec4899',
+                '#3b82f6', '#84cc16', '#a855f7', '#64748b', '#e11d48'
+            ];
 
-        Object.entries(sectorData).forEach(([key, count]) => {
-            const sector = Storage.SECTORS[key];
-            labels.push(sector ? sector.ar : key);
-            data.push(count);
-        });
+            Object.entries(sectorData).forEach(([key, count]) => {
+                const sector = Storage.SECTORS[key];
+                labels.push(sector ? sector.ar : key);
+                data.push(count);
+            });
 
-        if (labels.length === 0) {
-            labels.push('لا توجد بيانات');
-            data.push(1);
-        }
+            if (labels.length === 0) {
+                labels.push('لا توجد بيانات');
+                data.push(1);
+            }
 
-        this.charts.sectors = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels,
-                datasets: [{
-                    data,
-                    backgroundColor: colors.slice(0, data.length),
-                    borderColor: 'rgba(11, 14, 23, 0.8)',
-                    borderWidth: 2,
-                    hoverOffset: 8
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '65%',
-                plugins: {
-                    legend: {
-                        position: 'left',
-                        labels: {
-                            color: '#94a3b8',
-                            font: { family: 'Cairo', size: 11 },
-                            padding: 10,
-                            usePointStyle: true,
-                            pointStyleWidth: 8
+            this.charts.sectors = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels,
+                    datasets: [{
+                        data,
+                        backgroundColor: colors.slice(0, data.length),
+                        borderColor: 'rgba(11, 14, 23, 0.8)',
+                        borderWidth: 2,
+                        hoverOffset: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '65%',
+                    plugins: {
+                        legend: {
+                            position: 'left',
+                            labels: {
+                                color: '#94a3b8',
+                                font: { family: 'Cairo', size: 11 },
+                                padding: 10,
+                                usePointStyle: true,
+                                pointStyleWidth: 8
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(26, 31, 53, 0.95)',
+                            titleFont: { family: 'Cairo' },
+                            bodyFont: { family: 'Cairo' },
+                            borderColor: 'rgba(99, 102, 241, 0.3)',
+                            borderWidth: 1,
+                            cornerRadius: 8,
+                            padding: 10
                         }
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(26, 31, 53, 0.95)',
-                        titleFont: { family: 'Cairo' },
-                        bodyFont: { family: 'Cairo' },
-                        borderColor: 'rgba(99, 102, 241, 0.3)',
-                        borderWidth: 1,
-                        cornerRadius: 8,
-                        padding: 10
                     }
                 }
-            }
-        });
+            });
+        } catch (e) {
+            console.error('Sector chart render error:', e);
+        }
     },
 
     renderWeeklyCallsChart(stats) {
