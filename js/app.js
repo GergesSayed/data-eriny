@@ -5,15 +5,41 @@
 const App = {
     currentPage: 'dashboard',
 
-    async init() {
-        const hideOverlay = () => {
-            const loadingOverlay = document.getElementById('loading-overlay');
-            if (loadingOverlay) {
-                loadingOverlay.classList.add('hidden');
-                loadingOverlay.style.display = 'none';
-                loadingOverlay.style.pointerEvents = 'none';
-                loadingOverlay.style.zIndex = '-100';
+    cleanAllOverlays() {
+        try {
+            const loader = document.getElementById('loading-overlay');
+            if (loader) {
+                loader.classList.add('hidden');
+                loader.style.setProperty('display', 'none', 'important');
+                loader.style.setProperty('pointer-events', 'none', 'important');
+                loader.style.setProperty('z-index', '-100', 'important');
             }
+            const sideOverlay = document.getElementById('sidebar-overlay');
+            if (sideOverlay && !sideOverlay.classList.contains('active')) {
+                sideOverlay.style.setProperty('display', 'none', 'important');
+                sideOverlay.style.setProperty('pointer-events', 'none', 'important');
+                sideOverlay.style.setProperty('z-index', '-100', 'important');
+            }
+            if (Storage.getCurrentUser()) {
+                const loginScreen = document.getElementById('login-screen');
+                if (loginScreen) {
+                    loginScreen.style.setProperty('display', 'none', 'important');
+                    loginScreen.style.setProperty('pointer-events', 'none', 'important');
+                    loginScreen.style.setProperty('z-index', '-100', 'important');
+                }
+            }
+            if (!document.querySelector('.modal.show')) {
+                document.body.style.overflow = '';
+                document.body.style.pointerEvents = 'auto';
+            }
+            document.documentElement.style.pointerEvents = 'auto';
+        } catch (e) {}
+    },
+
+    async init() {
+        this.cleanAllOverlays();
+        const hideOverlay = () => {
+            this.cleanAllOverlays();
         };
 
         // Force-hide overlay after 5 seconds max — prevents infinite loading on slow devices
