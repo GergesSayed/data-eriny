@@ -606,8 +606,11 @@ const App = {
         if (sidebar) sidebar.classList.remove('open');
         if (overlay) {
             overlay.classList.remove('active');
-            overlay.style.display = 'none';
-            overlay.style.pointerEvents = 'none';
+            overlay.style.setProperty('display', 'none', 'important');
+            overlay.style.setProperty('pointer-events', 'none', 'important');
+            overlay.style.setProperty('z-index', '-100', 'important');
+            overlay.style.setProperty('visibility', 'hidden', 'important');
+            overlay.style.setProperty('opacity', '0', 'important');
         }
     },
 
@@ -619,17 +622,15 @@ const App = {
         
         const isCurrentlyOpen = sidebar.classList.contains('open');
         if (isCurrentlyOpen) {
-            sidebar.classList.remove('open');
-            if (overlay) {
-                overlay.classList.remove('active');
-                overlay.style.display = 'none';
-                overlay.style.pointerEvents = 'none';
-            }
+            this.closeSidebar(e);
         } else {
             sidebar.classList.add('open');
             if (overlay) {
-                overlay.style.display = 'block';
-                overlay.style.pointerEvents = 'auto';
+                overlay.style.setProperty('display', 'block', 'important');
+                overlay.style.setProperty('pointer-events', 'auto', 'important');
+                overlay.style.setProperty('z-index', '9999', 'important');
+                overlay.style.setProperty('visibility', 'visible', 'important');
+                overlay.style.setProperty('opacity', '1', 'important');
                 overlay.classList.add('active');
             }
         }
