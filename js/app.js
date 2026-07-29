@@ -120,9 +120,11 @@ const App = {
             // Initialize routing
             this.initRouting();
 
-            // Register PWA Service Worker for offline capability
+            // Unregister PWA Service Worker to prevent stale mobile cache
             if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW reg error:', err));
+                navigator.serviceWorker.getRegistrations().then(regs => {
+                    for (let reg of regs) reg.unregister();
+                }).catch(() => {});
             }
 
             this.renderGlobalSearch();
