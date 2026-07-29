@@ -11,9 +11,7 @@ const Companies = {
     selectedCompanies: new Set(),
 
     init() {
-        if (window.innerWidth <= 768 || (typeof Storage !== 'undefined' && Storage.isMobile && Storage.isMobile())) {
-            this.viewMode = 'cards';
-        }
+        this.viewMode = 'table';
         this.bindEvents();
         this.refreshUserFilter();
         this.render();
