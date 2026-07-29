@@ -674,8 +674,7 @@ const App = {
             link.classList.toggle('active', link.dataset.page === page);
         });
         document.querySelectorAll('.mobile-nav-item').forEach(item => {
-            const href = item.getAttribute('href') || '';
-            item.classList.toggle('active', href.replace('#', '') === page);
+            item.classList.toggle('active', item.dataset.page === page);
         });
 
         // Cleanup previous page resources
