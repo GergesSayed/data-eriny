@@ -101,8 +101,8 @@ body {
     color: var(--text-primary);
     line-height: 1.6;
     min-height: 100vh;
-    display: block;
-    overflow: hidden; /* الـ main-wrapper هو container الـ scroll */
+    display: flex;
+    overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
 }
 
@@ -285,25 +285,14 @@ a:hover { color: var(--accent); }
     color: var(--text-muted);
 }
 
-/* ---- Main Wrapper — الحل النهائي المضمون ---- */
+/* ---- Main Wrapper ---- */
 .main-wrapper {
-    /*
-     * استخدام position:fixed مع right:عرض الـsidebar
-     * هذا يجعل المحتوى محدد بدقة بين اليسار 0 ويمين-260px
-     * مستحيل حدوث أي تداخل بهذه الطريقة
-    */
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: var(--sidebar-width);
-    bottom: 0;
+    flex: 1;
+    margin-right: var(--sidebar-width);
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
-    overflow-x: hidden;
-    -webkit-overflow-scrolling: touch;
-    z-index: 1;
-    transition: right var(--transition-slow);
+    transition: margin-right var(--transition-slow);
 }
 
 /* ---- Topbar ---- */
@@ -406,10 +395,7 @@ a:hover { color: var(--accent); }
 .content {
     flex: 1;
     padding: var(--content-padding);
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-    overflow-x: hidden;
+    max-width: 1600px;
 }
 
 /* ---- Page ---- */
@@ -1514,9 +1500,8 @@ a:hover { color: var(--accent); }
     .sidebar.open {
         transform: translateX(0);
     }
-    /* الـ sidebar مخفي: main-wrapper يمتد لكامل العرض */
     .main-wrapper {
-        right: 0;
+        margin-right: 0;
     }
     #toggle-sidebar {
         display: flex;
@@ -2148,10 +2133,6 @@ html:not(.user-logged-in) .login-screen-bg {
     pointer-events: auto !important;
     z-index: 99999 !important;
 }
-/* إلغاء padding الـ body لما شاشة اللوجن ظاهرة */
-html:not(.user-logged-in) body {
-    padding-right: 0 !important;
-}
 html.user-logged-in .login-screen-bg {
     display: none !important;
     pointer-events: none !important;
@@ -2522,9 +2503,9 @@ html.user-logged-in .login-screen-bg {
         cursor: pointer !important;
     }
 
-    /* الـ sidebar مخفي: main-wrapper يمتد لكامل العرض */
     .main-wrapper {
-        right: 0 !important;
+        margin-right: 0 !important;
+        width: 100% !important;
     }
 
     .mobile-bottom-nav {
