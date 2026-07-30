@@ -630,15 +630,22 @@ const ScraperPage = {
 
     startContinuousEnricher() {
         this.isEnricherActive = true;
+        this._enrichmentStatsShown = false;
         localStorage.setItem('fleetcrm_enricher_active', 'true');
-        App.showToast('💼 تم تشغيل إثراء LinkedIn! يعمل باستمرار في الخلفية.', 'success');
-        fetch('http://localhost:8888/api/run-enricher').catch(() => {});
+        App.showToast('💼 جاري تشغيل إثراء LinkedIn — يفحص الشركات التي تحتاج بيانات اتصال...', 'success');
+        this.executeLiveEnricherBatch();
         this.updateProcessButtons();
     },
 
     stopContinuousEnricher() {
         this.isEnricherActive = false;
+        this._enrichmentStatsShown = false;
         localStorage.setItem('fleetcrm_enricher_active', 'false');
+        if (this.enricherInterval) {
+            clearInterval(this.enricherInterval);
+            clearTimeout(this.enricherInterval);
+            this.enricherInterval = null;
+        }
         fetch('http://localhost:8888/api/stop?target=enricher').catch(() => {});
         App.showToast('⏹️ تم إيقاف إثراء LinkedIn.', 'info');
         this.updateProcessButtons();
@@ -890,10 +897,55 @@ const ScraperPage = {
         if (!this.isEnricherActive) return;
 
         const term = document.getElementById('sc-live-terminal');
+        const timeStr = new Date().toLocaleTimeString('ar-EG');
+
+        // Step 1: Try local Python LinkedIn enricher
+        try {
+            const resp = await fetch('http://localhost:8888/api/run-enricher', { signal: AbortSignal.timeout(3000) });
+            if (resp.ok) {
+                if (term) {
+                    term.textContent += `[${timeStr}] [✅ LINKEDIN] خادم LinkedIn المحلي يعمل — جاري إثراء بيانات المسؤولين...\n`;
+                    term.scrollTop = term.scrollHeight;
+                }
+                if (this.enricherInterval) clearInterval(this.enricherInterval);
+                this.enricherInterval = setInterval(() => {
+                    if (!this.isEnricherActive) { clearInterval(this.enricherInterval); return; }
+                    fetch('http://localhost:8888/api/scraper-stats').then(r => r.json()).then(stats => {
+                        const t = new Date().toLocaleTimeString('ar-EG');
+                        if (term) {
+                            term.textContent += `[${t}] [LINKEDIN] ${stats.linkedin_enriched || 0} شركة تم إثراؤها...\n`;
+                            term.scrollTop = term.scrollHeight;
+                        }
+                    }).catch(() => {});
+                }, 8000);
+                this._updateCounters();
+                return;
+            }
+        } catch(e) {
+            // Local server not available — expected on Vercel
+        }
+
+        // Step 2: No local server — scan companies needing enrichment
         if (term) {
-            const timeStr = new Date().toLocaleTimeString('ar-EG');
-            term.textContent += `[${timeStr}] [LINKEDIN-ENRICHER] Checking company decision makers... Enriched contact profiles updated.\n`;
-            term.scrollTop = term.scrollHeight;
+            const companies = Storage.getCompanies();
+            const needEnrichment = companies.filter(c => !c.contactPerson && !c.linkedinUrl && !c.linkedinContactUrl);
+            const haveDetails = companies.filter(c => c.contactPerson || c.linkedinUrl || c.linkedinContactUrl);
+
+            if (!this._enrichmentStatsShown) {
+                term.textContent += `[${timeStr}] [ℹ️ LINKEDIN] خادم LinkedIn المحلي غير متصل.\n`;
+                term.textContent += `[${timeStr}] [📊 إحصائية] ${needEnrichment.length} شركة بدون بيانات LinkedIn / جهة اتصال\n`;
+                term.textContent += `[${timeStr}] [📊 إحصائية] ${haveDetails.length} شركة لديها بيانات اتصال\n`;
+                term.textContent += `[${timeStr}] [💡 نصيحة] شغّل scaper/START.bat على جهازك المحلي لتفعيل إثراء LinkedIn\n`;
+                term.scrollTop = term.scrollHeight;
+                this._enrichmentStatsShown = true;
+                this._updateCounters();
+            }
+
+            // Schedule re-check every 30 seconds
+            if (this.isEnricherActive) {
+                this.enricherInterval = setTimeout(() => this.executeLiveEnricherBatch(), 30000);
+            }
+            return;
         }
     },
 
