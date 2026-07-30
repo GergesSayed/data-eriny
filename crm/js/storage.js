@@ -654,17 +654,17 @@ const AppStorage = {
             localStorage.removeItem('fleetcrm_deals_cleared_v3');
         } catch(e) {}
 
-        // FORCE CACHE RESET for v430000 to purge old synthetic company data from localStorage & IndexedDB
-        if (!localStorage.getItem('fleetcrm_clean_v430000')) {
+        // HARD FORCE CACHE RESET for v460000 — purges old 1022 synthetic companies dataset
+        if (!localStorage.getItem('fleetcrm_clean_v460000')) {
             localStorage.removeItem(this.KEYS.COMPANIES);
             localStorage.removeItem('fleetcrm_last_synced_hash');
             this.companiesMemory = null;
-            localStorage.setItem('fleetcrm_clean_v430000', 'true');
+            localStorage.setItem('fleetcrm_clean_v460000', 'true');
         }
 
         // 1. Check LocalStorage cache first or seed initial companies
         let cached = this._get(this.KEYS.COMPANIES);
-        if (cached && Array.isArray(cached) && cached.length > 0 && !cached[0].website?.includes('fleetcobranch')) {
+        if (cached && Array.isArray(cached) && cached.length <= 989 && cached.length > 0 && !cached[0].website?.includes('fleetcobranch')) {
             this.companiesMemory = this.cleanAndFixCompanyData(cached.map(c => {
                 c.sector = this.mapScraperSectorToCRM(c.sector);
                 c.city = this.mapScraperCityToCRM(c.city);
@@ -794,13 +794,12 @@ const AppStorage = {
             this._set(this.KEYS.COMPANIES, []);
             return;
         }
-        if (this.companiesMemory && this.companiesMemory.length > 0 && !this.companiesMemory[0].website?.includes('fleetcobranch')) return;
 
-        // 1. Load static JSON bundled with app (1000 real companies) FIRST
+        // 1. Load static JSON bundled with app (989 clean companies) FIRST
         const jsonPaths = ['./data/companies.json', '/data/companies.json'];
         for (const path of jsonPaths) {
             try {
-                const resp = await fetch(path + '?v=430000');
+                const resp = await fetch(path + '?v=460000');
                 if (resp.ok) {
                     const jsonData = await resp.json();
                     if (Array.isArray(jsonData) && jsonData.length > 0) {
@@ -844,17 +843,17 @@ const AppStorage = {
                 
                 request.onsuccess = (event) => {
                     const data = event.target.result || [];
-                    // Check if IndexedDB data is stale/synthetic (contains 'fleetcobranch')
-                    const isStale = data.length > 0 && (data[0].website?.includes('fleetcobranch') || !data[0].google_maps_url);
+                    // Strict freshness check: length MUST be exactly 989 and first item MUST be Talabat (id=m007803)
+                    const isFresh = data.length > 0 && data.length <= 989 && data[0].id === 'm007803' && !data[0].website?.includes('fleetcobranch');
 
-                    if (data.length > 0 && !isStale) {
+                    if (isFresh) {
                         const idbMapped = data.map((c, idx) => this._normalizeCompanyData(c, idx));
                         this.companiesMemory = idbMapped;
                         this._set(this.KEYS.COMPANIES, idbMapped);
                         this.ensureAssignedSampleCompanies();
                         resolve();
                     } else {
-                        // Clear stale IndexedDB records and load fresh companies.json
+                        // Clear stale IndexedDB records (1022 old companies) and load fresh companies.json
                         try {
                             const clearTx = db.transaction(['companies'], 'readwrite');
                             clearTx.objectStore('companies').clear();
