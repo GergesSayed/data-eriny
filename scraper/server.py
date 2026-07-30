@@ -444,6 +444,27 @@ class ScraperHandler(SimpleHTTPRequestHandler):
                 self.wfile.write(json.dumps({'status': 'error', 'message': str(e)}).encode('utf-8'))
             return
 
+        # API: Sync to Supabase Cloud
+        elif path == '/api/supabase-sync':
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            
+            try:
+                cmd = [sys.executable, '-X', 'utf8', 'sync_to_supabase.py']
+                creation_flags = 0
+                if sys.platform == 'win32':
+                    creation_flags = 0x08000000
+                res = subprocess.run(cmd, capture_output=True, text=True, creationflags=creation_flags, timeout=60)
+                self.wfile.write(json.dumps({
+                    'status': 'success',
+                    'message': 'تم رفع البيانات إلى Supabase بنجاح',
+                    'output': res.stdout[-500:] if res.stdout else ''
+                }).encode('utf-8'))
+            except Exception as e:
+                self.wfile.write(json.dumps({'status': 'error', 'message': str(e)}).encode('utf-8'))
+            return
+
         # Default: Serve static files
         return super().do_GET()
 
