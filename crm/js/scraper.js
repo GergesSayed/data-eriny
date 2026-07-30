@@ -654,6 +654,31 @@ const ScraperPage = {
             this.scraperInterval = setTimeout(() => this.executeLiveScraperBatch(), 8000);
         }
 
+        // ── Phase 2.5: Try local Google Maps Scraper (if server running) ──
+        log('');
+        log('[2.5] 🗺️📱 محاولة تشغيل Google Maps Scraper المحلي...');
+        try {
+            const ping = await fetch('http://localhost:8888/api/scraper-stats', { signal: AbortSignal.timeout(2000) });
+            if (ping.ok) {
+                log('   ✅ خادم Python المحلي متصل (Port 8888)');
+                log('   🚀 جاري تشغيل ultra_scraper.py (Google Maps مباشر)...');
+                const startResp = await fetch('http://localhost:8888/api/run-scraper', { signal: AbortSignal.timeout(5000) });
+                if (startResp.ok) {
+                    log('   ✅ Google Maps Scraper بدأ في السحب على جهازك المحلي');
+                    log('   📊 هذا المصدر يوفر أعلى جودة: تليفونات، عناوين، تقييمات');
+                    log('   ⏳ السحب مستمر في الخلفية — البيانات هترفع تلقائياً');
+                } else {
+                    log('   ⚠️ فشل تشغيل السكرابر المحلي');
+                }
+            } else {
+                log('   ℹ️ السيرفر المحلي غير متصل — تخطي Google Maps');
+                log('   💡 للتشغيل: افتح scraper/START.bat على جهازك واختار 8');
+            }
+        } catch(e) {
+            log('   ℹ️ السيرفر المحلي غير متصل (طبيعي على Vercel)');
+            log('   💡 للتشغيل: scraper/START.bat ← اختيار 8 ← اختيار 1 أو 2');
+        }
+
         // ── Phase 3: Sync to Supabase ──
         log('[3/3] ☁️ رفع البيانات إلى السحابة (Supabase)...');
         if (window.SupabaseClient) {

@@ -17,7 +17,8 @@ echo   [4] Smart Puller - All Sectors (300-1000 شركة)
 echo   [5] Mega Scraper - All Sources (500-5000 شركة)
 echo   [6] Sync to Supabase - رفع البيانات للسحابة
 echo   [7] Open CRM Online (Vercel)
-echo   [8] Open CRM Local + Server
+echo   [8] Start Local Server — يشغل السيرفر المحلي للـ CRM (Google Maps)
+echo       (يفتح المتصفح + السيرفر — CRM يقدر يتحكم في السكرابر)
 echo   [9] Install Dependencies
 echo   [0] Exit
 echo.
