@@ -18,10 +18,10 @@ const Companies = {
     },
 
     refreshUserFilter() {
-        const currentUser = CRM.getCurrentUser();
-        const isAdmin = CRM.isAdmin(currentUser);
-        const users = (CRM.getUsers() || []).filter(u => u.role !== 'admin');
-        const allUsers = CRM.getUsers() || [];
+        const currentUser = window.CRM.getCurrentUser();
+        const isAdmin = window.CRM.isAdmin(currentUser);
+        const users = (window.CRM.getUsers() || []).filter(u => u.role !== 'admin');
+        const allUsers = window.CRM.getUsers() || [];
 
         // 1. Filter dropdown container visibility
         const filterGroup = document.getElementById('filter-assigned-group') || document.getElementById('filter-assigned')?.parentElement;
@@ -137,12 +137,12 @@ const Companies = {
     },
 
     confirmWipeAllCompanies() {
-        if (!CRM.isAdmin()) {
+        if (!window.CRM.isAdmin()) {
             App.showToast('🔒 مسح الشركات مقتصر على المدير العام فقط', 'warning');
             return;
         }
         App.confirm('⚠️ مسح جميع الشركات بالكامل', 'هل أنت متأكد من رغبتك في مسح وتفريغ جميع الشركات من المنظومة والسحابة بالكامل؟ لا يمكن التراجع عن هذا الإجراء.', () => {
-            CRM.deleteAllCompanies();
+            window.CRM.deleteAllCompanies();
             this.currentPage = 1;
             this.selectedCompanies.clear();
             this.render();
@@ -176,7 +176,7 @@ const Companies = {
     },
 
     getFilteredCompanies() {
-        const rawCompanies = CRM.getScopedCompanies();
+        const rawCompanies = window.CRM.getScopedCompanies();
         if (!rawCompanies || rawCompanies.length === 0) return [];
 
         const sector = document.getElementById('filter-sector')?.value;
@@ -188,7 +188,7 @@ const Companies = {
         const sortMode = document.getElementById('filter-sort')?.value || 'latest';
         const assigned = document.getElementById('filter-assigned')?.value;
         const search = document.getElementById('filter-search')?.value?.toLowerCase().trim();
-        const currentUser = CRM.getCurrentUser();
+        const currentUser = window.CRM.getCurrentUser();
         const now = Date.now();
         const todayStr = new Date().toISOString().split('T')[0];
 
@@ -319,8 +319,8 @@ const Companies = {
         const empty = document.getElementById('companies-empty');
         const tableView = document.getElementById('companies-table-view');
         const cardsView = document.getElementById('companies-cards-view');
-        const currentUser = CRM.getCurrentUser();
-        const isAdmin = CRM.isAdmin(currentUser);
+        const currentUser = window.CRM.getCurrentUser();
+        const isAdmin = window.CRM.isAdmin(currentUser);
 
         const thSelectAll = document.getElementById('th-select-all-companies');
         if (thSelectAll) thSelectAll.style.display = isAdmin ? 'table-cell' : 'none';
@@ -337,9 +337,9 @@ const Companies = {
         if (empty) empty.style.display = 'none';
 
         tbody.innerHTML = companies.map(c => {
-            const esc = (s) => CRM.escapeHtml(s || '');
-            const sectorLabel = CRM.getSectorLabel(c.sector);
-            const cityLabel = CRM.getCityLabel(c.city);
+            const esc = (s) => window.CRM.escapeHtml(s || '');
+            const sectorLabel = window.CRM.getSectorLabel(c.sector);
+            const cityLabel = window.CRM.getCityLabel(c.city);
             const phone = esc(c.phone1 || c.mobile || c.phone2 || '—');
             const fleet = c.fleetSize ? `🚛 ${c.fleetSize}` : '—';
             const contact = esc(c.contactPerson || '—');
@@ -363,7 +363,7 @@ const Companies = {
             if (c.lastCallResult) {
                 callResultBadge = `
                     <div>
-                        <span class="result-badge result-${c.lastCallResult}" style="font-size:0.75rem;">${CRM.getCallResultLabel(c.lastCallResult)}</span>
+                        <span class="result-badge result-${c.lastCallResult}" style="font-size:0.75rem;">${window.CRM.getCallResultLabel(c.lastCallResult)}</span>
                         ${c.lastCallDate ? `<small style="display:block; font-size:10px; color:var(--text-muted); margin-top:2px;">${c.lastCallDate}</small>` : ''}
                     </div>`;
             } else if (c.status === 'interested') {
@@ -412,7 +412,7 @@ const Companies = {
                             <button class="btn-icon btn-call" onclick="event.stopPropagation(); App.logCallForCompany('${c.id}')" title="مكالمة">
                                 <i class="fas fa-phone"></i>
                             </button>
-                            ${CRM.canModify(currentUser) ? `
+                            ${window.CRM.canModify(currentUser) ? `
                                 <button class="btn-icon btn-edit" onclick="event.stopPropagation(); Companies.edit('${c.id}')" title="تعديل">
                                     <i class="fas fa-edit"></i>
                                 </button>
@@ -451,9 +451,9 @@ const Companies = {
         if (empty) empty.style.display = 'none';
 
         cardsView.innerHTML = companies.map(c => {
-            const esc = (s) => CRM.escapeHtml(s || '');
-            const sectorLabel = CRM.getSectorLabel(c.sector);
-            const cityLabel = CRM.getCityLabel(c.city);
+            const esc = (s) => window.CRM.escapeHtml(s || '');
+            const sectorLabel = window.CRM.getSectorLabel(c.sector);
+            const cityLabel = window.CRM.getCityLabel(c.city);
             const rawPhone = String(c.phone1 || c.mobile || c.phone2 || '');
             const cleanPhone = rawPhone.replace(/[^0-9+]/g, '');
             const phone = esc(rawPhone || '—');
@@ -508,7 +508,7 @@ const Companies = {
                         </div>
                         <div class="table-actions" onclick="event.stopPropagation();">
                             <button class="btn-icon btn-view" onclick="event.stopPropagation(); Companies.showDetail('${c.id}')" title="تفاصيل"><i class="fas fa-eye"></i></button>
-                            ${CRM.canModify(currentUser) ? `
+                            ${window.CRM.canModify(currentUser) ? `
                                 <button class="btn-icon btn-edit" onclick="event.stopPropagation(); Companies.edit('${c.id}')" title="تعديل"><i class="fas fa-edit"></i></button>
                                 <button class="btn-icon btn-delete" onclick="event.stopPropagation(); Companies.confirmDelete('${c.id}')" title="حذف"><i class="fas fa-trash"></i></button>
                             ` : ''}
@@ -560,8 +560,8 @@ const Companies = {
     },
 
     claimLead(companyId) {
-        const currentUser = CRM.getCurrentUser();
-        CRM.assignCompany(companyId, currentUser.id);
+        const currentUser = window.CRM.getCurrentUser();
+        window.CRM.assignCompany(companyId, currentUser.id);
         App.showToast(`✅ تم حجز الشركة باسم ${currentUser.name}`);
         this.render();
     },
@@ -586,8 +586,8 @@ const Companies = {
     },
 
     updateBulkBar() {
-        const currentUser = CRM.getCurrentUser();
-        const isAdmin = CRM.isAdmin(currentUser);
+        const currentUser = window.CRM.getCurrentUser();
+        const isAdmin = window.CRM.isAdmin(currentUser);
         const bulkBar = document.getElementById('bulk-actions-bar');
 
         if (!isAdmin) {
@@ -612,8 +612,8 @@ const Companies = {
     },
 
     applyBulkAssign() {
-        const currentUser = CRM.getCurrentUser();
-        if (!CRM.isAdmin(currentUser)) {
+        const currentUser = window.CRM.getCurrentUser();
+        if (!window.CRM.isAdmin(currentUser)) {
             App.showToast('⚠️ إعادة التخصيص التجميعي مسموحة فقط للمدير العام', 'error');
             return;
         }
@@ -622,8 +622,8 @@ const Companies = {
         if (this.selectedCompanies.size === 0) return;
 
         const ids = Array.from(this.selectedCompanies);
-        const count = CRM.bulkAssignCompanies(ids, userId);
-        const userName = userId ? (CRM.getUser(userId)?.name || userId) : 'إلغاء المسند إليه';
+        const count = window.CRM.bulkAssignCompanies(ids, userId);
+        const userName = userId ? (window.CRM.getUser(userId)?.name || userId) : 'إلغاء المسند إليه';
 
         App.showToast(`✅ تم تعيين ${count} شركة لـ ${userName}`);
         this.clearSelection();
@@ -631,11 +631,11 @@ const Companies = {
 
     // ---- Data Audit & Quality Engine ----
     openAuditModal() {
-        if (!CRM.isAdmin()) {
+        if (!window.CRM.isAdmin()) {
             App.showToast('⛔ عذراً، فحص البيانات مقتصر على المدير العام فقط!', 'error');
             return;
         }
-        const report = CRM.auditCompanyData();
+        const report = window.CRM.auditCompanyData();
         const body = document.getElementById('data-audit-body');
         if (!body) return;
 
@@ -714,7 +714,7 @@ const Companies = {
     },
 
     runAutoCleanAndMerge() {
-        const res = CRM.autoCleanAndMergeDuplicates();
+        const res = window.CRM.autoCleanAndMergeDuplicates();
         App.showToast(`✅ تم دمج ${res.mergedCount} شركة مكررة وتنظيف البيانات بنجاح! الإجمالي الآن: ${res.remainingTotal} شركة`, 'success');
         this.openAuditModal();
         this.render();
@@ -723,7 +723,7 @@ const Companies = {
 
     // ---- CRUD ----
     openAddModal() {
-        if (!CRM.isAdmin()) {
+        if (!window.CRM.isAdmin()) {
             App.showToast('🔒 إضافة شركات جديدة مقتصرة على المدير العام فقط', 'warning');
             return;
         }
@@ -734,11 +734,11 @@ const Companies = {
     },
 
     edit(id) {
-        if (!CRM.isAdmin()) {
+        if (!window.CRM.isAdmin()) {
             App.showToast('🔒 تعديل بيانات الشركة مقتصر على المدير العام فقط', 'warning');
             return;
         }
-        const company = CRM.getCompany(id);
+        const company = window.CRM.getCompany(id);
         if (!company) return;
 
         document.getElementById('modal-company-title').innerHTML = '<i class="fas fa-edit"></i> تعديل بيانات الشركة';
@@ -788,7 +788,7 @@ const Companies = {
         company.fleetSize = parseInt(company.fleetSize) || 0;
         company.branchesCount = parseInt(company.branchesCount) || 0;
 
-        CRM.saveCompany(company);
+        window.CRM.saveCompany(company);
         App.closeModal('modal-company');
         App.showToast(id ? 'تم تحديث بيانات الشركة' : 'تم إضافة الشركة بنجاح', 'success');
         this.render();
@@ -796,15 +796,15 @@ const Companies = {
     },
 
     confirmDelete(id) {
-        if (!CRM.isAdmin()) {
+        if (!window.CRM.isAdmin()) {
             App.showToast('🔒 حذف الشركات مقتصر على المدير العام فقط', 'warning');
             return;
         }
-        const company = CRM.getCompany(id);
+        const company = window.CRM.getCompany(id);
         if (!company) return;
 
         App.confirm('🗑️ حذف الشركة', `هل أنت متأكد من حذف "${company.nameAr || company.nameEn}"؟ سيتم حذف جميع المكالمات والصفقات المرتبطة بها.`, () => {
-            CRM.deleteCompany(id);
+            window.CRM.deleteCompany(id);
             App.showToast('تم حذف الشركة بنجاح', 'success');
             this.render();
             if (typeof Dashboard !== 'undefined') Dashboard.render();
@@ -812,14 +812,14 @@ const Companies = {
     },
 
     showDetail(id) {
-        const company = CRM.getCompany(id);
+        const company = window.CRM.getCompany(id);
         if (!company) return;
 
-        const esc = (s) => CRM.escapeHtml(s || '');
+        const esc = (s) => window.CRM.escapeHtml(s || '');
         document.getElementById('detail-company-name').textContent = company.nameAr || company.nameEn;
 
-        const calls = CRM.getCallsForCompany(id);
-        const deals = CRM.getDeals().filter(d => d.companyId === id);
+        const calls = window.CRM.getCallsForCompany(id);
+        const deals = window.CRM.getDeals().filter(d => d.companyId === id);
 
         // Tire lead logic
         let tirePitchHtml = '';
@@ -951,7 +951,7 @@ const Companies = {
         
         // Add manual calls to timeline
         calls.forEach(call => {
-            timelineList.push({ date: call.date, event: `تم تسجيل اتصال مبيعات: نتيجة (${CRM.getCallResultLabel(call.result).replace(/<\/?[^>]+(>|$)/g, "")})` });
+            timelineList.push({ date: call.date, event: `تم تسجيل اتصال مبيعات: نتيجة (${window.CRM.getCallResultLabel(call.result).replace(/<\/?[^>]+(>|$)/g, "")})` });
         });
         
         // Sort descending
@@ -994,10 +994,10 @@ const Companies = {
                         <h3><i class="fas fa-info-circle"></i> معلومات الشركة</h3>
                         ${this._detailRow('الاسم (عربي)', esc(company.nameAr))}
                         ${this._detailRow('الاسم (إنجليزي)', esc(company.nameEn))}
-                        ${this._detailRow('القطاع', CRM.getSectorLabel(company.sector))}
+                        ${this._detailRow('القطاع', window.CRM.getSectorLabel(company.sector))}
                         ${this._detailRow('نشاط الخرائط', esc(company.sector_details))}
                         ${this._detailRow('حالة النشاط', statusLabel)}
-                        ${this._detailRow('المنطقة', CRM.getCityLabel(company.city))}
+                        ${this._detailRow('المنطقة', window.CRM.getCityLabel(company.city))}
                         ${this._detailRow('المحافظة', esc(company.governorate))}
                         ${this._detailRow('العنوان', esc(company.address))}
                         ${this._detailRow('الموقع على الخريطة', company.google_maps_url ? `<a href="${esc(company.google_maps_url)}" target="_blank" style="color:#ea4335;"><i class="fas fa-map-marker-alt"></i> عرض على Google Maps</a>` : '—')}
@@ -1009,7 +1009,7 @@ const Companies = {
                     <div class="detail-section">
                         <h3><i class="fas fa-truck"></i> بيانات الأسطول</h3>
                         ${this._detailRow('حجم الأسطول', company.fleetSize ? company.fleetSize + ' سيارة' : '—')}
-                        ${this._detailRow('نوع الأسطول', CRM.getFleetTypeLabel(company.fleetType))}
+                        ${this._detailRow('نوع الأسطول', window.CRM.getFleetTypeLabel(company.fleetType))}
                     </div>
                 </div>
                 <div>
@@ -1056,7 +1056,7 @@ const Companies = {
                 calls.slice(0, 10).map(call => `
                     <div class="detail-call-item">
                         <span style="color:var(--text-muted); font-family:Inter; font-size:0.75rem; min-width:80px;">${call.date}</span>
-                        <span class="result-badge result-${call.result}">${CRM.getCallResultLabel(call.result)}</span>
+                        <span class="result-badge result-${call.result}">${window.CRM.getCallResultLabel(call.result)}</span>
                         <span style="flex:1; font-size:0.8rem; color:var(--text-secondary);">${call.notes || ''}</span>
                     </div>
                 `).join('')}
@@ -1068,8 +1068,8 @@ const Companies = {
                     ${deals.map(deal => `
                         <div class="detail-call-item">
                             <span style="font-weight:600; font-size:0.85rem;">${deal.title}</span>
-                            <span class="badge badge-accent" style="font-family:Inter;">${CRM.formatCurrency(deal.value)} ج.م</span>
-                            <span class="badge badge-primary">${CRM.PIPELINE_STAGES[deal.stage]?.ar || deal.stage}</span>
+                            <span class="badge badge-accent" style="font-family:Inter;">${window.CRM.formatCurrency(deal.value)} ج.م</span>
+                            <span class="badge badge-primary">${window.CRM.PIPELINE_STAGES[deal.stage]?.ar || deal.stage}</span>
                         </div>
                     `).join('')}
                 </div>
@@ -1096,9 +1096,9 @@ const Companies = {
     },
 
     buildAssignedWidget(c) {
-        const currentUser = CRM.getCurrentUser();
-        const users = CRM.getUsers() || [];
-        const assignedUser = CRM.getUser(c.assignedTo);
+        const currentUser = window.CRM.getCurrentUser();
+        const users = window.CRM.getUsers() || [];
+        const assignedUser = window.CRM.getUser(c.assignedTo);
 
         if (assignedUser) {
             return `
@@ -1106,7 +1106,7 @@ const Companies = {
                     <span class="badge" style="background:${assignedUser.color || '#7c3aed'}22; color:${assignedUser.color || '#7c3aed'}; border:1px solid ${assignedUser.color || '#7c3aed'}66; padding:4px 8px; font-weight:700; font-size:0.75rem; border-radius:6px; display:inline-flex; align-items:center; gap:4px;" title="تاريخ التعيين: ${c.assignedAt ? new Date(c.assignedAt).toLocaleDateString('ar-EG') : ''}">
                         ${assignedUser.avatar || '👤'} ${assignedUser.name}
                     </span>
-                    ${CRM.canModify() ? `
+                    ${window.CRM.canModify() ? `
                         <select onchange="Companies.assignToUser('${c.id}', this.value)" style="padding:2px 6px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-muted); font-size:11px; cursor:pointer;" title="تغيير الموظف المسند إليه أو إلغاء التعيين">
                             <option value="${assignedUser.id}" selected>✏️ تغيير</option>
                             <option value="">⚪ إلغاء التعيين</option>
@@ -1115,7 +1115,7 @@ const Companies = {
                     ` : ''}
                 </div>`;
         } else {
-            return CRM.canModify() ? `
+            return window.CRM.canModify() ? `
                 <div onclick="event.stopPropagation();" style="display:inline-block;">
                     <select onchange="Companies.assignToUser('${c.id}', this.value)" style="padding:4px 8px; border-radius:6px; border:1px dashed #7c3aed; background:rgba(124, 58, 237, 0.1); color:#7c3aed; font-size:0.75rem; font-weight:700; cursor:pointer;" title="اختر الموظف لإسناد هذه الشركة له">
                         <option value="" selected>➕ إسناد لموظف...</option>
@@ -1127,7 +1127,7 @@ const Companies = {
     },
 
     assignToUser(companyId, userId) {
-        const currentUser = CRM.getCurrentUser();
+        const currentUser = window.CRM.getCurrentUser();
         let targetUserId = userId;
 
         if (userId === 'current_user') {
@@ -1135,11 +1135,11 @@ const Companies = {
         }
 
         if (!targetUserId) {
-            CRM.assignCompany(companyId, '');
+            window.CRM.assignCompany(companyId, '');
             App.showToast('🗑️ تم إلغاء حجز وتخصيص الشركة');
         } else {
-            CRM.assignCompany(companyId, targetUserId);
-            const targetUser = CRM.getUser(targetUserId);
+            window.CRM.assignCompany(companyId, targetUserId);
+            const targetUser = window.CRM.getUser(targetUserId);
             App.showToast(`✅ تم حجز وإسناد الشركة لـ: ${targetUser ? targetUser.name : targetUserId}`);
         }
 
@@ -1147,9 +1147,9 @@ const Companies = {
     },
 
     claimLead(companyId) {
-        const currentUser = CRM.getCurrentUser();
+        const currentUser = window.CRM.getCurrentUser();
         if (!currentUser) return;
-        CRM.assignCompany(companyId, currentUser.id);
+        window.CRM.assignCompany(companyId, currentUser.id);
         App.showToast(`✅ تم حجز هذه الشركة لـ: ${currentUser.name}`);
         this.render();
     },

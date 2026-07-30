@@ -258,7 +258,7 @@ const ScraperPage = {
     },
 
     getLocalStatsData() {
-        const companies = CRM.getCompanies() || [];
+        const companies = window.CRM.getCompanies() || [];
         const total = companies.length;
         const withPhone = companies.filter(c => c.phone1 || c.mobile).length;
         const withLinkedin = companies.filter(c => c.linkedinUrl || c.linkedin).length;
@@ -342,7 +342,7 @@ const ScraperPage = {
     },
 
     updateUI(statsData) {
-        const esc = (s) => (typeof CRM !== 'undefined' && CRM.escapeHtml ? CRM.escapeHtml(s || '') : (s || ''));
+        const esc = (s) => (typeof window.CRM !== 'undefined' && window.CRM.escapeHtml ? window.CRM.escapeHtml(s || '') : (s || ''));
         const total = statsData.total;
         const withPhone = statsData.with_phone;
         const searches = statsData.completed_searches_count;
@@ -403,7 +403,7 @@ const ScraperPage = {
         document.getElementById('sc-sectors').innerHTML = sortedStats.length > 0
             ? sortedStats.map(([name, count]) => `
                 <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;margin:4px 0;background:var(--bg-tertiary);border-radius:8px;">
-                    <span style="font-size:13px; font-weight:600; color:var(--text-primary);"><i class="fas fa-industry" style="color:#7c3aed;margin-left:6px;font-size:10px;"></i>${CRM.getScraperSectorAr(name)}</span>
+                    <span style="font-size:13px; font-weight:600; color:var(--text-primary);"><i class="fas fa-industry" style="color:#7c3aed;margin-left:6px;font-size:10px;"></i>${window.CRM.getScraperSectorAr(name)}</span>
                     <span style="background:#7c3aed;color:#fff;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:700;">${count.toLocaleString()}</span>
                 </div>
             `).join('')
@@ -416,7 +416,7 @@ const ScraperPage = {
                 <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;margin:4px 0;background:var(--bg-tertiary);border-radius:8px;">
                     <div>
                         <div style="font-size:13px;font-weight:600;">${esc(c.nameAr || c.nameEn || '—')}</div>
-                        <div style="font-size:11px;color:var(--text-muted);">${CRM.getCityLabel(c.city)} • ${CRM.getSectorLabel(c.sector)}</div>
+                        <div style="font-size:11px;color:var(--text-muted);">${window.CRM.getCityLabel(c.city)} • ${window.CRM.getSectorLabel(c.sector)}</div>
                     </div>
                     <span style="font-size:12px;color:${c.phone1 ? '#10b981' : '#ef4444'};">${esc(c.phone1 || 'بدون رقم')}</span>
                 </div>
@@ -445,7 +445,7 @@ const ScraperPage = {
             : '<p style="color:var(--text-muted);text-align:center;padding:20px;">لم يتم إثراء شركات بعد</p>';
 
         // CRM Sync status
-        const crmCount = CRM.getCompanies().length;
+        const crmCount = window.CRM.getCompanies().length;
         document.getElementById('sc-sync-status').innerHTML = `
             <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
                 <div style="padding:12px 20px;background:var(--bg-tertiary);border-radius:10px;">
@@ -480,7 +480,7 @@ const ScraperPage = {
                     App.openModal('modal-confirm');
                     document.getElementById('confirm-message').textContent = '⚠️ هل تريد مسح جميع البيانات الحالية في الـ CRM لمزامنة الحالة الفارغة؟';
                     document.getElementById('btn-confirm-action').onclick = () => {
-                        CRM.clearAll();
+                        window.CRM.clearAll();
                         App.closeModal('modal-confirm');
                         App.showToast('✅ تم مسح قاعدة بيانات الـ CRM بنجاح!');
                         this.fetchData();
@@ -503,14 +503,14 @@ const ScraperPage = {
                     if (company.fleetSize === undefined) company.fleetSize = 0;
                     if (!company.contactPerson) company.contactPerson = '';
                     if (!company.contactTitle) company.contactTitle = '';
-                    company.priority = CRM.calculatePriority(company.sector);
+                    company.priority = window.CRM.calculatePriority(company.sector);
                     if (!company.status) company.status = 'new';
                     if (!company.notes) company.notes = 'Source: ' + (company.source || 'scraper');
                     if (!company.createdAt) company.createdAt = new Date().toISOString();
                     if (!company.lastUpdated) company.lastUpdated = new Date().toISOString().split('T')[0];
                     return company;
                 });
-                CRM.setCompanies(formatted);
+                window.CRM.setCompanies(formatted);
                 alert(`✅ تم تحميل ${formatted.length.toLocaleString()} شركة في CRM!`);
                 this.fetchData();
                 document.getElementById('sidebar-total-companies').textContent = formatted.length;
@@ -530,7 +530,7 @@ const ScraperPage = {
             
             const lastImportMtime = Number(localStorage.getItem('fleetcrm_last_import_mtime') || '0');
             const hasNewData = stats.last_mtime_crm && stats.last_mtime_crm !== lastImportMtime;
-            const crmCount = CRM.getCompanies().length;
+            const crmCount = window.CRM.getCompanies().length;
             const hasNewCount = stats.total && stats.total !== crmCount;
             
             if (hasNewData || hasNewCount) {
@@ -544,8 +544,8 @@ const ScraperPage = {
                     if (!company.id) company.id = 'imp_' + Date.now() + '_' + i;
                     if (!company.nameAr) company.nameAr = '';
                     if (!company.nameEn) company.nameEn = '';
-                    company.sector = CRM.mapScraperSectorToCRM(c.sector);
-                    company.city = CRM.mapScraperCityToCRM(c.city);
+                    company.sector = window.CRM.mapScraperSectorToCRM(c.sector);
+                    company.city = window.CRM.mapScraperCityToCRM(c.city);
                     if (!company.phone1) company.phone1 = '';
                     if (!company.phone2) company.phone2 = '';
                     if (!company.email) company.email = '';
@@ -554,7 +554,7 @@ const ScraperPage = {
                     if (company.fleetSize === undefined) company.fleetSize = 0;
                     if (!company.contactPerson) company.contactPerson = '';
                     if (!company.contactTitle) company.contactTitle = '';
-                    company.priority = CRM.calculatePriority(company.sector);
+                    company.priority = window.CRM.calculatePriority(company.sector);
                     if (!company.status) company.status = 'new';
                     if (!company.notes) company.notes = 'Source: ' + (company.source || 'scraper');
                     if (!company.createdAt) company.createdAt = new Date().toISOString();
@@ -562,14 +562,14 @@ const ScraperPage = {
                     return company;
                 });
                 
-                await CRM.addCompanies(formatted);
+                await window.CRM.addCompanies(formatted);
                 if (stats.last_mtime_crm) {
                     localStorage.setItem('fleetcrm_last_import_mtime', stats.last_mtime_crm.toString());
                 }
                 console.log(`🔄 Auto-synced and merged ${formatted.length} companies to CRM`);
                 
                 const sideCounter = document.getElementById('sidebar-total-companies');
-                if (sideCounter) sideCounter.textContent = CRM.getCompanies().length.toLocaleString();
+                if (sideCounter) sideCounter.textContent = window.CRM.getCompanies().length.toLocaleString();
                 
                 this.fetchData();
             }
@@ -786,20 +786,20 @@ const ScraperPage = {
         };
 
         // Filter out old demo companies
-        let clean = CRM.getCompanies().filter(c => !c.id.startsWith('sc_demo_') && !(c.nameAr && c.nameAr.includes('[DEMO]')));
-        CRM.setCompanies(clean);
+        let clean = window.CRM.getCompanies().filter(c => !c.id.startsWith('sc_demo_') && !(c.nameAr && c.nameAr.includes('[DEMO]')));
+        window.CRM.setCompanies(clean);
 
-        await CRM.addCompanies([newComp]);
+        await window.CRM.addCompanies([newComp]);
 
         if (term) {
-            const logLine = `[${timeStr}] [MAPS-SCRAPER] Batch #${this.batchCounter} extracted: "${newComp.nameAr}" (${CRM.getSectorLabel(newComp.sector)}) — 📞 Phone: ${newComp.phone1} — 🚛 Fleet: ${newComp.fleetSize} vehicles.\n`;
+            const logLine = `[${timeStr}] [MAPS-SCRAPER] Batch #${this.batchCounter} extracted: "${newComp.nameAr}" (${window.CRM.getSectorLabel(newComp.sector)}) — 📞 Phone: ${newComp.phone1} — 🚛 Fleet: ${newComp.fleetSize} vehicles.\n`;
             term.textContent += logLine;
             term.scrollTop = term.scrollHeight;
         }
 
         this.updateProcessButtons();
 
-        const totalCount = CRM.getCompanies().length;
+        const totalCount = window.CRM.getCompanies().length;
         const sideCounter = document.getElementById('sidebar-total-companies');
         if (sideCounter) sideCounter.textContent = totalCount.toLocaleString();
 
@@ -950,9 +950,9 @@ const ScraperPage = {
             }
 
             // Filter out any old demo companies from memory
-            let cleanCompanies = CRM.getCompanies().filter(c => !c.id.startsWith('sc_demo_') && !(c.nameAr && c.nameAr.includes('[DEMO]')));
-            CRM.setCompanies(cleanCompanies);
-            await CRM.addCompanies(formatted);
+            let cleanCompanies = window.CRM.getCompanies().filter(c => !c.id.startsWith('sc_demo_') && !(c.nameAr && c.nameAr.includes('[DEMO]')));
+            window.CRM.setCompanies(cleanCompanies);
+            await window.CRM.addCompanies(formatted);
 
             App.showToast(`🎉 تم السحب والمسح بنجاح! تم استخراج وإضافة ${formatted.length} شركة ومصنع أسطول موثقة 100%!`, 'success');
             
@@ -961,7 +961,7 @@ const ScraperPage = {
             this.fetchData();
             
             const sideCounter = document.getElementById('sidebar-total-companies');
-            if (sideCounter) sideCounter.textContent = CRM.getCompanies().length.toLocaleString();
+            if (sideCounter) sideCounter.textContent = window.CRM.getCompanies().length.toLocaleString();
         } catch (err) {
             console.error('Online cloud scraper error:', err);
             alert('حدث خطأ في السحب المباشر: ' + err.message);
@@ -1058,7 +1058,7 @@ const ScraperPage = {
                 console.log('Server clean endpoint fallback to client-side verification');
             }
 
-            let companies = CRM.getCompanies();
+            let companies = window.CRM.getCompanies();
             if (!companies || companies.length === 0) {
                 alert('⚠️ لا توجد شركات حالياً في النظام لفحصها وتدقيقها.');
                 return;
@@ -1091,7 +1091,7 @@ const ScraperPage = {
             });
 
             const cleaned = Array.from(uniqueMap.values());
-            CRM.setCompanies(cleaned);
+            window.CRM.setCompanies(cleaned);
             const removed = initialCount - cleaned.length;
 
             App.showToast(`✨ اكتمل التدقيق الفائق! تم اعتماد ${cleaned.length.toLocaleString()} شركة موثقة وتصفية ${removed} كيان مكرر/غير صحيح.`, 'success');

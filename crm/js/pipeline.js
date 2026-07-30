@@ -11,20 +11,20 @@ const Pipeline = {
     },
 
     render() {
-        const stats = CRM.getStats();
+        const stats = window.CRM.getStats();
         const dealsByStage = stats.dealsByStage;
         this.renderColumns(dealsByStage);
     },
 
     clearAllDeals() {
-        if (!CRM.isAdmin()) {
+        if (!window.CRM.isAdmin()) {
             App.showToast('⛔ عذراً، مسح الصفقات مقتصر على المدير العام فقط!', 'error');
             return;
         }
         App.openModal('modal-confirm');
         document.getElementById('confirm-message').textContent = 'هل أنت متأكد من مسح جميع الصفقات من خط المبيعات؟';
         document.getElementById('btn-confirm-action').onclick = () => {
-            CRM.clearAllDeals();
+            window.CRM.clearAllDeals();
             App.closeModal('modal-confirm');
             this.render();
             if (typeof Dashboard !== 'undefined') Dashboard.render();
@@ -35,10 +35,10 @@ const Pipeline = {
     renderColumns(dealsByStage) {
         // Update total pipeline value
         document.getElementById('pipeline-total-value').textContent =
-            CRM.formatCurrency(CRM.getPipelineValue()) + ' ج.م';
+            window.CRM.formatCurrency(window.CRM.getPipelineValue()) + ' ج.م';
 
         // Render each column
-        Object.keys(CRM.PIPELINE_STAGES).forEach(stage => {
+        Object.keys(window.CRM.PIPELINE_STAGES).forEach(stage => {
             const cards = dealsByStage[stage] || [];
             const container = document.querySelector(`.kanban-column__cards[data-stage="${stage}"]`);
             const count = document.getElementById(`stage-count-${stage}`);
@@ -56,8 +56,8 @@ const Pipeline = {
     },
 
     renderCard(deal) {
-        const esc = (s) => CRM.escapeHtml(s || '');
-        const company = CRM.getCompany(deal.companyId);
+        const esc = (s) => window.CRM.escapeHtml(s || '');
+        const company = window.CRM.getCompany(deal.companyId);
         const companyName = company ? esc(company.nameAr) : 'شركة غير معروفة';
         const tireTypes = {
             all: 'جميع الأنواع', truck: 'نقل ثقيل', light_truck: 'نقل خفيف',
@@ -75,7 +75,7 @@ const Pipeline = {
                     <i class="fas fa-building" style="margin-left:4px;"></i> <span>${companyName}</span> ${linkedinIcon}
                 </div>
                 ${tireLabel ? `<div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:0.3rem;"><i class="fas fa-circle-dot" style="font-size:0.5rem;"></i> ${esc(tireLabel)}</div>` : ''}
-                <div class="kanban-card__value">${CRM.formatCurrency(deal.value)} ج.م</div>
+                <div class="kanban-card__value">${window.CRM.formatCurrency(deal.value)} ج.م</div>
                 ${deal.quantity ? `<div style="font-size:0.7rem; color:var(--text-muted); margin-top:0.2rem;">الكمية: ${esc(String(deal.quantity))} إطار</div>` : ''}
                 <div class="kanban-card__footer">
                     <span>${esc(deal.expectedCloseDate || '')}</span>
@@ -111,10 +111,10 @@ const Pipeline = {
                 const newStage = col.dataset.stage;
 
                 if (dealId && newStage) {
-                    CRM.updateDealStage(dealId, newStage);
+                    window.CRM.updateDealStage(dealId, newStage);
                     this.render();
                     Dashboard.render();
-                    App.showToast(`تم نقل الصفقة إلى: ${CRM.PIPELINE_STAGES[newStage]?.ar}`, 'info');
+                    App.showToast(`تم نقل الصفقة إلى: ${window.CRM.PIPELINE_STAGES[newStage]?.ar}`, 'info');
                 }
             });
         });
@@ -144,7 +144,7 @@ const Pipeline = {
     },
 
     edit(id) {
-        const deal = CRM.getDeal(id);
+        const deal = window.CRM.getDeal(id);
         if (!deal) return;
 
         document.getElementById('modal-deal-title').innerHTML = '<i class="fas fa-edit"></i> تعديل الصفقة';
@@ -184,7 +184,7 @@ const Pipeline = {
         const id = document.getElementById('deal-id').value;
         if (id) deal.id = id;
 
-        CRM.saveDeal(deal);
+        window.CRM.saveDeal(deal);
         App.closeModal('modal-deal');
         App.showToast(id ? 'تم تحديث الصفقة' : 'تم إضافة الصفقة بنجاح', 'success');
         this.render();
@@ -192,7 +192,7 @@ const Pipeline = {
     },
 
     confirmDelete(id) {
-        const deal = CRM.getDeal(id);
+        const deal = window.CRM.getDeal(id);
         if (!deal) return;
 
         document.getElementById('confirm-message').textContent =
@@ -200,7 +200,7 @@ const Pipeline = {
 
         const confirmBtn = document.getElementById('btn-confirm-action');
         confirmBtn.onclick = () => {
-            CRM.deleteDeal(id);
+            window.CRM.deleteDeal(id);
             App.closeModal('modal-confirm');
             App.showToast('تم حذف الصفقة', 'success');
             this.render();

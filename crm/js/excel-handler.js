@@ -121,10 +121,10 @@ const ExcelHandler = {
     exportCompanies(companies, filename = 'fleet_crm_companies') {
         if (!Array.isArray(companies)) {
             filename = typeof filename === 'string' ? filename : 'fleet_crm_companies';
-            companies = (typeof Companies !== 'undefined' && Companies.getFilteredCompanies) ? Companies.getFilteredCompanies() : CRM.getCompanies();
+            companies = (typeof Companies !== 'undefined' && Companies.getFilteredCompanies) ? Companies.getFilteredCompanies() : window.CRM.getCompanies();
         }
         if (!Array.isArray(companies) || companies.length === 0) {
-            companies = CRM.getCompanies();
+            companies = window.CRM.getCompanies();
         }
         if (!companies || !Array.isArray(companies) || companies.length === 0) {
             App.showToast('⚠️ لا توجد شركات للتصدير', 'warning');
@@ -145,15 +145,15 @@ const ExcelHandler = {
             keys.forEach((key, i) => {
                 let value = comp[key] || '';
                 if (key === 'sector' && value) {
-                    const s = CRM.SECTORS[value];
+                    const s = window.CRM.SECTORS[value];
                     value = s ? s.ar : value;
                 }
                 if (key === 'city' && value) {
-                    const c = CRM.CITIES[value];
+                    const c = window.CRM.CITIES[value];
                     value = c ? c.ar : value;
                 }
                 if (key === 'fleetType' && value) {
-                    const f = CRM.FLEET_TYPES[value];
+                    const f = window.CRM.FLEET_TYPES[value];
                     value = f ? f.ar : value;
                 }
                 row[headers[i]] = value;
@@ -168,7 +168,7 @@ const ExcelHandler = {
         XLSX.utils.book_append_sheet(wb, ws, 'الشركات');
 
         // Add Sectors sheet
-        const sectorsData = Object.entries(CRM.SECTORS).map(([key, val]) => ({
+        const sectorsData = Object.entries(window.CRM.SECTORS).map(([key, val]) => ({
             'الرمز / Code': key,
             'القطاع (عربي) / Sector (AR)': val.ar,
             'القطاع (إنجليزي) / Sector (EN)': val.en,
@@ -178,7 +178,7 @@ const ExcelHandler = {
         XLSX.utils.book_append_sheet(wb, ws2, 'القطاعات');
 
         // Add Cities sheet
-        const citiesData = Object.entries(CRM.CITIES).map(([key, val]) => ({
+        const citiesData = Object.entries(window.CRM.CITIES).map(([key, val]) => ({
             'الرمز / Code': key,
             'المنطقة (عربي) / Area (AR)': val.ar,
             'المنطقة (إنجليزي) / Area (EN)': val.en
@@ -187,16 +187,16 @@ const ExcelHandler = {
         XLSX.utils.book_append_sheet(wb, ws3, 'المناطق');
 
         // Add Call Log sheet if calls exist
-        const calls = CRM.getCalls();
+        const calls = window.CRM.getCalls();
         if (calls.length > 0) {
             const callsData = calls.map(call => {
-                const company = CRM.getCompany(call.companyId);
+                const company = window.CRM.getCompany(call.companyId);
                 return {
                     'التاريخ / Date': call.date,
                     'الوقت / Time': call.time || '',
                     'الشركة / Company': company ? company.nameAr : '',
                     'جهة الاتصال / Contact': call.contactPerson || '',
-                    'النتيجة / Result': CRM.getCallResultLabel(call.result),
+                    'النتيجة / Result': window.CRM.getCallResultLabel(call.result),
                     'تاريخ المتابعة / Follow-up': call.followUpDate || '',
                     'ملاحظات / Notes': call.notes || ''
                 };
@@ -219,9 +219,9 @@ const ExcelHandler = {
         companies.forEach(comp => {
             const row = keys.map(key => {
                 let val = comp[key] || '';
-                if (key === 'sector' && val && CRM.SECTORS[val]) val = CRM.SECTORS[val].ar;
-                if (key === 'city' && val && CRM.CITIES[val]) val = CRM.CITIES[val].ar;
-                if (key === 'fleetType' && val && CRM.FLEET_TYPES[val]) val = CRM.FLEET_TYPES[val].ar;
+                if (key === 'sector' && val && window.CRM.SECTORS[val]) val = window.CRM.SECTORS[val].ar;
+                if (key === 'city' && val && window.CRM.CITIES[val]) val = window.CRM.CITIES[val].ar;
+                if (key === 'fleetType' && val && window.CRM.FLEET_TYPES[val]) val = window.CRM.FLEET_TYPES[val].ar;
                 const str = String(val).replace(/"/g, '""');
                 return `"${str}"`;
             });
@@ -274,22 +274,22 @@ const ExcelHandler = {
                         }
                     });
 
-                    if (company.sector && CRM.SECTORS) {
-                        const sectorEntry = Object.entries(CRM.SECTORS).find(
+                    if (company.sector && window.CRM.SECTORS) {
+                        const sectorEntry = Object.entries(window.CRM.SECTORS).find(
                             ([k, v]) => v.ar === company.sector || v.en === company.sector || k === company.sector
                         );
                         if (sectorEntry) company.sector = sectorEntry[0];
                     }
 
-                    if (company.city && CRM.CITIES) {
-                        const cityEntry = Object.entries(CRM.CITIES).find(
+                    if (company.city && window.CRM.CITIES) {
+                        const cityEntry = Object.entries(window.CRM.CITIES).find(
                             ([k, v]) => v.ar === company.city || v.en === company.city || k === company.city
                         );
                         if (cityEntry) company.city = cityEntry[0];
                     }
 
-                    if (company.fleetType && CRM.FLEET_TYPES) {
-                        const ftEntry = Object.entries(CRM.FLEET_TYPES).find(
+                    if (company.fleetType && window.CRM.FLEET_TYPES) {
+                        const ftEntry = Object.entries(window.CRM.FLEET_TYPES).find(
                             ([k, v]) => v.ar === company.fleetType || v.en === company.fleetType || k === company.fleetType
                         );
                         if (ftEntry) company.fleetType = ftEntry[0];
@@ -299,13 +299,13 @@ const ExcelHandler = {
                     if (company.branchesCount) company.branchesCount = parseInt(company.branchesCount) || 0;
 
                     if (!company.priority || !['A', 'B', 'C'].includes(company.priority)) {
-                        company.priority = CRM.calculatePriority(CRM.mapScraperSectorToCRM(company.sector));
+                        company.priority = window.CRM.calculatePriority(window.CRM.mapScraperSectorToCRM(company.sector));
                     }
 
                     return company;
                 }).filter(c => (c.nameAr && c.nameAr.length > 0) || (c.nameEn && c.nameEn.length > 0) || (c.phone1 && c.phone1.length > 0));
 
-                const addedCount = CRM.importCompanies(companies);
+                const addedCount = window.CRM.importCompanies(companies);
                 App.showToast(`تم استيراد ${addedCount} شركة جديدة بنجاح!`, 'success');
                 if (callback) callback(addedCount);
             } catch (err) {
@@ -348,7 +348,7 @@ const ExcelHandler = {
             }
         }
 
-        const addedCount = CRM.importCompanies(companies);
+        const addedCount = window.CRM.importCompanies(companies);
         App.showToast(`تم استيراد ${addedCount} شركة بنجاح!`, 'success');
         if (callback) callback(addedCount);
     },
@@ -361,13 +361,13 @@ const ExcelHandler = {
         }
 
         const data = calls.map(call => {
-            const company = CRM.getCompany(call.companyId);
+            const company = window.CRM.getCompany(call.companyId);
             return {
                 'التاريخ / Date': call.date,
                 'الوقت / Time': call.time || '',
                 'الشركة / Company': company ? company.nameAr : '',
                 'جهة الاتصال / Contact': call.contactPerson || '',
-                'النتيجة / Result': CRM.getCallResultLabel(call.result),
+                'النتيجة / Result': window.CRM.getCallResultLabel(call.result),
                 'تاريخ المتابعة / Follow-up': call.followUpDate || '',
                 'ملاحظات / Notes': call.notes || ''
             };
@@ -397,11 +397,11 @@ const ExcelHandler = {
         XLSX.utils.book_append_sheet(wb, ws, 'الشركات');
 
         // Add reference sheets
-        const sectorsData = Object.entries(CRM.SECTORS).map(([key, val]) => [val.icon + ' ' + val.ar, val.en, key]);
+        const sectorsData = Object.entries(window.CRM.SECTORS).map(([key, val]) => [val.icon + ' ' + val.ar, val.en, key]);
         const ws2 = XLSX.utils.aoa_to_sheet([['القطاع (عربي)', 'Sector (EN)', 'الرمز'], ...sectorsData]);
         XLSX.utils.book_append_sheet(wb, ws2, 'مرجع القطاعات');
 
-        const citiesData = Object.entries(CRM.CITIES).map(([key, val]) => [val.ar, val.en, key]);
+        const citiesData = Object.entries(window.CRM.CITIES).map(([key, val]) => [val.ar, val.en, key]);
         const ws3 = XLSX.utils.aoa_to_sheet([['المنطقة (عربي)', 'Area (EN)', 'الرمز'], ...citiesData]);
         XLSX.utils.book_append_sheet(wb, ws3, 'مرجع المناطق');
 
