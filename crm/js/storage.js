@@ -3,7 +3,7 @@
    LocalStorage-based data persistence
    ============================================ */
 
-const Storage = {
+const CRM = {
     KEYS: {
         COMPANIES: 'fleetcrm_companies',
         CALLS: 'fleetcrm_calls',
@@ -826,21 +826,28 @@ const Storage = {
             } catch (cloudErr) {}
         }
 
-        // 2. Only if Cloud has 0 companies, fallback to static JSON
-        try {
-            const cloudResp = await fetch('./data/companies.json?v=50.0.0');
-            if (cloudResp.ok) {
-                const cloudData = await cloudResp.json();
-                if (Array.isArray(cloudData)) {
-                    this.companiesMemory = cloudData.map((c, idx) => this._normalizeCompanyData(c, idx));
-                    this._set(this.KEYS.COMPANIES, this.companiesMemory);
-                    this.saveAllCompaniesToDB(this.companiesMemory);
-                    return;
+        // 2. Fallback to static JSON bundled with app
+        const jsonPaths = ['./data/companies.json', '/data/companies.json', 'data/companies.json'];
+        for (const path of jsonPaths) {
+            try {
+                const resp = await fetch(path + '?v=340000');
+                if (resp.ok) {
+                    const jsonData = await resp.json();
+                    if (Array.isArray(jsonData) && jsonData.length > 0) {
+                        this.companiesMemory = jsonData.map((c, idx) => this._normalizeCompanyData(c, idx));
+                        this._set(this.KEYS.COMPANIES, this.companiesMemory);
+                        this.saveAllCompaniesToDB(this.companiesMemory);
+                        console.log('Loaded', this.companiesMemory.length, 'companies from', path);
+                        return;
+                    }
                 }
-            }
-        } catch (e) {}
-        this.companiesMemory = [];
-        this._set(this.KEYS.COMPANIES, []);
+            } catch (e) { console.warn('Failed to load from', path, e.message); }
+        }
+        // 3. Last resort: use seedSampleData
+        console.warn('All data sources failed, seeding sample data');
+        if (!this.companiesMemory || this.companiesMemory.length === 0) {
+            this.seedSampleData();
+        }
     },
 
     loadCompaniesFromDB(db) {
@@ -2392,9 +2399,9 @@ const Storage = {
         this.saveAllCompaniesToDB([]);
     }
 };
-window.AppStorage = AppStorage;
-window.FleetStorage = AppStorage;
-var Storage = AppStorage;
 
-window.Storage = Storage;
-window.AppStorage = Storage;
+// Export as window.CRM (safe name - no browser API conflict)
+window.CRM = CRM;
+// Compatibility aliases
+window.AppStorage = CRM;
+window.FleetCRM = CRM;

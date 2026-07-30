@@ -20,7 +20,7 @@ const App = {
                 sideOverlay.style.setProperty('pointer-events', 'none', 'important');
                 sideOverlay.style.setProperty('z-index', '-100', 'important');
             }
-            if (Storage.getCurrentUser()) {
+            if (CRM.getCurrentUser()) {
                 const loginScreen = document.getElementById('login-screen');
                 if (loginScreen) {
                     loginScreen.style.setProperty('display', 'none', 'important');
@@ -45,7 +45,7 @@ const App = {
         // Force-hide overlay after 5 seconds max — prevents infinite loading on slow devices
         const forceTimeout = setTimeout(() => {
             hideOverlay();
-            if (!Storage.getCurrentUser()) this.checkAuth();
+            if (!CRM.getCurrentUser()) this.checkAuth();
         }, 5000);
 
         try {
@@ -61,16 +61,16 @@ const App = {
             }
 
             // Initialize Database
-            await Storage.initDB();
+            await CRM.initDB();
 
             // Pull latest from cloud asynchronously in background without blocking UI
-            Storage.pullFromCloud().catch(() => false);
+            CRM.pullFromCloud().catch(() => false);
 
             // Start continuous background cloud synchronization loop (every 8s) across all devices
             if (this._cloudSyncInterval) clearInterval(this._cloudSyncInterval);
             this._cloudSyncInterval = setInterval(async () => {
                 try {
-                    const wasUpdated = await Storage.pullFromCloud();
+                    const wasUpdated = await CRM.pullFromCloud();
                     if (wasUpdated) {
                         if (typeof Companies !== 'undefined' && this.currentPage === 'companies') {
                             Companies.render();
@@ -79,14 +79,14 @@ const App = {
                             Dashboard.render();
                         }
                         const sideCounter = document.getElementById('sidebar-total-companies');
-                        if (sideCounter) sideCounter.textContent = Storage.getCompanies().length.toLocaleString();
+                        if (sideCounter) sideCounter.textContent = CRM.getCompanies().length.toLocaleString();
                     }
                 } catch (e) {}
             }, 8000);
 
             // Also force pull cloud updates when browser tab regains focus
             window.addEventListener('focus', () => {
-                Storage.pullFromCloud().then(wasUpdated => {
+                CRM.pullFromCloud().then(wasUpdated => {
                     if (wasUpdated && typeof Companies !== 'undefined' && this.currentPage === 'companies') {
                         Companies.render();
                     }
@@ -98,15 +98,15 @@ const App = {
 
             // Migrate existing companies' sectors/cities to canonical keys if not done yet
             if (!localStorage.getItem('fleetcrm_city_sector_mapped_v7')) {
-                const companies = Storage.getCompanies();
+                const companies = CRM.getCompanies();
                 if (companies.length > 0) {
                     const migrated = companies.map(c => {
-                        c.sector = Storage.mapScraperSectorToCRM(c.sector);
-                        c.city = Storage.mapScraperCityToCRM(c.city);
-                        c.priority = Storage.calculatePriority(c.sector);
+                        c.sector = CRM.mapScraperSectorToCRM(c.sector);
+                        c.city = CRM.mapScraperCityToCRM(c.city);
+                        c.priority = CRM.calculatePriority(c.sector);
                         return c;
                     });
-                    Storage.setCompanies(migrated);
+                    CRM.setCompanies(migrated);
                     localStorage.setItem('fleetcrm_city_sector_mapped_v7', 'true');
                 }
             }
@@ -140,8 +140,8 @@ const App = {
             this.initUserSwitcher();
 
             // Navigate to current hash or appropriate home
-            const currentUser = Storage.getCurrentUser();
-            const isAdmin = Storage.isAdmin(currentUser);
+            const currentUser = CRM.getCurrentUser();
+            const isAdmin = CRM.isAdmin(currentUser);
             let hash = window.location.hash.replace('#', '');
             if (!hash || (!isAdmin && hash !== 'companies' && hash !== 'calls')) {
                 hash = isAdmin ? 'dashboard' : 'companies';
@@ -150,7 +150,7 @@ const App = {
 
             // Periodic cloud sync pull — check for remote changes every 60 seconds
             this._cloudSyncInterval = setInterval(() => {
-                Storage.pullFromCloud().then(pulled => {
+                CRM.pullFromCloud().then(pulled => {
                     if (pulled) this.refreshCurrentPage();
                 }).catch(() => {});
             }, 60000);
@@ -164,14 +164,14 @@ const App = {
                             ? (Array.isArray(newData.companies) ? newData.companies.slice(0, 50) : [])
                             : (Array.isArray(newData.companies) ? newData.companies : []);
 
-                        if (companies.length > 0 && companies.length !== Storage.getCompanies().length) {
+                        if (companies.length > 0 && companies.length !== CRM.getCompanies().length) {
                             companies.forEach(c => {
-                                c.sector = Storage.mapScraperSectorToCRM(c.sector);
-                                c.city = Storage.mapScraperCityToCRM(c.city);
-                                c.priority = Storage.calculatePriority(c.sector);
+                                c.sector = CRM.mapScraperSectorToCRM(c.sector);
+                                c.city = CRM.mapScraperCityToCRM(c.city);
+                                c.priority = CRM.calculatePriority(c.sector);
                             });
-                            Storage.setCompanies(companies);
-                            Storage.saveAllCompaniesToDB(companies);
+                            CRM.setCompanies(companies);
+                            CRM.saveAllCompaniesToDB(companies);
                             this.refreshCurrentPage();
                         }
                     }
@@ -187,7 +187,7 @@ const App = {
     },
 
     checkAuth() {
-        const currentUser = (typeof Storage !== 'undefined' && typeof Storage.getCurrentUser === 'function') ? Storage.getCurrentUser() : null;
+        const currentUser = (typeof CRM !== 'undefined' && typeof CRM.getCurrentUser === 'function') ? CRM.getCurrentUser() : null;
         const loginScreen = document.getElementById('login-screen');
         const sidebar = document.getElementById('sidebar');
         const mainWrapper = document.querySelector('.main-wrapper');
@@ -286,12 +286,12 @@ const App = {
                 const q = username.toLowerCase().trim();
                 if ((q === 'admin' || q === 'admin@fleet.com') && (password === 'admin' || password === 'Admin@123' || password === 'Admin@2026!ChangeMe' || password === '123456')) {
                     const adminUser = { id: 'admin', username: 'admin', name: 'المدير العام', role: 'admin', status: 'active' };
-                    if (typeof Storage !== 'undefined' && Storage.setCurrentUser) Storage.setCurrentUser(adminUser.id);
+                    if (typeof CRM !== 'undefined' && CRM.setCurrentUser) CRM.setCurrentUser(adminUser.id);
                     sessionStorage.setItem('fleetcrm_current_user', 'admin');
                     localStorage.setItem('fleetcrm_current_user', 'admin');
                     res = { success: true, user: adminUser };
-                } else if (typeof Storage !== 'undefined' && typeof Storage.login === 'function') {
-                    res = await Storage.login(username, password, remember);
+                } else if (typeof CRM !== 'undefined' && typeof CRM.login === 'function') {
+                    res = await CRM.login(username, password, remember);
                 } else {
                     res = { success: false, message: 'بيانات غير صحيحة' };
                 }
@@ -341,7 +341,7 @@ const App = {
 
                 this.checkAuth();
 
-                const isAdmin = Storage.isAdmin(res.user);
+                const isAdmin = CRM.isAdmin(res.user);
                 this.navigateTo(isAdmin ? 'dashboard' : 'companies');
             } catch (err) {
                 console.error('Handle login error:', err);
@@ -393,10 +393,10 @@ const App = {
 
     logoutSystem() {
         try {
-            if (typeof Storage !== 'undefined' && typeof Storage.logout === 'function') {
-                Storage.logout();
-            } else if (typeof window.AppStorage !== 'undefined' && typeof window.Storage.logout === 'function') {
-                window.Storage.logout();
+            if (typeof CRM !== 'undefined' && typeof CRM.logout === 'function') {
+                CRM.logout();
+            } else if (typeof window.AppStorage !== 'undefined' && typeof window.CRM.logout === 'function') {
+                window.CRM.logout();
             } else {
                 sessionStorage.removeItem('fleetcrm_current_user');
                 localStorage.removeItem('fleetcrm_current_user');
@@ -416,14 +416,14 @@ const App = {
     },
 
     updateUserUI() {
-        const current = (typeof Storage !== 'undefined' && typeof Storage.getCurrentUser === 'function') 
-            ? Storage.getCurrentUser() 
+        const current = (typeof CRM !== 'undefined' && typeof CRM.getCurrentUser === 'function') 
+            ? CRM.getCurrentUser() 
             : { id: 'admin', username: 'admin', name: 'المدير العام', role: 'admin', status: 'active' };
         if (!current) return;
 
-        const isAdmin = (typeof Storage !== 'undefined' && typeof Storage.isAdmin === 'function') ? Storage.isAdmin(current) : true;
-        const canViewAll = (typeof Storage !== 'undefined' && typeof Storage.canViewAll === 'function') ? Storage.canViewAll(current) : true;
-        const canModify = (typeof Storage !== 'undefined' && typeof Storage.canModify === 'function') ? Storage.canModify(current) : true;
+        const isAdmin = (typeof CRM !== 'undefined' && typeof CRM.isAdmin === 'function') ? CRM.isAdmin(current) : true;
+        const canViewAll = (typeof CRM !== 'undefined' && typeof CRM.canViewAll === 'function') ? CRM.canViewAll(current) : true;
+        const canModify = (typeof CRM !== 'undefined' && typeof CRM.canModify === 'function') ? CRM.canModify(current) : true;
 
         // Toggle Sidebar elements based on role: Sales Agent sees ONLY Companies & Calls, Admin & Supervisor see ALL
         document.querySelectorAll('.sidebar-nav .nav-link').forEach(link => {
@@ -490,12 +490,12 @@ const App = {
             return;
         }
         if (userId === 'admin') {
-            Storage.resetToAdmin();
+            CRM.resetToAdmin();
         } else {
-            Storage.setCurrentUser(userId);
+            CRM.setCurrentUser(userId);
         }
         this.updateUserUI();
-        const user = Storage.getCurrentUser();
+        const user = CRM.getCurrentUser();
         const isAdmin = user && user.role === 'admin';
         this.showToast(isAdmin ? `👑 تم تفعيل حساب: ${user.name} - تحكم كامل بالمأذونيات` : `👤 تم التبديل إلى حساب: ${user.name}`, 'success');
         this.navigateTo(isAdmin ? 'dashboard' : 'companies');
@@ -518,7 +518,7 @@ const App = {
             }
             if (!scraperTotal && stats.total) scraperTotal = Number(stats.total);
 
-            const dbTotal = Storage.getCompanies().length;
+            const dbTotal = CRM.getCompanies().length;
 
             // Import only if scraper has strictly more companies than DB
             if (scraperTotal > dbTotal) {
@@ -551,7 +551,7 @@ const App = {
 
             // 2. Fallback to bundled cloud dataset ./data/companies.json (skip on mobile — 4MB)
             if (!Array.isArray(data) || data.length === 0) {
-                const isMobile = (window.__IS_MOBILE === true) || (typeof Storage !== 'undefined' && Storage.isMobile && Storage.isMobile());
+                const isMobile = (window.__IS_MOBILE === true) || (typeof CRM !== 'undefined' && CRM.isMobile && CRM.isMobile());
                 if (!isMobile) {
                     try {
                         const cloudResp = await fetch('./data/companies.json?v=22.0.0');
@@ -566,19 +566,19 @@ const App = {
 
             if (!Array.isArray(data) || data.length === 0) return;
 
-            const existing = Storage.companiesMemory || [];
+            const existing = CRM.companiesMemory || [];
             const now = new Date().toISOString();
             const today = now.split('T')[0];
             let added = 0;
             const existingIds = new Set(existing.map(c => c.id));
 
             if (existing.length < 10000 && data.length >= 10000) {
-                Storage.companiesMemory = data.map((c, i) => {
+                CRM.companiesMemory = data.map((c, i) => {
                     const company = { ...c };
                     if (!company.id) company.id = 'imp_' + i;
-                    company.sector = Storage.mapScraperSectorToCRM(c.sector);
-                    company.city = Storage.mapScraperCityToCRM(c.city);
-                    company.priority = Storage.calculatePriority(company.sector);
+                    company.sector = CRM.mapScraperSectorToCRM(c.sector);
+                    company.city = CRM.mapScraperCityToCRM(c.city);
+                    company.priority = CRM.calculatePriority(company.sector);
                     if (!company.status) company.status = 'new';
                     if (!company.createdAt) company.createdAt = now;
                     if (!company.lastUpdated) company.lastUpdated = today;
@@ -591,16 +591,16 @@ const App = {
                     if (!company.id) company.id = 'imp_' + i;
                     if (!company.nameAr) company.nameAr = '';
                     if (!company.nameEn) company.nameEn = '';
-                    company.sector = Storage.mapScraperSectorToCRM(c.sector);
-                    company.city = Storage.mapScraperCityToCRM(c.city);
-                    company.priority = Storage.calculatePriority(company.sector);
+                    company.sector = CRM.mapScraperSectorToCRM(c.sector);
+                    company.city = CRM.mapScraperCityToCRM(c.city);
+                    company.priority = CRM.calculatePriority(company.sector);
                     if (!company.status) company.status = 'new';
                     if (!company.createdAt) company.createdAt = now;
                     if (!company.lastUpdated) company.lastUpdated = today;
 
                     const isDup = existingIds.has(company.id);
                     if (!isDup) {
-                        Storage.companiesMemory.push(company);
+                        CRM.companiesMemory.push(company);
                         existingIds.add(company.id);
                         added++;
                     }
@@ -608,12 +608,12 @@ const App = {
             }
 
             // Save to IndexedDB in background
-            Storage.saveAllCompaniesToDB(Storage.companiesMemory);
+            CRM.saveAllCompaniesToDB(CRM.companiesMemory);
             if (stats && stats.last_mtime_crm) {
                 localStorage.setItem('fleetcrm_last_import_mtime', stats.last_mtime_crm.toString());
             }
 
-            const total = Storage.getCompanies().length;
+            const total = CRM.getCompanies().length;
 
             const sideCounter = document.getElementById('sidebar-total-companies');
             if (sideCounter) sideCounter.textContent = total.toLocaleString();
@@ -684,8 +684,8 @@ const App = {
         if (this.currentPage === page && activePageEl && activePageEl.classList.contains('active')) {
             return;
         }
-        const currentUser = (typeof Storage !== 'undefined' && typeof Storage.getCurrentUser === 'function') ? Storage.getCurrentUser() : null;
-        const canViewAll = (typeof Storage !== 'undefined' && typeof Storage.canViewAll === 'function') ? Storage.canViewAll(currentUser) : true;
+        const currentUser = (typeof CRM !== 'undefined' && typeof CRM.getCurrentUser === 'function') ? CRM.getCurrentUser() : null;
+        const canViewAll = (typeof CRM !== 'undefined' && typeof CRM.canViewAll === 'function') ? CRM.canViewAll(currentUser) : true;
 
         // Role-based restrictions: Sales Agents CAN ONLY access companies & calls
         if (!canViewAll && page !== 'companies' && page !== 'calls') {
@@ -745,7 +745,7 @@ const App = {
     },
 
     async triggerCloudSyncNow() {
-        if (!Storage.isAdmin()) {
+        if (!CRM.isAdmin()) {
             this.showToast('⛔ عذراً، المزامنة اليدوية أونلاين مقتصرة على المدير العام فقط!', 'error');
             return;
         }
@@ -756,11 +756,11 @@ const App = {
         this.showToast('☁️ جاري مزامنة البيانات مع Supabase...', 'info');
         try {
             const ok = await window.SupabaseClient.pushMasterData({
-                companies: Storage.getCompanies() || [],
-                users: Storage.getUsers ? (Storage.getUsers() || []) : [],
-                calls: Storage.getCalls ? (Storage.getCalls() || []) : [],
-                deals: Storage.getDeals ? (Storage.getDeals() || []) : [],
-                activities: Storage.getActivities ? (Storage.getActivities() || []) : []
+                companies: CRM.getCompanies() || [],
+                users: CRM.getUsers ? (CRM.getUsers() || []) : [],
+                calls: CRM.getCalls ? (CRM.getCalls() || []) : [],
+                deals: CRM.getDeals ? (CRM.getDeals() || []) : [],
+                activities: CRM.getActivities ? (CRM.getActivities() || []) : []
             });
             if (ok) {
                 localStorage.setItem('fleetcrm_last_sync_time', Date.now());
@@ -871,14 +871,14 @@ const App = {
         const searchResults = document.getElementById('search-results');
 
         searchInput?.addEventListener('input', (e) => {
-            const esc = (s) => Storage.escapeHtml(s || '');
+            const esc = (s) => CRM.escapeHtml(s || '');
             const query = e.target.value.toLowerCase().trim();
             if (query.length < 2) {
                 searchResults.classList.remove('show');
                 return;
             }
 
-            const companies = Storage.getCompanies().filter(c =>
+            const companies = CRM.getCompanies().filter(c =>
                 (c.nameAr && c.nameAr.includes(query)) ||
                 (c.nameEn && c.nameEn.toLowerCase().includes(query)) ||
                 (c.contactPerson && c.contactPerson.includes(query)) ||
@@ -894,7 +894,7 @@ const App = {
                         <i class="fas fa-building" style="color:var(--primary-light);"></i>
                         <div>
                             <div class="result-name">${esc(c.nameAr || c.nameEn)}</div>
-                            <div class="result-sector">${Storage.getSectorLabel(c.sector)} — ${Storage.getCityLabel(c.city)}</div>
+                            <div class="result-sector">${CRM.getSectorLabel(c.sector)} — ${CRM.getCityLabel(c.city)}</div>
                         </div>
                     </div>
                 `).join('');
@@ -916,13 +916,13 @@ const App = {
     },
 
     renderNotifications() {
-        const esc = (s) => Storage.escapeHtml(s || '');
+        const esc = (s) => CRM.escapeHtml(s || '');
         const list = document.getElementById('notifications-list');
         const badge = document.getElementById('notif-badge-count');
         const headerCount = document.getElementById('notif-header-count');
         if (!list) return;
 
-        const followUps = Storage.getTodaysFollowUps() || [];
+        const followUps = CRM.getTodaysFollowUps() || [];
         const count = followUps.length;
         if (badge) {
             badge.style.display = count > 0 ? 'inline-block' : 'none';
@@ -942,13 +942,13 @@ const App = {
         }
 
         list.innerHTML = followUps.map(c => {
-            const company = Storage.getCompany(c.companyId);
+            const company = CRM.getCompany(c.companyId);
             const companyName = company ? esc(company.nameAr || company.nameEn) : 'شركة غير معروفة';
             return `
                 <div class="search-dropdown-item" onclick="Companies.showDetail('${esc(c.companyId)}')" style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; border-bottom:1px solid rgba(255,255,255,0.06);">
                     <div>
                         <div style="font-weight:700; font-size:12px; color:#f8fafc;">${companyName}</div>
-                        <div style="font-size:10px; color:#a78bfa;">📞 ${esc(c.contactPerson || 'مسؤول الاتصال')} — ${Storage.getCallResultLabel(c.result)}</div>
+                        <div style="font-size:10px; color:#a78bfa;">📞 ${esc(c.contactPerson || 'مسؤول الاتصال')} — ${CRM.getCallResultLabel(c.result)}</div>
                     </div>
                     <button class="btn btn-accent btn-sm" onclick="event.stopPropagation(); App.logCallForCompany('${esc(c.companyId)}')" style="font-size:10px; padding:3px 8px;">
                         <i class="fas fa-phone"></i> اتصل
@@ -1060,8 +1060,8 @@ const App = {
         if (!select) return;
 
         const populateOptions = () => {
-            const users = Storage.getUsers() || [];
-            const currentUser = Storage.getCurrentUser();
+            const users = CRM.getUsers() || [];
+            const currentUser = CRM.getCurrentUser();
             
             select.innerHTML = users.map(u => `
                 <option value="${u.id}" ${currentUser && u.id === currentUser.id ? 'selected' : ''}>
@@ -1076,7 +1076,7 @@ const App = {
         };
 
         const updateAvatar = () => {
-            const currentUser = Storage.getCurrentUser();
+            const currentUser = CRM.getCurrentUser();
             const avatarEl = document.getElementById('current-user-avatar');
             if (avatarEl && currentUser) {
                 avatarEl.textContent = currentUser.avatar || '👤';

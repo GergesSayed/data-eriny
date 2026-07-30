@@ -381,8 +381,8 @@ const ScraperSettings = (() => {
     function loadProgressStats() {
         // Load from companies data
         try {
-            const companies = (typeof Storage !== 'undefined' && Storage.getCompanies)
-                ? Storage.getCompanies() : [];
+            const companies = (typeof CRM !== 'undefined' && CRM.getCompanies)
+                ? CRM.getCompanies() : [];
             
             const totalEl = document.getElementById('scraper-total-companies');
             const phoneEl = document.getElementById('scraper-with-phone');
