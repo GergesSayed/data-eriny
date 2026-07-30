@@ -654,6 +654,13 @@ const AppStorage = {
             localStorage.removeItem('fleetcrm_deals_cleared_v3');
         } catch(e) {}
 
+        // Clear legacy synthetic cache to force load 1,000 real enriched companies
+        if (!localStorage.getItem('fleetcrm_clean_enriched_v400000')) {
+            localStorage.removeItem(this.KEYS.COMPANIES);
+            this.companiesMemory = [];
+            localStorage.setItem('fleetcrm_clean_enriched_v400000', 'true');
+        }
+
         // 1. Check LocalStorage cache first or seed initial companies
         let cached = this._get(this.KEYS.COMPANIES);
         if (!cached || !Array.isArray(cached) || cached.length === 0) {
@@ -836,7 +843,7 @@ const AppStorage = {
         const jsonPaths = ['./data/companies.json', '/data/companies.json'];
         for (const path of jsonPaths) {
             try {
-                const resp = await fetch(path + '?v=360000');
+                const resp = await fetch(path + '?v=400000');
                 if (resp.ok) {
                     const jsonData = await resp.json();
                     if (Array.isArray(jsonData) && jsonData.length > 0) {
@@ -1146,54 +1153,23 @@ const AppStorage = {
     cleanAndFixCompanyData(companies) {
         if (!companies || !Array.isArray(companies) || companies.length === 0) return companies;
 
-        const seenWebsites = new Set();
-        const seenContacts = new Set();
-
-        const firstNames = ['م. أحمد', 'أ. محمود', 'م. مصطفى', 'أ. شريف', 'م. كمال', 'أ. حازم', 'م. إبراهيم', 'أ. رامي', 'م. هيثم', 'أ. حسام', 'م. عادل', 'أ. طارق', 'م. كريم', 'أ. ياسر', 'م. خالد', 'أ. عصام', 'م. سامح', 'أ. تامر', 'م. وليد'];
-        const lastNames = ['عبدالعزيز', 'البرنس', 'الشريف', 'السيد', 'فهمي', 'فوزي', 'محمود', 'زكي', 'فؤاد', 'حسام', 'سامي', 'جودة', 'شاهين', 'كمال', 'ناصف', 'علام', 'شحاتة', 'زايد'];
-        const titles = ['مدير مشتريات الأسطول', 'مدير حركة النقل', 'مدير الصيانة الميكانيكية', 'مدير إدارة المشتريات', 'مدير الأسطول والسيارات'];
-
-        let isModified = false;
-
-        companies.forEach((c, idx) => {
+        companies.forEach((c) => {
             if (!c) return;
 
-            // 1. Fix duplicate / dummy website URLs
-            const isDummyWebsite = !c.website || 
-                seenWebsites.has(c.website) || 
-                c.website.includes('google.com') || 
-                c.website.includes('facebook.com') || 
-                c.website.includes('example.com') || 
-                c.website.includes('yellowpages.com') || 
-                c.website.includes('egypt-fleets.com');
-
-            if (isDummyWebsite) {
-                const rawName = (c.nameEn || c.nameAr || 'fleet-' + (idx + 1));
-                const slug = rawName.toLowerCase()
-                    .replace(/[^\w\s-]/g, '')
-                    .trim()
-                    .replace(/[\s_]+/g, '-');
-                const suffix = (idx % 3 === 0) ? '.com.eg' : ((idx % 2 === 0) ? '.com' : '.org.eg');
-                c.website = `https://www.${slug}${suffix}`;
-                isModified = true;
-            }
-            seenWebsites.add(c.website);
-
-            // 2. Fix duplicate / dummy contact person names
-            const isDummyContact = !c.contactPerson || seenContacts.has(c.contactPerson);
-            if (isDummyContact) {
-                c.contactPerson = `${firstNames[idx % firstNames.length]} ${lastNames[idx % lastNames.length]}`;
-                if (!c.contactTitle) {
-                    c.contactTitle = titles[idx % titles.length];
+            // Clean generic/fake website URLs so UI displays "—" for missing sites
+            if (c.website) {
+                const ws = String(c.website).toLowerCase();
+                if (ws.includes('google.com') || 
+                    ws.includes('facebook.com') || 
+                    ws.includes('example.com') || 
+                    ws.includes('yellowpages.com') || 
+                    ws.includes('egypt-fleets.com') ||
+                    ws.includes('fleetcobranch')) {
+                    c.website = '';
                 }
-                isModified = true;
             }
-            seenContacts.add(c.contactPerson);
         });
 
-        if (isModified && typeof this.saveAllCompaniesToDB === 'function') {
-            this.saveAllCompaniesToDB(companies);
-        }
         return companies;
     },
 
