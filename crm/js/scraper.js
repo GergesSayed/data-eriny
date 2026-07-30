@@ -598,8 +598,19 @@ const ScraperPage = {
         this.isScraperActive = true;
         this.batchCounter = 0;
         this._cloudSyncDone = false;
+        this._osmQueryIndex = 0;
+        this._osmTotalAdded = 0;
         localStorage.setItem('fleetcrm_scraper_active', 'true');
-        App.showToast('🚀 جاري التشغيل التلقائي... يحاول الاتصال بالسيرفر الميداني أو السحاب الموثقة.', 'info');
+
+        const term = document.getElementById('sc-live-terminal');
+        if (term) {
+            term.textContent = '';
+            const t = new Date().toLocaleTimeString('ar-EG');
+            term.textContent += `[${t}] [🚀 START] تم تشغيل محرك السحب الأوتوماتيكي الكامل...\n`;
+            term.textContent += `[${t}] [INFO] سيحاول الاتصال بالسيرفر المحلي أولاً، ثم يسحب من خرائط OpenStreetMap الحقيقية.\n`;
+        }
+
+        App.showToast('🚀 جاري تشغيل محرك السحب الأوتوماتيكي...', 'info');
         this.updateProcessButtons();
         if (this.scraperInterval) clearInterval(this.scraperInterval);
         this.executeLiveScraperBatch();
@@ -645,29 +656,28 @@ const ScraperPage = {
         const statusDot = document.getElementById('scraper-status-dot');
 
         if (statusText && statusDot) {
-            statusText.textContent = `● جاري الاتصال بمصدر البيانات... (خطوة #${this.batchCounter})`;
+            statusText.textContent = `● جاري الاتصال بمصدر البيانات... (دفعة #${this.batchCounter})`;
             statusDot.style.background = '#f59e0b';
             statusDot.style.animation = 'pulse 1s infinite';
         }
 
         // ── STEP 1: Try real local Python scraper server ──
         try {
-            const resp = await fetch('http://localhost:8888/api/run-scraper', { signal: AbortSignal.timeout(3000) });
+            const resp = await fetch('http://localhost:8888/api/run-scraper', { signal: AbortSignal.timeout(2000) });
             if (resp.ok) {
                 if (statusText) statusText.textContent = '● السكرابر الميداني يعمل (Local Python Server)';
                 if (statusDot) statusDot.style.background = '#10b981';
                 if (term) {
-                    term.textContent += `[${timeStr}] [✅ LOCAL SERVER] خادم الكشط الميداني متصل على منفذ 8888. يعمل على سحب بيانات Google Maps مباشرة...\n`;
+                    term.textContent += `[${timeStr}] [✅ LOCAL SERVER] خادم Python متصل. يسحب من Google Maps مباشرة...\n`;
                     term.scrollTop = term.scrollHeight;
                 }
-                // Keep pinging every 5 seconds
                 if (this.scraperInterval) clearInterval(this.scraperInterval);
                 this.scraperInterval = setInterval(() => {
                     if (!this.isScraperActive) { clearInterval(this.scraperInterval); return; }
                     fetch('http://localhost:8888/api/run-scraper').then(r => {
                         if (term && r.ok) {
                             const t = new Date().toLocaleTimeString('ar-EG');
-                            term.textContent += `[${t}] [LOCAL SERVER] Polling scraper output...\n`;
+                            term.textContent += `[${t}] [LOCAL] Polling...\n`;
                             term.scrollTop = term.scrollHeight;
                         }
                     }).catch(() => {});
@@ -676,110 +686,204 @@ const ScraperPage = {
             }
         } catch(e) {}
 
-        // ── STEP 2: Local server offline — auto-fallback to cloud clean dataset ──
-        if (this._cloudSyncDone) {
-            // Already synced this session, just show status
-            if (statusText) statusText.textContent = '✅ البيانات محدثة من السحابة (989 شركة موثقة)';
-            if (statusDot) { statusDot.style.background = '#10b981'; statusDot.style.animation = 'none'; }
-            return;
+        // ── STEP 2: First time — load clean base dataset ──
+        if (!this._cloudSyncDone) {
+            if (statusText) statusText.textContent = '🔄 جاري تحميل قاعدة البيانات الأساسية...';
+            if (term) {
+                term.textContent += `[${timeStr}] [🔄 INIT] لا يوجد سيرفر محلي — جاري تحميل قاعدة البيانات الأساسية (989 شركة)...\n`;
+                term.scrollTop = term.scrollHeight;
+            }
+            try {
+                const resp = await fetch('./data/companies.json?v=471000&_=' + Date.now());
+                if (resp.ok) {
+                    const data = await resp.json();
+                    if (Array.isArray(data) && data.length > 0) {
+                        const realOnly = data.filter(c => c && c.id &&
+                            !c.id.startsWith('sc_real_live_') &&
+                            !c.id.startsWith('cloud_imp_') &&
+                            !c.id.startsWith('sc_demo_') &&
+                            !c.website?.includes('fleetcobranch')
+                        );
+                        window.AppStorage.setCompanies(realOnly);
+                        this._cloudSyncDone = true;
+                        this._osmTotalAdded = 0;
+                        if (term) {
+                            term.textContent += `[${timeStr}] [✅ BASE] تم تحميل ${realOnly.length} شركة أساسية. سيبدأ الآن سحب شركات إضافية من OpenStreetMap...\n`;
+                            term.scrollTop = term.scrollHeight;
+                        }
+                        this._updateCounters();
+                        if (typeof Companies !== 'undefined' && App.currentPage === 'companies') Companies.render();
+                        if (typeof Dashboard !== 'undefined' && App.currentPage === 'dashboard') Dashboard.render();
+                    }
+                }
+            } catch(e) {}
         }
 
-        if (statusText) statusText.textContent = '🔄 السيرفر المحلي غير متصل — جاري الاستدعاء التلقائي من قاعدة السحابة...';
-        if (term) {
-            term.textContent += `[${timeStr}] [INFO] السيرفر المحلي على منفذ 8888 غير متصل.\n`;
-            term.textContent += `[${timeStr}] [🔄 AUTO-FALLBACK] جاري سحب قاعدة البيانات النقية الموثقة تلقائياً من الخادم السحابي...\n`;
-            term.scrollTop = term.scrollHeight;
-        }
+        // ── STEP 3: Continuous OSM scraping in batches ──
+        if (this.isScraperActive) {
+            await this._scrapeOSMBatch(term, timeStr, statusText, statusDot);
 
-        await this._autoCloudSync(term, timeStr, statusText, statusDot);
+            // Schedule next batch in 8 seconds
+            if (this.isScraperActive) {
+                this.scraperInterval = setTimeout(() => this.executeLiveScraperBatch(), 8000);
+            }
+        }
     },
 
-    async _autoCloudSync(term, timeStr, statusText, statusDot) {
-        try {
-            // Try fetching from companies.json (the clean 989 dataset)
-            const resp = await fetch('./data/companies.json?v=470000&_=' + Date.now());
-            if (resp.ok) {
-                const data = await resp.json();
-                if (Array.isArray(data) && data.length > 0) {
-                    const realOnly = data.filter(c =>
-                        c && c.id &&
-                        !c.id.startsWith('sc_real_live_') &&
-                        !c.id.startsWith('cloud_imp_') &&
-                        !c.id.startsWith('sc_demo_') &&
-                        !c.website?.includes('fleetcobranch')
-                    );
+    // OSM Overpass query list — real Egyptian B2B sectors
+    _osmQueries: [
+        // Transport & logistics companies
+        `[out:json][timeout:20];area["name:en"="Egypt"]["admin_level"="2"]->.eg;(node["office"="company"]["name"](area.eg);node["office"="transport_agent"]["name"](area.eg););out body 30;`,
+        // Industrial facilities
+        `[out:json][timeout:20];area["name:en"="Egypt"]["admin_level"="2"]->.eg;(node["landuse"="industrial"]["name"](area.eg);way["landuse"="industrial"]["name"](area.eg););out center 30;`,
+        // Logistics & warehouses
+        `[out:json][timeout:20];area["name:en"="Egypt"]["admin_level"="2"]->.eg;(node["amenity"="logistics"]["name"](area.eg);node["building"="warehouse"]["name"](area.eg););out body 30;`,
+        // Cairo industrial companies
+        `[out:json][timeout:20];area["name"="القاهرة"]["admin_level"="4"]->.cairo;(node["office"="company"]["name"](area.cairo);node["industrial"="factory"]["name"](area.cairo););out body 30;`,
+        // Giza / 6 October
+        `[out:json][timeout:20];area["name"="الجيزة"]["admin_level"="4"]->.giza;(node["office"="company"]["name"](area.giza);way["industrial"="factory"]["name"](area.giza););out center 30;`,
+        // Petroleum & energy
+        `[out:json][timeout:20];area["name:en"="Egypt"]["admin_level"="2"]->.eg;(node["amenity"="fuel"]["operator"]["name"](area.eg);node["man_made"="petroleum_well"]["name"](area.eg););out body 30;`,
+        // Food industry
+        `[out:json][timeout:20];area["name:en"="Egypt"]["admin_level"="2"]->.eg;(node["industrial"="food"]["name"](area.eg);node["shop"="wholesale"]["name"](area.eg););out body 30;`,
+        // Construction
+        `[out:json][timeout:20];area["name:en"="Egypt"]["admin_level"="2"]->.eg;(node["office"="construction"]["name"](area.eg);node["craft"="construction"]["name"](area.eg););out body 30;`,
+        // 10th of Ramadan
+        `[out:json][timeout:20];(node["office"="company"]["name"](30.2,31.7,30.4,32.0);node["industrial"="factory"]["name"](30.2,31.7,30.4,32.0););out body 30;`,
+        // Greater Alexandria
+        `[out:json][timeout:20];area["name"="الإسكندرية"]["admin_level"="4"]->.alex;(node["office"="company"]["name"](area.alex);node["industrial"="factory"]["name"](area.alex););out body 30;`,
+        // Suez Canal zone
+        `[out:json][timeout:20];(node["office"="company"]["name"](30.0,32.0,30.7,32.5);node["amenity"="shipping"]["name"](30.0,32.0,30.7,32.5););out body 30;`,
+        // General factories Egypt
+        `[out:json][timeout:20];area["name:en"="Egypt"]["admin_level"="2"]->.eg;(node["industrial"="factory"]["name"](area.eg);way["industrial"="factory"]["name"](area.eg););out center 30;`
+    ],
 
-                    window.AppStorage.setCompanies(realOnly);
-                    this._cloudSyncDone = true;
+    async _scrapeOSMBatch(term, timeStr, statusText, statusDot) {
+        const idx = (this._osmQueryIndex || 0) % this._osmQueries.length;
+        this._osmQueryIndex = idx + 1;
+        const query = this._osmQueries[idx];
 
-                    if (term) {
-                        term.textContent += `[${timeStr}] [✅ SUCCESS] تم استدعاء ${realOnly.length} شركة موثقة 100% من قاعدة السحابة النقية.\n`;
-                        term.textContent += `[${timeStr}] [INFO] النظام يعمل بكامل طاقته. الشركات محدثة وجاهزة للاستخدام.\n`;
-                        term.scrollTop = term.scrollHeight;
-                    }
-
-                    if (statusText) statusText.textContent = `✅ تم تحديث ${realOnly.length} شركة موثقة من السحابة`;
-                    if (statusDot) { statusDot.style.background = '#10b981'; statusDot.style.animation = 'none'; }
-
-                    App.showToast(`✅ تم سحب وتحديث ${realOnly.length} شركة موثقة 100% تلقائياً!`, 'success');
-
-                    const sideCounter = document.getElementById('sidebar-total-companies');
-                    if (sideCounter) sideCounter.textContent = realOnly.length.toLocaleString();
-                    const scTotal = document.getElementById('sc-total');
-                    if (scTotal) scTotal.textContent = realOnly.length.toLocaleString();
-
-                    if (typeof Companies !== 'undefined' && App.currentPage === 'companies') Companies.render();
-                    if (typeof Dashboard !== 'undefined' && App.currentPage === 'dashboard') Dashboard.render();
-                    this.fetchData();
-                    this.stopContinuousScraper();
-                    return;
-                }
-            }
-        } catch(e) {
-            if (term) {
-                term.textContent += `[${timeStr}] [WARN] فشل استدعاء الملف المحلي: ${e.message}\n`;
-                term.scrollTop = term.scrollHeight;
-            }
-        }
-
-        // Try Supabase as final fallback
-        try {
-            if (term) {
-                term.textContent += `[${timeStr}] [🔄 SUPABASE] جاري الاتصال بقاعدة Supabase السحابية...\n`;
-                term.scrollTop = term.scrollHeight;
-            }
-            if (typeof SupabaseClient !== 'undefined' && SupabaseClient.fetchMasterData) {
-                const masterData = await SupabaseClient.fetchMasterData();
-                if (masterData && Array.isArray(masterData.companies) && masterData.companies.length > 0) {
-                    const realOnly = masterData.companies.filter(c =>
-                        c && !c.id?.startsWith('sc_real_live_') &&
-                        !c.id?.startsWith('cloud_imp_') &&
-                        !c.website?.includes('fleetcobranch')
-                    );
-                    window.AppStorage.setCompanies(realOnly);
-                    this._cloudSyncDone = true;
-                    App.showToast(`✅ تم سحب ${realOnly.length} شركة من Supabase تلقائياً!`, 'success');
-                    if (term) {
-                        term.textContent += `[${timeStr}] [✅ SUPABASE] ${realOnly.length} شركة محملة من قاعدة Supabase.\n`;
-                        term.scrollTop = term.scrollHeight;
-                    }
-                    if (statusText) statusText.textContent = `✅ تم تحميل ${realOnly.length} شركة من Supabase`;
-                    if (statusDot) { statusDot.style.background = '#10b981'; statusDot.style.animation = 'none'; }
-                    if (typeof Companies !== 'undefined') Companies.render();
-                    this.fetchData();
-                    this.stopContinuousScraper();
-                    return;
-                }
-            }
-        } catch(e) {}
+        if (statusText) statusText.textContent = `🌍 يسحب من OpenStreetMap — دفعة #${this.batchCounter} (استعلام ${idx + 1}/${this._osmQueries.length})`;
+        if (statusDot) statusDot.style.background = '#7c3aed';
 
         if (term) {
-            term.textContent += `[${timeStr}] [⚠️] تعذر الاتصال بأي مصدر بيانات. تأكد من اتصال الإنترنت أو شغل السيرفر المحلي.\n`;
+            term.textContent += `[${timeStr}] [🌍 OSM] إرسال استعلام Overpass API (رقم ${idx + 1})...\n`;
             term.scrollTop = term.scrollHeight;
         }
-        if (statusText) statusText.textContent = '⚠️ تعذر الاتصال — تحقق من الاتصال بالإنترنت';
-        if (statusDot) { statusDot.style.background = '#ef4444'; statusDot.style.animation = 'none'; }
-        this.stopContinuousScraper();
+
+        try {
+            const resp = await fetch('https://overpass-api.de/api/interpreter', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'data=' + encodeURIComponent(query),
+                signal: AbortSignal.timeout(25000)
+            });
+
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            const osmData = await resp.json();
+            const elements = osmData.elements || [];
+
+            const newCompanies = [];
+            const existingNames = new Set(window.AppStorage.getCompanies().map(c => (c.nameAr || c.nameEn || '').trim().toLowerCase()));
+
+            for (const el of elements) {
+                const tags = el.tags || {};
+                const nameAr = tags['name'] || tags['name:ar'] || '';
+                const nameEn = tags['name:en'] || tags['brand'] || '';
+                const displayName = nameAr || nameEn;
+                if (!displayName || displayName.length < 3) continue;
+
+                // Skip duplicates
+                const nameKey = displayName.trim().toLowerCase();
+                if (existingNames.has(nameKey)) continue;
+                existingNames.add(nameKey);
+
+                const phone = tags['phone'] || tags['contact:phone'] || tags['mobile'] || '';
+                const website = tags['website'] || tags['contact:website'] || tags['url'] || '';
+                const addr = tags['addr:full'] || [
+                    tags['addr:street'], tags['addr:suburb'], tags['addr:city']
+                ].filter(Boolean).join('، ');
+                const city = tags['addr:city'] || tags['is_in:city'] || '';
+
+                // Classify sector from tags
+                let sector = 'other';
+                const allTags = Object.values(tags).join(' ').toLowerCase();
+                if (/transport|logistics|shipping|شحن|نقل|لوجستي/.test(allTags)) sector = 'transport';
+                else if (/food|beverage|غذا|مشروبات|أغذية/.test(allTags)) sector = 'food';
+                else if (/petroleum|oil|fuel|بترول|وقود|نفط/.test(allTags)) sector = 'petroleum';
+                else if (/construct|contracting|مقاول|بناء/.test(allTags)) sector = 'contracting';
+                else if (/warehouse|storage|مستودع|مخزن/.test(allTags)) sector = 'logistics';
+                else if (/factory|industrial|مصنع|صناعي/.test(allTags)) sector = 'manufacturing';
+
+                const lat = el.lat || el.center?.lat || null;
+                const lon = el.lon || el.center?.lon || null;
+
+                newCompanies.push({
+                    id: 'osm_' + (el.id || Date.now() + Math.random().toString(36).slice(2)),
+                    nameAr: nameAr,
+                    nameEn: nameEn,
+                    sector: sector,
+                    city: city,
+                    address: addr,
+                    phone1: phone.replace(/\s+/g, '').replace(/^\+20/, '0'),
+                    website: website,
+                    latitude: lat,
+                    longitude: lon,
+                    google_maps_url: (lat && lon) ? `https://www.google.com/maps?q=${lat},${lon}` : '',
+                    fleetSize: 0,
+                    priority: 'C',
+                    status: 'new',
+                    notes: `المصدر: OpenStreetMap Overpass API (OSM ID: ${el.id})`,
+                    createdAt: new Date().toISOString(),
+                    lastUpdated: new Date().toISOString().split('T')[0]
+                });
+            }
+
+            if (newCompanies.length > 0) {
+                await window.AppStorage.addCompanies(newCompanies);
+                this._osmTotalAdded = (this._osmTotalAdded || 0) + newCompanies.length;
+                this._updateCounters();
+
+                if (term) {
+                    term.textContent += `[${timeStr}] [✅ OSM] تم إضافة ${newCompanies.length} شركة جديدة حقيقية من OSM. (إجمالي مضاف: ${this._osmTotalAdded})\n`;
+                    for (const c of newCompanies.slice(0, 5)) {
+                        term.textContent += `       ↳ ${c.nameAr || c.nameEn} — ${c.city || '—'} — ${c.phone1 || 'لا يوجد هاتف'}\n`;
+                    }
+                    if (newCompanies.length > 5) term.textContent += `       ... و ${newCompanies.length - 5} أخريات\n`;
+                    term.scrollTop = term.scrollHeight;
+                }
+
+                if (statusText) statusText.textContent = `✅ تم إضافة ${this._osmTotalAdded} شركة جديدة من OSM | الإجمالي: ${window.AppStorage.getCompanies().length}`;
+                if (statusDot) statusDot.style.background = '#10b981';
+
+                App.showToast(`✅ +${newCompanies.length} شركة جديدة من OpenStreetMap!`, 'success');
+
+                if (typeof Companies !== 'undefined' && App.currentPage === 'companies') Companies.render();
+                if (typeof Dashboard !== 'undefined' && App.currentPage === 'dashboard') Dashboard.render();
+                this.fetchData();
+            } else {
+                if (term) {
+                    term.textContent += `[${timeStr}] [OSM] الاستعلام رقم ${idx + 1}: لا توجد شركات جديدة (كلها موجودة أو بيانات غير كافية). الانتقال للاستعلام التالي...\n`;
+                    term.scrollTop = term.scrollHeight;
+                }
+                if (statusText) statusText.textContent = `🔄 الاستعلام ${idx + 1}/${this._osmQueries.length} — لا جديد، يحاول الاستعلام التالي...`;
+            }
+        } catch(err) {
+            if (term) {
+                term.textContent += `[${timeStr}] [WARN] فشل الاستعلام ${idx + 1}: ${err.message}. سيعيد المحاولة بعد 8 ثوانٍ...\n`;
+                term.scrollTop = term.scrollHeight;
+            }
+            if (statusText) statusText.textContent = `⚠️ خطأ مؤقت — يعيد المحاولة تلقائياً...`;
+        }
+    },
+
+    _updateCounters() {
+        const total = window.AppStorage.getCompanies().length;
+        const sideCounter = document.getElementById('sidebar-total-companies');
+        if (sideCounter) sideCounter.textContent = total.toLocaleString();
+        const scTotal = document.getElementById('sc-total');
+        if (scTotal) scTotal.textContent = total.toLocaleString();
+        this.fetchData();
     },
 
     async executeLiveEnricherBatch() {
