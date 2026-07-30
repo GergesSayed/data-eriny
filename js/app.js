@@ -287,49 +287,65 @@ const App = {
         }
 
         setTimeout(async () => {
-            const res = await Storage.login(username, password, remember);
+            try {
+                const res = await Storage.login(username, password, remember);
 
-            if (!res.success) {
+                if (!res || !res.success) {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<i class="fas fa-sign-in-alt" style="margin-left: 8px;"></i> دخول النظام';
+                    }
+                    this.showLoginError(`❌ ${(res && res.message) ? res.message : 'بيانات الدخول غير صحيحة'}`);
+                    if (userInput) userInput.style.borderColor = '#ef4444';
+                    if (passInput) passInput.style.borderColor = '#ef4444';
+                    return;
+                }
+
+                if (res.user && res.user.status === 'frozen') {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<i class="fas fa-sign-in-alt" style="margin-left: 8px;"></i> دخول النظام';
+                    }
+                    this.showLoginError('⛔ هذا الحساب مجمد حالياً بقرار من المدير العام');
+                    return;
+                }
+
+                if (res.user && res.user.status === 'pending_approval') {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<i class="fas fa-sign-in-alt" style="margin-left: 8px;"></i> دخول النظام';
+                    }
+                    this.showLoginError('⏳ الحساب بانتظار موافقة وتفعيل المدير العام');
+                    return;
+                }
+
+                this.showToast(`🎉 أهلاً بك يا ${res.user.name}`, 'success');
                 if (submitBtn) {
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = '<i class="fas fa-sign-in-alt" style="margin-left: 8px;"></i> دخول النظام';
                 }
-                this.showLoginError(`❌ ${res.message}. يرجى التثبت وإعادة المحاولة.`);
-                if (userInput) userInput.style.borderColor = '#ef4444';
-                if (passInput) passInput.style.borderColor = '#ef4444';
-                return;
-            }
 
-            if (res.user.status === 'frozen') {
+                // Hide login screen instantly
+                const loginScreen = document.getElementById('login-screen');
+                if (loginScreen) {
+                    loginScreen.classList.add('hidden');
+                    loginScreen.style.display = 'none';
+                }
+                document.documentElement.classList.add('user-logged-in');
+
+                this.checkAuth();
+
+                const isAdmin = Storage.isAdmin(res.user);
+                this.navigateTo(isAdmin ? 'dashboard' : 'companies');
+            } catch (err) {
+                console.error('Handle login error:', err);
                 if (submitBtn) {
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = '<i class="fas fa-sign-in-alt" style="margin-left: 8px;"></i> دخول النظام';
                 }
-                this.showLoginError('⛔ هذا الحساب مجمد حالياً بقرار من المدير العام');
-                return;
+                this.showLoginError('❌ حدث خطأ غير متوقع: ' + err.message);
             }
-
-
-
-            if (res.user.status === 'pending_approval') {
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="fas fa-sign-in-alt" style="margin-left: 8px;"></i> دخول النظام';
-                }
-                this.showLoginError('⏳ الحساب بانتظار موافقة وتفعيل المدير العام');
-                return;
-            }
-
-            this.showToast(`🎉 أهلاً بك يا ${res.user.name}`, 'success');
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-sign-in-alt" style="margin-left: 8px;"></i> دخول النظام';
-            }
-            this.checkAuth();
-
-            const isAdmin = Storage.isAdmin(res.user);
-            this.navigateTo(isAdmin ? 'dashboard' : 'companies');
-        }, 300);
+        }, 50);
     },
 
     showLoginError(msg) {
