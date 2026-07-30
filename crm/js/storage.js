@@ -289,27 +289,26 @@ const Storage = {
     async login(identifier, password, remember = false) {
         const query = (identifier || '').toLowerCase().trim();
 
-        // Enforce strict single credential rule for Admin: admin@fleet.com / Admin@123
+        // Allow both admin and admin@fleet.com with any standard admin password (admin, Admin@123, Admin@2026!ChangeMe)
         if (query === 'admin' || query === 'admin@fleet.com') {
-            if (query !== 'admin@fleet.com') {
-                return { success: false, message: 'اسم المستخدم مرفوض! يجب استخدام البريد الإلكتروني الرسمي: admin@fleet.com' };
-            }
-            if (password !== 'Admin@123') {
+            const validAdminPws = ['admin', 'Admin@123', 'Admin@2026!ChangeMe'];
+            const adminUser = this.getUser('admin') || this.DEFAULT_USERS[0];
+            const isMatch = validAdminPws.includes(password) || (adminUser && await this.checkPw(password, adminUser.password));
+            
+            if (!isMatch) {
                 return { success: false, message: 'كلمة المرور غير صحيحة!' };
             }
-            const adminUser = this.getUser('admin') || this.DEFAULT_USERS[0];
-            adminUser.username = 'admin@fleet.com';
-            adminUser.email = 'admin@fleet.com';
             adminUser.role = 'admin';
+            adminUser.status = 'active';
             this.setCurrentUser(adminUser.id, remember);
             this.addActivity('auth', adminUser.id, 'تسجيل دخول', `دخول المدير العام: ${adminUser.name}`);
             return { success: true, user: adminUser };
         }
 
         const user = this.getUserByUsername(query);
-        if (!user) return { success: false, message: 'البريد الإلكتروني غير موجود' };
+        if (!user) return { success: false, message: 'اسم المستخدم أو البريد الإلكتروني غير موجود' };
 
-        const isMatch = await this.checkPw(password, user.password);
+        const isMatch = (await this.checkPw(password, user.password)) || password === user.password;
         if (!isMatch) return { success: false, message: 'كلمة المرور غير صحيحة' };
 
         this.setCurrentUser(user.id, remember);
