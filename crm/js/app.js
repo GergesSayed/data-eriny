@@ -187,21 +187,19 @@ const App = {
     },
 
     checkAuth() {
-        const currentUser = (typeof Storage !== 'undefined' && typeof Storage.getCurrentUser === 'function') 
-            ? Storage.getCurrentUser() 
-            : ((typeof AppStorage !== 'undefined' && typeof AppStorage.getCurrentUser === 'function') 
-                ? AppStorage.getCurrentUser() 
-                : { id: 'admin', username: 'admin', name: 'المدير العام', role: 'admin', status: 'active' });
+        const currentUser = (typeof Storage !== 'undefined' && typeof Storage.getCurrentUser === 'function') ? Storage.getCurrentUser() : null;
         const loginScreen = document.getElementById('login-screen');
         const sidebar = document.getElementById('sidebar');
         const mainWrapper = document.querySelector('.main-wrapper');
 
         if (!currentUser) {
-            // Remove user-logged-in class so CSS enables login screen pointer-events
             document.documentElement.classList.remove('user-logged-in');
             if (loginScreen) {
                 loginScreen.style.display = 'flex';
                 loginScreen.style.pointerEvents = 'auto';
+                loginScreen.style.zIndex = '999999';
+                loginScreen.style.opacity = '1';
+                loginScreen.style.visibility = 'visible';
             }
             if (sidebar) sidebar.style.display = 'none';
             if (mainWrapper) mainWrapper.style.display = 'none';
@@ -214,8 +212,6 @@ const App = {
                 loginScreen.style.setProperty('z-index', '-100', 'important');
                 loginScreen.style.setProperty('visibility', 'hidden', 'important');
                 loginScreen.style.setProperty('opacity', '0', 'important');
-                const mesh = loginScreen.querySelector('.login-bg-mesh');
-                if (mesh) mesh.style.setProperty('display', 'none', 'important');
             }
             if (sidebar) sidebar.style.removeProperty('display');
             if (mainWrapper) mainWrapper.style.removeProperty('display');

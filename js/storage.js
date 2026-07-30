@@ -245,24 +245,17 @@ const Storage = {
     },
 
     getCurrentUser() {
-        let userId = sessionStorage.getItem(this.KEYS.CURRENT_USER) || localStorage.getItem(this.KEYS.CURRENT_USER);
-        if (!userId) {
-            userId = 'admin';
-            localStorage.setItem(this.KEYS.CURRENT_USER, 'admin');
-            sessionStorage.setItem(this.KEYS.CURRENT_USER, 'admin');
-        }
+        const userId = sessionStorage.getItem(this.KEYS.CURRENT_USER) || localStorage.getItem(this.KEYS.CURRENT_USER);
+        if (!userId) return null;
         let user = this.getUser(userId);
-        if (!user) {
-            user = this.DEFAULT_USERS[0];
-            if (user) this.setCurrentUser('admin');
-        }
-        if (user && (user.id === 'admin' || user.username === 'admin')) {
+        if (!user) return null;
+        if (user.id === 'admin' || user.username === 'admin') {
             user.role = 'admin';
         }
         return user;
     },
 
-    setCurrentUser(userId, remember = true) {
+    setCurrentUser(userId, remember = false) {
         if (!userId) {
             sessionStorage.removeItem(this.KEYS.CURRENT_USER);
             localStorage.removeItem(this.KEYS.CURRENT_USER);
