@@ -6,7 +6,7 @@ var Storage = window.AppStorage;
    LocalStorage-based data persistence
    ============================================ */
 
-const AppStorage = {
+var AppStorage = window.AppStorage = {
     KEYS: {
         COMPANIES: 'fleetcrm_companies',
         CALLS: 'fleetcrm_calls',
