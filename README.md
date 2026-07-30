@@ -2,174 +2,129 @@
 
 <div align="center">
 
-![Version](https://img.shields.io/badge/version-4.4.0-blue)
-![Status](https://img.shields.io/badge/deployment-Vercel%20%7C%20Netlify-success)
+![Version](https://img.shields.io/badge/version-4.5.0-blue)
+![Status](https://img.shields.io/badge/deployment-Vercel%20%2B%20Supabase-success)
 ![Languages](https://img.shields.io/badge/languages-JavaScript%20%7C%20Python%20%7C%20HTML%20%7C%20CSS-orange)
-![License](https://img.shields.io/badge/license-Proprietary-red)
-
-**[English](#english) | [العربية](#arabic)**
 
 </div>
 
 ---
 
-<a name="arabic"></a>
-## 🇪🇬 العربية
+## 🇪🇬 كيف تستخدم النظام (دليل سريع)
 
-### 📋 عن المشروع
-نظام **Fleet CRM** هو منصة متكاملة لإدارة علاقات العملاء ومبيعات الإطارات، مصمم خصيصاً للسوق المصري. يستهدف الشركات والمصانع التي تمتلك أساطيل سيارات (نقل ثقيل، نقل خفيف، ركاب) لبيع الإطارات لها.
+### 🎯 الفكرة باختصار:
 
-### ✨ المميزات الرئيسية
+النظام مكون من **3 طبقات** بتشتغل مع بعض:
 
-#### 📊 واجهة CRM
-- **لوحة تحكم** احترافية مع إحصائيات حية ورسوم بيانية
-- **إدارة الشركات**: قاعدة بيانات كاملة مع فلاتر متقدمة (قطاع، منطقة، حجم أسطول، أولوية)
-- **سجل المكالمات**: تتبع المكالمات والمتابعات مع تجميع ذكي حسب الشركة
-- **خط المبيعات (Kanban)**: 6 مراحل من الاتصال الأولي حتى إتمام البيع
-- **تقارير**: تحليلات الأداء، المبيعات، القطاعات، والتوزيع الجغرافي
-- **إدارة الفريق**: صلاحيات متعددة (مدير عام / مشرف / موظف مبيعات)
-- **فحص البيانات**: محرك تدقيق ودمج التكرارات (Data Audit Engine)
-
-#### 🕷️ سكرابر استخراج البيانات
-- **Ultra Scraper**: Google Maps متقدم مع شبكة جغرافية لتجاوز حدود النتائج
-- **Mega Scraper**: متعدد المصادر (Yellow Pages + Google + Wuzzuf + EGX)
-- **LinkedIn Enricher**: إثراء بيانات الشركات بصفحات LinkedIn وصناع القرار
-- **Smart Puller**: استخراج ذكي من Google Search (300+ استعلام)
-- **Google Places API**: استخراج من واجهة Google الرسمية
-
-### 📦 التقنيات المستخدمة
-
-| الطبقة | التقنيات |
-|--------|---------|
-| **الواجهة** | HTML5, CSS3 (Dark Mode), JavaScript (Vanilla), Chart.js |
-| **التخزين** | localStorage + IndexedDB |
-| **السكرابر** | Python, Selenium, undetected-chromedriver, BeautifulSoup |
-| **المكتبات** | Font Awesome, SheetJS (xlsx), Google Fonts (Cairo) |
-| **النشر** | Vercel / Netlify (Static), Python Server (Backend) |
-
-### 🚀 التشغيل المحلي
-
-#### تشغيل السكرابر (Backend)
-```bash
-cd scraper
-pip install -r requirements.txt
-python server.py 8888
+```
+جهازك المحلي              Supabase ☁️              أي جهاز (موبايل/كمبيوتر)
+───────────              ────────────              ─────────────────────────
+أنت بتسحب بيانات          قاعدة بيانات سحابية         CRM بيقرأ البيانات من
+الشركات من على           بتخزن كل حاجه             السحابة ويوريك كل
+جهازك (Python)           وتوحدها لكل الأجهزة        الشركات وبياناتها
 ```
 
-#### تشغيل الـ CRM (Frontend)
-```bash
-cd crm
-npx -y http-server . -p 8080 -c-1 --cors
+---
+
+### 📱 الخطوة 1: افتح الـ CRM من أي جهاز
+
+افتح الرابط ده من أي متصفح (موبايل أو كمبيوتر):
+
+**🔗 https://data-eriny.vercel.app**
+
 ```
-أو افتح `start_system.bat` لتشغيل كل شيء دفعة واحدة.
+البريد: admin@fleet.com
+كلمة المرور: admin123
+```
 
-### 🔑 بيانات الدخول الافتراضية
-| المستخدم | كلمة المرور | الصلاحية |
-|----------|-----------|----------|
-| `admin@fleet.com` / `admin` | مستخدم واحد | مدير عام (كامل الصلاحيات) |
+ده بيدخلك على واجهة إدارة العملاء — تقدر تشوف الشركات، تسجل مكالمات، تدير الصفقات، وكل حاجه.
 
-> ⚠️ **تنبيه هام**: يرجى تغيير كلمة المرور الافتراضية فوراً بعد أول دخول.
+---
 
-### 🌐 النشر على الإنترنت
-- **Vercel**: [https://data-eriny.vercel.app](https://data-eriny.vercel.app/#dashboard)
-- **GitHub**: [https://github.com/GergesSayed/data-eriny](https://github.com/GergesSayed/data-eriny)
+### 💻 الخطوة 2: اسحب بيانات شركات جديدة (من الكمبيوتر بس)
 
-> **ملاحظة**: السكرابر وميزات الاستيراد التلقائي تعمل فقط عند التشغيل المحلي. على Vercel، تتوفر واجهة CRM كاملة ولكن بدون Backend.
+على جهاز الكمبيوتر بتاعك:
 
-### 📁 هيكل المشروع
+1. افتح مجلد المشروع → `scraper/`
+2. اضغط مرتين على **`START.bat`**
+3. اختار رقم **1** (سحب سريع + رفع للسحابة)
+4. استنى شوية — السكريبت هيسحب شركات ويرفعها للسحابة
+
+**الشركات الجديدة هتظهر فوراً على الموقع من أي جهاز!**
+
+---
+
+### 🔄 إزاي البيانات بتتوحد بين كل الأجهزة؟
+
+| الخطوة | اللي بيحصل |
+|--------|-----------|
+| 1 | بتشغل السكرابر على جهازك → بيسحب شركات حقيقية |
+| 2 | `sync_to_supabase.py` بيرفع الشركات لـ Supabase |
+| 3 | أي حد يفتح الموقع (موبايل/كمبيوتر تاني) → CRM بيسحب البيانات من Supabase |
+| 4 | لو حد ضاف شركة أو سجل مكالمة من عنده → بترفع للسحابة → كل الأجهزة تشوفها |
+
+---
+
+### 🧩 الصفحات الرئيسية في الـ CRM:
+
+| الصفحة | بتعمل إيه |
+|--------|----------|
+| **لوحة التحكم** | إحصائيات ورسوم بيانية عن الأداء |
+| **الشركات** | قاعدة بيانات الشركات — بحث، تصفية، إضافة، تعديل |
+| **سجل المكالمات** | تتبع المكالمات والمتابعات مع كل شركة |
+| **خط المبيعات** | Kanban board لإدارة الصفقات من أول اتصال لحد البيع |
+| **التقارير** | تحليلات القطاعات والمناطق والأداء |
+| **متابعة الفريق** | متابعة أداء الموظفين والشركات المسندة ليهم |
+| **إدارة الموظفين** | إضافة موظفين جدد وصلاحياتهم |
+| **سحب البيانات** | تشغيل السكرابر وسحب شركات جديدة + OSM |
+
+---
+
+### 🚀 خيارات START.bat:
+
+| رقم | الوظيفة | الوقت المتوقع |
+|-----|---------|--------------|
+| 1 | **سحب سريع + رفع للسحابة (موصى)** | 2-5 دقائق |
+| 2 | Google Maps Browser Scraper | 10-20 دقيقة |
+| 3 | Google Maps Deep Scraper | 30-60 دقيقة |
+| 4 | Smart Puller | 20-40 دقيقة |
+| 5 | Mega Scraper (كل المصادر) | 1-2 ساعة |
+| 6 | رفع للسحابة بس (بدون سحب) | 30 ثانية |
+| 7 | فتح CRM أونلاين | فوري |
+
+---
+
+### 📊 هيكل المشروع:
+
 ```
 data-eriny/
-├── index.html              # صفحة التوجيه الرئيسية
-├── start_system.bat        # تشغيل النظام كاملاً
-├── crm/                    # واجهة CRM الأمامية
-│   ├── _redirects          # Netlify SPA routing
-│   ├── index.html          # التطبيق الرئيسي
-│   ├── css/style.css       # التصميم (2,392 سطر)
-│   └── js/                 # منطق التطبيق (11 ملف)
-│       ├── app.js          # المتحكم الرئيسي + التوجيه
-│       ├── storage.js      # إدارة البيانات + الصلاحيات
-│       ├── companies.js    # إدارة الشركات
-│       ├── calls.js        # سجل المكالمات
-│       ├── pipeline.js     # خط المبيعات
-│       ├── dashboard.js    # لوحة التحكم
-│       ├── reports.js      # التقارير والإحصائيات
-│       ├── scraper.js      # إعدادات السكرابر
-│       ├── team.js         # إدارة الفريق
-│       ├── excel-handler.js# استيراد/تصدير Excel
-│       └── settings.js     # إعدادات عامة
-└── scraper/                # أدوات استخراج البيانات
-    ├── server.py           # HTTP API Server (Port 8888)
-    ├── config.py           # 15 قطاع + 13 مدينة
-    ├── ultra_scraper.py    # Google Maps متقدم
-    ├── mega_scraper.py     # متعدد المصادر
-    ├── linkedin_enricher.py# LinkedIn إثراء
-    ├── smart_puller.py     # استخراج من Google Search
-    ├── browser_scraper.py  # سكرابر المتصفح
-    ├── google_places_scraper.py # Google Places API
-    ├── requirements.txt    # مكتبات Python
-    └── output/             # مخرجات السكرابر
+├── crm/                        ← واجهة CRM
+│   ├── index.html              ← الصفحة الرئيسية
+│   ├── js/                     ← 12 ملف JavaScript
+│   ├── css/style.css           ← التصميم
+│   ├── api/sync.js             ← Vercel API
+│   └── data/companies.json     ← قاعدة بيانات 10K+ شركة
+├── scraper/                    ← أدوات سحب البيانات
+│   ├── START.bat               ← المشغل الرئيسي
+│   ├── sync_to_supabase.py     ← رفع البيانات للسحابة
+│   ├── server.py               ← سيرفر HTTP محلي
+│   └── *.py                    ← أدوات السكرابر المختلفة
+├── supabase/                   ← SQL migrations
+└── vercel.json                 ← إعدادات Vercel
 ```
-
-### 📊 الإحصائيات
-- **15 قطاع** مدعوم (نقل، أغذية، أدوية، مقاولات، بترول...)
-- **13 مدينة** في القاهرة الكبرى
-- **8 صفحات** في CRM
-- **6 أدوات** سكرابر مختلفة
-- **20+ شركة عينة** مدمجة مسبقاً
 
 ---
 
-<a name="english"></a>
-## 🇬🇧 English
+### 🔑 بيانات الدخول:
 
-### 📋 About
-**Fleet CRM** is a comprehensive Customer Relationship Management and Tire Sales platform designed for the Egyptian market. It targets companies and factories with vehicle fleets (heavy transport, light transport, passenger) for tire sales.
+| المستخدم | كلمة المرور | الصلاحية |
+|----------|------------|----------|
+| `admin@fleet.com` | `admin123` | مدير عام (كامل الصلاحيات) |
 
-### ✨ Key Features
-- **Dashboard** with live stats and charts (Chart.js)
-- **Company Management** with advanced filters (sector, area, fleet size, priority)
-- **Call Log** with smart company grouping
-- **Sales Pipeline** (Kanban board with 6 stages)
-- **Reports** with performance analytics
-- **Team Management** with role-based access (Admin / Supervisor / Agent)
-- **Data Audit Engine** for deduplication and cleanup
-- **Multiple Scrapers**: Google Maps, Yellow Pages, Google Search, LinkedIn
-- **Excel Import/Export** support
+> ⚠️ غير كلمة المرور من **إدارة الموظفين** بعد أول دخول.
 
-### 🚀 Quick Start
-```bash
-# Backend (Scraper)
-cd scraper && pip install -r requirements.txt && python server.py 8888
+### 🌐 روابط:
 
-# Frontend (CRM)
-cd crm && npx -y http-server . -p 8080 -c-1 --cors
-
-# Or run both:
-start_system.bat
-```
-
-### 🔑 Default Credentials
-| User | Password | Role |
-|------|----------|------|
-| `admin@fleet.com` / `admin` | admin | Full Admin |
-
-> ⚠️ **Important**: Change the default password immediately after first login.
-
-### 🌐 Live Demo
-- **Vercel**: [https://data-eriny.vercel.app](https://data-eriny.vercel.app/#dashboard)
-- **GitHub**: [https://github.com/GergesSayed/data-eriny](https://github.com/GergesSayed/data-eriny)
-
-> **Note**: Scraper features only work locally. Vercel deployment provides full CRM UI without backend connectivity.
-
-### 📊 Project Stats
-- ~18,000+ lines of code
-- 15 sectors, 13 cities
-- 6 scraper tools
-- 3 user roles
-- 8 CRM pages
-
----
-
-<div align="center">
-  <sub>Built with ❤️ for the Egyptian tire sales market | v4.4.0 © 2026</sub>
-</div>
+- **الموقع:** https://data-eriny.vercel.app
+- **GitHub:** https://github.com/GergesSayed/data-eriny
+- **Supabase:** https://supabase.com/dashboard/project/vefitfgvdgjqipkkttry
