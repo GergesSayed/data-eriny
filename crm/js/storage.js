@@ -731,40 +731,10 @@ const AppStorage = {
         company.sector = this.mapScraperSectorToCRM(company.sector);
         company.city = this.mapScraperCityToCRM(company.city);
         
-        // Enrich fleet size if missing or default 10
-        if (!company.fleetSize || company.fleetSize === 10) {
-            let h = 0;
-            const str = String(company.id || '') + String(company.nameAr || '') + String(company.nameEn || '');
-            for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) & 0xFFFFFFFF;
-            h = Math.abs(h);
-            
-            const sec = company.sector;
-            if (sec === 'transport') company.fleetSize = 35 + (h % 115);
-            else if (sec === 'construction') company.fleetSize = 25 + (h % 95);
-            else if (sec === 'petroleum') company.fleetSize = 30 + (h % 100);
-            else if (sec === 'rental' || sec === 'car_rental') company.fleetSize = 20 + (h % 60);
-            else if (sec === 'distribution' || sec === 'food') company.fleetSize = 15 + (h % 50);
-            else if (sec === 'delivery') company.fleetSize = 15 + (h % 75);
-            else if (sec === 'public_transport' || sec === 'tourism' || sec === 'education') company.fleetSize = 20 + (h % 75);
-            else if (sec === 'manufacturing' || sec === 'pharma') company.fleetSize = 12 + (h % 40);
-            else if (sec === 'security') company.fleetSize = 15 + (h % 35);
-            else company.fleetSize = 8 + (h % 27);
-        }
-
-        // Enrich contact phone if missing
+        // Preserve phone numbers cleanly without synthetic phone generation
         const p1 = (company.phone1 || '').trim();
         const mob = (company.mobile || '').trim();
-        if (!p1 && !mob) {
-            let h = 0;
-            const str = String(company.id || '') + String(company.nameAr || '');
-            for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) & 0xFFFFFFFF;
-            h = Math.abs(h);
-            const prefixes = ['010', '011', '012', '015', '02'];
-            const pref = prefixes[h % prefixes.length];
-            const num = pref === '02' ? `02-2${(h % 8999999) + 1000000}` : `${pref}${String(h % 899 + 100).padStart(3, '0')}-${String((h >> 4) % 8999 + 1000).padStart(4, '0')}`;
-            company.phone1 = num;
-            company.mobile = num;
-        } else if (p1 && !mob) {
+        if (p1 && !mob) {
             company.mobile = p1;
         } else if (mob && !p1) {
             company.phone1 = mob;
