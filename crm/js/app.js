@@ -399,7 +399,19 @@ const App = {
     },
 
     logoutSystem() {
-        Storage.logout();
+        try {
+            if (typeof Storage !== 'undefined' && typeof Storage.logout === 'function') {
+                Storage.logout();
+            } else if (typeof window.AppStorage !== 'undefined' && typeof window.AppStorage.logout === 'function') {
+                window.AppStorage.logout();
+            } else {
+                sessionStorage.removeItem('fleetcrm_current_user');
+                localStorage.removeItem('fleetcrm_current_user');
+            }
+        } catch(e) {
+            sessionStorage.removeItem('fleetcrm_current_user');
+            localStorage.removeItem('fleetcrm_current_user');
+        }
         // Remove the instant-auth CSS class so login screen becomes visible
         document.documentElement.classList.remove('user-logged-in');
         const userInput = document.getElementById('login-username');

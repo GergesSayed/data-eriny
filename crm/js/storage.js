@@ -2403,4 +2403,16 @@ var Storage = window.AppStorage = {
     }
 };
 window.AppStorage = Storage;
+window.FleetStorage = Storage;
 window.Storage = Storage;
+try {
+    if (typeof window !== 'undefined' && window.Storage) {
+        window.Storage.logout = function() { return Storage.logout.apply(Storage, arguments); };
+        window.Storage.getCurrentUser = function() { return Storage.getCurrentUser.apply(Storage, arguments); };
+        window.Storage.getCompanies = function() { return Storage.getCompanies.apply(Storage, arguments); };
+        window.Storage.canViewAll = function() { return Storage.canViewAll.apply(Storage, arguments); };
+        window.Storage.canModify = function() { return Storage.canModify.apply(Storage, arguments); };
+        window.Storage.isAdmin = function() { return Storage.isAdmin.apply(Storage, arguments); };
+        window.Storage.login = function() { return Storage.login.apply(Storage, arguments); };
+    }
+} catch(e) {}
