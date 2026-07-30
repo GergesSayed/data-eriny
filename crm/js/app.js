@@ -191,22 +191,31 @@ const App = {
     },
 
     checkAuth() {
-        const currentUser = window.AppStorage.getCurrentUser();
+        const currentUser = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
         const loginScreen = document.getElementById('login-screen');
         const sidebar = document.getElementById('sidebar');
         const mainWrapper = document.querySelector('.main-wrapper');
 
         if (!currentUser) {
-            // Remove user-logged-in class so CSS enables login screen pointer-events
+            // ---- LOGGED OUT STATE ----
             document.documentElement.classList.remove('user-logged-in');
             if (loginScreen) {
-                loginScreen.style.display = 'flex';
-                loginScreen.style.pointerEvents = 'auto';
+                // Clear ALL inline styles that may have been set with !important during login
+                loginScreen.removeAttribute('style');
+                loginScreen.style.setProperty('display', 'flex', 'important');
+                loginScreen.style.setProperty('pointer-events', 'auto', 'important');
+                loginScreen.style.setProperty('z-index', '999999', 'important');
+                loginScreen.style.setProperty('visibility', 'visible', 'important');
+                loginScreen.style.setProperty('opacity', '1', 'important');
+                // Restore mesh background
+                const mesh = loginScreen.querySelector('.login-bg-mesh');
+                if (mesh) mesh.style.removeProperty('display');
             }
-            if (sidebar) sidebar.style.display = 'none';
-            if (mainWrapper) mainWrapper.style.display = 'none';
+            if (sidebar) sidebar.style.setProperty('display', 'none', 'important');
+            if (mainWrapper) mainWrapper.style.setProperty('display', 'none', 'important');
             this.initLoginCapsWarning();
         } else {
+            // ---- LOGGED IN STATE ----
             document.documentElement.classList.add('user-logged-in');
             if (loginScreen) {
                 loginScreen.style.setProperty('display', 'none', 'important');
@@ -214,13 +223,10 @@ const App = {
                 loginScreen.style.setProperty('z-index', '-100', 'important');
                 loginScreen.style.setProperty('visibility', 'hidden', 'important');
                 loginScreen.style.setProperty('opacity', '0', 'important');
-                const mesh = loginScreen.querySelector('.login-bg-mesh');
-                if (mesh) mesh.style.setProperty('display', 'none', 'important');
             }
             if (sidebar) sidebar.style.removeProperty('display');
             if (mainWrapper) mainWrapper.style.removeProperty('display');
 
-            // Force unlock body overflow & pointer events for mobile devices
             document.body.style.overflow = '';
             document.body.style.pointerEvents = 'auto';
             document.documentElement.style.pointerEvents = 'auto';
