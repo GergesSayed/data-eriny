@@ -555,7 +555,7 @@ const App = {
 
             // 2. Fallback to bundled cloud dataset ./data/companies.json (skip on mobile — 4MB)
             if (!Array.isArray(data) || data.length === 0) {
-                const isMobile = (window.__IS_MOBILE === true) || (typeof Storage !== 'undefined' && window.AppStorage.isMobile && window.AppStorage.isMobile());
+                const isMobile = (window.__IS_MOBILE === true) || (window.AppStorage && window.AppStorage.isMobile && window.AppStorage.isMobile());
                 if (!isMobile) {
                     try {
                         const cloudResp = await fetch('./data/companies.json?v=22.0.0');
@@ -688,8 +688,8 @@ const App = {
         if (this.currentPage === page && activePageEl && activePageEl.classList.contains('active')) {
             return;
         }
-        const currentUser = (typeof Storage !== 'undefined' && typeof window.AppStorage.getCurrentUser === 'function') ? window.AppStorage.getCurrentUser() : null;
-        const canViewAll = (typeof Storage !== 'undefined' && typeof window.AppStorage.canViewAll === 'function') ? window.AppStorage.canViewAll(currentUser) : true;
+        const currentUser = (window.AppStorage && typeof window.AppStorage.getCurrentUser === 'function') ? window.AppStorage.getCurrentUser() : null;
+        const canViewAll = (window.AppStorage && typeof window.AppStorage.canViewAll === 'function') ? window.AppStorage.canViewAll(currentUser) : true;
 
         // Role-based restrictions: Sales Agents CAN ONLY access companies & calls
         if (!canViewAll && page !== 'companies' && page !== 'calls') {

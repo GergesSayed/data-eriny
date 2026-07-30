@@ -1174,7 +1174,7 @@ const AppStorage = {
                     .trim()
                     .replace(/[\s_]+/g, '-');
                 const suffix = (idx % 3 === 0) ? '.com.eg' : ((idx % 2 === 0) ? '.com' : '.org.eg');
-                c.website = https://www.;
+                c.website = `https://www.${slug}${suffix}`;
                 isModified = true;
             }
             seenWebsites.add(c.website);
@@ -1182,7 +1182,7 @@ const AppStorage = {
             // 2. Fix duplicate / dummy contact person names
             const isDummyContact = !c.contactPerson || seenContacts.has(c.contactPerson);
             if (isDummyContact) {
-                c.contactPerson = ${firstNames[idx % firstNames.length]} ;
+                c.contactPerson = `${firstNames[idx % firstNames.length]} ${lastNames[idx % lastNames.length]}`;
                 if (!c.contactTitle) {
                     c.contactTitle = titles[idx % titles.length];
                 }
