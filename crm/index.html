@@ -14,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=350000">
+    <link rel="stylesheet" href="css/style.css?v=360000">
     <!-- Immediate Zero-Flash Auth Check & ServiceWorker Cache Buster -->
     <script>
         (function() {
@@ -53,8 +53,15 @@
         })();
     </script>
     <style>
+        /* Default: show login, hide main app */
+        #login-screen { display: flex !important; }
+        .main-wrapper { display: none !important; }
+        #sidebar { display: none !important; }
+        
+        /* When logged in: hide login, show main app */
         html.user-logged-in #login-screen { display: none !important; }
-        html.user-logged-in .main-wrapper { display: block; }
+        html.user-logged-in .main-wrapper { display: block !important; }
+        html.user-logged-in #sidebar { display: flex !important; }
     </style>
 </head>
 <body>
@@ -68,7 +75,7 @@
     </div>
 
     <!-- Fullscreen Enterprise Login Screen -->
-    <div id="login-screen" class="login-screen-bg" style="display: none;">
+    <div id="login-screen" class="login-screen-bg" style="display: flex;">
         <!-- Animated Background Mesh Orbs -->
         <div class="login-bg-mesh">
             <div class="login-bg-orb login-bg-orb-1"></div>
@@ -1561,18 +1568,18 @@
         }
     </script>
 
-    <script src="js/supabase-client.js?v=350000"></script>
-    <script src="js/storage.js?v=350000"></script>
-    <script src="js/excel-handler.js?v=350000"></script>
-    <script src="js/dashboard.js?v=350000"></script>
-    <script src="js/companies.js?v=350000"></script>
-    <script src="js/calls.js?v=350000"></script>
-    <script src="js/pipeline.js?v=350000"></script>
-    <script src="js/reports.js?v=350000"></script>
-    <script src="js/scraper.js?v=350000"></script>
-    <script src="js/team.js?v=350000"></script>
-    <script src="js/settings.js?v=350000"></script>
-    <script src="js/app.js?v=350000"></script>
+    <script src="js/supabase-client.js?v=360000"></script>
+    <script src="js/storage.js?v=360000"></script>
+    <script src="js/excel-handler.js?v=360000"></script>
+    <script src="js/dashboard.js?v=360000"></script>
+    <script src="js/companies.js?v=360000"></script>
+    <script src="js/calls.js?v=360000"></script>
+    <script src="js/pipeline.js?v=360000"></script>
+    <script src="js/reports.js?v=360000"></script>
+    <script src="js/scraper.js?v=360000"></script>
+    <script src="js/team.js?v=360000"></script>
+    <script src="js/settings.js?v=360000"></script>
+    <script src="js/app.js?v=360000"></script>
 
     <!-- EMERGENCY: Guarantee save button always works regardless of cache -->
     <script>
@@ -1601,57 +1608,23 @@
     })();
     </script>
 
-    <!-- EMERGENCY MOBILE UNFREEZE & TOUCH WATCHDOG -->
+    <!-- Session state watchdog - only runs once on load -->
     <script>
     (function() {
-        function forceUnfreeze() {
+        function syncSessionState() {
             try {
                 var loader = document.getElementById('loading-overlay');
                 if (loader) {
-                    loader.classList.add('hidden');
                     loader.style.setProperty('display', 'none', 'important');
                     loader.style.setProperty('pointer-events', 'none', 'important');
-                    loader.style.setProperty('z-index', '-100', 'important');
                 }
-                var sideOverlay = document.getElementById('sidebar-overlay');
-                if (sideOverlay && !sideOverlay.classList.contains('active')) {
-                    sideOverlay.style.setProperty('display', 'none', 'important');
-                    sideOverlay.style.setProperty('pointer-events', 'none', 'important');
-                    sideOverlay.style.setProperty('z-index', '-100', 'important');
-                }
-                var u = sessionStorage.getItem('fleetcrm_current_user') || localStorage.getItem('fleetcrm_current_user');
-                var loginScreen = document.getElementById('login-screen');
-                var sidebar = document.getElementById('sidebar');
-                var mainWrapper = document.querySelector('.main-wrapper');
-                if (u) {
-                    if (loginScreen) {
-                        loginScreen.style.setProperty('display', 'none', 'important');
-                        loginScreen.style.setProperty('pointer-events', 'none', 'important');
-                        loginScreen.style.setProperty('z-index', '-100', 'important');
-                    }
-                    if (mainWrapper) mainWrapper.style.removeProperty('display');
-                    if (sidebar) sidebar.style.removeProperty('display');
-                } else {
-                    if (loginScreen) {
-                        loginScreen.style.display = 'flex';
-                        loginScreen.style.pointerEvents = 'auto';
-                        loginScreen.style.zIndex = '999999';
-                    }
-                    if (mainWrapper) mainWrapper.style.display = 'none';
-                    if (sidebar) sidebar.style.display = 'none';
-                }
-                if (!document.querySelector('.modal.show')) {
-                    document.body.style.overflow = '';
-                    document.body.style.pointerEvents = 'auto';
-                }
+                document.body.style.overflow = '';
+                document.body.style.pointerEvents = 'auto';
                 document.documentElement.style.pointerEvents = 'auto';
             } catch(e) {}
         }
-
-        forceUnfreeze();
-        document.addEventListener('DOMContentLoaded', forceUnfreeze);
-        window.addEventListener('load', forceUnfreeze);
-        setInterval(forceUnfreeze, 1000);
+        document.addEventListener('DOMContentLoaded', syncSessionState);
+        window.addEventListener('load', syncSessionState);
     })();
     </script>
 </body>
