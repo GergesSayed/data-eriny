@@ -648,8 +648,8 @@ const App = {
         if (this.currentPage === page && activePageEl && activePageEl.classList.contains('active')) {
             return;
         }
-        const currentUser = Storage.getCurrentUser();
-        const canViewAll = Storage.canViewAll(currentUser);
+        const currentUser = (typeof Storage !== 'undefined' && typeof Storage.getCurrentUser === 'function') ? Storage.getCurrentUser() : null;
+        const canViewAll = (typeof Storage !== 'undefined' && typeof Storage.canViewAll === 'function') ? Storage.canViewAll(currentUser) : true;
 
         // Role-based restrictions: Sales Agents CAN ONLY access companies & calls
         if (!canViewAll && page !== 'companies' && page !== 'calls') {
