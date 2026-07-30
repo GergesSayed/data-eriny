@@ -654,29 +654,29 @@ const AppStorage = {
             localStorage.removeItem('fleetcrm_deals_cleared_v3');
         } catch(e) {}
 
-        // Clear legacy synthetic cache to force load 1,000 real enriched companies
-        if (!localStorage.getItem('fleetcrm_clean_enriched_v400000')) {
+        // FORCE CACHE RESET for v430000 to purge old synthetic company data from localStorage & IndexedDB
+        if (!localStorage.getItem('fleetcrm_clean_v430000')) {
             localStorage.removeItem(this.KEYS.COMPANIES);
-            this.companiesMemory = [];
-            localStorage.setItem('fleetcrm_clean_enriched_v400000', 'true');
+            localStorage.removeItem('fleetcrm_last_synced_hash');
+            this.companiesMemory = null;
+            localStorage.setItem('fleetcrm_clean_v430000', 'true');
         }
 
         // 1. Check LocalStorage cache first or seed initial companies
         let cached = this._get(this.KEYS.COMPANIES);
-        if (!cached || !Array.isArray(cached) || cached.length === 0) {
-            cached = (this.SEED_COMPANIES && Array.isArray(this.SEED_COMPANIES)) ? this.SEED_COMPANIES : [];
-            this._set(this.KEYS.COMPANIES, cached);
-        }
-        if (cached && Array.isArray(cached) && cached.length > 0) {
+        if (cached && Array.isArray(cached) && cached.length > 0 && !cached[0].website?.includes('fleetcobranch')) {
             this.companiesMemory = this.cleanAndFixCompanyData(cached.map(c => {
                 c.sector = this.mapScraperSectorToCRM(c.sector);
                 c.city = this.mapScraperCityToCRM(c.city);
                 c.priority = this.calculatePriority(c.sector);
                 return c;
             }));
+        } else {
+            this.companiesMemory = null;
+            localStorage.removeItem(this.KEYS.COMPANIES);
         }
 
-        // 2. Open IndexedDB and load persisted user data (version 3 forces onupgradeneeded if store is missing)
+        // 2. Open IndexedDB and load persisted user data
         return new Promise((resolve) => {
             try {
                 const request = indexedDB.open('FleetCRM_DB', 3);
@@ -824,37 +824,35 @@ const AppStorage = {
             this._set(this.KEYS.COMPANIES, []);
             return;
         }
-        if (this.companiesMemory && this.companiesMemory.length > 0) return;
+        if (this.companiesMemory && this.companiesMemory.length > 0 && !this.companiesMemory[0].website?.includes('fleetcobranch')) return;
 
-        // 1. Prioritize Supabase Cloud Master Dataset on empty cache / new device
-        if (window.SupabaseClient) {
-            try {
-                const cloudData = await window.SupabaseClient.fetchMasterData();
-                if (cloudData && Array.isArray(cloudData.companies)) {
-                    this.companiesMemory = cloudData.companies.map((c, idx) => this._normalizeCompanyData(c, idx));
-                    this._set(this.KEYS.COMPANIES, this.companiesMemory);
-                    this.saveAllCompaniesToDB(this.companiesMemory);
-                    return;
-                }
-            } catch (cloudErr) {}
-        }
-
-        // 2. Fallback to static JSON bundled with app (1000 real companies)
+        // 1. Load static JSON bundled with app (1000 real companies) FIRST
         const jsonPaths = ['./data/companies.json', '/data/companies.json'];
         for (const path of jsonPaths) {
             try {
-                const resp = await fetch(path + '?v=400000');
+                const resp = await fetch(path + '?v=430000');
                 if (resp.ok) {
                     const jsonData = await resp.json();
                     if (Array.isArray(jsonData) && jsonData.length > 0) {
                         this.companiesMemory = jsonData.map((c, idx) => this._normalizeCompanyData(c, idx));
                         this._set(this.KEYS.COMPANIES, this.companiesMemory);
                         this.saveAllCompaniesToDB(this.companiesMemory);
+                        // Also update Supabase cloud dataset if present
+                        if (window.SupabaseClient) {
+                            window.SupabaseClient.pushMasterData({
+                                companies: this.companiesMemory,
+                                users: this.getUsers(),
+                                calls: this.getCalls ? this.getCalls() : [],
+                                deals: this.getDeals ? this.getDeals() : [],
+                                activities: this.getActivities ? this.getActivities() : []
+                            }).catch(() => {});
+                        }
                         return;
                     }
                 }
             } catch (e) {}
         }
+
         if (!this.companiesMemory || this.companiesMemory.length === 0) {
             this.companiesMemory = [];
             this._set(this.KEYS.COMPANIES, []);
@@ -876,21 +874,24 @@ const AppStorage = {
                 
                 request.onsuccess = (event) => {
                     const data = event.target.result || [];
-                    if (data.length > 0) {
+                    // Check if IndexedDB data is stale/synthetic (contains 'fleetcobranch')
+                    const isStale = data.length > 0 && (data[0].website?.includes('fleetcobranch') || !data[0].google_maps_url);
+
+                    if (data.length > 0 && !isStale) {
                         const idbMapped = data.map((c, idx) => this._normalizeCompanyData(c, idx));
-                        
-                        // Trust IndexedDB user modified data
                         this.companiesMemory = idbMapped;
                         this._set(this.KEYS.COMPANIES, idbMapped);
                         this.ensureAssignedSampleCompanies();
                         resolve();
                     } else {
-                        if (!this.companiesMemory || this.companiesMemory.length === 0) {
-                            this._seedInitialJsonData().then(() => resolve());
-                        } else {
-                            this.saveAllCompaniesToDB(this.companiesMemory);
-                            resolve();
-                        }
+                        // Clear stale IndexedDB records and load fresh companies.json
+                        try {
+                            const clearTx = db.transaction(['companies'], 'readwrite');
+                            clearTx.objectStore('companies').clear();
+                        } catch(e) {}
+
+                        this.companiesMemory = null;
+                        this._seedInitialJsonData().then(() => resolve());
                     }
                 };
                 
