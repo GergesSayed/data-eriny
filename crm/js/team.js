@@ -23,7 +23,8 @@ const Team = {
             const teamPage = document.getElementById('page-team');
             if (!teamPage) return;
 
-            if (!Storage.canViewAll(currentUser)) {
+            const isRestricted = currentUser && currentUser.role === 'agent';
+            if (isRestricted) {
                 teamPage.innerHTML = `
                     <div class="empty-state" style="padding:60px 20px;">
                         <i class="fas fa-lock" style="font-size:48px; color:var(--text-muted); margin-bottom:16px;"></i>
@@ -181,7 +182,8 @@ const Team = {
             const empPage = document.getElementById('page-employees');
             if (!empPage) return;
 
-            if (!Storage.canViewAll(currentUser)) {
+            const isRestricted = currentUser && currentUser.role === 'agent';
+            if (isRestricted) {
                 empPage.innerHTML = `
                     <div class="empty-state" style="padding:60px 20px;">
                         <i class="fas fa-lock" style="font-size:48px; color:var(--text-muted); margin-bottom:16px;"></i>

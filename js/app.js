@@ -51,17 +51,11 @@ const App = {
         try {
             // Ensure clean initial state flags if needed
             try {
-                if (!localStorage.getItem('fleetcrm_auth_reset_v5')) {
-                    localStorage.removeItem('fleetcrm_current_user');
-                    sessionStorage.removeItem('fleetcrm_current_user');
-                    localStorage.setItem('fleetcrm_auth_reset_v5', 'true');
-                }
-                if (!localStorage.getItem('fleetcrm_deals_cleared_v3')) {
-                    localStorage.setItem('fleetcrm_calls', '[]');
-                    localStorage.setItem('fleetcrm_deals', '[]');
-                    localStorage.setItem('fleetcrm_activities', '[]');
-                    localStorage.setItem('fleetcrm_deals_cleared_v3', 'true');
-                }
+                // Clear legacy reset flags to preserve user login session and data
+                try {
+                    localStorage.removeItem('fleetcrm_auth_reset_v5');
+                    localStorage.removeItem('fleetcrm_deals_cleared_v3');
+                } catch(e) {}
             } catch (e) {
                 console.error('Storage flag error:', e);
             }

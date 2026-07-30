@@ -648,20 +648,25 @@ var Storage = window.AppStorage = {
 
     // ---- IndexedDB helper functions ----
     async initDB() {
-        if (localStorage.getItem('fleetcrm_user_wiped_companies') === 'true') {
-            this.companiesMemory = [];
-            this._set(this.KEYS.COMPANIES, []);
-        } else {
-            // 1. Check LocalStorage cache first
-            let cached = this._get(this.KEYS.COMPANIES);
-            if (cached && Array.isArray(cached) && cached.length > 0) {
-                this.companiesMemory = cached.map(c => {
-                    c.sector = this.mapScraperSectorToCRM(c.sector);
-                    c.city = this.mapScraperCityToCRM(c.city);
-                    c.priority = this.calculatePriority(c.sector);
-                    return c;
-                });
-            }
+        // Clear legacy wipe flags to prevent data loss
+        try {
+            localStorage.removeItem('fleetcrm_user_wiped_companies');
+            localStorage.removeItem('fleetcrm_deals_cleared_v3');
+        } catch(e) {}
+
+        // 1. Check LocalStorage cache first or seed initial companies
+        let cached = this._get(this.KEYS.COMPANIES);
+        if (!cached || !Array.isArray(cached) || cached.length === 0) {
+            cached = (this.SEED_COMPANIES && Array.isArray(this.SEED_COMPANIES)) ? this.SEED_COMPANIES : [];
+            this._set(this.KEYS.COMPANIES, cached);
+        }
+        if (cached && Array.isArray(cached) && cached.length > 0) {
+            this.companiesMemory = this.cleanAndFixCompanyData(cached.map(c => {
+                c.sector = this.mapScraperSectorToCRM(c.sector);
+                c.city = this.mapScraperCityToCRM(c.city);
+                c.priority = this.calculatePriority(c.sector);
+                return c;
+            }));
         }
 
         // 2. Open IndexedDB and load persisted user data (version 3 forces onupgradeneeded if store is missing)
@@ -1188,7 +1193,20 @@ var Storage = window.AppStorage = {
     },
 
     getCompanies() {
-        return this.companiesMemory;
+        if (this.companiesMemory && Array.isArray(this.companiesMemory) && this.companiesMemory.length > 0) {
+            return this.companiesMemory;
+        }
+        let cached = this._get(this.KEYS.COMPANIES);
+        if (cached && Array.isArray(cached) && cached.length > 0) {
+            this.companiesMemory = this.cleanAndFixCompanyData(cached);
+            return this.companiesMemory;
+        }
+        if (this.SEED_COMPANIES && Array.isArray(this.SEED_COMPANIES) && this.SEED_COMPANIES.length > 0) {
+            this.companiesMemory = this.cleanAndFixCompanyData(this.SEED_COMPANIES);
+            this._set(this.KEYS.COMPANIES, this.companiesMemory);
+            return this.companiesMemory;
+        }
+        return [];
     },
 
     getCompany(id) {
