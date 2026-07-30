@@ -34,10 +34,10 @@ const Team = {
                 return;
             }
 
-            const users = Storage.getUsers() || [];
-            const allCompanies = Storage.getCompanies() || [];
-            const allCalls = Storage.getCalls() || [];
-            const allDeals = Storage.getDeals() || [];
+            const users = (Storage.getUsers && Storage.getUsers().length > 0) ? Storage.getUsers() : (Storage.DEFAULT_USERS || []);
+            const allCompanies = (Storage.getCompanies && Storage.getCompanies().length > 0) ? Storage.getCompanies() : (Storage.SEED_COMPANIES || []);
+            const allCalls = (Storage.getCalls && Storage.getCalls()) ? Storage.getCalls() : [];
+            const allDeals = (Storage.getDeals && Storage.getDeals()) ? Storage.getDeals() : [];
 
             const activeUserKeys = new Set(users.flatMap(u => [u.id, u.username, u.name].filter(Boolean)));
 
@@ -193,8 +193,8 @@ const Team = {
                 return;
             }
 
-            const users = Storage.getUsers() || [];
-            const pendingUsers = Storage.getPendingUsers();
+            const users = (Storage.getUsers && Storage.getUsers().length > 0) ? Storage.getUsers() : (Storage.DEFAULT_USERS || []);
+            const pendingUsers = (Storage.getPendingUsers && Storage.getPendingUsers()) ? Storage.getPendingUsers() : [];
             const pendingHtml = pendingUsers.length === 0 ? '' : `
                 <div class="card" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(217, 119, 6, 0.08)); border: 1.5px solid #f59e0b; border-radius: 16px; padding: 20px; margin-bottom: 24px;">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">

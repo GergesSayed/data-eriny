@@ -1195,12 +1195,8 @@ const Storage = {
             this.companiesMemory = this.cleanAndFixCompanyData(cached);
             return this.companiesMemory;
         }
-        if (this.SEED_COMPANIES && Array.isArray(this.SEED_COMPANIES) && this.SEED_COMPANIES.length > 0) {
-            this.companiesMemory = this.cleanAndFixCompanyData(this.SEED_COMPANIES);
-            this._set(this.KEYS.COMPANIES, this.companiesMemory);
-            return this.companiesMemory;
-        }
-        return [];
+        this.seedSampleData();
+        return this.companiesMemory || [];
     },
 
     getCompany(id) {
