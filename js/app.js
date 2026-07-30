@@ -1,3 +1,6 @@
+/* AppStorage Global Safe Declaration */
+var AppStorage = window.AppStorage = window.AppStorage || {};
+var Storage = window.AppStorage;
 /* ============================================
    App — Fleet CRM Main Application Controller
    ============================================ */

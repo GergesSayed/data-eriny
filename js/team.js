@@ -1,3 +1,6 @@
+/* AppStorage Global Safe Declaration */
+var AppStorage = window.AppStorage = window.AppStorage || {};
+var Storage = window.AppStorage;
 /* ============================================
    Team Module — Fleet CRM
    Employee User Management & Performance Audit

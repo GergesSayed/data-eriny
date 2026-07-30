@@ -1,3 +1,6 @@
+/* AppStorage Global Safe Declaration */
+var AppStorage = window.AppStorage = window.AppStorage || {};
+var Storage = window.AppStorage;
 /* ============================================
    Scraper Dashboard — Fleet CRM
    Real-time data collection monitoring & auto-sync

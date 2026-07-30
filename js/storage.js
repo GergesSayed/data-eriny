@@ -1,3 +1,6 @@
+/* AppStorage Global Safe Declaration */
+var AppStorage = window.AppStorage = window.AppStorage || {};
+var Storage = window.AppStorage;
 /* ============================================
    Storage Manager — Fleet CRM
    LocalStorage-based data persistence

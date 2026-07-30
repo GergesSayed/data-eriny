@@ -1,3 +1,6 @@
+/* AppStorage Global Safe Declaration */
+var AppStorage = window.AppStorage = window.AppStorage || {};
+var Storage = window.AppStorage;
 // -*- coding: utf-8 -*-
 /**
  * Settings Page Controller — Scraper Configuration UI
