@@ -3,7 +3,7 @@
    LocalStorage-based data persistence
    ============================================ */
 
-const Storage = {
+var Storage = window.AppStorage = {
     KEYS: {
         COMPANIES: 'fleetcrm_companies',
         CALLS: 'fleetcrm_calls',
@@ -2384,3 +2384,5 @@ const Storage = {
         this.saveAllCompaniesToDB([]);
     }
 };
+window.AppStorage = Storage;
+window.Storage = Storage;
