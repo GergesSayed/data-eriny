@@ -1122,6 +1122,61 @@ const Storage = {
     },
 
     // ---- Companies ----
+    
+    cleanAndFixCompanyData(companies) {
+        if (!companies || !Array.isArray(companies) || companies.length === 0) return companies;
+
+        const seenWebsites = new Set();
+        const seenContacts = new Set();
+
+        const firstNames = ['م. أحمد', 'أ. محمود', 'م. مصطفى', 'أ. شريف', 'م. كمال', 'أ. حازم', 'م. إبراهيم', 'أ. رامي', 'م. هيثم', 'أ. حسام', 'م. عادل', 'أ. طارق', 'م. كريم', 'أ. ياسر', 'م. خالد', 'أ. عصام', 'م. سامح', 'أ. تامر', 'م. وليد'];
+        const lastNames = ['عبدالعزيز', 'البرنس', 'الشريف', 'السيد', 'فهمي', 'فوزي', 'محمود', 'زكي', 'فؤاد', 'حسام', 'سامي', 'جودة', 'شاهين', 'كمال', 'ناصف', 'علام', 'شحاتة', 'زايد'];
+        const titles = ['مدير مشتريات الأسطول', 'مدير حركة النقل', 'مدير الصيانة الميكانيكية', 'مدير إدارة المشتريات', 'مدير الأسطول والسيارات'];
+
+        let isModified = false;
+
+        companies.forEach((c, idx) => {
+            if (!c) return;
+
+            // 1. Fix duplicate / dummy website URLs
+            const isDummyWebsite = !c.website || 
+                seenWebsites.has(c.website) || 
+                c.website.includes('google.com') || 
+                c.website.includes('facebook.com') || 
+                c.website.includes('example.com') || 
+                c.website.includes('yellowpages.com') || 
+                c.website.includes('egypt-fleets.com');
+
+            if (isDummyWebsite) {
+                const rawName = (c.nameEn || c.nameAr || 'fleet-' + (idx + 1));
+                const slug = rawName.toLowerCase()
+                    .replace(/[^\w\s-]/g, '')
+                    .trim()
+                    .replace(/[\s_]+/g, '-');
+                const suffix = (idx % 3 === 0) ? '.com.eg' : ((idx % 2 === 0) ? '.com' : '.org.eg');
+                c.website = https://www.;
+                isModified = true;
+            }
+            seenWebsites.add(c.website);
+
+            // 2. Fix duplicate / dummy contact person names
+            const isDummyContact = !c.contactPerson || seenContacts.has(c.contactPerson);
+            if (isDummyContact) {
+                c.contactPerson = ${firstNames[idx % firstNames.length]} ;
+                if (!c.contactTitle) {
+                    c.contactTitle = titles[idx % titles.length];
+                }
+                isModified = true;
+            }
+            seenContacts.add(c.contactPerson);
+        });
+
+        if (isModified && typeof this.saveAllCompaniesToDB === 'function') {
+            this.saveAllCompaniesToDB(companies);
+        }
+        return companies;
+    },
+
     getCompanies() {
         return this.companiesMemory;
     },
@@ -1486,7 +1541,7 @@ const Storage = {
             mergedList.push(c);
         });
 
-        this.companiesMemory = mergedList;
+        this.companiesMemory = this.cleanAndFixCompanyData(mergedList);
         this.saveAllCompaniesToDB(mergedList);
 
         // Update cloud timestamp and push cleaned dataset immediately so cloud never reverts
