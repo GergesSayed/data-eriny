@@ -44,14 +44,14 @@ const Reports = {
         if (this.charts.callsReport) this.charts.callsReport.destroy();
 
         const range = this.getDateRange();
-        const calls = window.CRM.getCalls().filter(c => c.date >= range.start && c.date <= range.end);
+        const calls = window.AppStorage.getCalls().filter(c => c.date >= range.start && c.date <= range.end);
 
         const resultCounts = {};
-        Object.keys(window.CRM.CALL_RESULTS).forEach(key => {
+        Object.keys(window.AppStorage.CALL_RESULTS).forEach(key => {
             resultCounts[key] = calls.filter(c => c.result === key).length;
         });
 
-        const labels = Object.keys(resultCounts).map(key => window.CRM.CALL_RESULTS[key]?.ar || key);
+        const labels = Object.keys(resultCounts).map(key => window.AppStorage.CALL_RESULTS[key]?.ar || key);
         const data = Object.values(resultCounts);
         const colors = ['#10b981', '#ef4444', '#f59e0b', '#64748b', '#dc2626', '#3b82f6', '#6366f1', '#22d3ee'];
 
@@ -101,9 +101,9 @@ const Reports = {
         if (!ctx) return;
         if (this.charts.salesReport) this.charts.salesReport.destroy();
 
-        const deals = window.CRM.getDeals();
+        const deals = window.AppStorage.getDeals();
         const stageData = {};
-        Object.keys(window.CRM.PIPELINE_STAGES).forEach(stage => {
+        Object.keys(window.AppStorage.PIPELINE_STAGES).forEach(stage => {
             const stageDeals = deals.filter(d => d.stage === stage);
             stageData[stage] = {
                 count: stageDeals.length,
@@ -111,9 +111,9 @@ const Reports = {
             };
         });
 
-        const labels = Object.keys(stageData).map(key => window.CRM.PIPELINE_STAGES[key]?.ar || key);
+        const labels = Object.keys(stageData).map(key => window.AppStorage.PIPELINE_STAGES[key]?.ar || key);
         const values = Object.values(stageData).map(s => s.value);
-        const colors = Object.keys(stageData).map(key => window.CRM.PIPELINE_STAGES[key]?.color || '#64748b');
+        const colors = Object.keys(stageData).map(key => window.AppStorage.PIPELINE_STAGES[key]?.color || '#64748b');
 
         this.charts.salesReport = new Chart(ctx, {
             type: 'bar',
@@ -140,7 +140,7 @@ const Reports = {
                         bodyFont: { family: 'Cairo' },
                         cornerRadius: 8,
                         callbacks: {
-                            label: (context) => `القيمة: ${window.CRM.formatCurrency(context.parsed.y)} ج.م`
+                            label: (context) => `القيمة: ${window.AppStorage.formatCurrency(context.parsed.y)} ج.م`
                         }
                     }
                 },
@@ -155,7 +155,7 @@ const Reports = {
                         ticks: {
                             color: '#64748b',
                             font: { family: 'Inter', size: 11 },
-                            callback: (value) => window.CRM.formatCurrency(value)
+                            callback: (value) => window.AppStorage.formatCurrency(value)
                         }
                     }
                 }
@@ -169,7 +169,7 @@ const Reports = {
         if (!ctx) return;
         if (this.charts.sectorAnalysis) this.charts.sectorAnalysis.destroy();
 
-        const companies = window.CRM.getCompanies();
+        const companies = window.AppStorage.getCompanies();
         const sectorData = {};
         companies.forEach(c => {
             const sector = c.sector || 'unknown';
@@ -179,7 +179,7 @@ const Reports = {
         });
 
         const sorted = Object.entries(sectorData).sort((a, b) => b[1].totalFleet - a[1].totalFleet);
-        const labels = sorted.map(([key]) => window.CRM.SECTORS[key]?.ar || key);
+        const labels = sorted.map(([key]) => window.AppStorage.SECTORS[key]?.ar || key);
         const fleetData = sorted.map(([, val]) => val.totalFleet);
         const countData = sorted.map(([, val]) => val.count);
 
@@ -260,11 +260,11 @@ const Reports = {
         if (!ctx) return;
         if (this.charts.geoReport) this.charts.geoReport.destroy();
 
-        const stats = window.CRM.getStats();
+        const stats = window.AppStorage.getStats();
         const cityData = stats.companiesByCity;
 
         const sorted = Object.entries(cityData).sort((a, b) => b[1] - a[1]);
-        const labels = sorted.map(([key]) => window.CRM.CITIES[key]?.ar || key);
+        const labels = sorted.map(([key]) => window.AppStorage.CITIES[key]?.ar || key);
         const data = sorted.map(([, count]) => count);
 
         const colors = [
@@ -312,9 +312,9 @@ const Reports = {
     },
 
     renderPerformanceSummary() {
-        const calls = window.CRM.getCalls();
-        const deals = window.CRM.getDeals();
-        const companies = window.CRM.getCompanies();
+        const calls = window.AppStorage.getCalls();
+        const deals = window.AppStorage.getDeals();
+        const companies = window.AppStorage.getCompanies();
 
         // Response rate: interested + meeting + proposal / total calls
         const positiveCalls = calls.filter(c =>
@@ -340,6 +340,6 @@ const Reports = {
 
         const avgWidth = Math.min(100, Math.round((avgDealValue / maxPossibleAvg) * 100));
         document.getElementById('perf-avg-deal').style.width = avgWidth + '%';
-        document.getElementById('perf-avg-deal-value').textContent = window.CRM.formatCurrency(avgDealValue) + ' ج.م';
+        document.getElementById('perf-avg-deal-value').textContent = window.AppStorage.formatCurrency(avgDealValue) + ' ج.م';
     }
 };

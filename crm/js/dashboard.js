@@ -10,7 +10,7 @@ const Dashboard = {
     },
 
     render() {
-        const stats = window.CRM.getStats();
+        const stats = window.AppStorage.getStats();
         this.updateStatCards(stats);
         this.renderFollowUps();
         this.renderActivities();
@@ -18,7 +18,7 @@ const Dashboard = {
 
         // Render charts after layout paint to ensure non-zero canvas dimensions
         setTimeout(() => {
-            const freshStats = window.CRM.getStats();
+            const freshStats = window.AppStorage.getStats();
             this.updateStatCards(freshStats);
             this.renderSectorChart(freshStats);
             this.renderWeeklyCallsChart(freshStats);
@@ -31,7 +31,7 @@ const Dashboard = {
         this._animateNumber('dash-open-deals', stats.openDeals || 0);
         
         const valEl = document.getElementById('dash-pipeline-value');
-        if (valEl) valEl.textContent = window.CRM.formatCurrency(stats.pipelineValue || 0);
+        if (valEl) valEl.textContent = window.AppStorage.formatCurrency(stats.pipelineValue || 0);
         
         // Sidebar stats
         const sideComp = document.getElementById('sidebar-total-companies');
@@ -81,7 +81,7 @@ const Dashboard = {
             ];
 
             Object.entries(sectorData).forEach(([key, count]) => {
-                const sector = window.CRM.SECTORS[key];
+                const sector = window.AppStorage.SECTORS[key];
                 labels.push(sector ? sector.ar : key);
                 data.push(count);
             });
@@ -201,12 +201,12 @@ const Dashboard = {
     },
 
     renderFollowUps() {
-        const esc = (s) => window.CRM.escapeHtml(s || '');
+        const esc = (s) => window.AppStorage.escapeHtml(s || '');
         const container = document.getElementById('followups-list');
         const countBadge = document.getElementById('followup-count');
         if (!container) return;
 
-        const followups = window.CRM.getTodaysFollowUps();
+        const followups = window.AppStorage.getTodaysFollowUps();
         countBadge.textContent = followups.length;
 
         if (followups.length === 0) {
@@ -219,14 +219,14 @@ const Dashboard = {
         }
 
         container.innerHTML = followups.map(call => {
-            const company = window.CRM.getCompany(call.companyId);
+            const company = window.AppStorage.getCompany(call.companyId);
             const companyName = company ? esc(company.nameAr) : 'شركة غير معروفة';
             return `
                 <div class="followup-item">
                     <div class="followup-icon"><i class="fas fa-bell"></i></div>
                     <div class="followup-info">
                         <div class="name">${companyName}</div>
-                        <div class="detail">${esc(call.contactPerson || '')} — ${window.CRM.getCallResultLabel(call.result)}</div>
+                        <div class="detail">${esc(call.contactPerson || '')} — ${window.AppStorage.getCallResultLabel(call.result)}</div>
                     </div>
                     <div class="followup-action">
                         <button class="btn btn-accent btn-sm" onclick="App.logCallForCompany('${call.companyId}')">
@@ -238,11 +238,11 @@ const Dashboard = {
     },
 
     renderActivities() {
-        const esc = (s) => window.CRM.escapeHtml(s || '');
+        const esc = (s) => window.AppStorage.escapeHtml(s || '');
         const container = document.getElementById('activity-list');
         if (!container) return;
 
-        const activities = window.CRM.getActivities(10);
+        const activities = window.AppStorage.getActivities(10);
 
         if (activities.length === 0) {
             container.innerHTML = `

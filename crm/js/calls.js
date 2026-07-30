@@ -26,14 +26,14 @@ const Calls = {
     },
 
     clearAllCalls() {
-        if (!window.CRM.isAdmin()) {
+        if (!window.AppStorage.isAdmin()) {
             App.showToast('⛔ عذراً، مسح سجل المكالمات مقتصر على المدير العام فقط!', 'error');
             return;
         }
         App.openModal('modal-confirm');
         document.getElementById('confirm-message').textContent = 'هل أنت متأكد من مسح جميع المكالمات المسجلة من السجل؟';
         document.getElementById('btn-confirm-action').onclick = () => {
-            window.CRM.clearAllCalls();
+            window.AppStorage.clearAllCalls();
             App.closeModal('modal-confirm');
             this.render();
             App.showToast('🗑️ تم مسح سجل المكالمات بنجاح');
@@ -42,7 +42,7 @@ const Calls = {
 
     renderStats() {
         const today = new Date().toISOString().split('T')[0];
-        const calls = window.CRM.getScopedCalls();
+        const calls = window.AppStorage.getScopedCalls();
         const todayCalls = calls.filter(c => c.date === today);
 
         document.getElementById('calls-total-today').textContent = todayCalls.length;
@@ -57,13 +57,13 @@ const Calls = {
     getCallAgentName(call) {
         if (call.createdByName) return call.createdByName;
         if (call.userId) {
-            const u = window.CRM.getUser(call.userId);
+            const u = window.AppStorage.getUser(call.userId);
             if (u) return u.name;
         }
         if (call.companyId) {
-            const c = window.CRM.getCompany(call.companyId);
+            const c = window.AppStorage.getCompany(call.companyId);
             if (c && c.assignedTo) {
-                const u = window.CRM.getUser(c.assignedTo);
+                const u = window.AppStorage.getUser(c.assignedTo);
                 if (u) return u.name;
             }
         }
@@ -71,8 +71,8 @@ const Calls = {
     },
 
     renderTable() {
-        const currentUser = window.CRM.getCurrentUser();
-        const calls = window.CRM.getScopedCalls().sort((a, b) => {
+        const currentUser = window.AppStorage.getCurrentUser();
+        const calls = window.AppStorage.getScopedCalls().sort((a, b) => {
             const dateA = new Date(a.date + 'T' + (a.time || '23:59'));
             const dateB = new Date(b.date + 'T' + (b.time || '23:59'));
             return dateB - dateA;
@@ -110,7 +110,7 @@ const Calls = {
     },
 
     renderGroupedByCompany(calls, currentUser, container) {
-        const esc = (s) => window.CRM.escapeHtml(s || '');
+        const esc = (s) => window.AppStorage.escapeHtml(s || '');
         // Group calls by companyId
         const groupsMap = new Map();
         calls.forEach(call => {
@@ -123,10 +123,10 @@ const Calls = {
 
         const groupCards = [];
         groupsMap.forEach((companyCalls, compId) => {
-            const company = window.CRM.getCompany(compId);
+            const company = window.AppStorage.getCompany(compId);
             const companyName = company ? esc(company.nameAr || company.nameEn) : 'شركة غير معروفة';
-            const sectorLabel = company ? window.CRM.getSectorLabel(company.sector) : '—';
-            const cityLabel = company ? window.CRM.getCityLabel(company.city) : '—';
+            const sectorLabel = company ? window.AppStorage.getSectorLabel(company.sector) : '—';
+            const cityLabel = company ? window.AppStorage.getCityLabel(company.city) : '—';
 
             groupCards.push(`
                 <div class="card" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 14px; overflow: hidden; backdrop-filter: blur(10px);">
@@ -159,7 +159,7 @@ const Calls = {
                                 return `
                                 <div style="padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; border-bottom: 1px solid var(--border-light); transition: background 0.15s ease;" onmouseover="this.style.background='rgba(99,102,241,0.04)'" onmouseout="this.style.background='transparent'">
                                     <div style="display: flex; align-items: center; gap: 14px; min-width: 260px;">
-                                        <span class="result-badge result-${call.result}" style="font-size: 12px; padding: 4px 10px;">${window.CRM.getCallResultLabel(call.result)}</span>
+                                        <span class="result-badge result-${call.result}" style="font-size: 12px; padding: 4px 10px;">${window.AppStorage.getCallResultLabel(call.result)}</span>
                                         <div style="font-size: 12px;">
                                             <span style="color: var(--text-primary); font-weight: 700; font-family: Inter;">📅 ${call.date} ${call.time ? '⏰ ' + call.time : ''}</span>
                                             <div style="display:flex; gap:8px; align-items:center; margin-top:3px; flex-wrap:wrap;">
@@ -192,7 +192,7 @@ const Calls = {
     },
 
     renderFlatTable(calls, currentUser) {
-        const esc = (s) => window.CRM.escapeHtml(s || '');
+        const esc = (s) => window.AppStorage.escapeHtml(s || '');
         const total = calls.length;
         const totalPages = Math.ceil(total / this.pageSize);
         if (this.currentPage > totalPages) this.currentPage = Math.max(1, totalPages);
@@ -204,9 +204,9 @@ const Calls = {
         if (!tbody) return;
 
         tbody.innerHTML = pageCalls.map(call => {
-            const company = window.CRM.getCompany(call.companyId);
+            const company = window.AppStorage.getCompany(call.companyId);
             const companyName = company ? esc(company.nameAr || company.nameEn) : 'غير معروفة';
-            const resultLabel = window.CRM.getCallResultLabel(call.result);
+            const resultLabel = window.AppStorage.getCallResultLabel(call.result);
             const agentName = this.getCallAgentName(call);
 
             return `
@@ -284,7 +284,7 @@ const Calls = {
             this.populateCompanyDropdown('call-companyId', companyId);
 
             if (companyId) {
-                const company = window.CRM.getCompany(companyId);
+                const company = window.AppStorage.getCompany(companyId);
                 const contactEl = document.getElementById('call-contactPerson');
                 if (company && company.contactPerson && contactEl) {
                     contactEl.value = company.contactPerson;
@@ -301,11 +301,11 @@ const Calls = {
         const select = document.getElementById(selectId);
         if (!select) return;
 
-        let companies = window.CRM.getScopedCompanies();
+        let companies = window.AppStorage.getScopedCompanies();
 
         // If a specific company is selected, ensure it exists in the options even if scoping would filter it out
         if (selectedCompanyId) {
-            const targetComp = window.CRM.getCompany(selectedCompanyId);
+            const targetComp = window.AppStorage.getCompany(selectedCompanyId);
             if (targetComp && !companies.some(c => String(c.id) === String(selectedCompanyId))) {
                 companies = [targetComp, ...companies];
             }
@@ -315,14 +315,14 @@ const Calls = {
         companies.forEach(c => {
             const isSelected = (String(c.id) === String(selectedCompanyId)) ? 'selected="selected"' : '';
             const name = c.nameAr || c.nameEn || 'بدون اسم';
-            html += `<option value="${c.id}" ${isSelected}>${name} (${window.CRM.getSectorLabel(c.sector)})</option>`;
+            html += `<option value="${c.id}" ${isSelected}>${name} (${window.AppStorage.getSectorLabel(c.sector)})</option>`;
         });
         select.innerHTML = html;
         select.value = selectedCompanyId || '';
     },
 
     edit(id) {
-        const call = window.CRM.getCall(id);
+        const call = window.AppStorage.getCall(id);
         if (!call) return;
 
         document.getElementById('modal-call-title').innerHTML = '<i class="fas fa-edit"></i> تعديل المكالمة';
@@ -342,7 +342,7 @@ const Calls = {
 
     save() {
         try {
-            const currentUser = window.CRM.getCurrentUser();
+            const currentUser = window.AppStorage.getCurrentUser();
             const companyId = document.getElementById('call-companyId')?.value;
             const result = document.getElementById('call-result')?.value;
 
@@ -371,7 +371,7 @@ const Calls = {
             const id = document.getElementById('call-id')?.value;
             if (id) call.id = id;
 
-            window.CRM.saveCall(call);
+            window.AppStorage.saveCall(call);
             App.closeModal('modal-call');
             App.showToast(id ? 'تم تحديث المكالمة' : 'تم تسجيل المكالمة بنجاح', 'success');
 
@@ -389,7 +389,7 @@ const Calls = {
 
         const confirmBtn = document.getElementById('btn-confirm-action');
         confirmBtn.onclick = () => {
-            window.CRM.deleteCall(id);
+            window.AppStorage.deleteCall(id);
             App.closeModal('modal-confirm');
             App.showToast('تم حذف المكالمة', 'success');
             try { this.render(); } catch (e) {}

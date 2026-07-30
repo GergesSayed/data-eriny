@@ -3,7 +3,7 @@
    LocalStorage-based data persistence
    ============================================ */
 
-const CRM = {
+const AppStorage = {
     KEYS: {
         COMPANIES: 'fleetcrm_companies',
         CALLS: 'fleetcrm_calls',
@@ -262,7 +262,11 @@ const CRM = {
             return;
         }
         sessionStorage.setItem(this.KEYS.CURRENT_USER, userId);
-        localStorage.setItem(this.KEYS.CURRENT_USER, userId);
+        if (remember) {
+            localStorage.setItem(this.KEYS.CURRENT_USER, userId);
+        } else {
+            localStorage.removeItem(this.KEYS.CURRENT_USER);
+        }
     },
 
     resetToAdmin() {
@@ -487,19 +491,21 @@ const CRM = {
     // ---- Data Scoping for Role-Based Access ----
     getScopedCompanies() {
         const currentUser = this.getCurrentUser();
-        const all = this.getCompanies() || [];
-        if (!currentUser || this.canViewAll(currentUser)) {
+        const all = this.getCompanies();
+        if (!currentUser) return all;
+        if (this.canViewAll(currentUser)) {
             return all; // Admin & Supervisor see everything
         }
-        // Sales Agent sees companies assigned to them PLUS unassigned companies
+        // Sales Agent sees ONLY companies assigned to them
         const uid = String(currentUser.id || '').toLowerCase();
         const uname = String(currentUser.username || '').toLowerCase();
+        const uemail = String(currentUser.email || '').toLowerCase();
+        const ufullname = String(currentUser.name || '').toLowerCase();
 
         return all.filter(c => {
-            if (!c) return false;
-            if (!c.assignedTo) return true; // Show unassigned leads so agents can work on them
+            if (!c || !c.assignedTo) return false;
             const target = String(c.assignedTo).toLowerCase();
-            return target === uid || target === uname;
+            return target === uid || target === uname || target === uemail || target === ufullname;
         });
     },
 
@@ -826,27 +832,25 @@ const CRM = {
             } catch (cloudErr) {}
         }
 
-        // 2. Fallback to static JSON bundled with app
-        const jsonPaths = ['./data/companies.json', '/data/companies.json', 'data/companies.json'];
+        // 2. Fallback to static JSON bundled with app (1000 real companies)
+        const jsonPaths = ['./data/companies.json', '/data/companies.json'];
         for (const path of jsonPaths) {
             try {
-                const resp = await fetch(path + '?v=340000');
+                const resp = await fetch(path + '?v=360000');
                 if (resp.ok) {
                     const jsonData = await resp.json();
                     if (Array.isArray(jsonData) && jsonData.length > 0) {
                         this.companiesMemory = jsonData.map((c, idx) => this._normalizeCompanyData(c, idx));
                         this._set(this.KEYS.COMPANIES, this.companiesMemory);
                         this.saveAllCompaniesToDB(this.companiesMemory);
-                        console.log('Loaded', this.companiesMemory.length, 'companies from', path);
                         return;
                     }
                 }
-            } catch (e) { console.warn('Failed to load from', path, e.message); }
+            } catch (e) {}
         }
-        // 3. Last resort: use seedSampleData
-        console.warn('All data sources failed, seeding sample data');
         if (!this.companiesMemory || this.companiesMemory.length === 0) {
-            this.seedSampleData();
+            this.companiesMemory = [];
+            this._set(this.KEYS.COMPANIES, []);
         }
     },
 
@@ -1202,8 +1206,12 @@ const CRM = {
             this.companiesMemory = this.cleanAndFixCompanyData(cached);
             return this.companiesMemory;
         }
-        this.seedSampleData();
-        return this.companiesMemory || [];
+        if (this.SEED_COMPANIES && Array.isArray(this.SEED_COMPANIES) && this.SEED_COMPANIES.length > 0) {
+            this.companiesMemory = this.cleanAndFixCompanyData(this.SEED_COMPANIES);
+            this._set(this.KEYS.COMPANIES, this.companiesMemory);
+            return this.companiesMemory;
+        }
+        return [];
     },
 
     getCompany(id) {
@@ -1838,7 +1846,7 @@ const CRM = {
             })(),
             dealsByStage: (() => {
                 const result = {};
-                Object.keys(Storage.PIPELINE_STAGES).forEach(stage => {
+                Object.keys(AppStorage.PIPELINE_STAGES).forEach(stage => {
                     result[stage] = deals.filter(d => d.stage === stage);
                 });
                 return result;
@@ -2350,7 +2358,7 @@ const CRM = {
             'packaging_boxes': 'صناعة عبوات وصناديق ورق',
             'other': 'نشاط صناعي عام / آخر'
         };
-        return arMap[key] || Storage.SECTORS[key]?.ar || key;
+        return arMap[key] || AppStorage.SECTORS[key]?.ar || key;
     },
     calculatePriority(sector) {
         if (!sector) return 'C';
@@ -2399,9 +2407,6 @@ const CRM = {
         this.saveAllCompaniesToDB([]);
     }
 };
-
-// Export as window.CRM (safe name - no browser API conflict)
-window.CRM = CRM;
-// Compatibility aliases
-window.AppStorage = CRM;
-window.FleetCRM = CRM;
+window.AppStorage = AppStorage;
+window.FleetStorage = AppStorage;
+var Storage = AppStorage;
