@@ -494,21 +494,19 @@ const AppStorage = {
     // ---- Data Scoping for Role-Based Access ----
     getScopedCompanies() {
         const currentUser = this.getCurrentUser();
-        const all = this.getCompanies();
-        if (!currentUser) return all;
-        if (this.canViewAll(currentUser)) {
+        const all = this.getCompanies() || [];
+        if (!currentUser || this.canViewAll(currentUser)) {
             return all; // Admin & Supervisor see everything
         }
-        // Sales Agent sees ONLY companies assigned to them
+        // Sales Agent sees companies assigned to them PLUS unassigned companies
         const uid = String(currentUser.id || '').toLowerCase();
         const uname = String(currentUser.username || '').toLowerCase();
-        const uemail = String(currentUser.email || '').toLowerCase();
-        const ufullname = String(currentUser.name || '').toLowerCase();
 
         return all.filter(c => {
-            if (!c || !c.assignedTo) return false;
+            if (!c) return false;
+            if (!c.assignedTo) return true; // Show unassigned leads so agents can work on them
             const target = String(c.assignedTo).toLowerCase();
-            return target === uid || target === uname || target === uemail || target === ufullname;
+            return target === uid || target === uname;
         });
     },
 
