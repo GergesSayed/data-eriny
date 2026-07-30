@@ -54,8 +54,8 @@ const ScraperPage = {
                 <span style="font-size:18px;font-weight:700;color:#fff;" id="scraper-status-text">جاري الفحص...</span>
             </div>
             <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                <button id="btn-toggle-scraper" onclick="ScraperPage.toggleProcess('scraper')" style="background:#10b981;color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;">
-                    <i class="fas fa-play"></i> تشغيل السكرابر (Maps)
+                <button id="btn-full-scrape" onclick="ScraperPage.runFullCollection()" style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#000; border:none; padding:10px 20px; border-radius:10px; cursor:pointer; font-size:15px; font-weight:800; box-shadow:0 4px 15px rgba(245,158,11,0.4);">
+                    <i class="fas fa-rocket"></i> ⚡ تشغيل السحب الشامل (قاعدة + OSM + رفع للسحابة)
                 </button>
                 <button id="btn-toggle-enricher" onclick="ScraperPage.toggleProcess('enricher')" style="background:#0077b5;color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;">
                     <i class="fab fa-linkedin"></i> تشغيل إثراء LinkedIn
@@ -592,6 +592,100 @@ const ScraperPage = {
                 this.startContinuousEnricher();
             }
         }
+    },
+
+    async runFullCollection() {
+        const term = document.getElementById('sc-live-terminal');
+        const statusText = document.getElementById('scraper-status-text');
+        const statusDot = document.getElementById('scraper-status-dot');
+
+        if (term) term.textContent = '';
+        const log = (msg) => {
+            const t = new Date().toLocaleTimeString('ar-EG');
+            if (term) { term.textContent += `[${t}] ${msg}\n`; term.scrollTop = term.scrollHeight; }
+        };
+
+        if (statusText) statusText.textContent = '🚀 جاري السحب الشامل...';
+        if (statusDot) statusDot.style.background = '#f59e0b';
+
+        // ── Phase 1: Load base dataset ──
+        log('[1/3] 📦 تحميل قاعدة البيانات الأساسية (989 شركة)...');
+        try {
+            const resp = await fetch('./data/companies.json?v=45.0.0');
+            if (resp.ok) {
+                const data = await resp.json();
+                if (Array.isArray(data) && data.length > 0) {
+                    const now = new Date().toISOString();
+                    const today = now.split('T')[0];
+                    const formatted = data.map(c => {
+                        if (!c.id) c.id = 'base_' + Math.random().toString(36).substr(2, 9);
+                        c.sector = Storage.mapScraperSectorToCRM(c.sector || 'other');
+                        c.city = Storage.mapScraperCityToCRM(c.city || 'cairo');
+                        c.priority = Storage.calculatePriority(c.sector);
+                        if (!c.createdAt) c.createdAt = now;
+                        if (!c.lastUpdated) c.lastUpdated = today;
+                        return c;
+                    });
+                    await Storage.addCompanies(formatted);
+                    log(`✅ تم تحميل ${formatted.length} شركة من القاعدة الأساسية`);
+                }
+            }
+        } catch(e) { log(`⚠️ فشل تحميل القاعدة الأساسية: ${e.message}`); }
+
+        // ── Phase 2: Start OSM Continuous Scraper ──
+        log('[2/3] 🗺️ بدء السحب المباشر من OpenStreetMap...');
+        this.isScraperActive = true;
+        this.batchCounter = 0;
+        this._cloudSyncDone = true;
+        this._osmQueryIndex = 0;
+        this._osmTotalAdded = 0;
+        localStorage.setItem('fleetcrm_scraper_active', 'true');
+
+        // Run 3 OSM batches sequentially for initial collection
+        for (let i = 0; i < 3; i++) {
+            if (!this.isScraperActive) break;
+            log(`   🔄 دفعة OSM #${i + 1}...`);
+            await this._scrapeOSMBatch(term, new Date().toLocaleTimeString('ar-EG'), statusText, statusDot);
+            if (i < 2) await new Promise(r => setTimeout(r, 1000));
+        }
+
+        // Continue in background
+        if (this.isScraperActive) {
+            this.scraperInterval = setTimeout(() => this.executeLiveScraperBatch(), 8000);
+        }
+
+        // ── Phase 3: Sync to Supabase ──
+        log('[3/3] ☁️ رفع البيانات إلى السحابة (Supabase)...');
+        if (window.SupabaseClient) {
+            try {
+                const ok = await window.SupabaseClient.pushMasterData({
+                    companies: Storage.getCompanies() || [],
+                    users: Storage.getUsers ? Storage.getUsers() : [],
+                    calls: Storage.getCalls ? Storage.getCalls() : [],
+                    deals: Storage.getDeals ? Storage.getDeals() : [],
+                    activities: Storage.getActivities ? Storage.getActivities() : []
+                });
+                if (ok) {
+                    localStorage.setItem('fleetcrm_last_sync_time', Date.now());
+                    log('✅ تم رفع جميع البيانات إلى السحابة بنجاح!');
+                } else {
+                    log('⚠️ فشل الرفع إلى السحابة');
+                }
+            } catch(e) { log(`⚠️ خطأ في الرفع: ${e.message}`); }
+        } else {
+            log('ℹ️ سيتم الرفع التلقائي لاحقاً عبر المزامنة الخلفية');
+        }
+
+        // ── Final status ──
+        const total = Storage.getCompanies().length;
+        if (statusText) statusText.textContent = `✅ تم! ${total.toLocaleString()} شركة في CRM | OSM يعمل في الخلفية...`;
+        if (statusDot) statusDot.style.background = '#10b981';
+        log(`🏁 اكتمل السحب الشامل! الإجمالي: ${total.toLocaleString()} شركة`);
+        log(`🔗 افتح https://data-eriny.vercel.app من أي جهاز لمشاهدة البيانات`);
+
+        this._updateCounters();
+        this.updateProcessButtons();
+        App.showToast(`✅ ${total.toLocaleString()} شركة جاهزة ومرفوعة للسحابة!`, 'success');
     },
 
     startContinuousScraper() {
