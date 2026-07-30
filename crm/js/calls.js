@@ -26,14 +26,14 @@ const Calls = {
     },
 
     clearAllCalls() {
-        if (!Storage.isAdmin()) {
+        if (!AppStorage.isAdmin()) {
             App.showToast('⛔ عذراً، مسح سجل المكالمات مقتصر على المدير العام فقط!', 'error');
             return;
         }
         App.openModal('modal-confirm');
         document.getElementById('confirm-message').textContent = 'هل أنت متأكد من مسح جميع المكالمات المسجلة من السجل؟';
         document.getElementById('btn-confirm-action').onclick = () => {
-            Storage.clearAllCalls();
+            AppStorage.clearAllCalls();
             App.closeModal('modal-confirm');
             this.render();
             App.showToast('🗑️ تم مسح سجل المكالمات بنجاح');
@@ -42,7 +42,7 @@ const Calls = {
 
     renderStats() {
         const today = new Date().toISOString().split('T')[0];
-        const calls = Storage.getScopedCalls();
+        const calls = AppStorage.getScopedCalls();
         const todayCalls = calls.filter(c => c.date === today);
 
         document.getElementById('calls-total-today').textContent = todayCalls.length;
@@ -57,13 +57,13 @@ const Calls = {
     getCallAgentName(call) {
         if (call.createdByName) return call.createdByName;
         if (call.userId) {
-            const u = Storage.getUser(call.userId);
+            const u = AppStorage.getUser(call.userId);
             if (u) return u.name;
         }
         if (call.companyId) {
-            const c = Storage.getCompany(call.companyId);
+            const c = AppStorage.getCompany(call.companyId);
             if (c && c.assignedTo) {
-                const u = Storage.getUser(c.assignedTo);
+                const u = AppStorage.getUser(c.assignedTo);
                 if (u) return u.name;
             }
         }
@@ -71,8 +71,8 @@ const Calls = {
     },
 
     renderTable() {
-        const currentUser = Storage.getCurrentUser();
-        const calls = Storage.getScopedCalls().sort((a, b) => {
+        const currentUser = AppStorage.getCurrentUser();
+        const calls = AppStorage.getScopedCalls().sort((a, b) => {
             const dateA = new Date(a.date + 'T' + (a.time || '23:59'));
             const dateB = new Date(b.date + 'T' + (b.time || '23:59'));
             return dateB - dateA;
@@ -110,7 +110,7 @@ const Calls = {
     },
 
     renderGroupedByCompany(calls, currentUser, container) {
-        const esc = (s) => Storage.escapeHtml(s || '');
+        const esc = (s) => AppStorage.escapeHtml(s || '');
         // Group calls by companyId
         const groupsMap = new Map();
         calls.forEach(call => {
@@ -123,10 +123,10 @@ const Calls = {
 
         const groupCards = [];
         groupsMap.forEach((companyCalls, compId) => {
-            const company = Storage.getCompany(compId);
+            const company = AppStorage.getCompany(compId);
             const companyName = company ? esc(company.nameAr || company.nameEn) : 'شركة غير معروفة';
-            const sectorLabel = company ? Storage.getSectorLabel(company.sector) : '—';
-            const cityLabel = company ? Storage.getCityLabel(company.city) : '—';
+            const sectorLabel = company ? AppStorage.getSectorLabel(company.sector) : '—';
+            const cityLabel = company ? AppStorage.getCityLabel(company.city) : '—';
 
             groupCards.push(`
                 <div class="card" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 14px; overflow: hidden; backdrop-filter: blur(10px);">
@@ -159,7 +159,7 @@ const Calls = {
                                 return `
                                 <div style="padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; border-bottom: 1px solid var(--border-light); transition: background 0.15s ease;" onmouseover="this.style.background='rgba(99,102,241,0.04)'" onmouseout="this.style.background='transparent'">
                                     <div style="display: flex; align-items: center; gap: 14px; min-width: 260px;">
-                                        <span class="result-badge result-${call.result}" style="font-size: 12px; padding: 4px 10px;">${Storage.getCallResultLabel(call.result)}</span>
+                                        <span class="result-badge result-${call.result}" style="font-size: 12px; padding: 4px 10px;">${AppStorage.getCallResultLabel(call.result)}</span>
                                         <div style="font-size: 12px;">
                                             <span style="color: var(--text-primary); font-weight: 700; font-family: Inter;">📅 ${call.date} ${call.time ? '⏰ ' + call.time : ''}</span>
                                             <div style="display:flex; gap:8px; align-items:center; margin-top:3px; flex-wrap:wrap;">
@@ -192,7 +192,7 @@ const Calls = {
     },
 
     renderFlatTable(calls, currentUser) {
-        const esc = (s) => Storage.escapeHtml(s || '');
+        const esc = (s) => AppStorage.escapeHtml(s || '');
         const total = calls.length;
         const totalPages = Math.ceil(total / this.pageSize);
         if (this.currentPage > totalPages) this.currentPage = Math.max(1, totalPages);
@@ -204,9 +204,9 @@ const Calls = {
         if (!tbody) return;
 
         tbody.innerHTML = pageCalls.map(call => {
-            const company = Storage.getCompany(call.companyId);
+            const company = AppStorage.getCompany(call.companyId);
             const companyName = company ? esc(company.nameAr || company.nameEn) : 'غير معروفة';
-            const resultLabel = Storage.getCallResultLabel(call.result);
+            const resultLabel = AppStorage.getCallResultLabel(call.result);
             const agentName = this.getCallAgentName(call);
 
             return `
@@ -284,7 +284,7 @@ const Calls = {
             this.populateCompanyDropdown('call-companyId', companyId);
 
             if (companyId) {
-                const company = Storage.getCompany(companyId);
+                const company = AppStorage.getCompany(companyId);
                 const contactEl = document.getElementById('call-contactPerson');
                 if (company && company.contactPerson && contactEl) {
                     contactEl.value = company.contactPerson;
@@ -301,11 +301,11 @@ const Calls = {
         const select = document.getElementById(selectId);
         if (!select) return;
 
-        let companies = Storage.getScopedCompanies();
+        let companies = AppStorage.getScopedCompanies();
 
         // If a specific company is selected, ensure it exists in the options even if scoping would filter it out
         if (selectedCompanyId) {
-            const targetComp = Storage.getCompany(selectedCompanyId);
+            const targetComp = AppStorage.getCompany(selectedCompanyId);
             if (targetComp && !companies.some(c => String(c.id) === String(selectedCompanyId))) {
                 companies = [targetComp, ...companies];
             }
@@ -315,14 +315,14 @@ const Calls = {
         companies.forEach(c => {
             const isSelected = (String(c.id) === String(selectedCompanyId)) ? 'selected="selected"' : '';
             const name = c.nameAr || c.nameEn || 'بدون اسم';
-            html += `<option value="${c.id}" ${isSelected}>${name} (${Storage.getSectorLabel(c.sector)})</option>`;
+            html += `<option value="${c.id}" ${isSelected}>${name} (${AppStorage.getSectorLabel(c.sector)})</option>`;
         });
         select.innerHTML = html;
         select.value = selectedCompanyId || '';
     },
 
     edit(id) {
-        const call = Storage.getCall(id);
+        const call = AppStorage.getCall(id);
         if (!call) return;
 
         document.getElementById('modal-call-title').innerHTML = '<i class="fas fa-edit"></i> تعديل المكالمة';
@@ -342,7 +342,7 @@ const Calls = {
 
     save() {
         try {
-            const currentUser = Storage.getCurrentUser();
+            const currentUser = AppStorage.getCurrentUser();
             const companyId = document.getElementById('call-companyId')?.value;
             const result = document.getElementById('call-result')?.value;
 
@@ -371,7 +371,7 @@ const Calls = {
             const id = document.getElementById('call-id')?.value;
             if (id) call.id = id;
 
-            Storage.saveCall(call);
+            AppStorage.saveCall(call);
             App.closeModal('modal-call');
             App.showToast(id ? 'تم تحديث المكالمة' : 'تم تسجيل المكالمة بنجاح', 'success');
 
@@ -389,7 +389,7 @@ const Calls = {
 
         const confirmBtn = document.getElementById('btn-confirm-action');
         confirmBtn.onclick = () => {
-            Storage.deleteCall(id);
+            AppStorage.deleteCall(id);
             App.closeModal('modal-confirm');
             App.showToast('تم حذف المكالمة', 'success');
             try { this.render(); } catch (e) {}

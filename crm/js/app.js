@@ -20,7 +20,7 @@ const App = {
                 sideOverlay.style.setProperty('pointer-events', 'none', 'important');
                 sideOverlay.style.setProperty('z-index', '-100', 'important');
             }
-            if (Storage.getCurrentUser()) {
+            if (AppStorage.getCurrentUser()) {
                 const loginScreen = document.getElementById('login-screen');
                 if (loginScreen) {
                     loginScreen.style.setProperty('display', 'none', 'important');
@@ -45,7 +45,7 @@ const App = {
         // Force-hide overlay after 5 seconds max — prevents infinite loading on slow devices
         const forceTimeout = setTimeout(() => {
             hideOverlay();
-            if (!Storage.getCurrentUser()) this.checkAuth();
+            if (!AppStorage.getCurrentUser()) this.checkAuth();
         }, 5000);
 
         try {
@@ -61,16 +61,16 @@ const App = {
             }
 
             // Initialize Database
-            await Storage.initDB();
+            await AppStorage.initDB();
 
             // Pull latest from cloud asynchronously in background without blocking UI
-            Storage.pullFromCloud().catch(() => false);
+            AppStorage.pullFromCloud().catch(() => false);
 
             // Start continuous background cloud synchronization loop (every 8s) across all devices
             if (this._cloudSyncInterval) clearInterval(this._cloudSyncInterval);
             this._cloudSyncInterval = setInterval(async () => {
                 try {
-                    const wasUpdated = await Storage.pullFromCloud();
+                    const wasUpdated = await AppStorage.pullFromCloud();
                     if (wasUpdated) {
                         if (typeof Companies !== 'undefined' && this.currentPage === 'companies') {
                             Companies.render();
@@ -79,14 +79,14 @@ const App = {
                             Dashboard.render();
                         }
                         const sideCounter = document.getElementById('sidebar-total-companies');
-                        if (sideCounter) sideCounter.textContent = Storage.getCompanies().length.toLocaleString();
+                        if (sideCounter) sideCounter.textContent = AppStorage.getCompanies().length.toLocaleString();
                     }
                 } catch (e) {}
             }, 8000);
 
             // Also force pull cloud updates when browser tab regains focus
             window.addEventListener('focus', () => {
-                Storage.pullFromCloud().then(wasUpdated => {
+                AppStorage.pullFromCloud().then(wasUpdated => {
                     if (wasUpdated && typeof Companies !== 'undefined' && this.currentPage === 'companies') {
                         Companies.render();
                     }
@@ -98,15 +98,15 @@ const App = {
 
             // Migrate existing companies' sectors/cities to canonical keys if not done yet
             if (!localStorage.getItem('fleetcrm_city_sector_mapped_v7')) {
-                const companies = Storage.getCompanies();
+                const companies = AppStorage.getCompanies();
                 if (companies.length > 0) {
                     const migrated = companies.map(c => {
-                        c.sector = Storage.mapScraperSectorToCRM(c.sector);
-                        c.city = Storage.mapScraperCityToCRM(c.city);
-                        c.priority = Storage.calculatePriority(c.sector);
+                        c.sector = AppStorage.mapScraperSectorToCRM(c.sector);
+                        c.city = AppStorage.mapScraperCityToCRM(c.city);
+                        c.priority = AppStorage.calculatePriority(c.sector);
                         return c;
                     });
-                    Storage.setCompanies(migrated);
+                    AppStorage.setCompanies(migrated);
                     localStorage.setItem('fleetcrm_city_sector_mapped_v7', 'true');
                 }
             }
@@ -140,8 +140,8 @@ const App = {
             this.initUserSwitcher();
 
             // Navigate to current hash or appropriate home
-            const currentUser = Storage.getCurrentUser();
-            const isAdmin = Storage.isAdmin(currentUser);
+            const currentUser = AppStorage.getCurrentUser();
+            const isAdmin = AppStorage.isAdmin(currentUser);
             let hash = window.location.hash.replace('#', '');
             if (!hash || (!isAdmin && hash !== 'companies' && hash !== 'calls')) {
                 hash = isAdmin ? 'dashboard' : 'companies';
@@ -150,7 +150,7 @@ const App = {
 
             // Periodic cloud sync pull — check for remote changes every 60 seconds
             this._cloudSyncInterval = setInterval(() => {
-                Storage.pullFromCloud().then(pulled => {
+                AppStorage.pullFromCloud().then(pulled => {
                     if (pulled) this.refreshCurrentPage();
                 }).catch(() => {});
             }, 60000);
@@ -164,14 +164,14 @@ const App = {
                             ? (Array.isArray(newData.companies) ? newData.companies.slice(0, 50) : [])
                             : (Array.isArray(newData.companies) ? newData.companies : []);
 
-                        if (companies.length > 0 && companies.length !== Storage.getCompanies().length) {
+                        if (companies.length > 0 && companies.length !== AppStorage.getCompanies().length) {
                             companies.forEach(c => {
-                                c.sector = Storage.mapScraperSectorToCRM(c.sector);
-                                c.city = Storage.mapScraperCityToCRM(c.city);
-                                c.priority = Storage.calculatePriority(c.sector);
+                                c.sector = AppStorage.mapScraperSectorToCRM(c.sector);
+                                c.city = AppStorage.mapScraperCityToCRM(c.city);
+                                c.priority = AppStorage.calculatePriority(c.sector);
                             });
-                            Storage.setCompanies(companies);
-                            Storage.saveAllCompaniesToDB(companies);
+                            AppStorage.setCompanies(companies);
+                            AppStorage.saveAllCompaniesToDB(companies);
                             this.refreshCurrentPage();
                         }
                     }
@@ -187,7 +187,7 @@ const App = {
     },
 
     checkAuth() {
-        const currentUser = Storage.getCurrentUser();
+        const currentUser = AppStorage.getCurrentUser();
         const loginScreen = document.getElementById('login-screen');
         const sidebar = document.getElementById('sidebar');
         const mainWrapper = document.querySelector('.main-wrapper');
@@ -283,8 +283,8 @@ const App = {
         setTimeout(async () => {
             try {
                 let res;
-                const loginFn = (typeof Storage !== 'undefined' && typeof Storage.login === 'function') 
-                    ? Storage.login.bind(Storage) 
+                const loginFn = (typeof Storage !== 'undefined' && typeof AppStorage.login === 'function') 
+                    ? AppStorage.login.bind(Storage) 
                     : ((typeof window.AppStorage !== 'undefined' && typeof window.AppStorage.login === 'function') 
                         ? window.AppStorage.login.bind(window.AppStorage) 
                         : null);
@@ -295,8 +295,8 @@ const App = {
                     // Emergency fallback for cached browsers
                     const q = username.toLowerCase().trim();
                     if ((q === 'admin' || q === 'admin@fleet.com') && (password === 'admin' || password === 'Admin@123' || password === 'Admin@2026!ChangeMe' || password === '123456')) {
-                        const adminUser = (typeof Storage !== 'undefined' && Storage.getUser ? Storage.getUser('admin') : null) || { id: 'admin', name: 'المدير العام', role: 'admin', status: 'active' };
-                        if (typeof Storage !== 'undefined' && Storage.setCurrentUser) Storage.setCurrentUser(adminUser.id, remember);
+                        const adminUser = (typeof Storage !== 'undefined' && AppStorage.getUser ? AppStorage.getUser('admin') : null) || { id: 'admin', name: 'المدير العام', role: 'admin', status: 'active' };
+                        if (typeof Storage !== 'undefined' && AppStorage.setCurrentUser) AppStorage.setCurrentUser(adminUser.id, remember);
                         res = { success: true, user: adminUser };
                     } else {
                         res = { success: false, message: 'اسم المستخدم أو كلمة المرور غير صحيحة' };
@@ -348,7 +348,7 @@ const App = {
 
                 this.checkAuth();
 
-                const isAdmin = Storage.isAdmin(res.user);
+                const isAdmin = AppStorage.isAdmin(res.user);
                 this.navigateTo(isAdmin ? 'dashboard' : 'companies');
             } catch (err) {
                 console.error('Handle login error:', err);
@@ -400,8 +400,8 @@ const App = {
 
     logoutSystem() {
         try {
-            if (typeof Storage !== 'undefined' && typeof Storage.logout === 'function') {
-                Storage.logout();
+            if (typeof Storage !== 'undefined' && typeof AppStorage.logout === 'function') {
+                AppStorage.logout();
             } else if (typeof window.AppStorage !== 'undefined' && typeof window.AppStorage.logout === 'function') {
                 window.AppStorage.logout();
             } else {
@@ -423,12 +423,12 @@ const App = {
     },
 
     updateUserUI() {
-        const current = Storage.getCurrentUser();
+        const current = AppStorage.getCurrentUser();
         if (!current) return;
 
-        const isAdmin = Storage.isAdmin(current);
-        const canViewAll = Storage.canViewAll(current);
-        const canModify = Storage.canModify(current);
+        const isAdmin = AppStorage.isAdmin(current);
+        const canViewAll = AppStorage.canViewAll(current);
+        const canModify = AppStorage.canModify(current);
 
         // Toggle Sidebar elements based on role: Sales Agent sees ONLY Companies & Calls, Admin & Supervisor see ALL
         document.querySelectorAll('.sidebar-nav .nav-link').forEach(link => {
@@ -495,12 +495,12 @@ const App = {
             return;
         }
         if (userId === 'admin') {
-            Storage.resetToAdmin();
+            AppStorage.resetToAdmin();
         } else {
-            Storage.setCurrentUser(userId);
+            AppStorage.setCurrentUser(userId);
         }
         this.updateUserUI();
-        const user = Storage.getCurrentUser();
+        const user = AppStorage.getCurrentUser();
         const isAdmin = user && user.role === 'admin';
         this.showToast(isAdmin ? `👑 تم تفعيل حساب: ${user.name} - تحكم كامل بالمأذونيات` : `👤 تم التبديل إلى حساب: ${user.name}`, 'success');
         this.navigateTo(isAdmin ? 'dashboard' : 'companies');
@@ -523,7 +523,7 @@ const App = {
             }
             if (!scraperTotal && stats.total) scraperTotal = Number(stats.total);
 
-            const dbTotal = Storage.getCompanies().length;
+            const dbTotal = AppStorage.getCompanies().length;
 
             // Import only if scraper has strictly more companies than DB
             if (scraperTotal > dbTotal) {
@@ -556,7 +556,7 @@ const App = {
 
             // 2. Fallback to bundled cloud dataset ./data/companies.json (skip on mobile — 4MB)
             if (!Array.isArray(data) || data.length === 0) {
-                const isMobile = (window.__IS_MOBILE === true) || (typeof Storage !== 'undefined' && Storage.isMobile && Storage.isMobile());
+                const isMobile = (window.__IS_MOBILE === true) || (typeof Storage !== 'undefined' && AppStorage.isMobile && AppStorage.isMobile());
                 if (!isMobile) {
                     try {
                         const cloudResp = await fetch('./data/companies.json?v=22.0.0');
@@ -571,19 +571,19 @@ const App = {
 
             if (!Array.isArray(data) || data.length === 0) return;
 
-            const existing = Storage.companiesMemory || [];
+            const existing = AppStorage.companiesMemory || [];
             const now = new Date().toISOString();
             const today = now.split('T')[0];
             let added = 0;
             const existingIds = new Set(existing.map(c => c.id));
 
             if (existing.length < 10000 && data.length >= 10000) {
-                Storage.companiesMemory = data.map((c, i) => {
+                AppStorage.companiesMemory = data.map((c, i) => {
                     const company = { ...c };
                     if (!company.id) company.id = 'imp_' + i;
-                    company.sector = Storage.mapScraperSectorToCRM(c.sector);
-                    company.city = Storage.mapScraperCityToCRM(c.city);
-                    company.priority = Storage.calculatePriority(company.sector);
+                    company.sector = AppStorage.mapScraperSectorToCRM(c.sector);
+                    company.city = AppStorage.mapScraperCityToCRM(c.city);
+                    company.priority = AppStorage.calculatePriority(company.sector);
                     if (!company.status) company.status = 'new';
                     if (!company.createdAt) company.createdAt = now;
                     if (!company.lastUpdated) company.lastUpdated = today;
@@ -596,16 +596,16 @@ const App = {
                     if (!company.id) company.id = 'imp_' + i;
                     if (!company.nameAr) company.nameAr = '';
                     if (!company.nameEn) company.nameEn = '';
-                    company.sector = Storage.mapScraperSectorToCRM(c.sector);
-                    company.city = Storage.mapScraperCityToCRM(c.city);
-                    company.priority = Storage.calculatePriority(company.sector);
+                    company.sector = AppStorage.mapScraperSectorToCRM(c.sector);
+                    company.city = AppStorage.mapScraperCityToCRM(c.city);
+                    company.priority = AppStorage.calculatePriority(company.sector);
                     if (!company.status) company.status = 'new';
                     if (!company.createdAt) company.createdAt = now;
                     if (!company.lastUpdated) company.lastUpdated = today;
 
                     const isDup = existingIds.has(company.id);
                     if (!isDup) {
-                        Storage.companiesMemory.push(company);
+                        AppStorage.companiesMemory.push(company);
                         existingIds.add(company.id);
                         added++;
                     }
@@ -613,12 +613,12 @@ const App = {
             }
 
             // Save to IndexedDB in background
-            Storage.saveAllCompaniesToDB(Storage.companiesMemory);
+            AppStorage.saveAllCompaniesToDB(AppStorage.companiesMemory);
             if (stats && stats.last_mtime_crm) {
                 localStorage.setItem('fleetcrm_last_import_mtime', stats.last_mtime_crm.toString());
             }
 
-            const total = Storage.getCompanies().length;
+            const total = AppStorage.getCompanies().length;
 
             const sideCounter = document.getElementById('sidebar-total-companies');
             if (sideCounter) sideCounter.textContent = total.toLocaleString();
@@ -689,8 +689,8 @@ const App = {
         if (this.currentPage === page && activePageEl && activePageEl.classList.contains('active')) {
             return;
         }
-        const currentUser = (typeof Storage !== 'undefined' && typeof Storage.getCurrentUser === 'function') ? Storage.getCurrentUser() : null;
-        const canViewAll = (typeof Storage !== 'undefined' && typeof Storage.canViewAll === 'function') ? Storage.canViewAll(currentUser) : true;
+        const currentUser = (typeof Storage !== 'undefined' && typeof AppStorage.getCurrentUser === 'function') ? AppStorage.getCurrentUser() : null;
+        const canViewAll = (typeof Storage !== 'undefined' && typeof AppStorage.canViewAll === 'function') ? AppStorage.canViewAll(currentUser) : true;
 
         // Role-based restrictions: Sales Agents CAN ONLY access companies & calls
         if (!canViewAll && page !== 'companies' && page !== 'calls') {
@@ -750,7 +750,7 @@ const App = {
     },
 
     async triggerCloudSyncNow() {
-        if (!Storage.isAdmin()) {
+        if (!AppStorage.isAdmin()) {
             this.showToast('⛔ عذراً، المزامنة اليدوية أونلاين مقتصرة على المدير العام فقط!', 'error');
             return;
         }
@@ -761,11 +761,11 @@ const App = {
         this.showToast('☁️ جاري مزامنة البيانات مع Supabase...', 'info');
         try {
             const ok = await window.SupabaseClient.pushMasterData({
-                companies: Storage.getCompanies() || [],
-                users: Storage.getUsers ? (Storage.getUsers() || []) : [],
-                calls: Storage.getCalls ? (Storage.getCalls() || []) : [],
-                deals: Storage.getDeals ? (Storage.getDeals() || []) : [],
-                activities: Storage.getActivities ? (Storage.getActivities() || []) : []
+                companies: AppStorage.getCompanies() || [],
+                users: AppStorage.getUsers ? (AppStorage.getUsers() || []) : [],
+                calls: AppStorage.getCalls ? (AppStorage.getCalls() || []) : [],
+                deals: AppStorage.getDeals ? (AppStorage.getDeals() || []) : [],
+                activities: AppStorage.getActivities ? (AppStorage.getActivities() || []) : []
             });
             if (ok) {
                 localStorage.setItem('fleetcrm_last_sync_time', Date.now());
@@ -876,14 +876,14 @@ const App = {
         const searchResults = document.getElementById('search-results');
 
         searchInput?.addEventListener('input', (e) => {
-            const esc = (s) => Storage.escapeHtml(s || '');
+            const esc = (s) => AppStorage.escapeHtml(s || '');
             const query = e.target.value.toLowerCase().trim();
             if (query.length < 2) {
                 searchResults.classList.remove('show');
                 return;
             }
 
-            const companies = Storage.getCompanies().filter(c =>
+            const companies = AppStorage.getCompanies().filter(c =>
                 (c.nameAr && c.nameAr.includes(query)) ||
                 (c.nameEn && c.nameEn.toLowerCase().includes(query)) ||
                 (c.contactPerson && c.contactPerson.includes(query)) ||
@@ -899,7 +899,7 @@ const App = {
                         <i class="fas fa-building" style="color:var(--primary-light);"></i>
                         <div>
                             <div class="result-name">${esc(c.nameAr || c.nameEn)}</div>
-                            <div class="result-sector">${Storage.getSectorLabel(c.sector)} — ${Storage.getCityLabel(c.city)}</div>
+                            <div class="result-sector">${AppStorage.getSectorLabel(c.sector)} — ${AppStorage.getCityLabel(c.city)}</div>
                         </div>
                     </div>
                 `).join('');
@@ -921,13 +921,13 @@ const App = {
     },
 
     renderNotifications() {
-        const esc = (s) => Storage.escapeHtml(s || '');
+        const esc = (s) => AppStorage.escapeHtml(s || '');
         const list = document.getElementById('notifications-list');
         const badge = document.getElementById('notif-badge-count');
         const headerCount = document.getElementById('notif-header-count');
         if (!list) return;
 
-        const followUps = Storage.getTodaysFollowUps() || [];
+        const followUps = AppStorage.getTodaysFollowUps() || [];
         const count = followUps.length;
         if (badge) {
             badge.style.display = count > 0 ? 'inline-block' : 'none';
@@ -947,13 +947,13 @@ const App = {
         }
 
         list.innerHTML = followUps.map(c => {
-            const company = Storage.getCompany(c.companyId);
+            const company = AppStorage.getCompany(c.companyId);
             const companyName = company ? esc(company.nameAr || company.nameEn) : 'شركة غير معروفة';
             return `
                 <div class="search-dropdown-item" onclick="Companies.showDetail('${esc(c.companyId)}')" style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; border-bottom:1px solid rgba(255,255,255,0.06);">
                     <div>
                         <div style="font-weight:700; font-size:12px; color:#f8fafc;">${companyName}</div>
-                        <div style="font-size:10px; color:#a78bfa;">📞 ${esc(c.contactPerson || 'مسؤول الاتصال')} — ${Storage.getCallResultLabel(c.result)}</div>
+                        <div style="font-size:10px; color:#a78bfa;">📞 ${esc(c.contactPerson || 'مسؤول الاتصال')} — ${AppStorage.getCallResultLabel(c.result)}</div>
                     </div>
                     <button class="btn btn-accent btn-sm" onclick="event.stopPropagation(); App.logCallForCompany('${esc(c.companyId)}')" style="font-size:10px; padding:3px 8px;">
                         <i class="fas fa-phone"></i> اتصل
@@ -1065,8 +1065,8 @@ const App = {
         if (!select) return;
 
         const populateOptions = () => {
-            const users = Storage.getUsers() || [];
-            const currentUser = Storage.getCurrentUser();
+            const users = AppStorage.getUsers() || [];
+            const currentUser = AppStorage.getCurrentUser();
             
             select.innerHTML = users.map(u => `
                 <option value="${u.id}" ${currentUser && u.id === currentUser.id ? 'selected' : ''}>
@@ -1081,7 +1081,7 @@ const App = {
         };
 
         const updateAvatar = () => {
-            const currentUser = Storage.getCurrentUser();
+            const currentUser = AppStorage.getCurrentUser();
             const avatarEl = document.getElementById('current-user-avatar');
             if (avatarEl && currentUser) {
                 avatarEl.textContent = currentUser.avatar || '👤';

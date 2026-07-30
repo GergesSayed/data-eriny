@@ -121,10 +121,10 @@ const ExcelHandler = {
     exportCompanies(companies, filename = 'fleet_crm_companies') {
         if (!Array.isArray(companies)) {
             filename = typeof filename === 'string' ? filename : 'fleet_crm_companies';
-            companies = (typeof Companies !== 'undefined' && Companies.getFilteredCompanies) ? Companies.getFilteredCompanies() : Storage.getCompanies();
+            companies = (typeof Companies !== 'undefined' && Companies.getFilteredCompanies) ? Companies.getFilteredCompanies() : AppStorage.getCompanies();
         }
         if (!Array.isArray(companies) || companies.length === 0) {
-            companies = Storage.getCompanies();
+            companies = AppStorage.getCompanies();
         }
         if (!companies || !Array.isArray(companies) || companies.length === 0) {
             App.showToast('⚠️ لا توجد شركات للتصدير', 'warning');
@@ -145,15 +145,15 @@ const ExcelHandler = {
             keys.forEach((key, i) => {
                 let value = comp[key] || '';
                 if (key === 'sector' && value) {
-                    const s = Storage.SECTORS[value];
+                    const s = AppStorage.SECTORS[value];
                     value = s ? s.ar : value;
                 }
                 if (key === 'city' && value) {
-                    const c = Storage.CITIES[value];
+                    const c = AppStorage.CITIES[value];
                     value = c ? c.ar : value;
                 }
                 if (key === 'fleetType' && value) {
-                    const f = Storage.FLEET_TYPES[value];
+                    const f = AppStorage.FLEET_TYPES[value];
                     value = f ? f.ar : value;
                 }
                 row[headers[i]] = value;
@@ -168,7 +168,7 @@ const ExcelHandler = {
         XLSX.utils.book_append_sheet(wb, ws, 'الشركات');
 
         // Add Sectors sheet
-        const sectorsData = Object.entries(Storage.SECTORS).map(([key, val]) => ({
+        const sectorsData = Object.entries(AppStorage.SECTORS).map(([key, val]) => ({
             'الرمز / Code': key,
             'القطاع (عربي) / Sector (AR)': val.ar,
             'القطاع (إنجليزي) / Sector (EN)': val.en,
@@ -178,7 +178,7 @@ const ExcelHandler = {
         XLSX.utils.book_append_sheet(wb, ws2, 'القطاعات');
 
         // Add Cities sheet
-        const citiesData = Object.entries(Storage.CITIES).map(([key, val]) => ({
+        const citiesData = Object.entries(AppStorage.CITIES).map(([key, val]) => ({
             'الرمز / Code': key,
             'المنطقة (عربي) / Area (AR)': val.ar,
             'المنطقة (إنجليزي) / Area (EN)': val.en
@@ -187,16 +187,16 @@ const ExcelHandler = {
         XLSX.utils.book_append_sheet(wb, ws3, 'المناطق');
 
         // Add Call Log sheet if calls exist
-        const calls = Storage.getCalls();
+        const calls = AppStorage.getCalls();
         if (calls.length > 0) {
             const callsData = calls.map(call => {
-                const company = Storage.getCompany(call.companyId);
+                const company = AppStorage.getCompany(call.companyId);
                 return {
                     'التاريخ / Date': call.date,
                     'الوقت / Time': call.time || '',
                     'الشركة / Company': company ? company.nameAr : '',
                     'جهة الاتصال / Contact': call.contactPerson || '',
-                    'النتيجة / Result': Storage.getCallResultLabel(call.result),
+                    'النتيجة / Result': AppStorage.getCallResultLabel(call.result),
                     'تاريخ المتابعة / Follow-up': call.followUpDate || '',
                     'ملاحظات / Notes': call.notes || ''
                 };
@@ -219,9 +219,9 @@ const ExcelHandler = {
         companies.forEach(comp => {
             const row = keys.map(key => {
                 let val = comp[key] || '';
-                if (key === 'sector' && val && Storage.SECTORS[val]) val = Storage.SECTORS[val].ar;
-                if (key === 'city' && val && Storage.CITIES[val]) val = Storage.CITIES[val].ar;
-                if (key === 'fleetType' && val && Storage.FLEET_TYPES[val]) val = Storage.FLEET_TYPES[val].ar;
+                if (key === 'sector' && val && AppStorage.SECTORS[val]) val = AppStorage.SECTORS[val].ar;
+                if (key === 'city' && val && AppStorage.CITIES[val]) val = AppStorage.CITIES[val].ar;
+                if (key === 'fleetType' && val && AppStorage.FLEET_TYPES[val]) val = AppStorage.FLEET_TYPES[val].ar;
                 const str = String(val).replace(/"/g, '""');
                 return `"${str}"`;
             });
@@ -274,22 +274,22 @@ const ExcelHandler = {
                         }
                     });
 
-                    if (company.sector && Storage.SECTORS) {
-                        const sectorEntry = Object.entries(Storage.SECTORS).find(
+                    if (company.sector && AppStorage.SECTORS) {
+                        const sectorEntry = Object.entries(AppStorage.SECTORS).find(
                             ([k, v]) => v.ar === company.sector || v.en === company.sector || k === company.sector
                         );
                         if (sectorEntry) company.sector = sectorEntry[0];
                     }
 
-                    if (company.city && Storage.CITIES) {
-                        const cityEntry = Object.entries(Storage.CITIES).find(
+                    if (company.city && AppStorage.CITIES) {
+                        const cityEntry = Object.entries(AppStorage.CITIES).find(
                             ([k, v]) => v.ar === company.city || v.en === company.city || k === company.city
                         );
                         if (cityEntry) company.city = cityEntry[0];
                     }
 
-                    if (company.fleetType && Storage.FLEET_TYPES) {
-                        const ftEntry = Object.entries(Storage.FLEET_TYPES).find(
+                    if (company.fleetType && AppStorage.FLEET_TYPES) {
+                        const ftEntry = Object.entries(AppStorage.FLEET_TYPES).find(
                             ([k, v]) => v.ar === company.fleetType || v.en === company.fleetType || k === company.fleetType
                         );
                         if (ftEntry) company.fleetType = ftEntry[0];
@@ -299,13 +299,13 @@ const ExcelHandler = {
                     if (company.branchesCount) company.branchesCount = parseInt(company.branchesCount) || 0;
 
                     if (!company.priority || !['A', 'B', 'C'].includes(company.priority)) {
-                        company.priority = Storage.calculatePriority(Storage.mapScraperSectorToCRM(company.sector));
+                        company.priority = AppStorage.calculatePriority(AppStorage.mapScraperSectorToCRM(company.sector));
                     }
 
                     return company;
                 }).filter(c => (c.nameAr && c.nameAr.length > 0) || (c.nameEn && c.nameEn.length > 0) || (c.phone1 && c.phone1.length > 0));
 
-                const addedCount = Storage.importCompanies(companies);
+                const addedCount = AppStorage.importCompanies(companies);
                 App.showToast(`تم استيراد ${addedCount} شركة جديدة بنجاح!`, 'success');
                 if (callback) callback(addedCount);
             } catch (err) {
@@ -348,7 +348,7 @@ const ExcelHandler = {
             }
         }
 
-        const addedCount = Storage.importCompanies(companies);
+        const addedCount = AppStorage.importCompanies(companies);
         App.showToast(`تم استيراد ${addedCount} شركة بنجاح!`, 'success');
         if (callback) callback(addedCount);
     },
@@ -361,13 +361,13 @@ const ExcelHandler = {
         }
 
         const data = calls.map(call => {
-            const company = Storage.getCompany(call.companyId);
+            const company = AppStorage.getCompany(call.companyId);
             return {
                 'التاريخ / Date': call.date,
                 'الوقت / Time': call.time || '',
                 'الشركة / Company': company ? company.nameAr : '',
                 'جهة الاتصال / Contact': call.contactPerson || '',
-                'النتيجة / Result': Storage.getCallResultLabel(call.result),
+                'النتيجة / Result': AppStorage.getCallResultLabel(call.result),
                 'تاريخ المتابعة / Follow-up': call.followUpDate || '',
                 'ملاحظات / Notes': call.notes || ''
             };
@@ -397,11 +397,11 @@ const ExcelHandler = {
         XLSX.utils.book_append_sheet(wb, ws, 'الشركات');
 
         // Add reference sheets
-        const sectorsData = Object.entries(Storage.SECTORS).map(([key, val]) => [val.icon + ' ' + val.ar, val.en, key]);
+        const sectorsData = Object.entries(AppStorage.SECTORS).map(([key, val]) => [val.icon + ' ' + val.ar, val.en, key]);
         const ws2 = XLSX.utils.aoa_to_sheet([['القطاع (عربي)', 'Sector (EN)', 'الرمز'], ...sectorsData]);
         XLSX.utils.book_append_sheet(wb, ws2, 'مرجع القطاعات');
 
-        const citiesData = Object.entries(Storage.CITIES).map(([key, val]) => [val.ar, val.en, key]);
+        const citiesData = Object.entries(AppStorage.CITIES).map(([key, val]) => [val.ar, val.en, key]);
         const ws3 = XLSX.utils.aoa_to_sheet([['المنطقة (عربي)', 'Area (EN)', 'الرمز'], ...citiesData]);
         XLSX.utils.book_append_sheet(wb, ws3, 'مرجع المناطق');
 

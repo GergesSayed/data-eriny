@@ -19,7 +19,7 @@ const Team = {
 
     render() {
         try {
-            const currentUser = Storage.getCurrentUser();
+            const currentUser = AppStorage.getCurrentUser();
             const teamPage = document.getElementById('page-team');
             if (!teamPage) return;
 
@@ -34,10 +34,10 @@ const Team = {
                 return;
             }
 
-            const users = Storage.getUsers() || [];
-            const allCompanies = Storage.getCompanies() || [];
-            const allCalls = Storage.getCalls() || [];
-            const allDeals = Storage.getDeals() || [];
+            const users = AppStorage.getUsers() || [];
+            const allCompanies = AppStorage.getCompanies() || [];
+            const allCalls = AppStorage.getCalls() || [];
+            const allDeals = AppStorage.getDeals() || [];
 
             const activeUserKeys = new Set(users.flatMap(u => [u.id, u.username, u.name].filter(Boolean)));
 
@@ -136,7 +136,7 @@ const Team = {
                                         </div>
                                     </td>
                                     <td>
-                                        <div style="font-size:11px;"><span class="badge" style="background:var(--bg-surface); border:1px solid var(--border-color);">${Storage.getRegionLabel(u.region)}</span></div>
+                                        <div style="font-size:11px;"><span class="badge" style="background:var(--bg-surface); border:1px solid var(--border-color);">${AppStorage.getRegionLabel(u.region)}</span></div>
                                         <code style="font-size:10px; color:var(--accent);">${u.erpCode || 'بدون ERP'}</code>
                                     </td>
                                     <td><b style="color:#7c3aed; font-size:16px;">${u.assignedCount}</b> شركة</td>
@@ -158,7 +158,7 @@ const Team = {
                                             <button class="btn btn-primary btn-sm" onclick="Team.openEmployeeProgressModal('${u.id}')" title="تقرير تواصل شركات هذا الموظف تفصيلياً" style="background:var(--gradient-primary); color:#fff; font-weight:700;">
                                                 <i class="fas fa-list-check"></i> تقرير المتابعة
                                             </button>
-                                            ${Storage.canModify() ? `
+                                            ${AppStorage.canModify() ? `
                                                 <button class="btn btn-ghost btn-sm" onclick="Team.openAssignCompaniesModal('${u.id}')" title="تخصيص وإسناد الشركات لهذا الموظف">
                                                     <i class="fas fa-tasks"></i> تخصيص الشركات
                                                 </button>
@@ -178,7 +178,7 @@ const Team = {
 
     renderEmployeesPage() {
         try {
-            const currentUser = Storage.getCurrentUser();
+            const currentUser = AppStorage.getCurrentUser();
             const empPage = document.getElementById('page-employees');
             if (!empPage) return;
 
@@ -193,8 +193,8 @@ const Team = {
                 return;
             }
 
-            const users = Storage.getUsers() || [];
-            const pendingUsers = Storage.getPendingUsers();
+            const users = AppStorage.getUsers() || [];
+            const pendingUsers = AppStorage.getPendingUsers();
             const pendingHtml = pendingUsers.length === 0 ? '' : `
                 <div class="card" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(217, 119, 6, 0.08)); border: 1.5px solid #f59e0b; border-radius: 16px; padding: 20px; margin-bottom: 24px;">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
@@ -213,7 +213,7 @@ const Team = {
                                         <span style="display: block; font-size: 12px; color: var(--text-muted); direction: ltr; text-align: right;">📧 ${u.email || u.username}</span>
                                     </div>
                                 </div>
-                                ${Storage.canModify() ? `
+                                ${AppStorage.canModify() ? `
                                     <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                                         <button class="btn btn-success btn-sm" style="font-size: 12px; font-weight: 800; padding: 6px 14px; background:#10b981; color:#fff;" onclick="Team.approveUser('${u.id}', 'agent')">
                                             <i class="fas fa-check"></i> موافقة (مسؤول مبيعات)
@@ -239,7 +239,7 @@ const Team = {
                         <h1 class="page-title"><i class="fas fa-users-cog"></i> إدارة الموظفين وصلاحيات الوصول للنظام</h1>
                         <p class="page-subtitle">إنشاء وتعيين حسابات الموظفين، وتحديد مستويات التحكم، وإعادة ضبط كلمة المرور والحالة</p>
                     </div>
-                    ${Storage.canModify() ? `
+                    ${AppStorage.canModify() ? `
                         <button class="btn btn-primary" id="btn-add-user" onclick="Team.openUserModal()" style="background:var(--gradient-primary); padding:10px 22px; font-weight:800; border-radius:12px; box-shadow:0 4px 15px rgba(124, 58, 237, 0.4);">
                             <i class="fas fa-user-plus" style="margin-left:6px;"></i> إضافة موظف جديد
                         </button>
@@ -285,7 +285,7 @@ const Team = {
                                 <th>مستوى الصلاحية والتحكم <small>Role & Scope</small></th>
                                 <th>المنطقة ورقم ERP</th>
                                 <th>حالة الحساب <small>Status</small></th>
-                                ${Storage.canModify() ? `<th>إجراءات الحساب <small>Actions</small></th>` : ''}
+                                ${AppStorage.canModify() ? `<th>إجراءات الحساب <small>Actions</small></th>` : ''}
                             </tr>
                         </thead>
                         <tbody>
@@ -331,11 +331,11 @@ const Team = {
                                         ${permDetail}
                                     </td>
                                     <td>
-                                        <div style="font-size:11px;"><span class="badge" style="background:var(--bg-surface); border:1px solid var(--border-color);">${Storage.getRegionLabel(u.region)}</span></div>
+                                        <div style="font-size:11px;"><span class="badge" style="background:var(--bg-surface); border:1px solid var(--border-color);">${AppStorage.getRegionLabel(u.region)}</span></div>
                                         <code style="font-size:10px; color:var(--accent);">${u.erpCode || 'بدون ERP'}</code>
                                     </td>
                                     <td>${statusBadge}</td>
-                                    ${Storage.canModify() ? `
+                                    ${AppStorage.canModify() ? `
                                         <td>
                                             <div class="table-actions" style="display:flex; gap:6px; flex-wrap:wrap;">
                                                 <button class="btn btn-ghost btn-sm" onclick="Team.openUserModal('${u.id}')" title="تعديل الحساب والصلاحية" style="font-weight:700;">
@@ -367,10 +367,10 @@ const Team = {
     },
 
     openEmployeeProgressModal(userId) {
-        const user = Storage.getUser(userId);
+        const user = AppStorage.getUser(userId);
         if (!user) return;
 
-        const allCompanies = Storage.getCompanies() || [];
+        const allCompanies = AppStorage.getCompanies() || [];
         const assignedCompanies = allCompanies.filter(c => c && c.assignedTo === user.id);
         const contactedCompanies = assignedCompanies.filter(c => c.lastCallResult || c.status === 'interested' || c.status === 'contacted' || c.status === 'unqualified');
         const remainingCompanies = assignedCompanies.filter(c => !c.lastCallResult && c.status !== 'interested' && c.status !== 'contacted' && c.status !== 'unqualified');
@@ -439,8 +439,8 @@ const Team = {
         const listEl = document.getElementById('modal-employee-progress-list');
         if (!listEl) return;
 
-        const esc = (s) => (typeof Storage !== 'undefined' && Storage.escapeHtml ? Storage.escapeHtml(s || '') : (s || ''));
-        const allCompanies = Storage.getCompanies() || [];
+        const esc = (s) => (typeof Storage !== 'undefined' && AppStorage.escapeHtml ? AppStorage.escapeHtml(s || '') : (s || ''));
+        const allCompanies = AppStorage.getCompanies() || [];
         let assignedCompanies = allCompanies.filter(c => c && c.assignedTo === userId);
 
         if (filterType === 'contacted') {
@@ -476,7 +476,7 @@ const Team = {
                     ${assignedCompanies.map(c => {
                         let statusBadge = '';
                         if (c.lastCallResult) {
-                            statusBadge = `<span class="result-badge result-${c.lastCallResult}">${Storage.getCallResultLabel(c.lastCallResult)}</span>`;
+                            statusBadge = `<span class="result-badge result-${c.lastCallResult}">${AppStorage.getCallResultLabel(c.lastCallResult)}</span>`;
                         } else if (c.status === 'interested') {
                             statusBadge = `<span class="badge" style="background:#10b98122; color:#10b981; border:1px solid #10b981;">💚 عميل مهتم</span>`;
                         } else {
@@ -491,7 +491,7 @@ const Team = {
                                 </td>
                                 <td style="padding:10px; font-size:12px;">
                                     <span class="badge" style="background:var(--bg-surface); border:1px solid var(--border-color); padding:2px 8px;">
-                                        ${Storage.getSectorLabel(c.sector)} | ${Storage.getCityLabel(c.city)}
+                                        ${AppStorage.getSectorLabel(c.sector)} | ${AppStorage.getCityLabel(c.city)}
                                     </span>
                                 </td>
                                 <td style="padding:10px;">${statusBadge}</td>
@@ -530,7 +530,7 @@ const Team = {
     openUserModal(userId = null) {
         let user = null;
         if (userId) {
-            user = Storage.getUser(userId);
+            user = AppStorage.getUser(userId);
         }
 
         let firstName = '';
@@ -757,14 +757,14 @@ const Team = {
             const updatePayload = { firstName, lastName, email, erpCode, region, role };
             if (password) updatePayload.password = password;
 
-            const res = await Storage.updateUser(id, updatePayload);
+            const res = await AppStorage.updateUser(id, updatePayload);
             if (!res.success) {
                 App.showToast(`❌ ${res.message}`, 'error');
                 return;
             }
             App.showToast('✅ تم تعديل حساب الموظف بنجاح', 'success');
         } else {
-            const res = await Storage.addUser({ firstName, lastName, email, password, erpCode, region, role });
+            const res = await AppStorage.addUser({ firstName, lastName, email, password, erpCode, region, role });
             if (!res.success) {
                 App.showToast(`❌ ${res.message}`, 'error');
                 return;
@@ -781,7 +781,7 @@ const Team = {
     },
 
     openResetPasswordModal(userId) {
-        const user = Storage.getUser(userId);
+        const user = AppStorage.getUser(userId);
         if (!user) return;
 
         const modalHtml = `
@@ -856,7 +856,7 @@ const Team = {
                 return;
             }
 
-            const res = await Storage.resetUserPassword(userId, newPassword);
+            const res = await AppStorage.resetUserPassword(userId, newPassword);
             if (!res.success) {
                 App.showToast(`❌ ${res.message}`, 'error');
                 return;
@@ -871,7 +871,7 @@ const Team = {
         App.openModal('modal-confirm');
         document.getElementById('confirm-message').textContent = 'هل أنت متأكد من رغبتك في حذف حساب هذا الموظف؟';
         document.getElementById('btn-confirm-action').onclick = () => {
-            const res = Storage.deleteUser(id);
+            const res = AppStorage.deleteUser(id);
             App.closeModal('modal-confirm');
             if (!res.success) {
                 App.showToast(`❌ ${res.message}`, 'error');
@@ -886,10 +886,10 @@ const Team = {
     },
 
     openAssignCompaniesModal(userId) {
-        const user = Storage.getUser(userId);
+        const user = AppStorage.getUser(userId);
         if (!user) return;
 
-        const companies = Storage.getCompanies() || [];
+        const companies = AppStorage.getCompanies() || [];
 
         const modalHtml = `
             <div class="modal show" id="modal-assign-companies" style="z-index:99999; display:flex; align-items:center; justify-content:center; position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px);">
@@ -944,14 +944,14 @@ const Team = {
     },
 
     renderAssignList(targetUserId) {
-        const esc = (s) => (typeof Storage !== 'undefined' && Storage.escapeHtml ? Storage.escapeHtml(s || '') : (s || ''));
+        const esc = (s) => (typeof Storage !== 'undefined' && AppStorage.escapeHtml ? AppStorage.escapeHtml(s || '') : (s || ''));
         const listEl = document.getElementById('modal-assign-companies-list');
         const countEl = document.getElementById('modal-assign-summary-count');
         if (!listEl) return;
 
-        const users = Storage.getUsers() || [];
-        const targetUser = Storage.getUser(targetUserId);
-        let companies = Storage.getCompanies() || [];
+        const users = AppStorage.getUsers() || [];
+        const targetUser = AppStorage.getUser(targetUserId);
+        let companies = AppStorage.getCompanies() || [];
 
         const searchVal = (document.getElementById('modal-assign-search')?.value || '').toLowerCase().trim();
         const statusVal = document.getElementById('modal-assign-filter-status')?.value || 'all';
@@ -975,7 +975,7 @@ const Team = {
             companies = companies.filter(c => c.assignedTo && c.assignedTo !== targetUserId);
         }
 
-        const totalAssignedToTarget = Storage.getCompanies().filter(c => c.assignedTo === targetUserId).length;
+        const totalAssignedToTarget = AppStorage.getCompanies().filter(c => c.assignedTo === targetUserId).length;
         if (countEl) {
             countEl.innerHTML = `📌 الموظف <b>${targetUser ? targetUser.name : ''}</b> لديه الآن: <b style="font-size:16px;">${totalAssignedToTarget}</b> شركة مسندة (معروض ${companies.length} شركة)`;
         }
@@ -1011,7 +1011,7 @@ const Team = {
                                 </td>
                                 <td style="padding:10px; font-size:12px;">
                                     <span class="badge" style="background:var(--bg-surface); border:1px solid var(--border-color); padding:2px 8px;">
-                                        ${Storage.getSectorLabel(c.sector)} | ${Storage.getCityLabel(c.city)}
+                                        ${AppStorage.getSectorLabel(c.sector)} | ${AppStorage.getCityLabel(c.city)}
                                     </span>
                                 </td>
                                 <td style="padding:10px;">
@@ -1044,8 +1044,8 @@ const Team = {
     },
 
     quickChangeAssign(companyId, newUserId, currentModalTargetUserId) {
-        Storage.assignCompany(companyId, newUserId);
-        const user = newUserId ? Storage.getUser(newUserId) : null;
+        AppStorage.assignCompany(companyId, newUserId);
+        const user = newUserId ? AppStorage.getUser(newUserId) : null;
         if (newUserId) {
             App.showToast(`✅ تم إسناد الشركة إلى: ${user ? user.name : newUserId}`);
         } else {
@@ -1055,7 +1055,7 @@ const Team = {
     },
 
     approveUser(userId, role = 'agent') {
-        const user = Storage.approveUser(userId, role);
+        const user = AppStorage.approveUser(userId, role);
         if (user) {
             App.showToast(`✅ تم اعتماد وتفعيل حساب ${user.name} بنجاح كـ ${role === 'admin' ? 'مدير عام' : role === 'supervisor' ? 'مشرف قراءة' : 'مسؤول مبيعات'}`, 'success');
             this.render();
@@ -1067,7 +1067,7 @@ const Team = {
         App.openModal('modal-confirm');
         document.getElementById('confirm-message').textContent = 'هل أنت متأكد من رفض وإلغاء طلب التسجيل هذا؟';
         document.getElementById('btn-confirm-action').onclick = () => {
-            Storage.rejectUser(userId);
+            AppStorage.rejectUser(userId);
             App.closeModal('modal-confirm');
             App.showToast('تم رفض طلب التسجيل', 'info');
             this.render();
@@ -1076,7 +1076,7 @@ const Team = {
     },
 
     toggleFreeze(userId) {
-        const user = Storage.toggleUserFreeze(userId);
+        const user = AppStorage.toggleUserFreeze(userId);
         if (user) {
             App.showToast(`تم ${user.status === 'frozen' ? 'تجميد' : 'إعادة تفعيل'} حساب ${user.name}`, 'info');
             this.render();
