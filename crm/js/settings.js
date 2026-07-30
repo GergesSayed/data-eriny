@@ -1,6 +1,3 @@
-/* AppStorage Global Safe Declaration */
-var AppStorage = window.AppStorage = window.AppStorage || {};
-var Storage = window.AppStorage;
 // -*- coding: utf-8 -*-
 /**
  * Settings Page Controller — Scraper Configuration UI
@@ -384,8 +381,8 @@ const ScraperSettings = (() => {
     function loadProgressStats() {
         // Load from companies data
         try {
-            const companies = (typeof Storage !== 'undefined' && AppStorage.getCompanies)
-                ? AppStorage.getCompanies() : [];
+            const companies = (typeof Storage !== 'undefined' && Storage.getCompanies)
+                ? Storage.getCompanies() : [];
             
             const totalEl = document.getElementById('scraper-total-companies');
             const phoneEl = document.getElementById('scraper-with-phone');

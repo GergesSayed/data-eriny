@@ -1,12 +1,9 @@
-/* AppStorage Global Safe Declaration */
-var AppStorage = window.AppStorage = window.AppStorage || {};
-var Storage = window.AppStorage;
 /* ============================================
    Storage Manager — Fleet CRM
    LocalStorage-based data persistence
    ============================================ */
 
-var AppStorage = window.AppStorage = {
+const Storage = {
     KEYS: {
         COMPANIES: 'fleetcrm_companies',
         CALLS: 'fleetcrm_calls',
@@ -1845,7 +1842,7 @@ var AppStorage = window.AppStorage = {
             })(),
             dealsByStage: (() => {
                 const result = {};
-                Object.keys(AppStorage.PIPELINE_STAGES).forEach(stage => {
+                Object.keys(Storage.PIPELINE_STAGES).forEach(stage => {
                     result[stage] = deals.filter(d => d.stage === stage);
                 });
                 return result;
@@ -2357,7 +2354,7 @@ var AppStorage = window.AppStorage = {
             'packaging_boxes': 'صناعة عبوات وصناديق ورق',
             'other': 'نشاط صناعي عام / آخر'
         };
-        return arMap[key] || AppStorage.SECTORS[key]?.ar || key;
+        return arMap[key] || Storage.SECTORS[key]?.ar || key;
     },
     calculatePriority(sector) {
         if (!sector) return 'C';
@@ -2409,3 +2406,6 @@ var AppStorage = window.AppStorage = {
 window.AppStorage = AppStorage;
 window.FleetStorage = AppStorage;
 var Storage = AppStorage;
+
+window.Storage = Storage;
+window.AppStorage = Storage;
