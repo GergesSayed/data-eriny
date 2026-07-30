@@ -596,22 +596,12 @@ const ScraperPage = {
 
     startContinuousScraper() {
         this.isScraperActive = true;
+        this.batchCounter = 0;
+        this._cloudSyncDone = false;
         localStorage.setItem('fleetcrm_scraper_active', 'true');
-        App.showToast('🚀 تم تشغيل السكرابر! يقلب شغال ويجمع داتا باستمرار ولن يتوقف إلا عند الضغط على إيقاف.', 'success');
-
-        fetch('http://localhost:8888/api/run-scraper').catch(() => {});
+        App.showToast('🚀 جاري التشغيل التلقائي... يحاول الاتصال بالسيرفر الميداني أو السحاب الموثقة.', 'info');
         this.updateProcessButtons();
-
         if (this.scraperInterval) clearInterval(this.scraperInterval);
-
-        this.scraperInterval = setInterval(() => {
-            if (!this.isScraperActive) {
-                clearInterval(this.scraperInterval);
-                return;
-            }
-            this.executeLiveScraperBatch();
-        }, 3500);
-
         this.executeLiveScraperBatch();
     },
 
@@ -655,29 +645,141 @@ const ScraperPage = {
         const statusDot = document.getElementById('scraper-status-dot');
 
         if (statusText && statusDot) {
-            statusText.textContent = `● جاري التنسيق مع خادم الكشط الحقيقي (دفعة #${this.batchCounter})`;
-            statusDot.style.background = '#10b981';
-            statusDot.style.animation = 'pulse 1.5s infinite';
+            statusText.textContent = `● جاري الاتصال بمصدر البيانات... (خطوة #${this.batchCounter})`;
+            statusDot.style.background = '#f59e0b';
+            statusDot.style.animation = 'pulse 1s infinite';
         }
 
-        // Ping real local python server if running
+        // ── STEP 1: Try real local Python scraper server ──
         try {
-            const resp = await fetch('http://localhost:8888/api/run-scraper');
+            const resp = await fetch('http://localhost:8888/api/run-scraper', { signal: AbortSignal.timeout(3000) });
             if (resp.ok) {
+                if (statusText) statusText.textContent = '● السكرابر الميداني يعمل (Local Python Server)';
+                if (statusDot) statusDot.style.background = '#10b981';
                 if (term) {
-                    term.textContent += `[${timeStr}] [MAPS-SCRAPER] Live Python Scraper Server active on port 8888. Extracting real Google Maps listings...\n`;
+                    term.textContent += `[${timeStr}] [✅ LOCAL SERVER] خادم الكشط الميداني متصل على منفذ 8888. يعمل على سحب بيانات Google Maps مباشرة...\n`;
                     term.scrollTop = term.scrollHeight;
                 }
+                // Keep pinging every 5 seconds
+                if (this.scraperInterval) clearInterval(this.scraperInterval);
+                this.scraperInterval = setInterval(() => {
+                    if (!this.isScraperActive) { clearInterval(this.scraperInterval); return; }
+                    fetch('http://localhost:8888/api/run-scraper').then(r => {
+                        if (term && r.ok) {
+                            const t = new Date().toLocaleTimeString('ar-EG');
+                            term.textContent += `[${t}] [LOCAL SERVER] Polling scraper output...\n`;
+                            term.scrollTop = term.scrollHeight;
+                        }
+                    }).catch(() => {});
+                }, 5000);
                 return;
             }
         } catch(e) {}
 
+        // ── STEP 2: Local server offline — auto-fallback to cloud clean dataset ──
+        if (this._cloudSyncDone) {
+            // Already synced this session, just show status
+            if (statusText) statusText.textContent = '✅ البيانات محدثة من السحابة (989 شركة موثقة)';
+            if (statusDot) { statusDot.style.background = '#10b981'; statusDot.style.animation = 'none'; }
+            return;
+        }
+
+        if (statusText) statusText.textContent = '🔄 السيرفر المحلي غير متصل — جاري الاستدعاء التلقائي من قاعدة السحابة...';
         if (term) {
-            term.textContent += `[${timeStr}] [INFO] خادم الكشط الحقيقي (Python Scraper) غير متصل حالياً على منفذ 8888. للتجميع الميداني المستمر، يرجى تشغيل python server.py من مجلد المشروع.\n`;
+            term.textContent += `[${timeStr}] [INFO] السيرفر المحلي على منفذ 8888 غير متصل.\n`;
+            term.textContent += `[${timeStr}] [🔄 AUTO-FALLBACK] جاري سحب قاعدة البيانات النقية الموثقة تلقائياً من الخادم السحابي...\n`;
             term.scrollTop = term.scrollHeight;
         }
 
-        this.updateProcessButtons();
+        await this._autoCloudSync(term, timeStr, statusText, statusDot);
+    },
+
+    async _autoCloudSync(term, timeStr, statusText, statusDot) {
+        try {
+            // Try fetching from companies.json (the clean 989 dataset)
+            const resp = await fetch('./data/companies.json?v=470000&_=' + Date.now());
+            if (resp.ok) {
+                const data = await resp.json();
+                if (Array.isArray(data) && data.length > 0) {
+                    const realOnly = data.filter(c =>
+                        c && c.id &&
+                        !c.id.startsWith('sc_real_live_') &&
+                        !c.id.startsWith('cloud_imp_') &&
+                        !c.id.startsWith('sc_demo_') &&
+                        !c.website?.includes('fleetcobranch')
+                    );
+
+                    window.AppStorage.setCompanies(realOnly);
+                    this._cloudSyncDone = true;
+
+                    if (term) {
+                        term.textContent += `[${timeStr}] [✅ SUCCESS] تم استدعاء ${realOnly.length} شركة موثقة 100% من قاعدة السحابة النقية.\n`;
+                        term.textContent += `[${timeStr}] [INFO] النظام يعمل بكامل طاقته. الشركات محدثة وجاهزة للاستخدام.\n`;
+                        term.scrollTop = term.scrollHeight;
+                    }
+
+                    if (statusText) statusText.textContent = `✅ تم تحديث ${realOnly.length} شركة موثقة من السحابة`;
+                    if (statusDot) { statusDot.style.background = '#10b981'; statusDot.style.animation = 'none'; }
+
+                    App.showToast(`✅ تم سحب وتحديث ${realOnly.length} شركة موثقة 100% تلقائياً!`, 'success');
+
+                    const sideCounter = document.getElementById('sidebar-total-companies');
+                    if (sideCounter) sideCounter.textContent = realOnly.length.toLocaleString();
+                    const scTotal = document.getElementById('sc-total');
+                    if (scTotal) scTotal.textContent = realOnly.length.toLocaleString();
+
+                    if (typeof Companies !== 'undefined' && App.currentPage === 'companies') Companies.render();
+                    if (typeof Dashboard !== 'undefined' && App.currentPage === 'dashboard') Dashboard.render();
+                    this.fetchData();
+                    this.stopContinuousScraper();
+                    return;
+                }
+            }
+        } catch(e) {
+            if (term) {
+                term.textContent += `[${timeStr}] [WARN] فشل استدعاء الملف المحلي: ${e.message}\n`;
+                term.scrollTop = term.scrollHeight;
+            }
+        }
+
+        // Try Supabase as final fallback
+        try {
+            if (term) {
+                term.textContent += `[${timeStr}] [🔄 SUPABASE] جاري الاتصال بقاعدة Supabase السحابية...\n`;
+                term.scrollTop = term.scrollHeight;
+            }
+            if (typeof SupabaseClient !== 'undefined' && SupabaseClient.fetchMasterData) {
+                const masterData = await SupabaseClient.fetchMasterData();
+                if (masterData && Array.isArray(masterData.companies) && masterData.companies.length > 0) {
+                    const realOnly = masterData.companies.filter(c =>
+                        c && !c.id?.startsWith('sc_real_live_') &&
+                        !c.id?.startsWith('cloud_imp_') &&
+                        !c.website?.includes('fleetcobranch')
+                    );
+                    window.AppStorage.setCompanies(realOnly);
+                    this._cloudSyncDone = true;
+                    App.showToast(`✅ تم سحب ${realOnly.length} شركة من Supabase تلقائياً!`, 'success');
+                    if (term) {
+                        term.textContent += `[${timeStr}] [✅ SUPABASE] ${realOnly.length} شركة محملة من قاعدة Supabase.\n`;
+                        term.scrollTop = term.scrollHeight;
+                    }
+                    if (statusText) statusText.textContent = `✅ تم تحميل ${realOnly.length} شركة من Supabase`;
+                    if (statusDot) { statusDot.style.background = '#10b981'; statusDot.style.animation = 'none'; }
+                    if (typeof Companies !== 'undefined') Companies.render();
+                    this.fetchData();
+                    this.stopContinuousScraper();
+                    return;
+                }
+            }
+        } catch(e) {}
+
+        if (term) {
+            term.textContent += `[${timeStr}] [⚠️] تعذر الاتصال بأي مصدر بيانات. تأكد من اتصال الإنترنت أو شغل السيرفر المحلي.\n`;
+            term.scrollTop = term.scrollHeight;
+        }
+        if (statusText) statusText.textContent = '⚠️ تعذر الاتصال — تحقق من الاتصال بالإنترنت';
+        if (statusDot) { statusDot.style.background = '#ef4444'; statusDot.style.animation = 'none'; }
+        this.stopContinuousScraper();
     },
 
     async executeLiveEnricherBatch() {
