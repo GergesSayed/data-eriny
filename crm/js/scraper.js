@@ -1058,19 +1058,26 @@ const ScraperPage = {
                         Storage.saveAllCompaniesToDB(data.companies);
                         this._updateCounters();
                         const total = data.companies.length;
-                        if (statusText) statusText.textContent = `✅ تم تحميل السجل الموحد (${total.toLocaleString()} شركة موثقة)`;
-                        if (statusDot) statusDot.style.background = '#10b981';
+                        if (statusText) statusText.textContent = `🟢 السكرابر يعمل ومتصل بالسحابة (${total.toLocaleString()} شركة موثقة)`;
+                        if (statusDot) { statusDot.style.background = '#10b981'; statusDot.style.animation = 'pulse 2s infinite'; }
                         if (term) {
-                            term.textContent += `[${timeStr}] [✅ SUPABASE SUCCESS] تم تحميل وتحديث ${total.toLocaleString()} شركة من السحابة بنجاح!\n`;
+                            term.textContent += `[${timeStr}] [✅ SUPABASE SYNC] تم مزامنة ${total.toLocaleString()} شركة موثقة من السحابة بنجاح! السكرابر يعمل في الخلفية...\n`;
                             term.scrollTop = term.scrollHeight;
                         }
-                        App.showToast(`✅ تم تحديث ${total.toLocaleString()} شركة موثقة من السحابة!`, 'success');
+                        App.showToast(`🟢 السكرابر شغال! تم مزامنة ${total.toLocaleString()} شركة من السحابة`, 'success');
                         if (typeof Companies !== 'undefined' && App.currentPage === 'companies') Companies.render();
                         if (typeof Dashboard !== 'undefined' && App.currentPage === 'dashboard') Dashboard.render();
                     }
                 } catch(e) {}
             }
-            this.stopContinuousScraper();
+
+            // Keep scraper running continuously in background
+            if (this.isScraperActive) {
+                if (this.scraperInterval) clearTimeout(this.scraperInterval);
+                this.scraperInterval = setTimeout(() => {
+                    if (this.isScraperActive) this.executeLiveScraperBatch();
+                }, 10000);
+            }
         }
     },
 
