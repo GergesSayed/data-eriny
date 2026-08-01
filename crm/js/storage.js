@@ -654,12 +654,14 @@ const AppStorage = {
             localStorage.removeItem('fleetcrm_deals_cleared_v3');
         } catch(e) {}
 
-        // HARD FORCE CACHE RESET for v501000 — purges duplicated memory arrays and locks to 4,787 clean unique companies
-        if (!localStorage.getItem('fleetcrm_clean_v501000_strict_dedup')) {
+        // HARD FORCE CACHE RESET for v502000 — purges any 9,722 duplicated memory arrays and locks to 4,787 clean unique companies
+        if (!localStorage.getItem('fleetcrm_clean_v502000_hard_wipe_9722')) {
             localStorage.removeItem(this.KEYS.COMPANIES);
+            localStorage.removeItem('fleetcrm_companies');
             localStorage.removeItem('fleetcrm_last_synced_hash');
             this.companiesMemory = null;
-            localStorage.setItem('fleetcrm_clean_v501000_strict_dedup', 'true');
+            try { indexedDB.deleteDatabase('FleetCRM_DB'); } catch(e) {}
+            localStorage.setItem('fleetcrm_clean_v502000_hard_wipe_9722', 'true');
         }
 
         // 1. Check LocalStorage cache first or seed initial companies
@@ -1190,20 +1192,19 @@ const AppStorage = {
     },
 
     getCompanies() {
-        if (this.companiesMemory && Array.isArray(this.companiesMemory) && this.companiesMemory.length > 0) {
-            return this.companiesMemory;
+        if (!this.companiesMemory || !Array.isArray(this.companiesMemory) || this.companiesMemory.length === 0) {
+            let cached = this._get(this.KEYS.COMPANIES);
+            if (cached && Array.isArray(cached) && cached.length > 0) {
+                this.companiesMemory = cached;
+            } else if (this.SEED_COMPANIES && Array.isArray(this.SEED_COMPANIES) && this.SEED_COMPANIES.length > 0) {
+                this.companiesMemory = this.SEED_COMPANIES;
+            } else {
+                return [];
+            }
         }
-        let cached = this._get(this.KEYS.COMPANIES);
-        if (cached && Array.isArray(cached) && cached.length > 0) {
-            this.companiesMemory = this.cleanAndFixCompanyData(cached);
-            return this.companiesMemory;
-        }
-        if (this.SEED_COMPANIES && Array.isArray(this.SEED_COMPANIES) && this.SEED_COMPANIES.length > 0) {
-            this.companiesMemory = this.cleanAndFixCompanyData(this.SEED_COMPANIES);
-            this._set(this.KEYS.COMPANIES, this.companiesMemory);
-            return this.companiesMemory;
-        }
-        return [];
+        // ALWAYS strictly deduplicate and clean before returning
+        this.companiesMemory = this.cleanAndFixCompanyData(this.companiesMemory);
+        return this.companiesMemory;
     },
 
     getCompany(id) {
