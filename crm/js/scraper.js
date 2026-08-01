@@ -57,8 +57,8 @@ const ScraperPage = {
                 <button id="btn-full-scrape" onclick="ScraperPage.runFullCollection()" style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#000; border:none; padding:10px 20px; border-radius:10px; cursor:pointer; font-size:15px; font-weight:800; box-shadow:0 4px 15px rgba(245,158,11,0.4);">
                     <i class="fas fa-rocket"></i> ⚡ السحب الشامل — 3 مصادر × رفع للسحابة
                 </button>
-                <button onclick="ScraperPage.forceReload()" style="background:#10b981; color:#fff; border:none; padding:8px 16px; border-radius:8px; cursor:pointer; font-size:14px; font-weight:600;">
-                    <i class="fas fa-database"></i> تحميل القاعدة الأساسية (989 شركة)
+                <button onclick="ScraperPage.pullFromSupabase()" style="background:#10b981; color:#fff; border:none; padding:8px 16px; border-radius:8px; cursor:pointer; font-size:14px; font-weight:600;">
+                    <i class="fas fa-cloud-download-alt"></i> تحميل من السحابة (Supabase)
                 </button>
                 <button onclick="ScraperPage.syncNow()" style="background:rgba(255,255,255,0.2);color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:14px;">
                     <i class="fas fa-sync-alt"></i> تحديث
@@ -705,6 +705,47 @@ const ScraperPage = {
         this._updateCounters();
         this.updateProcessButtons();
         App.showToast(`✅ ${total.toLocaleString()} شركة جاهزة ومرفوعة للسحابة!`, 'success');
+    },
+
+    async pullFromSupabase() {
+        const statusText = document.getElementById('scraper-status-text');
+        const statusDot = document.getElementById('scraper-status-dot');
+        if (statusText) statusText.textContent = '☁️ جاري تحميل البيانات من السحابة...';
+        if (statusDot) statusDot.style.background = '#3b82f6';
+
+        if (!window.SupabaseClient) {
+            App.showToast('⚠️ Supabase غير متصل', 'error');
+            return;
+        }
+
+        try {
+            const data = await window.SupabaseClient.fetchMasterData();
+            if (data && data.companies && Array.isArray(data.companies) && data.companies.length > 0) {
+                const companies = data.companies.map(c => {
+                    if (!c.id) c.id = 'cloud_' + Math.random().toString(36).substr(2, 9);
+                    c.sector = Storage.mapScraperSectorToCRM(c.sector || 'other');
+                    c.city = Storage.mapScraperCityToCRM(c.city || 'cairo');
+                    c.priority = Storage.calculatePriority(c.sector);
+                    return c;
+                });
+                Storage.setCompanies(companies);
+                Storage.saveAllCompaniesToDB(companies);
+                localStorage.setItem('fleetcrm_last_sync_time', Date.now());
+
+                const total = companies.length;
+                if (statusText) statusText.textContent = `✅ ${total.toLocaleString()} شركة محملة من السحابة`;
+                if (statusDot) statusDot.style.background = '#10b981';
+                document.getElementById('sidebar-total-companies').textContent = total.toLocaleString();
+                this._updateCounters();
+                App.showToast(`✅ ${total.toLocaleString()} شركة من السحابة`, 'success');
+                if (typeof Companies !== 'undefined' && App.currentPage === 'companies') Companies.render();
+                if (typeof Dashboard !== 'undefined' && App.currentPage === 'dashboard') Dashboard.render();
+            } else {
+                App.showToast('⚠️ لا توجد بيانات في السحابة بعد', 'warning');
+            }
+        } catch(e) {
+            App.showToast('⚠️ فشل تحميل البيانات من السحابة', 'error');
+        }
     },
 
     startContinuousScraper() {

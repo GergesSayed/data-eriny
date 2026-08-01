@@ -1021,7 +1021,8 @@ const AppStorage = {
                     });
 
                     const mergedCompanies = Array.from(compMap.values());
-                    if (mergedCompanies.length !== localList.length || cloudTimestamp > localTimestamp) {
+                    // Always update if cloud has more companies or is newer
+                    if (mergedCompanies.length > localList.length || cloudTimestamp > localTimestamp || mergedCompanies.length !== localList.length) {
                         this.companiesMemory = mergedCompanies;
                         this._set(this.KEYS.COMPANIES, this.companiesMemory);
                         this.saveAllCompaniesToDB(this.companiesMemory);
