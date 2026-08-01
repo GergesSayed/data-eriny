@@ -648,25 +648,20 @@ const AppStorage = {
 
     // ---- IndexedDB helper functions ----
     async initDB() {
-        // Clear legacy wipe flags to prevent data loss
-        try {
-            localStorage.removeItem('fleetcrm_user_wiped_companies');
-            localStorage.removeItem('fleetcrm_deals_cleared_v3');
-        } catch(e) {}
-
-        // HARD FORCE CACHE RESET for v502000 — purges any 9,722 duplicated memory arrays and locks to 4,787 clean unique companies
-        if (!localStorage.getItem('fleetcrm_clean_v502000_hard_wipe_9722')) {
-            localStorage.removeItem(this.KEYS.COMPANIES);
+        // HARD FORCE CACHE RESET for v600000 — purges database to 0 companies as requested
+        if (!localStorage.getItem('fleetcrm_clean_v600000_zero_database_wipe')) {
+            localStorage.setItem(this.KEYS.COMPANIES, '[]');
             localStorage.removeItem('fleetcrm_companies');
             localStorage.removeItem('fleetcrm_last_synced_hash');
-            this.companiesMemory = null;
+            localStorage.setItem('fleetcrm_user_wiped_companies', 'true');
+            this.companiesMemory = [];
             try { indexedDB.deleteDatabase('FleetCRM_DB'); } catch(e) {}
-            localStorage.setItem('fleetcrm_clean_v502000_hard_wipe_9722', 'true');
+            localStorage.setItem('fleetcrm_clean_v600000_zero_database_wipe', 'true');
         }
 
-        // 1. Check LocalStorage cache first or seed initial companies
+        // 1. Check LocalStorage cache or return empty array
         let cached = this._get(this.KEYS.COMPANIES);
-        if (cached && Array.isArray(cached) && cached.length >= 100 && !cached[0].website?.includes('fleetcobranch')) {
+        if (cached && Array.isArray(cached) && cached.length > 0 && !cached[0].website?.includes('fleetcobranch')) {
             this.companiesMemory = this.cleanAndFixCompanyData(cached.map(c => {
                 c.sector = this.mapScraperSectorToCRM(c.sector);
                 c.city = this.mapScraperCityToCRM(c.city);
@@ -674,8 +669,8 @@ const AppStorage = {
                 return c;
             }));
         } else {
-            this.companiesMemory = null;
-            localStorage.removeItem(this.KEYS.COMPANIES);
+            this.companiesMemory = [];
+            localStorage.setItem(this.KEYS.COMPANIES, '[]');
         }
 
         // 2. Open IndexedDB and load persisted user data
