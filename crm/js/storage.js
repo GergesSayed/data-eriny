@@ -654,12 +654,12 @@ const AppStorage = {
             localStorage.removeItem('fleetcrm_deals_cleared_v3');
         } catch(e) {}
 
-        // HARD FORCE CACHE RESET for v485000 — aligns all system counters dynamically to master total (4,787 companies)
-        if (!localStorage.getItem('fleetcrm_clean_v485000_counter_alignment')) {
+        // HARD FORCE CACHE RESET for v500000 — purges all old/synthetic data and reloads 100% authentic dataset
+        if (!localStorage.getItem('fleetcrm_clean_v500000_master_rebuild')) {
             localStorage.removeItem(this.KEYS.COMPANIES);
             localStorage.removeItem('fleetcrm_last_synced_hash');
             this.companiesMemory = null;
-            localStorage.setItem('fleetcrm_clean_v485000_counter_alignment', 'true');
+            localStorage.setItem('fleetcrm_clean_v500000_master_rebuild', 'true');
         }
 
         // 1. Check LocalStorage cache first or seed initial companies
