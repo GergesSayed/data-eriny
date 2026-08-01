@@ -1,11 +1,13 @@
 /* ============================================
-   Fleet CRM — Local & IndexedDB Storage System v9.9
+   Fleet CRM — Local & IndexedDB Storage System v10.0
    ============================================ */
 
-// IMMEDIATE TOP-LEVEL SYNCHRONOUS HARD PURGE FOR V990000
+// IMMEDIATE TOP-LEVEL SYNCHRONOUS HARD PURGE FOR V1000000
 (function() {
-    if (!localStorage.getItem('fleetcrm_hard_purge_v990000')) {
+    if (!localStorage.getItem('fleetcrm_hard_purge_v1000000')) {
         try {
+            localStorage.clear();
+            sessionStorage.clear();
             localStorage.setItem('fleetcrm_companies', '[]');
             localStorage.setItem('fleetcrm_user_wiped_companies', 'true');
             localStorage.removeItem('fleetcrm_last_synced_hash');
@@ -13,7 +15,7 @@
                 indexedDB.deleteDatabase('FleetCRM_DB');
                 indexedDB.deleteDatabase('fleetcrm_db');
             }
-            localStorage.setItem('fleetcrm_hard_purge_v990000', 'true');
+            localStorage.setItem('fleetcrm_hard_purge_v1000000', 'true');
         } catch(e) {}
     }
 })();
