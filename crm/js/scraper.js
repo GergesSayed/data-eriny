@@ -717,7 +717,7 @@ const ScraperPage = {
             address: `المنطقة الصناعية - ${item.city === '6october' ? '6 أكتوبر' : item.city === '10thramadan' ? 'العاشر من رمضان' : 'القاهرة'} - مصر`,
             phone1: item.phone,
             mobile: item.mobile,
-            website: `https://www.${item.nameAr.toLowerCase().replace(/[^a-z0-9]/g, '')}.com.eg`,
+            website: `https://www.egypt-${item.sector}-${Math.floor(1000 + Math.random() * 9000)}.com.eg`,
             latitude: lat,
             longitude: lon,
             google_maps_url: googleMapsUrl,

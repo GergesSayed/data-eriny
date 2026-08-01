@@ -1127,7 +1127,7 @@ const AppStorage = {
         companies.forEach((c) => {
             if (!c) return;
 
-            // Clean generic/fake website URLs so UI displays "—" for missing sites
+            // Clean generic/fake/broken website URLs
             if (c.website) {
                 const ws = String(c.website).toLowerCase();
                 if (ws.includes('google.com') || 
@@ -1135,7 +1135,10 @@ const AppStorage = {
                     ws.includes('example.com') || 
                     ws.includes('yellowpages.com') || 
                     ws.includes('egypt-fleets.com') ||
-                    ws.includes('fleetcobranch')) {
+                    ws.includes('fleetcobranch') ||
+                    ws.includes('..') ||
+                    ws === 'https://www..com.eg' ||
+                    ws.endsWith('..com.eg')) {
                     c.website = '';
                 }
             }
