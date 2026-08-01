@@ -829,7 +829,7 @@ const ScraperPage = {
                 if (statusText) statusText.textContent = '● السكرابر الميداني يعمل (Local Python Server)';
                 if (statusDot) statusDot.style.background = '#10b981';
                 if (term) {
-                    term.textContent += `[${timeStr}] [✅ LOCAL SERVER] خادم Python متصل. يسحب من Google Maps مباشرة...\n`;
+                    term.textContent += `[${timeStr}] [✅ LOCAL SERVER] خادم Python متصل على منفذ 8888. يسحب من Google Maps مباشرة...\n`;
                     term.scrollTop = term.scrollHeight;
                 }
                 if (this.scraperInterval) clearInterval(this.scraperInterval);
@@ -838,14 +838,22 @@ const ScraperPage = {
                     fetch('http://localhost:8888/api/run-scraper').then(r => {
                         if (term && r.ok) {
                             const t = new Date().toLocaleTimeString('ar-EG');
-                            term.textContent += `[${t}] [LOCAL] Polling...\n`;
+                            term.textContent += `[${t}] [LOCAL] Polling scraper output...\n`;
                             term.scrollTop = term.scrollHeight;
                         }
                     }).catch(() => {});
                 }, 5000);
                 return;
             }
-        } catch(e) {}
+        } catch(e) {
+            if (window.location.protocol === 'https:' && term && !this._httpsWarningShown) {
+                this._httpsWarningShown = true;
+                term.textContent += `[${timeStr}] [⚠️ HTTPS NOTICE] المتصفح يحظر الربط بالسيرفر المحلي (http://localhost:8888) من رابط HTTPS الخارجي.\n`;
+                term.textContent += `[💡 الحل البسيط] افتح الرابط المحلي المباشر: http://localhost:8888/ (أو شغل start_system.bat).\n`;
+                term.scrollTop = term.scrollHeight;
+                App.showToast('💡 لتشغيل السكرابر المحلي: افتح الرابط http://localhost:8888/', 'warning');
+            }
+        }
 
         // ── STEP 2: Local server check notification ──
         if (!this._cloudSyncDone) {
