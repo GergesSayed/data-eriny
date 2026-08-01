@@ -297,8 +297,15 @@ const Companies = {
         const pageCompanies = companies.slice(start, start + this.pageSize);
 
         // Update count & view mode toggle buttons
+        const masterTotal = window.AppStorage.getCompanies().length;
         const countDisplay = document.getElementById('companies-count-display');
-        if (countDisplay) countDisplay.textContent = `${total} شركة`;
+        if (countDisplay) {
+            if (total === masterTotal) {
+                countDisplay.textContent = `إجمالي شركات السيستم: ${total.toLocaleString()} شركة`;
+            } else {
+                countDisplay.textContent = `معروض: ${total.toLocaleString()} شركة (من إجمالي ${masterTotal.toLocaleString()} شركة)`;
+            }
+        }
 
         const btnTable = document.getElementById('btn-view-table');
         const btnCards = document.getElementById('btn-view-cards');

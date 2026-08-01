@@ -654,12 +654,12 @@ const AppStorage = {
             localStorage.removeItem('fleetcrm_deals_cleared_v3');
         } catch(e) {}
 
-        // HARD FORCE CACHE RESET for v484000 — purges all synthetic placeholders and loads 100% authentic dataset
-        if (!localStorage.getItem('fleetcrm_clean_v484000_zero_synthetic')) {
+        // HARD FORCE CACHE RESET for v485000 — aligns all system counters dynamically to master total (4,787 companies)
+        if (!localStorage.getItem('fleetcrm_clean_v485000_counter_alignment')) {
             localStorage.removeItem(this.KEYS.COMPANIES);
             localStorage.removeItem('fleetcrm_last_synced_hash');
             this.companiesMemory = null;
-            localStorage.setItem('fleetcrm_clean_v484000_zero_synthetic', 'true');
+            localStorage.setItem('fleetcrm_clean_v485000_counter_alignment', 'true');
         }
 
         // 1. Check LocalStorage cache first or seed initial companies
@@ -843,8 +843,7 @@ const AppStorage = {
                 
                 request.onsuccess = (event) => {
                     const data = event.target.result || [];
-                    // Strict freshness check: length MUST be exactly 989 and first item MUST be Talabat (id=m007803)
-                    const isFresh = data.length > 0 && data.length <= 989 && data[0].id === 'm007803' && !data[0].website?.includes('fleetcobranch');
+                    const isFresh = data.length >= 100 && !data[0].website?.includes('fleetcobranch');
 
                     if (isFresh) {
                         const idbMapped = data.map((c, idx) => this._normalizeCompanyData(c, idx));
@@ -1763,7 +1762,7 @@ const AppStorage = {
         const today = new Date().toISOString().split('T')[0];
 
         return {
-            totalCompanies: companies.length,
+            totalCompanies: this.getCompanies().length,
             callsToday: calls.filter(c => c.date === today).length,
             openDeals: deals.filter(d => !['won', 'lost'].includes(d.stage)).length,
             pipelineValue: deals.filter(d => !['won', 'lost'].includes(d.stage))
