@@ -1,20 +1,19 @@
 /* ============================================
-   Fleet CRM — Local & IndexedDB Storage System v9.0
+   Fleet CRM — Local & IndexedDB Storage System v9.9
    ============================================ */
 
-// IMMEDIATE TOP-LEVEL SYNCHRONOUS HARD PURGE FOR V900000
+// IMMEDIATE TOP-LEVEL SYNCHRONOUS HARD PURGE FOR V990000
 (function() {
-    if (!localStorage.getItem('fleetcrm_hard_purge_v900000')) {
+    if (!localStorage.getItem('fleetcrm_hard_purge_v990000')) {
         try {
-            localStorage.clear();
-            sessionStorage.clear();
-            localStorage.setItem('fleetcrm_hard_purge_v900000', 'true');
             localStorage.setItem('fleetcrm_companies', '[]');
             localStorage.setItem('fleetcrm_user_wiped_companies', 'true');
+            localStorage.removeItem('fleetcrm_last_synced_hash');
             if (window.indexedDB) {
                 indexedDB.deleteDatabase('FleetCRM_DB');
                 indexedDB.deleteDatabase('fleetcrm_db');
             }
+            localStorage.setItem('fleetcrm_hard_purge_v990000', 'true');
         } catch(e) {}
     }
 })();
@@ -1191,13 +1190,16 @@ const AppStorage = {
     },
 
     getCompanies() {
-        if (!this.companiesMemory || !Array.isArray(this.companiesMemory) || this.companiesMemory.length === 0) {
+        if (localStorage.getItem('fleetcrm_user_wiped_companies') === 'true') {
+            this.companiesMemory = [];
+            return [];
+        }
+        if (!this.companiesMemory || !Array.isArray(this.companiesMemory)) {
             let cached = this._get(this.KEYS.COMPANIES);
             if (cached && Array.isArray(cached) && cached.length > 0) {
                 this.companiesMemory = cached;
-            } else if (this.SEED_COMPANIES && Array.isArray(this.SEED_COMPANIES) && this.SEED_COMPANIES.length > 0) {
-                this.companiesMemory = this.SEED_COMPANIES;
             } else {
+                this.companiesMemory = [];
                 return [];
             }
         }
