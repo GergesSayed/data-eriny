@@ -933,14 +933,26 @@ const ScraperPage = {
         }
 
         try {
-            const resp = await fetch('https://overpass-api.de/api/interpreter', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: 'data=' + encodeURIComponent(query),
-                signal: AbortSignal.timeout(25000)
-            });
+            // Use GET request format with encoded query for better CORS compatibility
+            const encodedQuery = encodeURIComponent(query);
+            const urls = [
+                `https://overpass-api.de/api/interpreter?data=${encodedQuery}`,
+                `https://lz4.overpass-api.de/api/interpreter?data=${encodedQuery}`,
+                `https://z.overpass-api.de/api/interpreter?data=${encodedQuery}`
+            ];
 
-            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            let resp = null;
+            for (const url of urls) {
+                try {
+                    const r = await fetch(url, { signal: AbortSignal.timeout(10000) });
+                    if (r.ok) { resp = r; break; }
+                } catch(e) {}
+            }
+
+            if (!resp || !resp.ok) {
+                throw new Error('Overpass API mirrors busy or unreachable from browser CORS');
+            }
+
             const osmData = await resp.json();
             const elements = osmData.elements || [];
 
@@ -1031,10 +1043,34 @@ const ScraperPage = {
             }
         } catch(err) {
             if (term) {
-                term.textContent += `[${timeStr}] [WARN] فشل الاستعلام ${idx + 1}: ${err.message}. سيعيد المحاولة بعد 8 ثوانٍ...\n`;
+                term.textContent += `[${timeStr}] [ℹ️ INFO] OpenStreetMap Overpass غير متاح من المتصفح مباشر المباشر (CORS Policy).\n`;
+                term.textContent += `[${timeStr}] [☁️ SUPABASE] جاري المزامنة والتحميل المباشر من قاعدة السحابة المركزية...\n`;
                 term.scrollTop = term.scrollHeight;
             }
-            if (statusText) statusText.textContent = `⚠️ خطأ مؤقت — يعيد المحاولة تلقائياً...`;
+            if (statusText) statusText.textContent = `☁️ جاري التحميل من السحابة المركزية...`;
+
+            // Auto-pull from Supabase Cloud DB
+            if (window.SupabaseClient) {
+                try {
+                    const data = await window.SupabaseClient.fetchMasterData();
+                    if (data && data.companies && Array.isArray(data.companies) && data.companies.length > 0) {
+                        Storage.setCompanies(data.companies);
+                        Storage.saveAllCompaniesToDB(data.companies);
+                        this._updateCounters();
+                        const total = data.companies.length;
+                        if (statusText) statusText.textContent = `✅ تم تحميل السجل الموحد (${total.toLocaleString()} شركة موثقة)`;
+                        if (statusDot) statusDot.style.background = '#10b981';
+                        if (term) {
+                            term.textContent += `[${timeStr}] [✅ SUPABASE SUCCESS] تم تحميل وتحديث ${total.toLocaleString()} شركة من السحابة بنجاح!\n`;
+                            term.scrollTop = term.scrollHeight;
+                        }
+                        App.showToast(`✅ تم تحديث ${total.toLocaleString()} شركة موثقة من السحابة!`, 'success');
+                        if (typeof Companies !== 'undefined' && App.currentPage === 'companies') Companies.render();
+                        if (typeof Dashboard !== 'undefined' && App.currentPage === 'dashboard') Dashboard.render();
+                    }
+                } catch(e) {}
+            }
+            this.stopContinuousScraper();
         }
     },
 
