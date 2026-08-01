@@ -654,12 +654,12 @@ const AppStorage = {
             localStorage.removeItem('fleetcrm_deals_cleared_v3');
         } catch(e) {}
 
-        // HARD FORCE CACHE RESET for v482000 — purges old cached dataset and loads full cleaned 4,787 companies
-        if (!localStorage.getItem('fleetcrm_clean_v482000_quality_fix')) {
+        // HARD FORCE CACHE RESET for v483000 — purges old cached dataset and loads full cleaned 4,787 unique companies
+        if (!localStorage.getItem('fleetcrm_clean_v483000_unique_contacts')) {
             localStorage.removeItem(this.KEYS.COMPANIES);
             localStorage.removeItem('fleetcrm_last_synced_hash');
             this.companiesMemory = null;
-            localStorage.setItem('fleetcrm_clean_v482000_quality_fix', 'true');
+            localStorage.setItem('fleetcrm_clean_v483000_unique_contacts', 'true');
         }
 
         // 1. Check LocalStorage cache first or seed initial companies
