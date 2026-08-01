@@ -654,17 +654,17 @@ const AppStorage = {
             localStorage.removeItem('fleetcrm_deals_cleared_v3');
         } catch(e) {}
 
-        // HARD FORCE CACHE RESET for v460000 — purges old 1022 synthetic companies dataset
-        if (!localStorage.getItem('fleetcrm_clean_v460000')) {
+        // HARD FORCE CACHE RESET for v474000 — purges old 989 dataset and loads full 4788 authentic companies
+        if (!localStorage.getItem('fleetcrm_clean_v474000')) {
             localStorage.removeItem(this.KEYS.COMPANIES);
             localStorage.removeItem('fleetcrm_last_synced_hash');
             this.companiesMemory = null;
-            localStorage.setItem('fleetcrm_clean_v460000', 'true');
+            localStorage.setItem('fleetcrm_clean_v474000', 'true');
         }
 
         // 1. Check LocalStorage cache first or seed initial companies
         let cached = this._get(this.KEYS.COMPANIES);
-        if (cached && Array.isArray(cached) && cached.length <= 989 && cached.length > 0 && !cached[0].website?.includes('fleetcobranch')) {
+        if (cached && Array.isArray(cached) && cached.length >= 100 && !cached[0].website?.includes('fleetcobranch')) {
             this.companiesMemory = this.cleanAndFixCompanyData(cached.map(c => {
                 c.sector = this.mapScraperSectorToCRM(c.sector);
                 c.city = this.mapScraperCityToCRM(c.city);
