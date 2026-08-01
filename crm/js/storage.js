@@ -1,24 +1,6 @@
 /* ============================================
-   Fleet CRM — Local & IndexedDB Storage System v10.0
+   Fleet CRM — Local & IndexedDB Storage System
    ============================================ */
-
-// IMMEDIATE TOP-LEVEL SYNCHRONOUS HARD PURGE FOR V1000000
-(function() {
-    if (!localStorage.getItem('fleetcrm_hard_purge_v1000000')) {
-        try {
-            localStorage.clear();
-            sessionStorage.clear();
-            localStorage.setItem('fleetcrm_companies', '[]');
-            localStorage.setItem('fleetcrm_user_wiped_companies', 'true');
-            localStorage.removeItem('fleetcrm_last_synced_hash');
-            if (window.indexedDB) {
-                indexedDB.deleteDatabase('FleetCRM_DB');
-                indexedDB.deleteDatabase('fleetcrm_db');
-            }
-            localStorage.setItem('fleetcrm_hard_purge_v1000000', 'true');
-        } catch(e) {}
-    }
-})();
 
 const AppStorage = {
     KEYS: {
@@ -665,38 +647,18 @@ const AppStorage = {
 
     // ---- IndexedDB helper functions ----
     async initDB() {
-        // HARD FORCE CACHE RESET for v700000 — zero auto-seeding permanent clean start
-        if (!localStorage.getItem('fleetcrm_clean_v700000_permanent_zero_start')) {
-            localStorage.setItem(this.KEYS.COMPANIES, '[]');
-            localStorage.removeItem('fleetcrm_companies');
-            localStorage.removeItem('fleetcrm_last_synced_hash');
-            localStorage.setItem('fleetcrm_user_wiped_companies', 'true');
-            this.companiesMemory = [];
-            try { indexedDB.deleteDatabase('FleetCRM_DB'); } catch(e) {}
-            localStorage.setItem('fleetcrm_clean_v700000_permanent_zero_start', 'true');
-        }
-
-        // 1. Check LocalStorage cache or keep 0 companies
         let cached = this._get(this.KEYS.COMPANIES);
-        if (cached && Array.isArray(cached) && cached.length > 0 && !cached[0].website?.includes('fleetcobranch')) {
-            this.companiesMemory = this.cleanAndFixCompanyData(cached.map(c => {
-                c.sector = this.mapScraperSectorToCRM(c.sector);
-                c.city = this.mapScraperCityToCRM(c.city);
-                c.priority = this.calculatePriority(c.sector);
-                return c;
-            }));
+        if (cached && Array.isArray(cached) && cached.length > 0) {
+            this.companiesMemory = cached;
         } else {
             this.companiesMemory = [];
-            localStorage.setItem(this.KEYS.COMPANIES, '[]');
         }
 
-        // 2. Open IndexedDB and load persisted user data
         return new Promise((resolve) => {
             try {
                 const request = indexedDB.open('FleetCRM_DB', 3);
                 
                 request.onerror = (event) => {
-                    this.companiesMemory = [];
                     resolve();
                 };
                 
@@ -728,7 +690,6 @@ const AppStorage = {
                     }
                 };
             } catch (e) {
-                console.warn('IndexedDB exception:', e);
                 resolve();
             }
         });
@@ -1192,21 +1153,10 @@ const AppStorage = {
     },
 
     getCompanies() {
-        if (localStorage.getItem('fleetcrm_user_wiped_companies') === 'true') {
-            this.companiesMemory = [];
-            return [];
-        }
         if (!this.companiesMemory || !Array.isArray(this.companiesMemory)) {
             let cached = this._get(this.KEYS.COMPANIES);
-            if (cached && Array.isArray(cached) && cached.length > 0) {
-                this.companiesMemory = cached;
-            } else {
-                this.companiesMemory = [];
-                return [];
-            }
+            this.companiesMemory = (cached && Array.isArray(cached)) ? cached : [];
         }
-        // ALWAYS strictly deduplicate and clean before returning
-        this.companiesMemory = this.cleanAndFixCompanyData(this.companiesMemory);
         return this.companiesMemory;
     },
 
