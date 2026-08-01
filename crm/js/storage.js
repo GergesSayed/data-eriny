@@ -654,12 +654,12 @@ const AppStorage = {
             localStorage.removeItem('fleetcrm_deals_cleared_v3');
         } catch(e) {}
 
-        // HARD FORCE CACHE RESET for v500000 — purges all old/synthetic data and reloads 100% authentic dataset
-        if (!localStorage.getItem('fleetcrm_clean_v500000_master_rebuild')) {
+        // HARD FORCE CACHE RESET for v501000 — purges duplicated memory arrays and locks to 4,787 clean unique companies
+        if (!localStorage.getItem('fleetcrm_clean_v501000_strict_dedup')) {
             localStorage.removeItem(this.KEYS.COMPANIES);
             localStorage.removeItem('fleetcrm_last_synced_hash');
             this.companiesMemory = null;
-            localStorage.setItem('fleetcrm_clean_v500000_master_rebuild', 'true');
+            localStorage.setItem('fleetcrm_clean_v501000_strict_dedup', 'true');
         }
 
         // 1. Check LocalStorage cache first or seed initial companies
@@ -1129,8 +1129,22 @@ const AppStorage = {
             'distribution': [40, 160], 'tourism_fleet': [50, 180], 'shipping': [85, 340], 'other': [30, 110]
         };
 
+        const deduplicated = [];
+        const seenIds = new Set();
+        const seenNames = new Set();
+
         companies.forEach((c, idx) => {
-            if (!c) return;
+            if (!c || !c.nameAr) return;
+
+            const nameKey = String(c.nameAr).trim().toLowerCase();
+            const idKey = c.id ? String(c.id).trim() : null;
+
+            if ((idKey && seenIds.has(idKey)) || seenNames.has(nameKey)) {
+                return;
+            }
+
+            if (idKey) seenIds.add(idKey);
+            seenNames.add(nameKey);
 
             // 1. Clean generic/fake/broken website URLs
             if (c.website) {
@@ -1168,9 +1182,11 @@ const AppStorage = {
             if (c.fleetSize >= 120) c.priority = 'A';
             else if (c.fleetSize >= 50) c.priority = 'B';
             else c.priority = 'C';
+
+            deduplicated.push(c);
         });
 
-        return companies;
+        return deduplicated;
     },
 
     getCompanies() {
@@ -1195,8 +1211,9 @@ const AppStorage = {
     },
 
     setCompanies(companies) {
-        this.companiesMemory = companies;
-        this.saveAllCompaniesToDB(companies);
+        const clean = this.cleanAndFixCompanyData(companies || []);
+        this.companiesMemory = clean;
+        this.saveAllCompaniesToDB(clean);
     },
 
     addCompanies(newCompanies) {
