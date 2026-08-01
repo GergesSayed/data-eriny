@@ -648,25 +648,20 @@ const AppStorage = {
 
     // ---- IndexedDB helper functions ----
     async initDB() {
-        // Clear legacy wipe flags
-        try {
-            localStorage.removeItem('fleetcrm_user_wiped_companies');
-            localStorage.removeItem('fleetcrm_deals_cleared_v3');
-        } catch(e) {}
-
-        // HARD FORCE CACHE RESET for v601000 — loads clean verified 4,787 production companies
-        if (!localStorage.getItem('fleetcrm_clean_v601000_verified_production_flow')) {
-            localStorage.removeItem(this.KEYS.COMPANIES);
+        // HARD FORCE CACHE RESET for v700000 — zero auto-seeding permanent clean start
+        if (!localStorage.getItem('fleetcrm_clean_v700000_permanent_zero_start')) {
+            localStorage.setItem(this.KEYS.COMPANIES, '[]');
             localStorage.removeItem('fleetcrm_companies');
             localStorage.removeItem('fleetcrm_last_synced_hash');
-            this.companiesMemory = null;
+            localStorage.setItem('fleetcrm_user_wiped_companies', 'true');
+            this.companiesMemory = [];
             try { indexedDB.deleteDatabase('FleetCRM_DB'); } catch(e) {}
-            localStorage.setItem('fleetcrm_clean_v601000_verified_production_flow', 'true');
+            localStorage.setItem('fleetcrm_clean_v700000_permanent_zero_start', 'true');
         }
 
-        // 1. Check LocalStorage cache or seed verified companies
+        // 1. Check LocalStorage cache or keep 0 companies
         let cached = this._get(this.KEYS.COMPANIES);
-        if (cached && Array.isArray(cached) && cached.length >= 100 && !cached[0].website?.includes('fleetcobranch')) {
+        if (cached && Array.isArray(cached) && cached.length > 0 && !cached[0].website?.includes('fleetcobranch')) {
             this.companiesMemory = this.cleanAndFixCompanyData(cached.map(c => {
                 c.sector = this.mapScraperSectorToCRM(c.sector);
                 c.city = this.mapScraperCityToCRM(c.city);
@@ -674,8 +669,8 @@ const AppStorage = {
                 return c;
             }));
         } else {
-            this.companiesMemory = null;
-            await this._seedInitialJsonData();
+            this.companiesMemory = [];
+            localStorage.setItem(this.KEYS.COMPANIES, '[]');
         }
 
         // 2. Open IndexedDB and load persisted user data
@@ -684,12 +679,8 @@ const AppStorage = {
                 const request = indexedDB.open('FleetCRM_DB', 3);
                 
                 request.onerror = (event) => {
-                    console.warn('IndexedDB failed to open, relying on localStorage:', event);
-                    if (!this.companiesMemory || this.companiesMemory.length === 0) {
-                        this._seedInitialJsonData().then(() => resolve());
-                    } else {
-                        resolve();
-                    }
+                    this.companiesMemory = [];
+                    resolve();
                 };
                 
                 request.onsuccess = (event) => {
@@ -845,23 +836,15 @@ const AppStorage = {
                 
                 request.onsuccess = (event) => {
                     const data = event.target.result || [];
-                    const isFresh = data.length >= 100 && !data[0].website?.includes('fleetcobranch');
-
-                    if (isFresh) {
+                    if (data.length > 0 && !data[0].website?.includes('fleetcobranch')) {
                         const idbMapped = data.map((c, idx) => this._normalizeCompanyData(c, idx));
                         this.companiesMemory = idbMapped;
                         this._set(this.KEYS.COMPANIES, idbMapped);
-                        this.ensureAssignedSampleCompanies();
                         resolve();
                     } else {
-                        // Clear stale IndexedDB records (1022 old companies) and load fresh companies.json
-                        try {
-                            const clearTx = db.transaction(['companies'], 'readwrite');
-                            clearTx.objectStore('companies').clear();
-                        } catch(e) {}
-
-                        this.companiesMemory = null;
-                        this._seedInitialJsonData().then(() => resolve());
+                        this.companiesMemory = [];
+                        this._set(this.KEYS.COMPANIES, []);
+                        resolve();
                     }
                 };
                 
