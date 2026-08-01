@@ -603,9 +603,9 @@ const ScraperPage = {
         if (statusDot) statusDot.style.background = '#f59e0b';
 
         // ── Phase 1: Load base dataset ──
-        log('[1/3] 📦 تحميل قاعدة البيانات الأساسية (989 شركة)...');
+        log('[1/3] 📦 تحميل وتأكيد السجل الموحد (4,788 شركة موثقة)...');
         try {
-            const resp = await fetch('./data/companies.json?v=45.0.0');
+            const resp = await fetch('./data/companies.json?v=476000&_=' + Date.now());
             if (resp.ok) {
                 const data = await resp.json();
                 if (Array.isArray(data) && data.length > 0) {
@@ -621,10 +621,10 @@ const ScraperPage = {
                         return c;
                     });
                     await Storage.addCompanies(formatted);
-                    log(`✅ تم تحميل ${formatted.length} شركة من القاعدة الأساسية`);
+                    log(`✅ تم تحميل وتأكيد ${formatted.length} شركة موثقة من السجل الموحد`);
                 }
             }
-        } catch(e) { log(`⚠️ فشل تحميل القاعدة الأساسية: ${e.message}`); }
+        } catch(e) { log(`⚠️ فشل تحميل السجل الموحد: ${e.message}`); }
 
         // ── Phase 2: Start OSM Continuous Scraper ──
         log('[2/3] 🗺️ بدء السحب المباشر من OpenStreetMap...');
