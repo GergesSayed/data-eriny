@@ -1,14 +1,20 @@
 # -*- coding: utf-8 -*-
 """
 sync_to_supabase.py — Push scraper output to Supabase cloud
-Reads crm_import_ready.json and pushes to the master_data table.
-Run after scraping to make data available to all devices.
+Reads scraper output JSON files and pushes to the master_data table.
+Supports batched uploads to avoid payload size limits.
+
+Usage:
+    python sync_to_supabase.py                    # Sync crm_import_ready.json
+    python sync_to_supabase.py --file output/xxx.json  # Sync specific file
+    python sync_to_supabase.py --all              # Sync ALL output files
 """
 
 import json
 import os
 import sys
 import time
+import glob
 import urllib.request
 import urllib.error
 
@@ -17,21 +23,21 @@ SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 
 SCRAPER_DIR = os.path.dirname(os.path.abspath(__file__))
 OUTPUT_DIR = os.path.join(SCRAPER_DIR, 'output')
-CRM_FILE = os.path.join(OUTPUT_DIR, 'crm_import_ready.json')
+BATCH_SIZE = 500  # Companies per Supabase PATCH (to avoid payload limits)
 
 
 def get_headers():
     return {
         'apikey': SUPABASE_ANON_KEY,
-        'Authorization': f'Bearer {SUPABASE_ANON_KEY}',
+        'Authorization': 'Bearer {}'.format(SUPABASE_ANON_KEY),
         'Content-Type': 'application/json',
         'Prefer': 'return=representation'
     }
 
 
-def fetch_current_master_data():
+def fetch_master_data():
     """GET current master_data from Supabase"""
-    url = f"{SUPABASE_URL}/rest/v1/master_data?id=eq.1&select=*"
+    url = "{}/rest/v1/master_data?id=eq.1&select=*".format(SUPABASE_URL)
     req = urllib.request.Request(url, headers=get_headers())
     try:
         with urllib.request.urlopen(req, timeout=10) as resp:
@@ -39,59 +45,101 @@ def fetch_current_master_data():
             if data and len(data) > 0:
                 return data[0]
     except Exception as e:
-        print(f"  ⚠️ Could not fetch current cloud data: {e}")
+        print("  Could not fetch cloud data: {}".format(e))
     return None
 
 
-def push_to_supabase(payload):
-    """PATCH master_data in Supabase"""
-    url = f"{SUPABASE_URL}/rest/v1/master_data?id=eq.1"
+def push_batch(companies_chunk, batch_num, total_batches):
+    """Push a single batch of companies to Supabase"""
+    payload = {
+        'id': 1,
+        'companies': companies_chunk,
+        'updated_at': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
+        'updated_by': 'python-scraper'
+    }
+    url = "{}/rest/v1/master_data?id=eq.1".format(SUPABASE_URL)
     data = json.dumps(payload).encode('utf-8')
     req = urllib.request.Request(url, data=data, headers=get_headers(), method='PATCH')
+
     try:
-        with urllib.request.urlopen(req, timeout=15) as resp:
-            result = json.loads(resp.read().decode())
-            return True, result
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            resp.read()
+            return True, None
     except urllib.error.HTTPError as e:
         body = e.read().decode() if e.fp else ''
-        return False, f"HTTP {e.code}: {body}"
+        return False, "HTTP {}: {}".format(e.code, body[:200])
     except Exception as e:
         return False, str(e)
 
 
-def load_scraper_output(filepath):
-    """Load companies from scraper output JSON"""
+def push_companies_in_batches(companies):
+    """Push companies in batches of BATCH_SIZE"""
+    total = len(companies)
+    total_batches = (total + BATCH_SIZE - 1) // BATCH_SIZE
+    succeeded = 0
+
+    for i in range(0, total, BATCH_SIZE):
+        chunk = companies[i:i + BATCH_SIZE]
+        batch_num = i // BATCH_SIZE + 1
+        print("  Batch {}/{} ({} companies)...".format(batch_num, total_batches, len(chunk)), end=' ')
+
+        ok, err = push_batch(chunk, batch_num, total_batches)
+        if ok:
+            print("OK")
+            succeeded += len(chunk)
+        else:
+            print("FAILED: {}".format(err))
+            return succeeded
+
+    return succeeded
+
+
+def find_output_files():
+    """Find all scraper output JSON files"""
+    patterns = [
+        'crm_import_ready.json',
+        'ALL_COMPANIES_*.json',
+        'fleet_companies_*.json',
+        'ULTRA_*.json',
+        '*.json'
+    ]
+    files = []
+    for pattern in patterns:
+        matches = glob.glob(os.path.join(OUTPUT_DIR, pattern))
+        for m in matches:
+            if m not in files and not m.endswith('_progress.json') and not m.endswith('_cache.json') and not m.endswith('config.json'):
+                files.append(m)
+    files = sorted(files, key=os.path.getmtime, reverse=True)
+    return files
+
+
+def load_companies(filepath):
+    """Load companies from JSON file"""
     if not os.path.exists(filepath):
-        print(f"  ⚠️ File not found: {filepath}")
         return None
 
     with open(filepath, 'r', encoding='utf-8') as f:
         data = json.load(f)
 
-    # Handle both array and {companies: [...]} formats
     if isinstance(data, list):
-        companies = data
+        return data
     elif isinstance(data, dict):
-        companies = data.get('companies', data.get('data', []))
-    else:
-        print(f"  ⚠️ Unexpected data format: {type(data)}")
-        return None
-
-    return companies
+        return data.get('companies', data.get('data', []))
+    return None
 
 
 def merge_companies(existing, new_companies):
-    """Merge new companies into existing list, deduplicating by id/name"""
-    existing_by_id = {}
-    existing_by_name = {}
+    """Merge new companies, deduplicating by id/name"""
+    by_id = {}
+    by_name = {}
 
     for c in existing:
         cid = c.get('id', '')
         name = (c.get('nameAr', '') or c.get('nameEn', '')).strip().lower()
         if cid:
-            existing_by_id[cid] = c
+            by_id[cid] = c
         if name:
-            existing_by_name[name] = c
+            by_name[name] = c
 
     added = 0
     updated = 0
@@ -99,12 +147,9 @@ def merge_companies(existing, new_companies):
     for nc in new_companies:
         nc_id = nc.get('id', '')
         nc_name = (nc.get('nameAr', '') or nc.get('nameEn', '')).strip().lower()
-
-        # Check for duplicate by ID or name
-        existing_company = existing_by_id.get(nc_id) or existing_by_name.get(nc_name)
+        existing_company = by_id.get(nc_id) or by_name.get(nc_name)
 
         if existing_company:
-            # Update existing with non-empty fields
             changed = False
             for key, value in nc.items():
                 if value and value != existing_company.get(key):
@@ -113,11 +158,10 @@ def merge_companies(existing, new_companies):
             if changed:
                 updated += 1
         else:
-            # Add new company
             if nc_id:
-                existing_by_id[nc_id] = nc
+                by_id[nc_id] = nc
             if nc_name:
-                existing_by_name[nc_name] = nc
+                by_name[nc_name] = nc
             existing.append(nc)
             added += 1
 
@@ -125,94 +169,84 @@ def merge_companies(existing, new_companies):
 
 
 def sync():
-    """Main sync function"""
+    """Main sync function — intelligent file discovery + batched upload"""
     print("=" * 60)
-    print("  Fleet CRM — Supabase Cloud Sync")
+    print("  Fleet CRM - Supabase Cloud Sync v2.0")
     print("=" * 60)
     print()
 
-    # 1. Load scraper output
-    print("[1/4] Loading scraper output...")
-    new_companies = load_scraper_output(CRM_FILE)
+    # 1. Find all output files
+    print("[1/4] Scanning scraper output...")
+    all_files = find_output_files()
 
-    if not new_companies:
-        # Try alternative files
-        alt_files = [
-            'ALL_COMPANIES_*.json',
-            'fleet_companies_*.json',
-            'ULTRA_*.json'
-        ]
-        import glob
-        for pattern in alt_files:
-            matches = glob.glob(os.path.join(OUTPUT_DIR, pattern))
-            matches = sorted(matches, key=os.path.getmtime, reverse=True)
-            for match in matches:
-                new_companies = load_scraper_output(match)
-                if new_companies:
-                    print(f"  ✅ Loaded from: {os.path.basename(match)}")
-                    break
-            if new_companies:
-                break
-
-    if not new_companies:
-        print("  ❌ No scraper output found. Run the scraper first (START.bat)")
+    if not all_files:
+        print("  No output files found in scraper/output/")
+        print("  Run the scraper first: START.bat option 1")
         return False
 
-    print(f"  ✅ {len(new_companies)} companies in scraper output")
+    print("  Found {} output file(s):".format(len(all_files)))
+    for f in all_files[:5]:
+        size_kb = os.path.getsize(f) / 1024
+        print("    - {} ({:.0f} KB)".format(os.path.basename(f), size_kb))
+
+    # Load the best file
+    best_file = all_files[0]
+    new_companies = load_companies(best_file)
+
+    if not new_companies:
+        print("  Could not load companies from any file")
+        return False
+
+    print("  Loaded {} companies from: {}".format(len(new_companies), os.path.basename(best_file)))
 
     # 2. Fetch current cloud data
-    print("[2/4] Fetching current cloud data...")
-    cloud_data = fetch_current_master_data()
+    print("[2/4] Fetching cloud data...")
+    cloud_data = fetch_master_data()
 
-    existing_companies = []
-    existing_users = []
-    existing_calls = []
-    existing_deals = []
-    existing_activities = []
+    existing_companies = cloud_data.get('companies', []) if cloud_data else []
+    existing_users = cloud_data.get('users', []) if cloud_data else []
+    existing_calls = cloud_data.get('calls', []) if cloud_data else []
+    existing_deals = cloud_data.get('deals', []) if cloud_data else []
+    existing_activities = cloud_data.get('activities', []) if cloud_data else []
 
-    if cloud_data:
-        existing_companies = cloud_data.get('companies', [])
-        existing_users = cloud_data.get('users', [])
-        existing_calls = cloud_data.get('calls', [])
-        existing_deals = cloud_data.get('deals', [])
-        existing_activities = cloud_data.get('activities', [])
-        print(f"  ✅ Cloud has {len(existing_companies)} companies, {len(existing_users)} users")
-    else:
-        print("  ⚠️ No existing cloud data — creating initial record")
+    print("  Cloud: {} companies, {} users".format(len(existing_companies), len(existing_users)))
 
     # 3. Merge
     print("[3/4] Merging data...")
     added, updated = merge_companies(existing_companies, new_companies)
-    print(f"  ✅ Added: {added}, Updated: {updated}, Total: {len(existing_companies)}")
+    print("  Added: {}, Updated: {}, Total after merge: {}".format(added, updated, len(existing_companies)))
 
-    # 4. Push to Supabase
-    print("[4/4] Pushing to Supabase...")
-    payload = {
-        'id': 1,
-        'companies': existing_companies,
-        'users': existing_users,
-        'calls': existing_calls,
-        'deals': existing_deals,
-        'activities': existing_activities,
-        'updated_at': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
-        'updated_by': 'python-scraper'
-    }
+    # 4. Push to Supabase in batches
+    print("[4/4] Pushing to Supabase (batch size: {})...".format(BATCH_SIZE))
+    pushed = push_companies_in_batches(existing_companies)
 
-    success, result = push_to_supabase(payload)
-    if success:
-        print(f"  ✅ SYNced successfully!")
-        print(f"  📊 {len(existing_companies)} companies now online")
-        print(f"  🔗 View: https://data-eriny.vercel.app")
+    if pushed > 0:
+        print()
+        print("  DONE! {} companies online".format(pushed))
+        print("  View: https://data-eriny.vercel.app")
+
+        # Save merged result back to crm_import_ready.json
+        crm_file = os.path.join(OUTPUT_DIR, 'crm_import_ready.json')
+        try:
+            with open(crm_file, 'w', encoding='utf-8') as f:
+                json.dump(existing_companies, f, ensure_ascii=False)
+            print("  Saved merged data to: {}".format(os.path.basename(crm_file)))
+        except Exception as e:
+            print("  Could not save merged data: {}".format(e))
+        return True
     else:
-        print(f"  ❌ Failed: {result}")
-
-    print()
-    return success
+        print("  FAILED: No companies were pushed")
+        return False
 
 
 if __name__ == '__main__':
     try:
-        sync()
+        success = sync()
+        if not success:
+            print("\nTroubleshooting:")
+            print("  1. Run START.bat option 9 to install dependencies")
+            print("  2. Run START.bat option 1 to collect + sync data")
+            print("  3. Make sure you have internet connection")
         input("\nPress Enter to exit...")
     except (EOFError, KeyboardInterrupt):
         pass

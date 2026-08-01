@@ -8,19 +8,26 @@ echo.
 
 cd /d "%~dp0"
 
-echo Choose an option / اختار:
+echo Choose an option:
+echo ============================================================
 echo.
-echo   [1] Quick Start - سحب سريع + رفع للسحابة (موصى به)
-echo   [2] Google Maps Browser Scraper (200-500 شركة)
-echo   [3] Google Maps Deep Scraper (500-2000 شركة)
-echo   [4] Smart Puller - All Sectors (300-1000 شركة)
-echo   [5] Mega Scraper - All Sources (500-5000 شركة)
-echo   [6] Sync to Supabase - رفع البيانات للسحابة
-echo   [7] Open CRM Online (Vercel)
-echo   [8] Start Local Server — يشغل السيرفر المحلي للـ CRM (Google Maps)
-echo       (يفتح المتصفح + السيرفر — CRM يقدر يتحكم في السكرابر)
-echo   [9] Install Dependencies
-echo   [0] Exit
+echo   DATA COLLECTION (no Chrome needed):
+echo     [1] Quick Start - 64 curated companies + sync to cloud
+echo     [4] Smart Puller - 300-1000 companies from Google Search
+echo     [5] Mega Scraper - 500-5000 companies (all sources)
+echo.
+echo   GOOGLE MAPS (needs Chrome):
+echo     [2] Google Maps Light - 200-500 companies (10-20 min)
+echo     [3] Google Maps Deep - 500-2000 companies (30-60 min)
+echo.
+echo   CLOUD & SERVER:
+echo     [6] Sync to Supabase - push latest data to cloud
+echo     [7] Open CRM Online - https://data-eriny.vercel.app
+echo     [8] Start Local Server - port 8888 (CRM connects to it)
+echo.
+echo   SETUP:
+echo     [9] Install Dependencies (run once, first time)
+echo     [0] Exit
 echo.
 
 set /p choice="Enter choice (1-9): "
@@ -124,10 +131,11 @@ goto end
 
 :deps
 echo.
-echo Installing all dependencies...
-pip install requests beautifulsoup4 openpyxl lxml selenium webdriver-manager
+echo Installing all dependencies (required for scraping)...
+pip install -r requirements.txt
 echo.
-echo Done!
+echo Done! If you get errors, try: pip install --upgrade pip
+echo.
 pause
 goto end
 

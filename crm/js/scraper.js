@@ -55,19 +55,13 @@ const ScraperPage = {
             </div>
             <div style="display:flex; gap:8px; flex-wrap:wrap;">
                 <button id="btn-full-scrape" onclick="ScraperPage.runFullCollection()" style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#000; border:none; padding:10px 20px; border-radius:10px; cursor:pointer; font-size:15px; font-weight:800; box-shadow:0 4px 15px rgba(245,158,11,0.4);">
-                    <i class="fas fa-rocket"></i> ⚡ تشغيل السحب الشامل (قاعدة + OSM + رفع للسحابة)
+                    <i class="fas fa-rocket"></i> ⚡ السحب الشامل — 3 مصادر × رفع للسحابة
                 </button>
-                <button id="btn-toggle-enricher" onclick="ScraperPage.toggleProcess('enricher')" style="background:#0077b5;color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;">
-                    <i class="fab fa-linkedin"></i> تشغيل إثراء LinkedIn
-                </button>
-                <button onclick="ScraperPage.runStrictVerification()" style="background:#8b5cf6;color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:700;">
-                    <i class="fas fa-shield-halved"></i> تدقيق وتصفية الجودة 100%
+                <button onclick="ScraperPage.forceReload()" style="background:#10b981; color:#fff; border:none; padding:8px 16px; border-radius:8px; cursor:pointer; font-size:14px; font-weight:600;">
+                    <i class="fas fa-database"></i> تحميل القاعدة الأساسية (989 شركة)
                 </button>
                 <button onclick="ScraperPage.syncNow()" style="background:rgba(255,255,255,0.2);color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:14px;">
-                    <i class="fas fa-sync-alt"></i> تحديث الإحصائيات
-                </button>
-                <button onclick="ScraperPage.forceReload()" style="background:rgba(255,255,255,0.2);color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:14px;">
-                    <i class="fas fa-database"></i> تحميل في CRM
+                    <i class="fas fa-sync-alt"></i> تحديث
                 </button>
             </div>
         </div>
