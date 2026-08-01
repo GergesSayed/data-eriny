@@ -162,18 +162,20 @@ const App = {
             // Real-time Supabase subscription for instant cross-device sync
             if (window.SupabaseClient) {
                 window.SupabaseClient.subscribeToChanges((newData) => {
-                    if (newData && newData.companies) {
+                    if (newData && Array.isArray(newData.companies)) {
                         const isOnMobile = window.__IS_MOBILE === true;
                         const companies = isOnMobile
-                            ? (Array.isArray(newData.companies) ? newData.companies.slice(0, 50) : [])
-                            : (Array.isArray(newData.companies) ? newData.companies : []);
+                            ? newData.companies.slice(0, 50)
+                            : newData.companies;
 
-                        if (companies.length > 0 && companies.length !== window.AppStorage.getCompanies().length) {
-                            companies.forEach(c => {
-                                c.sector = window.AppStorage.mapScraperSectorToCRM(c.sector);
-                                c.city = window.AppStorage.mapScraperCityToCRM(c.city);
-                                c.priority = window.AppStorage.calculatePriority(c.sector);
-                            });
+                        if (companies.length !== window.AppStorage.getCompanies().length) {
+                            if (companies.length > 0) {
+                                companies.forEach(c => {
+                                    c.sector = window.AppStorage.mapScraperSectorToCRM(c.sector);
+                                    c.city = window.AppStorage.mapScraperCityToCRM(c.city);
+                                    c.priority = window.AppStorage.calculatePriority(c.sector);
+                                });
+                            }
                             window.AppStorage.setCompanies(companies);
                             window.AppStorage.saveAllCompaniesToDB(companies);
                             this.refreshCurrentPage();
