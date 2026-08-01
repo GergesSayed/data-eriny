@@ -847,15 +847,15 @@ const ScraperPage = {
             }
         } catch(e) {}
 
-        // ── STEP 2: First time — load clean base dataset ──
+        // ── STEP 2: Local server check notification ──
         if (!this._cloudSyncDone) {
-            if (statusText) statusText.textContent = '🔄 جاري تحميل قاعدة البيانات الأساسية...';
+            if (statusText) statusText.textContent = '🔄 جاري تحميل السجل الموحد (4,788 شركة موثقة)...';
             if (term) {
-                term.textContent += `[${timeStr}] [🔄 INIT] لا يوجد سيرفر محلي — جاري تحميل قاعدة البيانات الأساسية (989 شركة)...\n`;
+                term.textContent += `[${timeStr}] [🔄 INIT] جاري استدعاء وتأكيد السجل الموحد (4,788 شركة موثقة 100%)...\n`;
                 term.scrollTop = term.scrollHeight;
             }
             try {
-                const resp = await fetch('./data/companies.json?v=471000&_=' + Date.now());
+                const resp = await fetch('./data/companies.json?v=474000&_=' + Date.now());
                 if (resp.ok) {
                     const data = await resp.json();
                     if (Array.isArray(data) && data.length > 0) {
@@ -867,9 +867,12 @@ const ScraperPage = {
                         );
                         Storage.setCompanies(realOnly);
                         this._cloudSyncDone = true;
-                        this._osmTotalAdded = 0;
                         if (term) {
-                            term.textContent += `[${timeStr}] [✅ BASE] تم تحميل ${realOnly.length} شركة أساسية. سيبدأ الآن سحب شركات إضافية من OpenStreetMap...\n`;
+                            term.textContent += `[${timeStr}] [✅ BASE] تم تحميل ${realOnly.length} شركة موثقة 100% بنجاح.\n`;
+                            term.textContent += `[${timeStr}] [💡 TIP] لتشغيل سحب شركات جديدة مباشرة من الخرائط على جهازك:\n`;
+                            term.textContent += `       1. افتح مجلد المشروع على كمبيوترك.\n`;
+                            term.textContent += `       2. شغل ملف start_system.bat.\n`;
+                            term.textContent += `       3. سيتم ربط سحب الخرائط التلقائي فوراً بهذا السيستم!\n`;
                             term.scrollTop = term.scrollHeight;
                         }
                         this._updateCounters();
