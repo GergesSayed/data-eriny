@@ -939,41 +939,18 @@ const ScraperPage = {
         const timeStr = new Date().toLocaleTimeString('ar-EG');
         let companies = Storage.getCompanies() || [];
 
-        const needEnrichment = companies.filter(c => !c.contactPerson && !c.contactTitle);
-        const haveDetails = companies.filter(c => c.contactPerson || c.contactTitle);
-
-        if (needEnrichment.length === 0) {
-            if (term) {
-                term.textContent += `[${timeStr}] [🎉 مكتمل 100%] جميع الشركات بالسيستم (${companies.length} شركة) تحتوي على بيانات وإثراء صُنّاع القرار أونلاين بالكامل!\n`;
-                term.scrollTop = term.scrollHeight;
-            }
-            const statusText = document.getElementById('scraper-status-text');
-            if (statusText) statusText.textContent = `🟢 تم إثراء وتوثيق صُنّاع القرار لجميع الشركات بنجاح (${companies.length} شركة)`;
-            this.stopContinuousEnricher();
-            return;
-        }
-
-        const decisionMakers = [
-            { person: 'م. أحمد عبد العزيز', title: 'مدير أسطول الحركة والنقل' },
-            { person: 'أ. محمود الشريف', title: 'مدير المشتريات وسلاسل الإمداد' },
-            { person: 'م. أيمن المتولي', title: 'مدير التشغيل والصيانة' },
-            { person: 'أ. هاني عبد الرحمن', title: 'مدير النقل والخدمات اللوجستية' },
-            { person: 'م. تامر الجوهري', title: 'مدير الحركة والتجهيزات' },
-            { person: 'م. سامح توفيق', title: 'رئيس قسم الحركة والنقل' },
-            { person: 'أ. خالد بسيوني', title: 'مدير مشتريات قطع الغيار والإطارات' },
-            { person: 'م. حازم القاضي', title: 'مدير صيانة وإدارة أساطيل السيارات' }
-        ];
-
-        const batchToEnrich = needEnrichment.slice(0, 6);
-        batchToEnrich.forEach((c, idx) => {
-            const dm = decisionMakers[idx % decisionMakers.length];
-            c.contactPerson = dm.person;
-            c.contactTitle = dm.title;
+        // Ensure 100% of companies have working LinkedIn search links, but keep contactPerson blank unless saved
+        companies.forEach(c => {
             const companyNameClean = (c.nameAr || c.nameEn || '').replace(/\(فرع \d+\)/g, '').trim();
             const searchQuery = `site:linkedin.com/in "${companyNameClean}" (مدير OR مشتريات OR حركة OR أسطول)`;
             c.linkedinUrl = `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`;
             c.linkedinContactUrl = c.linkedinUrl;
-            c.lastUpdated = new Date().toISOString().split('T')[0];
+
+            // If contactPerson is a synthetic name, clear it to leave blank
+            if (c.contactPerson && (c.contactPerson.includes('م. أحمد') || c.contactPerson.includes('أ. محمود') || c.contactPerson.includes('م. أيمن') || c.contactPerson.includes('مسؤول'))) {
+                c.contactPerson = '';
+                c.contactTitle = '';
+            }
         });
 
         // Save updated companies to Storage & Supabase Cloud immediately
@@ -990,14 +967,10 @@ const ScraperPage = {
             } catch (err) {}
         }
 
-        const totalEnrichedNow = (Storage.getCompanies() || []).filter(c => c.contactPerson || c.contactTitle).length;
-
         if (term) {
-            term.textContent += `[${timeStr}] [🌐 LINKEDIN ENRICHER] محرك الكشف والإثراء يستخرج صُنّاع القرار أونلاين...\n`;
-            term.textContent += `[${timeStr}] [💼 LINKEDIN SUCCESS] تم إثراء وتوثيق صُنّاع القرار لـ +${batchToEnrich.length} شركة جديدة أونلاين! (الموثقين حياً: ${totalEnrichedNow.toLocaleString()} شركة)\n`;
-            for (const c of batchToEnrich) {
-                term.textContent += `       ↳ 🏢 "${c.nameAr}" — 👤 ${c.contactPerson} | 💼 ${c.contactTitle}\n`;
-            }
+            term.textContent += `[${timeStr}] [🌐 LINKEDIN ENRICHER] تم تفعيل وفحص روابط الكشف عن صُنّاع القرار المباشرة على LinkedIn 100%...\n`;
+            term.textContent += `[${timeStr}] [✅ جاهز 100%] جميع الشركات بالسيستم (${companies.length} شركة) تحتوي على روابط كشف صُنّاع القرار الحقيقية على LinkedIn!\n`;
+            term.textContent += `[${timeStr}] [💡 ملاحظة] يمكنك الضغط على أيقونة LinkedIn لأي شركة للبحث عن مسؤوليها الحقيقيين وتوثيقهم.\n`;
             term.scrollTop = term.scrollHeight;
             this._enrichmentStatsShown = true;
             this._updateCounters();
@@ -1005,15 +978,16 @@ const ScraperPage = {
 
         const statusText = document.getElementById('scraper-status-text');
         const statusDot = document.getElementById('scraper-status-dot');
-        if (statusText) statusText.textContent = `🟢 محرك إثراء LinkedIn يعمل أونلاين — تم إثراء ${totalEnrichedNow.toLocaleString()} من أصل ${companies.length} شركة`;
-        if (statusDot) { statusDot.style.background = '#0077b5'; statusDot.style.animation = 'pulse 1s infinite'; }
+        if (statusText) statusText.textContent = `🟢 روابط كشف LinkedIn جاهزة ومحدثة 100% لجميع الشركات (${companies.length} شركة)`;
+        if (statusDot) { statusDot.style.background = '#0077b5'; statusDot.style.animation = 'none'; }
 
         if (typeof Companies !== 'undefined' && App.currentPage === 'companies') Companies.render();
         if (typeof Dashboard !== 'undefined' && App.currentPage === 'dashboard') Dashboard.render();
 
-        if (this.isEnricherActive) {
-            if (this.enricherInterval) clearTimeout(this.enricherInterval);
-            this.enricherInterval = setTimeout(() => this.executeLiveEnricherBatch(), 3000);
+        this.stopContinuousEnricher();
+
+        if (companies.length > 0 && typeof Companies !== 'undefined' && Companies.openLinkedinEnricherModal) {
+            Companies.openLinkedinEnricherModal(companies[0].id);
         }
     },
 

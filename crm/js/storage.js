@@ -1070,34 +1070,22 @@ const AppStorage = {
             else if (c.fleetSize >= 50) c.priority = 'B';
             else c.priority = 'C';
 
-            // 4. Sanitize decision maker names, titles, and broken LinkedIn search URLs
-            const decisionMakersList = [
-                { person: 'م. أحمد عبد العزيز', title: 'مدير أسطول الحركة والنقل' },
-                { person: 'أ. محمود الشريف', title: 'مدير المشتريات وسلاسل الإمداد' },
-                { person: 'م. أيمن المتولي', title: 'مدير التشغيل والصيانة' },
-                { person: 'أ. هاني عبد الرحمن', title: 'مدير النقل والخدمات اللوجستية' },
-                { person: 'م. تامر الجوهري', title: 'مدير الحركة والتجهيزات' },
-                { person: 'م. سامح توفيق', title: 'رئيس قسم الحركة والنقل' },
-                { person: 'أ. خالد بسيوني', title: 'مدير مشتريات قطع الغيار والإطارات' },
-                { person: 'م. حازم القاضي', title: 'مدير صيانة وإدارة أساطيل السيارات' }
-            ];
-
-            const hash = (c.id || idx.toString()).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-            const dm = decisionMakersList[hash % decisionMakersList.length];
-
-            if (!c.contactPerson || c.contactPerson.includes(' مسؤول ') || c.contactPerson.includes('(') || c.contactPerson.includes(')')) {
-                c.contactPerson = dm.person;
-            }
-            if (!c.contactTitle || c.contactTitle.includes(' مسؤول ') || c.contactTitle.includes('(') || c.contactTitle.includes(')')) {
-                c.contactTitle = dm.title;
+            // 4. Clean decision maker fields — NO fake generated names. Leave blank if no real data saved.
+            if (c.contactPerson) {
+                const cp = String(c.contactPerson).trim();
+                if (cp.includes(' مسؤول ') || cp.includes('(') || cp.includes(')') || cp.includes('م. أحمد') || cp.includes('أ. محمود') || cp.includes('م. أيمن') || cp.includes('أ. هاني') || cp.includes('م. تامر') || cp.includes('م. سامح') || cp.includes('أ. خالد') || cp.includes('م. حازم')) {
+                    c.contactPerson = '';
+                    c.contactTitle = '';
+                }
+            } else {
+                c.contactPerson = '';
+                c.contactTitle = '';
             }
 
-            if (!c.linkedinUrl || c.linkedinUrl.includes('linkedin.com/search/results/people/')) {
-                const companyNameClean = (c.nameAr || c.nameEn || '').replace(/\(فرع \d+\)/g, '').trim();
-                const searchQuery = `site:linkedin.com/in "${companyNameClean}" (مدير OR مشتريات OR حركة OR أسطول)`;
-                c.linkedinUrl = `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`;
-                c.linkedinContactUrl = c.linkedinUrl;
-            }
+            const companyNameClean = (c.nameAr || c.nameEn || '').replace(/\(فرع \d+\)/g, '').trim();
+            const searchQuery = `site:linkedin.com/in "${companyNameClean}" (مدير OR مشتريات OR حركة OR أسطول)`;
+            c.linkedinUrl = `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`;
+            c.linkedinContactUrl = c.linkedinUrl;
 
             deduplicated.push(c);
         });
