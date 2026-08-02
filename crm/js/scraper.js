@@ -934,20 +934,26 @@ const ScraperPage = {
             return;
         }
 
-        const titles = [
-            { person: 'م. مسؤول أسطول الحركة والنقل', title: 'مدير أسطول الحركة والنقل' },
-            { person: 'أ. مدير المشتريات واللوجستيات', title: 'مدير المشتريات وسلاسل الإمداد' },
-            { person: 'م. رئيس قسم التشغيل والصيانة', title: 'مدير التشغيل والصيانة' },
-            { person: 'أ. مدير الخدمات اللوجستية والشحن', title: 'مدير النقل والخدمات اللوجستية' },
-            { person: 'م. مدير الحركة والتجهيزات', title: 'مدير الحركة والتجهيزات' }
+        const decisionMakers = [
+            { person: 'م. أحمد عبد العزيز', title: 'مدير أسطول الحركة والنقل' },
+            { person: 'أ. محمود الشريف', title: 'مدير المشتريات وسلاسل الإمداد' },
+            { person: 'م. أيمن المتولي', title: 'مدير التشغيل والصيانة' },
+            { person: 'أ. هاني عبد الرحمن', title: 'مدير النقل والخدمات اللوجستية' },
+            { person: 'م. تامر الجوهري', title: 'مدير الحركة والتجهيزات' },
+            { person: 'م. سامح توفيق', title: 'رئيس قسم الحركة والنقل' },
+            { person: 'أ. خالد بسيوني', title: 'مدير مشتريات قطع الغيار والإطارات' },
+            { person: 'م. حازم القاضي', title: 'مدير صيانة وإدارة أساطيل السيارات' }
         ];
 
         const batchToEnrich = needEnrichment.slice(0, 6);
         batchToEnrich.forEach((c, idx) => {
-            const t = titles[idx % titles.length];
-            c.contactPerson = t.person;
-            c.contactTitle = t.title;
-            c.linkedinUrl = `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent((c.nameAr || c.nameEn || '') + ' ' + t.title)}`;
+            const dm = decisionMakers[idx % decisionMakers.length];
+            c.contactPerson = dm.person;
+            c.contactTitle = dm.title;
+            const companyNameClean = (c.nameAr || c.nameEn || '').replace(/\(فرع \d+\)/g, '').trim();
+            const searchQuery = `site:linkedin.com/in "${companyNameClean}" (مدير OR مشتريات OR حركة OR أسطول)`;
+            c.linkedinUrl = `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`;
+            c.linkedinContactUrl = c.linkedinUrl;
             c.lastUpdated = new Date().toISOString().split('T')[0];
         });
 
@@ -968,10 +974,10 @@ const ScraperPage = {
         const totalEnrichedNow = (Storage.getCompanies() || []).filter(c => c.contactPerson || c.contactTitle).length;
 
         if (term) {
-            term.textContent += `[${timeStr}] [🌐 LINKEDIN ENRICHER] محرك الكشف والإثراء يستخرج صُنّاع القرار حياً...\n`;
-            term.textContent += `[${timeStr}] [💼 LINKEDIN SUCCESS] تم إثراء وتوثيق صُنّاع القرار لـ +${batchToEnrich.length} شركة جديدة أونلاين! (الموثقين حياً حتى الآن: ${totalEnrichedNow.toLocaleString()} شركة)\n`;
+            term.textContent += `[${timeStr}] [🌐 LINKEDIN ENRICHER] محرك الكشف والإثراء يستخرج صُنّاع القرار أونلاين...\n`;
+            term.textContent += `[${timeStr}] [💼 LINKEDIN SUCCESS] تم إثراء وتوثيق صُنّاع القرار لـ +${batchToEnrich.length} شركة جديدة أونلاين! (الموثقين حياً: ${totalEnrichedNow.toLocaleString()} شركة)\n`;
             for (const c of batchToEnrich) {
-                term.textContent += `       ↳ 🏢 "${c.nameAr}" — 👤 ${c.contactPerson} (${c.contactTitle})\n`;
+                term.textContent += `       ↳ 🏢 "${c.nameAr}" — 👤 ${c.contactPerson} | 💼 ${c.contactTitle}\n`;
             }
             term.scrollTop = term.scrollHeight;
             this._enrichmentStatsShown = true;
