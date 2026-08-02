@@ -351,13 +351,17 @@ const Companies = {
             const fleet = c.fleetSize ? `🚛 ${c.fleetSize}` : '—';
             const contact = esc(c.contactPerson || '—');
             const contactTitle = esc(c.contactTitle || '');
-            const linkedinLink = esc(typeof c.linkedinUrl === 'string' ? c.linkedinUrl : (typeof c.linkedin === 'string' ? c.linkedin : ''));
+            const linkedinRaw = typeof c.linkedinUrl === 'string' ? c.linkedinUrl : (typeof c.linkedin === 'string' ? c.linkedin : '');
+            const linkedinLink = (linkedinRaw && linkedinRaw.includes('linkedin.com') && !linkedinRaw.includes('google.com')) ? esc(linkedinRaw) : '';
             const linkedinIcon = linkedinLink ? ` <a href="${linkedinLink}" target="_blank" style="color: #0077b5; margin-right: 6px; font-size: 14px;" title="LinkedIn الشركة" onclick="event.stopPropagation();"><i class="fab fa-linkedin"></i></a>` : '';
+
             const facebookLink = esc(typeof c.facebook === 'string' ? c.facebook : '');
             const facebookIcon = facebookLink ? ` <a href="${facebookLink}" target="_blank" style="color: #1877f2; margin-right: 6px; font-size: 14px;" title="Facebook الشركة" onclick="event.stopPropagation();"><i class="fab fa-facebook-f"></i></a>` : '';
             const mapsLink = esc(typeof c.google_maps_url === 'string' ? c.google_maps_url : '');
             const mapsIcon = mapsLink ? ` <a href="${mapsLink}" target="_blank" style="color: #ea4335; margin-right: 6px; font-size: 14px;" title="موقع الشركة على خرائط جوجل" onclick="event.stopPropagation();"><i class="fas fa-map-marker-alt"></i></a>` : '';
-            const contactLinkedin = esc(typeof c.linkedinContactUrl === 'string' ? c.linkedinContactUrl : (typeof c.contactLinkedin === 'string' ? c.contactLinkedin : ''));
+
+            const contactLinkedinRaw = typeof c.linkedinContactUrl === 'string' ? c.linkedinContactUrl : (typeof c.contactLinkedin === 'string' ? c.contactLinkedin : '');
+            const contactLinkedin = (contactLinkedinRaw && contactLinkedinRaw.includes('linkedin.com') && !contactLinkedinRaw.includes('google.com')) ? esc(contactLinkedinRaw) : '';
             const contactLinkedinIcon = contactLinkedin ? ` <a href="${contactLinkedin}" target="_blank" style="color: #0077b5; margin-right: 6px; font-size: 12px;" title="LinkedIn المسؤول" onclick="event.stopPropagation();"><i class="fab fa-linkedin"></i></a>` : '';
 
             const isChecked = this.selectedCompanies && this.selectedCompanies.has(c.id) ? 'checked' : '';

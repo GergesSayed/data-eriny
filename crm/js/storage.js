@@ -1085,10 +1085,23 @@ const AppStorage = {
                 c.contactTitle = '';
             }
 
-            const companyNameClean = (c.nameAr || c.nameEn || '').replace(/\(فرع \d+\)/g, '').trim();
-            const searchQuery = `site:linkedin.com/in "${companyNameClean}" (مدير OR مشتريات OR حركة OR أسطول)`;
-            c.linkedinUrl = `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`;
-            c.linkedinContactUrl = c.linkedinUrl;
+            if (c.linkedinUrl) {
+                const lu = String(c.linkedinUrl).trim();
+                if (!lu.includes('linkedin.com') || lu.includes('google.com') || lu.includes('/search/')) {
+                    c.linkedinUrl = '';
+                }
+            } else {
+                c.linkedinUrl = '';
+            }
+
+            if (c.linkedinContactUrl) {
+                const lcu = String(c.linkedinContactUrl).trim();
+                if (!lcu.includes('linkedin.com') || lcu.includes('google.com') || lcu.includes('/search/')) {
+                    c.linkedinContactUrl = '';
+                }
+            } else {
+                c.linkedinContactUrl = '';
+            }
 
             deduplicated.push(c);
         });

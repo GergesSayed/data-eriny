@@ -939,12 +939,14 @@ const ScraperPage = {
         const timeStr = new Date().toLocaleTimeString('ar-EG');
         let companies = Storage.getCompanies() || [];
 
-        // Ensure 100% of companies have working LinkedIn search links, but keep contactPerson blank unless saved
+        // Clean LinkedIn URLs and decision maker fields — NO fake links or generated names
         companies.forEach(c => {
-            const companyNameClean = (c.nameAr || c.nameEn || '').replace(/\(فرع \d+\)/g, '').trim();
-            const searchQuery = `site:linkedin.com/in "${companyNameClean}" (مدير OR مشتريات OR حركة OR أسطول)`;
-            c.linkedinUrl = `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`;
-            c.linkedinContactUrl = c.linkedinUrl;
+            if (c.linkedinUrl && (c.linkedinUrl.includes('google.com') || c.linkedinUrl.includes('/search/'))) {
+                c.linkedinUrl = '';
+            }
+            if (c.linkedinContactUrl && (c.linkedinContactUrl.includes('google.com') || c.linkedinContactUrl.includes('/search/'))) {
+                c.linkedinContactUrl = '';
+            }
 
             if (c.contactPerson) {
                 const cp = String(c.contactPerson).trim();
