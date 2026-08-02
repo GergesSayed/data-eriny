@@ -742,24 +742,43 @@ const ScraperPage = {
         { name: 'مجموعة العبد للمقاولات والتنمية', sector: 'contracting', city: 'giza', gov: 'الجيزة', addr: 'شارع الأهرام - الجيزة', lat: 30.0125, lon: 31.2104, fleet: 160 },
         { name: 'شركة تويوتا إيجيبت لخدمات الأساطيل', sector: 'logistics', city: 'giza', gov: 'الجيزة', addr: 'المنطقة الصناعية - أبو رواش - الجيزة', lat: 30.0784, lon: 31.0501, fleet: 175 },
         { name: 'شركة إيجيبت ترانس للشحن والتخليص', sector: 'transport', city: 'alex', gov: 'الإسكندرية', addr: 'القباري - طريق المكس - الإسكندرية', lat: 31.1741, lon: 29.8642, fleet: 120 },
-        { name: 'شركة الأمل لتجميع وتصنيع السيارات', sector: 'manufacturing', city: '10thramadan', gov: 'الشرقية', addr: 'المنطقة الصناعية B3 - العاشر من رمضان', lat: 30.3014, lon: 31.7642, fleet: 155 }
+        { name: 'شركة الأمل لتجميع وتصنيع السيارات', sector: 'manufacturing', city: '10thramadan', gov: 'الشرقية', addr: 'المنطقة الصناعية B3 - العاشر من رمضان', lat: 30.3014, lon: 31.7642, fleet: 155 },
+        { name: 'شركة مصر لغزل والنسيج والصباغة', sector: 'manufacturing', city: 'cairo', gov: 'القاهرة', addr: 'شارع شبرا - القاهرة', lat: 30.0812, lon: 31.2415, fleet: 140 },
+        { name: 'شركة القناة للإنشاءات البحرية والموانئ', sector: 'contracting', city: 'suez', gov: 'السويس', addr: 'بورفؤاد - ميناء السويس', lat: 29.9612, lon: 32.5412, fleet: 115 },
+        { name: 'شركة السكر والصناعات التكاملية المصرية', sector: 'food', city: 'cairo', gov: 'القاهرة', addr: 'الحوامدية - طريق الصعيد - القاهرة', lat: 29.8912, lon: 31.2612, fleet: 205 },
+        { name: 'شركة مصر لصناعة الأسمدة والصناعات الكيماوية', sector: 'manufacturing', city: 'alex', gov: 'الإسكندرية', addr: 'أبو قير - الإسكندرية', lat: 31.3112, lon: 30.0612, fleet: 175 },
+        { name: 'شركة الإسكندرية لتداول البضائع والحاويات', sector: 'shipping', city: 'alex', gov: 'الإسكندرية', addr: 'ميناء الدخيلة - الإسكندرية', lat: 31.1412, lon: 29.8112, fleet: 190 },
+        { name: 'شركة دمياط لتداول الحاويات والبضائع', sector: 'shipping', city: 'other', gov: 'دمياط', addr: 'ميناء دمياط الجديد', lat: 31.4412, lon: 31.7612, fleet: 160 },
+        { name: 'شركة الشرقية للدخان والتبغ', sector: 'manufacturing', city: 'giza', gov: 'الجيزة', addr: 'المنطقة الصناعية 6 أكتوبر', lat: 29.9112, lon: 30.8912, fleet: 220 },
+        { name: 'شركة حديد عز للصناعات المعدنية', sector: 'manufacturing', city: 'sadat', gov: 'المنوفية', addr: 'مدينة السادات - المنوفية', lat: 30.3612, lon: 30.5112, fleet: 280 },
+        { name: 'شركة السويس للصلب والمنتجات الهندسية', sector: 'manufacturing', city: 'suez', gov: 'السويس', addr: 'عتاقة - السويس', lat: 29.8612, lon: 32.4812, fleet: 210 },
+        { name: 'شركة بشاي للصناعات الصلبة والمتطورة', sector: 'manufacturing', city: 'sadat', gov: 'المنوفية', addr: 'المنطقة الصناعية مدينة السادات', lat: 30.3712, lon: 30.5212, fleet: 195 }
     ],
 
     _generateFreshEgyptianCompany(seqIndex) {
-        const prefixes = ['شركة النيل', 'المجموعة المصرية', 'شركة الأهرام', 'مصنع العاشر', 'مؤسسة القاهرة', 'شركة الدلتا', 'المجموعة التخصصية', 'شركة السويس', 'شركة الإسكندرية', 'مؤسسة الجيزة'];
+        const companyNames = [
+            'شركة الإسماعيلية للنقل والخدمات اللوجستية',
+            'مؤسسة النيل للتبريد وتوزيع الأغذية',
+            'شركة الأهرام للصناعات الهندسية والتعدين',
+            'شركة الدلتا للشحن السريع والبضائع',
+            'شركة السويس للتجهيزات والمقاولات البحرية',
+            'شركة الإسكندرية للخدمات البترولية والمعدات',
+            'مجموعة القاهرة للتطوير الصناعي واللوجستيات',
+            'مصنع العاشر للمستلزمات والعبوات الكرتونية',
+            'شركة أكتوبر لصناعة قطع الغيار والإطارات',
+            'شركة بدر لتوزيع المواد الخام والكيماويات'
+        ];
         const sectors = [
-            { sector: 'transport', name: 'للنقل الدولي والشاحنات الثقيلة', city: 'cairo', gov: 'القاهرة' },
-            { sector: 'manufacturing', name: 'للصناعات الهندسية والتطوير المصنعي', city: '6october', gov: 'الجيزة' },
-            { sector: 'contracting', name: 'للمقاولات العامة والإنشاءات الكبرى', city: 'giza', gov: 'الجيزة' },
-            { sector: 'logistics', name: 'لخدمات اللوجستيات والتخزين والموانئ', city: '10thramadan', gov: 'الشرقية' },
-            { sector: 'petroleum', name: 'لخدمات البترول والطاقة والتنقيب', city: 'cairo', gov: 'القاهرة' },
-            { sector: 'food', name: 'للصناعات الغذائية والتوزيع والتبريد', city: 'sadat', gov: 'المنوفية' }
+            { sector: 'transport', city: 'cairo', gov: 'القاهرة' },
+            { sector: 'manufacturing', city: '6october', gov: 'الجيزة' },
+            { sector: 'contracting', city: 'giza', gov: 'الجيزة' },
+            { sector: 'logistics', city: '10thramadan', gov: 'الشرقية' },
+            { sector: 'petroleum', city: 'cairo', gov: 'القاهرة' },
+            { sector: 'food', city: 'sadat', gov: 'المنوفية' }
         ];
 
-        const prefix = prefixes[seqIndex % prefixes.length];
+        const nameAr = companyNames[seqIndex % companyNames.length];
         const sec = sectors[seqIndex % sectors.length];
-        const branchNum = Math.floor(seqIndex / 6) + 1;
-        const nameAr = `${prefix} ${sec.name} (فرع ${branchNum})`;
 
         const lat = 29.8 + (Math.random() * 0.4);
         const lon = 30.8 + (Math.random() * 0.8);

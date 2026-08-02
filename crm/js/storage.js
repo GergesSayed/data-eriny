@@ -1020,6 +1020,9 @@ const AppStorage = {
         companies.forEach((c, idx) => {
             if (!c || !c.nameAr) return;
 
+            // 0. Clean branch suffix from nameAr
+            c.nameAr = String(c.nameAr).replace(/\s*\(فرع \d+\)/g, '').trim();
+
             const nameKey = String(c.nameAr).trim().toLowerCase();
             const idKey = c.id ? String(c.id).trim() : null;
 
@@ -1079,16 +1082,14 @@ const AppStorage = {
                 { person: 'م. حازم القاضي', title: 'مدير صيانة وإدارة أساطيل السيارات' }
             ];
 
-            if (c.contactPerson) {
-                const cp = String(c.contactPerson).trim();
-                if (cp.includes(' مسؤول ') || cp.includes('(') || cp.includes(')')) {
-                    const hash = (c.id || idx.toString()).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-                    const dm = decisionMakersList[hash % decisionMakersList.length];
-                    c.contactPerson = dm.person;
-                    if (!c.contactTitle || c.contactTitle.includes(' مسؤول ')) {
-                        c.contactTitle = dm.title;
-                    }
-                }
+            const hash = (c.id || idx.toString()).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+            const dm = decisionMakersList[hash % decisionMakersList.length];
+
+            if (!c.contactPerson || c.contactPerson.includes(' مسؤول ') || c.contactPerson.includes('(') || c.contactPerson.includes(')')) {
+                c.contactPerson = dm.person;
+            }
+            if (!c.contactTitle || c.contactTitle.includes(' مسؤول ') || c.contactTitle.includes('(') || c.contactTitle.includes(')')) {
+                c.contactTitle = dm.title;
             }
 
             if (!c.linkedinUrl || c.linkedinUrl.includes('linkedin.com/search/results/people/')) {
