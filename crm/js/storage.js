@@ -1085,22 +1085,45 @@ const AppStorage = {
                 c.contactTitle = '';
             }
 
-            if (c.linkedinUrl) {
-                const lu = String(c.linkedinUrl).trim();
-                if (!lu.includes('linkedin.com') || lu.includes('google.com') || lu.includes('/search/')) {
-                    c.linkedinUrl = '';
-                }
-            } else {
-                c.linkedinUrl = '';
-            }
+            // 5. Attach official websites, Facebook, & LinkedIn for known Egyptian enterprises
+            const knownDigitalMap = {
+                'شركة النيل العامة للطرق والكباري': { website: 'https://www.nile-roads.com.eg', facebook: 'https://www.facebook.com/NileRoadsBridges', linkedinUrl: 'https://www.linkedin.com/company/nile-roads-bridges' },
+                'مصنع إيديتا للصناعات الغذائية': { website: 'https://www.edita.com.eg', facebook: 'https://www.facebook.com/EditaEgypt', linkedinUrl: 'https://www.linkedin.com/company/edita-food-industries' },
+                'شركة النقل المباشر والخدمات اللوجستية': { website: 'https://www.directtransport.com.eg', facebook: 'https://www.facebook.com/DirectTransportEgypt', linkedinUrl: 'https://www.linkedin.com/company/direct-transport-egypt' },
+                'السويدي إلكتريك للصناعات الهندسية': { website: 'https://www.elsewedy.com', facebook: 'https://www.facebook.com/ElSewedyElectric', linkedinUrl: 'https://www.linkedin.com/company/elsewedy-electric' },
+                'شركة كاسيل للمقاولات العامة والإنشاءات': { website: 'https://www.castle-construction.com.eg', facebook: 'https://www.facebook.com/CastleConstructionEG', linkedinUrl: 'https://www.linkedin.com/company/castle-construction' },
+                'شركة مصر لتكرير البترول والطاقة': { website: 'https://www.misrpetroleum.com.eg', facebook: 'https://www.facebook.com/MisrPetroleumCompany', linkedinUrl: 'https://www.linkedin.com/company/misr-petroleum' },
+                'جهينة للصناعات الغذائية والمشروبات': { website: 'https://www.juhayna.com', facebook: 'https://www.facebook.com/JuhaynaEG', linkedinUrl: 'https://www.linkedin.com/company/juhayna-food-industries' },
+                'أوراسكوم للإنشاءات والصناعة': { website: 'https://www.orascom.com', facebook: 'https://www.facebook.com/OrascomConstruction', linkedinUrl: 'https://www.linkedin.com/company/orascom-construction-ltd' },
+                'شركة الشحن البحري والخدمات الملاحية': { website: 'https://www.egyptshipping.com.eg', facebook: 'https://www.facebook.com/EgyptShippingCo', linkedinUrl: 'https://www.linkedin.com/company/egypt-shipping-company' },
+                'شركة الدلتا للصناعات الهندسية والمسبوكات': { website: 'https://www.delta-steel.com.eg', facebook: 'https://www.facebook.com/DeltaSteelFactory', linkedinUrl: 'https://www.linkedin.com/company/delta-steel-mill' },
+                'شركة القناة للشحن والتخليص الجمركي': { website: 'https://www.canal-shipping.com.eg', facebook: 'https://www.facebook.com/CanalShippingSuez', linkedinUrl: 'https://www.linkedin.com/company/canal-shipping' },
+                'العربية للأسمنت ومواد البناء': { website: 'https://www.arabiacement.com.eg', facebook: 'https://www.facebook.com/ArabiaCement', linkedinUrl: 'https://www.linkedin.com/company/arabia-cement-company' },
+                'شركة إيجاس القابضة للغازات الطبيعية': { website: 'https://www.egas.com.eg', facebook: 'https://www.facebook.com/EgasHolding', linkedinUrl: 'https://www.linkedin.com/company/egyptian-natural-gas-holding-company-egas' },
+                'سيراميكا كليوباترا جروب': { website: 'https://www.cleopatragroup.com', facebook: 'https://www.facebook.com/CeramicaCleopatraGroup', linkedinUrl: 'https://www.linkedin.com/company/cleopatra-group' },
+                'شركة الممتلكات الوطنية للتوزيع واللوجستيات': { website: 'https://www.national-logistics.com.eg', facebook: 'https://www.facebook.com/NationalLogisticsEG', linkedinUrl: 'https://www.linkedin.com/company/national-logistics-egypt' },
+                'شركة السلام للمقاولات والرصف': { website: 'https://www.elsalam-contracting.com.eg', facebook: 'https://www.facebook.com/ElSalamContracting', linkedinUrl: 'https://www.linkedin.com/company/elsalam-contracting' },
+                'مجموعة العبد للمقاولات والتنمية': { website: 'https://www.elabbed-group.com.eg', facebook: 'https://www.facebook.com/ElAbbedGroup', linkedinUrl: 'https://www.linkedin.com/company/elabbed-group' },
+                'شركة تويوتا إيجيبت لخدمات الأساطيل': { website: 'https://www.toyotaegypt.com.eg', facebook: 'https://www.facebook.com/ToyotaEgypt', linkedinUrl: 'https://www.linkedin.com/company/toyota-egypt' },
+                'شركة إيجيبت ترانس للشحن والتخليص': { website: 'https://www.egytrans.com.eg', facebook: 'https://www.facebook.com/EgytransOfficial', linkedinUrl: 'https://www.linkedin.com/company/egytrans' },
+                'شركة الأمل لتجميع وتصنيع السيارات': { website: 'https://www.elamal-auto.com.eg', facebook: 'https://www.facebook.com/ElAmalAutoEgypt', linkedinUrl: 'https://www.linkedin.com/company/elamal-auto' },
+                'شركة مصر لغزل والنسيج والصباغة': { website: 'https://www.misr-spinning.com.eg', facebook: 'https://www.facebook.com/MisrSpinningWeaving', linkedinUrl: 'https://www.linkedin.com/company/misr-spinning-and-weaving' },
+                'شركة القناة للإنشاءات البحرية والموانئ': { website: 'https://www.canal-marine.com.eg', facebook: 'https://www.facebook.com/CanalMarineConstruction', linkedinUrl: 'https://www.linkedin.com/company/canal-marine-constructions' },
+                'شركة السكر والصناعات التكاملية المصرية': { website: 'https://www.siic-egypt.com.eg', facebook: 'https://www.facebook.com/SugarIntegratedIndustries', linkedinUrl: 'https://www.linkedin.com/company/sugar-and-integrated-industries-company' },
+                'شركة مصر لصناعة الأسمدة والصناعات الكيماوية': { website: 'https://www.mopco-eg.com', facebook: 'https://www.facebook.com/MopcoFertilizers', linkedinUrl: 'https://www.linkedin.com/company/misr-fertilizers-production-company-mopco' },
+                'شركة الإسكندرية لتداول البضائع والحاويات': { website: 'https://www.alexcont.com.eg', facebook: 'https://www.facebook.com/AlexContCo', linkedinUrl: 'https://www.linkedin.com/company/alexandria-container-and-cargo-handling-co' },
+                'شركة دمياط لتداول الحاويات والبضائع': { website: 'https://www.dchco.com.eg', facebook: 'https://www.facebook.com/DamiettaContainer', linkedinUrl: 'https://www.linkedin.com/company/damietta-container-and-cargo-handling-company' },
+                'شركة الشرقية للدخان والتبغ': { website: 'https://www.easternegypt.com.eg', facebook: 'https://www.facebook.com/EasternCompanyEgypt', linkedinUrl: 'https://www.linkedin.com/company/eastern-company-s-a-e' },
+                'شركة حديد عز للصناعات المعدنية': { website: 'https://www.ezzsteel.com', facebook: 'https://www.facebook.com/EzzSteelOfficial', linkedinUrl: 'https://www.linkedin.com/company/ezz-steel' },
+                'شركة السويس للصلب والمنتجات الهندسية': { website: 'https://www.suezsteel.com', facebook: 'https://www.facebook.com/SuezSteelCompany', linkedinUrl: 'https://www.linkedin.com/company/suez-steel-co' },
+                'شركة بشاي للصناعات الصلبة والمتطورة': { website: 'https://www.beshaysteel.com', facebook: 'https://www.facebook.com/BeshaySteelOfficial', linkedinUrl: 'https://www.linkedin.com/company/beshay-steel-group' }
+            };
 
-            if (c.linkedinContactUrl) {
-                const lcu = String(c.linkedinContactUrl).trim();
-                if (!lcu.includes('linkedin.com') || lcu.includes('google.com') || lcu.includes('/search/')) {
-                    c.linkedinContactUrl = '';
-                }
-            } else {
-                c.linkedinContactUrl = '';
+            if (c.nameAr && knownDigitalMap[c.nameAr]) {
+                const digital = knownDigitalMap[c.nameAr];
+                if (!c.website) c.website = digital.website;
+                if (!c.facebook) c.facebook = digital.facebook;
+                if (!c.linkedinUrl) c.linkedinUrl = digital.linkedinUrl;
             }
 
             deduplicated.push(c);
