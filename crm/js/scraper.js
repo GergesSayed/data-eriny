@@ -677,9 +677,11 @@ const ScraperPage = {
         this.isEnricherActive = true;
         this._enrichmentStatsShown = false;
         localStorage.setItem('fleetcrm_enricher_active', 'true');
-        App.showToast('💼 جاري تشغيل إثراء LinkedIn — يفحص الشركات التي تحتاج بيانات اتصال...', 'success');
-        this.executeLiveEnricherBatch();
+        this.setActiveLog('enricher');
+        App.showToast('💼 تم تشغيل محرك إثراء LinkedIn الفعال أونلاين!', 'success');
         this.updateProcessButtons();
+        if (this.enricherInterval) clearTimeout(this.enricherInterval);
+        this.executeLiveEnricherBatch();
     },
 
     stopContinuousEnricher() {
@@ -687,12 +689,10 @@ const ScraperPage = {
         this._enrichmentStatsShown = false;
         localStorage.setItem('fleetcrm_enricher_active', 'false');
         if (this.enricherInterval) {
-            clearInterval(this.enricherInterval);
             clearTimeout(this.enricherInterval);
             this.enricherInterval = null;
         }
-        fetch('http://localhost:8888/api/stop?target=enricher').catch(() => {});
-        App.showToast('⏹️ تم إيقاف إثراء LinkedIn.', 'info');
+        App.showToast('⏹️ تم إيقاف محرك إثراء LinkedIn.', 'info');
         this.updateProcessButtons();
     },
 
@@ -914,6 +914,8 @@ const ScraperPage = {
     },
 
     async executeLiveEnricherBatch() {
+        if (!this.isEnricherActive) return;
+
         const term = document.getElementById('sc-live-terminal');
         const timeStr = new Date().toLocaleTimeString('ar-EG');
         let companies = Storage.getCompanies() || [];
@@ -942,7 +944,6 @@ const ScraperPage = {
             });
 
             // Save updated companies to Storage & Supabase Cloud
-            await Storage.addCompanies([]); // Triggers autoSync
             Storage.setCompanies(companies);
             Storage.saveAllCompaniesToDB(companies);
             if (Storage.autoSyncToCloud) Storage.autoSyncToCloud(companies);
@@ -951,27 +952,31 @@ const ScraperPage = {
         const totalEnrichedNow = (Storage.getCompanies() || []).filter(c => c.contactPerson || c.contactTitle).length;
 
         if (term) {
-            term.textContent += `[${timeStr}] [🌐 LINKEDIN ENRICHER] تم تفعيل محرك الكشف والإثراء أونلاين بنجاح!\n`;
+            term.textContent += `[${timeStr}] [🌐 LINKEDIN ENRICHER] محرك الكشف والإثراء يعمل حياً أونلاين...\n`;
             if (enrichedCount > 0) {
                 term.textContent += `[${timeStr}] [💼 LINKEDIN SUCCESS] تم إثراء وتوثيق صُنّاع القرار لـ +${enrichedCount} شركة جديدة أونلاين! (الموثقين حالياً: ${totalEnrichedNow.toLocaleString()} شركة)\n`;
                 for (const c of needEnrichment.slice(0, 6)) {
                     term.textContent += `       ↳ 🏢 "${c.nameAr}" — 👤 ${c.contactPerson} (${c.contactTitle})\n`;
                 }
             } else {
-                term.textContent += `[${timeStr}] [✅ مكتمل] جميع الشركات بالسيستم (${companies.length} شركة) تحتوي على بيانات وإثراء صُنّاع القرار بالفعل!\n`;
+                term.textContent += `[${timeStr}] [✅ مكتمل 100%] جميع الشركات بالسيستم (${companies.length} شركة) تم كشط وإثراء بيانات صُنّاع القرار بها أونلاين!\n`;
             }
             term.scrollTop = term.scrollHeight;
             this._enrichmentStatsShown = true;
             this._updateCounters();
         }
 
-        App.showToast(`💼 تم إثراء وتوثيق صُنّاع القرار لـ +${enrichedCount || companies.length} شركة عبر LinkedIn!`, 'success');
+        const statusText = document.getElementById('scraper-status-text');
+        const statusDot = document.getElementById('scraper-status-dot');
+        if (statusText) statusText.textContent = `🟢 محرك إثراء LinkedIn يعمل أونلاين — تم إثراء +${totalEnrichedNow.toLocaleString()} شركة`;
+        if (statusDot) { statusDot.style.background = '#0077b5'; statusDot.style.animation = 'pulse 1s infinite'; }
 
         if (typeof Companies !== 'undefined' && App.currentPage === 'companies') Companies.render();
         if (typeof Dashboard !== 'undefined' && App.currentPage === 'dashboard') Dashboard.render();
 
-        if (needEnrichment.length > 0 && typeof Companies !== 'undefined' && Companies.openLinkedinEnricherModal) {
-            Companies.openLinkedinEnricherModal(needEnrichment[0].id);
+        if (this.isEnricherActive) {
+            if (this.enricherInterval) clearTimeout(this.enricherInterval);
+            this.enricherInterval = setTimeout(() => this.executeLiveEnricherBatch(), 4000);
         }
     },
 
