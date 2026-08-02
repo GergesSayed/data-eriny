@@ -12,9 +12,39 @@ const Companies = {
 
     init() {
         this.viewMode = 'table';
+        this.populateSectorSelects();
         this.bindEvents();
         this.refreshUserFilter();
         this.render();
+    },
+
+    populateSectorSelects() {
+        const sectors = window.AppStorage ? window.AppStorage.SECTORS : null;
+        if (!sectors) return;
+
+        const filterSec = document.getElementById('filter-sector');
+        const modalSec = document.getElementById('company-sector');
+
+        let optionsHtml = '<option value="">كل القطاعات</option>';
+        let modalOptionsHtml = '<option value="">اختر القطاع</option>';
+
+        Object.keys(sectors).forEach(key => {
+            const s = sectors[key];
+            optionsHtml += `<option value="${key}">${s.icon} ${s.ar}</option>`;
+            modalOptionsHtml += `<option value="${key}">${s.icon} ${s.ar}</option>`;
+        });
+
+        if (filterSec) {
+            const curVal = filterSec.value;
+            filterSec.innerHTML = optionsHtml;
+            if (curVal) filterSec.value = curVal;
+        }
+
+        if (modalSec) {
+            const curValModal = modalSec.value;
+            modalSec.innerHTML = modalOptionsHtml;
+            if (curValModal) modalSec.value = curValModal;
+        }
     },
 
     refreshUserFilter() {
