@@ -961,25 +961,8 @@ const AppStorage = {
             }
 
             if (data.calls && Array.isArray(data.calls)) {
-                const localCalls = this.getCalls ? (this.getCalls() || []) : [];
-                const callMap = new Map();
-                localCalls.forEach(c => { if (c && c.id) callMap.set(String(c.id), c); });
-                data.calls.forEach(c => {
-                    if (c && c.id) {
-                        const key = String(c.id);
-                        if (!callMap.has(key)) {
-                            callMap.set(key, c);
-                        } else {
-                            const existing = callMap.get(key);
-                            callMap.set(key, { ...existing, ...c });
-                        }
-                    }
-                });
-                const mergedCalls = Array.from(callMap.values());
-                if (mergedCalls.length !== localCalls.length || JSON.stringify(mergedCalls) !== JSON.stringify(localCalls)) {
-                    this._set(this.KEYS.CALLS, mergedCalls);
-                    updated = true;
-                }
+                this._set(this.KEYS.CALLS, data.calls);
+                updated = true;
             }
 
             if (data.deals && Array.isArray(data.deals)) {
@@ -1577,6 +1560,7 @@ const AppStorage = {
     clearAllCalls() {
         this._set(this.KEYS.CALLS, []);
         this._set(this.KEYS.ACTIVITIES, []);
+        this.autoSyncToCloud(this.companiesMemory);
     },
 
     getTodaysCalls() {
