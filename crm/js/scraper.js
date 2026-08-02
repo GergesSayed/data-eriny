@@ -800,44 +800,13 @@ const ScraperPage = {
             }
         }
 
-        // ── STEP 2: Local server check notification ──
-        if (!this._cloudSyncDone) {
-            if (statusText) statusText.textContent = '🔄 جاري تحميل السجل الموحد (4,788 شركة موثقة)...';
-            if (term) {
-                term.textContent += `[${timeStr}] [🔄 INIT] جاري استدعاء وتأكيد السجل الموحد (4,788 شركة موثقة 100%)...\n`;
-                term.scrollTop = term.scrollHeight;
-            }
-            try {
-                const resp = await fetch('./data/companies.json?v=474000&_=' + Date.now());
-                if (resp.ok) {
-                    const data = await resp.json();
-                    if (Array.isArray(data) && data.length > 0) {
-                        const realOnly = data.filter(c => c && c.id &&
-                            !c.id.startsWith('sc_real_live_') &&
-                            !c.id.startsWith('cloud_imp_') &&
-                            !c.id.startsWith('sc_demo_') &&
-                            !c.website?.includes('fleetcobranch')
-                        );
-                        Storage.setCompanies(realOnly);
-                        this._cloudSyncDone = true;
-                        if (term) {
-                            term.textContent += `[${timeStr}] [✅ BASE] تم إطلاق المحرك الحي بنجاح.\n`;
-                            term.scrollTop = term.scrollHeight;
-                        }
-                        if (typeof Companies !== 'undefined' && App.currentPage === 'companies') Companies.render();
-                        if (typeof Dashboard !== 'undefined' && App.currentPage === 'dashboard') Dashboard.render();
-                    }
-                }
-            } catch(e) {}
-        }
-
-        // ── STEP 3: Continuous OSM scraping in batches ──
+        // ── STEP 3: Continuous Overpass GIS scraping ──
         if (this.isScraperActive) {
             await this._scrapeOSMBatch(term, timeStr, statusText, statusDot);
 
-            // Schedule next batch in 8 seconds
+            // Schedule next batch in 6 seconds
             if (this.isScraperActive) {
-                this.scraperInterval = setTimeout(() => this.executeLiveScraperBatch(), 8000);
+                this.scraperInterval = setTimeout(() => this.executeLiveScraperBatch(), 6000);
             }
         }
     },
@@ -867,7 +836,7 @@ const ScraperPage = {
         if (statusDot) { statusDot.style.background = '#10b981'; statusDot.style.animation = 'pulse 1s infinite'; }
 
         if (term) {
-            term.textContent += `[${timeStr}] [🌍 OVERPASS GIS ENGINE] جاري الاتصال بشركة الخرائط المفتوحة لاستخراج الدفعة الجديدة لمجالات النقل والمصانع والمقاولات...\n`;
+            term.textContent += `[${timeStr}] [🌍 OVERPASS GIS ENGINE] جاري استخراج شركات ومصانع مصر الحقيقية عبر الخرائط أونلاين...\n`;
             term.scrollTop = term.scrollHeight;
         }
 
@@ -884,17 +853,12 @@ const ScraperPage = {
         const targetBbox = bboxList[(this._osmQueryIndex || 0) % bboxList.length];
         this._osmQueryIndex = (this._osmQueryIndex || 0) + 1;
 
-        const overpassUrl = 'https://overpass-api.de/api/interpreter';
-        const queryBody = `[out:json][timeout:20];(node["industrial"](${targetBbox.box});node["office"="company"](${targetBbox.box});node["building"="industrial"](${targetBbox.box});node["amenity"="bus_station"](${targetBbox.box});node["shop"="car_repair"](${targetBbox.box}););out body 40;`;
+        const queryBody = `[out:json][timeout:15];(node["industrial"](${targetBbox.box});node["office"="company"](${targetBbox.box});node["building"="industrial"](${targetBbox.box});node["amenity"="bus_station"](${targetBbox.box});node["shop"="car_repair"](${targetBbox.box}););out body 50;`;
+        const overpassUrl = 'https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(queryBody);
 
         try {
             const resp = await fetch(overpassUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'Accept': 'application/json'
-                },
-                body: 'data=' + encodeURIComponent(queryBody),
+                headers: { 'Accept': 'application/json' },
                 signal: AbortSignal.timeout(15000)
             });
 
