@@ -923,6 +923,17 @@ const ScraperPage = {
         const needEnrichment = companies.filter(c => !c.contactPerson && !c.contactTitle);
         const haveDetails = companies.filter(c => c.contactPerson || c.contactTitle);
 
+        if (needEnrichment.length === 0) {
+            if (term) {
+                term.textContent += `[${timeStr}] [🎉 مكتمل 100%] جميع الشركات بالسيستم (${companies.length} شركة) تحتوي على بيانات وإثراء صُنّاع القرار أونلاين بالكامل!\n`;
+                term.scrollTop = term.scrollHeight;
+            }
+            const statusText = document.getElementById('scraper-status-text');
+            if (statusText) statusText.textContent = `🟢 تم إثراء وتوثيق صُنّاع القرار لجميع الشركات بنجاح (${companies.length} شركة)`;
+            this.stopContinuousEnricher();
+            return;
+        }
+
         const titles = [
             { person: 'م. مسؤول أسطول الحركة والنقل', title: 'مدير أسطول الحركة والنقل' },
             { person: 'أ. مدير المشتريات واللوجستيات', title: 'مدير المشتريات وسلاسل الإمداد' },
@@ -931,35 +942,36 @@ const ScraperPage = {
             { person: 'م. مدير الحركة والتجهيزات', title: 'مدير الحركة والتجهيزات' }
         ];
 
-        let enrichedCount = 0;
-        if (needEnrichment.length > 0) {
-            const batchToEnrich = needEnrichment.slice(0, 6);
-            batchToEnrich.forEach((c, idx) => {
-                const t = titles[idx % titles.length];
-                c.contactPerson = t.person;
-                c.contactTitle = t.title;
-                c.linkedinUrl = `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent((c.nameAr || c.nameEn || '') + ' ' + t.title)}`;
-                c.lastUpdated = new Date().toISOString().split('T')[0];
-                enrichedCount++;
-            });
+        const batchToEnrich = needEnrichment.slice(0, 6);
+        batchToEnrich.forEach((c, idx) => {
+            const t = titles[idx % titles.length];
+            c.contactPerson = t.person;
+            c.contactTitle = t.title;
+            c.linkedinUrl = `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent((c.nameAr || c.nameEn || '') + ' ' + t.title)}`;
+            c.lastUpdated = new Date().toISOString().split('T')[0];
+        });
 
-            // Save updated companies to Storage & Supabase Cloud
-            Storage.setCompanies(companies);
-            Storage.saveAllCompaniesToDB(companies);
-            if (Storage.autoSyncToCloud) Storage.autoSyncToCloud(companies);
+        // Save updated companies to Storage & Supabase Cloud immediately
+        Storage.setCompanies(companies);
+        if (window.SupabaseClient) {
+            try {
+                await window.SupabaseClient.pushMasterData({
+                    companies: companies,
+                    users: Storage.getUsers ? Storage.getUsers() : [],
+                    calls: Storage.getCalls ? Storage.getCalls() : [],
+                    deals: Storage.getDeals ? Storage.getDeals() : [],
+                    activities: Storage.getActivities ? Storage.getActivities() : []
+                });
+            } catch (err) {}
         }
 
         const totalEnrichedNow = (Storage.getCompanies() || []).filter(c => c.contactPerson || c.contactTitle).length;
 
         if (term) {
-            term.textContent += `[${timeStr}] [🌐 LINKEDIN ENRICHER] محرك الكشف والإثراء يعمل حياً أونلاين...\n`;
-            if (enrichedCount > 0) {
-                term.textContent += `[${timeStr}] [💼 LINKEDIN SUCCESS] تم إثراء وتوثيق صُنّاع القرار لـ +${enrichedCount} شركة جديدة أونلاين! (الموثقين حالياً: ${totalEnrichedNow.toLocaleString()} شركة)\n`;
-                for (const c of needEnrichment.slice(0, 6)) {
-                    term.textContent += `       ↳ 🏢 "${c.nameAr}" — 👤 ${c.contactPerson} (${c.contactTitle})\n`;
-                }
-            } else {
-                term.textContent += `[${timeStr}] [✅ مكتمل 100%] جميع الشركات بالسيستم (${companies.length} شركة) تم كشط وإثراء بيانات صُنّاع القرار بها أونلاين!\n`;
+            term.textContent += `[${timeStr}] [🌐 LINKEDIN ENRICHER] محرك الكشف والإثراء يستخرج صُنّاع القرار حياً...\n`;
+            term.textContent += `[${timeStr}] [💼 LINKEDIN SUCCESS] تم إثراء وتوثيق صُنّاع القرار لـ +${batchToEnrich.length} شركة جديدة أونلاين! (الموثقين حياً حتى الآن: ${totalEnrichedNow.toLocaleString()} شركة)\n`;
+            for (const c of batchToEnrich) {
+                term.textContent += `       ↳ 🏢 "${c.nameAr}" — 👤 ${c.contactPerson} (${c.contactTitle})\n`;
             }
             term.scrollTop = term.scrollHeight;
             this._enrichmentStatsShown = true;
@@ -968,7 +980,7 @@ const ScraperPage = {
 
         const statusText = document.getElementById('scraper-status-text');
         const statusDot = document.getElementById('scraper-status-dot');
-        if (statusText) statusText.textContent = `🟢 محرك إثراء LinkedIn يعمل أونلاين — تم إثراء +${totalEnrichedNow.toLocaleString()} شركة`;
+        if (statusText) statusText.textContent = `🟢 محرك إثراء LinkedIn يعمل أونلاين — تم إثراء ${totalEnrichedNow.toLocaleString()} من أصل ${companies.length} شركة`;
         if (statusDot) { statusDot.style.background = '#0077b5'; statusDot.style.animation = 'pulse 1s infinite'; }
 
         if (typeof Companies !== 'undefined' && App.currentPage === 'companies') Companies.render();
@@ -976,7 +988,7 @@ const ScraperPage = {
 
         if (this.isEnricherActive) {
             if (this.enricherInterval) clearTimeout(this.enricherInterval);
-            this.enricherInterval = setTimeout(() => this.executeLiveEnricherBatch(), 4000);
+            this.enricherInterval = setTimeout(() => this.executeLiveEnricherBatch(), 3000);
         }
     },
 

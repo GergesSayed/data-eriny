@@ -1089,10 +1089,14 @@ const AppStorage = {
         const clean = this.cleanAndFixCompanyData(companies || []);
         this.companiesMemory = clean;
         this.saveAllCompaniesToDB(clean);
+        if (this.autoSyncToCloud) this.autoSyncToCloud(clean);
     },
 
     addCompanies(newCompanies) {
-        if (!Array.isArray(newCompanies) || newCompanies.length === 0) return Promise.resolve();
+        if (!Array.isArray(newCompanies) || newCompanies.length === 0) {
+            if (this.autoSyncToCloud) this.autoSyncToCloud(this.companiesMemory);
+            return Promise.resolve();
+        }
 
         // 1. Always update memory and localStorage first so UI & scraper work 100% immediately
         newCompanies.forEach(c => {
@@ -1118,6 +1122,7 @@ const AppStorage = {
         });
 
         this.saveAllCompaniesToDB(this.companiesMemory);
+        if (this.autoSyncToCloud) this.autoSyncToCloud(this.companiesMemory);
 
         // 2. Safe IndexedDB write with version 3
         return new Promise((resolve) => {
