@@ -728,6 +728,83 @@ const Companies = {
         if (typeof Dashboard !== 'undefined') Dashboard.render();
     },
 
+    openLinkedinEnricherModal(id) {
+        const company = window.AppStorage.getCompany(id);
+        if (!company) {
+            App.showToast('⚠️ الشركة غير موجودة', 'error');
+            return;
+        }
+
+        let existingModal = document.getElementById('modal-linkedin-enricher');
+        if (existingModal) existingModal.remove();
+
+        const nameAr = company.nameAr || company.nameEn || '';
+        const linkedinSearchUrl = `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(nameAr + ' مدير الحركة والمشتريات')}`;
+        const googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent('site:linkedin.com/in "' + nameAr + '" (مدير OR مشتريات OR حركة)')}`;
+
+        const modalHtml = `
+            <div id="modal-linkedin-enricher" class="modal show" style="display:flex; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(15, 23, 42, 0.85); backdrop-filter:blur(8px); z-index:999999; align-items:center; justify-content:center;">
+                <div style="background:var(--bg-secondary); border:1px solid var(--border-color); width:92%; max-width:540px; border-radius:20px; padding:28px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5); text-align:right;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:1px solid var(--border-color); padding-bottom:12px;">
+                        <h3 style="margin:0; font-size:1.15rem; font-weight:800; color:#0077b5;"><i class="fab fa-linkedin" style="font-size:22px; margin-left:8px;"></i> محرك الكشف وإثراء المسؤولين عبر LinkedIn</h3>
+                        <button onclick="document.getElementById('modal-linkedin-enricher').remove()" style="background:none; border:none; color:var(--text-muted); font-size:18px; cursor:pointer;">✕</button>
+                    </div>
+
+                    <div style="background:rgba(0, 119, 181, 0.1); border:1px solid rgba(0, 119, 181, 0.3); border-radius:12px; padding:14px; margin-bottom:20px;">
+                        <div style="font-weight:800; font-size:0.95rem; color:#f8fafc; margin-bottom:4px;">🏢 شركة: ${company.nameAr}</div>
+                        <div style="font-size:0.8rem; color:#94a3b8;">📍 ${company.city || ''} — 🚛 أسطول: ${company.fleetSize || 0} سيارة — 📞 ${company.phone1 || company.mobile || 'بدون هاتف'}</div>
+                    </div>
+
+                    <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:20px;">
+                        <a href="${linkedinSearchUrl}" target="_blank" rel="noopener noreferrer" style="background:#0077b5; color:#fff; border:none; padding:12px 16px; border-radius:12px; font-weight:800; text-decoration:none; display:flex; align-items:center; justify-content:space-between; font-size:0.9rem; box-shadow:0 4px 15px rgba(0,119,181,0.3);">
+                            <span><i class="fab fa-linkedin" style="font-size:18px; margin-left:6px;"></i> البحث المباشر عن صُنّاع القرار بالشركة على LinkedIn</span>
+                            <i class="fas fa-external-link-alt"></i>
+                        </a>
+
+                        <a href="${googleSearchUrl}" target="_blank" rel="noopener noreferrer" style="background:var(--bg-tertiary); color:var(--text-primary); border:1px solid var(--border-color); padding:12px 16px; border-radius:12px; font-weight:700; text-decoration:none; display:flex; align-items:center; justify-content:space-between; font-size:0.85rem;">
+                            <span><i class="fab fa-google" style="color:#ea4335; margin-left:6px;"></i> البحث عن بروفايلات مديري الحركة عبر جوجل (Google LinkedIn Search)</span>
+                            <i class="fas fa-search"></i>
+                        </a>
+                    </div>
+
+                    <div style="border-top:1px solid var(--border-color); padding-top:16px;">
+                        <label style="font-size:0.85rem; font-weight:700; color:var(--text-primary); display:block; margin-bottom:6px;">حفظ اسم وتفاصيل المسؤول المكتشف في CRM:</label>
+                        <div style="display:flex; gap:8px; margin-bottom:12px;">
+                            <input type="text" id="li-contact-person" placeholder="اسم المسؤول (مثال: م. أحمد عبد العزيز)" value="${company.contactPerson || ''}" style="flex:1; padding:10px 14px; background:var(--bg-primary); border:1px solid var(--border-color); border-radius:10px; color:var(--text-primary); font-size:0.85rem;">
+                            <input type="text" id="li-contact-title" placeholder="المسمى الوظيفي (مثال: مدير الحركة)" value="${company.contactTitle || ''}" style="flex:1; padding:10px 14px; background:var(--bg-primary); border:1px solid var(--border-color); border-radius:10px; color:var(--text-primary); font-size:0.85rem;">
+                        </div>
+
+                        <button onclick="Companies.saveLinkedinEnrichment('${company.id}')" style="width:100%; background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; padding:12px; border-radius:12px; font-weight:800; cursor:pointer; font-size:0.9rem; box-shadow:0 4px 15px rgba(16,185,129,0.3);">
+                            <i class="fas fa-save" style="margin-left:6px;"></i> حفظ وتحديث بيانات المسؤول في السيستم أونلاين
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+    },
+
+    saveLinkedinEnrichment(id) {
+        const company = window.AppStorage.getCompany(id);
+        if (!company) return;
+
+        const personInput = document.getElementById('li-contact-person');
+        const titleInput = document.getElementById('li-contact-title');
+
+        company.contactPerson = personInput ? personInput.value.trim() : '';
+        company.contactTitle = titleInput ? titleInput.value.trim() : '';
+        company.lastUpdated = new Date().toISOString().split('T')[0];
+
+        window.AppStorage.saveCompany(company);
+
+        const modal = document.getElementById('modal-linkedin-enricher');
+        if (modal) modal.remove();
+
+        App.showToast('✅ تم حفظ بيانات المسؤول المكتشف وتحديثها بنجاح!', 'success');
+        this.render();
+    },
+
     // ---- CRUD ----
     openAddModal() {
         if (!window.AppStorage.isAdmin()) {
