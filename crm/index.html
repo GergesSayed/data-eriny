@@ -17,7 +17,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=23.0">
+    <link rel="stylesheet" href="css/style.css?v=24.0">
     <script>
         (function() {
             try {
@@ -425,20 +425,28 @@
                         <select id="filter-sector" class="filter-select" onchange="Companies.onFilterChange()">
                             <option value="">كل القطاعات</option>
                             <option value="transport">🚚 نقل وشحن</option>
-                            <option value="food">🥫 أغذية ومشروبات</option>
-                            <option value="pharma">💊 أدوية</option>
-                            <option value="construction">🏗️ مقاولات</option>
-                            <option value="petroleum">⛽ بترول وطاقة</option>
-                            <option value="distribution">📦 توزيع ولوجستيات</option>
-                            <option value="security">🛡️ أمن وحراسة</option>
-                            <option value="rental">🚗 تأجير سيارات</option>
-                            <option value="manufacturing">🏭 مصانع</option>
+                            <option value="food">🍔 أغذية ومشروبات</option>
+                            <option value="agri_investment">🌱 استثمار واستصلاح زراعي</option>
+                            <option value="pharma">💊 أدوية ومستلزمات طبية</option>
+                            <option value="construction">🏗️ مقاولات وتشييد</option>
+                            <option value="building_materials">🧱 مواد بناء وحديد وصلب</option>
+                            <option value="petroleum">🛢️ بترول وطاقة</option>
+                            <option value="renewable_energy">⚡ طاقة متجددة وكابلات</option>
+                            <option value="distribution">📦 توزيع وسلاسل إمداد</option>
+                            <option value="packaging_paper">📦 تعبئة وتغليف وورق</option>
+                            <option value="chemicals_plastic">🧪 كيماويات وبلاستيك ودهانات</option>
+                            <option value="real_estate_dev">🏬 تطوير واستثمار عقاري</option>
+                            <option value="textile_apparel">🧵 غزل ونسيج وملابس</option>
+                            <option value="waste_environment">♻️ إدارة مخلفات وتدوير</option>
+                            <option value="security">🛡️ أمن وحراسة ونقل أموال</option>
+                            <option value="rental">🚗 تأجير سيارات وأساطيل</option>
+                            <option value="manufacturing">🏭 مصانع وإنتاج صناعي</option>
                             <option value="education">🎓 مدارس وجامعات</option>
-                            <option value="healthcare">🏥 مستشفيات</option>
-                            <option value="tourism">🏨 سياحة</option>
-                            <option value="public_transport">🚌 نقل جماعي</option>
-                            <option value="delivery">🛵 توصيل ودليفري</option>
-                            <option value="government">🏛️ جهات حكومية</option>
+                            <option value="healthcare">🏥 مستشفيات ورعاية طبية</option>
+                            <option value="tourism">✈️ سياحة ونقل سياحي</option>
+                            <option value="public_transport">🚌 نقل جماعي وأتوبيسات</option>
+                            <option value="delivery">🛵 توصيل ودليفري سريع</option>
+                            <option value="government">🏛️ جهات وهيئات حكومية</option>
                         </select>
                     </div>
                     <div class="filter-group">
@@ -1123,21 +1131,29 @@
                                 <label for="company-sector">القطاع *</label>
                                 <select id="company-sector" required>
                                     <option value="">اختر القطاع</option>
-                                    <option value="transport">?? نقل وشحن</option>
-                                    <option value="food">?? أغذية ومشروبات</option>
-                                    <option value="pharma">?? أدوية</option>
-                                    <option value="construction">??? مقاولات</option>
-                                    <option value="petroleum">??? بترول وطاقة</option>
-                                    <option value="distribution">?? توزيع ولوجستيات</option>
-                                    <option value="security">??? أمن وحراسة</option>
-                                    <option value="rental">?? تأجير سيارات</option>
-                                    <option value="manufacturing">?? مصانع</option>
-                                    <option value="education">?? مدارس وجامعات</option>
-                                    <option value="healthcare">?? مستشفيات</option>
-                                    <option value="tourism">?? سياحة</option>
-                                    <option value="public_transport">?? نقل جماعي</option>
-                                    <option value="delivery">?? توصيل ودليفري</option>
-                                    <option value="government">??? جهات حكومية</option>
+                                    <option value="transport">🚚 نقل وشحن</option>
+                                    <option value="food">🍔 أغذية ومشروبات</option>
+                                    <option value="agri_investment">🌱 استثمار واستصلاح زراعي</option>
+                                    <option value="pharma">💊 أدوية ومستلزمات طبية</option>
+                                    <option value="construction">🏗️ مقاولات وتشييد</option>
+                                    <option value="building_materials">🧱 مواد بناء وحديد وصلب</option>
+                                    <option value="petroleum">🛢️ بترول وطاقة</option>
+                                    <option value="renewable_energy">⚡ طاقة متجددة وكابلات</option>
+                                    <option value="distribution">📦 توزيع وسلاسل إمداد</option>
+                                    <option value="packaging_paper">📦 تعبئة وتغليف وورق</option>
+                                    <option value="chemicals_plastic">🧪 كيماويات وبلاستيك ودهانات</option>
+                                    <option value="real_estate_dev">🏬 تطوير واستثمار عقاري</option>
+                                    <option value="textile_apparel">🧵 غزل ونسيج وملابس</option>
+                                    <option value="waste_environment">♻️ إدارة مخلفات وتدوير</option>
+                                    <option value="security">🛡️ أمن وحراسة ونقل أموال</option>
+                                    <option value="rental">🚗 تأجير سيارات وأساطيل</option>
+                                    <option value="manufacturing">🏭 مصانع وإنتاج صناعي</option>
+                                    <option value="education">🎓 مدارس وجامعات</option>
+                                    <option value="healthcare">🏥 مستشفيات ورعاية طبية</option>
+                                    <option value="tourism">✈️ سياحة ونقل سياحي</option>
+                                    <option value="public_transport">🚌 نقل جماعي وأتوبيسات</option>
+                                    <option value="delivery">🛵 توصيل ودليفري سريع</option>
+                                    <option value="government">🏛️ جهات وهيئات حكومية</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -1556,18 +1572,18 @@
         }
     </script>
 
-    <script src="js/supabase-client.js?v=23.0"></script>
-    <script src="js/storage.js?v=23.0"></script>
-    <script src="js/excel-handler.js?v=23.0"></script>
-    <script src="js/dashboard.js?v=23.0"></script>
-    <script src="js/companies.js?v=23.0"></script>
-    <script src="js/calls.js?v=23.0"></script>
-    <script src="js/pipeline.js?v=23.0"></script>
-    <script src="js/reports.js?v=23.0"></script>
-    <script src="js/scraper.js?v=23.0"></script>
-    <script src="js/team.js?v=23.0"></script>
-    <script src="js/settings.js?v=23.0"></script>
-    <script src="js/app.js?v=23.0"></script>
+    <script src="js/supabase-client.js?v=24.0"></script>
+    <script src="js/storage.js?v=24.0"></script>
+    <script src="js/excel-handler.js?v=24.0"></script>
+    <script src="js/dashboard.js?v=24.0"></script>
+    <script src="js/companies.js?v=24.0"></script>
+    <script src="js/calls.js?v=24.0"></script>
+    <script src="js/pipeline.js?v=24.0"></script>
+    <script src="js/reports.js?v=24.0"></script>
+    <script src="js/scraper.js?v=24.0"></script>
+    <script src="js/team.js?v=24.0"></script>
+    <script src="js/settings.js?v=24.0"></script>
+    <script src="js/app.js?v=24.0"></script>
 
     <!-- EMERGENCY: Guarantee save button always works regardless of cache -->
     <script>

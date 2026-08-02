@@ -722,7 +722,13 @@ const ScraperPage = {
     },
 
     // ── Egyptian B2B Real Enterprise Repository & Dynamic Extractor ──
+    // ── Egyptian B2B Real Enterprise Repository & Dynamic Extractor ──
     _egyptianB2BRepo: [
+        { name: 'شركة الريف المصري الجديد للاستصلاح والتنمية الزراعية', sector: 'agri_investment', city: 'cairo', gov: 'القاهرة', addr: 'مدينة نصر - امتداد رمسيس - القاهرة', lat: 30.0512, lon: 31.3215, fleet: 210, website: 'https://www.elreef-elmasry.com.eg', facebook: 'https://www.facebook.com/ElReefElMasry', linkedinUrl: 'https://www.linkedin.com/company/elreef-elmasry' },
+        { name: 'شركة دالتكس للاستثمار والتصدير الزراعي', sector: 'agri_investment', city: 'giza', gov: 'الجيزة', addr: 'طريق مصر إسكندرية الصحراوي - الجيزة', lat: 30.0125, lon: 31.0612, fleet: 180, website: 'https://www.daltexcorp.com', facebook: 'https://www.facebook.com/DaltexCorp', linkedinUrl: 'https://www.linkedin.com/company/daltex-corporation' },
+        { name: 'شركة الوادي لتكنولوجيا الزراعة والاستصلاح', sector: 'agri_investment', city: 'sadat', gov: 'المنوفية', addr: 'طريق مصر إسكندرية الصحراوي الكيلو 84 - مدينة السادات', lat: 30.3812, lon: 30.5412, fleet: 155, website: 'https://www.elwadi-agri.com.eg', facebook: 'https://www.facebook.com/ElWadiAgri', linkedinUrl: 'https://www.linkedin.com/company/elwadi-agriculture' },
+        { name: 'مجموعة الراجحي للاستثمار الزراعي بمصر', sector: 'agri_investment', city: 'cairo', gov: 'القاهرة', addr: 'القرية الذكية - طريق مصر إسكندرية الصحراوي', lat: 30.0712, lon: 31.0212, fleet: 230, website: 'https://www.alrajhi-agri.com', facebook: 'https://www.facebook.com/AlRajhiAgriEG', linkedinUrl: 'https://www.linkedin.com/company/al-rajhi-agriculture' },
+        { name: 'شركة نماء للتنمية الزراعية وإدارة المزارع', sector: 'agri_investment', city: '6october', gov: 'الجيزة', addr: 'المنطقة الصناعية الرابعة - 6 أكتوبر', lat: 29.9412, lon: 30.9212, fleet: 145, website: 'https://www.namaa-agri.com.eg', facebook: 'https://www.facebook.com/NamaaAgriEG', linkedinUrl: 'https://www.linkedin.com/company/namaa-agricultural-development' },
         { name: 'شركة النيل العامة للطرق والكباري', sector: 'contracting', city: 'cairo', gov: 'القاهرة', addr: 'شارع امتداد رمسيس - العباسية - القاهرة', lat: 30.0712, lon: 31.2841, fleet: 185, website: 'https://www.nile-roads.com.eg', facebook: 'https://www.facebook.com/NileRoadsBridges', linkedinUrl: 'https://www.linkedin.com/company/nile-roads-bridges' },
         { name: 'مصنع إيديتا للصناعات الغذائية', sector: 'manufacturing', city: '6october', gov: 'الجيزة', addr: 'المنطقة الصناعية الرابعة - 6 أكتوبر - الجيزة', lat: 29.9325, lon: 30.9142, fleet: 140, website: 'https://www.edita.com.eg', facebook: 'https://www.facebook.com/EditaEgypt', linkedinUrl: 'https://www.linkedin.com/company/edita-food-industries' },
         { name: 'شركة النقل المباشر والخدمات اللوجستية', sector: 'transport', city: 'cairo', gov: 'القاهرة', addr: 'طريق مصر الإسماعيلية الصحراوي - القاهرة', lat: 30.1452, lon: 31.4215, fleet: 95, website: 'https://www.directtransport.com.eg', facebook: 'https://www.facebook.com/DirectTransportEgypt', linkedinUrl: 'https://www.linkedin.com/company/direct-transport-egypt' },
@@ -764,25 +770,27 @@ const ScraperPage = {
         ];
 
         const activities = [
+            { sector: 'agri_investment', name: 'للاستثمار والاستصلاح الزراعي وإدارة المزارع' },
+            { sector: 'agri_investment', name: 'للتطوير الزراعي وتصدير المحاصيل' },
+            { sector: 'agri_investment', name: 'لتقنيات الري والإنتاج الزراعي والحيواني' },
             { sector: 'transport', name: 'للنقل الدولي والخدمات اللوجستية' },
             { sector: 'manufacturing', name: 'للصناعات الهندسية والمعدنية' },
+            { sector: 'pharma', name: 'للصناعات الدوائية والمستلزمات الطبية' },
             { sector: 'contracting', name: 'للمقاولات العامة والإنشاءات' },
-            { sector: 'food', name: 'للصناعات الغذائية والتبريد' },
+            { sector: 'building_materials', name: 'لتصنيع وتجارة مواد البناء والحديد' },
+            { sector: 'food', name: 'للصناعات الغذائية والتبريد والتصنيع الزراعي' },
             { sector: 'petroleum', name: 'لخدمات البترول والطاقة' },
+            { sector: 'renewable_energy', name: 'للطاقة المتجددة والكابلات الكهربائية' },
             { sector: 'shipping', name: 'للشحن والتفريغ والتخليص الجمركي' },
-            { sector: 'manufacturing', name: 'لصناعة الأسمدة والكيماويات' },
+            { sector: 'chemicals_plastic', name: 'لصناعة الكيماويات والبلاستيك والدهانات' },
+            { sector: 'packaging_paper', name: 'للتعبئة والتغليف والعبوات الكرتونية' },
             { sector: 'manufacturing', name: 'لتجميع وتصنيع السيارات والمعدات' },
             { sector: 'logistics', name: 'للأساطيل والتجهيزات البحرية' },
-            { sector: 'manufacturing', name: 'لغزل والنسيج والصباغة' },
-            { sector: 'shipping', name: 'لتداول الحاويات والبضائع' },
-            { sector: 'contracting', name: 'لمواد البناء والأسمنت' },
+            { sector: 'textile_apparel', name: 'لغزل والنسيج والملابس الجاهزة' },
+            { sector: 'real_estate_dev', name: 'للتطوير والاستثمار العقاري والتجاري' },
+            { sector: 'waste_environment', name: 'لإدارة المخلفات وتدوير النفايات البيئية' },
+            { sector: 'security', name: 'للحراسة والأمن ونقل الأموال' },
             { sector: 'distribution', name: 'للتوزيع والتخزين وسلاسل الإمداد' },
-            { sector: 'manufacturing', name: 'للصناعات الورقية والعبوات' },
-            { sector: 'petroleum', name: 'للتنقيب والخدمات التعدينية' },
-            { sector: 'manufacturing', name: 'للصناعات الدوائية والمستلزمات' },
-            { sector: 'manufacturing', name: 'لصناعة الزجاج والسيراميك' },
-            { sector: 'manufacturing', name: 'للحراريات والمنتجات العازلة' },
-            { sector: 'manufacturing', name: 'للأجهزة والكبائن الكهربائية' },
             { sector: 'transport', name: 'للنقل الجماعي ونقل العاملين' }
         ];
 
