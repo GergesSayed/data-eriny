@@ -43,11 +43,15 @@ const ScraperSettings = (() => {
         if (stored) {
             try {
                 config = JSON.parse(stored);
-                return;
             } catch(e) {}
         }
-        // Use embedded default config
-        config = getDefaultConfig();
+        if (!config) config = getDefaultConfig();
+        if (config && config.sectors) {
+            const defSecs = getDefaultConfig().sectors;
+            Object.keys(defSecs).forEach(k => {
+                if (!config.sectors[k]) config.sectors[k] = defSecs[k];
+            });
+        }
     }
 
     async function saveConfig() {
@@ -443,22 +447,29 @@ const ScraperSettings = (() => {
                 qalyubia: { enabled: true, name: 'القليوبية', cities: ['بنها', 'شبرا الخيمة', 'قليوب'] },
             },
             sectors: {
-                transport_freight: { enabled: true, priority: 'A+', name: 'نقل بضائع وشحن بري', queries: ['شركة نقل بضائع', 'شحن بري'] },
-                shipping: { enabled: true, priority: 'A+', name: 'شحن دولي', queries: ['شركة شحن', 'freight forwarding'] },
-                logistics: { enabled: true, priority: 'A+', name: 'لوجستيات', queries: ['شركة لوجستيات', 'logistics company'] },
-                courier: { enabled: true, priority: 'A+', name: 'شحن سريع', queries: ['شركة شحن سريع', 'courier company'] },
-                delivery: { enabled: true, priority: 'A+', name: 'توصيل', queries: ['شركة توصيل', 'delivery company'] },
-                bus_company: { enabled: true, priority: 'A+', name: 'نقل ركاب', queries: ['شركة أتوبيسات', 'نقل ركاب'] },
-                car_rental: { enabled: true, priority: 'A+', name: 'تأجير سيارات', queries: ['تأجير سيارات', 'car rental'] },
-                limousine: { enabled: true, priority: 'A+', name: 'ليموزين', queries: ['شركة ليموزين'] },
-                moving_company: { enabled: true, priority: 'A+', name: 'نقل أثاث', queries: ['شركة نقل اثاث'] },
-                refrigerated: { enabled: true, priority: 'A+', name: 'نقل مبرد', queries: ['نقل مبرد', 'cold chain'] },
-                security: { enabled: true, priority: 'A', name: 'أمن وحراسة', queries: ['شركة أمن', 'security company'] },
-                waste_management: { enabled: true, priority: 'A', name: 'إدارة مخلفات', queries: ['إدارة مخلفات', 'waste management'] },
-                food_factory: { enabled: true, priority: 'B', name: 'مصانع أغذية', queries: ['مصنع أغذية'] },
-                pharma_company: { enabled: true, priority: 'B', name: 'شركات أدوية', queries: ['شركة أدوية'] },
-                construction: { enabled: true, priority: 'B', name: 'مقاولات', queries: ['شركة مقاولات'] },
-                hospital: { enabled: true, priority: 'B', name: 'مستشفيات', queries: ['مستشفى خاص'] },
+                agri_investment: { enabled: true, priority: 'A+', name: '🌱 استثمار واستصلاح زراعي', queries: ['شركة استثمار زراعي', 'استصلاح اراضي', 'ادارة مزارع', 'تصدير زراعي'] },
+                transport_freight: { enabled: true, priority: 'A+', name: '🚚 نقل بضائع وشحن بري', queries: ['شركة نقل بضائع', 'شحن بري'] },
+                shipping: { enabled: true, priority: 'A+', name: '🚢 شحن دولي وتخليص', queries: ['شركة شحن', 'freight forwarding'] },
+                logistics: { enabled: true, priority: 'A+', name: '📦 لوجستيات وسلاسل إمداد', queries: ['شركة لوجستيات', 'logistics company'] },
+                building_materials: { enabled: true, priority: 'A+', name: '🧱 مواد بناء وحديد وصلب', queries: ['مصنع حديد', 'مواد بناء', 'رخام'] },
+                renewable_energy: { enabled: true, priority: 'A+', name: '⚡ طاقة متجددة وكابلات', queries: ['طاقة شمسية', 'كابلات كهربائية'] },
+                courier: { enabled: true, priority: 'A+', name: '🛵 شحن سريع وتوصيل', queries: ['شركة شحن سريع', 'courier company'] },
+                delivery: { enabled: true, priority: 'A+', name: '🛵 توصيل ودليفري', queries: ['شركة توصيل', 'delivery company'] },
+                bus_company: { enabled: true, priority: 'A+', name: '🚌 نقل ركاب وأتوبيسات', queries: ['شركة أتوبيسات', 'نقل ركاب'] },
+                car_rental: { enabled: true, priority: 'A+', name: '🚗 تأجير سيارات وأساطيل', queries: ['تأجير سيارات', 'car rental'] },
+                limousine: { enabled: true, priority: 'A+', name: '✈️ ليموزين ونقل سياحي', queries: ['شركة ليموزين'] },
+                moving_company: { enabled: true, priority: 'A+', name: '🚚 نقل وتغليف أثاث', queries: ['شركة نقل اثاث'] },
+                refrigerated: { enabled: true, priority: 'A+', name: '🧊 نقل مبرد وتبريد', queries: ['نقل مبرد', 'cold chain'] },
+                security: { enabled: true, priority: 'A', name: '🛡️ أمن وحراسة ونقل أموال', queries: ['شركة أمن', 'security company'] },
+                waste_management: { enabled: true, priority: 'A', name: '♻️ إدارة مخلفات وتدوير', queries: ['إدارة مخلفات', 'waste management'] },
+                food_factory: { enabled: true, priority: 'B', name: '🍔 مصانع أغذية ومشروبات', queries: ['مصنع أغذية', 'صناعات غذائية'] },
+                pharma_company: { enabled: true, priority: 'B', name: '💊 شركات وأدوية ومستلزمات', queries: ['شركة أدوية', 'مستلزمات طبية'] },
+                packaging_paper: { enabled: true, priority: 'B', name: '📦 تعبئة وتغليف وورق', queries: ['مصنع كرتون', 'تعبئة وتغليف'] },
+                chemicals_plastic: { enabled: true, priority: 'B', name: '🧪 كيماويات وبلاستيك ودهانات', queries: ['مصنع بلاستيك', 'كيماويات'] },
+                real_estate_dev: { enabled: true, priority: 'B', name: '🏬 تطوير واستثمار عقاري', queries: ['تطوير عقاري', 'استثمار عقاري'] },
+                textile_apparel: { enabled: true, priority: 'B', name: '🧵 غزل ونسيج وملابس', queries: ['مصنع ملابس', 'غزل ونسيج'] },
+                construction: { enabled: true, priority: 'B', name: '🏗️ مقاولات وتشييد', queries: ['شركة مقاولات'] },
+                hospital: { enabled: true, priority: 'B', name: '🏥 مستشفيات ورعاية طبية', queries: ['مستشفى خاص'] },
             },
             performance: {
                 delay_min: 4, delay_max: 9,
