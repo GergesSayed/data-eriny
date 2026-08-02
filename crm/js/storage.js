@@ -158,6 +158,7 @@ const AppStorage = {
             user.role = role;
             this._set(this.KEYS.USERS, users);
             this.addActivity('auth', 'admin', 'موافقة على مستخدم', `تم اعتماد تفعيل حساب: ${user.name} كـ ${role === 'admin' ? 'مدير' : 'موظف مبيعات'}`);
+            this._syncUsersToCloud();
         }
         return user;
     },
@@ -167,6 +168,7 @@ const AppStorage = {
         const updated = users.filter(u => u.id !== userId);
         this._set(this.KEYS.USERS, updated);
         this.addActivity('auth', 'admin', 'رفض مستخدم', `تم رفض طلب التسجيل لـ: ${userId}`);
+        this._syncUsersToCloud();
     },
 
     toggleUserFreeze(userId) {
@@ -175,6 +177,7 @@ const AppStorage = {
         if (user && user.id !== 'admin') {
             user.status = user.status === 'frozen' ? 'active' : 'frozen';
             this._set(this.KEYS.USERS, users);
+            this._syncUsersToCloud();
         }
         return user;
     },
@@ -479,6 +482,7 @@ const AppStorage = {
         users = users.filter(u => u.id !== id);
         this._set(this.KEYS.USERS, users);
         this.addActivity('user', id, 'حذف موظف', `حذف معرّف الحساب: ${id}`);
+        this._syncUsersToCloud();
         return { success: true };
     },
 
@@ -952,29 +956,8 @@ const AppStorage = {
             }
 
             if (data.users && Array.isArray(data.users) && data.users.length > 0) {
-                const localUsers = this.getUsers ? this.getUsers() : [];
-                let usersChanged = false;
-                
-                data.users.forEach(cu => {
-                    const localUser = localUsers.find(lu => lu.id === cu.id || lu.email === cu.email);
-                    if (!localUser) {
-                        // New user from cloud — add it
-                        localUsers.push(cu);
-                        usersChanged = true;
-                    } else if (!localUser.password || !localUser.password.includes(':')) {
-                        // Local has plaintext or no password — trust cloud
-                        if (cu.password && cu.password !== localUser.password) {
-                            localUser.password = cu.password;
-                            usersChanged = true;
-                        }
-                    }
-                    // If local has hashed password: KEEP IT (preserves password changes)
-                });
-                
-                if (usersChanged) {
-                    this._set(this.KEYS.USERS, localUsers);
-                    updated = true;
-                }
+                this._set(this.KEYS.USERS, data.users);
+                updated = true;
             }
 
             if (data.calls && Array.isArray(data.calls)) {
