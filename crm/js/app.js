@@ -514,31 +514,7 @@ const App = {
     },
 
     async autoImportScrapedData() {
-        if (localStorage.getItem('fleetcrm_user_wiped_companies') === 'true') return;
-        try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 1500);
-            const statsResp = await fetch('http://localhost:8888/api/scraper-stats?' + Date.now(), { signal: controller.signal });
-            clearTimeout(timeoutId);
-            if (!statsResp.ok) return;
-            const stats = await statsResp.json();
-
-            // Calculate total from sector stats object
-            let scraperTotal = 0;
-            if (stats.stats && typeof stats.stats === 'object') {
-                scraperTotal = Object.values(stats.stats).reduce((s, v) => s + (Number(v) || 0), 0);
-            }
-            if (!scraperTotal && stats.total) scraperTotal = Number(stats.total);
-
-            const dbTotal = window.AppStorage.getCompanies().length;
-
-            // Import only if scraper has strictly more companies than DB
-            if (scraperTotal > dbTotal) {
-                await this.forceImportNow(stats);
-            }
-        } catch (err) {
-            console.log('Scraper auto-import skipped:', err.message);
-        }
+        return;
     },
 
     async forceImportNow(stats) {
@@ -547,19 +523,6 @@ const App = {
         }
         try {
             let data = null;
-            // 1. Try local scraper server first if running locally
-            try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 1200);
-                const SCRAPER_URL = 'http://localhost:8888/output/crm_import_ready.json';
-                const resp = await fetch(SCRAPER_URL + '?' + Date.now(), { signal: controller.signal });
-                clearTimeout(timeoutId);
-                if (resp.ok) {
-                    data = await resp.json();
-                }
-            } catch (e) {
-                // Local scraper not available
-            }
 
             // 2. Fallback to bundled cloud dataset ./data/companies.json (skip on mobile — 4MB)
             if (!Array.isArray(data) || data.length === 0) {
