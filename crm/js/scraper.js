@@ -946,8 +946,13 @@ const ScraperPage = {
             c.linkedinUrl = `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`;
             c.linkedinContactUrl = c.linkedinUrl;
 
-            // If contactPerson is a synthetic name, clear it to leave blank
-            if (c.contactPerson && (c.contactPerson.includes('م. أحمد') || c.contactPerson.includes('أ. محمود') || c.contactPerson.includes('م. أيمن') || c.contactPerson.includes('مسؤول'))) {
+            if (c.contactPerson) {
+                const cp = String(c.contactPerson).trim();
+                if (cp.includes('مدير') || cp.includes('مسؤول') || cp.includes('رئيس') || cp.includes('قسم') || cp.includes('أسطول') || cp.includes('حركة') || cp.includes('مشتريات') || cp.includes('لوجستيات') || cp.includes('صيانة') || cp.includes('تشغيل') || cp.includes('تجهيزات') || cp.includes('(') || cp.includes(')') || cp.includes('م. أحمد') || cp.includes('أ. محمود') || cp.includes('م. أيمن') || cp.includes('أ. هاني') || cp.includes('م. تامر') || cp.includes('م. سامح') || cp.includes('أ. خالد') || cp.includes('م. حازم')) {
+                    c.contactPerson = '';
+                    c.contactTitle = '';
+                }
+            } else {
                 c.contactPerson = '';
                 c.contactTitle = '';
             }

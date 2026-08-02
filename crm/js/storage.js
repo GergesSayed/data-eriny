@@ -1070,15 +1070,18 @@ const AppStorage = {
             else if (c.fleetSize >= 50) c.priority = 'B';
             else c.priority = 'C';
 
-            // 4. Clean decision maker fields — NO fake generated names. Leave blank if no real data saved.
+            // 4. Clean decision maker fields — PURGE ALL generated titles/role strings. Leave strictly blank unless real name exists.
             if (c.contactPerson) {
                 const cp = String(c.contactPerson).trim();
-                if (cp.includes(' مسؤول ') || cp.includes('(') || cp.includes(')') || cp.includes('م. أحمد') || cp.includes('أ. محمود') || cp.includes('م. أيمن') || cp.includes('أ. هاني') || cp.includes('م. تامر') || cp.includes('م. سامح') || cp.includes('أ. خالد') || cp.includes('م. حازم')) {
+                if (cp.includes('مدير') || cp.includes('مسؤول') || cp.includes('رئيس') || cp.includes('قسم') || cp.includes('أسطول') || cp.includes('حركة') || cp.includes('مشتريات') || cp.includes('لوجستيات') || cp.includes('صيانة') || cp.includes('تشغيل') || cp.includes('تجهيزات') || cp.includes('(') || cp.includes(')') || cp.includes('م. أحمد') || cp.includes('أ. محمود') || cp.includes('م. أيمن') || cp.includes('أ. هاني') || cp.includes('م. تامر') || cp.includes('م. سامح') || cp.includes('أ. خالد') || cp.includes('م. حازم')) {
                     c.contactPerson = '';
                     c.contactTitle = '';
                 }
             } else {
                 c.contactPerson = '';
+                c.contactTitle = '';
+            }
+            if (!c.contactPerson) {
                 c.contactTitle = '';
             }
 
