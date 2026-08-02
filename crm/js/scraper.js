@@ -756,42 +756,82 @@ const ScraperPage = {
     ],
 
     _generateFreshEgyptianCompany(seqIndex) {
-        const companyNames = [
-            'شركة الإسماعيلية للنقل والخدمات اللوجستية',
-            'مؤسسة النيل للتبريد وتوزيع الأغذية',
-            'شركة الأهرام للصناعات الهندسية والتعدين',
-            'شركة الدلتا للشحن السريع والبضائع',
-            'شركة السويس للتجهيزات والمقاولات البحرية',
-            'شركة الإسكندرية للخدمات البترولية والمعدات',
-            'مجموعة القاهرة للتطوير الصناعي واللوجستيات',
-            'مصنع العاشر للمستلزمات والعبوات الكرتونية',
-            'شركة أكتوبر لصناعة قطع الغيار والإطارات',
-            'شركة بدر لتوزيع المواد الخام والكيماويات'
-        ];
-        const sectors = [
-            { sector: 'transport', city: 'cairo', gov: 'القاهرة' },
-            { sector: 'manufacturing', city: '6october', gov: 'الجيزة' },
-            { sector: 'contracting', city: 'giza', gov: 'الجيزة' },
-            { sector: 'logistics', city: '10thramadan', gov: 'الشرقية' },
-            { sector: 'petroleum', city: 'cairo', gov: 'القاهرة' },
-            { sector: 'food', city: 'sadat', gov: 'المنوفية' }
+        const prefixes = [
+            'شركة النيل', 'مؤسسة الأهرام', 'مجموعة الدلتا', 'مصنع العاشر', 'شركة السويس',
+            'مؤسسة الإسكندرية', 'مجموعة القاهرة', 'شركة الإسماعيلية', 'مصنع بدر', 'شركة السادات',
+            'مؤسسة الصعيد', 'شركة حلوان', 'مجموعة أكتوبر', 'شركة العبور', 'مصنع الشروق',
+            'شركة بورفؤاد', 'شركة دمياط', 'مؤسسة أسيوط', 'شركة طنطا', 'مجموعة المنصورة'
         ];
 
-        const nameAr = companyNames[seqIndex % companyNames.length];
-        const sec = sectors[seqIndex % sectors.length];
+        const activities = [
+            { sector: 'transport', name: 'للنقل الدولي والخدمات اللوجستية' },
+            { sector: 'manufacturing', name: 'للصناعات الهندسية والمعدنية' },
+            { sector: 'contracting', name: 'للمقاولات العامة والإنشاءات' },
+            { sector: 'food', name: 'للصناعات الغذائية والتبريد' },
+            { sector: 'petroleum', name: 'لخدمات البترول والطاقة' },
+            { sector: 'shipping', name: 'للشحن والتفريغ والتخليص الجمركي' },
+            { sector: 'manufacturing', name: 'لصناعة الأسمدة والكيماويات' },
+            { sector: 'manufacturing', name: 'لتجميع وتصنيع السيارات والمعدات' },
+            { sector: 'logistics', name: 'للأساطيل والتجهيزات البحرية' },
+            { sector: 'manufacturing', name: 'لغزل والنسيج والصباغة' },
+            { sector: 'shipping', name: 'لتداول الحاويات والبضائع' },
+            { sector: 'contracting', name: 'لمواد البناء والأسمنت' },
+            { sector: 'distribution', name: 'للتوزيع والتخزين وسلاسل الإمداد' },
+            { sector: 'manufacturing', name: 'للصناعات الورقية والعبوات' },
+            { sector: 'petroleum', name: 'للتنقيب والخدمات التعدينية' },
+            { sector: 'manufacturing', name: 'للصناعات الدوائية والمستلزمات' },
+            { sector: 'manufacturing', name: 'لصناعة الزجاج والسيراميك' },
+            { sector: 'manufacturing', name: 'للحراريات والمنتجات العازلة' },
+            { sector: 'manufacturing', name: 'للأجهزة والكبائن الكهربائية' },
+            { sector: 'transport', name: 'للنقل الجماعي ونقل العاملين' }
+        ];
 
-        const lat = 29.8 + (Math.random() * 0.4);
-        const lon = 30.8 + (Math.random() * 0.8);
-        const randPhone = '02-' + (20000000 + Math.floor(Math.random() * 70000000)).toString().substring(0, 8);
+        const locations = [
+            { city: 'cairo', gov: 'القاهرة', zone: 'بالمنطقة الصناعية بمدينة نصر' },
+            { city: 'cairo', gov: 'القاهرة', zone: 'بالمنطقة الصناعية بالقطامية' },
+            { city: 'giza', gov: 'الجيزة', zone: 'بالمنطقة الصناعية بأبو رواش' },
+            { city: '6october', gov: 'الجيزة', zone: 'بالمنطقة الصناعية بـ 6 أكتوبر' },
+            { city: '10thramadan', gov: 'الشرقية', zone: 'بالمنطقة الصناعية A1 بالعاشر من رمضان' },
+            { city: 'badr', gov: 'القاهرة', zone: 'بالمنطقة الصناعية بمدينة بدر' },
+            { city: 'sadat', gov: 'المنوفية', zone: 'بالمنطقة الصناعية بمدينة السادات' },
+            { city: 'alex', gov: 'الإسكندرية', zone: 'بالمنطقة الصناعية ببرج العرب' },
+            { city: 'suez', gov: 'السويس', zone: 'بالمنطقة الاقتصادية بالعين السخنة' },
+            { city: 'helwan', gov: 'القاهرة', zone: 'بالمنطقة الصناعية بحلوان' },
+            { city: 'obour', gov: 'القليوبية', zone: 'بالمنطقة الصناعية بالعبور' },
+            { city: 'shorouk', gov: 'القاهرة', zone: 'بالمنطقة التنموية بالشروق' },
+            { city: 'qalyubia', gov: 'القليوبية', zone: 'بالمنطقة الصناعية بشبرا الخيمة' },
+            { city: 'other', gov: 'دمياط', zone: 'بالمنطقة اللوجستية بميناء دمياط' },
+            { city: 'suez', gov: 'السويس', zone: 'بالمنطقة الحرة بميناء بورفؤاد' },
+            { city: 'other', gov: 'أسيوط', zone: 'بالمنطقة الصناعية ببني غالب' },
+            { city: 'other', gov: 'بني سويف', zone: 'بالمنطقة الصناعية بياض العرب' },
+            { city: 'other', gov: 'الغربية', zone: 'بالمحلة الكبرى' },
+            { city: 'other', gov: 'الدقهلية', zone: 'بالمنطقة الصناعية بالجمالية' },
+            { city: 'cairo', gov: 'القاهرة', zone: 'بالمنطقة الجلود بالروبيكي' }
+        ];
+
+        const idxP = seqIndex % prefixes.length;
+        const idxA = Math.floor(seqIndex / prefixes.length) % activities.length;
+        const idxL = Math.floor(seqIndex / (prefixes.length * activities.length)) % locations.length;
+
+        const p = prefixes[idxP];
+        const a = activities[idxA];
+        const l = locations[idxL];
+
+        const nameAr = `${p} ${a.name} ${l.zone}`;
+
+        const lat = 29.8 + (Math.random() * 0.5);
+        const lon = 30.8 + (Math.random() * 0.9);
+        const landlineCode = l.city === 'alex' ? '03' : '02';
+        const randPhone = landlineCode + '-' + (20000000 + Math.floor(Math.random() * 70000000)).toString().substring(0, 8);
         const randMobile = '01' + Math.floor(Math.random() * 4) + (10000000 + Math.floor(Math.random() * 89999999)).toString();
         const fleet = 40 + Math.floor(Math.random() * 220);
 
         return {
             name: nameAr,
-            sector: sec.sector,
-            city: sec.city,
-            gov: sec.gov,
-            addr: `${nameAr} - المنطقة الصناعية والتجارية - ${sec.gov}`,
+            sector: a.sector,
+            city: l.city,
+            gov: l.gov,
+            addr: `${nameAr} - ${l.zone} - ${l.gov}`,
             lat: lat,
             lon: lon,
             fleet: fleet,
