@@ -47,6 +47,53 @@ const Companies = {
         }
     },
 
+    renderSectorPills() {
+        const container = document.getElementById('sector-quick-pills-bar');
+        if (!container) return;
+
+        const allCompanies = window.AppStorage.getCompanies() || [];
+        const sectors = window.AppStorage.SECTORS;
+        if (!sectors) return;
+
+        const sectorCounts = {};
+        allCompanies.forEach(c => {
+            const secKey = c.sector || 'other';
+            sectorCounts[secKey] = (sectorCounts[secKey] || 0) + 1;
+        });
+
+        const activeSector = document.getElementById('filter-sector')?.value || '';
+
+        let html = `<span style="font-size: 13px; font-weight: 800; color: #38bdf8; margin-left: 6px;"><i class="fas fa-layer-group" style="color:#38bdf8;"></i> قطاعات الأعمال والإنتاج (اضغط للتصفية المباشرة):</span>`;
+        
+        const isAllActive = !activeSector ? 'active' : '';
+        const allStyle = !activeSector 
+            ? 'background: rgba(56, 189, 248, 0.3); color: #7dd3fc; border: 1px solid #38bdf8; font-weight: 800;'
+            : 'background: rgba(30, 41, 59, 0.6); color: #94a3b8; border: 1px solid #475569;';
+
+        html += `<button type="button" class="btn btn-sm sector-pill ${isAllActive}" onclick="Companies.setSectorFilter('', this)" style="${allStyle} border-radius: 20px; font-size: 12px; padding: 5px 13px; cursor: pointer; transition: all 0.2s;">🌐 جميع القطاعات (${allCompanies.length})</button>`;
+
+        Object.keys(sectors).forEach(key => {
+            const s = sectors[key];
+            const count = sectorCounts[key] || 0;
+            const isActive = activeSector === key;
+            const pillStyle = isActive 
+                ? 'background: rgba(16, 185, 129, 0.3); color: #6ee7b7; border: 1px solid #10b981; font-weight: 800;' 
+                : 'background: rgba(30, 41, 59, 0.6); color: #cbd5e1; border: 1px solid #475569;';
+
+            html += `<button type="button" class="btn btn-sm sector-pill ${isActive ? 'active' : ''}" onclick="Companies.setSectorFilter('${key}', this)" style="${pillStyle} border-radius: 20px; font-size: 12px; padding: 5px 13px; cursor: pointer; transition: all 0.2s;">${s.icon} ${s.ar} (${count})</button>`;
+        });
+
+        container.innerHTML = html;
+    },
+
+    setSectorFilter(sectorKey, btnEl) {
+        const filterSec = document.getElementById('filter-sector');
+        if (filterSec) {
+            filterSec.value = sectorKey;
+        }
+        this.onFilterChange();
+    },
+
     refreshUserFilter() {
         const currentUser = window.AppStorage.getCurrentUser();
         const isAdmin = window.AppStorage.isAdmin(currentUser);
@@ -318,6 +365,7 @@ const Companies = {
     },
 
     render() {
+        this.renderSectorPills();
         const companies = this.getFilteredCompanies();
         const total = companies.length;
         const totalPages = Math.ceil(total / this.pageSize);
