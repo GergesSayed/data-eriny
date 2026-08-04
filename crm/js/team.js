@@ -541,9 +541,9 @@ const Team = {
         }
 
         const modalHtml = `
-            <div class="modal show" id="modal-user-form" style="z-index:99999; display:flex; align-items:center; justify-content:center; position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px);">
-                <div class="modal-dialog modal-sm" style="background:var(--bg-secondary); border-radius:16px; border:1px solid var(--border-color); overflow:hidden; width:92vw; max-width:560px; box-shadow:var(--shadow-lg); animation: modalSlideUp 0.3s ease;">
-                    <div class="modal-header" style="background:var(--bg-surface); padding:16px 20px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
+            <div class="modal show" id="modal-user-form" style="z-index:99999; display:flex; align-items:center; justify-content:center; position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px); padding:16px;">
+                <div class="modal-dialog modal-sm" style="background:var(--bg-secondary); border-radius:16px; border:1px solid var(--border-color); overflow:hidden; width:92vw; max-width:580px; max-height:88vh; display:flex; flex-direction:column; box-shadow:var(--shadow-lg); animation: modalSlideUp 0.3s ease;">
+                    <div class="modal-header" style="background:var(--bg-surface); padding:16px 20px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
                         <h2 style="font-size:16px; font-weight:700; color:var(--text-primary); margin:0;">
                             <i class="fas ${user ? 'fa-user-edit' : 'fa-user-plus'}" style="color:#7c3aed;"></i>
                             <span>${user ? 'تعديل بيانات الموظف وصلاحياته' : 'إضافة موظف جديد للفريق'}</span>
@@ -551,11 +551,11 @@ const Team = {
                         <button class="modal-close" onclick="document.getElementById('modal-user-form').remove()" style="background:transparent; border:none; color:var(--text-muted); font-size:18px; cursor:pointer;"><i class="fas fa-times"></i></button>
                     </div>
 
-                    <form id="form-user-submit" style="padding:20px; display:flex; flex-direction:column; gap:14px;">
+                    <form id="form-user-submit" style="padding:20px 24px; display:flex; flex-direction:column; gap:14px; overflow-y:auto; flex:1; max-height:calc(88vh - 65px);">
                         <input type="hidden" id="user-edit-id" value="${user ? user.id : ''}">
 
                         <!-- First & Last Name row -->
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">
                             <div class="form-group">
                                 <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">
                                     <i class="fas fa-user" style="color:#7c3aed;"></i> الاسم الأول *
@@ -580,14 +580,14 @@ const Team = {
                         </div>
 
                         <!-- Password & Confirm Password Fields Row -->
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">
                             <!-- Password field -->
                             <div class="form-group">
                                 <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">
-                                    <i class="fas fa-lock" style="color:#f59e0b;"></i> كلمة المرور (Password) *
+                                    <i class="fas fa-lock" style="color:#f59e0b;"></i> كلمة المرور (Password) ${user ? '' : '*'}
                                 </label>
                                 <div style="position:relative;">
-                                    <input type="password" id="user-input-password" class="form-control" placeholder="${user ? 'اتركه كما هو لعدم التغيير' : '8 أرقام وحروف على الأقل'}" value="${user ? user.password || '' : ''}" ${user ? '' : 'required'} style="width:100%; padding:10px 38px 10px 14px; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-primary); font-size:13px; outline:none;">
+                                    <input type="password" id="user-input-password" class="form-control" placeholder="${user ? 'اتركه كما هو لعدم التغيير' : '8 أرقام وحروف على الأقل'}" value="" ${user ? '' : 'required'} style="width:100%; padding:10px 38px 10px 14px; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-primary); font-size:13px; outline:none;">
                                     <button type="button" onclick="Team.togglePwInputVisibility('user-input-password', 'pw-eye-icon-1')" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:13px;">
                                         <i class="fas fa-eye" id="pw-eye-icon-1"></i>
                                     </button>
@@ -597,10 +597,10 @@ const Team = {
                             <!-- Confirm Password field -->
                             <div class="form-group">
                                 <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">
-                                    <i class="fas fa-check-double" style="color:#10b981;"></i> إعادة كتابة كلمة المرور *
+                                    <i class="fas fa-check-double" style="color:#10b981;"></i> إعادة كتابة كلمة المرور ${user ? '' : '*'}
                                 </label>
                                 <div style="position:relative;">
-                                    <input type="password" id="user-input-confirm-password" class="form-control" placeholder="أعد كتابة كلمة المرور لتأكيدها" value="${user ? user.password || '' : ''}" ${user ? '' : 'required'} style="width:100%; padding:10px 38px 10px 14px; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-primary); font-size:13px; outline:none;">
+                                    <input type="password" id="user-input-confirm-password" class="form-control" placeholder="${user ? 'اتركه كما هو لعدم التغيير' : 'أعد كتابة كلمة المرور لتأكيدها'}" value="" ${user ? '' : 'required'} style="width:100%; padding:10px 38px 10px 14px; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-primary); font-size:13px; outline:none;">
                                     <button type="button" onclick="Team.togglePwInputVisibility('user-input-confirm-password', 'pw-eye-icon-2')" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:13px;">
                                         <i class="fas fa-eye" id="pw-eye-icon-2"></i>
                                     </button>
@@ -619,7 +619,7 @@ const Team = {
                         </div>
 
                         <!-- ERP Code & Region -->
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">
                             <div class="form-group">
                                 <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">
                                     <i class="fas fa-barcode" style="color:var(--accent);"></i> رقم الموظف في ERP
@@ -651,9 +651,9 @@ const Team = {
                             </select>
                         </div>
 
-                        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:8px; padding-top:14px; border-top:1px solid var(--border-light);">
-                            <button type="button" class="btn btn-ghost" onclick="document.getElementById('modal-user-form').remove()" style="padding:8px 16px;">إلغاء</button>
-                            <button type="submit" class="btn btn-primary" style="padding:8px 20px; background:var(--gradient-primary); font-weight:700;">
+                        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:10px; padding-top:14px; border-top:1px solid var(--border-light); sticky:bottom; background:var(--bg-secondary);">
+                            <button type="button" class="btn btn-ghost" onclick="document.getElementById('modal-user-form').remove()" style="padding:10px 20px; font-weight:700;">إلغاء</button>
+                            <button type="submit" class="btn btn-primary" style="padding:10px 24px; background:var(--gradient-primary); font-weight:800; border-radius:10px; box-shadow:0 4px 15px rgba(124, 58, 237, 0.4);">
                                 <i class="fas fa-save"></i> ${user ? 'حفظ التعديلات' : 'إنشاء حساب الموظف'}
                             </button>
                         </div>
