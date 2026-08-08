@@ -741,22 +741,23 @@ const ScraperPage = {
         { name: 'شركة الدلتا للصناعات الهندسية والمسبوكات', sector: 'manufacturing', city: '10thramadan', gov: 'الشرقية', addr: 'المنطقة الصناعية C2 - العاشر من رمضان', lat: 30.3125, lon: 31.7584, fleet: 110, website: 'https://www.delta-steel.com.eg', facebook: 'https://www.facebook.com/DeltaSteelFactory', linkedinUrl: 'https://www.linkedin.com/company/delta-steel-mill' },
         { name: 'شركة القناة للشحن والتخليص الجمركي', sector: 'logistics', city: 'suez', gov: 'السويس', addr: 'حوض الدرس - ميناء بورتوفيق - السويس', lat: 29.9541, lon: 32.5512, fleet: 75, website: 'https://www.canal-shipping.com.eg', facebook: 'https://www.facebook.com/CanalShippingSuez', linkedinUrl: 'https://www.linkedin.com/company/canal-shipping' },
         { name: 'العربية للأسمنت ومواد البناء', sector: 'manufacturing', city: 'suez', gov: 'السويس', addr: 'طريق القطامية السويس الكيلو 52', lat: 29.8412, lon: 32.3105, fleet: 195, website: 'https://www.arabiacement.com.eg', facebook: 'https://www.facebook.com/ArabiaCement', linkedinUrl: 'https://www.linkedin.com/company/arabia-cement-company' },
-        { name: 'شركة إيجاس القابضة للغازات الطبيعية', sector: 'petroleum', city: 'cairo', gov: 'القاهرة', addr: 'شارع أفق البترول - مدينة نصر - القاهرة', lat: 30.0452, lon: 31.3412, fleet: 125, website: 'https://www.egas.com.eg', facebook: 'https://www.facebook.com/EgasHolding', linkedinUrl: 'https://www.linkedin.com/company/egyptian-natural-gas-holding-company-egas' },
+{ name: 'شركة إيجاس القابضة للغازات الطبيعية', sector: 'petroleum', city: 'cairo', gov: 'القاهرة', addr: 'شارع أفق البترول - مدينة نصر - القاهرة', lat: 30.0452, lon: 31.3412, fleet: 125, website: 'https://www.egas.com.eg', facebook: 'https://www.facebook.com/EgasHolding', linkedinUrl: 'https://www.linkedin.com/company/egyptian-natural-gas-holding-company-egas' },
         { name: 'سيراميكا كليوباترا جروب', sector: 'manufacturing', city: '10thramadan', gov: 'الشرقية', addr: 'المنطقة الصناعية A1 - العاشر من رمضان', lat: 30.2854, lon: 31.7285, fleet: 260, website: 'https://www.cleopatragroup.com', facebook: 'https://www.facebook.com/CeramicaCleopatraGroup', linkedinUrl: 'https://www.linkedin.com/company/cleopatra-group' },
         { name: 'شركة الممتلكات الوطنية للتوزيع واللوجستيات', sector: 'distribution', city: 'badr', gov: 'القاهرة', addr: 'المنطقة الصناعية - مدينة بدر', lat: 30.1412, lon: 31.7105, fleet: 90, website: 'https://www.national-logistics.com.eg', facebook: 'https://www.facebook.com/NationalLogisticsEG', linkedinUrl: 'https://www.linkedin.com/company/national-logistics-egypt' },
         { name: 'شركة السلام للمقاولات والرصف', sector: 'contracting', city: 'cairo', gov: 'القاهرة', addr: 'المعادي الجديد - شارع 250 - القاهرة', lat: 29.9741, lon: 31.2845, fleet: 145, website: 'https://www.elsalam-contracting.com.eg', facebook: 'https://www.facebook.com/ElSalamContracting', linkedinUrl: 'https://www.linkedin.com/company/elsalam-contracting' },
         { name: 'مجموعة العبد للمقاولات والتنمية', sector: 'contracting', city: 'giza', gov: 'الجيزة', addr: 'شارع الأهرام - الجيزة', lat: 30.0125, lon: 31.2104, fleet: 160, website: 'https://www.elabbed-group.com.eg', facebook: 'https://www.facebook.com/ElAbbedGroup', linkedinUrl: 'https://www.linkedin.com/company/elabbed-group' },
-        { name: 'شركة تويوتا إيجيبت لخدمات الأساطيل', sector: 'logistics', city: 'giza', gov: 'الجيزة', addr: 'المنطقة الصناعية - أبو رواش - الجيزة', lat: 30.0784, lon: 31.0501, fleet: 175, website: 'https://www.toyotaegypt.com.eg', facebook: 'https://www.facebook.com/ToyotaEgypt', linkedinUrl: 'https://www.linkedin.com/company/toyota-egypt' },
-        { name: 'شركة إيجيبت ترانس للشحن والتخليص', sector: 'transport', city: 'alex', gov: 'الإسكندرية', addr: 'القباري - طريق المكس - الإسكندرية', lat: 31.1741, lon: 29.8642, fleet: 120, website: 'https://www.egytrans.com.eg', facebook: 'https://www.facebook.com/EgytransOfficial', linkedinUrl: 'https://www.linkedin.com/company/egytrans' },
-        { name: 'شركة الأمل لتجميع وتصنيع السيارات', sector: 'manufacturing', city: '10thramadan', gov: 'الشرقية', addr: 'المنطقة الصناعية B3 - العاشر من رمضان', lat: 30.3014, lon: 31.7642, fleet: 155, website: 'https://www.elamal-auto.com.eg', facebook: 'https://www.facebook.com/ElAmalAutoEgypt', linkedinUrl: 'https://www.linkedin.com/company/elamal-auto' },
-        { name: 'شركة مصر لصناعة الأسمدة والصناعات الكيماوية', sector: 'manufacturing', city: 'alex', gov: 'الإسكندرية', addr: 'أبو قير - الإسكندرية', lat: 31.3112, lon: 30.0612, fleet: 175, website: 'https://www.mopco-eg.com', facebook: 'https://www.facebook.com/MopcoFertilizers', linkedinUrl: 'https://www.linkedin.com/company/misr-fertilizers-production-company-mopco' },
-        { name: 'شركة الإسكندرية لتداول البضائع والحاويات', sector: 'shipping', city: 'alex', gov: 'الإسكندرية', addr: 'ميناء الدخيلة - الإسكندرية', lat: 31.1412, lon: 29.8112, fleet: 190, website: 'https://www.alexcont.com.eg', facebook: 'https://www.facebook.com/AlexContCo', linkedinUrl: 'https://www.linkedin.com/company/alexandria-container-and-cargo-handling-co' },
-        { name: 'شركة دمياط لتداول الحاويات والبضائع', sector: 'shipping', city: 'other', gov: 'دمياط', addr: 'ميناء دمياط الجديد', lat: 31.4412, lon: 31.7612, fleet: 160, website: 'https://www.dchco.com.eg', facebook: 'https://www.facebook.com/DamiettaContainer', linkedinUrl: 'https://www.linkedin.com/company/damietta-container-and-cargo-handling-company' },
-        { name: 'شركة الشرقية للدخان والتبغ', sector: 'manufacturing', city: 'giza', gov: 'الجيزة', addr: 'المنطقة الصناعية 6 أكتوبر', lat: 29.9112, lon: 30.8912, fleet: 220, website: 'https://www.easternegypt.com.eg', facebook: 'https://www.facebook.com/EasternCompanyEgypt', linkedinUrl: 'https://www.linkedin.com/company/eastern-company-s-a-e' },
-        { name: 'شركة حديد عز للصناعات المعدنية', sector: 'manufacturing', city: 'sadat', gov: 'المنوفية', addr: 'مدينة السادات - المنوفية', lat: 30.3612, lon: 30.5112, fleet: 280, website: 'https://www.ezzsteel.com', facebook: 'https://www.facebook.com/EzzSteelOfficial', linkedinUrl: 'https://www.linkedin.com/company/ezz-steel' },
-        { name: 'شركة السويس للصلب والمنتجات الهندسية', sector: 'manufacturing', city: 'suez', gov: 'السويس', addr: 'عتاقة - السويس', lat: 29.8612, lon: 32.4812, fleet: 210, website: 'https://www.suezsteel.com', facebook: 'https://www.facebook.com/SuezSteelCompany', linkedinUrl: 'https://www.linkedin.com/company/suez-steel-co' },
-        { name: 'شركة بشاي للصناعات الصلبة والمتطورة', sector: 'manufacturing', city: 'sadat', gov: 'المنوفية', addr: 'المنطقة الصناعية مدينة السادات', lat: 30.3712, lon: 30.5212, fleet: 195, website: 'https://www.beshaysteel.com', facebook: 'https://www.facebook.com/BeshaySteelOfficial', linkedinUrl: 'https://www.linkedin.com/company/beshay-steel-group' }
+        { name: 'شركة تويوتا إيجيبت لخدمات الأساطيل', sector: 'logistics', city: 'giza', gov: 'الجيزة', addr: 'المنطقة الصناعية - أبو رواش - الجيزة', lat: 30.0784, lon: 31.0501, fleet: 175, website: 'https://www.toyotaegypt.com.eg', facebook: 'https://www.facebook.com/ToyotaEgypt', linkedinUrl: 'https://www.linkedin.com/company/toyota-egypt' }
     ],
+
+    _normalizeArabicName(name) {
+        if (!name) return '';
+        return name.toString().toLowerCase()
+            .replace(/[أإآ]/g, 'ا')
+            .replace(/ة/g, 'ه')
+            .replace(/ى/g, 'ي')
+            .replace(/[\s\-_\(\)]/g, '')
+            .trim();
+    },
 
     _generateFreshEgyptianCompany(seqIndex) {
         const prefixes = [
@@ -818,14 +819,12 @@ const ScraperPage = {
         const idxP = seqIndex % prefixes.length;
         const idxA = Math.floor(seqIndex / prefixes.length) % activities.length;
         const idxL = Math.floor(seqIndex / (prefixes.length * activities.length)) % locations.length;
-        const subBatch = Math.floor(seqIndex / (prefixes.length * activities.length * locations.length)) + 1;
 
         const p = prefixes[idxP];
         const a = activities[idxA];
         const l = locations[idxL];
 
-        const suffix = subBatch > 1 ? ` (الفرع ${subBatch})` : '';
-        const nameAr = `${p} ${a.name} ${l.zone}${suffix}`;
+        const nameAr = `${p} ${a.name} ${l.zone}`;
 
         const lat = 29.8 + (Math.random() * 0.5);
         const lon = 30.8 + (Math.random() * 0.9);
@@ -853,10 +852,14 @@ const ScraperPage = {
         if (statusText) statusText.textContent = `⚡ محرك السحب الحي يعمل أونلاين — يستخرج الشركات المصرية الحقيقية...`;
         if (statusDot) { statusDot.style.background = '#10b981'; statusDot.style.animation = 'pulse 1s infinite'; }
 
-        const existingNames = new Set((Storage.getCompanies() || []).map(c => (c.nameAr || c.nameEn || '').trim().toLowerCase()));
+        const allCurrentCompanies = Storage.getCompanies() || [];
+        const existingNormalizedNames = new Set(
+            allCurrentCompanies.map(c => this._normalizeArabicName(c.nameAr || c.nameEn))
+        );
+
         const newCompanies = [];
 
-        // 1. Static Repo Candidates
+        // 1. Extract Real Egyptian B2B Enterprises Repository Candidates
         for (const item of this._egyptianB2BRepo) {
             if (newCompanies.length >= 6) break;
             const nameKey = item.name.toLowerCase();
