@@ -242,7 +242,7 @@ const Dashboard = {
         const container = document.getElementById('activity-list');
         if (!container) return;
 
-        const activities = window.AppStorage.getActivities(10);
+        const activities = window.AppStorage.getActivities(25);
 
         if (activities.length === 0) {
             container.innerHTML = `

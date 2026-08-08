@@ -677,9 +677,13 @@ const AppStorage = {
             if (e.name === 'QuotaExceededError' || e.code === 22) {
                 console.warn(`localStorage quota exceeded for ${key}, attempting cleanup`);
                 try {
-                    const largeKeys = [this.KEYS.COMPANIES, this.KEYS.ACTIVITIES];
+                    const largeKeys = [this.KEYS.COMPANIES];
                     largeKeys.forEach(k => { if (k !== key) localStorage.removeItem(k); });
-                    localStorage.setItem(key, JSON.stringify(data));
+                    if (key === this.KEYS.ACTIVITIES && Array.isArray(data)) {
+                        localStorage.setItem(key, JSON.stringify(data.slice(0, 100)));
+                    } else {
+                        localStorage.setItem(key, JSON.stringify(data));
+                    }
                 } catch (e2) {
                     console.error(`Cannot write ${key} to localStorage after cleanup:`, e2.message);
                 }
@@ -704,7 +708,7 @@ const AppStorage = {
 
         return new Promise((resolve) => {
             try {
-                const request = indexedDB.open('FleetCRM_DB', 3);
+                const request = indexedDB.open('FleetCRM_DB', 4);
                 
                 request.onerror = (event) => {
                     resolve();
@@ -712,7 +716,10 @@ const AppStorage = {
                 
                 request.onsuccess = (event) => {
                     const db = event.target.result;
-                    this.loadCompaniesFromDB(db).then(() => resolve());
+                    Promise.all([
+                        this.loadCompaniesFromDB(db),
+                        this.loadActivitiesFromDB(db)
+                    ]).then(() => resolve());
                 };
                 
                 request.onupgradeneeded = (event) => {
@@ -735,6 +742,10 @@ const AppStorage = {
                     }
                     if (!store.indexNames.contains('leadScore')) {
                         store.createIndex('leadScore', 'leadScore', { unique: false });
+                    }
+
+                    if (!db.objectStoreNames.contains('activities')) {
+                        db.createObjectStore('activities', { keyPath: 'id' });
                     }
                 };
             } catch (e) {
@@ -1682,7 +1693,6 @@ const AppStorage = {
 
     clearAllCalls() {
         this._set(this.KEYS.CALLS, []);
-        this._set(this.KEYS.ACTIVITIES, []);
         this.autoSyncToCloud(this.companiesMemory);
     },
 
@@ -1750,23 +1760,80 @@ const AppStorage = {
         return this.getOpenDeals().reduce((sum, d) => sum + (Number(d.value) || 0), 0);
     },
 
-    // ---- Activities ----
+    // ---- Activities Persistence Engine ----
+    loadActivitiesFromDB(db) {
+        return new Promise((resolve) => {
+            try {
+                if (!db || !db.objectStoreNames.contains('activities')) return resolve();
+                const tx = db.transaction('activities', 'readonly');
+                const store = tx.objectStore('activities');
+                const req = store.getAll();
+                req.onsuccess = () => {
+                    const idbActs = req.result || [];
+                    if (Array.isArray(idbActs) && idbActs.length > 0) {
+                        const localActs = this._get(this.KEYS.ACTIVITIES);
+                        const map = new Map();
+                        localActs.forEach(a => { if (a && a.id) map.set(a.id, a); });
+                        idbActs.forEach(a => { if (a && a.id) map.set(a.id, a); });
+                        const merged = Array.from(map.values())
+                            .sort((a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0))
+                            .slice(0, 500);
+                        this._set(this.KEYS.ACTIVITIES, merged);
+                    }
+                    resolve();
+                };
+                req.onerror = () => resolve();
+            } catch(e) {
+                resolve();
+            }
+        });
+    },
+
+    saveActivityToDB(act) {
+        if (!act || !act.id) return;
+        try {
+            const req = indexedDB.open('FleetCRM_DB', 4);
+            req.onsuccess = (e) => {
+                const db = e.target.result;
+                if (db.objectStoreNames.contains('activities')) {
+                    const tx = db.transaction('activities', 'readwrite');
+                    tx.objectStore('activities').put(act);
+                }
+            };
+        } catch(e) {}
+    },
+
     addActivity(type, refId, action, detail) {
         const activities = this._get(this.KEYS.ACTIVITIES);
-        activities.unshift({
+        const act = {
             id: this._generateId('act'),
             type,
             refId,
             action,
             detail,
             timestamp: new Date().toISOString()
-        });
-        // Keep only last 100 activities
-        if (activities.length > 100) activities.length = 100;
+        };
+
+        // De-duplicate in memory
+        const exists = activities.some(a => a.action === action && a.detail === detail && (Date.now() - new Date(a.timestamp).getTime()) < 3000);
+        if (exists) return;
+
+        activities.unshift(act);
+
+        // Keep up to 500 activities permanently
+        if (activities.length > 500) activities.length = 500;
         this._set(this.KEYS.ACTIVITIES, activities);
+
+        // Save to IndexedDB permanently
+        this.saveActivityToDB(act);
+
+        // Auto sync to cloud
+        if (this.autoSyncToCloud) {
+            this.autoSyncToCloud(this.companiesMemory);
+        }
     },
 
-    getActivities(limit = 20) {
+    getActivities(limit = 50) {
         return this._get(this.KEYS.ACTIVITIES).slice(0, limit);
     },
 
