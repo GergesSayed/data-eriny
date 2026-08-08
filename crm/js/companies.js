@@ -383,10 +383,14 @@ const Companies = {
         const pageCompanies = companies.slice(start, start + this.pageSize);
 
         // Update count & view mode toggle buttons
+        const currentUser = window.AppStorage.getCurrentUser();
+        const canViewAll = window.AppStorage.canViewAll(currentUser);
         const masterTotal = window.AppStorage.getCompanies().length;
         const countDisplay = document.getElementById('companies-count-display');
         if (countDisplay) {
-            if (total === masterTotal) {
+            if (!canViewAll) {
+                countDisplay.textContent = `معروض: ${total.toLocaleString()} شركة فقط`;
+            } else if (total === masterTotal) {
                 countDisplay.textContent = `إجمالي شركات السيستم: ${total.toLocaleString()} شركة`;
             } else {
                 countDisplay.textContent = `معروض: ${total.toLocaleString()} شركة (من إجمالي ${masterTotal.toLocaleString()} شركة)`;
