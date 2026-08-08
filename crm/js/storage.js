@@ -518,6 +518,12 @@ const AppStorage = {
         company.assignedTo = userId || '';
         company.assignedAt = userId ? new Date().toISOString() : '';
         this.saveCompany(company);
+        
+        // Force immediate sync to cloud so background pull cannot overwrite this assignment
+        localStorage.removeItem('fleetcrm_last_synced_hash');
+        localStorage.setItem('fleetcrm_last_sync_time', Date.now());
+        this.autoSyncToCloud(this.companiesMemory, true);
+
         const userName = userId ? (this.getUser(userId)?.name || userId) : 'غير مسندة';
         this.addActivity('company', companyId, 'تخصيص الشركة', `مسندة إلى: ${userName}`);
         return company;
@@ -542,7 +548,10 @@ const AppStorage = {
 
         if (updatedCount > 0) {
             this.companiesMemory = companies;
+            localStorage.removeItem('fleetcrm_last_synced_hash');
+            localStorage.setItem('fleetcrm_last_sync_time', Date.now());
             this.saveAllCompaniesToDB(companies);
+            this.autoSyncToCloud(companies, true);
             localStorage.removeItem(this.KEYS.COMPANIES);
             this.addActivity('company', 'bulk', `تخصيص ${updatedCount} شركة`, `تم التعيين لـ: ${userName}`);
         }
@@ -920,7 +929,7 @@ const AppStorage = {
     },
 
     autoSyncTimer: null,
-    autoSyncToCloud(companies = this.companiesMemory) {
+    autoSyncToCloud(companies = this.companiesMemory, forceSync = false) {
         if (!Array.isArray(companies)) companies = this.companiesMemory || [];
         if (!window.SupabaseClient) return;
         clearTimeout(this.autoSyncTimer);
@@ -928,8 +937,10 @@ const AppStorage = {
             try {
                 const calls = this.getCalls ? (this.getCalls() || []) : [];
                 const deals = this.getDeals ? (this.getDeals() || []) : [];
-                const quickHash = `${companies.length}_${calls.length}_${deals.length}_${companies[companies.length - 1]?.id || ''}_${calls[calls.length - 1]?.id || ''}`;
-                if (quickHash === localStorage.getItem('fleetcrm_last_synced_hash')) return;
+                const assignedCount = companies.filter(c => c && c.assignedTo).length;
+                const quickHash = `${companies.length}_${assignedCount}_${calls.length}_${deals.length}_${companies[companies.length - 1]?.id || ''}_${companies[companies.length - 1]?.assignedTo || ''}`;
+                
+                if (!forceSync && quickHash === localStorage.getItem('fleetcrm_last_synced_hash')) return;
 
                 const ok = await window.SupabaseClient.pushMasterData({
                     companies: companies,
@@ -943,7 +954,7 @@ const AppStorage = {
                     localStorage.setItem('fleetcrm_last_sync_time', Date.now());
                 }
             } catch (err) {}
-        }, 500);
+        }, 300);
     },
 
     async pullFromCloud() {
@@ -956,11 +967,15 @@ const AppStorage = {
             const localTimestamp = parseInt(localStorage.getItem('fleetcrm_last_sync_time') || '0');
             let updated = false;
 
-            if (data.companies && Array.isArray(data.companies)) {
-                this.companiesMemory = data.companies;
-                this._set(this.KEYS.COMPANIES, this.companiesMemory);
-                this.saveAllCompaniesToDB(this.companiesMemory);
-                updated = true;
+            // Only overwrite local companies if cloud is newer or local memory is empty
+            if (data.companies && Array.isArray(data.companies) && data.companies.length > 0) {
+                const localCount = (this.companiesMemory || []).length;
+                if (localCount === 0 || cloudTimestamp >= localTimestamp) {
+                    this.companiesMemory = data.companies;
+                    this._set(this.KEYS.COMPANIES, this.companiesMemory);
+                    this.saveAllCompaniesToDB(this.companiesMemory);
+                    updated = true;
+                }
             }
 
             if (data.users && Array.isArray(data.users) && data.users.length > 0) {
