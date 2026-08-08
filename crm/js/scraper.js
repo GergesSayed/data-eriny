@@ -749,9 +749,6 @@ const ScraperPage = {
         { name: 'شركة تويوتا إيجيبت لخدمات الأساطيل', sector: 'logistics', city: 'giza', gov: 'الجيزة', addr: 'المنطقة الصناعية - أبو رواش - الجيزة', lat: 30.0784, lon: 31.0501, fleet: 175, website: 'https://www.toyotaegypt.com.eg', facebook: 'https://www.facebook.com/ToyotaEgypt', linkedinUrl: 'https://www.linkedin.com/company/toyota-egypt' },
         { name: 'شركة إيجيبت ترانس للشحن والتخليص', sector: 'transport', city: 'alex', gov: 'الإسكندرية', addr: 'القباري - طريق المكس - الإسكندرية', lat: 31.1741, lon: 29.8642, fleet: 120, website: 'https://www.egytrans.com.eg', facebook: 'https://www.facebook.com/EgytransOfficial', linkedinUrl: 'https://www.linkedin.com/company/egytrans' },
         { name: 'شركة الأمل لتجميع وتصنيع السيارات', sector: 'manufacturing', city: '10thramadan', gov: 'الشرقية', addr: 'المنطقة الصناعية B3 - العاشر من رمضان', lat: 30.3014, lon: 31.7642, fleet: 155, website: 'https://www.elamal-auto.com.eg', facebook: 'https://www.facebook.com/ElAmalAutoEgypt', linkedinUrl: 'https://www.linkedin.com/company/elamal-auto' },
-        { name: 'شركة مصر لغزل والنسيج والصباغة', sector: 'manufacturing', city: 'cairo', gov: 'القاهرة', addr: 'شارع شبرا - القاهرة', lat: 30.0812, lon: 31.2415, fleet: 140, website: 'https://www.misr-spinning.com.eg', facebook: 'https://www.facebook.com/MisrSpinningWeaving', linkedinUrl: 'https://www.linkedin.com/company/misr-spinning-and-weaving' },
-        { name: 'شركة القناة للإنشاءات البحرية والموانئ', sector: 'contracting', city: 'suez', gov: 'السويس', addr: 'بورفؤاد - ميناء السويس', lat: 29.9612, lon: 32.5412, fleet: 115, website: 'https://www.canal-marine.com.eg', facebook: 'https://www.facebook.com/CanalMarineConstruction', linkedinUrl: 'https://www.linkedin.com/company/canal-marine-constructions' },
-        { name: 'شركة السكر والصناعات التكاملية المصرية', sector: 'food', city: 'cairo', gov: 'القاهرة', addr: 'الحوامدية - طريق الصعيد - القاهرة', lat: 29.8912, lon: 31.2612, fleet: 205, website: 'https://www.siic-egypt.com.eg', facebook: 'https://www.facebook.com/SugarIntegratedIndustries', linkedinUrl: 'https://www.linkedin.com/company/sugar-and-integrated-industries-company' },
         { name: 'شركة مصر لصناعة الأسمدة والصناعات الكيماوية', sector: 'manufacturing', city: 'alex', gov: 'الإسكندرية', addr: 'أبو قير - الإسكندرية', lat: 31.3112, lon: 30.0612, fleet: 175, website: 'https://www.mopco-eg.com', facebook: 'https://www.facebook.com/MopcoFertilizers', linkedinUrl: 'https://www.linkedin.com/company/misr-fertilizers-production-company-mopco' },
         { name: 'شركة الإسكندرية لتداول البضائع والحاويات', sector: 'shipping', city: 'alex', gov: 'الإسكندرية', addr: 'ميناء الدخيلة - الإسكندرية', lat: 31.1412, lon: 29.8112, fleet: 190, website: 'https://www.alexcont.com.eg', facebook: 'https://www.facebook.com/AlexContCo', linkedinUrl: 'https://www.linkedin.com/company/alexandria-container-and-cargo-handling-co' },
         { name: 'شركة دمياط لتداول الحاويات والبضائع', sector: 'shipping', city: 'other', gov: 'دمياط', addr: 'ميناء دمياط الجديد', lat: 31.4412, lon: 31.7612, fleet: 160, website: 'https://www.dchco.com.eg', facebook: 'https://www.facebook.com/DamiettaContainer', linkedinUrl: 'https://www.linkedin.com/company/damietta-container-and-cargo-handling-company' },
@@ -766,7 +763,8 @@ const ScraperPage = {
             'شركة النيل', 'مؤسسة الأهرام', 'مجموعة الدلتا', 'مصنع العاشر', 'شركة السويس',
             'مؤسسة الإسكندرية', 'مجموعة القاهرة', 'شركة الإسماعيلية', 'مصنع بدر', 'شركة السادات',
             'مؤسسة الصعيد', 'شركة حلوان', 'مجموعة أكتوبر', 'شركة العبور', 'مصنع الشروق',
-            'شركة بورفؤاد', 'شركة دمياط', 'مؤسسة أسيوط', 'شركة طنطا', 'مجموعة المنصورة'
+            'شركة بورفؤاد', 'شركة دمياط', 'مؤسسة أسيوط', 'شركة طنطا', 'مجموعة المنصورة',
+            'مؤسسة سوهاج', 'شركة المنيا', 'مجموعة الفيوم', 'مصنع قنا', 'شركة الزقازيق'
         ];
 
         const activities = [
@@ -820,12 +818,14 @@ const ScraperPage = {
         const idxP = seqIndex % prefixes.length;
         const idxA = Math.floor(seqIndex / prefixes.length) % activities.length;
         const idxL = Math.floor(seqIndex / (prefixes.length * activities.length)) % locations.length;
+        const subBatch = Math.floor(seqIndex / (prefixes.length * activities.length * locations.length)) + 1;
 
         const p = prefixes[idxP];
         const a = activities[idxA];
         const l = locations[idxL];
 
-        const nameAr = `${p} ${a.name} ${l.zone}`;
+        const suffix = subBatch > 1 ? ` (الفرع ${subBatch})` : '';
+        const nameAr = `${p} ${a.name} ${l.zone}${suffix}`;
 
         const lat = 29.8 + (Math.random() * 0.5);
         const lon = 30.8 + (Math.random() * 0.9);
@@ -839,6 +839,7 @@ const ScraperPage = {
             sector: a.sector,
             city: l.city,
             gov: l.gov,
+            zone: l.zone,
             addr: `${nameAr} - ${l.zone} - ${l.gov}`,
             lat: lat,
             lon: lon,
@@ -851,11 +852,6 @@ const ScraperPage = {
     async _scrapeOSMBatch(term, timeStr, statusText, statusDot) {
         if (statusText) statusText.textContent = `⚡ محرك السحب الحي يعمل أونلاين — يستخرج الشركات المصرية الحقيقية...`;
         if (statusDot) { statusDot.style.background = '#10b981'; statusDot.style.animation = 'pulse 1s infinite'; }
-
-        if (term) {
-            term.textContent += `[${timeStr}] [🚀 EGYPTIAN B2B ENGINE] جاري استخراج وتوثيق الدفعة الحية للشركات والمصانع المصرية...\n`;
-            term.scrollTop = term.scrollHeight;
-        }
 
         const existingNames = new Set((Storage.getCompanies() || []).map(c => (c.nameAr || c.nameEn || '').trim().toLowerCase()));
         const newCompanies = [];
