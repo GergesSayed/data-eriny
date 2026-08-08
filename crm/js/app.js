@@ -7,7 +7,7 @@
 function _db() { return window.AppStorage; }
 
 const App = {
-    currentPage: 'dashboard',
+    currentPage: 'companies',
 
     cleanAllOverlays() {
         try {
@@ -147,8 +147,12 @@ const App = {
             const currentUser = window.AppStorage.getCurrentUser();
             const isAdmin = window.AppStorage.isAdmin(currentUser);
             let hash = window.location.hash.replace('#', '');
-            if (!hash || (!isAdmin && hash !== 'companies' && hash !== 'calls')) {
-                hash = isAdmin ? 'dashboard' : 'companies';
+            if (!currentUser || !isAdmin) {
+                if (hash !== 'companies' && hash !== 'calls' && hash !== 'pipeline') {
+                    hash = 'companies';
+                }
+            } else if (!hash) {
+                hash = 'dashboard';
             }
             this.navigateTo(hash);
 
