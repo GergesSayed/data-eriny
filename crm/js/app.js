@@ -495,7 +495,8 @@ const App = {
         if (btnWipeAllCompanies) btnWipeAllCompanies.style.display = isAdmin ? 'inline-flex' : 'none';
         if (btnCloudSync) btnCloudSync.style.display = isAdmin ? 'inline-flex' : 'none';
         if (btnClearCalls) btnClearCalls.style.display = isAdmin ? 'inline-flex' : 'none';
-        if (btnClearDeals) btnClearDeals.style.display = isAdmin ? 'inline-flex' : 'none';
+        const sidebarFooter = document.querySelector('.sidebar-footer');
+        if (sidebarFooter) sidebarFooter.style.display = canViewAll ? 'block' : 'none';
 
         const filterAssignedGroup = document.getElementById('filter-assigned-group') || document.getElementById('filter-assigned')?.parentElement;
         if (filterAssignedGroup) filterAssignedGroup.style.display = canViewAll ? 'block' : 'none';
