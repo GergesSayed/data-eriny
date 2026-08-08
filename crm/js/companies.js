@@ -16,6 +16,18 @@ const Companies = {
         this.bindEvents();
         this.refreshUserFilter();
         this.render();
+
+        // If companies were not loaded yet, schedule immediate retries after DB/Cloud sync completes
+        setTimeout(() => {
+            if (this.getFilteredCompanies().length > 0 || window.AppStorage.getScopedCompanies().length > 0) {
+                this.render();
+            }
+        }, 400);
+        setTimeout(() => {
+            if (this.getFilteredCompanies().length > 0 || window.AppStorage.getScopedCompanies().length > 0) {
+                this.render();
+            }
+        }, 1200);
     },
 
     populateSectorSelects() {

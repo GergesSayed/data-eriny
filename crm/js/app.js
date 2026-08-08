@@ -68,7 +68,11 @@ const App = {
             await window.AppStorage.initDB();
 
             // Pull latest from cloud asynchronously in background without blocking UI
-            window.AppStorage.pullFromCloud().catch(() => false);
+            window.AppStorage.pullFromCloud().then(wasUpdated => {
+                if (wasUpdated || (this.currentPage === 'companies' && (window.AppStorage.getScopedCompanies() || []).length > 0)) {
+                    this.refreshCurrentPage();
+                }
+            }).catch(() => false);
 
             // Start continuous background cloud synchronization loop (every 8s) across all devices
             if (this._cloudSyncInterval) clearInterval(this._cloudSyncInterval);

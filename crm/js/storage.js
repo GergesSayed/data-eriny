@@ -842,9 +842,15 @@ const AppStorage = {
                         this._set(this.KEYS.COMPANIES, idbMapped);
                         resolve();
                     } else {
-                        this.companiesMemory = [];
-                        this._set(this.KEYS.COMPANIES, []);
-                        resolve();
+                        const cached = this._get(this.KEYS.COMPANIES);
+                        if (cached && Array.isArray(cached) && cached.length > 0) {
+                            this.companiesMemory = cached;
+                            resolve();
+                        } else if (!this.companiesMemory || this.companiesMemory.length === 0) {
+                            this._seedInitialJsonData().then(() => resolve());
+                        } else {
+                            resolve();
+                        }
                     }
                 };
                 
