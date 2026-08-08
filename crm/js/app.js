@@ -456,6 +456,11 @@ const App = {
             }
         });
 
+        // Strict Enforcement: If Sales Agent is currently on any non-allowed page, instantly redirect to 'companies'
+        if (!canViewAll && this.currentPage !== 'companies' && this.currentPage !== 'calls') {
+            this.navigateTo('companies');
+        }
+
         // Hide write/modification buttons for non-admins (e.g. Supervisors & Sales Agents)
         const btnAddComp = document.getElementById('btn-add-company');
         const btnImportExcel = document.getElementById('btn-import-excel');

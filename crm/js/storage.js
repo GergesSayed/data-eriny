@@ -219,8 +219,9 @@ const AppStorage = {
 
     isAdmin(user) {
         const u = user || this.getCurrentUser();
-        if (!u) return true;
-        return u.id === 'admin' || u.username === 'admin' || u.username === 'admin@fleet.com' || u.role === 'admin';
+        if (!u) return false;
+        if (u.id === 'admin' || u.username === 'admin' || u.username === 'admin@fleet.com' || u.email === 'admin@fleet.com') return true;
+        return u.role === 'admin';
     },
 
     isSupervisor(user) {
@@ -231,13 +232,13 @@ const AppStorage = {
 
     canViewAll(user) {
         const u = user || this.getCurrentUser();
-        if (!u) return true;
+        if (!u) return false;
         return this.isAdmin(u) || this.isSupervisor(u);
     },
 
     canModify(user) {
         const u = user || this.getCurrentUser();
-        if (!u) return true;
+        if (!u) return false;
         return this.isAdmin(u) || this.isSupervisor(u);
     },
 
