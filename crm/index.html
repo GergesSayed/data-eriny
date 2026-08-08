@@ -17,13 +17,24 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=35.0">
+    <link rel="stylesheet" href="css/style.css?v=36.0">
     <script>
         (function() {
             try {
-                var u = sessionStorage.getItem('fleetcrm_current_user') || localStorage.getItem('fleetcrm_current_user');
-                if (u) {
+                var uId = sessionStorage.getItem('fleetcrm_current_user') || localStorage.getItem('fleetcrm_current_user');
+                if (uId) {
                     document.documentElement.classList.add('user-logged-in');
+                    if (uId === 'admin') {
+                        document.documentElement.classList.add('user-role-admin');
+                    } else {
+                        var storedUsers = JSON.parse(localStorage.getItem('fleetcrm_users_v2') || '[]');
+                        var userObj = storedUsers.find(function(x) { return x.id === uId || x.username === uId || x.email === uId; });
+                        if (userObj && (userObj.role === 'admin' || userObj.role === 'supervisor')) {
+                            document.documentElement.classList.add('user-role-admin');
+                        } else {
+                            document.documentElement.classList.add('user-role-agent');
+                        }
+                    }
                 }
             } catch(e) {}
             window.__IS_MOBILE = (function(){
@@ -50,6 +61,11 @@
         html.user-logged-in #login-screen { display: none !important; }
         html.user-logged-in .main-wrapper { display: block !important; }
         html.user-logged-in #sidebar { display: flex !important; }
+        /* Sales Agent Role: Strictly hide ALL admin nav items */
+        html.user-role-agent .admin-only-nav,
+        body.user-role-agent .admin-only-nav {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
@@ -155,7 +171,8 @@
             </div>
         </div>
 
-            <a href="javascript:void(0)" class="nav-link" data-page="dashboard" onclick="App.navigateTo('dashboard'); App.closeSidebar();">
+        <nav class="sidebar-nav">
+            <a href="javascript:void(0)" class="nav-link admin-only-nav" data-page="dashboard" onclick="App.navigateTo('dashboard'); App.closeSidebar();">
                 <i class="fas fa-tachometer-alt"></i>
                 <span>لوحة التحكم</span>
                 <small>Dashboard</small>
@@ -170,31 +187,32 @@
                 <span>سجل المكالمات</span>
                 <small>Call Log</small>
             </a>
-            <a href="javascript:void(0)" class="nav-link" data-page="pipeline" onclick="App.navigateTo('pipeline'); App.closeSidebar();">
+            <a href="javascript:void(0)" class="nav-link admin-only-nav" data-page="pipeline" onclick="App.navigateTo('pipeline'); App.closeSidebar();">
                 <i class="fas fa-filter"></i>
                 <span>خط المبيعات</span>
                 <small>Sales Pipeline</small>
             </a>
-            <a href="javascript:void(0)" class="nav-link" data-page="reports" onclick="App.navigateTo('reports'); App.closeSidebar();">
+            <a href="javascript:void(0)" class="nav-link admin-only-nav" data-page="reports" onclick="App.navigateTo('reports'); App.closeSidebar();">
                 <i class="fas fa-chart-pie"></i>
                 <span>التقارير</span>
                 <small>Reports</small>
             </a>
-            <a href="javascript:void(0)" class="nav-link" data-page="scraper" onclick="App.navigateTo('scraper'); App.closeSidebar();">
+            <a href="javascript:void(0)" class="nav-link admin-only-nav" data-page="scraper" onclick="App.navigateTo('scraper'); App.closeSidebar();">
                 <i class="fas fa-download"></i>
                 <span>سحب البيانات</span>
                 <small>Data Collector</small>
             </a>
-            <a href="javascript:void(0)" class="nav-link" data-page="team" id="nav-item-team" onclick="App.navigateTo('team'); App.closeSidebar();">
+            <a href="javascript:void(0)" class="nav-link admin-only-nav" data-page="team" id="nav-item-team" onclick="App.navigateTo('team'); App.closeSidebar();">
                 <i class="fas fa-chart-line"></i>
                 <span>متابعة الفريق</span>
                 <small>Team Audit</small>
             </a>
-            <a href="javascript:void(0)" class="nav-link" data-page="employees" id="nav-item-employees" onclick="App.navigateTo('employees'); App.closeSidebar();">
+            <a href="javascript:void(0)" class="nav-link admin-only-nav" data-page="employees" id="nav-item-employees" onclick="App.navigateTo('employees'); App.closeSidebar();">
                 <i class="fas fa-users-cog"></i>
                 <span>إدارة الموظفين والصلاحيات</span>
                 <small>Employee Management</small>
             </a>
+        </nav>
         </nav>
 
         <div class="sidebar-footer">
@@ -1550,18 +1568,18 @@
         }
     </script>
 
-    <script src="js/supabase-client.js?v=35.0"></script>
-    <script src="js/storage.js?v=35.0"></script>
-    <script src="js/excel-handler.js?v=35.0"></script>
-    <script src="js/dashboard.js?v=35.0"></script>
-    <script src="js/companies.js?v=35.0"></script>
-    <script src="js/calls.js?v=35.0"></script>
-    <script src="js/pipeline.js?v=35.0"></script>
-    <script src="js/reports.js?v=35.0"></script>
-    <script src="js/scraper.js?v=35.0"></script>
-    <script src="js/team.js?v=35.0"></script>
-    <script src="js/settings.js?v=35.0"></script>
-    <script src="js/app.js?v=35.0"></script>
+    <script src="js/supabase-client.js?v=36.0"></script>
+    <script src="js/storage.js?v=36.0"></script>
+    <script src="js/excel-handler.js?v=36.0"></script>
+    <script src="js/dashboard.js?v=36.0"></script>
+    <script src="js/companies.js?v=36.0"></script>
+    <script src="js/calls.js?v=36.0"></script>
+    <script src="js/pipeline.js?v=36.0"></script>
+    <script src="js/reports.js?v=36.0"></script>
+    <script src="js/scraper.js?v=36.0"></script>
+    <script src="js/team.js?v=36.0"></script>
+    <script src="js/settings.js?v=36.0"></script>
+    <script src="js/app.js?v=36.0"></script>
 
     <!-- EMERGENCY: Guarantee save button always works regardless of cache -->
     <script>

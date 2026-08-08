@@ -441,6 +441,14 @@ const App = {
         const canViewAll = window.AppStorage.canViewAll(current);
         const canModify = window.AppStorage.canModify(current);
 
+        if (!canViewAll) {
+            document.documentElement.classList.add('user-role-agent');
+            document.documentElement.classList.remove('user-role-admin');
+        } else {
+            document.documentElement.classList.add('user-role-admin');
+            document.documentElement.classList.remove('user-role-agent');
+        }
+
         // Toggle Sidebar elements based on role: Sales Agent sees ONLY Companies & Calls, Admin & Supervisor see ALL
         document.querySelectorAll('.sidebar-nav .nav-link').forEach(link => {
             const page = link.dataset.page;
