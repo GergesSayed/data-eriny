@@ -853,7 +853,7 @@ const ScraperPage = {
         if (statusDot) { statusDot.style.background = '#10b981'; statusDot.style.animation = 'pulse 1s infinite'; }
 
         const allCurrentCompanies = Storage.getCompanies() || [];
-        const existingNormalizedNames = new Set(
+        const existingNames = new Set(
             allCurrentCompanies.map(c => this._normalizeArabicName(c.nameAr || c.nameEn))
         );
 
@@ -862,7 +862,7 @@ const ScraperPage = {
         // 1. Extract Real Egyptian B2B Enterprises Repository Candidates
         for (const item of this._egyptianB2BRepo) {
             if (newCompanies.length >= 6) break;
-            const nameKey = item.name.toLowerCase();
+            const nameKey = this._normalizeArabicName(item.name);
             if (!existingNames.has(nameKey)) {
                 existingNames.add(nameKey);
                 const landlineCode = item.city === 'alex' ? '03' : '02';
@@ -879,7 +879,7 @@ const ScraperPage = {
                     address: item.addr,
                     phone1: randPhone,
                     mobile: randMobile,
-                    website: '',
+                    website: item.website || '',
                     latitude: item.lat,
                     longitude: item.lon,
                     google_maps_url: `https://www.google.com/maps?q=${item.lat},${item.lon}`,
@@ -899,11 +899,11 @@ const ScraperPage = {
         // 2. Dynamic Infinite Extractor Fallback (if repo items are already extracted)
         if (newCompanies.length < 5) {
             let attempt = 0;
-            while (newCompanies.length < 6 && attempt < 30) {
+            while (newCompanies.length < 6 && attempt < 50) {
                 attempt++;
                 this._dynamicSeqIndex = (this._dynamicSeqIndex || 1) + 1;
                 const genItem = this._generateFreshEgyptianCompany(this._dynamicSeqIndex);
-                const nameKey = genItem.name.toLowerCase();
+                const nameKey = this._normalizeArabicName(genItem.name);
                 if (!existingNames.has(nameKey)) {
                     existingNames.add(nameKey);
                     newCompanies.push({
