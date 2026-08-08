@@ -244,10 +244,8 @@ const App = {
             this.updateUserUI();
 
             setTimeout(() => {
-                if (this.currentPage === 'dashboard' && typeof Dashboard !== 'undefined') {
-                    Dashboard.render();
-                }
-            }, 150);
+                this.refreshCurrentPage();
+            }, 100);
         }
     },
 
@@ -365,7 +363,7 @@ const App = {
                 this.checkAuth();
 
                 const isAdmin = window.AppStorage.isAdmin(res.user);
-                this.navigateTo(isAdmin ? 'dashboard' : 'companies');
+                this.navigateTo(isAdmin ? 'dashboard' : 'companies', true);
             } catch (err) {
                 console.error('Handle login error:', err);
                 if (submitBtn) {
@@ -532,7 +530,7 @@ const App = {
         const user = window.AppStorage.getCurrentUser();
         const isAdmin = user && user.role === 'admin';
         this.showToast(isAdmin ? `👑 تم تفعيل حساب: ${user.name} - تحكم كامل بالمأذونيات` : `👤 تم التبديل إلى حساب: ${user.name}`, 'success');
-        this.navigateTo(isAdmin ? 'dashboard' : 'companies');
+        this.navigateTo(isAdmin ? 'dashboard' : 'companies', true);
     },
 
     async autoImportScrapedData() {
@@ -676,9 +674,9 @@ const App = {
         });
     },
 
-    navigateTo(page) {
+    navigateTo(page, force = false) {
         const activePageEl = document.getElementById(`page-${page}`);
-        if (this.currentPage === page && activePageEl && activePageEl.classList.contains('active')) {
+        if (!force && this.currentPage === page && activePageEl && activePageEl.classList.contains('active')) {
             return;
         }
         const currentUser = (window.AppStorage && typeof window.AppStorage.getCurrentUser === 'function') ? window.AppStorage.getCurrentUser() : null;
