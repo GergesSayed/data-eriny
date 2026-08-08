@@ -251,8 +251,18 @@ const AppStorage = {
         const userId = sessionStorage.getItem(this.KEYS.CURRENT_USER) || localStorage.getItem(this.KEYS.CURRENT_USER);
         if (!userId) return null;
         let user = this.getUser(userId);
-        if (!user) return null;
-        if (user.id === 'admin' || user.username === 'admin') {
+        if (!user) {
+            const isAdm = (userId === 'admin' || userId === 'admin@fleet.com');
+            user = {
+                id: userId,
+                username: userId.includes('@') ? userId.split('@')[0] : userId,
+                email: userId.includes('@') ? userId : '',
+                name: userId,
+                role: isAdm ? 'admin' : 'agent',
+                status: 'active'
+            };
+        }
+        if (user.id === 'admin' || user.username === 'admin' || user.email === 'admin@fleet.com') {
             user.role = 'admin';
         }
         return user;
@@ -496,20 +506,36 @@ const AppStorage = {
     getScopedCompanies() {
         const currentUser = this.getCurrentUser();
         const all = this.getCompanies();
-        if (!currentUser) return all;
+        if (!currentUser) return [];
         if (this.canViewAll(currentUser)) {
             return all; // Admin & Supervisor see everything
         }
         // Sales Agent sees ONLY companies assigned to them
-        const uid = String(currentUser.id || '').toLowerCase();
-        const uname = String(currentUser.username || '').toLowerCase();
-        const uemail = String(currentUser.email || '').toLowerCase();
-        const ufullname = String(currentUser.name || '').toLowerCase();
+        const rawId = String(currentUser.id || '').toLowerCase().trim();
+        const rawUname = String(currentUser.username || '').toLowerCase().trim();
+        const rawEmail = String(currentUser.email || '').toLowerCase().trim();
+        const rawName = String(currentUser.name || '').toLowerCase().trim();
+
+        // Match all possible identifiers across users list
+        const users = this.getUsers() || [];
+        const matchedUser = users.find(u => 
+            (u.id && String(u.id).toLowerCase().trim() === rawId) ||
+            (u.username && String(u.username).toLowerCase().trim() === rawUname) ||
+            (u.email && String(u.email).toLowerCase().trim() === rawEmail)
+        ) || currentUser;
+
+        const userKeys = new Set([
+            String(matchedUser.id || '').toLowerCase().trim(),
+            String(matchedUser.username || '').toLowerCase().trim(),
+            String(matchedUser.email || '').toLowerCase().trim(),
+            String(matchedUser.name || '').toLowerCase().trim(),
+            rawId, rawUname, rawEmail, rawName
+        ].filter(Boolean));
 
         return all.filter(c => {
             if (!c || !c.assignedTo) return false;
-            const target = String(c.assignedTo).toLowerCase();
-            return target === uid || target === uname || target === uemail || target === ufullname;
+            const target = String(c.assignedTo).toLowerCase().trim();
+            return userKeys.has(target);
         });
     },
 
