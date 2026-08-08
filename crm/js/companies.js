@@ -97,32 +97,30 @@ const Companies = {
     refreshUserFilter() {
         const currentUser = window.AppStorage.getCurrentUser();
         const isAdmin = window.AppStorage.isAdmin(currentUser);
-        const users = (window.AppStorage.getUsers() || []).filter(u => u.role !== 'admin');
         const allUsers = window.AppStorage.getUsers() || [];
 
         // 1. Filter dropdown container visibility
         const filterGroup = document.getElementById('filter-assigned-group') || document.getElementById('filter-assigned')?.parentElement;
         if (filterGroup) {
-            filterGroup.style.display = isAdmin ? 'block' : 'none';
+            filterGroup.style.display = 'block'; // Always visible for easy employee searching
         }
 
         const sel = document.getElementById('filter-assigned');
         if (sel) {
-            if (!isAdmin) {
-                sel.value = '';
-            } else {
-                const currentVal = sel.value;
-                const agentOptions = users.map(u =>
-                    `<option value="${u.id}">${u.avatar || '👤'} ${u.name}</option>`
-                ).join('');
-                sel.innerHTML = `
-                    <option value="">👤 كل الموظفين / المسند إليهم</option>
-                    <option value="my_leads">⭐ شركاتي أنا فقط</option>
-                    <option value="unassigned">⚪ غير مسندة لأحد</option>
-                    ${agentOptions}
-                `;
-                if (currentVal) sel.value = currentVal;
-            }
+            const currentVal = sel.value;
+            const userOptions = allUsers.map(u => {
+                const icon = u.role === 'admin' ? '👑' : u.role === 'supervisor' ? '👁️' : (u.avatar || '👨‍💼');
+                const roleTag = u.role === 'admin' ? 'مدير' : u.role === 'supervisor' ? 'مشرف' : 'مبيعات';
+                return `<option value="${u.id}">${icon} ${u.name} (${roleTag})</option>`;
+            }).join('');
+
+            sel.innerHTML = `
+                <option value="">👤 جميع الموظفين / التخصيص</option>
+                <option value="my_leads">⭐ شركاتي أنا فقط</option>
+                <option value="unassigned">⚪ غير مسندة لأحد (Unassigned)</option>
+                ${userOptions}
+            `;
+            if (currentVal) sel.value = currentVal;
         }
 
         // 2. Bulk assign user select dropdown
@@ -130,7 +128,7 @@ const Companies = {
         if (bulkSel) {
             const currentVal = bulkSel.value;
             const optionsHtml = allUsers.map(u =>
-                `<option value="${u.id}">${u.role === 'admin' ? '👑' : (u.avatar || '👤')} ${u.name}</option>`
+                `<option value="${u.id}">${u.role === 'admin' ? '👑' : (u.avatar || '👨‍💼')} ${u.name}</option>`
             ).join('');
             bulkSel.innerHTML = `
                 <option value="">تخصيص لـ...</option>
@@ -297,9 +295,18 @@ const Companies = {
             }
 
             if (assigned) {
-                if (assigned === 'my_leads' && c.assignedTo !== currentUser?.id) return false;
-                if (assigned === 'unassigned' && c.assignedTo) return false;
-                if (assigned !== 'my_leads' && assigned !== 'unassigned' && c.assignedTo !== assigned) return false;
+                if (assigned === 'my_leads') {
+                    if (!c.assignedTo) return false;
+                    const matchesMy = c.assignedTo === currentUser?.id || c.assignedTo === currentUser?.username || c.assignedTo === currentUser?.email || c.assignedTo === currentUser?.name;
+                    if (!matchesMy) return false;
+                } else if (assigned === 'unassigned') {
+                    if (c.assignedTo) return false;
+                } else {
+                    const targetUser = window.AppStorage.getUser(assigned);
+                    const matchesUser = c.assignedTo === assigned || 
+                                        (targetUser && (c.assignedTo === targetUser.id || c.assignedTo === targetUser.username || c.assignedTo === targetUser.email || c.assignedTo === targetUser.name));
+                    if (!matchesUser) return false;
+                }
             }
 
             if (search) {
@@ -365,7 +372,7 @@ const Companies = {
     },
 
     render() {
-        this.renderSectorPills();
+        this.refreshUserFilter();
         const companies = this.getFilteredCompanies();
         const total = companies.length;
         const totalPages = Math.ceil(total / this.pageSize);
