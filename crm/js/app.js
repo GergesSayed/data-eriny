@@ -158,7 +158,8 @@ const App = {
             } else if (!hash) {
                 hash = 'dashboard';
             }
-            this.navigateTo(hash);
+            this.navigateTo(hash, true);
+            this.refreshCurrentPage();
 
             // Periodic cloud sync pull — check for remote changes every 60 seconds
             this._cloudSyncInterval = setInterval(() => {

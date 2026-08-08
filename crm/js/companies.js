@@ -17,17 +17,15 @@ const Companies = {
         this.refreshUserFilter();
         this.render();
 
-        // If companies were not loaded yet, schedule immediate retries after DB/Cloud sync completes
-        setTimeout(() => {
-            if (this.getFilteredCompanies().length > 0 || window.AppStorage.getScopedCompanies().length > 0) {
-                this.render();
-            }
-        }, 400);
-        setTimeout(() => {
-            if (this.getFilteredCompanies().length > 0 || window.AppStorage.getScopedCompanies().length > 0) {
-                this.render();
-            }
-        }, 1200);
+        // Guaranteed auto re-render sequence on cold start / F5 refresh
+        [150, 400, 1000, 2500].forEach(delay => {
+            setTimeout(() => {
+                if (typeof App !== 'undefined' && App.currentPage === 'companies') {
+                    this.refreshUserFilter();
+                    this.render();
+                }
+            }, delay);
+        });
     },
 
     populateSectorSelects() {
