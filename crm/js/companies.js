@@ -97,12 +97,13 @@ const Companies = {
     refreshUserFilter() {
         const currentUser = window.AppStorage.getCurrentUser();
         const isAdmin = window.AppStorage.isAdmin(currentUser);
+        const canViewAll = window.AppStorage.canViewAll(currentUser);
         const allUsers = window.AppStorage.getUsers() || [];
 
-        // 1. Filter dropdown container visibility
+        // 1. Filter dropdown container visibility: Admin & Supervisor ONLY
         const filterGroup = document.getElementById('filter-assigned-group') || document.getElementById('filter-assigned')?.parentElement;
         if (filterGroup) {
-            filterGroup.style.display = 'block'; // Always visible for easy employee searching
+            filterGroup.style.display = canViewAll ? 'block' : 'none';
         }
 
         const sel = document.getElementById('filter-assigned');
