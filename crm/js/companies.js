@@ -1293,7 +1293,7 @@ const Companies = {
                     <select onchange="Companies.assignToUser('${c.id}', this.value)" style="padding:4px 8px; border-radius:6px; border:1px dashed #7c3aed; background:rgba(124, 58, 237, 0.1); color:#7c3aed; font-size:0.75rem; font-weight:700; cursor:pointer;" title="اختر الموظف لإسناد هذه الشركة له">
                         <option value="" selected>➕ إسناد لموظف...</option>
                         <option value="current_user">🙋‍♂️ حجز لي (${currentUser ? currentUser.name.split(' ')[0] : 'أنا'})</option>
-                        ${users.map(u => `<option value="${u.id}">👤 ${u.name} (${u.role === 'admin' ? 'مدير' : 'موظف'})</option>`).join('')}
+                        ${users.map(u => `<option value="${u.id}">👤 ${u.name} (${u.role === 'admin' ? 'مدير' : u.role === 'supervisor' ? 'مشرف' : 'مبيعات'})</option>`).join('')}
                     </select>
                 </div>` : `<span style="color:var(--text-muted); font-size:11px;">⚪ غير مسندة</span>`;
         }
@@ -1307,16 +1307,31 @@ const Companies = {
             targetUserId = currentUser ? currentUser.id : 'admin';
         }
 
+        const comp = window.AppStorage.getCompany(companyId);
+        const compName = comp ? (comp.nameAr || comp.nameEn || 'الشركة') : 'الشركة';
+
         if (!targetUserId) {
             window.AppStorage.assignCompany(companyId, '');
-            App.showToast('🗑️ تم إلغاء حجز وتخصيص الشركة');
+            App.showToast(`🗑️ تم إلغاء حجز وإسناد شركة "${compName}"`, 'info');
         } else {
             window.AppStorage.assignCompany(companyId, targetUserId);
             const targetUser = window.AppStorage.getUser(targetUserId);
-            App.showToast(`✅ تم حجز وإسناد الشركة لـ: ${targetUser ? targetUser.name : targetUserId}`);
+            const targetName = targetUser ? targetUser.name : targetUserId;
+            App.showToast(`✅ تم إسناد وتخصيص شركة "${compName}" بنجاح إلى: ${targetName}`, 'success');
+
+            // If active filter is 'unassigned', notify user where the company went
+            const activeFilterAssigned = document.getElementById('filter-assigned')?.value;
+            if (activeFilterAssigned === 'unassigned') {
+                setTimeout(() => {
+                    App.showToast(`ℹ️ ملحوظة: اصبحت الشركة الآن تابعة لـ (${targetName}). يمكنك فلترة الصفحة بـ (${targetName}) لمشاهدتها.`, 'info');
+                }, 1000);
+            }
         }
 
+        // Refresh Companies view, Team view & User Filters
+        this.refreshUserFilter();
         this.render();
+        if (typeof Team !== 'undefined' && Team.render) Team.render();
     },
 
     claimLead(companyId) {

@@ -1044,14 +1044,24 @@ const Team = {
     },
 
     quickChangeAssign(companyId, newUserId, currentModalTargetUserId) {
-        window.AppStorage.assignCompany(companyId, newUserId);
+        const comp = window.AppStorage.getCompany(companyId);
+        const compName = comp ? (comp.nameAr || comp.nameEn || 'الشركة') : 'الشركة';
         const user = newUserId ? window.AppStorage.getUser(newUserId) : null;
+        const userName = user ? user.name : newUserId;
+
+        window.AppStorage.assignCompany(companyId, newUserId);
         if (newUserId) {
-            App.showToast(`✅ تم إسناد الشركة إلى: ${user ? user.name : newUserId}`);
+            App.showToast(`✅ تم إسناد شركة "${compName}" بنجاح إلى: ${userName}`, 'success');
         } else {
-            App.showToast(`🗑️ تم إلغاء إسناد الشركة وتفريغها`);
+            App.showToast(`🗑️ تم إلغاء إسناد شركة "${compName}" وتفريغها`, 'info');
         }
+
         this.renderAssignList(currentModalTargetUserId);
+        this.render();
+        if (typeof Companies !== 'undefined') {
+            Companies.refreshUserFilter();
+            if (Companies.render) Companies.render();
+        }
     },
 
     approveUser(userId, role = 'agent') {
