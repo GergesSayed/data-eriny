@@ -7,7 +7,7 @@
 function _db() { return window.AppStorage; }
 
 const App = {
-    currentPage: 'companies',
+    currentPage: null,
 
     cleanAllOverlays() {
         try {
@@ -150,17 +150,18 @@ const App = {
             // Navigate to appropriate landing page (Admin always defaults to dashboard on refresh)
             const currentUser = window.AppStorage.getCurrentUser();
             const isAdmin = window.AppStorage.isAdmin(currentUser);
-            let hash = window.location.hash.replace('#', '');
+            let targetPage = 'companies';
             if (isAdmin) {
-                hash = 'dashboard';
+                targetPage = 'dashboard';
             } else {
-                if (hash !== 'companies' && hash !== 'calls' && hash !== 'pipeline') {
-                    hash = 'companies';
+                let hash = window.location.hash.replace('#', '');
+                if (hash === 'companies' || hash === 'calls' || hash === 'pipeline') {
+                    targetPage = hash;
                 }
             }
-            window.location.hash = '#' + hash;
-            this.navigateTo(hash, true);
-            this.refreshCurrentPage();
+            this.currentPage = targetPage;
+            window.location.hash = '#' + targetPage;
+            this.navigateTo(targetPage, true);
 
             // Periodic cloud sync pull — check for remote changes every 60 seconds
             this._cloudSyncInterval = setInterval(() => {
@@ -246,6 +247,11 @@ const App = {
             this.updateUserUI();
 
             setTimeout(() => {
+                if (!this.currentPage) {
+                    const u = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
+                    const adm = window.AppStorage ? window.AppStorage.isAdmin(u) : false;
+                    this.currentPage = adm ? 'dashboard' : 'companies';
+                }
                 this.refreshCurrentPage();
             }, 100);
         }
@@ -673,7 +679,12 @@ const App = {
 
     initRouting() {
         window.addEventListener('hashchange', () => {
-            const page = window.location.hash.replace('#', '') || 'companies';
+            const currentUser = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
+            const isAdmin = window.AppStorage ? window.AppStorage.isAdmin(currentUser) : false;
+            let page = window.location.hash.replace('#', '');
+            if (!page || (isAdmin && page === 'companies')) {
+                page = isAdmin ? 'dashboard' : 'companies';
+            }
             this.navigateTo(page);
         });
     },
