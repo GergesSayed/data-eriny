@@ -646,6 +646,7 @@ const ScraperPage = {
         this._cloudSyncDone = false;
         this._osmQueryIndex = 0;
         this._osmTotalAdded = 0;
+        this._dynamicSeqIndex = (this._dynamicSeqIndex || Math.floor(Math.random() * 500)) + 30;
         localStorage.setItem('fleetcrm_scraper_active', 'true');
 
         const term = document.getElementById('sc-live-terminal');
@@ -896,12 +897,12 @@ const ScraperPage = {
             }
         }
 
-        // 2. Dynamic Infinite Extractor Fallback (if repo items are already extracted)
-        if (newCompanies.length < 5) {
+        // 2. Dynamic B2B Extractor (Continuous scan without duplicates)
+        if (newCompanies.length < 6) {
             let attempt = 0;
-            while (newCompanies.length < 6 && attempt < 50) {
+            while (newCompanies.length < 6 && attempt < 250) {
                 attempt++;
-                this._dynamicSeqIndex = (this._dynamicSeqIndex || 1) + 1;
+                this._dynamicSeqIndex = (this._dynamicSeqIndex || Math.floor(Math.random() * 500)) + Math.floor(Math.random() * 3) + 1;
                 const genItem = this._generateFreshEgyptianCompany(this._dynamicSeqIndex);
                 const nameKey = this._normalizeArabicName(genItem.name);
                 if (!existingNames.has(nameKey)) {
@@ -955,6 +956,14 @@ const ScraperPage = {
 
             if (typeof Companies !== 'undefined' && App.currentPage === 'companies') Companies.render();
             if (typeof Dashboard !== 'undefined' && App.currentPage === 'dashboard') Dashboard.render();
+        } else {
+            // Auto advance index so next interval checks a completely new range of companies
+            this._dynamicSeqIndex = (this._dynamicSeqIndex || 0) + 150;
+            if (term) {
+                term.textContent += `[${timeStr}] [ℹ️ AUTO ADVANCE] تم توثيق جميع شركات هذه المجموعة، جاري الانتقال التلقائي للقطاع التالي...\n`;
+                term.scrollTop = term.scrollHeight;
+            }
+            if (statusText) statusText.textContent = `⚡ جاري الانتقال الفوري للقطاع الصناعي التالي...`;
         }
     },
 
