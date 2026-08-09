@@ -1011,11 +1011,37 @@ const AppStorage = {
             const localTimestamp = parseInt(localStorage.getItem('fleetcrm_last_sync_time') || '0');
             let updated = false;
 
-            // Only overwrite local companies if cloud is newer or local memory is empty
+            // Union/Merge local and cloud companies so company count NEVER drops
             if (data.companies && Array.isArray(data.companies) && data.companies.length > 0) {
-                const localCount = (this.companiesMemory || []).length;
-                if (localCount === 0 || cloudTimestamp >= localTimestamp) {
-                    this.companiesMemory = data.companies;
+                const map = new Map();
+                (this.companiesMemory || []).forEach(c => {
+                    if (c) {
+                        const key = String(c.id || c.nameAr || '').trim();
+                        if (key) map.set(key, c);
+                    }
+                });
+
+                data.companies.forEach(c => {
+                    if (c) {
+                        const key = String(c.id || c.nameAr || '').trim();
+                        if (key) {
+                            if (!map.has(key)) {
+                                map.set(key, c);
+                            } else {
+                                const existing = map.get(key);
+                                for (const k in c) {
+                                    if (c[k] !== undefined && c[k] !== null && c[k] !== '' && existing[k] !== c[k]) {
+                                        existing[k] = c[k];
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                const merged = Array.from(map.values());
+                if (merged.length > (this.companiesMemory || []).length) {
+                    this.companiesMemory = merged;
                     this._set(this.KEYS.COMPANIES, this.companiesMemory);
                     this.saveAllCompaniesToDB(this.companiesMemory);
                     updated = true;
@@ -1253,10 +1279,10 @@ const AppStorage = {
         this.saveAllCompaniesToDB(this.companiesMemory);
         if (this.autoSyncToCloud) this.autoSyncToCloud(this.companiesMemory);
 
-        // 2. Safe IndexedDB write with version 3
+        // 2. Safe IndexedDB write with version 4
         return new Promise((resolve) => {
             try {
-                const request = indexedDB.open('FleetCRM_DB', 3);
+                const request = indexedDB.open('FleetCRM_DB', 4);
                 request.onsuccess = (event) => {
                     const db = event.target.result;
                     if (!db.objectStoreNames.contains('companies')) { resolve(); return; }
