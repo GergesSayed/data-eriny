@@ -248,15 +248,6 @@ const App = {
             document.documentElement.style.pointerEvents = 'auto';
 
             this.updateUserUI();
-
-            setTimeout(() => {
-                if (!this.currentPage) {
-                    const u = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
-                    const adm = window.AppStorage ? window.AppStorage.isAdmin(u) : false;
-                    this.currentPage = adm ? 'dashboard' : 'companies';
-                }
-                this.refreshCurrentPage();
-            }, 100);
         }
     },
 

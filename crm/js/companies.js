@@ -15,7 +15,9 @@ const Companies = {
         this.populateSectorSelects();
         this.bindEvents();
         this.refreshUserFilter();
-        this.render();
+        if (typeof App !== 'undefined' && App.currentPage === 'companies') {
+            this.render();
+        }
 
         // Guaranteed auto re-render sequence on cold start / F5 refresh
         [150, 400, 1000, 2500].forEach(delay => {
