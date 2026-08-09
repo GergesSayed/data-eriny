@@ -876,6 +876,7 @@ const AppStorage = {
                     if (data.length > 0 && !data[0].website?.includes('fleetcobranch')) {
                         const idbMapped = data.map((c, idx) => this._normalizeCompanyData(c, idx));
                         this.companiesMemory = idbMapped;
+                        localStorage.setItem('fleetcrm_company_count', idbMapped.length);
                         const sideCounter = document.getElementById('sidebar-total-companies');
                         if (sideCounter) sideCounter.textContent = idbMapped.length.toLocaleString();
                         resolve();
@@ -921,6 +922,7 @@ const AppStorage = {
     saveAllCompaniesToDB(companies) {
         // Fallback save to localStorage — skip for datasets > 3000 companies to avoid QuotaExceededError
         try {
+            localStorage.setItem('fleetcrm_company_count', companies.length);
             if (companies.length <= 3000) {
                 this._set(this.KEYS.COMPANIES, companies);
             } else {
@@ -1871,8 +1873,11 @@ const AppStorage = {
         const deals = this.getDeals();
         const today = new Date().toISOString().split('T')[0];
 
+        const storedCount = parseInt(localStorage.getItem('fleetcrm_company_count') || '4787');
+        const count = this.getCompanies().length || storedCount;
+
         return {
-            totalCompanies: this.getCompanies().length,
+            totalCompanies: count,
             callsToday: calls.filter(c => c.date === today).length,
             openDeals: deals.filter(d => !['won', 'lost'].includes(d.stage)).length,
             pipelineValue: deals.filter(d => !['won', 'lost'].includes(d.stage))
