@@ -147,18 +147,18 @@ const App = {
             // Initialize User Switcher
             this.initUserSwitcher();
 
-            // Navigate to appropriate landing page (Admin always defaults to dashboard on refresh)
+            // Landing page resolution: Admin defaults to dashboard on login/refresh
             const currentUser = window.AppStorage.getCurrentUser();
             const isAdmin = window.AppStorage.isAdmin(currentUser);
-            let targetPage = 'companies';
+            let hash = window.location.hash.replace('#', '');
+            let targetPage;
+
             if (isAdmin) {
-                targetPage = 'dashboard';
+                targetPage = (hash && hash !== 'login') ? hash : 'dashboard';
             } else {
-                let hash = window.location.hash.replace('#', '');
-                if (hash === 'companies' || hash === 'calls' || hash === 'pipeline') {
-                    targetPage = hash;
-                }
+                targetPage = (hash === 'companies' || hash === 'calls' || hash === 'pipeline') ? hash : 'companies';
             }
+
             this.currentPage = targetPage;
             window.location.hash = '#' + targetPage;
             this.navigateTo(targetPage, true);
@@ -679,11 +679,11 @@ const App = {
 
     initRouting() {
         window.addEventListener('hashchange', () => {
-            const currentUser = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
-            const isAdmin = window.AppStorage ? window.AppStorage.isAdmin(currentUser) : false;
             let page = window.location.hash.replace('#', '');
-            if (!page || (isAdmin && page === 'companies')) {
-                page = isAdmin ? 'dashboard' : 'companies';
+            const currentUser = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
+            const canViewAll = window.AppStorage ? window.AppStorage.canViewAll(currentUser) : true;
+            if (!page) {
+                page = canViewAll ? 'dashboard' : 'companies';
             }
             this.navigateTo(page);
         });
