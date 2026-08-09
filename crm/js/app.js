@@ -66,6 +66,9 @@ const App = {
 
             // Initialize Database
             await window.AppStorage.initDB();
+            const initTotal = (window.AppStorage.getCompanies() || []).length;
+            const sideCounter = document.getElementById('sidebar-total-companies');
+            if (sideCounter && initTotal > 0) sideCounter.textContent = initTotal.toLocaleString();
 
             // Pull latest from cloud asynchronously in background without blocking UI
             window.AppStorage.pullFromCloud().then(wasUpdated => {

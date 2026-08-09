@@ -702,7 +702,7 @@ const AppStorage = {
         let cached = this._get(this.KEYS.COMPANIES);
         if (cached && Array.isArray(cached) && cached.length > 0) {
             this.companiesMemory = cached;
-        } else {
+        } else if (!this.companiesMemory || !Array.isArray(this.companiesMemory)) {
             this.companiesMemory = [];
         }
 
@@ -876,7 +876,8 @@ const AppStorage = {
                     if (data.length > 0 && !data[0].website?.includes('fleetcobranch')) {
                         const idbMapped = data.map((c, idx) => this._normalizeCompanyData(c, idx));
                         this.companiesMemory = idbMapped;
-                        this._set(this.KEYS.COMPANIES, idbMapped);
+                        const sideCounter = document.getElementById('sidebar-total-companies');
+                        if (sideCounter) sideCounter.textContent = idbMapped.length.toLocaleString();
                         resolve();
                     } else {
                         const cached = this._get(this.KEYS.COMPANIES);
