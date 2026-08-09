@@ -147,17 +147,18 @@ const App = {
             // Initialize User Switcher
             this.initUserSwitcher();
 
-            // Navigate to current hash or appropriate home
+            // Navigate to appropriate landing page (Admin always defaults to dashboard on refresh)
             const currentUser = window.AppStorage.getCurrentUser();
             const isAdmin = window.AppStorage.isAdmin(currentUser);
             let hash = window.location.hash.replace('#', '');
-            if (!currentUser || !isAdmin) {
+            if (isAdmin) {
+                hash = 'dashboard';
+            } else {
                 if (hash !== 'companies' && hash !== 'calls' && hash !== 'pipeline') {
                     hash = 'companies';
                 }
-            } else if (!hash) {
-                hash = 'dashboard';
             }
+            window.location.hash = '#' + hash;
             this.navigateTo(hash, true);
             this.refreshCurrentPage();
 
@@ -364,7 +365,9 @@ const App = {
                 this.checkAuth();
 
                 const isAdmin = window.AppStorage.isAdmin(res.user);
-                this.navigateTo(isAdmin ? 'dashboard' : 'companies', true);
+                const targetPage = isAdmin ? 'dashboard' : 'companies';
+                window.location.hash = '#' + targetPage;
+                this.navigateTo(targetPage, true);
             } catch (err) {
                 console.error('Handle login error:', err);
                 if (submitBtn) {
