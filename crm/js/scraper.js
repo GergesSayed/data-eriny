@@ -832,8 +832,17 @@ const ScraperPage = {
             lon: lon,
             fleet: fleet,
             phone: randPhone,
-            mobile: randMobile
         };
+    },
+
+    _normalizeArabicName(name) {
+        if (!name) return '';
+        return name.toString().toLowerCase()
+            .replace(/[أإآ]/g, 'ا')
+            .replace(/ة/g, 'ه')
+            .replace(/ى/g, 'ي')
+            .replace(/[\s\-_\(\)]/g, '')
+            .trim();
     },
 
     async _scrapeOSMBatch(term, timeStr, statusText, statusDot) {
