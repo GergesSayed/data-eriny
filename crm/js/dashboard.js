@@ -6,7 +6,9 @@ const Dashboard = {
     charts: {},
 
     init() {
-        this.render();
+        if (typeof App === 'undefined' || !App.currentPage || App.currentPage === 'dashboard') {
+            this.render();
+        }
     },
 
     render() {

@@ -8,7 +8,9 @@ const Calls = {
     groupMode: 'company', // 'company' or 'flat'
 
     init() {
-        this.render();
+        if (typeof App !== 'undefined' && App.currentPage === 'calls') {
+            this.render();
+        }
     },
 
     setGroupMode(mode) {

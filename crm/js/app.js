@@ -136,20 +136,6 @@ const App = {
             this.renderNotifications();
             this.bindEvents();
 
-            // Initialize all modules safely with error boundaries
-            const safeInit = (name, check, fn) => {
-                try { if (typeof check !== 'undefined') fn(); } catch (e) { console.error(name + ' init:', e); }
-            };
-            safeInit('Dashboard', Dashboard, () => Dashboard.init());
-            safeInit('Companies', Companies, () => Companies.init());
-            safeInit('Calls', Calls, () => Calls.init());
-            safeInit('Pipeline', Pipeline, () => Pipeline.init());
-            safeInit('Reports', Reports, () => Reports.init());
-            safeInit('Team', Team, () => Team.init());
-
-            // Initialize User Switcher
-            this.initUserSwitcher();
-
             // Landing page resolution: Admin defaults to dashboard on login/refresh
             const currentUser = window.AppStorage.getCurrentUser();
             const isAdmin = window.AppStorage.isAdmin(currentUser);
@@ -164,6 +150,26 @@ const App = {
 
             this.currentPage = targetPage;
             window.location.hash = '#' + targetPage;
+
+            // Activate target page element immediately in DOM before module init to prevent layout flash
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            const targetEl = document.getElementById(`page-${targetPage}`);
+            if (targetEl) targetEl.classList.add('active');
+
+            // Initialize User Switcher
+            this.initUserSwitcher();
+
+            // Initialize all modules safely with error boundaries
+            const safeInit = (name, check, fn) => {
+                try { if (typeof check !== 'undefined') fn(); } catch (e) { console.error(name + ' init:', e); }
+            };
+            safeInit('Dashboard', Dashboard, () => Dashboard.init());
+            safeInit('Companies', Companies, () => Companies.init());
+            safeInit('Calls', Calls, () => Calls.init());
+            safeInit('Pipeline', Pipeline, () => Pipeline.init());
+            safeInit('Reports', Reports, () => Reports.init());
+            safeInit('Team', Team, () => Team.init());
+
             this.navigateTo(targetPage, true);
 
             // Periodic cloud sync pull — check for remote changes every 60 seconds

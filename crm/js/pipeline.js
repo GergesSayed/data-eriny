@@ -6,8 +6,10 @@ const Pipeline = {
     draggedDeal: null,
 
     init() {
-        this.render();
-        this.initDragAndDrop();
+        if (typeof App !== 'undefined' && App.currentPage === 'pipeline') {
+            this.render();
+            this.initDragAndDrop();
+        }
     },
 
     render() {
