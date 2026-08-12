@@ -53,19 +53,22 @@ const App = {
         }, 5000);
 
         try {
-            // Ensure clean initial state flags if needed
+            // Check authentication session FIRST so main-wrapper is displayed instantly on frame 1
+            this.checkAuth();
+
+            // Clear legacy reset flags to preserve user login session and data
             try {
-                // Clear legacy reset flags to preserve user login session and data
-                try {
-                    localStorage.removeItem('fleetcrm_auth_reset_v5');
-                    localStorage.removeItem('fleetcrm_deals_cleared_v3');
-                } catch(e) {}
-            } catch (e) {
-                console.error('Storage flag error:', e);
+                localStorage.removeItem('fleetcrm_auth_reset_v5');
+                localStorage.removeItem('fleetcrm_deals_cleared_v3');
+            } catch(e) {}
+
+            // Initialize Database safely without blocking UI rendering
+            try {
+                await window.AppStorage.initDB();
+            } catch(dbErr) {
+                console.warn('DB Init notice:', dbErr);
             }
 
-            // Initialize Database
-            await window.AppStorage.initDB();
             const initTotal = (window.AppStorage.getCompanies() || []).length;
             const sideCounter = document.getElementById('sidebar-total-companies');
             if (sideCounter && initTotal > 0) sideCounter.textContent = initTotal.toLocaleString();
@@ -103,9 +106,6 @@ const App = {
                     }
                 }).catch(() => {});
             });
-
-            // Check authentication session first so main-wrapper layout is visible
-            this.checkAuth();
 
             // Migrate existing companies' sectors/cities to canonical keys if not done yet
             if (!localStorage.getItem('fleetcrm_city_sector_mapped_v7')) {
