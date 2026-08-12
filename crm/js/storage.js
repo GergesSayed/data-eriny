@@ -1628,7 +1628,35 @@ const AppStorage = {
 
     // ---- Calls ----
     getCalls() {
-        return this._get(this.KEYS.CALLS);
+        let calls = this._get(this.KEYS.CALLS);
+        if ((!calls || !Array.isArray(calls) || calls.length === 0) && localStorage.getItem('fleetcrm_user_wiped_calls') !== 'true') {
+            const today = new Date().toISOString().split('T')[0];
+            const comps = (this.companiesMemory && this.companiesMemory.length > 0) ? this.companiesMemory : [];
+            calls = [
+                {
+                    id: 'call_seed_1',
+                    companyId: comps[0] ? comps[0].id : 'cloud_0',
+                    date: today,
+                    time: '10:30',
+                    result: 'interested',
+                    notes: 'تم التواصل مع مدير الأسطول وإبداء اهتمام بعرض إطارات النقل الثقيل',
+                    followUpDate: today,
+                    createdAt: new Date().toISOString()
+                },
+                {
+                    id: 'call_seed_2',
+                    companyId: comps[1] ? comps[1].id : 'cloud_1',
+                    date: today,
+                    time: '11:45',
+                    result: 'meeting_scheduled',
+                    notes: 'تم تحديد موعد اجتماع لمناقشة أسعار التوريد السنوي',
+                    followUpDate: today,
+                    createdAt: new Date().toISOString()
+                }
+            ];
+            try { this._set(this.KEYS.CALLS, calls); } catch(e){}
+        }
+        return calls || [];
     },
 
     getScopedCalls() {
@@ -1737,7 +1765,34 @@ const AppStorage = {
 
     // ---- Deals ----
     getDeals() {
-        return this._get(this.KEYS.DEALS);
+        let deals = this._get(this.KEYS.DEALS);
+        if ((!deals || !Array.isArray(deals) || deals.length === 0) && localStorage.getItem('fleetcrm_user_wiped_deals') !== 'true') {
+            const comps = (this.companiesMemory && this.companiesMemory.length > 0) ? this.companiesMemory : [];
+            deals = [
+                {
+                    id: 'deal_seed_1',
+                    companyId: comps[0] ? comps[0].id : 'cloud_0',
+                    title: 'توريد 100 إطار نقل ثقيل Bridgestone',
+                    value: 500000,
+                    stage: 'proposal',
+                    tireType: 'truck',
+                    quantity: 100,
+                    createdAt: new Date().toISOString()
+                },
+                {
+                    id: 'deal_seed_2',
+                    companyId: comps[1] ? comps[1].id : 'cloud_1',
+                    title: 'عقد سنوي إطارات أسطول التوزيع',
+                    value: 1200000,
+                    stage: 'negotiation',
+                    tireType: 'light_truck',
+                    quantity: 400,
+                    createdAt: new Date().toISOString()
+                }
+            ];
+            try { this._set(this.KEYS.DEALS, deals); } catch(e){}
+        }
+        return deals || [];
     },
 
     getDeal(id) {
