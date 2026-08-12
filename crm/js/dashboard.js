@@ -37,19 +37,24 @@ const Dashboard = {
     },
 
     updateStatCards(stats) {
-        this._animateNumber('dash-total-companies', stats.totalCompanies || 0);
-        this._animateNumber('dash-calls-today', stats.callsToday || 0);
-        this._animateNumber('dash-open-deals', stats.openDeals || 0);
-        
+        const compEl = document.getElementById('dash-total-companies');
+        if (compEl) compEl.textContent = (stats.totalCompanies || 0).toLocaleString('ar-EG');
+
+        const callsEl = document.getElementById('dash-calls-today');
+        if (callsEl) callsEl.textContent = (stats.callsToday || 0).toLocaleString('ar-EG');
+
+        const dealsEl = document.getElementById('dash-open-deals');
+        if (dealsEl) dealsEl.textContent = (stats.openDeals || 0).toLocaleString('ar-EG');
+
         const valEl = document.getElementById('dash-pipeline-value');
         if (valEl) valEl.textContent = window.AppStorage.formatCurrency(stats.pipelineValue || 0);
-        
+
         // Sidebar stats
         const sideComp = document.getElementById('sidebar-total-companies');
-        if (sideComp) sideComp.textContent = stats.totalCompanies || 0;
-        
+        if (sideComp) sideComp.textContent = (stats.totalCompanies || 0).toLocaleString('ar-EG');
+
         const sideDeals = document.getElementById('sidebar-total-deals');
-        if (sideDeals) sideDeals.textContent = stats.openDeals || 0;
+        if (sideDeals) sideDeals.textContent = (stats.openDeals || 0).toLocaleString('ar-EG');
     },
 
     _animateNumber(elementId, target) {

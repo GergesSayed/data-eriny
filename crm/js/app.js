@@ -62,12 +62,12 @@ const App = {
                 localStorage.removeItem('fleetcrm_deals_cleared_v3');
             } catch(e) {}
 
-            // Initialize Database safely without blocking UI rendering
-            try {
-                await window.AppStorage.initDB();
-            } catch(dbErr) {
+            // Initialize Database asynchronously in background without blocking frame 1 UI rendering
+            window.AppStorage.initDB().then(() => {
+                this.refreshCurrentPage();
+            }).catch(dbErr => {
                 console.warn('DB Init notice:', dbErr);
-            }
+            });
 
             const initTotal = (window.AppStorage.getCompanies() || []).length;
             const sideCounter = document.getElementById('sidebar-total-companies');
