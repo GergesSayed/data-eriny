@@ -836,6 +836,9 @@ const AppStorage = {
                         this.companiesMemory = jsonData.map((c, idx) => this._normalizeCompanyData(c, idx));
                         this._set(this.KEYS.COMPANIES, this.companiesMemory);
                         this.saveAllCompaniesToDB(this.companiesMemory);
+                        if (typeof window.App !== 'undefined' && typeof window.App.refreshCurrentPage === 'function') {
+                            setTimeout(() => window.App.refreshCurrentPage(), 50);
+                        }
                         // Also update Supabase cloud dataset if present
                         if (window.SupabaseClient) {
                             window.SupabaseClient.pushMasterData({
@@ -879,11 +882,17 @@ const AppStorage = {
                         localStorage.setItem('fleetcrm_company_count', idbMapped.length);
                         const sideCounter = document.getElementById('sidebar-total-companies');
                         if (sideCounter) sideCounter.textContent = idbMapped.length.toLocaleString();
+                        if (typeof window.App !== 'undefined' && typeof window.App.refreshCurrentPage === 'function') {
+                            setTimeout(() => window.App.refreshCurrentPage(), 50);
+                        }
                         resolve();
                     } else {
                         const cached = this._get(this.KEYS.COMPANIES);
                         if (cached && Array.isArray(cached) && cached.length > 0) {
                             this.companiesMemory = cached;
+                            if (typeof window.App !== 'undefined' && typeof window.App.refreshCurrentPage === 'function') {
+                                setTimeout(() => window.App.refreshCurrentPage(), 50);
+                            }
                             resolve();
                         } else if (!this.companiesMemory || this.companiesMemory.length === 0) {
                             this._seedInitialJsonData().then(() => resolve());
