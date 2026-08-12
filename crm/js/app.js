@@ -748,7 +748,7 @@ const App = {
 
     refreshCurrentPage() {
         if (this.currentPage) {
-            this.navigateTo(this.currentPage);
+            this.navigateTo(this.currentPage, true);
         }
     },
 
