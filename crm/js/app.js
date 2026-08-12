@@ -75,9 +75,7 @@ const App = {
 
             // Pull latest from cloud asynchronously in background without blocking UI
             window.AppStorage.pullFromCloud().then(wasUpdated => {
-                if (wasUpdated || (this.currentPage === 'companies' && (window.AppStorage.getScopedCompanies() || []).length > 0)) {
-                    this.refreshCurrentPage();
-                }
+                this.refreshCurrentPage();
             }).catch(() => false);
 
             // Start continuous background cloud synchronization loop (every 8s) across all devices

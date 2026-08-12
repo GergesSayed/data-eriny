@@ -9,6 +9,15 @@ const Dashboard = {
         if (typeof App === 'undefined' || !App.currentPage || App.currentPage === 'dashboard') {
             this.render();
         }
+
+        // Guaranteed auto re-render sequence on cold start / F5 refresh to update stats after storage hydrations
+        [200, 500, 1200].forEach(delay => {
+            setTimeout(() => {
+                if (typeof App !== 'undefined' && App.currentPage === 'dashboard') {
+                    this.render();
+                }
+            }, delay);
+        });
     },
 
     render() {
