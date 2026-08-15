@@ -35,9 +35,11 @@ const Pipeline = {
     },
 
     renderColumns(dealsByStage) {
-        // Update total pipeline value
-        document.getElementById('pipeline-total-value').textContent =
-            window.AppStorage.formatCurrency(window.AppStorage.getPipelineValue()) + ' ج.م';
+        // Update total pipeline value safely
+        const totalValEl = document.getElementById('pipeline-total-value');
+        if (totalValEl) {
+            totalValEl.textContent = window.AppStorage.formatCurrency(window.AppStorage.getPipelineValue()) + ' ج.م';
+        }
 
         // Render each column
         Object.keys(window.AppStorage.PIPELINE_STAGES).forEach(stage => {

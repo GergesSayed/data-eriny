@@ -1,0 +1,448 @@
+{
+  "unguarded_dom": [
+    {
+      "file": "app.js",
+      "line": 981,
+      "code": "document.getElementById('global-search').value = '';"
+    },
+    {
+      "file": "calls.js",
+      "line": 36,
+      "code": "document.getElementById('confirm-message').textContent = 'هل أنت متأكد من مسح جميع المكالمات المسجلة من السجل؟';"
+    },
+    {
+      "file": "calls.js",
+      "line": 37,
+      "code": "document.getElementById('btn-confirm-action').onclick = () => {"
+    },
+    {
+      "file": "calls.js",
+      "line": 50,
+      "code": "document.getElementById('calls-total-today').textContent = todayCalls.length;"
+    },
+    {
+      "file": "calls.js",
+      "line": 51,
+      "code": "document.getElementById('calls-interested').textContent ="
+    },
+    {
+      "file": "calls.js",
+      "line": 53,
+      "code": "document.getElementById('calls-followup').textContent ="
+    },
+    {
+      "file": "calls.js",
+      "line": 55,
+      "code": "document.getElementById('calls-not-interested').textContent ="
+    },
+    {
+      "file": "calls.js",
+      "line": 330,
+      "code": "document.getElementById('modal-call-title').innerHTML = '<i class=\"fas fa-edit\"></i> تعديل المكالمة';"
+    },
+    {
+      "file": "calls.js",
+      "line": 331,
+      "code": "document.getElementById('call-id').value = call.id;"
+    },
+    {
+      "file": "calls.js",
+      "line": 335,
+      "code": "document.getElementById('call-date').value = call.date || '';"
+    },
+    {
+      "file": "calls.js",
+      "line": 336,
+      "code": "document.getElementById('call-time').value = call.time || '';"
+    },
+    {
+      "file": "calls.js",
+      "line": 337,
+      "code": "document.getElementById('call-contactPerson').value = call.contactPerson || '';"
+    },
+    {
+      "file": "calls.js",
+      "line": 338,
+      "code": "document.getElementById('call-result').value = call.result || 'no_answer';"
+    },
+    {
+      "file": "calls.js",
+      "line": 339,
+      "code": "document.getElementById('call-followUpDate').value = call.followUpDate || '';"
+    },
+    {
+      "file": "calls.js",
+      "line": 340,
+      "code": "document.getElementById('call-notes').value = call.notes || '';"
+    },
+    {
+      "file": "calls.js",
+      "line": 390,
+      "code": "document.getElementById('confirm-message').textContent = 'هل أنت متأكد من حذف هذه المكالمة؟';"
+    },
+    {
+      "file": "companies.js",
+      "line": 921,
+      "code": "document.getElementById('company-id').value = '';"
+    },
+    {
+      "file": "companies.js",
+      "line": 922,
+      "code": "document.getElementById('modal-company-title').innerHTML = '<i class=\"fas fa-building\"></i> إضافة شركة جديدة';"
+    },
+    {
+      "file": "companies.js",
+      "line": 934,
+      "code": "document.getElementById('modal-company-title').innerHTML = '<i class=\"fas fa-edit\"></i> تعديل بيانات الشركة';"
+    },
+    {
+      "file": "companies.js",
+      "line": 935,
+      "code": "document.getElementById('company-id').value = company.id;"
+    },
+    {
+      "file": "companies.js",
+      "line": 969,
+      "code": "const id = document.getElementById('company-id').value;"
+    },
+    {
+      "file": "companies.js",
+      "line": 1009,
+      "code": "document.getElementById('detail-company-name').textContent = company.nameAr || company.nameEn;"
+    },
+    {
+      "file": "companies.js",
+      "line": 1270,
+      "code": "document.getElementById('btn-detail-call').onclick = () => {"
+    },
+    {
+      "file": "companies.js",
+      "line": 1274,
+      "code": "document.getElementById('btn-detail-edit').onclick = () => {"
+    },
+    {
+      "file": "pipeline.js",
+      "line": 27,
+      "code": "document.getElementById('confirm-message').textContent = 'هل أنت متأكد من مسح جميع الصفقات من خط المبيعات؟';"
+    },
+    {
+      "file": "pipeline.js",
+      "line": 28,
+      "code": "document.getElementById('btn-confirm-action').onclick = () => {"
+    },
+    {
+      "file": "pipeline.js",
+      "line": 39,
+      "code": "document.getElementById('pipeline-total-value').textContent ="
+    },
+    {
+      "file": "pipeline.js",
+      "line": 141,
+      "code": "document.getElementById('deal-id').value = '';"
+    },
+    {
+      "file": "pipeline.js",
+      "line": 142,
+      "code": "document.getElementById('modal-deal-title').innerHTML = '<i class=\"fas fa-handshake\"></i> إضافة صفقة جديدة';"
+    },
+    {
+      "file": "pipeline.js",
+      "line": 152,
+      "code": "document.getElementById('modal-deal-title').innerHTML = '<i class=\"fas fa-edit\"></i> تعديل الصفقة';"
+    },
+    {
+      "file": "pipeline.js",
+      "line": 153,
+      "code": "document.getElementById('deal-id').value = deal.id;"
+    },
+    {
+      "file": "pipeline.js",
+      "line": 157,
+      "code": "document.getElementById('deal-title').value = deal.title || '';"
+    },
+    {
+      "file": "pipeline.js",
+      "line": 158,
+      "code": "document.getElementById('deal-value').value = deal.value || '';"
+    },
+    {
+      "file": "pipeline.js",
+      "line": 159,
+      "code": "document.getElementById('deal-stage').value = deal.stage || 'initial_contact';"
+    },
+    {
+      "file": "pipeline.js",
+      "line": 160,
+      "code": "document.getElementById('deal-tireType').value = deal.tireType || 'all';"
+    },
+    {
+      "file": "pipeline.js",
+      "line": 161,
+      "code": "document.getElementById('deal-quantity').value = deal.quantity || '';"
+    },
+    {
+      "file": "pipeline.js",
+      "line": 162,
+      "code": "document.getElementById('deal-expectedCloseDate').value = deal.expectedCloseDate || '';"
+    },
+    {
+      "file": "pipeline.js",
+      "line": 163,
+      "code": "document.getElementById('deal-notes').value = deal.notes || '';"
+    },
+    {
+      "file": "pipeline.js",
+      "line": 176,
+      "code": "companyId: document.getElementById('deal-companyId').value,"
+    },
+    {
+      "file": "pipeline.js",
+      "line": 177,
+      "code": "title: document.getElementById('deal-title').value,"
+    },
+    {
+      "file": "pipeline.js",
+      "line": 178,
+      "code": "value: document.getElementById('deal-value').value,"
+    },
+    {
+      "file": "pipeline.js",
+      "line": 179,
+      "code": "stage: document.getElementById('deal-stage').value,"
+    },
+    {
+      "file": "pipeline.js",
+      "line": 180,
+      "code": "tireType: document.getElementById('deal-tireType').value,"
+    },
+    {
+      "file": "pipeline.js",
+      "line": 181,
+      "code": "quantity: document.getElementById('deal-quantity').value,"
+    },
+    {
+      "file": "pipeline.js",
+      "line": 182,
+      "code": "expectedCloseDate: document.getElementById('deal-expectedCloseDate').value,"
+    },
+    {
+      "file": "pipeline.js",
+      "line": 183,
+      "code": "notes: document.getElementById('deal-notes').value"
+    },
+    {
+      "file": "pipeline.js",
+      "line": 186,
+      "code": "const id = document.getElementById('deal-id').value;"
+    },
+    {
+      "file": "pipeline.js",
+      "line": 200,
+      "code": "document.getElementById('confirm-message').textContent ="
+    },
+    {
+      "file": "reports.js",
+      "line": 335,
+      "code": "document.getElementById('perf-response-rate').style.width = responseRate + '%';"
+    },
+    {
+      "file": "reports.js",
+      "line": 336,
+      "code": "document.getElementById('perf-response-value').textContent = responseRate + '%';"
+    },
+    {
+      "file": "reports.js",
+      "line": 338,
+      "code": "document.getElementById('perf-conversion-rate').style.width = conversionRate + '%';"
+    },
+    {
+      "file": "reports.js",
+      "line": 339,
+      "code": "document.getElementById('perf-conversion-value').textContent = conversionRate + '%';"
+    },
+    {
+      "file": "reports.js",
+      "line": 342,
+      "code": "document.getElementById('perf-avg-deal').style.width = avgWidth + '%';"
+    },
+    {
+      "file": "reports.js",
+      "line": 343,
+      "code": "document.getElementById('perf-avg-deal-value').textContent = window.AppStorage.formatCurrency(avgDealValue) + ' ج.م';"
+    },
+    {
+      "file": "scraper.js",
+      "line": 350,
+      "code": "document.getElementById('sc-total').textContent = total.toLocaleString();"
+    },
+    {
+      "file": "scraper.js",
+      "line": 351,
+      "code": "document.getElementById('sc-phones').textContent = withPhone.toLocaleString();"
+    },
+    {
+      "file": "scraper.js",
+      "line": 352,
+      "code": "document.getElementById('sc-linkedin').textContent = (statsData.with_linkedin || 0).toLocaleString();"
+    },
+    {
+      "file": "scraper.js",
+      "line": 353,
+      "code": "document.getElementById('sc-searches').textContent = searches.toLocaleString();"
+    },
+    {
+      "file": "scraper.js",
+      "line": 364,
+      "code": "document.getElementById('sc-speed').textContent = speed;"
+    },
+    {
+      "file": "scraper.js",
+      "line": 369,
+      "code": "document.getElementById('sc-eta').textContent = etaMin < 60"
+    },
+    {
+      "file": "scraper.js",
+      "line": 377,
+      "code": "document.getElementById('sc-progress-bar').style.width = pct + '%';"
+    },
+    {
+      "file": "scraper.js",
+      "line": 378,
+      "code": "document.getElementById('sc-progress-bar').textContent = pct.toFixed(1) + '%';"
+    },
+    {
+      "file": "scraper.js",
+      "line": 379,
+      "code": "document.getElementById('sc-target-label').textContent = `الهدف: ${target.toLocaleString()} شركة`;"
+    },
+    {
+      "file": "scraper.js",
+      "line": 395,
+      "code": "document.getElementById('sc-sectors').innerHTML = sortedStats.length > 0"
+    },
+    {
+      "file": "scraper.js",
+      "line": 406,
+      "code": "document.getElementById('sc-recent').innerHTML = recentReversed.length > 0"
+    },
+    {
+      "file": "scraper.js",
+      "line": 420,
+      "code": "document.getElementById('sc-recent-linkedin').innerHTML = linkedinReversed.length > 0"
+    },
+    {
+      "file": "scraper.js",
+      "line": 441,
+      "code": "document.getElementById('sc-sync-status').innerHTML = `"
+    },
+    {
+      "file": "scraper.js",
+      "line": 458,
+      "code": "document.getElementById('sc-last-update').textContent = 'تحديث: ' + new Date().toLocaleTimeString('ar-EG');"
+    },
+    {
+      "file": "scraper.js",
+      "line": 473,
+      "code": "document.getElementById('confirm-message').textContent = '⚠️ هل تريد مسح جميع البيانات الحالية في الـ CRM لمزامنة الحالة الفارغة؟';"
+    },
+    {
+      "file": "scraper.js",
+      "line": 474,
+      "code": "document.getElementById('btn-confirm-action').onclick = () => {"
+    },
+    {
+      "file": "scraper.js",
+      "line": 479,
+      "code": "document.getElementById('sidebar-total-companies').textContent = '0';"
+    },
+    {
+      "file": "scraper.js",
+      "line": 508,
+      "code": "document.getElementById('sidebar-total-companies').textContent = formatted.length;"
+    },
+    {
+      "file": "scraper.js",
+      "line": 630,
+      "code": "document.getElementById('sidebar-total-companies').textContent = total.toLocaleString();"
+    },
+    {
+      "file": "team.js",
+      "line": 739,
+      "code": "const id = document.getElementById('user-edit-id').value;"
+    },
+    {
+      "file": "team.js",
+      "line": 740,
+      "code": "const firstName = document.getElementById('user-input-firstname').value;"
+    },
+    {
+      "file": "team.js",
+      "line": 741,
+      "code": "const lastName = document.getElementById('user-input-lastname').value;"
+    },
+    {
+      "file": "team.js",
+      "line": 742,
+      "code": "const email = document.getElementById('user-input-email').value;"
+    },
+    {
+      "file": "team.js",
+      "line": 743,
+      "code": "const password = document.getElementById('user-input-password').value;"
+    },
+    {
+      "file": "team.js",
+      "line": 744,
+      "code": "const confirmPassword = document.getElementById('user-input-confirm-password').value;"
+    },
+    {
+      "file": "team.js",
+      "line": 745,
+      "code": "const erpCode = document.getElementById('user-input-erp').value;"
+    },
+    {
+      "file": "team.js",
+      "line": 746,
+      "code": "const region = document.getElementById('user-input-region').value;"
+    },
+    {
+      "file": "team.js",
+      "line": 747,
+      "code": "const role = document.getElementById('user-input-role').value;"
+    },
+    {
+      "file": "team.js",
+      "line": 851,
+      "code": "const newPassword = document.getElementById('reset-new-password').value;"
+    },
+    {
+      "file": "team.js",
+      "line": 852,
+      "code": "const confirmPassword = document.getElementById('reset-confirm-password').value;"
+    },
+    {
+      "file": "team.js",
+      "line": 872,
+      "code": "document.getElementById('confirm-message').textContent = 'هل أنت متأكد من رغبتك في حذف حساب هذا الموظف؟';"
+    },
+    {
+      "file": "team.js",
+      "line": 873,
+      "code": "document.getElementById('btn-confirm-action').onclick = () => {"
+    },
+    {
+      "file": "team.js",
+      "line": 1078,
+      "code": "document.getElementById('confirm-message').textContent = 'هل أنت متأكد من رفض وإلغاء طلب التسجيل هذا؟';"
+    },
+    {
+      "file": "team.js",
+      "line": 1079,
+      "code": "document.getElementById('btn-confirm-action').onclick = () => {"
+    }
+  ],
+  "unhandled_json_parse": [],
+  "missing_null_checks": [],
+  "duplicate_ids": [],
+  "storage_issues": []
+}

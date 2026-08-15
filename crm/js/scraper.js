@@ -334,10 +334,11 @@ const ScraperPage = {
     },
 
     updateUI(statsData) {
+        if (!statsData || !document.getElementById('sc-total')) return;
         const esc = (s) => (typeof Storage !== 'undefined' && Storage.escapeHtml ? Storage.escapeHtml(s || '') : (s || ''));
-        const total = statsData.total;
-        const withPhone = statsData.with_phone;
-        const searches = statsData.completed_searches_count;
+        const total = statsData.total || 0;
+        const withPhone = statsData.with_phone || 0;
+        const searches = statsData.completed_searches_count || 0;
         const target = statsData.target || 200000;
         const stats = statsData.stats || {};
         const recent = statsData.recent_companies || [];

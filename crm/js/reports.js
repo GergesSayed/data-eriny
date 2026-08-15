@@ -331,15 +331,21 @@ const Reports = {
         const avgDealValue = deals.length > 0 ? Math.round(totalDealValue / deals.length) : 0;
         const maxPossibleAvg = 2000000; // For display scaling
 
-        // Update UI
-        document.getElementById('perf-response-rate').style.width = responseRate + '%';
-        document.getElementById('perf-response-value').textContent = responseRate + '%';
+        // Update UI safely
+        const respEl = document.getElementById('perf-response-rate');
+        const respValEl = document.getElementById('perf-response-value');
+        if (respEl) respEl.style.width = responseRate + '%';
+        if (respValEl) respValEl.textContent = responseRate + '%';
 
-        document.getElementById('perf-conversion-rate').style.width = conversionRate + '%';
-        document.getElementById('perf-conversion-value').textContent = conversionRate + '%';
+        const convEl = document.getElementById('perf-conversion-rate');
+        const convValEl = document.getElementById('perf-conversion-value');
+        if (convEl) convEl.style.width = conversionRate + '%';
+        if (convValEl) convValEl.textContent = conversionRate + '%';
 
         const avgWidth = Math.min(100, Math.round((avgDealValue / maxPossibleAvg) * 100));
-        document.getElementById('perf-avg-deal').style.width = avgWidth + '%';
-        document.getElementById('perf-avg-deal-value').textContent = window.AppStorage.formatCurrency(avgDealValue) + ' ج.م';
+        const avgEl = document.getElementById('perf-avg-deal');
+        const avgValEl = document.getElementById('perf-avg-deal-value');
+        if (avgEl) avgEl.style.width = avgWidth + '%';
+        if (avgValEl) avgValEl.textContent = window.AppStorage.formatCurrency(avgDealValue) + ' ج.م';
     }
 };

@@ -47,13 +47,17 @@ const Calls = {
         const calls = window.AppStorage.getScopedCalls();
         const todayCalls = calls.filter(c => c.date === today);
 
-        document.getElementById('calls-total-today').textContent = todayCalls.length;
-        document.getElementById('calls-interested').textContent =
-            todayCalls.filter(c => ['interested', 'meeting_scheduled', 'proposal_sent'].includes(c.result)).length;
-        document.getElementById('calls-followup').textContent =
-            todayCalls.filter(c => c.result === 'callback').length;
-        document.getElementById('calls-not-interested').textContent =
-            todayCalls.filter(c => ['not_interested', 'wrong_number'].includes(c.result)).length;
+        const totalEl = document.getElementById('calls-total-today');
+        if (totalEl) totalEl.textContent = todayCalls.length;
+
+        const intEl = document.getElementById('calls-interested');
+        if (intEl) intEl.textContent = todayCalls.filter(c => ['interested', 'meeting_scheduled', 'proposal_sent'].includes(c.result)).length;
+
+        const folEl = document.getElementById('calls-followup');
+        if (folEl) folEl.textContent = todayCalls.filter(c => c.result === 'callback').length;
+
+        const notIntEl = document.getElementById('calls-not-interested');
+        if (notIntEl) notIntEl.textContent = todayCalls.filter(c => ['not_interested', 'wrong_number'].includes(c.result)).length;
     },
 
     getCallAgentName(call) {
