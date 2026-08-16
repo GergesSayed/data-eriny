@@ -7,14 +7,20 @@ const Dashboard = {
 
     init() {
         this.render();
-        // Guaranteed auto re-render sequence on cold start / F5 refresh to update stats after storage hydrations
-        [100, 300, 700, 1500].forEach(delay => {
+        // Guaranteed auto re-render sequence on cold start / F5 refresh to update stats after storage hydrations & script downloads
+        [50, 150, 300, 600, 1200, 2500, 4000].forEach(delay => {
             setTimeout(() => {
                 if (typeof App !== 'undefined' && (!App.currentPage || App.currentPage === 'dashboard')) {
                     this.render();
                 }
             }, delay);
         });
+
+        if (document.readyState === 'complete') {
+            this.render();
+        } else {
+            window.addEventListener('load', () => this.render());
+        }
     },
 
     render() {
@@ -71,26 +77,95 @@ const Dashboard = {
         if (sideDeals) sideDeals.textContent = openDealsCount.toLocaleString('en-US');
     },
 
-    _animateNumber(elementId, target) {
-        const el = document.getElementById(elementId);
-        if (!el) return;
-        const current = parseInt(el.textContent) || 0;
-        if (current === target) { el.textContent = target; return; }
-        
-        const duration = 600;
-        const steps = 30;
-        const increment = (target - current) / steps;
-        let step = 0;
-        
-        const timer = setInterval(() => {
-            step++;
-            if (step >= steps) {
-                el.textContent = target;
-                clearInterval(timer);
-            } else {
-                el.textContent = Math.round(current + increment * step);
-            }
-        }, duration / steps);
+    _drawNativeDoughnut(canvas, labels, data, colors) {
+        try {
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return;
+            const parent = canvas.parentElement;
+            const width = canvas.width = parent ? (parent.clientWidth || 320) : 320;
+            const height = canvas.height = parent ? (parent.clientHeight || 260) : 260;
+            const total = data.reduce((a, b) => a + b, 0) || 1;
+            const centerX = width * 0.4;
+            const centerY = height * 0.5;
+            const radius = Math.min(centerX, centerY) * 0.82;
+            const innerRadius = radius * 0.62;
+
+            ctx.clearRect(0, 0, width, height);
+
+            let startAngle = -Math.PI / 2;
+            data.forEach((val, i) => {
+                const sliceAngle = (val / total) * 2 * Math.PI;
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, startAngle, startAngle + sliceAngle);
+                ctx.arc(centerX, centerY, innerRadius, startAngle + sliceAngle, startAngle, true);
+                ctx.closePath();
+                ctx.fillStyle = colors[i % colors.length];
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(11, 14, 23, 0.8)';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                startAngle += sliceAngle;
+            });
+
+            // Draw Legend
+            ctx.font = '11px Cairo, sans-serif';
+            ctx.textAlign = 'right';
+            const legendX = width - 15;
+            labels.slice(0, 6).forEach((lbl, i) => {
+                const y = 35 + i * 22;
+                ctx.fillStyle = colors[i % colors.length];
+                ctx.fillRect(legendX, y - 9, 10, 10);
+                ctx.fillStyle = '#94a3b8';
+                ctx.fillText(lbl, legendX - 14, y);
+            });
+        } catch (e) {}
+    },
+
+    _drawNativeBarChart(canvas, labels, data) {
+        try {
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return;
+            const parent = canvas.parentElement;
+            const width = canvas.width = parent ? (parent.clientWidth || 320) : 320;
+            const height = canvas.height = parent ? (parent.clientHeight || 260) : 260;
+            const maxVal = Math.max(...data, 5);
+            const paddingBottom = 35;
+            const paddingTop = 25;
+            const paddingX = 25;
+            const chartHeight = height - paddingBottom - paddingTop;
+            const chartWidth = width - paddingX * 2;
+            const barWidth = chartWidth / (data.length * 1.6);
+            const spacing = barWidth * 0.6;
+
+            ctx.clearRect(0, 0, width, height);
+
+            // Baseline
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(paddingX, height - paddingBottom);
+            ctx.lineTo(width - paddingX, height - paddingBottom);
+            ctx.stroke();
+
+            ctx.font = '11px Cairo, sans-serif';
+            ctx.textAlign = 'center';
+
+            data.forEach((val, i) => {
+                const barH = Math.max((val / maxVal) * chartHeight, 4);
+                const x = paddingX + i * (barWidth + spacing) + spacing / 2;
+                const y = height - paddingBottom - barH;
+
+                ctx.fillStyle = 'rgba(99, 102, 241, 0.85)';
+                ctx.beginPath();
+                ctx.roundRect ? ctx.roundRect(x, y, barWidth, barH, [4, 4, 0, 0]) : ctx.rect(x, y, barWidth, barH);
+                ctx.fill();
+
+                ctx.fillStyle = '#94a3b8';
+                ctx.fillText(labels[i] || '', x + barWidth / 2, height - 12);
+                ctx.fillStyle = '#cbd5e1';
+                ctx.fillText(val.toString(), x + barWidth / 2, y - 6);
+            });
+        } catch (e) {}
     },
 
     renderSectorChart(stats) {
@@ -117,6 +192,7 @@ const Dashboard = {
             });
 
             if (typeof Chart === 'undefined') {
+                this._drawNativeDoughnut(ctx, labels, data, colors);
                 return;
             }
 
@@ -139,7 +215,7 @@ const Dashboard = {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    animation: { duration: 400 },
+                    animation: { duration: 300 },
                     cutout: '65%',
                     plugins: {
                         legend: {
@@ -189,6 +265,7 @@ const Dashboard = {
             }
 
             if (typeof Chart === 'undefined') {
+                this._drawNativeBarChart(ctx, weekData.map(d => d.day || ''), weekData.map(d => d.count || 0));
                 return;
             }
 
@@ -215,7 +292,7 @@ const Dashboard = {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    animation: { duration: 400 },
+                    animation: { duration: 300 },
                     plugins: {
                         legend: { display: false },
                         tooltip: {
