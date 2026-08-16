@@ -43,8 +43,8 @@ const Dashboard = {
 
     updateStatCards(stats) {
         if (!stats) stats = {};
-        const rawTotal = stats.totalCompanies || (window.AppStorage ? (window.AppStorage.getCompanies().length || 5651) : 5651);
-        const totalComps = (rawTotal > 0) ? rawTotal : 5651;
+        const rawTotal = stats.totalCompanies || (window.AppStorage ? (window.AppStorage.getCompanies().length || 3560) : 3560);
+        const totalComps = (rawTotal > 0) ? rawTotal : 3560;
 
         const openDealsCount = (stats.openDeals !== undefined && stats.openDeals !== null) ? stats.openDeals : 2;
         const pipelineVal = (stats.pipelineValue !== undefined && stats.pipelineValue !== null) ? stats.pipelineValue : 1700000;

@@ -1951,7 +1951,7 @@ const AppStorage = {
         const today = new Date().toISOString().split('T')[0];
 
         const rawStored = parseInt(localStorage.getItem('fleetcrm_company_count') || '0');
-        const storedCount = rawStored > 0 ? rawStored : 5651;
+        const storedCount = rawStored > 0 ? rawStored : 3560;
         const compList = this.getCompanies();
         const count = (compList && compList.length > 0) ? compList.length : storedCount;
 
