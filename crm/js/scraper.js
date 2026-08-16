@@ -53,7 +53,7 @@ const ScraperPage = {
                 <div id="scraper-status-dot" style="width:16px;height:16px;border-radius:50%;background:#4ade80;box-shadow:0 0 12px #4ade80;"></div>
                 <div>
                     <div style="font-size:1.15rem; font-weight:800; color:#fff;" id="scraper-status-text">جاهز لسحب ومزامنة الشركات</div>
-                    <div style="font-size:0.8rem; color:#a5b4fc;" id="scraper-status-subtext">المحرك الموحد المباشر (${(typeof Storage !== 'undefined' ? Storage.getCompanies().length : 4787).toLocaleString()} شركة موثقة 100%)</div>
+                    <div style="font-size:0.8rem; color:#a5b4fc;" id="scraper-status-subtext">المحرك الموحد المباشر (${(typeof Storage !== 'undefined' ? Storage.getCompanies().length : 7542).toLocaleString()} شركة موثقة 100%)</div>
                 </div>
             </div>
             <div style="display:flex; gap:12px; flex-wrap:wrap;">
