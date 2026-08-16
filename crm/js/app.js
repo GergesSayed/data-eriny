@@ -146,7 +146,7 @@ const App = {
                 targetPage = (hash === 'companies' || hash === 'calls' || hash === 'pipeline') ? hash : 'companies';
             }
 
-            this.currentPage = targetPage;
+            this.currentPage = null;
             window.location.hash = '#' + targetPage;
 
             // Activate target page element immediately in DOM before module init to prevent layout flash

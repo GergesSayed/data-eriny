@@ -5,13 +5,12 @@
 const Dashboard = {
     charts: {},
 
-    _renderTimer: null,
-
     init() {
         this.render();
-        // Safe delayed refresh when storage or cloud completes
-        setTimeout(() => this.render(), 200);
-        setTimeout(() => this.render(), 800);
+        // Secondary pass when storage / IndexedDB completes
+        setTimeout(() => this.render(), 100);
+        setTimeout(() => this.render(), 400);
+        setTimeout(() => this.render(), 1000);
 
         if (document.readyState === 'complete') {
             this.render();
@@ -21,13 +20,6 @@ const Dashboard = {
     },
 
     render() {
-        if (this._renderTimer) clearTimeout(this._renderTimer);
-        this._renderTimer = setTimeout(() => {
-            this._doRender();
-        }, 16);
-    },
-
-    _doRender() {
         try {
             const stats = window.AppStorage ? window.AppStorage.getStats() : {};
             this.updateStatCards(stats);
