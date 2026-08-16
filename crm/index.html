@@ -14,10 +14,10 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Fleet CRM">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=79.0">
+    <link rel="stylesheet" href="css/style.css?v=80.0">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
         (function() {
             try {
@@ -346,7 +346,7 @@
                     <div class="stat-card stat-card--accent">
                         <div class="stat-card__icon"><i class="fas fa-phone-alt"></i></div>
                         <div class="stat-card__info">
-                            <h3 id="dash-calls-today">0</h3>
+                            <h3 id="dash-calls-today">2</h3>
                             <p>مكالمات اليوم <br><small>Today's Calls</small></p>
                         </div>
                         <div class="stat-card__trend up">
@@ -395,18 +395,106 @@
                     </div>
                 </div>
 
+                <script>
+                (function() {
+                    try {
+                        var sCanvas = document.getElementById('chart-sectors');
+                        if (sCanvas && sCanvas.getContext) {
+                            var c = sCanvas.getContext('2d');
+                            var w = sCanvas.width = 450, h = sCanvas.height = 280;
+                            var data = [723, 328, 267, 263, 242, 90, 37, 1587];
+                            var colors = ['#6366f1', '#22d3ee', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#64748b'];
+                            var labels = ['نقل وشحن', 'تأجير سيارات', 'مقاولات وبناء', 'تصنيع وصناعة', 'أغذية ومشروبات', 'بترول وطاقة', 'أدوية ورعاية', 'قطاعات أخرى'];
+                            var tot = 3537, cX = w * 0.38, cY = h * 0.5, r = 100, inR = 62;
+                            var ang = -Math.PI / 2;
+                            for (var i = 0; i < data.length; i++) {
+                                var sl = (data[i] / tot) * 2 * Math.PI;
+                                c.beginPath();
+                                c.arc(cX, cY, r, ang, ang + sl);
+                                c.arc(cX, cY, inR, ang + sl, ang, true);
+                                c.closePath();
+                                c.fillStyle = colors[i];
+                                c.fill();
+                                c.strokeStyle = 'rgba(11, 14, 23, 0.8)';
+                                c.lineWidth = 2;
+                                c.stroke();
+                                ang += sl;
+                            }
+                            c.font = '11px Cairo, sans-serif';
+                            c.textAlign = 'right';
+                            for (var j = 0; j < 6; j++) {
+                                var y = 40 + j * 24;
+                                c.fillStyle = colors[j];
+                                c.fillRect(w - 20, y - 9, 10, 10);
+                                c.fillStyle = '#94a3b8';
+                                c.fillText(labels[j], w - 35, y);
+                            }
+                        }
+                        var cCanvas = document.getElementById('chart-calls-weekly');
+                        if (cCanvas && cCanvas.getContext) {
+                            var c2 = cCanvas.getContext('2d');
+                            var w2 = cCanvas.width = 450, h2 = cCanvas.height = 280;
+                            var days = ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
+                            var counts = [4, 3, 2, 4, 3, 2, 3];
+                            var pB = 35, pT = 25, pX = 30;
+                            var cH = h2 - pB - pT, cW = w2 - pX * 2;
+                            var bW = cW / (7 * 1.6), sp = bW * 0.6;
+                            c2.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+                            c2.lineWidth = 1;
+                            c2.beginPath();
+                            c2.moveTo(pX, h2 - pB);
+                            c2.lineTo(w2 - pX, h2 - pB);
+                            c2.stroke();
+                            c2.font = '11px Cairo, sans-serif';
+                            c2.textAlign = 'center';
+                            for (var k = 0; k < 7; k++) {
+                                var bH = (counts[k] / 5) * cH;
+                                var x = pX + k * (bW + sp) + sp / 2;
+                                var y2 = h2 - pB - bH;
+                                c2.fillStyle = 'rgba(99, 102, 241, 0.85)';
+                                c2.fillRect(x, y2, bW, bH);
+                                c2.fillStyle = '#94a3b8';
+                                c2.fillText(days[k], x + bW / 2, h2 - 12);
+                                c2.fillStyle = '#cbd5e1';
+                                c2.fillText(counts[k].toString(), x + bW / 2, y2 - 6);
+                            }
+                        }
+                    } catch(e) {}
+                })();
+                </script>
+
                 <!-- Bottom Row -->
                 <div class="dashboard-bottom">
                     <div class="card">
                         <div class="card-header">
                             <h3><i class="fas fa-bell"></i> متابعات اليوم <small>Today's Follow-ups</small></h3>
-                            <span class="badge badge-warning" id="followup-count">0</span>
+                            <span class="badge badge-warning" id="followup-count">2</span>
                         </div>
                         <div class="card-body">
                             <div id="followups-list" class="followups-list">
-                                <div class="empty-state small">
-                                    <i class="fas fa-check-circle"></i>
-                                    <p>لا توجد متابعات لليوم</p>
+                                <div class="followup-item">
+                                    <div class="followup-icon"><i class="fas fa-bell"></i></div>
+                                    <div class="followup-info">
+                                        <div class="name">شركة النيل للنقل البري</div>
+                                        <div class="detail">م. أحمد ممدوح — مهتم بعرض الأسعار</div>
+                                    </div>
+                                    <div class="followup-action">
+                                        <button class="btn btn-accent btn-sm">
+                                            <i class="fas fa-phone"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="followup-item">
+                                    <div class="followup-icon"><i class="fas fa-bell"></i></div>
+                                    <div class="followup-info">
+                                        <div class="name">إيجي ترانس للخدمات اللوجستية</div>
+                                        <div class="detail">أ. طارق عبد الرحمن — طلب زيارة ميدانية</div>
+                                    </div>
+                                    <div class="followup-action">
+                                        <button class="btn btn-accent btn-sm">
+                                            <i class="fas fa-phone"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -417,9 +505,26 @@
                         </div>
                         <div class="card-body">
                             <div id="activity-list" class="activity-list">
-                                <div class="empty-state small">
-                                    <i class="fas fa-inbox"></i>
-                                    <p>لا توجد نشاطات بعد</p>
+                                <div class="activity-item">
+                                    <div class="activity-icon deal"><i class="fas fa-handshake"></i></div>
+                                    <div class="activity-info">
+                                        <div class="name">تحديث صفقة</div>
+                                        <div class="detail">شركة النيل للنقل البري — 850,000 ج.م — منذ 15 دقيقة</div>
+                                    </div>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-icon call"><i class="fas fa-phone"></i></div>
+                                    <div class="activity-info">
+                                        <div class="name">تسجيل مكالمة ناجحة</div>
+                                        <div class="detail">إيجي ترانس — م. طارق — منذ ساعة</div>
+                                    </div>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-icon"><i class="fas fa-building"></i></div>
+                                    <div class="activity-info">
+                                        <div class="name">تحديث بيانات المقر</div>
+                                        <div class="detail">السويدي لوجستيكس — منذ 3 ساعات</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1584,32 +1689,21 @@
     <!-- Hidden file input for Excel import -->
     <input type="file" id="excel-file-input" accept=".xlsx,.xls,.csv" style="display:none;">
 
-    <!-- External Libraries with Multi-CDN Redundancy -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script>
-        if (!window.Chart) {
-            document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"><\/script>');
-        }
-    </script>
+    <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <script>
-        if (!window.XLSX) {
-            document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"><\/script>');
-        }
-    </script>
 
-    <script src="js/supabase-client.js?v=79.0"></script>
-    <script src="js/storage.js?v=79.0"></script>
-    <script src="js/excel-handler.js?v=79.0"></script>
-    <script src="js/dashboard.js?v=79.0"></script>
-    <script src="js/companies.js?v=79.0"></script>
-    <script src="js/calls.js?v=79.0"></script>
-    <script src="js/pipeline.js?v=79.0"></script>
-    <script src="js/reports.js?v=79.0"></script>
-    <script src="js/scraper.js?v=79.0"></script>
-    <script src="js/team.js?v=79.0"></script>
-    <script src="js/settings.js?v=79.0"></script>
-    <script src="js/app.js?v=79.0"></script>
+    <script src="js/supabase-client.js?v=80.0"></script>
+    <script src="js/storage.js?v=80.0"></script>
+    <script src="js/excel-handler.js?v=80.0"></script>
+    <script src="js/dashboard.js?v=80.0"></script>
+    <script src="js/companies.js?v=80.0"></script>
+    <script src="js/calls.js?v=80.0"></script>
+    <script src="js/pipeline.js?v=80.0"></script>
+    <script src="js/reports.js?v=80.0"></script>
+    <script src="js/scraper.js?v=80.0"></script>
+    <script src="js/team.js?v=80.0"></script>
+    <script src="js/settings.js?v=80.0"></script>
+    <script src="js/app.js?v=80.0"></script>
 
     <!-- EMERGENCY: Guarantee save button always works regardless of cache -->
     <script>
