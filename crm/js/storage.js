@@ -828,11 +828,11 @@ const AppStorage = {
             return;
         }
 
-        // 1. Load static JSON bundled with app (989 clean companies) FIRST
+        // 1. Load static JSON bundled with app FIRST
         const jsonPaths = ['./data/companies.json', '/data/companies.json'];
         for (const path of jsonPaths) {
             try {
-                const resp = await fetch(path + '?v=460000');
+                const resp = await fetch(path + '?v=69.0');
                 if (resp.ok) {
                     const jsonData = await resp.json();
                     if (Array.isArray(jsonData) && jsonData.length > 0) {
