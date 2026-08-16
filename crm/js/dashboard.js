@@ -61,101 +61,10 @@ const Dashboard = {
         if (sideDeals) sideDeals.textContent = openDealsCount.toLocaleString('en-US');
     },
 
-    _drawNativeDoughnut(canvas, labels, data, colors) {
-        try {
-            const ctx = canvas.getContext('2d');
-            if (!ctx) return;
-            const parent = canvas.parentElement;
-            const width = canvas.width = parent ? (parent.clientWidth || 320) : 320;
-            const height = canvas.height = parent ? (parent.clientHeight || 260) : 260;
-            const total = data.reduce((a, b) => a + b, 0) || 1;
-            const centerX = width * 0.4;
-            const centerY = height * 0.5;
-            const radius = Math.min(centerX, centerY) * 0.82;
-            const innerRadius = radius * 0.62;
-
-            ctx.clearRect(0, 0, width, height);
-
-            let startAngle = -Math.PI / 2;
-            data.forEach((val, i) => {
-                const sliceAngle = (val / total) * 2 * Math.PI;
-                ctx.beginPath();
-                ctx.arc(centerX, centerY, radius, startAngle, startAngle + sliceAngle);
-                ctx.arc(centerX, centerY, innerRadius, startAngle + sliceAngle, startAngle, true);
-                ctx.closePath();
-                ctx.fillStyle = colors[i % colors.length];
-                ctx.fill();
-                ctx.strokeStyle = 'rgba(11, 14, 23, 0.8)';
-                ctx.lineWidth = 2;
-                ctx.stroke();
-                startAngle += sliceAngle;
-            });
-
-            // Draw Legend
-            ctx.font = '11px Cairo, sans-serif';
-            ctx.textAlign = 'right';
-            const legendX = width - 15;
-            labels.slice(0, 6).forEach((lbl, i) => {
-                const y = 35 + i * 22;
-                ctx.fillStyle = colors[i % colors.length];
-                ctx.fillRect(legendX, y - 9, 10, 10);
-                ctx.fillStyle = '#94a3b8';
-                ctx.fillText(lbl, legendX - 14, y);
-            });
-        } catch (e) {}
-    },
-
-    _drawNativeBarChart(canvas, labels, data) {
-        try {
-            const ctx = canvas.getContext('2d');
-            if (!ctx) return;
-            const parent = canvas.parentElement;
-            const width = canvas.width = parent ? (parent.clientWidth || 320) : 320;
-            const height = canvas.height = parent ? (parent.clientHeight || 260) : 260;
-            const maxVal = Math.max(...data, 5);
-            const paddingBottom = 35;
-            const paddingTop = 25;
-            const paddingX = 25;
-            const chartHeight = height - paddingBottom - paddingTop;
-            const chartWidth = width - paddingX * 2;
-            const barWidth = chartWidth / (data.length * 1.6);
-            const spacing = barWidth * 0.6;
-
-            ctx.clearRect(0, 0, width, height);
-
-            // Baseline
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(paddingX, height - paddingBottom);
-            ctx.lineTo(width - paddingX, height - paddingBottom);
-            ctx.stroke();
-
-            ctx.font = '11px Cairo, sans-serif';
-            ctx.textAlign = 'center';
-
-            data.forEach((val, i) => {
-                const barH = Math.max((val / maxVal) * chartHeight, 4);
-                const x = paddingX + i * (barWidth + spacing) + spacing / 2;
-                const y = height - paddingBottom - barH;
-
-                ctx.fillStyle = 'rgba(99, 102, 241, 0.85)';
-                ctx.beginPath();
-                ctx.roundRect ? ctx.roundRect(x, y, barWidth, barH, [4, 4, 0, 0]) : ctx.rect(x, y, barWidth, barH);
-                ctx.fill();
-
-                ctx.fillStyle = '#94a3b8';
-                ctx.fillText(labels[i] || '', x + barWidth / 2, height - 12);
-                ctx.fillStyle = '#cbd5e1';
-                ctx.fillText(val.toString(), x + barWidth / 2, y - 6);
-            });
-        } catch (e) {}
-    },
-
     renderSectorChart(stats) {
         try {
             const ctx = document.getElementById('chart-sectors');
-            if (!ctx) return;
+            if (!ctx || typeof Chart === 'undefined') return;
 
             const sectorData = (stats && stats.companiesBySector && Object.keys(stats.companiesBySector).length > 0) ? stats.companiesBySector : {
                 transport: 723, car_rental: 328, construction: 267, manufacturing: 263, food: 242, petroleum: 90, pharma: 37, other: 1587
@@ -174,11 +83,6 @@ const Dashboard = {
                 labels.push(sector ? sector.ar : key);
                 data.push(count);
             });
-
-            if (typeof Chart === 'undefined') {
-                this._drawNativeDoughnut(ctx, labels, data, colors);
-                return;
-            }
 
             if (this.charts.sectors && typeof this.charts.sectors.update === 'function' && this.charts.sectors.ctx) {
                 try {
@@ -242,7 +146,7 @@ const Dashboard = {
     renderWeeklyCallsChart(stats) {
         try {
             const ctx = document.getElementById('chart-calls-weekly');
-            if (!ctx) return;
+            if (!ctx || typeof Chart === 'undefined') return;
 
             let weekData = (stats && Array.isArray(stats.weeklyCallData) && stats.weeklyCallData.length > 0) ? stats.weeklyCallData : null;
             if (!weekData || weekData.length === 0) {
@@ -256,11 +160,6 @@ const Dashboard = {
                         count: 2 + (i % 3)
                     });
                 }
-            }
-
-            if (typeof Chart === 'undefined') {
-                this._drawNativeBarChart(ctx, weekData.map(d => d.day || ''), weekData.map(d => d.count || 0));
-                return;
             }
 
             if (this.charts.weeklyCalls && typeof this.charts.weeklyCalls.update === 'function' && this.charts.weeklyCalls.ctx) {
