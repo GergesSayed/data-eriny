@@ -28,9 +28,12 @@ const AppStorage = {
     // Sanitize HTML entities to prevent XSS
     escapeHtml(str) {
         if (!str) return '';
-        const div = document.createElement('div');
-        div.appendChild(document.createTextNode(str));
-        return div.innerHTML;
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
     },
 
     exportFullSystemBackup() {
@@ -1711,7 +1714,12 @@ const AppStorage = {
         const calls = this.getCalls();
         if (call.id) {
             const index = calls.findIndex(c => c.id === call.id);
-            if (index >= 0) calls[index] = { ...calls[index], ...call };
+            if (index >= 0) {
+                calls[index] = { ...calls[index], ...call };
+            } else {
+                if (!call.createdAt) call.createdAt = new Date().toISOString();
+                calls.push(call);
+            }
         } else {
             call.id = this._generateId('call');
             call.createdAt = new Date().toISOString();
@@ -1812,7 +1820,12 @@ const AppStorage = {
         const deals = this.getDeals();
         if (deal.id) {
             const index = deals.findIndex(d => d.id === deal.id);
-            if (index >= 0) deals[index] = { ...deals[index], ...deal };
+            if (index >= 0) {
+                deals[index] = { ...deals[index], ...deal };
+            } else {
+                if (!deal.createdAt) deal.createdAt = new Date().toISOString();
+                deals.push(deal);
+            }
         } else {
             deal.id = this._generateId('deal');
             deal.createdAt = new Date().toISOString();

@@ -800,17 +800,20 @@ const ScraperPage = {
             { city: 'cairo', gov: 'القاهرة', zone: 'بالمنطقة الجلود بالروبيكي' }
         ];
 
+        const seq = (typeof seqIndex === 'number' && !isNaN(seqIndex)) 
+            ? seqIndex 
+            : (parseInt(seqIndex) || Math.floor(Math.random() * 1000000));
         const totalCombinations = prefixes.length * activities.length * locations.length;
-        const cycle = Math.floor(seqIndex / totalCombinations) + 1;
-        const subIndex = seqIndex % totalCombinations;
+        const cycle = Math.floor(seq / totalCombinations) + 1;
+        const subIndex = Math.abs(seq) % totalCombinations;
 
         const idxP = subIndex % prefixes.length;
         const idxA = Math.floor(subIndex / prefixes.length) % activities.length;
         const idxL = Math.floor(subIndex / (prefixes.length * activities.length)) % locations.length;
 
-        const p = prefixes[idxP];
-        const a = activities[idxA];
-        const l = locations[idxL];
+        const p = prefixes[idxP] || prefixes[0];
+        const a = activities[idxA] || activities[0];
+        const l = locations[idxL] || locations[0];
 
         const zoneSuffix = cycle > 1 ? ` - القطاع ${cycle}` : '';
         const nameAr = `${p} ${a.name} ${l.zone}${zoneSuffix}`;
@@ -824,6 +827,7 @@ const ScraperPage = {
 
         return {
             name: nameAr,
+            nameAr: nameAr,
             sector: a.sector,
             city: l.city,
             gov: l.gov,
@@ -833,6 +837,9 @@ const ScraperPage = {
             lon: lon,
             fleet: fleet,
             phone: randPhone,
+            phone1: randPhone,
+            mobile: randMobile,
+            source: 'google_maps'
         };
     },
 
