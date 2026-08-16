@@ -193,7 +193,8 @@ const Dashboard = {
                     this.charts.sectors.data.labels = labels;
                     this.charts.sectors.data.datasets[0].data = data;
                     this.charts.sectors.data.datasets[0].backgroundColor = colors.slice(0, data.length);
-                    this.charts.sectors.update('none');
+                    this.charts.sectors.resize();
+                    this.charts.sectors.update();
                     return;
                 } catch(upErr) {
                     try { this.charts.sectors.destroy(); } catch(e) {}
@@ -274,7 +275,8 @@ const Dashboard = {
                 try {
                     this.charts.weeklyCalls.data.labels = weekData.map(d => d.day || '');
                     this.charts.weeklyCalls.data.datasets[0].data = weekData.map(d => d.count);
-                    this.charts.weeklyCalls.update('none');
+                    this.charts.weeklyCalls.resize();
+                    this.charts.weeklyCalls.update();
                     return;
                 } catch(upErr) {
                     try { this.charts.weeklyCalls.destroy(); } catch(e) {}
