@@ -5,16 +5,13 @@
 const Dashboard = {
     charts: {},
 
+    _renderTimer: null,
+
     init() {
         this.render();
-        // Guaranteed auto re-render sequence on cold start / F5 refresh to update stats after storage hydrations & script downloads
-        [50, 150, 300, 600, 1200, 2500, 4000].forEach(delay => {
-            setTimeout(() => {
-                if (typeof App !== 'undefined' && (!App.currentPage || App.currentPage === 'dashboard')) {
-                    this.render();
-                }
-            }, delay);
-        });
+        // Safe delayed refresh when storage or cloud completes
+        setTimeout(() => this.render(), 200);
+        setTimeout(() => this.render(), 800);
 
         if (document.readyState === 'complete') {
             this.render();
@@ -24,6 +21,13 @@ const Dashboard = {
     },
 
     render() {
+        if (this._renderTimer) clearTimeout(this._renderTimer);
+        this._renderTimer = setTimeout(() => {
+            this._doRender();
+        }, 16);
+    },
+
+    _doRender() {
         try {
             const stats = window.AppStorage ? window.AppStorage.getStats() : {};
             this.updateStatCards(stats);
@@ -32,18 +36,6 @@ const Dashboard = {
             this.updateCurrentDate();
             this.renderSectorChart(stats);
             this.renderWeeklyCallsChart(stats);
-
-            // Re-render charts after layout paint to guarantee proper sizing
-            setTimeout(() => {
-                try {
-                    const freshStats = window.AppStorage ? window.AppStorage.getStats() : {};
-                    this.updateStatCards(freshStats);
-                    this.renderSectorChart(freshStats);
-                    this.renderWeeklyCallsChart(freshStats);
-                } catch(chartErr) {
-                    console.warn('Dashboard charts error:', chartErr);
-                }
-            }, 100);
         } catch(e) {
             console.error('Dashboard render error:', e);
         }
@@ -196,8 +188,17 @@ const Dashboard = {
                 return;
             }
 
-            if (this.charts.sectors) {
-                try { this.charts.sectors.destroy(); } catch(e) {}
+            if (this.charts.sectors && typeof this.charts.sectors.update === 'function' && this.charts.sectors.ctx) {
+                try {
+                    this.charts.sectors.data.labels = labels;
+                    this.charts.sectors.data.datasets[0].data = data;
+                    this.charts.sectors.data.datasets[0].backgroundColor = colors.slice(0, data.length);
+                    this.charts.sectors.update('none');
+                    return;
+                } catch(upErr) {
+                    try { this.charts.sectors.destroy(); } catch(e) {}
+                    this.charts.sectors = null;
+                }
             }
 
             this.charts.sectors = new Chart(ctx, {
@@ -269,8 +270,16 @@ const Dashboard = {
                 return;
             }
 
-            if (this.charts.weeklyCalls) {
-                try { this.charts.weeklyCalls.destroy(); } catch(e) {}
+            if (this.charts.weeklyCalls && typeof this.charts.weeklyCalls.update === 'function' && this.charts.weeklyCalls.ctx) {
+                try {
+                    this.charts.weeklyCalls.data.labels = weekData.map(d => d.day || '');
+                    this.charts.weeklyCalls.data.datasets[0].data = weekData.map(d => d.count);
+                    this.charts.weeklyCalls.update('none');
+                    return;
+                } catch(upErr) {
+                    try { this.charts.weeklyCalls.destroy(); } catch(e) {}
+                    this.charts.weeklyCalls = null;
+                }
             }
 
             this.charts.weeklyCalls = new Chart(ctx, {
