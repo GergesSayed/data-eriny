@@ -879,10 +879,17 @@ const AppStorage = {
                 
                 request.onsuccess = (event) => {
                     const data = event.target.result || [];
-                    if (data.length > 0 && !data[0].website?.includes('fleetcobranch')) {
-                        const idbMapped = data.map((c, idx) => this._normalizeCompanyData(c, idx));
+                    if (data.length > 0) {
+                        const cleaned = this.cleanAndFixCompanyData(data);
+                        const idbMapped = cleaned.map((c, idx) => this._normalizeCompanyData(c, idx));
                         this.companiesMemory = idbMapped;
                         localStorage.setItem('fleetcrm_company_count', idbMapped.length);
+                        
+                        // If DB had accumulated old duplicates from previous buggy merges, write back the clean dataset
+                        if (idbMapped.length !== data.length) {
+                            this.saveAllCompaniesToDB(idbMapped);
+                        }
+
                         const sideCounter = document.getElementById('sidebar-total-companies');
                         if (sideCounter) sideCounter.textContent = idbMapped.length.toLocaleString();
                         if (typeof window.App !== 'undefined' && typeof window.App.refreshCurrentPage === 'function') {
@@ -1026,39 +1033,18 @@ const AppStorage = {
             const localTimestamp = parseInt(localStorage.getItem('fleetcrm_last_sync_time') || '0');
             let updated = false;
 
-            // Union/Merge local and cloud companies so company count NEVER drops
+            // Union/Merge local and cloud companies with automatic deduplication
             if (data.companies && Array.isArray(data.companies) && data.companies.length > 0) {
-                const map = new Map();
-                (this.companiesMemory || []).forEach(c => {
-                    if (c) {
-                        const key = String(c.id || c.nameAr || '').trim();
-                        if (key) map.set(key, c);
-                    }
-                });
+                const combined = [...(this.companiesMemory || []), ...data.companies];
+                const cleanDeduplicated = this.cleanAndFixCompanyData(combined);
 
-                data.companies.forEach(c => {
-                    if (c) {
-                        const key = String(c.id || c.nameAr || '').trim();
-                        if (key) {
-                            if (!map.has(key)) {
-                                map.set(key, c);
-                            } else {
-                                const existing = map.get(key);
-                                for (const k in c) {
-                                    if (c[k] !== undefined && c[k] !== null && c[k] !== '' && existing[k] !== c[k]) {
-                                        existing[k] = c[k];
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-
-                const merged = Array.from(map.values());
-                if (merged.length > (this.companiesMemory || []).length) {
-                    this.companiesMemory = merged;
+                if (cleanDeduplicated.length !== (this.companiesMemory || []).length || JSON.stringify(cleanDeduplicated) !== JSON.stringify(this.companiesMemory)) {
+                    this.companiesMemory = cleanDeduplicated;
                     this._set(this.KEYS.COMPANIES, this.companiesMemory);
                     this.saveAllCompaniesToDB(this.companiesMemory);
+                    localStorage.setItem('fleetcrm_company_count', cleanDeduplicated.length);
+                    const sideCounter = document.getElementById('sidebar-total-companies');
+                    if (sideCounter) sideCounter.textContent = cleanDeduplicated.length.toLocaleString();
                     updated = true;
                 }
             }
