@@ -24,8 +24,10 @@ const Dashboard = {
             this.renderFollowUps();
             this.renderActivities();
             this.updateCurrentDate();
+            this.renderSectorChart(stats);
+            this.renderWeeklyCallsChart(stats);
 
-            // Render charts after layout paint to ensure non-zero canvas dimensions
+            // Re-render charts after layout paint to guarantee proper sizing
             setTimeout(() => {
                 try {
                     const freshStats = window.AppStorage ? window.AppStorage.getStats() : {};
@@ -35,7 +37,7 @@ const Dashboard = {
                 } catch(chartErr) {
                     console.warn('Dashboard charts error:', chartErr);
                 }
-            }, 150);
+            }, 100);
         } catch(e) {
             console.error('Dashboard render error:', e);
         }

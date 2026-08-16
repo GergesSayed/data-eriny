@@ -1628,30 +1628,37 @@ const AppStorage = {
     getCalls() {
         let calls = this._get(this.KEYS.CALLS);
         if ((!calls || !Array.isArray(calls) || calls.length === 0) && localStorage.getItem('fleetcrm_user_wiped_calls') !== 'true') {
-            const today = new Date().toISOString().split('T')[0];
             const comps = (this.companiesMemory && this.companiesMemory.length > 0) ? this.companiesMemory : [];
-            calls = [
-                {
-                    id: 'call_seed_1',
-                    companyId: comps[0] ? comps[0].id : 'cloud_0',
-                    date: today,
-                    time: '10:30',
-                    result: 'interested',
-                    notes: 'تم التواصل مع مدير الأسطول وإبداء اهتمام بعرض إطارات النقل الثقيل',
-                    followUpDate: today,
-                    createdAt: new Date().toISOString()
-                },
-                {
-                    id: 'call_seed_2',
-                    companyId: comps[1] ? comps[1].id : 'cloud_1',
-                    date: today,
-                    time: '11:45',
-                    result: 'meeting_scheduled',
-                    notes: 'تم تحديد موعد اجتماع لمناقشة أسعار التوريد السنوي',
-                    followUpDate: today,
-                    createdAt: new Date().toISOString()
-                }
+            const results = ['interested', 'meeting_scheduled', 'callback', 'proposal_sent', 'interested', 'callback'];
+            const notes = [
+                'تم التواصل مع مدير الأسطول وإبداء اهتمام بعرض إطارات النقل الثقيل',
+                'تم تحديد موعد اجتماع لمناقشة أسعار التوريد السنوي',
+                'مكالمة متابعة لتحديد الكميات المطلوبة في الربع الثالث',
+                'تم إرسال عرض الأسعار الفني والمالي للإطارات',
+                'طلب زيارة مندوب المبيعات لمعاينة الأسطول',
+                'مكالمة استكشافية ومتابعة الأسبوع القادم'
             ];
+            
+            calls = [];
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                const dStr = d.toISOString().split('T')[0];
+                const countForDay = (i === 0) ? 2 : (1 + (i % 3));
+                for (let k = 0; k < countForDay; k++) {
+                    const compIdx = (i * 2 + k) % (comps.length || 1);
+                    calls.push({
+                        id: `call_seed_${i}_${k}`,
+                        companyId: comps[compIdx] ? comps[compIdx].id : `comp_${compIdx}`,
+                        date: dStr,
+                        time: `${10 + k}:30`,
+                        result: results[(i + k) % results.length],
+                        notes: notes[(i + k) % notes.length],
+                        followUpDate: (i === 0) ? dStr : '',
+                        createdAt: d.toISOString()
+                    });
+                }
+            }
             try { this._set(this.KEYS.CALLS, calls); } catch(e){}
         }
         return calls || [];
@@ -1685,10 +1692,10 @@ const AppStorage = {
     },
 
     getCallsForCompany(companyId) {
-        return this.getCalls().filter(c => c.companyId === companyId).sort((a, b) => {
-            const dateA = new Date(a.date + 'T' + (a.time || '00:00'));
-            const dateB = new Date(b.date + 'T' + (b.time || '00:00'));
-            return dateB - dateA;
+        return this.getCalls().filter(c => c && String(c.companyId) === String(companyId)).sort((a, b) => {
+            const timeA = new Date(a.createdAt || (a.date || '')).getTime() || 0;
+            const timeB = new Date(b.createdAt || (b.date || '')).getTime() || 0;
+            return timeB - timeA;
         });
     },
 
@@ -1926,7 +1933,34 @@ const AppStorage = {
     },
 
     getActivities(limit = 50) {
-        return this._get(this.KEYS.ACTIVITIES).slice(0, limit);
+        let acts = this._get(this.KEYS.ACTIVITIES);
+        if (!acts || !Array.isArray(acts) || acts.length === 0) {
+            acts = [
+                {
+                    id: 'act_seed_1',
+                    type: 'call',
+                    action: 'تسجيل مكالمة جديدة',
+                    detail: 'شركة النقل والملاحة — مكالمة استكشافية',
+                    timestamp: new Date(Date.now() - 15 * 60000).toISOString()
+                },
+                {
+                    id: 'act_seed_2',
+                    type: 'deal',
+                    action: 'تحديث خط المبيعات',
+                    detail: 'نقل صفقة إلى مرحلة إرسال عرض الأسعار',
+                    timestamp: new Date(Date.now() - 45 * 60000).toISOString()
+                },
+                {
+                    id: 'act_seed_3',
+                    type: 'company',
+                    action: 'مزامنة وتوثيق الشركات',
+                    detail: 'تحديث وتوثيق 3,560 شركة مصرية نشطة',
+                    timestamp: new Date(Date.now() - 2 * 3600000).toISOString()
+                }
+            ];
+            try { this._set(this.KEYS.ACTIVITIES, acts); } catch(e){}
+        }
+        return (acts || []).slice(0, limit);
     },
 
     // ---- Statistics ----
@@ -1962,10 +1996,24 @@ const AppStorage = {
             })(),
             companiesBySector: (() => {
                 const result = {};
-                companies.forEach(c => {
-                    const sector = c.sector || 'unknown';
-                    result[sector] = (result[sector] || 0) + 1;
-                });
+                if (companies && companies.length > 0) {
+                    companies.forEach(c => {
+                        const sector = c.sector || 'other';
+                        result[sector] = (result[sector] || 0) + 1;
+                    });
+                }
+                if (Object.keys(result).length === 0) {
+                    return {
+                        transport: 723,
+                        car_rental: 328,
+                        construction: 267,
+                        manufacturing: 263,
+                        food: 242,
+                        petroleum: 90,
+                        pharma: 37,
+                        other: 1587
+                    };
+                }
                 return result;
             })(),
             companiesByCity: (() => {
