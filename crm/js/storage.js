@@ -821,7 +821,7 @@ const AppStorage = {
         this.addActivity('company', 'all', 'مسح جميع الشركات', 'تم مسح وتفريغ قاعدة بيانات الشركات بالكامل');
     },
 
-    async _seedInitialJsonData() {
+    async _seedInitialJsonData(existingCustomData = []) {
         if (localStorage.getItem('fleetcrm_user_wiped_companies') === 'true') {
             this.companiesMemory = [];
             this._set(this.KEYS.COMPANIES, []);
@@ -832,17 +832,39 @@ const AppStorage = {
         const jsonPaths = ['./data/companies.json', '/data/companies.json'];
         for (const path of jsonPaths) {
             try {
-                const resp = await fetch(path + '?v=69.0');
+                const resp = await fetch(path + '?v=86.0&_=' + Date.now());
                 if (resp.ok) {
                     const jsonData = await resp.json();
                     if (Array.isArray(jsonData) && jsonData.length > 0) {
-                        this.companiesMemory = jsonData.map((c, idx) => this._normalizeCompanyData(c, idx));
+                        const masterMap = new Map();
+                        jsonData.forEach((c, idx) => {
+                            const normalized = this._normalizeCompanyData(c, idx);
+                            const key = this._normalizeArabicName(normalized.nameAr || normalized.nameEn);
+                            if (key && !masterMap.has(key)) {
+                                masterMap.set(key, normalized);
+                            }
+                        });
+
+                        // Merge any custom scraped companies created by user
+                        if (Array.isArray(existingCustomData) && existingCustomData.length > 0) {
+                            existingCustomData.forEach((c, idx) => {
+                                const normalized = this._normalizeCompanyData(c, idx);
+                                const key = this._normalizeArabicName(normalized.nameAr || normalized.nameEn);
+                                if (key && !masterMap.has(key)) {
+                                    masterMap.set(key, normalized);
+                                }
+                            });
+                        }
+
+                        this.companiesMemory = Array.from(masterMap.values());
                         this._set(this.KEYS.COMPANIES, this.companiesMemory);
                         this.saveAllCompaniesToDB(this.companiesMemory);
-                        if (typeof window.App !== 'undefined' && typeof window.App.refreshCurrentPage === 'function') {
-                            setTimeout(() => window.App.refreshCurrentPage(), 50);
-                        }
-                        // Also update Supabase cloud dataset if present
+                        localStorage.setItem('fleetcrm_company_count', this.companiesMemory.length);
+
+                        const sideCounter = document.getElementById('sidebar-total-companies');
+                        if (sideCounter) sideCounter.textContent = this.companiesMemory.length.toLocaleString();
+
+                        // Also update Supabase cloud dataset
                         if (window.SupabaseClient) {
                             window.SupabaseClient.pushMasterData({
                                 companies: this.companiesMemory,
@@ -877,15 +899,14 @@ const AppStorage = {
                 const store = transaction.objectStore('companies');
                 const request = store.getAll();
                 
-                request.onsuccess = (event) => {
+                request.onsuccess = async (event) => {
                     const data = event.target.result || [];
-                    if (data.length > 0) {
+                    if (data.length >= 3560) {
                         const cleaned = this.cleanAndFixCompanyData(data);
                         const idbMapped = cleaned.map((c, idx) => this._normalizeCompanyData(c, idx));
                         this.companiesMemory = idbMapped;
                         localStorage.setItem('fleetcrm_company_count', idbMapped.length);
                         
-                        // If DB had accumulated old duplicates from previous buggy merges, write back the clean dataset
                         if (idbMapped.length !== data.length) {
                             this.saveAllCompaniesToDB(idbMapped);
                         }
@@ -894,15 +915,8 @@ const AppStorage = {
                         if (sideCounter) sideCounter.textContent = idbMapped.length.toLocaleString();
                         resolve();
                     } else {
-                        const cached = this._get(this.KEYS.COMPANIES);
-                        if (cached && Array.isArray(cached) && cached.length > 0) {
-                            this.companiesMemory = cached;
-                            resolve();
-                        } else if (!this.companiesMemory || this.companiesMemory.length === 0) {
-                            this._seedInitialJsonData().then(() => resolve());
-                        } else {
-                            resolve();
-                        }
+                        await this._seedInitialJsonData(data);
+                        resolve();
                     }
                 };
                 
@@ -1032,7 +1046,10 @@ const AppStorage = {
                 const combined = [...(this.companiesMemory || []), ...data.companies];
                 const cleanDeduplicated = this.cleanAndFixCompanyData(combined);
 
-                if (cleanDeduplicated.length !== (this.companiesMemory || []).length || JSON.stringify(cleanDeduplicated) !== JSON.stringify(this.companiesMemory)) {
+                if (cleanDeduplicated.length < 3560) {
+                    await this._seedInitialJsonData(cleanDeduplicated);
+                    updated = true;
+                } else if (cleanDeduplicated.length !== (this.companiesMemory || []).length || JSON.stringify(cleanDeduplicated) !== JSON.stringify(this.companiesMemory)) {
                     this.companiesMemory = cleanDeduplicated;
                     this._set(this.KEYS.COMPANIES, this.companiesMemory);
                     this.saveAllCompaniesToDB(this.companiesMemory);
