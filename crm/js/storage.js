@@ -704,18 +704,22 @@ const AppStorage = {
     // ---- IndexedDB helper functions ----
     async initDB() {
         let cached = this._get(this.KEYS.COMPANIES);
-        if (cached && Array.isArray(cached) && cached.length > 0) {
+        if (cached && Array.isArray(cached) && cached.length >= 3560) {
             this.companiesMemory = cached;
         } else if (!this.companiesMemory || !Array.isArray(this.companiesMemory)) {
             this.companiesMemory = [];
         }
 
         return new Promise((resolve) => {
+            if (typeof indexedDB === 'undefined') {
+                this._seedInitialJsonData(this.companiesMemory || []).then(() => resolve());
+                return;
+            }
             try {
                 const request = indexedDB.open('FleetCRM_DB', 4);
                 
                 request.onerror = (event) => {
-                    resolve();
+                    this._seedInitialJsonData(this.companiesMemory || []).then(() => resolve());
                 };
                 
                 request.onsuccess = (event) => {
@@ -723,7 +727,12 @@ const AppStorage = {
                     Promise.all([
                         this.loadCompaniesFromDB(db),
                         this.loadActivitiesFromDB(db)
-                    ]).then(() => resolve());
+                    ]).then(async () => {
+                        if (!this.companiesMemory || this.companiesMemory.length < 3560) {
+                            await this._seedInitialJsonData(this.companiesMemory || []);
+                        }
+                        resolve();
+                    });
                 };
                 
                 request.onupgradeneeded = (event) => {
@@ -756,6 +765,16 @@ const AppStorage = {
                 resolve();
             }
         });
+    },
+
+    _normalizeArabicName(str) {
+        if (!str || typeof str !== 'string') return '';
+        return str.toLowerCase().trim()
+            .replace(/[أإآ]/g, 'ا')
+            .replace(/ة/g, 'ه')
+            .replace(/ى/g, 'ي')
+            .replace(/[\u064B-\u065F\u0670]/g, '')
+            .replace(/[^a-z0-9\u0600-\u06FF]/gi, '');
     },
 
     _normalizeCompanyData(c, idx) {
@@ -948,24 +967,30 @@ const AppStorage = {
     },
 
     saveAllCompaniesToDB(companies) {
-        // Fallback save to localStorage — skip for datasets > 3000 companies to avoid QuotaExceededError
         try {
             localStorage.setItem('fleetcrm_company_count', companies.length);
-            if (companies.length <= 3000) {
-                this._set(this.KEYS.COMPANIES, companies);
-            } else {
-                this._set(this.KEYS.COMPANIES, []);
-            }
+            // Save compact version to localStorage as safety backup
+            const compact = (companies || []).slice(0, 3600).map(c => ({
+                id: c.id,
+                nameAr: c.nameAr || c.nameEn,
+                sector: c.sector || 'other',
+                city: c.city || 'cairo',
+                governorate: c.governorate || c.gov || 'القاهرة',
+                phone1: c.phone1 || c.phone || '',
+                mobile: c.mobile || '',
+                fleetSize: c.fleetSize || 50,
+                priority: c.priority || 'B',
+                assignedTo: c.assignedTo || '',
+                status: c.status || 'new',
+                address: c.address || ''
+            }));
+            this._set(this.KEYS.COMPANIES, compact);
         } catch (e) {
-            console.warn('localStorage save fail:', e);
+            console.warn('localStorage save notice:', e);
         }
 
-        // Debounced IndexedDB write — batch rapid updates into one write per 1.5s
-        if (this._idbWriteTimer) clearTimeout(this._idbWriteTimer);
-        this._idbWriteTimer = setTimeout(() => {
-            this._idbWriteTimer = null;
-            this._writeToIDB(companies);
-        }, 1500);
+        // Direct IndexedDB write with consistent version 4
+        this._writeToIDB(companies);
 
         // Trigger automatic zero-click background cloud sync
         this.autoSyncToCloud(companies);
@@ -974,7 +999,7 @@ const AppStorage = {
     _writeToIDB(companies) {
         return new Promise((resolve) => {
             try {
-                const request = indexedDB.open('FleetCRM_DB', 3);
+                const request = indexedDB.open('FleetCRM_DB', 4);
                 request.onsuccess = (event) => {
                     const db = event.target.result;
                     if (!db.objectStoreNames.contains('companies')) { resolve(); return; }
@@ -985,15 +1010,8 @@ const AppStorage = {
                         companies.forEach(c => store.put(c));
                         transaction.oncomplete = () => resolve();
                         transaction.onerror = () => resolve();
-                    } catch (txErr) {
-                        console.warn('IDB transaction error:', txErr);
+                    } catch (err) {
                         resolve();
-                    }
-                };
-                request.onupgradeneeded = (event) => {
-                    const db = event.target.result;
-                    if (!db.objectStoreNames.contains('companies')) {
-                        db.createObjectStore('companies', { keyPath: 'id' });
                     }
                 };
                 request.onerror = () => resolve();
