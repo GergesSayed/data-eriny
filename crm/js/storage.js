@@ -970,7 +970,7 @@ const AppStorage = {
         try {
             localStorage.setItem('fleetcrm_company_count', companies.length);
             // Save compact version to localStorage as safety backup
-            const compact = (companies || []).slice(0, 3600).map(c => ({
+            const compact = (companies || []).map(c => ({
                 id: c.id,
                 nameAr: c.nameAr || c.nameEn,
                 sector: c.sector || 'other',
