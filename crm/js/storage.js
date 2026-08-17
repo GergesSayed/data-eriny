@@ -712,10 +712,10 @@ const AppStorage = {
 
         return new Promise((resolve) => {
             if (typeof indexedDB === 'undefined') {
-                if (this.companiesMemory && this.companiesMemory.length > 0) {
+                if (this.companiesMemory && this.companiesMemory.length >= 4700) {
                     resolve();
                 } else {
-                    this._seedInitialJsonData([]).then(() => resolve());
+                    this._seedInitialJsonData(this.companiesMemory || []).then(() => resolve());
                 }
                 return;
             }
@@ -723,10 +723,10 @@ const AppStorage = {
                 const request = indexedDB.open('FleetCRM_DB', 4);
                 
                 request.onerror = (event) => {
-                    if (this.companiesMemory && this.companiesMemory.length > 0) {
+                    if (this.companiesMemory && this.companiesMemory.length >= 4700) {
                         resolve();
                     } else {
-                        this._seedInitialJsonData([]).then(() => resolve());
+                        this._seedInitialJsonData(this.companiesMemory || []).then(() => resolve());
                     }
                 };
                 
@@ -736,13 +736,13 @@ const AppStorage = {
                         this.loadCompaniesFromDB(db),
                         this.loadActivitiesFromDB(db)
                     ]).then(async () => {
-                        if (!this.companiesMemory || this.companiesMemory.length === 0) {
+                        if (!this.companiesMemory || this.companiesMemory.length < 4700) {
                             const localCached = this._get(this.KEYS.COMPANIES);
-                            if (localCached && Array.isArray(localCached) && localCached.length > 0) {
+                            if (localCached && Array.isArray(localCached) && localCached.length >= 4700) {
                                 this.companiesMemory = this.cleanAndFixCompanyData(localCached);
                                 this.saveAllCompaniesToDB(this.companiesMemory);
                             } else {
-                                await this._seedInitialJsonData([]);
+                                await this._seedInitialJsonData(this.companiesMemory || []);
                             }
                         }
                         resolve();
