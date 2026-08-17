@@ -1048,6 +1048,10 @@ const ScraperPage = {
     _egyptEnterprisePool: null,
 
     async _loadEnterprisePool() {
+        if (window.__EGYPT_ENTERPRISE_POOL && Array.isArray(window.__EGYPT_ENTERPRISE_POOL) && window.__EGYPT_ENTERPRISE_POOL.length > 0) {
+            this._egyptEnterprisePool = window.__EGYPT_ENTERPRISE_POOL;
+            return this._egyptEnterprisePool;
+        }
         if (this._egyptEnterprisePool && this._egyptEnterprisePool.length > 0) return this._egyptEnterprisePool;
         try {
             const resp = await fetch('./data/egypt_enterprises_pool.json?v=' + Date.now());
