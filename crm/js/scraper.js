@@ -4947,38 +4947,48 @@ const ScraperPage = {
             }
         }
 
-        // 2. Continuous extraction from Authentic Egyptian Commercial Pool (1,160+ companies)
+        // 2. Continuous extraction from Authentic Egyptian Commercial Pool (6,500+ companies)
         if (newCompanies.length < 10) {
             const fullPool = await this._loadEnterprisePool();
-            for (const item of fullPool) {
-                if (newCompanies.length >= 10) break;
-                const nameKey = this._normalizeArabicName(item.nameAr);
-                if (nameKey && !existingNames.has(nameKey)) {
-                    existingNames.add(nameKey);
-                    newCompanies.push({
-                        id: item.id || ('egy_pool_' + Date.now() + '_' + newCompanies.length + '_' + Math.random().toString(36).slice(2, 6)),
-                        nameAr: item.nameAr,
-                        nameEn: item.nameEn || item.nameAr,
-                        sector: item.sector,
-                        city: item.city,
-                        governorate: item.governorate || item.gov,
-                        address: item.address || item.addr,
-                        phone1: item.phone1 || item.phone,
-                        mobile: item.mobile || item.phone1 || item.phone,
-                        website: item.website || '',
-                        latitude: item.latitude || item.lat,
-                        longitude: item.longitude || item.lon,
-                        google_maps_url: item.google_maps_url || `https://www.google.com/maps?q=${item.latitude || item.lat},${item.longitude || item.lon}`,
-                        fleetSize: item.fleetSize || item.fleet,
-                        fleetType: 'heavy',
-                        contactPerson: '',
-                        contactTitle: '',
-                        priority: (item.fleetSize || item.fleet) > 80 ? 'A' : 'B',
-                        status: 'new',
-                        notes: item.notes || 'المصدر: دليل المنشآت الصناعية والغرف التجارية المصرية المعتمدة',
-                        createdAt: new Date().toISOString(),
-                        lastUpdated: new Date().toISOString().split('T')[0]
-                    });
+            if (Array.isArray(fullPool) && fullPool.length > 0) {
+                if (typeof this._poolCursor !== 'number') this._poolCursor = 0;
+                const startCursor = this._poolCursor;
+                const poolLen = fullPool.length;
+
+                for (let i = 0; i < poolLen; i++) {
+                    if (newCompanies.length >= 10) break;
+                    const idx = (startCursor + i) % poolLen;
+                    const item = fullPool[idx];
+                    if (!item) continue;
+                    const nameKey = this._normalizeArabicName(item.nameAr);
+                    if (nameKey && !existingNames.has(nameKey)) {
+                        existingNames.add(nameKey);
+                        this._poolCursor = (idx + 1) % poolLen;
+                        newCompanies.push({
+                            id: item.id || ('egy_pool_' + Date.now() + '_' + newCompanies.length + '_' + Math.random().toString(36).slice(2, 6)),
+                            nameAr: item.nameAr,
+                            nameEn: item.nameEn || item.nameAr,
+                            sector: item.sector,
+                            city: item.city,
+                            governorate: item.governorate || item.gov,
+                            address: item.address || item.addr,
+                            phone1: item.phone1 || item.phone,
+                            mobile: item.mobile || item.phone1 || item.phone,
+                            website: item.website || '',
+                            latitude: item.latitude || item.lat,
+                            longitude: item.longitude || item.lon,
+                            google_maps_url: item.google_maps_url || `https://www.google.com/maps?q=${item.latitude || item.lat},${item.longitude || item.lon}`,
+                            fleetSize: item.fleetSize || item.fleet,
+                            fleetType: 'heavy',
+                            contactPerson: '',
+                            contactTitle: '',
+                            priority: (item.fleetSize || item.fleet) > 80 ? 'A' : 'B',
+                            status: 'new',
+                            notes: item.notes || 'المصدر: دليل المنشآت الصناعية والغرف التجارية المصرية المعتمدة',
+                            createdAt: new Date().toISOString(),
+                            lastUpdated: new Date().toISOString().split('T')[0]
+                        });
+                    }
                 }
             }
         }
