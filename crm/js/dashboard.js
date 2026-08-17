@@ -84,18 +84,14 @@ const Dashboard = {
                 data.push(count);
             });
 
-            if (this.charts.sectors && typeof this.charts.sectors.update === 'function' && this.charts.sectors.ctx) {
-                try {
-                    this.charts.sectors.data.labels = labels;
-                    this.charts.sectors.data.datasets[0].data = data;
-                    this.charts.sectors.data.datasets[0].backgroundColor = colors.slice(0, data.length);
-                    this.charts.sectors.resize();
-                    this.charts.sectors.update();
-                    return;
-                } catch(upErr) {
-                    try { this.charts.sectors.destroy(); } catch(e) {}
-                    this.charts.sectors = null;
-                }
+            const existingChart = Chart.getChart(ctx);
+            if (existingChart) {
+                existingChart.data.labels = labels;
+                existingChart.data.datasets[0].data = data;
+                existingChart.data.datasets[0].backgroundColor = colors.slice(0, data.length);
+                existingChart.update();
+                this.charts.sectors = existingChart;
+                return;
             }
 
             this.charts.sectors = new Chart(ctx, {
@@ -162,17 +158,13 @@ const Dashboard = {
                 }
             }
 
-            if (this.charts.weeklyCalls && typeof this.charts.weeklyCalls.update === 'function' && this.charts.weeklyCalls.ctx) {
-                try {
-                    this.charts.weeklyCalls.data.labels = weekData.map(d => d.day || '');
-                    this.charts.weeklyCalls.data.datasets[0].data = weekData.map(d => d.count);
-                    this.charts.weeklyCalls.resize();
-                    this.charts.weeklyCalls.update();
-                    return;
-                } catch(upErr) {
-                    try { this.charts.weeklyCalls.destroy(); } catch(e) {}
-                    this.charts.weeklyCalls = null;
-                }
+            const existingCallsChart = Chart.getChart(ctx);
+            if (existingCallsChart) {
+                existingCallsChart.data.labels = weekData.map(d => d.day || '');
+                existingCallsChart.data.datasets[0].data = weekData.map(d => d.count);
+                existingCallsChart.update();
+                this.charts.weeklyCalls = existingCallsChart;
+                return;
             }
 
             this.charts.weeklyCalls = new Chart(ctx, {
