@@ -745,6 +745,48 @@ const Companies = {
         this.clearSelection();
     },
 
+    removeDuplicatesNow() {
+        if (!window.AppStorage.isAdmin()) {
+            App.showToast('⛔ عذراً، تصفية التكرارات مقتصرة على المدير العام فقط!', 'error');
+            return;
+        }
+
+        const currentCompanies = window.AppStorage.getCompanies() || [];
+        const oldLength = currentCompanies.length;
+        const cleaned = window.AppStorage.cleanAndFixCompanyData(currentCompanies);
+        const removedCount = oldLength - cleaned.length;
+
+        if (removedCount > 0) {
+            window.AppStorage.companiesMemory = cleaned;
+            window.AppStorage.saveAllCompaniesToDB(cleaned);
+            App.showToast(`🧹 تم بنجاح تصفية وإزالة ${removedCount} شركة مكررة! إجمالي الشركات الآن: ${cleaned.length.toLocaleString()}`, 'success');
+            this.render();
+            if (typeof Dashboard !== 'undefined') Dashboard.render();
+            const sideCounter = document.getElementById('sidebar-total-companies');
+            if (sideCounter) sideCounter.textContent = cleaned.length.toLocaleString();
+        } else {
+            App.showToast('✨ ممتاز! قاعدة البيانات نظيفة تماماً ولا يوجد أي شركات مكررة.', 'info');
+        }
+    },
+
+    bulkDeleteSelected() {
+        if (!window.AppStorage.isAdmin()) {
+            App.showToast('⚠️ حذف الشركات مقتصر على المدير العام فقط', 'error');
+            return;
+        }
+        if (this.selectedCompanies.size === 0) return;
+
+        const count = this.selectedCompanies.size;
+        App.confirm('🗑️ حذف الشركات المحددة', `هل أنت متأكد من حذف ${count} شركة محددة نهائياً من السيستم؟ لا يمكن التراجع عن هذه العملية.`, () => {
+            const ids = Array.from(this.selectedCompanies);
+            ids.forEach(id => window.AppStorage.deleteCompany(id));
+            App.showToast(`✅ تم حذف ${count} شركة محددة بنجاح`, 'success');
+            this.clearSelection();
+            this.render();
+            if (typeof Dashboard !== 'undefined') Dashboard.render();
+        });
+    },
+
     // ---- Data Audit & Quality Engine ----
     openAuditModal() {
         if (!window.AppStorage.isAdmin()) {

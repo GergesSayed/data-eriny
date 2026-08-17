@@ -16,7 +16,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=95.0">
+    <link rel="stylesheet" href="css/style.css?v=96.0">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
         (function() {
@@ -435,6 +435,9 @@
                         <p class="page-subtitle">قاعدة بيانات الشركات والمصانع المستهدفة</p>
                     </div>
                     <div class="page-header-actions">
+                        <button class="btn btn-warning btn-sm" id="btn-remove-duplicates" onclick="Companies.removeDuplicatesNow()" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid #f59e0b;">
+                            <i class="fas fa-broom"></i> إزالة التكرارات فورياً
+                        </button>
                         <button class="btn btn-accent btn-sm" id="btn-audit-data" onclick="Companies.openAuditModal()">
                             <i class="fas fa-shield-alt"></i> فحص دقة وتكرار البيانات
                         </button>
@@ -549,14 +552,17 @@
                 </div>
 
                 <!-- Bulk Assignment Actions Bar -->
-                <div id="bulk-actions-bar" style="display:none; background: rgba(124, 58, 237, 0.1); border: 1px solid #7c3aed; padding: 10px 16px; border-radius: 10px; margin-bottom: 16px; align-items: center; justify-content: space-between;">
-                    <div style="display:flex; align-items:center; gap:12px;">
+                <div id="bulk-actions-bar" style="display:none; background: rgba(124, 58, 237, 0.1); border: 1px solid #7c3aed; padding: 10px 16px; border-radius: 10px; margin-bottom: 16px; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                    <div style="display:flex; align-items:center; gap:12px; flex-wrap: wrap;">
                         <span style="font-weight:700; color:#7c3aed;" id="selected-companies-count">0 شركة محددة</span>
                         <select id="bulk-assign-user-select" class="filter-select" style="max-width:200px;">
                             <option value="">تخصيص لـ...</option>
                         </select>
                         <button class="btn btn-primary btn-sm" id="btn-apply-bulk-assign">
                             <i class="fas fa-user-check"></i> تطبيق التعيين
+                        </button>
+                        <button class="btn btn-danger btn-sm" id="btn-bulk-delete" onclick="Companies.bulkDeleteSelected()">
+                            <i class="fas fa-trash-alt"></i> حذف الشركات المحددة
                         </button>
                     </div>
                     <button class="btn btn-ghost btn-sm" id="btn-cancel-bulk-selection">إلغاء التحديد</button>
@@ -1587,18 +1593,18 @@
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <script src="js/supabase-client.js?v=95.0"></script>
-    <script src="js/storage.js?v=95.0"></script>
-    <script src="js/excel-handler.js?v=95.0"></script>
-    <script src="js/dashboard.js?v=95.0"></script>
-    <script src="js/companies.js?v=95.0"></script>
-    <script src="js/calls.js?v=95.0"></script>
-    <script src="js/pipeline.js?v=95.0"></script>
-    <script src="js/reports.js?v=95.0"></script>
-    <script src="js/scraper.js?v=95.0"></script>
-    <script src="js/team.js?v=95.0"></script>
-    <script src="js/settings.js?v=95.0"></script>
-    <script src="js/app.js?v=95.0"></script>
+    <script src="js/supabase-client.js?v=96.0"></script>
+    <script src="js/storage.js?v=96.0"></script>
+    <script src="js/excel-handler.js?v=96.0"></script>
+    <script src="js/dashboard.js?v=96.0"></script>
+    <script src="js/companies.js?v=96.0"></script>
+    <script src="js/calls.js?v=96.0"></script>
+    <script src="js/pipeline.js?v=96.0"></script>
+    <script src="js/reports.js?v=96.0"></script>
+    <script src="js/scraper.js?v=96.0"></script>
+    <script src="js/team.js?v=96.0"></script>
+    <script src="js/settings.js?v=96.0"></script>
+    <script src="js/app.js?v=96.0"></script>
 
     <!-- EMERGENCY: Guarantee save button always works regardless of cache -->
     <script>
