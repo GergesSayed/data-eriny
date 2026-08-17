@@ -62,12 +62,12 @@ const App = {
                 localStorage.removeItem('fleetcrm_deals_cleared_v3');
             } catch(e) {}
 
-            // Initialize Database asynchronously in background without blocking frame 1 UI rendering
-            window.AppStorage.initDB().then(() => {
-                this.refreshCurrentPage();
-            }).catch(dbErr => {
+            // Initialize Database and hydrate 3,560 companies into RAM memory FIRST
+            try {
+                await window.AppStorage.initDB();
+            } catch(dbErr) {
                 console.warn('DB Init notice:', dbErr);
-            });
+            }
 
             const initTotal = (window.AppStorage.getCompanies() || []).length;
             const sideCounter = document.getElementById('sidebar-total-companies');
@@ -75,7 +75,7 @@ const App = {
 
             // Pull latest from cloud asynchronously in background without blocking UI
             window.AppStorage.pullFromCloud().then(wasUpdated => {
-                this.refreshCurrentPage();
+                if (wasUpdated) this.refreshCurrentPage();
             }).catch(() => false);
 
             // Start continuous background cloud synchronization loop (every 8s) across all devices

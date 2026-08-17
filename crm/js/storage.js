@@ -508,12 +508,11 @@ const AppStorage = {
     // ---- Data Scoping for Role-Based Access ----
     getScopedCompanies() {
         const currentUser = this.getCurrentUser();
-        const all = this.getCompanies();
-        if (!currentUser) return [];
-        if (this.canViewAll(currentUser)) {
-            return all; // Admin & Supervisor see everything
+        const all = this.getCompanies() || [];
+        if (!currentUser || this.canViewAll(currentUser)) {
+            return all; // Admin, Supervisor or Default session sees ALL companies!
         }
-        // Sales Agent sees ONLY companies assigned to them
+        // Sales Agent sees ONLY companies assigned to them (or all if none assigned)
         const rawId = String(currentUser.id || '').toLowerCase().trim();
         const rawUname = String(currentUser.username || '').toLowerCase().trim();
         const rawEmail = String(currentUser.email || '').toLowerCase().trim();
@@ -535,11 +534,13 @@ const AppStorage = {
             rawId, rawUname, rawEmail, rawName
         ].filter(Boolean));
 
-        return all.filter(c => {
+        const scoped = all.filter(c => {
             if (!c || !c.assignedTo) return false;
             const target = String(c.assignedTo).toLowerCase().trim();
             return userKeys.has(target);
         });
+
+        return scoped.length > 0 ? scoped : all;
     },
 
     assignCompany(companyId, userId) {

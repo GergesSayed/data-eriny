@@ -264,7 +264,10 @@ const Companies = {
     },
 
     getFilteredCompanies() {
-        const rawCompanies = window.AppStorage.getScopedCompanies();
+        let rawCompanies = window.AppStorage ? window.AppStorage.getScopedCompanies() : [];
+        if (!rawCompanies || rawCompanies.length === 0) {
+            rawCompanies = window.AppStorage ? window.AppStorage.getCompanies() : [];
+        }
         if (!rawCompanies || rawCompanies.length === 0) return [];
 
         const sector = document.getElementById('filter-sector')?.value;
