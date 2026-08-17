@@ -703,31 +703,21 @@ const AppStorage = {
 
     // ---- IndexedDB helper functions ----
     async initDB() {
-        let cached = this._get(this.KEYS.COMPANIES);
-        if (cached && Array.isArray(cached) && cached.length > 0) {
-            this.companiesMemory = this.cleanAndFixCompanyData(cached);
-        } else if (!this.companiesMemory || !Array.isArray(this.companiesMemory)) {
+        if (!this.companiesMemory || !Array.isArray(this.companiesMemory)) {
             this.companiesMemory = [];
         }
+        try { localStorage.removeItem(this.KEYS.COMPANIES); } catch(e) {}
 
         return new Promise((resolve) => {
             if (typeof indexedDB === 'undefined') {
-                if (this.companiesMemory && this.companiesMemory.length >= 4700) {
-                    resolve();
-                } else {
-                    this._seedInitialJsonData(this.companiesMemory || []).then(() => resolve());
-                }
+                this._seedInitialJsonData(this.companiesMemory || []).then(() => resolve());
                 return;
             }
             try {
                 const request = indexedDB.open('FleetCRM_DB', 4);
                 
                 request.onerror = (event) => {
-                    if (this.companiesMemory && this.companiesMemory.length >= 4700) {
-                        resolve();
-                    } else {
-                        this._seedInitialJsonData(this.companiesMemory || []).then(() => resolve());
-                    }
+                    this._seedInitialJsonData(this.companiesMemory || []).then(() => resolve());
                 };
                 
                 request.onsuccess = (event) => {
@@ -737,13 +727,7 @@ const AppStorage = {
                         this.loadActivitiesFromDB(db)
                     ]).then(async () => {
                         if (!this.companiesMemory || this.companiesMemory.length < 4700) {
-                            const localCached = this._get(this.KEYS.COMPANIES);
-                            if (localCached && Array.isArray(localCached) && localCached.length >= 4700) {
-                                this.companiesMemory = this.cleanAndFixCompanyData(localCached);
-                                this.saveAllCompaniesToDB(this.companiesMemory);
-                            } else {
-                                await this._seedInitialJsonData(this.companiesMemory || []);
-                            }
+                            await this._seedInitialJsonData(this.companiesMemory || []);
                         }
                         resolve();
                     });
@@ -958,15 +942,8 @@ const AppStorage = {
                         if (sideCounter) sideCounter.textContent = idbMapped.length.toLocaleString();
                         resolve();
                     } else {
-                        const localCached = this._get(this.KEYS.COMPANIES);
-                        if (localCached && Array.isArray(localCached) && localCached.length > 0) {
-                            this.companiesMemory = this.cleanAndFixCompanyData(localCached);
-                            this.saveAllCompaniesToDB(this.companiesMemory);
-                            resolve();
-                        } else {
-                            await this._seedInitialJsonData([]);
-                            resolve();
-                        }
+                        await this._seedInitialJsonData([]);
+                        resolve();
                     }
                 };
                 
@@ -997,25 +974,8 @@ const AppStorage = {
 
     saveAllCompaniesToDB(companies) {
         try {
-            localStorage.setItem('fleetcrm_company_count', companies.length);
-            const compact = (companies || []).map(c => ({
-                id: c.id,
-                nameAr: c.nameAr || c.nameEn,
-                sector: c.sector || 'other',
-                city: c.city || 'cairo',
-                governorate: c.governorate || c.gov || 'القاهرة',
-                phone1: c.phone1 || c.phone || '',
-                mobile: c.mobile || '',
-                fleetSize: c.fleetSize || 50,
-                priority: c.priority || 'B',
-                assignedTo: c.assignedTo || '',
-                status: c.status || 'new',
-                address: c.address || ''
-            }));
-            this._set(this.KEYS.COMPANIES, compact);
-        } catch (e) {
-            console.warn('localStorage save notice:', e);
-        }
+            localStorage.setItem('fleetcrm_company_count', (companies || []).length);
+        } catch (e) {}
 
         this._writeToIDB(companies);
         this.autoSyncToCloud(companies);
@@ -1137,6 +1097,7 @@ const AppStorage = {
                 this._set(this.KEYS.ACTIVITIES, data.activities);
             }
 
+            const cloudTimestamp = (data && data.updated_at) ? new Date(data.updated_at).getTime() : Date.now();
             if (cloudTimestamp > 0) {
                 localStorage.setItem('fleetcrm_last_sync_time', cloudTimestamp);
             }
@@ -1282,11 +1243,7 @@ const AppStorage = {
 
     getCompanies() {
         if (!this.companiesMemory || !Array.isArray(this.companiesMemory)) {
-            let cached = this._get(this.KEYS.COMPANIES);
-            this.companiesMemory = (cached && Array.isArray(cached)) ? cached : [];
-        }
-        if (this.companiesMemory && this.companiesMemory.length > 0) {
-            this.companiesMemory = this.cleanAndFixCompanyData(this.companiesMemory);
+            this.companiesMemory = [];
         }
         return this.companiesMemory;
     },
