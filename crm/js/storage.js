@@ -1638,41 +1638,17 @@ const AppStorage = {
     // ---- Calls ----
     getCalls() {
         let calls = this._get(this.KEYS.CALLS);
-        if ((!calls || !Array.isArray(calls) || calls.length === 0) && localStorage.getItem('fleetcrm_user_wiped_calls') !== 'true') {
-            const comps = (this.companiesMemory && this.companiesMemory.length > 0) ? this.companiesMemory : [];
-            const results = ['interested', 'meeting_scheduled', 'callback', 'proposal_sent', 'interested', 'callback'];
-            const notes = [
-                'تم التواصل مع مدير الأسطول وإبداء اهتمام بعرض إطارات النقل الثقيل',
-                'تم تحديد موعد اجتماع لمناقشة أسعار التوريد السنوي',
-                'مكالمة متابعة لتحديد الكميات المطلوبة في الربع الثالث',
-                'تم إرسال عرض الأسعار الفني والمالي للإطارات',
-                'طلب زيارة مندوب المبيعات لمعاينة الأسطول',
-                'مكالمة استكشافية ومتابعة الأسبوع القادم'
-            ];
-            
+        if (!calls || !Array.isArray(calls)) {
             calls = [];
-            for (let i = 6; i >= 0; i--) {
-                const d = new Date();
-                d.setDate(d.getDate() - i);
-                const dStr = d.toISOString().split('T')[0];
-                const countForDay = (i === 0) ? 2 : (1 + (i % 3));
-                for (let k = 0; k < countForDay; k++) {
-                    const compIdx = (i * 2 + k) % (comps.length || 1);
-                    calls.push({
-                        id: `call_seed_${i}_${k}`,
-                        companyId: comps[compIdx] ? comps[compIdx].id : `comp_${compIdx}`,
-                        date: dStr,
-                        time: `${10 + k}:30`,
-                        result: results[(i + k) % results.length],
-                        notes: notes[(i + k) % notes.length],
-                        followUpDate: (i === 0) ? dStr : '',
-                        createdAt: d.toISOString()
-                    });
-                }
-            }
             try { this._set(this.KEYS.CALLS, calls); } catch(e){}
         }
-        return calls || [];
+        // Permanently purge any legacy fake seed calls
+        const realCalls = calls.filter(c => c && !String(c.id).startsWith('call_seed_'));
+        if (realCalls.length !== calls.length) {
+            this._set(this.KEYS.CALLS, realCalls);
+            calls = realCalls;
+        }
+        return calls;
     },
 
     getScopedCalls() {
@@ -1699,7 +1675,7 @@ const AppStorage = {
     },
 
     getCall(id) {
-        return this.getCalls().find(c => c.id === id);
+        return this.getCalls().find(c => c && c.id === id);
     },
 
     getCallsForCompany(companyId) {
@@ -1717,7 +1693,7 @@ const AppStorage = {
 
         const calls = this.getCalls();
         if (call.id) {
-            const index = calls.findIndex(c => c.id === call.id);
+            const index = calls.findIndex(c => c && c.id === call.id);
             if (index >= 0) {
                 calls[index] = { ...calls[index], ...call };
             } else {
@@ -1764,7 +1740,7 @@ const AppStorage = {
     },
 
     deleteCall(id) {
-        const calls = this.getCalls().filter(c => c.id !== id);
+        const calls = this.getCalls().filter(c => c && c.id !== id);
         this._set(this.KEYS.CALLS, calls);
         this.autoSyncToCloud(this.companiesMemory);
     },
@@ -1776,12 +1752,12 @@ const AppStorage = {
 
     getTodaysCalls() {
         const today = new Date().toISOString().split('T')[0];
-        return this.getCalls().filter(c => c.date === today);
+        return this.getCalls().filter(c => c && c.date === today);
     },
 
     getTodaysFollowUps() {
         const today = new Date().toISOString().split('T')[0];
-        return this.getCalls().filter(c => c.followUpDate === today);
+        return this.getCalls().filter(c => c && c.followUpDate === today);
     },
 
     // ---- Deals ----
@@ -1817,13 +1793,13 @@ const AppStorage = {
     },
 
     getDeal(id) {
-        return this.getDeals().find(d => d.id === id);
+        return this.getDeals().find(d => d && d.id === id);
     },
 
     saveDeal(deal) {
         const deals = this.getDeals();
         if (deal.id) {
-            const index = deals.findIndex(d => d.id === deal.id);
+            const index = deals.findIndex(d => d && d.id === deal.id);
             if (index >= 0) {
                 deals[index] = { ...deals[index], ...deal };
             } else {
@@ -1839,16 +1815,23 @@ const AppStorage = {
         const company = this.getCompany(deal.companyId);
         const companyName = company ? company.nameAr : 'شركة';
         this.addActivity('deal', deal.id, deal.id ? 'تحديث صفقة' : 'إضافة صفقة', companyName);
+        this.autoSyncToCloud(this.companiesMemory);
         return deal;
     },
 
     deleteDeal(id) {
-        const deals = this.getDeals().filter(d => d.id !== id);
+        const deals = this.getDeals().filter(d => d && d.id !== id);
         this._set(this.KEYS.DEALS, deals);
+        if (deals.length === 0) {
+            localStorage.setItem('fleetcrm_user_wiped_deals', 'true');
+        }
+        this.autoSyncToCloud(this.companiesMemory);
     },
 
     clearAllDeals() {
         this._set(this.KEYS.DEALS, []);
+        localStorage.setItem('fleetcrm_user_wiped_deals', 'true');
+        this.autoSyncToCloud(this.companiesMemory);
     },
 
     updateDealStage(dealId, newStage) {
