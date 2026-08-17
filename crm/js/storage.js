@@ -817,7 +817,6 @@ const AppStorage = {
             company.phone1 = mob;
         }
 
-        // Recalculate priority & lead score based on actual fleet size
         const fs = company.fleetSize || 10;
         if (fs >= 50) {
             company.priority = 'A';
@@ -838,7 +837,6 @@ const AppStorage = {
         this._set(this.KEYS.COMPANIES, []);
         localStorage.setItem('fleetcrm_user_wiped_companies', 'true');
         
-        // Clear IndexedDB store
         try {
             const request = indexedDB.open('FleetCRM_DB', 4);
             request.onsuccess = (event) => {
@@ -850,7 +848,6 @@ const AppStorage = {
             };
         } catch (e) {}
 
-        // Clear Supabase Cloud Dataset
         if (window.SupabaseClient) {
             window.SupabaseClient.pushMasterData({
                 companies: [],
@@ -872,33 +869,36 @@ const AppStorage = {
             return;
         }
 
-        // 1. Load static JSON bundled with app FIRST
         const jsonPaths = ['./data/companies.json', '/data/companies.json'];
         for (const path of jsonPaths) {
             try {
-                const resp = await fetch(path + '?v=93.0&_=' + Date.now());
+                const resp = await fetch(path + '?v=94.0&_=' + Date.now());
                 if (resp.ok) {
                     const jsonData = await resp.json();
                     if (Array.isArray(jsonData) && jsonData.length > 0) {
                         const masterMap = new Map();
                         jsonData.forEach((c, idx) => {
                             const normalized = this._normalizeCompanyData(c, idx);
-                            const key = this._normalizeArabicName(normalized.nameAr || normalized.nameEn);
+                            const key = this._normalizeArabicName(normalized.nameAr || normalized.nameEn || normalized.name);
                             if (key && !masterMap.has(key)) {
                                 masterMap.set(key, normalized);
                             }
                         });
 
-                        // Merge any custom scraped companies created by user
-                        if (Array.isArray(existingCustomData) && existingCustomData.length > 0) {
-                            existingCustomData.forEach((c, idx) => {
-                                const normalized = this._normalizeCompanyData(c, idx);
-                                const key = this._normalizeArabicName(normalized.nameAr || normalized.nameEn);
-                                if (key && !masterMap.has(key)) {
-                                    masterMap.set(key, normalized);
-                                }
-                            });
-                        }
+                        const extraSources = [
+                            ...(Array.isArray(existingCustomData) ? existingCustomData : []),
+                            ...(Array.isArray(this.companiesMemory) ? this.companiesMemory : []),
+                            ...(Array.isArray(this._get(this.KEYS.COMPANIES)) ? this._get(this.KEYS.COMPANIES) : [])
+                        ];
+
+                        extraSources.forEach((c, idx) => {
+                            if (!c) return;
+                            const normalized = this._normalizeCompanyData(c, idx);
+                            const key = this._normalizeArabicName(normalized.nameAr || normalized.nameEn || normalized.name);
+                            if (key && !masterMap.has(key)) {
+                                masterMap.set(key, normalized);
+                            }
+                        });
 
                         this.companiesMemory = Array.from(masterMap.values());
                         this._set(this.KEYS.COMPANIES, this.companiesMemory);
@@ -908,7 +908,6 @@ const AppStorage = {
                         const sideCounter = document.getElementById('sidebar-total-companies');
                         if (sideCounter) sideCounter.textContent = this.companiesMemory.length.toLocaleString();
 
-                        // Also update Supabase cloud dataset
                         if (window.SupabaseClient) {
                             window.SupabaseClient.pushMasterData({
                                 companies: this.companiesMemory,
@@ -959,8 +958,15 @@ const AppStorage = {
                         if (sideCounter) sideCounter.textContent = idbMapped.length.toLocaleString();
                         resolve();
                     } else {
-                        await this._seedInitialJsonData(data);
-                        resolve();
+                        const localCached = this._get(this.KEYS.COMPANIES);
+                        if (localCached && Array.isArray(localCached) && localCached.length > 0) {
+                            this.companiesMemory = this.cleanAndFixCompanyData(localCached);
+                            this.saveAllCompaniesToDB(this.companiesMemory);
+                            resolve();
+                        } else {
+                            await this._seedInitialJsonData([]);
+                            resolve();
+                        }
                     }
                 };
                 
@@ -977,7 +983,6 @@ const AppStorage = {
         const validUserKeys = new Set(users.flatMap(u => [u.id, u.username, u.name].filter(Boolean)));
 
         let updated = false;
-        // Clean up orphan assignments pointing to deleted users (e.g. agent_1, agent_2)
         this.companiesMemory.forEach(c => {
             if (c && c.assignedTo && !validUserKeys.has(c.assignedTo)) {
                 c.assignedTo = '';
@@ -993,7 +998,6 @@ const AppStorage = {
     saveAllCompaniesToDB(companies) {
         try {
             localStorage.setItem('fleetcrm_company_count', companies.length);
-            // Save compact version to localStorage as safety backup
             const compact = (companies || []).map(c => ({
                 id: c.id,
                 nameAr: c.nameAr || c.nameEn,
@@ -1013,15 +1017,13 @@ const AppStorage = {
             console.warn('localStorage save notice:', e);
         }
 
-        // Direct IndexedDB write with consistent version 4
         this._writeToIDB(companies);
-
-        // Trigger automatic zero-click background cloud sync
         this.autoSyncToCloud(companies);
     },
 
     _writeToIDB(companies) {
         return new Promise((resolve) => {
+            if (typeof indexedDB === 'undefined') { resolve(); return; }
             try {
                 const request = indexedDB.open('FleetCRM_DB', 4);
                 request.onsuccess = (event) => {
@@ -1030,11 +1032,12 @@ const AppStorage = {
                     try {
                         const transaction = db.transaction(['companies'], 'readwrite');
                         const store = transaction.objectStore('companies');
-                        store.clear();
-                        companies.forEach(c => store.put(c));
+                        companies.forEach(c => {
+                            if (c && c.id) store.put(c);
+                        });
                         transaction.oncomplete = () => resolve();
                         transaction.onerror = () => resolve();
-                    } catch (err) {
+                    } catch (txErr) {
                         resolve();
                     }
                 };
@@ -1047,16 +1050,14 @@ const AppStorage = {
 
     autoSyncTimer: null,
     autoSyncToCloud(companies = this.companiesMemory, forceSync = false) {
-        if (!Array.isArray(companies)) companies = this.companiesMemory || [];
-        if (!window.SupabaseClient) return;
-        clearTimeout(this.autoSyncTimer);
-        this.autoSyncTimer = setTimeout(async () => {
+        if (!window.SupabaseClient || !companies || !Array.isArray(companies)) return;
+        if (this._cloudSyncDebounce) clearTimeout(this._cloudSyncDebounce);
+
+        this._cloudSyncDebounce = setTimeout(async () => {
             try {
-                const calls = this.getCalls ? (this.getCalls() || []) : [];
-                const deals = this.getDeals ? (this.getDeals() || []) : [];
-                const assignedCount = companies.filter(c => c && c.assignedTo).length;
-                const quickHash = `${companies.length}_${assignedCount}_${calls.length}_${deals.length}_${companies[companies.length - 1]?.id || ''}_${companies[companies.length - 1]?.assignedTo || ''}`;
-                
+                const calls = this.getCalls ? this.getCalls() : [];
+                const deals = this.getDeals ? this.getDeals() : [];
+                const quickHash = `${companies.length}_${calls.length}_${deals.length}`;
                 if (!forceSync && quickHash === localStorage.getItem('fleetcrm_last_synced_hash')) return;
 
                 const ok = await window.SupabaseClient.pushMasterData({
@@ -1080,26 +1081,23 @@ const AppStorage = {
             const data = await window.SupabaseClient.fetchMasterData();
             if (!data) return false;
 
-            const cloudTimestamp = data.updated_at ? new Date(data.updated_at).getTime() : 0;
-            const localTimestamp = parseInt(localStorage.getItem('fleetcrm_last_sync_time') || '0');
             let updated = false;
 
-            // Union/Merge local and cloud companies with automatic deduplication
             if (data.companies && Array.isArray(data.companies) && data.companies.length > 0) {
                 const combined = [...(this.companiesMemory || []), ...data.companies];
                 const cleanDeduplicated = this.cleanAndFixCompanyData(combined);
 
-                if (cleanDeduplicated.length < 3560) {
-                    await this._seedInitialJsonData(cleanDeduplicated);
-                    updated = true;
-                } else if (cleanDeduplicated.length !== (this.companiesMemory || []).length || JSON.stringify(cleanDeduplicated) !== JSON.stringify(this.companiesMemory)) {
-                    this.companiesMemory = cleanDeduplicated;
-                    this._set(this.KEYS.COMPANIES, this.companiesMemory);
-                    this.saveAllCompaniesToDB(this.companiesMemory);
-                    localStorage.setItem('fleetcrm_company_count', cleanDeduplicated.length);
-                    const sideCounter = document.getElementById('sidebar-total-companies');
-                    if (sideCounter) sideCounter.textContent = cleanDeduplicated.length.toLocaleString();
-                    updated = true;
+                if (cleanDeduplicated.length >= (this.companiesMemory || []).length) {
+                    const changed = cleanDeduplicated.length !== (this.companiesMemory || []).length || JSON.stringify(cleanDeduplicated) !== JSON.stringify(this.companiesMemory);
+                    if (changed) {
+                        this.companiesMemory = cleanDeduplicated;
+                        this._set(this.KEYS.COMPANIES, this.companiesMemory);
+                        this.saveAllCompaniesToDB(this.companiesMemory);
+                        localStorage.setItem('fleetcrm_company_count', cleanDeduplicated.length);
+                        const sideCounter = document.getElementById('sidebar-total-companies');
+                        if (sideCounter) sideCounter.textContent = cleanDeduplicated.length.toLocaleString();
+                        updated = true;
+                    }
                 }
             }
 
