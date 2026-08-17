@@ -769,12 +769,19 @@ const AppStorage = {
 
     _normalizeArabicName(str) {
         if (!str || typeof str !== 'string') return '';
-        return str.toLowerCase().trim()
-            .replace(/[أإآ]/g, 'ا')
+        let s = str.toLowerCase().trim()
+            .replace(/[أإآٱ]/g, 'ا')
             .replace(/ة/g, 'ه')
             .replace(/ى/g, 'ي')
+            .replace(/[ؤئ]/g, 'ء')
             .replace(/[\u064B-\u065F\u0670]/g, '')
+            .replace(/\s*\(فرع \d+\)/g, '')
+            .replace(/\s*-\s*الفرع \d+/g, '')
+            .replace(/(ش\.م\.م|ذ\.م\.م|م\.م|شمم|ذمم)/g, '')
+            .replace(/(مساهمه مصريه|ذات مسئوليه محدوده|شخص واحد)/g, '')
             .replace(/[^a-z0-9\u0600-\u06FF]/gi, '');
+        s = s.replace(/^(شركه|مصنع|مؤسسه|مجموعه|توكيل|مكتب|معرض)/, '');
+        return s;
     },
 
     _normalizeCompanyData(c, idx) {
@@ -1142,20 +1149,22 @@ const AppStorage = {
         const seenNames = new Set();
 
         companies.forEach((c, idx) => {
-            if (!c || !c.nameAr) return;
+            if (!c) return;
+            const name = c.nameAr || c.name || c.nameEn || c.companyName || '';
+            if (!name || String(name).trim().length < 2) return;
 
             // 0. Clean branch suffix from nameAr
-            c.nameAr = String(c.nameAr).replace(/\s*\(فرع \d+\)/g, '').trim();
+            c.nameAr = String(name).replace(/\s*\(فرع \d+\)/g, '').trim();
 
-            const nameKey = String(c.nameAr).trim().toLowerCase();
+            const nameKey = this._normalizeArabicName(c.nameAr);
             const idKey = c.id ? String(c.id).trim() : null;
 
-            if ((idKey && seenIds.has(idKey)) || seenNames.has(nameKey)) {
-                return;
+            if ((idKey && seenIds.has(idKey)) || (nameKey && seenNames.has(nameKey))) {
+                return; // Duplicate prevented!
             }
 
             if (idKey) seenIds.add(idKey);
-            seenNames.add(nameKey);
+            if (nameKey) seenNames.add(nameKey);
 
             // 1. Clean generic/fake/broken website URLs
             if (c.website) {
@@ -1284,17 +1293,32 @@ const AppStorage = {
             return Promise.resolve();
         }
 
-        // 1. Always update memory and localStorage first so UI & scraper work 100% immediately
+        const existingMap = new Map();
+        (this.companiesMemory || []).forEach(e => {
+            const key = this._normalizeArabicName(e.nameAr || e.name || e.nameEn);
+            if (key) existingMap.set(key, e);
+            if (e.id) existingMap.set('id_' + e.id, e);
+        });
+
         newCompanies.forEach(c => {
+            if (!c) return;
+            const name = c.nameAr || c.name || c.nameEn || c.companyName || '';
+            if (!name || String(name).trim().length < 2) return;
+            c.nameAr = String(name).replace(/\s*\(فرع \d+\)/g, '').trim();
+
             c.sector = this.mapScraperSectorToCRM(c.sector);
             c.city = this.mapScraperCityToCRM(c.city);
             c.priority = this.calculatePriority(c.sector);
 
-            const existingIndex = this.companiesMemory.findIndex(e => e.id === c.id || (e.nameAr && c.nameAr && e.nameAr === c.nameAr));
-            if (existingIndex === -1) {
+            const nameKey = this._normalizeArabicName(c.nameAr);
+            const idKey = c.id ? ('id_' + c.id) : null;
+
+            const existing = (nameKey && existingMap.get(nameKey)) || (idKey && existingMap.get(idKey));
+            if (!existing) {
+                if (nameKey) existingMap.set(nameKey, c);
+                if (idKey) existingMap.set(idKey, c);
                 this.companiesMemory.push(c);
             } else {
-                const existing = this.companiesMemory[existingIndex];
                 for (const k in c) {
                     if (c[k] !== undefined && c[k] !== null && c[k] !== '' && existing[k] !== c[k]) {
                         existing[k] = c[k];
@@ -1307,6 +1331,7 @@ const AppStorage = {
             }
         });
 
+        this.companiesMemory = this.cleanAndFixCompanyData(this.companiesMemory);
         this.saveAllCompaniesToDB(this.companiesMemory);
         if (this.autoSyncToCloud) this.autoSyncToCloud(this.companiesMemory);
 
