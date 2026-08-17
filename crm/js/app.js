@@ -180,10 +180,7 @@ const App = {
             if (window.SupabaseClient) {
                 window.SupabaseClient.subscribeToChanges((newData) => {
                     if (newData && Array.isArray(newData.companies)) {
-                        const isOnMobile = window.__IS_MOBILE === true;
-                        const companies = isOnMobile
-                            ? newData.companies.slice(0, 50)
-                            : newData.companies;
+                        const companies = newData.companies;
 
                         if (companies.length !== window.AppStorage.getCompanies().length) {
                             if (companies.length > 0) {

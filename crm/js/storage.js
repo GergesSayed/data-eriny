@@ -872,7 +872,7 @@ const AppStorage = {
         const jsonPaths = ['./data/companies.json', '/data/companies.json'];
         for (const path of jsonPaths) {
             try {
-                const resp = await fetch(path + '?v=94.0&_=' + Date.now());
+                const resp = await fetch(path + '?v=101.0&t=' + Date.now(), { cache: 'no-store' });
                 if (resp.ok) {
                     const jsonData = await resp.json();
                     if (Array.isArray(jsonData) && jsonData.length > 0) {
