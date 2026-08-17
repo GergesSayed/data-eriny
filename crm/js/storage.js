@@ -892,17 +892,11 @@ const AppStorage = {
 
                         const sideCounter = document.getElementById('sidebar-total-companies');
                         if (sideCounter) sideCounter.textContent = idbMapped.length.toLocaleString();
-                        if (typeof window.App !== 'undefined' && typeof window.App.refreshCurrentPage === 'function') {
-                            setTimeout(() => window.App.refreshCurrentPage(), 50);
-                        }
                         resolve();
                     } else {
                         const cached = this._get(this.KEYS.COMPANIES);
                         if (cached && Array.isArray(cached) && cached.length > 0) {
                             this.companiesMemory = cached;
-                            if (typeof window.App !== 'undefined' && typeof window.App.refreshCurrentPage === 'function') {
-                                setTimeout(() => window.App.refreshCurrentPage(), 50);
-                            }
                             resolve();
                         } else if (!this.companiesMemory || this.companiesMemory.length === 0) {
                             this._seedInitialJsonData().then(() => resolve());

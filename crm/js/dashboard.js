@@ -7,16 +7,6 @@ const Dashboard = {
 
     init() {
         this.render();
-        // Secondary pass when storage / IndexedDB completes
-        setTimeout(() => this.render(), 100);
-        setTimeout(() => this.render(), 400);
-        setTimeout(() => this.render(), 1000);
-
-        if (document.readyState === 'complete') {
-            this.render();
-        } else {
-            window.addEventListener('load', () => this.render());
-        }
     },
 
     render() {
