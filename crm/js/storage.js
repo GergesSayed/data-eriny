@@ -704,22 +704,30 @@ const AppStorage = {
     // ---- IndexedDB helper functions ----
     async initDB() {
         let cached = this._get(this.KEYS.COMPANIES);
-        if (cached && Array.isArray(cached) && cached.length >= 3560) {
-            this.companiesMemory = cached;
+        if (cached && Array.isArray(cached) && cached.length > 0) {
+            this.companiesMemory = this.cleanAndFixCompanyData(cached);
         } else if (!this.companiesMemory || !Array.isArray(this.companiesMemory)) {
             this.companiesMemory = [];
         }
 
         return new Promise((resolve) => {
             if (typeof indexedDB === 'undefined') {
-                this._seedInitialJsonData(this.companiesMemory || []).then(() => resolve());
+                if (this.companiesMemory && this.companiesMemory.length > 0) {
+                    resolve();
+                } else {
+                    this._seedInitialJsonData([]).then(() => resolve());
+                }
                 return;
             }
             try {
                 const request = indexedDB.open('FleetCRM_DB', 4);
                 
                 request.onerror = (event) => {
-                    this._seedInitialJsonData(this.companiesMemory || []).then(() => resolve());
+                    if (this.companiesMemory && this.companiesMemory.length > 0) {
+                        resolve();
+                    } else {
+                        this._seedInitialJsonData([]).then(() => resolve());
+                    }
                 };
                 
                 request.onsuccess = (event) => {
@@ -728,8 +736,14 @@ const AppStorage = {
                         this.loadCompaniesFromDB(db),
                         this.loadActivitiesFromDB(db)
                     ]).then(async () => {
-                        if (!this.companiesMemory || this.companiesMemory.length < 3560) {
-                            await this._seedInitialJsonData(this.companiesMemory || []);
+                        if (!this.companiesMemory || this.companiesMemory.length === 0) {
+                            const localCached = this._get(this.KEYS.COMPANIES);
+                            if (localCached && Array.isArray(localCached) && localCached.length > 0) {
+                                this.companiesMemory = this.cleanAndFixCompanyData(localCached);
+                                this.saveAllCompaniesToDB(this.companiesMemory);
+                            } else {
+                                await this._seedInitialJsonData([]);
+                            }
                         }
                         resolve();
                     });
@@ -788,6 +802,9 @@ const AppStorage = {
         if (!c) return c;
         const company = { ...c };
         if (!company.id) company.id = 'cloud_' + idx;
+        
+        const rawName = company.nameAr || company.name || company.nameEn || company.companyName || '';
+        company.nameAr = String(rawName).trim();
         company.sector = this.mapScraperSectorToCRM(company.sector);
         company.city = this.mapScraperCityToCRM(company.city);
         
@@ -823,7 +840,7 @@ const AppStorage = {
         
         // Clear IndexedDB store
         try {
-            const request = indexedDB.open('FleetCRM_DB', 3);
+            const request = indexedDB.open('FleetCRM_DB', 4);
             request.onsuccess = (event) => {
                 const db = event.target.result;
                 if (!db.objectStoreNames.contains('companies')) return;
@@ -859,7 +876,7 @@ const AppStorage = {
         const jsonPaths = ['./data/companies.json', '/data/companies.json'];
         for (const path of jsonPaths) {
             try {
-                const resp = await fetch(path + '?v=86.0&_=' + Date.now());
+                const resp = await fetch(path + '?v=93.0&_=' + Date.now());
                 if (resp.ok) {
                     const jsonData = await resp.json();
                     if (Array.isArray(jsonData) && jsonData.length > 0) {
@@ -928,7 +945,7 @@ const AppStorage = {
                 
                 request.onsuccess = async (event) => {
                     const data = event.target.result || [];
-                    if (data.length >= 3560) {
+                    if (data && data.length > 0) {
                         const cleaned = this.cleanAndFixCompanyData(data);
                         const idbMapped = cleaned.map((c, idx) => this._normalizeCompanyData(c, idx));
                         this.companiesMemory = idbMapped;
