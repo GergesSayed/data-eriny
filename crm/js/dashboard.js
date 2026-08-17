@@ -311,3 +311,5 @@ const Dashboard = {
         return then.toLocaleDateString('ar-EG');
     }
 };
+
+window.Dashboard = Dashboard;

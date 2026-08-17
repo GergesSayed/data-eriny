@@ -130,7 +130,6 @@ const App = {
                 }).catch(() => {});
             }
 
-            this.renderGlobalSearch();
             this.renderNotifications();
             this.bindEvents();
 
@@ -1101,6 +1100,8 @@ const App = {
         this.refreshUserSwitcher = populateOptions;
     }
 };
+
+window.App = App;
 
 // ---- Initialize on DOM ready ----
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
