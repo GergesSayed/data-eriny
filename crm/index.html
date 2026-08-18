@@ -16,7 +16,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=109.0">
+    <link rel="stylesheet" href="css/style.css?v=110.0">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
         (function() {
@@ -302,27 +302,10 @@
                 </div>
 
                 <!-- Live Cloud Sync Status Widget -->
-                <div id="cloud-sync-indicator" class="cloud-sync-pill" title="حالة المزامنة السحابية الفورية" style="display:inline-flex; align-items:center; gap:6px; background:rgba(16, 185, 129, 0.12); border:1px solid rgba(16, 185, 129, 0.3); color:#10b981; padding:4px 10px; border-radius:10px; font-size:11px; font-weight:700; cursor:pointer;" onclick="App.triggerCloudSyncNow()">
-                    <i class="fas fa-check-circle" id="cloud-sync-icon" style="font-size:12px;"></i>
+                <div id="cloud-sync-indicator" class="cloud-sync-pill" title="حالة المزامنة السحابية الفورية" style="display:inline-flex; align-items:center; gap:6px; background:rgba(16, 185, 129, 0.12); border:1px solid rgba(16, 185, 129, 0.3); color:#10b981; padding:5px 12px; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer;" onclick="App.triggerCloudSyncNow()">
+                    <i class="fas fa-check-circle" id="cloud-sync-icon" style="font-size:13px;"></i>
                     <span id="cloud-sync-label">متزامن سحابياً</span>
                 </div>
-
-                <button class="btn btn-sm" id="btn-cloud-sync" style="background:linear-gradient(135deg, #06b6d4, #3b82f6); color:#fff; font-weight:800;" title="مزامنة فورية لكافة الشركات والمكالمات أونلاين" onclick="App.triggerCloudSyncNow()">
-                    <i class="fas fa-cloud-upload-alt"></i>
-                    <span>مزامنة أونلاين</span>
-                </button>
-                <button class="btn btn-sm" id="btn-team-management" style="background:#7c3aed; color:#fff; font-weight:700;" title="إدارة الموظفين ومتابعة الإنجاز" onclick="App.navigateTo('team')">
-                    <i class="fas fa-users-cog"></i>
-                    <span>الفريق</span>
-                </button>
-                <button class="btn btn-accent btn-sm" id="btn-quick-call" title="تسجيل مكالمة سريعة" onclick="Calls.openAddModal()">
-                    <i class="fas fa-phone-alt"></i>
-                    <span>مكالمة</span>
-                </button>
-                <button class="btn btn-primary btn-sm" id="btn-quick-add" title="إضافة شركة" onclick="Companies.openAddModal()">
-                    <i class="fas fa-plus"></i>
-                    <span>شركة جديدة</span>
-                </button>
                 <div class="topbar-divider"></div>
                 <div class="topbar-user" style="display:flex; align-items:center; gap:10px; position:relative;">
                     <div class="user-avatar" id="current-user-avatar" style="background:#7c3aed; color:#fff; font-weight:bold; font-size:14px; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center;">
@@ -1638,19 +1621,19 @@
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <script src="js/supabase-client.js?v=109.0"></script>
-    <script src="js/storage.js?v=109.0"></script>
-    <script src="js/excel-handler.js?v=109.0"></script>
-    <script src="js/dashboard.js?v=109.0"></script>
-    <script src="js/companies.js?v=109.0"></script>
-    <script src="js/calls.js?v=109.0"></script>
-    <script src="js/pipeline.js?v=109.0"></script>
-    <script src="js/reports.js?v=109.0"></script>
-    <script src="js/egypt_enterprises_pool.js?v=109.0"></script>
-    <script src="js/scraper.js?v=109.0"></script>
-    <script src="js/team.js?v=109.0"></script>
-    <script src="js/settings.js?v=109.0"></script>
-    <script src="js/app.js?v=109.0"></script>
+    <script src="js/supabase-client.js?v=110.0"></script>
+    <script src="js/storage.js?v=110.0"></script>
+    <script src="js/excel-handler.js?v=110.0"></script>
+    <script src="js/dashboard.js?v=110.0"></script>
+    <script src="js/companies.js?v=110.0"></script>
+    <script src="js/calls.js?v=110.0"></script>
+    <script src="js/pipeline.js?v=110.0"></script>
+    <script src="js/reports.js?v=110.0"></script>
+    <script src="js/egypt_enterprises_pool.js?v=110.0"></script>
+    <script src="js/scraper.js?v=110.0"></script>
+    <script src="js/team.js?v=110.0"></script>
+    <script src="js/settings.js?v=110.0"></script>
+    <script src="js/app.js?v=110.0"></script>
 
     <!-- EMERGENCY: Guarantee save button always works regardless of cache -->
     <script>
