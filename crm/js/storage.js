@@ -950,8 +950,7 @@ const AppStorage = {
                             this.saveAllCompaniesToDB(idbMapped);
                         }
 
-                        const sideCounter = document.getElementById('sidebar-total-companies');
-                        if (sideCounter) sideCounter.textContent = idbMapped.length.toLocaleString();
+                        this.updateLiveCounters();
                         resolve();
                     } else {
                         await this._seedInitialJsonData([]);
@@ -984,11 +983,25 @@ const AppStorage = {
         }
     },
 
-    saveAllCompaniesToDB(companies) {
+    updateLiveCounters() {
+        const count = (this.companiesMemory && Array.isArray(this.companiesMemory)) ? this.companiesMemory.length : 0;
         try {
-            localStorage.setItem('fleetcrm_company_count', (companies || []).length);
-        } catch (e) {}
+            localStorage.setItem('fleetcrm_company_count', count);
+        } catch(e) {}
+        const formatted = count > 0 ? count.toLocaleString() : '0';
+        const sideEl = document.getElementById('sidebar-total-companies');
+        if (sideEl) sideEl.textContent = formatted;
+        const dashEl = document.getElementById('dash-total-companies');
+        if (dashEl) dashEl.textContent = formatted;
+        const scTotal = document.getElementById('sc-total');
+        if (scTotal) scTotal.textContent = formatted;
+        const subText = document.getElementById('scraper-status-subtext');
+        if (subText) subText.textContent = `المحرك الموحد المباشر (${formatted} شركة موثقة 100%)`;
+        return count;
+    },
 
+    saveAllCompaniesToDB(companies) {
+        this.updateLiveCounters();
         this._writeToIDB(companies);
         this.autoSyncToCloud(companies);
     },
@@ -1065,9 +1078,7 @@ const AppStorage = {
                         this.companiesMemory = cleanDeduplicated;
                         this._set(this.KEYS.COMPANIES, this.companiesMemory);
                         this.saveAllCompaniesToDB(this.companiesMemory);
-                        localStorage.setItem('fleetcrm_company_count', cleanDeduplicated.length);
-                        const sideCounter = document.getElementById('sidebar-total-companies');
-                        if (sideCounter) sideCounter.textContent = cleanDeduplicated.length.toLocaleString();
+                        this.updateLiveCounters();
                         updated = true;
                     }
                 }

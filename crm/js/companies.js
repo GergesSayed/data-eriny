@@ -400,6 +400,9 @@ const Companies = {
         // Update count & view mode toggle buttons
         const currentUser = window.AppStorage.getCurrentUser();
         const canViewAll = window.AppStorage.canViewAll(currentUser);
+        if (window.AppStorage && window.AppStorage.updateLiveCounters) {
+            window.AppStorage.updateLiveCounters();
+        }
         const masterTotal = window.AppStorage.getCompanies().length;
         const countDisplay = document.getElementById('companies-count-display');
         if (countDisplay) {
