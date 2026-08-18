@@ -789,29 +789,41 @@ const AppStorage = {
         
         const rawName = company.nameAr || company.name || company.nameEn || company.companyName || '';
         company.nameAr = String(rawName).trim();
+        company.nameEn = String(company.nameEn || company.nameAr || '').trim();
         company.sector = this.mapScraperSectorToCRM(company.sector);
-        company.city = this.mapScraperCityToCRM(company.city);
+        company.city = this.mapScraperCityToCRM(company.city || company.governorate || company.gov);
+        company.governorate = String(company.governorate || company.gov || '').trim();
+        company.address = String(company.address || company.addr || '').trim();
         
         // Preserve phone numbers cleanly without synthetic phone generation
-        const p1 = (company.phone1 || '').trim();
-        const mob = (company.mobile || '').trim();
-        if (p1 && !mob) {
-            company.mobile = p1;
-        } else if (mob && !p1) {
-            company.phone1 = mob;
-        }
+        const p1 = String(company.phone1 || company.phone || company.p1 || '').trim();
+        const mob = String(company.mobile || company.mob || p1).trim();
+        company.phone1 = p1 || mob;
+        company.mobile = mob || p1;
+        company.website = String(company.website || company.web || '').trim();
+        company.google_maps_url = String(company.google_maps_url || company.map || ((company.latitude || company.lat) ? ('https://www.google.com/maps?q=' + (company.latitude || company.lat) + ',' + (company.longitude || company.lon)) : '')).trim();
 
-        const fs = company.fleetSize || 10;
-        if (fs >= 50) {
+        const fs = Number(company.fleetSize || company.fleet || 30);
+        company.fleetSize = fs;
+        company.fleetType = String(company.fleetType || 'heavy');
+        company.status = String(company.status || company.st || 'new');
+        company.assignedTo = String(company.assignedTo || company.asgn || '');
+        company.contactPerson = String(company.contactPerson || company.cp || '').trim();
+        company.contactTitle = String(company.contactTitle || company.ct || '').trim();
+        company.notes = String(company.notes || '').trim();
+        company.createdAt = company.createdAt || company.cat || new Date().toISOString();
+        company.lastUpdated = company.lastUpdated || company.upd || new Date().toISOString().split('T')[0];
+
+        if (company.priority || company.prio) {
+            company.priority = String(company.priority || company.prio).toUpperCase();
+        } else if (fs >= 100) {
             company.priority = 'A';
-            company.leadScore = Math.min(95, 80 + ((company.fleetSize || 0) % 16));
-        } else if (fs >= 20) {
+        } else if (fs >= 35) {
             company.priority = 'B';
-            company.leadScore = Math.min(79, 65 + ((company.fleetSize || 0) % 15));
         } else {
             company.priority = 'C';
-            company.leadScore = Math.min(64, 50 + ((company.fleetSize || 0) % 15));
         }
+        company.leadScore = company.priority === 'A' ? 85 : company.priority === 'B' ? 70 : 55;
 
         return company;
     },
