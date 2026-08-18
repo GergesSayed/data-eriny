@@ -1336,21 +1336,23 @@ const Companies = {
     },
 
     buildAssignedWidget(c) {
-        const currentUser = window.AppStorage.getCurrentUser();
-        const users = window.AppStorage.getUsers() || [];
-        const assignedUser = window.AppStorage.getUser(c.assignedTo);
+        const currentUser = (window.AppStorage && typeof window.AppStorage.getCurrentUser === 'function') ? window.AppStorage.getCurrentUser() : null;
+        const currentName = (currentUser && currentUser.name) ? String(currentUser.name).split(' ')[0] : (currentUser?.username || 'أنا');
+        const users = (window.AppStorage && typeof window.AppStorage.getUsers === 'function') ? (window.AppStorage.getUsers() || []) : [];
+        const assignedUser = (window.AppStorage && typeof window.AppStorage.getUser === 'function') ? window.AppStorage.getUser(c.assignedTo) : null;
 
         if (assignedUser) {
+            const userName = assignedUser.name || assignedUser.username || 'موظف';
             return `
                 <div style="display:inline-flex; align-items:center; gap:6px;" onclick="event.stopPropagation();">
                     <span class="badge" style="background:${assignedUser.color || '#7c3aed'}22; color:${assignedUser.color || '#7c3aed'}; border:1px solid ${assignedUser.color || '#7c3aed'}66; padding:4px 8px; font-weight:700; font-size:0.75rem; border-radius:6px; display:inline-flex; align-items:center; gap:4px;" title="تاريخ التعيين: ${c.assignedAt ? new Date(c.assignedAt).toLocaleDateString('ar-EG') : ''}">
-                        ${assignedUser.avatar || '👤'} ${assignedUser.name}
+                        ${assignedUser.avatar || '👤'} ${userName}
                     </span>
                     ${window.AppStorage.canModify() ? `
                         <select onchange="Companies.assignToUser('${c.id}', this.value)" style="padding:2px 6px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-muted); font-size:11px; cursor:pointer;" title="تغيير الموظف المسند إليه أو إلغاء التعيين">
                             <option value="${assignedUser.id}" selected>✏️ تغيير</option>
                             <option value="">⚪ إلغاء التعيين</option>
-                            ${users.filter(u => u.id !== assignedUser.id).map(u => `<option value="${u.id}">👤 ${u.name}</option>`).join('')}
+                            ${users.filter(u => u && u.id !== assignedUser.id).map(u => `<option value="${u.id}">👤 ${u.name || u.username || 'موظف'}</option>`).join('')}
                         </select>
                     ` : ''}
                 </div>`;
@@ -1359,8 +1361,8 @@ const Companies = {
                 <div onclick="event.stopPropagation();" style="display:inline-block;">
                     <select onchange="Companies.assignToUser('${c.id}', this.value)" style="padding:4px 8px; border-radius:6px; border:1px dashed #7c3aed; background:rgba(124, 58, 237, 0.1); color:#7c3aed; font-size:0.75rem; font-weight:700; cursor:pointer;" title="اختر الموظف لإسناد هذه الشركة له">
                         <option value="" selected>➕ إسناد لموظف...</option>
-                        <option value="current_user">🙋‍♂️ حجز لي (${currentUser ? currentUser.name.split(' ')[0] : 'أنا'})</option>
-                        ${users.map(u => `<option value="${u.id}">👤 ${u.name} (${u.role === 'admin' ? 'مدير' : u.role === 'supervisor' ? 'مشرف' : 'مبيعات'})</option>`).join('')}
+                        <option value="current_user">🙋‍♂️ حجز لي (${currentName})</option>
+                        ${users.map(u => `<option value="${u.id}">👤 ${u.name || u.username || 'موظف'} (${u.role === 'admin' ? 'مدير' : u.role === 'supervisor' ? 'مشرف' : 'مبيعات'})</option>`).join('')}
                     </select>
                 </div>` : `<span style="color:var(--text-muted); font-size:11px;">⚪ غير مسندة</span>`;
         }
