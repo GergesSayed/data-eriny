@@ -167,6 +167,7 @@ const App = {
             safeInit('Reports', Reports, () => Reports.init());
             safeInit('Team', Team, () => Team.init());
 
+            this.initCloudSyncStatusUI();
             this.navigateTo(targetPage, true);
 
             // Periodic cloud sync pull — check for remote changes every 60 seconds
@@ -204,6 +205,43 @@ const App = {
             hideOverlay();
             setTimeout(hideOverlay, 300);
         }
+    },
+
+    initCloudSyncStatusUI() {
+        if (!window.SupabaseClient || !window.SupabaseClient.onStatusChange) return;
+
+        const pill = document.getElementById('cloud-sync-indicator');
+        const icon = document.getElementById('cloud-sync-icon');
+        const label = document.getElementById('cloud-sync-label');
+        if (!pill || !icon || !label) return;
+
+        window.SupabaseClient.onStatusChange((status, details) => {
+            if (status === 'syncing') {
+                pill.style.background = 'rgba(245, 158, 11, 0.15)';
+                pill.style.borderColor = 'rgba(245, 158, 11, 0.45)';
+                pill.style.color = '#f59e0b';
+                icon.className = 'fas fa-sync fa-spin';
+                label.textContent = 'جاري المزامنة...';
+            } else if (status === 'synced') {
+                pill.style.background = 'rgba(16, 185, 129, 0.12)';
+                pill.style.borderColor = 'rgba(16, 185, 129, 0.35)';
+                pill.style.color = '#10b981';
+                icon.className = 'fas fa-check-circle';
+                label.textContent = 'متزامن سحابياً';
+            } else if (status === 'offline') {
+                pill.style.background = 'rgba(148, 163, 184, 0.15)';
+                pill.style.borderColor = 'rgba(148, 163, 184, 0.3)';
+                pill.style.color = '#94a3b8';
+                icon.className = 'fas fa-wifi-slash';
+                label.textContent = 'أوفلاين (محلي)';
+            } else {
+                pill.style.background = 'rgba(239, 68, 68, 0.12)';
+                pill.style.borderColor = 'rgba(239, 68, 68, 0.35)';
+                pill.style.color = '#ef4444';
+                icon.className = 'fas fa-exclamation-circle';
+                label.textContent = 'تنبيه اتصال';
+            }
+        });
     },
 
     checkAuth() {
