@@ -11,7 +11,7 @@ const Companies = {
     selectedCompanies: new Set(),
 
     init() {
-        this.viewMode = 'table';
+        this.viewMode = (window.innerWidth <= 768) ? 'cards' : 'table';
         this.populateSectorSelects();
         this.bindEvents();
         this.refreshUserFilter();
@@ -565,6 +565,8 @@ const Companies = {
             return;
         }
         if (empty) empty.style.display = 'none';
+
+        const currentUser = (window.AppStorage && typeof window.AppStorage.getCurrentUser === 'function') ? window.AppStorage.getCurrentUser() : null;
 
         cardsView.innerHTML = companies.map(c => {
             const esc = (s) => window.AppStorage.escapeHtml(s || '');

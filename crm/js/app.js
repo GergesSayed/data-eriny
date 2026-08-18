@@ -917,6 +917,59 @@ const App = {
                 if (openModal) this.closeModal(openModal.id);
             }
         });
+
+        // ===== 📱 MOBILE ENHANCEMENTS =====
+
+        // 1. Swipe-to-close sidebar on mobile
+        (() => {
+            let touchStartX = 0;
+            let touchStartY = 0;
+            const sidebar = document.getElementById('sidebar');
+            if (!sidebar) return;
+
+            sidebar.addEventListener('touchstart', (e) => {
+                touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
+            }, { passive: true });
+
+            sidebar.addEventListener('touchend', (e) => {
+                const deltaX = e.changedTouches[0].clientX - touchStartX;
+                const deltaY = Math.abs(e.changedTouches[0].clientY - touchStartY);
+                // Swipe left (RTL: swipe right to close) — must be horizontal
+                if (deltaX > 80 && deltaY < 50) {
+                    this.closeSidebar();
+                }
+            }, { passive: true });
+        })();
+
+        // 2. Mobile filters toggle button injection
+        (() => {
+            if (window.innerWidth > 768) return;
+            const filtersBar = document.querySelector('.filters-bar');
+            if (!filtersBar) return;
+            // Add toggle button after 3rd filter
+            const toggleBtn = document.createElement('button');
+            toggleBtn.className = 'btn btn-ghost btn-sm';
+            toggleBtn.id = 'btn-toggle-filters';
+            toggleBtn.style.cssText = 'width:100%; padding:8px; border:1px dashed rgba(99,102,241,0.4); border-radius:10px; color:#818cf8; font-weight:700; font-size:0.8rem; cursor:pointer; margin-top:2px;';
+            toggleBtn.innerHTML = '<i class="fas fa-sliders-h"></i> فلاتر متقدمة ▾';
+            toggleBtn.onclick = () => {
+                filtersBar.classList.toggle('filters-expanded');
+                toggleBtn.innerHTML = filtersBar.classList.contains('filters-expanded')
+                    ? '<i class="fas fa-sliders-h"></i> إخفاء الفلاتر ▴'
+                    : '<i class="fas fa-sliders-h"></i> فلاتر متقدمة ▾';
+            };
+            // Insert after 3rd child
+            const children = filtersBar.children;
+            if (children.length > 3) {
+                filtersBar.insertBefore(toggleBtn, children[3]);
+            }
+        })();
+
+        // 3. Force cards view on mobile
+        if (window.innerWidth <= 768 && typeof Companies !== 'undefined') {
+            Companies.viewMode = 'cards';
+        }
     },
 
     renderNotifications() {
