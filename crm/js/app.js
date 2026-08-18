@@ -548,13 +548,13 @@ const App = {
         // Topbar User Avatar & Name
         const avatarEl = document.getElementById('current-user-avatar');
         if (avatarEl) {
-            avatarEl.textContent = current.avatar || (current.role === 'admin' ? '👑' : current.role === 'supervisor' ? '👁️' : '👤');
+            avatarEl.textContent = (current.role === 'admin') ? '👑' : (current.avatar || (current.role === 'supervisor' ? '👁️' : '👤'));
             avatarEl.style.background = current.color || '#7c3aed';
         }
         const nameEl = document.getElementById('current-user-name');
         if (nameEl) {
-            const roleBadge = current.role === 'admin' ? '👑 ' : current.role === 'supervisor' ? '👁️ (مشرف) ' : '👤 ';
-            nameEl.textContent = `${roleBadge}${current.name}`;
+            const displayName = (current.role === 'admin') ? 'Admin' : (current.name || current.username || 'المستخدم');
+            nameEl.textContent = displayName;
         }
     },
 

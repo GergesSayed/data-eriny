@@ -260,13 +260,14 @@ const AppStorage = {
                 id: userId,
                 username: userId.includes('@') ? userId.split('@')[0] : userId,
                 email: userId.includes('@') ? userId : '',
-                name: userId,
+                name: isAdm ? 'Admin' : userId,
                 role: isAdm ? 'admin' : 'agent',
                 status: 'active'
             };
         }
-        if (user.id === 'admin' || user.username === 'admin' || user.email === 'admin@fleet.com') {
+        if (user.id === 'admin' || user.username === 'admin' || user.email === 'admin@fleet.com' || user.role === 'admin') {
             user.role = 'admin';
+            user.name = 'Admin';
         }
         return user;
     },
