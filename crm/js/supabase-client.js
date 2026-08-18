@@ -38,9 +38,64 @@ window.SupabaseClient = (function() {
         return () => statusListeners.delete(listener);
     }
 
+    function minifyCompany(c) {
+        if (!c) return null;
+        const min = { id: String(c.id || ''), nameAr: String(c.nameAr || c.name || '') };
+        if (c.nameEn && c.nameEn !== c.nameAr) min.nameEn = c.nameEn;
+        if (c.sector && c.sector !== 'manufacturing') min.sector = c.sector;
+        if (c.city && c.city !== 'cairo') min.city = c.city;
+        if (c.governorate || c.gov) min.gov = c.governorate || c.gov;
+        if (c.address || c.addr) min.addr = c.address || c.addr;
+        if (c.phone1 || c.phone || c.p1) min.p1 = c.phone1 || c.phone || c.p1;
+        if (c.mobile || c.mob) min.mob = c.mobile || c.mob;
+        if (c.website || c.web) min.web = c.website || c.web;
+        if (c.latitude || c.lat) min.lat = c.latitude || c.lat;
+        if (c.longitude || c.lon) min.lon = c.longitude || c.lon;
+        if (c.google_maps_url || c.map) min.map = c.google_maps_url || c.map;
+        if (c.fleetSize || c.fleet) min.fleet = c.fleetSize || c.fleet;
+        if (c.priority && c.priority !== 'B') min.prio = c.priority;
+        if (c.status && c.status !== 'new') min.st = c.status;
+        if (c.assignedTo || c.asgn) min.asgn = c.assignedTo || c.asgn;
+        if (c.contactPerson || c.cp) min.cp = c.contactPerson || c.cp;
+        if (c.contactTitle || c.ct) min.ct = c.contactTitle || c.ct;
+        if (c.notes) min.notes = c.notes;
+        if (c.createdAt || c.cat) min.cat = c.createdAt || c.cat;
+        if (c.lastUpdated || c.upd) min.upd = c.lastUpdated || c.upd;
+        return min;
+    }
+
+    function unminifyCompany(m) {
+        if (!m) return null;
+        return {
+            id: m.id || ('comp_' + Math.random().toString(36).slice(2, 8)),
+            nameAr: m.nameAr || m.name || '',
+            nameEn: m.nameEn || m.nameAr || '',
+            sector: m.sector || 'manufacturing',
+            city: m.city || 'cairo',
+            governorate: m.gov || m.governorate || '',
+            address: m.addr || m.address || '',
+            phone1: m.p1 || m.phone1 || m.phone || '',
+            mobile: m.mob || m.mobile || m.p1 || m.phone1 || '',
+            website: m.web || m.website || '',
+            latitude: m.lat || m.latitude || null,
+            longitude: m.lon || m.longitude || null,
+            google_maps_url: m.map || m.google_maps_url || ((m.lat || m.latitude) && (m.lon || m.longitude) ? ('https://www.google.com/maps?q=' + (m.lat || m.latitude) + ',' + (m.lon || m.longitude)) : ''),
+            fleetSize: Number(m.fleet || m.fleetSize || 30),
+            fleetType: 'heavy',
+            priority: m.prio || m.priority || 'B',
+            status: m.st || m.status || 'new',
+            assignedTo: m.asgn || m.assignedTo || '',
+            contactPerson: m.cp || m.contactPerson || '',
+            contactTitle: m.ct || m.contactTitle || '',
+            notes: m.notes || '',
+            createdAt: m.cat || m.createdAt || new Date().toISOString(),
+            lastUpdated: m.upd || m.lastUpdated || new Date().toISOString().split('T')[0]
+        };
+    }
+
     async function fetchMasterData() {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 12000); // 12s timeout for mobile
+        const timeoutId = setTimeout(() => controller.abort(), 20000);
 
         try {
             const resp = await fetch(`${SUPABASE_URL}/rest/v1/master_data?id=eq.1&select=*`, {
@@ -56,6 +111,9 @@ window.SupabaseClient = (function() {
             const rows = await resp.json();
             const result = (rows && rows.length > 0) ? rows[0] : null;
             if (result) {
+                if (Array.isArray(result.companies)) {
+                    result.companies = result.companies.map(unminifyCompany).filter(Boolean);
+                }
                 setStatus('synced', { totalCompanies: result.companies ? result.companies.length : 0 });
             }
             return result;
@@ -69,9 +127,12 @@ window.SupabaseClient = (function() {
     async function pushMasterData(data) {
         setStatus('syncing');
 
+        const rawCompanies = Array.isArray(data.companies) ? data.companies : [];
+        const minifiedCompanies = rawCompanies.map(minifyCompany).filter(Boolean);
+
         const payload = {
             id: 1,
-            companies: data.companies || [],
+            companies: minifiedCompanies,
             users: data.users || [],
             calls: data.calls || [],
             deals: data.deals || [],
@@ -81,7 +142,7 @@ window.SupabaseClient = (function() {
         };
 
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 20000); // 20s timeout for large uploads
+        const timeoutId = setTimeout(() => controller.abort(), 40000); // 40s timeout for mobile
 
         try {
             const resp = await fetch(`${SUPABASE_URL}/rest/v1/master_data?id=eq.1`, {
@@ -100,7 +161,7 @@ window.SupabaseClient = (function() {
                     body: JSON.stringify(payload)
                 });
                 if (upsertResp.ok) {
-                    setStatus('synced', { totalCompanies: payload.companies.length });
+                    setStatus('synced', { totalCompanies: rawCompanies.length });
                     return true;
                 } else {
                     setStatus('error', { error: `Upload failed: ${upsertResp.status}` });
@@ -108,7 +169,7 @@ window.SupabaseClient = (function() {
                 }
             }
 
-            setStatus('synced', { totalCompanies: payload.companies.length });
+            setStatus('synced', { totalCompanies: rawCompanies.length });
             return true;
         } catch (err) {
             clearTimeout(timeoutId);
