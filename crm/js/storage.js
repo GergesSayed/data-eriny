@@ -78,7 +78,7 @@ const AppStorage = {
         }
     },
     DEFAULT_USERS: [
-        { id: 'admin', username: 'admin@fleet.com', email: 'admin@fleet.com', password: 'Admin@123', name: 'المدير العام (عرض الكل)', role: 'admin', status: 'active', avatar: '👑', color: '#7c3aed', _needsPasswordChange: false }
+        { id: 'admin', username: 'admin@fleet.com', email: 'admin@fleet.com', password: 'Admin@123', name: 'Admin', role: 'admin', status: 'active', avatar: '👑', color: '#7c3aed', _needsPasswordChange: false }
     ],
 
     // ---- User Profiles & Auth ----
@@ -99,21 +99,27 @@ const AppStorage = {
             return this.DEFAULT_USERS;
         }
 
-        // Always ensure default users have active status if not specified
+        // Always ensure default users have active status and valid names/emails if not specified
         stored.forEach(u => {
             if (!u.status) u.status = 'active';
+            if (!u.name) u.name = (u.id === 'admin' || u.role === 'admin') ? 'Admin' : (u.username || 'موظف');
+            if (!u.email) u.email = (u.id === 'admin' || u.role === 'admin') ? 'admin@fleet.com' : (u.username ? (u.username.includes('@') ? u.username : u.username + '@fleet.com') : 'user@fleet.com');
         });
 
         // Strictly enforce admin user details
-        let adminUser = stored.find(u => u.id === 'admin' || u.username === 'admin' || u.email === 'admin@fleet.com');
+        let adminUser = stored.find(u => u.id === 'admin' || u.username === 'admin' || u.email === 'admin@fleet.com' || u.role === 'admin');
         if (!adminUser) {
             stored.unshift(this.DEFAULT_USERS[0]);
             this._set(this.KEYS.USERS, stored);
         } else {
+            adminUser.id = 'admin';
+            adminUser.name = 'Admin';
             adminUser.username = 'admin@fleet.com';
             adminUser.email = 'admin@fleet.com';
             adminUser.role = 'admin';
             adminUser.status = 'active';
+            adminUser.avatar = '👑';
+            adminUser.color = '#7c3aed';
             this._set(this.KEYS.USERS, stored);
         }
 

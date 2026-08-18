@@ -124,14 +124,17 @@ const Team = {
                             </tr>
                         </thead>
                         <tbody>
-                            ${usersStats.map(u => `
+                            ${usersStats.map(u => {
+                                const uName = (u.name && u.name !== 'undefined') ? u.name : ((u.id === 'admin' || u.role === 'admin') ? 'Admin' : (u.username || 'موظف'));
+                                const uEmail = (u.email && u.email !== 'undefined') ? u.email : (u.username && u.username.includes('@') ? u.username : ((u.id === 'admin' || u.role === 'admin') ? 'admin@fleet.com' : (u.username ? u.username + '@fleet.com' : 'admin@fleet.com')));
+                                return `
                                 <tr>
                                     <td>
                                         <div style="display:flex; align-items:center; gap:10px;">
                                             <span style="background:${u.color || '#7c3aed'}; color:#fff; width:36px; height:36px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:bold;">${u.avatar || (u.role === 'admin' ? '👑' : u.role === 'supervisor' ? '👁️' : '👨‍💼')}</span>
                                             <div>
-                                                <div style="font-weight:800; color:var(--text-primary); font-size:14px;">${u.name}</div>
-                                                <small style="color:var(--text-muted); font-size:11px; direction:ltr; text-align:right; display:block;">👤 @${u.username || 'user'}</small>
+                                                <div style="font-weight:800; color:var(--text-primary); font-size:14px;">${uName}</div>
+                                                <small style="color:var(--text-muted); font-size:11px; direction:ltr; text-align:right; display:block;">📧 ${uEmail}</small>
                                             </div>
                                         </div>
                                     </td>
@@ -166,7 +169,8 @@ const Team = {
                                         </div>
                                     </td>
                                 </tr>
-                            `).join('')}
+                                `;
+                            }).join('')}
                         </tbody>
                     </table>
                 </div>
@@ -309,21 +313,24 @@ const Team = {
                                     ? `<span class="badge" style="background:rgba(239,68,68,0.2); color:#ef4444; border:1px solid #ef4444; font-weight:800;">⛔ مجمد</span>`
                                     : `<span class="badge" style="background:rgba(16,185,129,0.2); color:#10b981; border:1px solid #10b981; font-weight:800;">🟢 نشط</span>`;
 
+                                const uName = (u.name && u.name !== 'undefined') ? u.name : ((u.id === 'admin' || u.role === 'admin') ? 'Admin' : (u.username || 'موظف'));
+                                const uEmail = (u.email && u.email !== 'undefined') ? u.email : (u.username && u.username.includes('@') ? u.username : ((u.id === 'admin' || u.role === 'admin') ? 'admin@fleet.com' : (u.username ? u.username + '@fleet.com' : 'admin@fleet.com')));
+
                                 return `
                                 <tr>
                                     <td>
                                         <div style="display:flex; align-items:center; gap:10px;">
                                             <span style="background:${u.color || '#7c3aed'}; color:#fff; width:38px; height:38px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:bold;">${u.avatar || (u.role === 'admin' ? '👑' : u.role === 'supervisor' ? '👁️' : '👨‍💼')}</span>
                                             <div>
-                                                <div style="font-weight:800; color:var(--text-primary); font-size:14px;">${u.name}</div>
+                                                <div style="font-weight:800; color:var(--text-primary); font-size:14px;">${uName}</div>
                                                 <small style="color:var(--text-muted); font-size:11px;">تاريخ الإنشاء: ${u.createdAt ? u.createdAt.split('T')[0] : 'سابق'}</small>
                                             </div>
                                         </div>
                                     </td>
                                     <td>
                                         <div style="direction:ltr; text-align:right;">
-                                            <code style="font-weight:800; color:#3b82f6; font-size:12px;"><i class="fas fa-envelope"></i> ${u.email || u.username + '@fleet.com'}</code>
-                                            <div style=\"font-size:11px; color:var(--text-muted); margin-top:2px;\">🔑 كلمة المرور: <span style=\"font-family:monospace; color:#a78bfa;\">••••••••</span></div>
+                                            <code style="font-weight:800; color:#3b82f6; font-size:12px;"><i class="fas fa-envelope"></i> ${uEmail}</code>
+                                            <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">🔑 كلمة المرور: <span style="font-family:monospace; color:#a78bfa;">••••••••</span></div>
                                         </div>
                                     </td>
                                     <td>
