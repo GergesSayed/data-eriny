@@ -1241,14 +1241,16 @@ const AppStorage = {
             c.nameAr = String(name).replace(/\s*\(فرع \d+\)/g, '').trim();
 
             const nameKey = this._normalizeArabicName(c.nameAr);
+            const cityKey = String(c.city || c.governorate || c.gov || '').trim().toLowerCase();
+            const comboKey = nameKey + '_' + cityKey;
             const idKey = c.id ? String(c.id).trim() : null;
 
-            if ((idKey && seenIds.has(idKey)) || (nameKey && seenNames.has(nameKey))) {
+            if ((idKey && seenIds.has(idKey)) || (comboKey && seenNames.has(comboKey))) {
                 return; // Duplicate prevented!
             }
 
             if (idKey) seenIds.add(idKey);
-            if (nameKey) seenNames.add(nameKey);
+            if (comboKey) seenNames.add(comboKey);
 
             // 1. Clean generic/fake/broken website URLs
             if (c.website) {
@@ -1376,7 +1378,8 @@ const AppStorage = {
         const existingMap = new Map();
         (this.companiesMemory || []).forEach(e => {
             const key = this._normalizeArabicName(e.nameAr || e.name || e.nameEn);
-            if (key) existingMap.set(key, e);
+            const city = String(e.city || e.governorate || e.gov || '').trim().toLowerCase();
+            if (key) existingMap.set(key + '_' + city, e);
             if (e.id) existingMap.set('id_' + e.id, e);
         });
 
@@ -1391,11 +1394,13 @@ const AppStorage = {
             c.priority = this.calculatePriority(c.sector);
 
             const nameKey = this._normalizeArabicName(c.nameAr);
+            const cityKey = String(c.city || c.governorate || c.gov || '').trim().toLowerCase();
+            const comboKey = nameKey + '_' + cityKey;
             const idKey = c.id ? ('id_' + c.id) : null;
 
-            const existing = (nameKey && existingMap.get(nameKey)) || (idKey && existingMap.get(idKey));
+            const existing = (comboKey && existingMap.get(comboKey)) || (idKey && existingMap.get(idKey));
             if (!existing) {
-                if (nameKey) existingMap.set(nameKey, c);
+                if (comboKey) existingMap.set(comboKey, c);
                 if (idKey) existingMap.set(idKey, c);
                 this.companiesMemory.push(c);
             } else {
