@@ -899,7 +899,9 @@ const AppStorage = {
             // 1. Load baseline pool
             baseData.forEach((c, idx) => {
                 const normalized = this._normalizeCompanyData(c, idx);
-                const key = this._normalizeArabicName(normalized.nameAr || normalized.nameEn || normalized.name);
+                const nameKey = this._normalizeArabicName(normalized.nameAr || normalized.nameEn || normalized.name);
+                const regionKey = String(normalized.governorate || normalized.gov || normalized.city || '').trim().toLowerCase();
+                const key = nameKey + '_' + regionKey;
                 if (key && !masterMap.has(key)) {
                     masterMap.set(key, normalized);
                 }
@@ -915,7 +917,9 @@ const AppStorage = {
             extraSources.forEach((c, idx) => {
                 if (!c) return;
                 const normalized = this._normalizeCompanyData(c, idx);
-                const key = this._normalizeArabicName(normalized.nameAr || normalized.nameEn || normalized.name);
+                const nameKey = this._normalizeArabicName(normalized.nameAr || normalized.nameEn || normalized.name);
+                const regionKey = String(normalized.governorate || normalized.gov || normalized.city || '').trim().toLowerCase();
+                const key = nameKey + '_' + regionKey;
                 if (key) {
                     masterMap.set(key, normalized);
                 }
@@ -962,7 +966,7 @@ const AppStorage = {
                 
                 request.onsuccess = async (event) => {
                     const data = event.target.result || [];
-                    if (data && data.length > 0) {
+                    if (data && data.length >= 6500) {
                         const cleaned = this.cleanAndFixCompanyData(data);
                         const idbMapped = cleaned.map((c, idx) => this._normalizeCompanyData(c, idx));
                         this.companiesMemory = idbMapped;
@@ -975,7 +979,8 @@ const AppStorage = {
                         this.updateLiveCounters();
                         resolve();
                     } else {
-                        await this._seedInitialJsonData([]);
+                        // If IndexedDB has < 6500 companies (stale cache on mobile), auto-heal from baseline pool
+                        await this._seedInitialJsonData(data || []);
                         resolve();
                     }
                 };
@@ -1087,15 +1092,25 @@ const AppStorage = {
             try {
                 const calls = this.getCalls ? this.getCalls() : [];
                 const deals = this.getDeals ? this.getDeals() : [];
-                const quickHash = `${companies.length}_${calls.length}_${deals.length}`;
+                const users = this.getUsers ? this.getUsers() : [];
+                const activities = this.getActivities ? this.getActivities() : [];
+
+                // Extract dynamic companies (newly scraped / user added)
+                const dynamicCompanies = companies.filter(c => {
+                    if (!c || !c.id) return false;
+                    const id = String(c.id);
+                    return id.startsWith('real_osm_') || id.startsWith('custom_') || id.startsWith('egy_pool_') || id.startsWith('comp_') || !id.startsWith('pool_ent_');
+                });
+
+                const quickHash = `${dynamicCompanies.length}_${calls.length}_${deals.length}_${users.length}`;
                 if (!forceSync && quickHash === localStorage.getItem('fleetcrm_last_synced_hash')) return;
 
                 const ok = await window.SupabaseClient.pushMasterData({
-                    companies: companies,
-                    users: this.getUsers(),
+                    dynamicCompanies: dynamicCompanies,
+                    users: users,
                     calls: calls,
                     deals: deals,
-                    activities: this.getActivities ? this.getActivities() : []
+                    activities: activities
                 });
                 if (ok) {
                     localStorage.setItem('fleetcrm_last_synced_hash', quickHash);
@@ -1119,24 +1134,21 @@ const AppStorage = {
 
             let updated = false;
 
-            // 1. Companies sync with tombstone filtering
+            // 1. Merge baseline + local + dynamic cloud companies
             const deletedCompIds = this.getDeletedIds('companies');
-            if (data.companies && Array.isArray(data.companies) && data.companies.length > 0) {
-                const filteredCloudCompanies = data.companies.filter(c => c && c.id && !deletedCompIds.has(String(c.id)));
-                const localComps = (this.companiesMemory || []).filter(c => c && c.id && !deletedCompIds.has(String(c.id)));
-                const combined = [...localComps, ...filteredCloudCompanies];
-                const cleanDeduplicated = this.cleanAndFixCompanyData(combined);
+            const cloudDynamic = (data.dynamicCompanies || []).filter(c => c && c.id && !deletedCompIds.has(String(c.id)));
+            const basePool = (window.__EGYPT_ENTERPRISE_POOL && Array.isArray(window.__EGYPT_ENTERPRISE_POOL)) ? window.__EGYPT_ENTERPRISE_POOL : [];
+            const localComps = (this.companiesMemory || []).filter(c => c && c.id && !deletedCompIds.has(String(c.id)));
 
-                if (cleanDeduplicated.length >= localComps.length) {
-                    const changed = cleanDeduplicated.length !== localComps.length || JSON.stringify(cleanDeduplicated) !== JSON.stringify(localComps);
-                    if (changed) {
-                        this.companiesMemory = cleanDeduplicated;
-                        this._set(this.KEYS.COMPANIES, this.companiesMemory);
-                        this.saveAllCompaniesToDB(this.companiesMemory);
-                        this.updateLiveCounters();
-                        updated = true;
-                    }
-                }
+            const combined = [...basePool, ...localComps, ...cloudDynamic];
+            const cleanDeduplicated = this.cleanAndFixCompanyData(combined);
+
+            if (cleanDeduplicated.length > localComps.length || (cleanDeduplicated.length !== localComps.length && cleanDeduplicated.length >= 6500)) {
+                this.companiesMemory = cleanDeduplicated;
+                this._set(this.KEYS.COMPANIES, this.companiesMemory);
+                this.saveAllCompaniesToDB(this.companiesMemory);
+                this.updateLiveCounters();
+                updated = true;
             }
 
             if (data.users && Array.isArray(data.users) && data.users.length > 0) {
@@ -1241,8 +1253,8 @@ const AppStorage = {
             c.nameAr = String(name).replace(/\s*\(فرع \d+\)/g, '').trim();
 
             const nameKey = this._normalizeArabicName(c.nameAr);
-            const cityKey = String(c.city || c.governorate || c.gov || '').trim().toLowerCase();
-            const comboKey = nameKey + '_' + cityKey;
+            const regionKey = String(c.governorate || c.gov || c.city || '').trim().toLowerCase();
+            const comboKey = nameKey + '_' + regionKey;
             const idKey = c.id ? String(c.id).trim() : null;
 
             if ((idKey && seenIds.has(idKey)) || (comboKey && seenNames.has(comboKey))) {
