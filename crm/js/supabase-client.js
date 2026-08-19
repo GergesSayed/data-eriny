@@ -138,7 +138,7 @@ window.SupabaseClient = (function() {
         };
 
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 12000); // 12s timeout for batch push
+        const timeoutId = setTimeout(() => controller.abort(), 25000); // 25s buffer for large enterprise pools
 
         try {
             const resp = await fetch(`${FIREBASE_DB_URL}/master_data.json`, {
