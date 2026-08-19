@@ -1,25 +1,18 @@
-/* ============================================
-   Fleet CRM — Supabase Realtime Cloud Client v6.0
-   ============================================ */
-const SUPABASE_URL = 'https://vefitfgvdgjqipkkttry.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlZml0Zmd2ZGdqcWlwa2t0dHJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUwNjQ0MzMsImV4cCI6MjEwMDY0MDQzM30.G4PnsfUnAI9gdNPFoSJuWKlE9VCmUXAkHOxzJb51Rrk';
+/* ===================================================================
+   Fleet CRM — Firebase Realtime Cloud Synchronization Engine v7.0
+   Always-Online, Zero-Pause, Instant Multi-Device Two-Way Sync
+   =================================================================== */
+
+const FIREBASE_DB_URL = 'https://fleet-crm-38ba6-default-rtdb.firebaseio.com';
 
 window.SupabaseClient = (function() {
-    let realtimeChannel = null;
+    let sseSource = null;
     let onChangeCallback = null;
-    let currentSyncStatus = 'local'; // 'synced' | 'syncing' | 'local' | 'offline' | 'error'
-    let lastSyncTimestamp = null;
+    let currentSyncStatus = 'synced'; // 'synced' | 'syncing' | 'local' | 'offline' | 'error'
+    let lastSyncTimestamp = Date.now();
     let isPushing = false;
+    let pollInterval = null;
     const statusListeners = new Set();
-
-    function getHeaders() {
-        return {
-            'apikey': SUPABASE_ANON_KEY,
-            'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
-            'Content-Type': 'application/json',
-            'Prefer': 'return=minimal'
-        };
-    }
 
     function setStatus(status, details = {}) {
         currentSyncStatus = status;
@@ -53,7 +46,7 @@ window.SupabaseClient = (function() {
         if (c.latitude || c.lat) min.lat = c.latitude || c.lat;
         if (c.longitude || c.lon) min.lon = c.longitude || c.lon;
         if (c.google_maps_url || c.map) min.map = c.google_maps_url || c.map;
-        if (c.fleetSize || c.fleet) min.fleet = c.fleetSize || c.fleet;
+        if (c.fleetSize || c.fleet) min.fleet = Number(c.fleetSize || c.fleet);
         if (c.priority && c.priority !== 'B') min.prio = c.priority;
         if (c.status && c.status !== 'new') min.st = c.status;
         if (c.assignedTo || c.asgn) min.asgn = c.assignedTo || c.asgn;
@@ -96,12 +89,12 @@ window.SupabaseClient = (function() {
 
     async function fetchMasterData() {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 6000); // 6s fast timeout
+        const timeoutId = setTimeout(() => controller.abort(), 8000); // 8s fast timeout
 
         try {
-            const resp = await fetch(`${SUPABASE_URL}/rest/v1/master_data?id=eq.1&select=*`, {
-                headers: { ...getHeaders(), 'Prefer': 'return=representation' },
-                signal: controller.signal
+            const resp = await fetch(`${FIREBASE_DB_URL}/master_data.json?t=${Date.now()}`, {
+                signal: controller.signal,
+                headers: { 'Accept': 'application/json' }
             });
             clearTimeout(timeoutId);
 
@@ -109,15 +102,15 @@ window.SupabaseClient = (function() {
                 setStatus('local', { error: `HTTP ${resp.status}` });
                 return null;
             }
-            const rows = await resp.json();
-            const result = (rows && rows.length > 0) ? rows[0] : null;
-            if (result) {
+            const result = await resp.json();
+            if (result && typeof result === 'object') {
                 if (Array.isArray(result.companies)) {
                     result.companies = result.companies.map(unminifyCompany).filter(Boolean);
                 }
                 setStatus('synced', { totalCompanies: result.companies ? result.companies.length : 0 });
+                return result;
             }
-            return result;
+            return null;
         } catch (err) {
             clearTimeout(timeoutId);
             setStatus('local', { error: err.message });
@@ -145,42 +138,26 @@ window.SupabaseClient = (function() {
         };
 
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 7000); // 7s fast timeout
+        const timeoutId = setTimeout(() => controller.abort(), 12000); // 12s timeout for batch push
 
         try {
-            const resp = await fetch(`${SUPABASE_URL}/rest/v1/master_data?id=eq.1`, {
-                method: 'PATCH',
-                headers: getHeaders(),
+            const resp = await fetch(`${FIREBASE_DB_URL}/master_data.json`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
                 signal: controller.signal
             });
             clearTimeout(timeoutId);
 
-            if (!resp.ok) {
-                // Fallback: Try upsert if PATCH fails
-                const upsertController = new AbortController();
-                const upsertTimeout = setTimeout(() => upsertController.abort(), 4000);
-                const upsertResp = await fetch(`${SUPABASE_URL}/rest/v1/master_data`, {
-                    method: 'POST',
-                    headers: { ...getHeaders(), 'Prefer': 'resolution=merge-duplicates' },
-                    body: JSON.stringify(payload),
-                    signal: upsertController.signal
-                });
-                clearTimeout(upsertTimeout);
-                if (upsertResp.ok) {
-                    setStatus('synced', { totalCompanies: rawCompanies.length });
-                    isPushing = false;
-                    return true;
-                } else {
-                    setStatus('local', { totalCompanies: rawCompanies.length, error: `Upload status: ${upsertResp.status}` });
-                    isPushing = false;
-                    return false;
-                }
+            if (resp.ok) {
+                setStatus('synced', { totalCompanies: rawCompanies.length });
+                isPushing = false;
+                return true;
+            } else {
+                setStatus('local', { totalCompanies: rawCompanies.length, error: `Upload HTTP ${resp.status}` });
+                isPushing = false;
+                return false;
             }
-
-            setStatus('synced', { totalCompanies: rawCompanies.length });
-            isPushing = false;
-            return true;
         } catch (err) {
             clearTimeout(timeoutId);
             setStatus('local', { totalCompanies: rawCompanies.length, error: err.message });
@@ -192,77 +169,55 @@ window.SupabaseClient = (function() {
     function subscribeToChanges(callback) {
         onChangeCallback = callback;
 
-        // Use Supabase Realtime via WebSocket with automatic reconnection
-        const wsUrl = SUPABASE_URL.replace('https://', 'wss://') + '/realtime/v1/websocket?apikey=' + SUPABASE_ANON_KEY;
+        // 1. Firebase Server-Sent Events (SSE) for sub-second real-time notifications
+        try {
+            if (typeof EventSource !== 'undefined') {
+                if (sseSource) sseSource.close();
+                sseSource = new EventSource(`${FIREBASE_DB_URL}/master_data.json`);
 
-        function connectWebSocket() {
-            try {
-                const ws = new WebSocket(wsUrl);
-
-                ws.onopen = () => {
-                    ws.send(JSON.stringify({
-                        topic: 'realtime:public:master_data',
-                        event: 'phx_join',
-                        payload: {},
-                        ref: '1'
-                    }));
-                };
-
-                ws.onmessage = (event) => {
+                sseSource.addEventListener('put', (e) => {
                     try {
-                        const msg = JSON.parse(event.data);
-                        if (msg.event === 'phx_reply' && msg.payload?.status === 'ok') {
-                            ws.send(JSON.stringify({
-                                topic: 'realtime:public:master_data',
-                                event: 'phx_join',
-                                payload: {},
-                                ref: '2'
-                            }));
+                        const parsed = JSON.parse(e.data);
+                        if (parsed && parsed.data && typeof parsed.data === 'object') {
+                            if (parsed.path === '/' || parsed.path === '') {
+                                const result = parsed.data;
+                                if (Array.isArray(result.companies)) {
+                                    result.companies = result.companies.map(unminifyCompany).filter(Boolean);
+                                }
+                                if (onChangeCallback) onChangeCallback(result);
+                            }
                         }
-                        if (msg.event === 'UPDATE' || msg.event === 'INSERT') {
-                            if (onChangeCallback) onChangeCallback(msg.payload);
-                        }
-                    } catch (e) {}
-                };
+                    } catch(err) {}
+                });
 
-                ws.onerror = () => {
+                sseSource.onerror = () => {
                     startPolling();
                 };
-
-                ws.onclose = () => {
-                    startPolling();
-                    setTimeout(() => {
-                        if (!realtimeChannel || realtimeChannel.readyState === WebSocket.CLOSED) {
-                            connectWebSocket();
-                        }
-                    }, 10000);
-                };
-
-                realtimeChannel = ws;
-            } catch (e) {
-                startPolling();
             }
+        } catch(e) {
+            startPolling();
         }
 
-        connectWebSocket();
+        // 2. Continuous fallback polling every 8s
+        startPolling();
     }
 
     function startPolling() {
-        if (window.__supabasePollInterval) clearInterval(window.__supabasePollInterval);
-        window.__supabasePollInterval = setInterval(async () => {
+        if (pollInterval) clearInterval(pollInterval);
+        pollInterval = setInterval(async () => {
             const data = await fetchMasterData();
             if (data && onChangeCallback) onChangeCallback(data);
-        }, 12000);
+        }, 8000);
     }
 
     function unsubscribe() {
-        if (realtimeChannel) {
-            try { realtimeChannel.close(); } catch (e) {}
-            realtimeChannel = null;
+        if (sseSource) {
+            try { sseSource.close(); } catch(e) {}
+            sseSource = null;
         }
-        if (window.__supabasePollInterval) {
-            clearInterval(window.__supabasePollInterval);
-            window.__supabasePollInterval = null;
+        if (pollInterval) {
+            clearInterval(pollInterval);
+            pollInterval = null;
         }
     }
 
