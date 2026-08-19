@@ -252,7 +252,7 @@ window.SupabaseClient = (function() {
         window.__supabasePollInterval = setInterval(async () => {
             const data = await fetchMasterData();
             if (data && onChangeCallback) onChangeCallback(data);
-        }, 30000);
+        }, 12000);
     }
 
     function unsubscribe() {
