@@ -1040,12 +1040,35 @@ const AppStorage = {
         });
     },
 
+    // ---- Tombstone Deleted Items Registry ----
+    recordDeletedId(type, id) {
+        if (!type || !id) return;
+        try {
+            const key = `fleetcrm_deleted_${type}`;
+            const list = JSON.parse(localStorage.getItem(key) || '[]');
+            const sId = String(id);
+            if (!list.includes(sId)) {
+                list.push(sId);
+                localStorage.setItem(key, JSON.stringify(list));
+            }
+        } catch (e) {}
+    },
+
+    getDeletedIds(type) {
+        try {
+            const list = JSON.parse(localStorage.getItem(`fleetcrm_deleted_${type}`) || '[]');
+            return new Set(list.map(String));
+        } catch (e) {
+            return new Set();
+        }
+    },
+
     autoSyncTimer: null,
     autoSyncToCloud(companies = this.companiesMemory, forceSync = false) {
         if (!window.SupabaseClient || !companies || !Array.isArray(companies)) return;
         if (this._cloudSyncDebounce) clearTimeout(this._cloudSyncDebounce);
 
-        this._cloudSyncDebounce = setTimeout(async () => {
+        const syncFn = async () => {
             try {
                 const calls = this.getCalls ? this.getCalls() : [];
                 const deals = this.getDeals ? this.getDeals() : [];
@@ -1064,7 +1087,13 @@ const AppStorage = {
                     localStorage.setItem('fleetcrm_last_sync_time', Date.now());
                 }
             } catch (err) {}
-        }, 300);
+        };
+
+        if (forceSync) {
+            syncFn();
+        } else {
+            this._cloudSyncDebounce = setTimeout(syncFn, 300);
+        }
     },
 
     async pullFromCloud() {
@@ -1075,12 +1104,16 @@ const AppStorage = {
 
             let updated = false;
 
+            // 1. Companies sync with tombstone filtering
+            const deletedCompIds = this.getDeletedIds('companies');
             if (data.companies && Array.isArray(data.companies) && data.companies.length > 0) {
-                const combined = [...(this.companiesMemory || []), ...data.companies];
+                const filteredCloudCompanies = data.companies.filter(c => c && c.id && !deletedCompIds.has(String(c.id)));
+                const localComps = (this.companiesMemory || []).filter(c => c && c.id && !deletedCompIds.has(String(c.id)));
+                const combined = [...localComps, ...filteredCloudCompanies];
                 const cleanDeduplicated = this.cleanAndFixCompanyData(combined);
 
-                if (cleanDeduplicated.length >= (this.companiesMemory || []).length) {
-                    const changed = cleanDeduplicated.length !== (this.companiesMemory || []).length || JSON.stringify(cleanDeduplicated) !== JSON.stringify(this.companiesMemory);
+                if (cleanDeduplicated.length >= localComps.length) {
+                    const changed = cleanDeduplicated.length !== localComps.length || JSON.stringify(cleanDeduplicated) !== JSON.stringify(localComps);
                     if (changed) {
                         this.companiesMemory = cleanDeduplicated;
                         this._set(this.KEYS.COMPANIES, this.companiesMemory);
@@ -1096,17 +1129,42 @@ const AppStorage = {
                 updated = true;
             }
 
+            // 2. Calls sync with tombstone filtering
+            const deletedCallIds = this.getDeletedIds('calls');
             if (data.calls && Array.isArray(data.calls)) {
-                this._set(this.KEYS.CALLS, data.calls);
-                updated = true;
+                const cleanCloudCalls = data.calls.filter(c => c && c.id && !deletedCallIds.has(String(c.id)));
+                const localCalls = (this._get(this.KEYS.CALLS) || []).filter(c => c && c.id && !deletedCallIds.has(String(c.id)));
+                const callMap = new Map();
+                localCalls.forEach(c => { if (c && c.id) callMap.set(String(c.id), c); });
+                cleanCloudCalls.forEach(c => {
+                    if (c && c.id && !deletedCallIds.has(String(c.id))) {
+                        const key = String(c.id);
+                        if (!callMap.has(key)) {
+                            callMap.set(key, c);
+                        } else {
+                            const existing = callMap.get(key);
+                            callMap.set(key, { ...existing, ...c });
+                        }
+                    }
+                });
+                const mergedCalls = Array.from(callMap.values());
+                if (mergedCalls.length !== localCalls.length || JSON.stringify(mergedCalls) !== JSON.stringify(localCalls)) {
+                    this._set(this.KEYS.CALLS, mergedCalls);
+                    updated = true;
+                }
             }
 
-            if (data.deals && Array.isArray(data.deals)) {
-                const localDeals = this.getDeals ? (this.getDeals() || []) : [];
+            // 3. Deals sync with tombstone filtering
+            const isWipedDeals = localStorage.getItem('fleetcrm_user_wiped_deals') === 'true';
+            const deletedDealIds = this.getDeletedIds('deals');
+            if (isWipedDeals) {
+                this._set(this.KEYS.DEALS, []);
+            } else if (data.deals && Array.isArray(data.deals)) {
+                const localDeals = (this._get(this.KEYS.DEALS) || []).filter(d => d && d.id && !deletedDealIds.has(String(d.id)));
                 const dealMap = new Map();
                 localDeals.forEach(d => { if (d && d.id) dealMap.set(String(d.id), d); });
                 data.deals.forEach(d => {
-                    if (d && d.id) {
+                    if (d && d.id && !deletedDealIds.has(String(d.id))) {
                         const key = String(d.id);
                         if (!dealMap.has(key)) {
                             dealMap.set(key, d);
@@ -1125,6 +1183,11 @@ const AppStorage = {
 
             if (data.activities && Array.isArray(data.activities)) {
                 this._set(this.KEYS.ACTIVITIES, data.activities);
+            }
+
+            // If any tombstoned items were filtered from cloud data, push cleaned state back to cloud immediately
+            if (deletedCompIds.size > 0 || deletedDealIds.size > 0 || deletedCallIds.size > 0) {
+                this.autoSyncToCloud(this.companiesMemory, true);
             }
 
             const cloudTimestamp = (data && data.updated_at) ? new Date(data.updated_at).getTime() : Date.now();
@@ -1406,18 +1469,27 @@ const AppStorage = {
             console.warn('Unauthorized company delete attempt blocked');
             return false;
         }
-        const companies = this.getCompanies().filter(c => c.id !== id);
+        this.recordDeletedId('companies', id);
+        const companies = this.getCompanies().filter(c => c && c.id !== id);
         this.companiesMemory = companies;
         if (companies.length === 0) {
             localStorage.setItem('fleetcrm_user_wiped_companies', 'true');
         }
         this.saveAllCompaniesToDB(companies);
 
-        // Also delete related calls and deals
-        const calls = this.getCalls().filter(c => c.companyId !== id);
+        // Also delete and record related calls and deals
+        const relatedCalls = (this.getCalls() || []).filter(c => c && c.companyId === id);
+        relatedCalls.forEach(c => this.recordDeletedId('calls', c.id));
+        const calls = (this.getCalls() || []).filter(c => c && c.companyId !== id);
         this._set(this.KEYS.CALLS, calls);
-        const deals = this.getDeals().filter(d => d.companyId !== id);
+
+        const relatedDeals = (this.getDeals() || []).filter(d => d && d.companyId === id);
+        relatedDeals.forEach(d => this.recordDeletedId('deals', d.id));
+        const deals = (this.getDeals() || []).filter(d => d && d.companyId !== id);
         this._set(this.KEYS.DEALS, deals);
+
+        this.autoSyncToCloud(companies, true);
+        this.updateLiveCounters();
     },
 
     importCompanies(companiesData) {
@@ -1786,14 +1858,17 @@ const AppStorage = {
     },
 
     deleteCall(id) {
+        this.recordDeletedId('calls', id);
         const calls = this.getCalls().filter(c => c && c.id !== id);
         this._set(this.KEYS.CALLS, calls);
-        this.autoSyncToCloud(this.companiesMemory);
+        this.autoSyncToCloud(this.companiesMemory, true);
     },
 
     clearAllCalls() {
+        const existing = this.getCalls() || [];
+        existing.forEach(c => { if (c && c.id) this.recordDeletedId('calls', c.id); });
         this._set(this.KEYS.CALLS, []);
-        this.autoSyncToCloud(this.companiesMemory);
+        this.autoSyncToCloud(this.companiesMemory, true);
     },
 
     getTodaysCalls() {
@@ -1809,33 +1884,15 @@ const AppStorage = {
     // ---- Deals ----
     getDeals() {
         let deals = this._get(this.KEYS.DEALS);
-        if ((!deals || !Array.isArray(deals) || deals.length === 0) && localStorage.getItem('fleetcrm_user_wiped_deals') !== 'true') {
-            const comps = (this.companiesMemory && this.companiesMemory.length > 0) ? this.companiesMemory : [];
-            deals = [
-                {
-                    id: 'deal_seed_1',
-                    companyId: comps[0] ? comps[0].id : 'cloud_0',
-                    title: 'توريد 100 إطار نقل ثقيل Bridgestone',
-                    value: 500000,
-                    stage: 'proposal',
-                    tireType: 'truck',
-                    quantity: 100,
-                    createdAt: new Date().toISOString()
-                },
-                {
-                    id: 'deal_seed_2',
-                    companyId: comps[1] ? comps[1].id : 'cloud_1',
-                    title: 'عقد سنوي إطارات أسطول التوزيع',
-                    value: 1200000,
-                    stage: 'negotiation',
-                    tireType: 'light_truck',
-                    quantity: 400,
-                    createdAt: new Date().toISOString()
-                }
-            ];
-            try { this._set(this.KEYS.DEALS, deals); } catch(e){}
+        const isWiped = localStorage.getItem('fleetcrm_user_wiped_deals') === 'true';
+        const deletedDealIds = this.getDeletedIds('deals');
+        if (isWiped) return [];
+
+        if (!deals || !Array.isArray(deals)) {
+            return [];
         }
-        return deals || [];
+
+        return deals.filter(d => d && d.id && !deletedDealIds.has(String(d.id)));
     },
 
     getDeal(id) {
@@ -1861,23 +1918,28 @@ const AppStorage = {
         const company = this.getCompany(deal.companyId);
         const companyName = company ? company.nameAr : 'شركة';
         this.addActivity('deal', deal.id, deal.id ? 'تحديث صفقة' : 'إضافة صفقة', companyName);
-        this.autoSyncToCloud(this.companiesMemory);
+        this.autoSyncToCloud(this.companiesMemory, true);
         return deal;
     },
 
     deleteDeal(id) {
+        this.recordDeletedId('deals', id);
         const deals = this.getDeals().filter(d => d && d.id !== id);
         this._set(this.KEYS.DEALS, deals);
         if (deals.length === 0) {
             localStorage.setItem('fleetcrm_user_wiped_deals', 'true');
         }
-        this.autoSyncToCloud(this.companiesMemory);
+        this.autoSyncToCloud(this.companiesMemory, true);
+        this.updateLiveCounters();
     },
 
     clearAllDeals() {
+        const existing = this.getDeals() || [];
+        existing.forEach(d => { if (d && d.id) this.recordDeletedId('deals', d.id); });
         this._set(this.KEYS.DEALS, []);
         localStorage.setItem('fleetcrm_user_wiped_deals', 'true');
-        this.autoSyncToCloud(this.companiesMemory);
+        this.autoSyncToCloud(this.companiesMemory, true);
+        this.updateLiveCounters();
     },
 
     updateDealStage(dealId, newStage) {
@@ -2019,8 +2081,8 @@ const AppStorage = {
         const calcDealsCount = openDealsList.length;
         const calcPipelineValue = openDealsList.reduce((sum, d) => sum + (Number(d.value) || 0), 0);
 
-        const openDealsCount = (calcDealsCount > 0 || localStorage.getItem('fleetcrm_user_wiped_deals') === 'true') ? calcDealsCount : 2;
-        const pipelineVal = (calcPipelineValue > 0 || localStorage.getItem('fleetcrm_user_wiped_deals') === 'true') ? calcPipelineValue : 1700000;
+        const openDealsCount = calcDealsCount;
+        const pipelineVal = calcPipelineValue;
 
         return {
             totalCompanies: count,

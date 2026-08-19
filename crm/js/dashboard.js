@@ -25,11 +25,12 @@ const Dashboard = {
 
     updateStatCards(stats) {
         if (!stats) stats = {};
-        const rawTotal = stats.totalCompanies || (window.AppStorage ? (window.AppStorage.getCompanies().length || 3560) : 3560);
-        const totalComps = (rawTotal > 0) ? rawTotal : 3560;
+        const totalComps = (stats.totalCompanies !== undefined && stats.totalCompanies !== null)
+            ? stats.totalCompanies
+            : (window.AppStorage ? (window.AppStorage.getCompanies().length || 0) : 0);
 
-        const openDealsCount = (stats.openDeals !== undefined && stats.openDeals !== null) ? stats.openDeals : 2;
-        const pipelineVal = (stats.pipelineValue !== undefined && stats.pipelineValue !== null) ? stats.pipelineValue : 1700000;
+        const openDealsCount = (stats.openDeals !== undefined && stats.openDeals !== null) ? stats.openDeals : 0;
+        const pipelineVal = (stats.pipelineValue !== undefined && stats.pipelineValue !== null) ? stats.pipelineValue : 0;
 
         const compEl = document.getElementById('dash-total-companies');
         if (compEl) compEl.textContent = totalComps.toLocaleString('en-US');
