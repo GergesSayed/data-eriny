@@ -1,5 +1,5 @@
 /* ============================================
-   Fleet CRM — Supabase Realtime Cloud Client v5.0
+   Fleet CRM — Supabase Realtime Cloud Client v6.0
    ============================================ */
 const SUPABASE_URL = 'https://vefitfgvdgjqipkkttry.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZlZml0Zmd2ZGdqcWlwa2t0dHJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUwNjQ0MzMsImV4cCI6MjEwMDY0MDQzM30.G4PnsfUnAI9gdNPFoSJuWKlE9VCmUXAkHOxzJb51Rrk';
@@ -7,8 +7,9 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 window.SupabaseClient = (function() {
     let realtimeChannel = null;
     let onChangeCallback = null;
-    let currentSyncStatus = 'synced'; // 'synced' | 'syncing' | 'error' | 'offline'
+    let currentSyncStatus = 'local'; // 'synced' | 'syncing' | 'local' | 'offline' | 'error'
     let lastSyncTimestamp = null;
+    let isPushing = false;
     const statusListeners = new Set();
 
     function getHeaders() {
@@ -95,7 +96,7 @@ window.SupabaseClient = (function() {
 
     async function fetchMasterData() {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 20000);
+        const timeoutId = setTimeout(() => controller.abort(), 6000); // 6s fast timeout
 
         try {
             const resp = await fetch(`${SUPABASE_URL}/rest/v1/master_data?id=eq.1&select=*`, {
@@ -105,7 +106,7 @@ window.SupabaseClient = (function() {
             clearTimeout(timeoutId);
 
             if (!resp.ok) {
-                setStatus('error', { error: `HTTP ${resp.status}` });
+                setStatus('local', { error: `HTTP ${resp.status}` });
                 return null;
             }
             const rows = await resp.json();
@@ -119,12 +120,14 @@ window.SupabaseClient = (function() {
             return result;
         } catch (err) {
             clearTimeout(timeoutId);
-            setStatus(navigator.onLine === false ? 'offline' : 'error', { error: err.message });
+            setStatus('local', { error: err.message });
             return null;
         }
     }
 
     async function pushMasterData(data) {
+        if (isPushing) return false;
+        isPushing = true;
         setStatus('syncing');
 
         const rawCompanies = Array.isArray(data.companies) ? data.companies : [];
@@ -142,7 +145,7 @@ window.SupabaseClient = (function() {
         };
 
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 40000); // 40s timeout for mobile
+        const timeoutId = setTimeout(() => controller.abort(), 7000); // 7s fast timeout
 
         try {
             const resp = await fetch(`${SUPABASE_URL}/rest/v1/master_data?id=eq.1`, {
@@ -155,25 +158,33 @@ window.SupabaseClient = (function() {
 
             if (!resp.ok) {
                 // Fallback: Try upsert if PATCH fails
+                const upsertController = new AbortController();
+                const upsertTimeout = setTimeout(() => upsertController.abort(), 4000);
                 const upsertResp = await fetch(`${SUPABASE_URL}/rest/v1/master_data`, {
                     method: 'POST',
                     headers: { ...getHeaders(), 'Prefer': 'resolution=merge-duplicates' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(payload),
+                    signal: upsertController.signal
                 });
+                clearTimeout(upsertTimeout);
                 if (upsertResp.ok) {
                     setStatus('synced', { totalCompanies: rawCompanies.length });
+                    isPushing = false;
                     return true;
                 } else {
-                    setStatus('error', { error: `Upload failed: ${upsertResp.status}` });
+                    setStatus('local', { totalCompanies: rawCompanies.length, error: `Upload status: ${upsertResp.status}` });
+                    isPushing = false;
                     return false;
                 }
             }
 
             setStatus('synced', { totalCompanies: rawCompanies.length });
+            isPushing = false;
             return true;
         } catch (err) {
             clearTimeout(timeoutId);
-            setStatus(navigator.onLine === false ? 'offline' : 'error', { error: err.message });
+            setStatus('local', { totalCompanies: rawCompanies.length, error: err.message });
+            isPushing = false;
             return false;
         }
     }

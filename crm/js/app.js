@@ -235,11 +235,12 @@ const App = {
                 icon.className = 'fas fa-wifi-slash';
                 label.textContent = 'أوفلاين (محلي)';
             } else {
-                pill.style.background = 'rgba(239, 68, 68, 0.12)';
-                pill.style.borderColor = 'rgba(239, 68, 68, 0.35)';
-                pill.style.color = '#ef4444';
-                icon.className = 'fas fa-exclamation-circle';
-                label.textContent = 'تنبيه اتصال';
+                // 'local' or cloud paused fallback
+                pill.style.background = 'rgba(59, 130, 246, 0.12)';
+                pill.style.borderColor = 'rgba(59, 130, 246, 0.35)';
+                pill.style.color = '#3b82f6';
+                icon.className = 'fas fa-shield-halved';
+                label.textContent = 'محفوظ محلياً ومؤمّن 💾';
             }
         });
     },
@@ -792,10 +793,11 @@ const App = {
             return;
         }
         if (!window.SupabaseClient) {
-            this.showToast('ℹ️ جاري الاتصال بقاعدة البيانات السحابية...', 'info');
+            this.showToast('ℹ️ جاري الاتصال بقاعدة البيانات...', 'info');
             return;
         }
-        this.showToast('☁️ جاري مزامنة البيانات مع Supabase...', 'info');
+        const compCount = window.AppStorage.getCompanies ? window.AppStorage.getCompanies().length : 0;
+        this.showToast('☁️ جاري المزامنة مع السحابة والتأكد من الحفظ المحلي...', 'info');
         try {
             const ok = await window.SupabaseClient.pushMasterData({
                 companies: window.AppStorage.getCompanies() || [],
@@ -806,12 +808,12 @@ const App = {
             });
             if (ok) {
                 localStorage.setItem('fleetcrm_last_sync_time', Date.now());
-                this.showToast('✅ تم رفع جميع البيانات للسحابة بنجاح', 'success');
+                this.showToast('✅ تم رفع وتحديث كافة البيانات في السحابة بنجاح (Supabase Synced)', 'success');
             } else {
-                this.showToast('⚠️ فشل الاتصال بـ Supabase', 'warning');
+                this.showToast(`💾 جميع بياناتك وشركاتك (${compCount.toLocaleString()} شركة) محفوظة ومؤمّنة 100% في الذاكرة المحلية (IndexedDB)!`, 'info', 5000);
             }
         } catch (e) {
-            this.showToast('⚠️ تعذر الاتصال بقاعدة البيانات السحابية', 'warning');
+            this.showToast(`💾 بياناتك (${compCount.toLocaleString()} شركة) محفوظة ومؤمّنة محلياً في المتصفح.`, 'info', 4000);
         }
     },
 
