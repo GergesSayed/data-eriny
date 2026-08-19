@@ -733,7 +733,8 @@ const AppStorage = {
                         this.loadCompaniesFromDB(db),
                         this.loadActivitiesFromDB(db)
                     ]).then(async () => {
-                        if (!this.companiesMemory || this.companiesMemory.length < 4700) {
+                        const targetMin = (window.__EGYPT_ENTERPRISE_POOL && Array.isArray(window.__EGYPT_ENTERPRISE_POOL)) ? window.__EGYPT_ENTERPRISE_POOL.length : 6500;
+                        if (!this.companiesMemory || this.companiesMemory.length < targetMin) {
                             await this._seedInitialJsonData(this.companiesMemory || []);
                         }
                         resolve();
@@ -872,58 +873,72 @@ const AppStorage = {
             return;
         }
 
-        const jsonPaths = ['./data/companies.json', '/data/companies.json'];
-        for (const path of jsonPaths) {
-            try {
-                const resp = await fetch(path + '?v=101.0&t=' + Date.now(), { cache: 'no-store' });
-                if (resp.ok) {
-                    const jsonData = await resp.json();
-                    if (Array.isArray(jsonData) && jsonData.length > 0) {
-                        const masterMap = new Map();
-                        jsonData.forEach((c, idx) => {
-                            const normalized = this._normalizeCompanyData(c, idx);
-                            const key = this._normalizeArabicName(normalized.nameAr || normalized.nameEn || normalized.name);
-                            if (key && !masterMap.has(key)) {
-                                masterMap.set(key, normalized);
-                            }
-                        });
+        let baseData = (window.__EGYPT_ENTERPRISE_POOL && Array.isArray(window.__EGYPT_ENTERPRISE_POOL) && window.__EGYPT_ENTERPRISE_POOL.length > 0)
+            ? window.__EGYPT_ENTERPRISE_POOL
+            : null;
 
-                        const extraSources = [
-                            ...(Array.isArray(existingCustomData) ? existingCustomData : []),
-                            ...(Array.isArray(this.companiesMemory) ? this.companiesMemory : []),
-                            ...(Array.isArray(this._get(this.KEYS.COMPANIES)) ? this._get(this.KEYS.COMPANIES) : [])
-                        ];
-
-                        extraSources.forEach((c, idx) => {
-                            if (!c) return;
-                            const normalized = this._normalizeCompanyData(c, idx);
-                            const key = this._normalizeArabicName(normalized.nameAr || normalized.nameEn || normalized.name);
-                            if (key && !masterMap.has(key)) {
-                                masterMap.set(key, normalized);
-                            }
-                        });
-
-                        this.companiesMemory = Array.from(masterMap.values());
-                        this._set(this.KEYS.COMPANIES, this.companiesMemory);
-                        this.saveAllCompaniesToDB(this.companiesMemory);
-                        localStorage.setItem('fleetcrm_company_count', this.companiesMemory.length);
-
-                        const sideCounter = document.getElementById('sidebar-total-companies');
-                        if (sideCounter) sideCounter.textContent = this.companiesMemory.length.toLocaleString();
-
-                        if (window.SupabaseClient) {
-                            window.SupabaseClient.pushMasterData({
-                                companies: this.companiesMemory,
-                                users: this.getUsers(),
-                                calls: this.getCalls ? this.getCalls() : [],
-                                deals: this.getDeals ? this.getDeals() : [],
-                                activities: this.getActivities ? this.getActivities() : []
-                            }).catch(() => {});
+        if (!baseData) {
+            const jsonPaths = ['./data/companies.json', '/data/companies.json'];
+            for (const path of jsonPaths) {
+                try {
+                    const resp = await fetch(path + '?v=116.0&t=' + Date.now(), { cache: 'no-store' });
+                    if (resp.ok) {
+                        const jsonData = await resp.json();
+                        if (Array.isArray(jsonData) && jsonData.length > 0) {
+                            baseData = jsonData;
+                            break;
                         }
-                        return;
                     }
+                } catch (e) {}
+            }
+        }
+
+        if (baseData && Array.isArray(baseData) && baseData.length > 0) {
+            const masterMap = new Map();
+
+            // 1. Load baseline pool
+            baseData.forEach((c, idx) => {
+                const normalized = this._normalizeCompanyData(c, idx);
+                const key = this._normalizeArabicName(normalized.nameAr || normalized.nameEn || normalized.name);
+                if (key && !masterMap.has(key)) {
+                    masterMap.set(key, normalized);
                 }
-            } catch (e) {}
+            });
+
+            // 2. Merge existing custom/scraped companies on top
+            const extraSources = [
+                ...(Array.isArray(existingCustomData) ? existingCustomData : []),
+                ...(Array.isArray(this.companiesMemory) ? this.companiesMemory : []),
+                ...(Array.isArray(this._get(this.KEYS.COMPANIES)) ? this._get(this.KEYS.COMPANIES) : [])
+            ];
+
+            extraSources.forEach((c, idx) => {
+                if (!c) return;
+                const normalized = this._normalizeCompanyData(c, idx);
+                const key = this._normalizeArabicName(normalized.nameAr || normalized.nameEn || normalized.name);
+                if (key) {
+                    masterMap.set(key, normalized);
+                }
+            });
+
+            this.companiesMemory = Array.from(masterMap.values());
+            this._set(this.KEYS.COMPANIES, this.companiesMemory);
+            this.saveAllCompaniesToDB(this.companiesMemory);
+            localStorage.setItem('fleetcrm_company_count', this.companiesMemory.length);
+
+            const sideCounter = document.getElementById('sidebar-total-companies');
+            if (sideCounter) sideCounter.textContent = this.companiesMemory.length.toLocaleString();
+
+            if (window.SupabaseClient) {
+                window.SupabaseClient.pushMasterData({
+                    companies: this.companiesMemory,
+                    users: this.getUsers(),
+                    calls: this.getCalls ? this.getCalls() : [],
+                    deals: this.getDeals ? this.getDeals() : [],
+                    activities: this.getActivities ? this.getActivities() : []
+                }).catch(() => {});
+            }
+            return;
         }
 
         if (!this.companiesMemory || this.companiesMemory.length === 0) {

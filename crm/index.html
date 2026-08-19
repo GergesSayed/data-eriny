@@ -16,7 +16,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=116.0">
+    <link rel="stylesheet" href="css/style.css?v=117.0">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
         (function() {
@@ -307,12 +307,18 @@
                     <span id="cloud-sync-label">متزامن سحابياً</span>
                 </div>
                 <div class="topbar-divider"></div>
-                <div class="topbar-user" style="display:flex; align-items:center; gap:10px; position:relative;">
+                <div class="topbar-user" style="display:flex; align-items:center; gap:8px; position:relative;">
+                    <button class="btn btn-ghost btn-sm" onclick="App.exportFullBackup()" title="تصدير نسخة احتياطية من كافة الشركات والبيانات للموبايل" style="color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.35); background: rgba(59, 130, 246, 0.08); padding: 5px 10px; font-size: 11.5px; font-weight: 700; border-radius: 8px;">
+                        <i class="fas fa-download"></i> <span>تصدير نسخة</span>
+                    </button>
+                    <button class="btn btn-ghost btn-sm" onclick="document.getElementById('backup-file-input').click()" title="استيراد نسخة احتياطية من ملف" style="color: #10b981; border: 1px solid rgba(16, 185, 129, 0.35); background: rgba(16, 185, 129, 0.08); padding: 5px 10px; font-size: 11.5px; font-weight: 700; border-radius: 8px;">
+                        <i class="fas fa-upload"></i> <span>استيراد</span>
+                    </button>
                     <div class="user-avatar" id="current-user-avatar" style="background:#7c3aed; color:#fff; font-weight:bold; font-size:14px; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center;">
                         ??
                     </div>
                     <span id="current-user-name" style="font-weight:700; font-size:13px; color:var(--text-primary);">Admin</span>
-                    <button class="btn btn-ghost btn-sm" onclick="App.logoutSystem()" title="تسجيل الخروج من الحساب" style="color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.35); background: rgba(239, 68, 68, 0.08); padding: 5px 12px; font-size: 12px; font-weight: 700; border-radius: 8px;">
+                    <button class="btn btn-ghost btn-sm" onclick="App.logoutSystem()" title="تسجيل الخروج من الحساب" style="color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.35); background: rgba(239, 68, 68, 0.08); padding: 5px 10px; font-size: 11.5px; font-weight: 700; border-radius: 8px;">
                         <i class="fas fa-sign-out-alt"></i> <span>خروج</span>
                     </button>
                 </div>
@@ -1440,23 +1446,25 @@
 
     <!-- Hidden file input for Excel import -->
     <input type="file" id="excel-file-input" accept=".xlsx,.xls,.csv" style="display:none;">
+    <!-- Hidden file input for Full CRM Backup JSON import -->
+    <input type="file" id="backup-file-input" accept=".json" onchange="App.importFullBackup(event)" style="display:none;">
 
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <script src="js/supabase-client.js?v=116.0"></script>
-    <script src="js/storage.js?v=116.0"></script>
-    <script src="js/excel-handler.js?v=116.0"></script>
-    <script src="js/dashboard.js?v=116.0"></script>
-    <script src="js/companies.js?v=116.0"></script>
-    <script src="js/calls.js?v=116.0"></script>
-    <script src="js/pipeline.js?v=116.0"></script>
-    <script src="js/reports.js?v=116.0"></script>
-    <script src="js/egypt_enterprises_pool.js?v=116.0"></script>
-    <script src="js/scraper.js?v=116.0"></script>
-    <script src="js/team.js?v=116.0"></script>
-    <script src="js/settings.js?v=116.0"></script>
-    <script src="js/app.js?v=116.0"></script>
+    <script src="js/supabase-client.js?v=117.0"></script>
+    <script src="js/storage.js?v=117.0"></script>
+    <script src="js/excel-handler.js?v=117.0"></script>
+    <script src="js/dashboard.js?v=117.0"></script>
+    <script src="js/companies.js?v=117.0"></script>
+    <script src="js/calls.js?v=117.0"></script>
+    <script src="js/pipeline.js?v=117.0"></script>
+    <script src="js/reports.js?v=117.0"></script>
+    <script src="js/egypt_enterprises_pool.js?v=117.0"></script>
+    <script src="js/scraper.js?v=117.0"></script>
+    <script src="js/team.js?v=117.0"></script>
+    <script src="js/settings.js?v=117.0"></script>
+    <script src="js/app.js?v=117.0"></script>
 
     <!-- EMERGENCY: Guarantee save button always works regardless of cache -->
     <script>

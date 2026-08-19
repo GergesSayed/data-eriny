@@ -817,6 +817,61 @@ const App = {
         }
     },
 
+    exportFullBackup() {
+        const companies = window.AppStorage.getCompanies ? window.AppStorage.getCompanies() : [];
+        const data = {
+            version: 'FleetCRM_v116',
+            timestamp: new Date().toISOString(),
+            companies: companies,
+            calls: window.AppStorage.getCalls ? window.AppStorage.getCalls() : [],
+            deals: window.AppStorage.getDeals ? window.AppStorage.getDeals() : [],
+            users: window.AppStorage.getUsers ? window.AppStorage.getUsers() : [],
+            activities: window.AppStorage.getActivities ? window.AppStorage.getActivities() : []
+        };
+        const jsonStr = JSON.stringify(data, null, 2);
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `FleetCRM_Backup_${new Date().toISOString().split('T')[0]}_${companies.length}_companies.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        this.showToast(`✅ تم تصدير النسخة الاحتياطية (${companies.length.toLocaleString()} شركة) بنجاح!`, 'success');
+    },
+
+    importFullBackup(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            try {
+                const data = JSON.parse(e.target.result);
+                if (!data || !Array.isArray(data.companies)) {
+                    alert('الملف غير صالح، يرجى اختيار ملف نسخة احتياطية سليم.');
+                    return;
+                }
+                if (confirm(`هل تريد استيراد ${data.companies.length.toLocaleString()} شركة والبيانات المرفقة إلى هذا الجهاز؟`)) {
+                    if (data.companies && data.companies.length > 0) {
+                        await window.AppStorage.addCompanies(data.companies);
+                    }
+                    if (data.calls && Array.isArray(data.calls) && window.AppStorage._set) {
+                        window.AppStorage._set(window.AppStorage.KEYS.CALLS, data.calls);
+                    }
+                    if (data.deals && Array.isArray(data.deals) && window.AppStorage._set) {
+                        window.AppStorage._set(window.AppStorage.KEYS.DEALS, data.deals);
+                    }
+                    alert(`✅ تم استيراد وتحديث البيانات بنجاح! إجمالي الشركات الآن: ${(window.AppStorage.getCompanies() || []).length.toLocaleString()} شركة.`);
+                    window.location.reload();
+                }
+            } catch (err) {
+                alert('فشل قراءة الملف: ' + err.message);
+            }
+        };
+        reader.readAsText(file);
+    },
+
     bindEvents() {
         const toggleBtn = document.getElementById('toggle-sidebar');
         if (toggleBtn) {
