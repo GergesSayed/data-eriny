@@ -39,40 +39,79 @@ const ScraperPage = {
 
     render() {
         const main = document.getElementById('scraper-content');
-        main.innerHTML = `
-        <div class="page-header">
-            <div class="page-title">
-                <h1><i class="fas fa-download"></i> سحب البيانات <span class="en-subtitle">Data Collector</span></h1>
-                <p>متابعة سحب البيانات مباشرة مع التحديث التلقائي</p>
-            </div>
-        </div>
+        const totalComps = (window.AppStorage && window.AppStorage.getCompanies) ? window.AppStorage.getCompanies().length : 3560;
 
-        <!-- Live Status Bar - Single Master Engine Control -->
-        <div style="background: linear-gradient(135deg, #1e1b4b, #312e81); border: 2px solid #6366f1; border-radius: 16px; padding: 22px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; box-shadow: 0 10px 25px rgba(99, 102, 241, 0.25);">
-            <div style="display: flex; align-items: center; gap: 14px;">
-                <div id="scraper-status-dot" style="width:16px;height:16px;border-radius:50%;background:#4ade80;box-shadow:0 0 12px #4ade80;"></div>
-                <div>
-                    <div style="font-size:1.15rem; font-weight:800; color:#fff;" id="scraper-status-text">جاهز لسحب ومزامنة الشركات فائق السرعة ⚡</div>
-                    <div style="font-size:0.8rem; color:#a5b4fc;" id="scraper-status-subtext">المحرك الموحد المباشر (${(typeof Storage !== 'undefined' ? Storage.getCompanies().length : 3560).toLocaleString()} شركة موثقة 100%)</div>
+        main.innerHTML = `
+        <!-- 1. Targeted Direct Harvester Control Panel -->
+        <div style="background: linear-gradient(135deg, #1e1b4b, #312e81); border: 2px solid #6366f1; border-radius: 16px; padding: 22px; margin-bottom: 24px; box-shadow: 0 10px 25px rgba(99, 102, 241, 0.25);">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:18px;">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <div id="scraper-status-dot" style="width:16px;height:16px;border-radius:50%;background:#4ade80;box-shadow:0 0 12px #4ade80;"></div>
+                    <div>
+                        <div style="font-size:1.15rem; font-weight:800; color:#fff;" id="scraper-status-text">جاهز لسحب وتوليد الشركات المستهدفة ⚡</div>
+                        <div style="font-size:0.82rem; color:#a5b4fc;" id="scraper-status-subtext">المحرك الموحد المباشر (${totalComps.toLocaleString()} شركة موثقة 100%)</div>
+                    </div>
+                </div>
+                <div style="display:flex; gap:8px;">
+                    <span class="badge" style="background:rgba(16,185,129,0.2); color:#4ade80; border:1px solid #10b981; font-weight:800;">🟢 سحابي مباشر</span>
+                    <span class="badge" style="background:rgba(59,130,246,0.2); color:#93c5fd; border:1px solid #3b82f6; font-weight:800;">📍 تغطية مصرية شاملة</span>
                 </div>
             </div>
-            <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-                <button onclick="ScraperPage.scrapeFastBatch(100)" style="background:linear-gradient(135deg, #3b82f6, #1d4ed8); color:#fff; border:none; padding:12px 18px; border-radius:12px; cursor:pointer; font-size:13.5px; font-weight:800; box-shadow:0 4px 15px rgba(59,130,246,0.4); display:flex; align-items:center; gap:8px;">
-                    <i class="fas fa-bolt" style="font-size:15px;"></i>
-                    <span>سحب فائق السرعة (+100 شركة فوراً)</span>
+
+            <!-- Targeted Filter Row -->
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:14px; margin-bottom:18px; background:rgba(15,23,42,0.6); padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
+                <div>
+                    <label style="display:block; font-size:12px; font-weight:700; color:#cbd5e1; margin-bottom:6px;">🏢 القطاع المستهدف:</label>
+                    <select id="scraper-filter-sector" style="width:100%; padding:10px 12px; background:#0f172a; color:#fff; border:1px solid #475569; border-radius:8px; font-weight:700; font-size:13px; outline:none;">
+                        <option value="all">🌐 كافة القطاعات والأنشطة</option>
+                        <option value="transport">🚚 نقل وشحن ولوجستيات</option>
+                        <option value="manufacturing">🏭 مصانع وإنتاج صناعي</option>
+                        <option value="food">🍔 أغذية ومشروبات وتوزيع</option>
+                        <option value="construction">🏗️ مقاولات وتشييد وبناء</option>
+                        <option value="building_materials">🧱 مواد بناء وحديد وأسمنت</option>
+                        <option value="petroleum">🛢️ بترول وطاقة وكيماويات</option>
+                        <option value="distribution">📦 توزيع وسلاسل إمداد</option>
+                        <option value="pharma">💊 أدوية ومستلزمات طبية</option>
+                        <option value="rental">🚗 تأجير سيارات ونقل ركاب</option>
+                        <option value="agri_investment">🌱 استثمار زراعي وتصدير</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display:block; font-size:12px; font-weight:700; color:#cbd5e1; margin-bottom:6px;">📍 المنطقة / المدينة الصناعية:</label>
+                    <select id="scraper-filter-city" style="width:100%; padding:10px 12px; background:#0f172a; color:#fff; border:1px solid #475569; border-radius:8px; font-weight:700; font-size:13px; outline:none;">
+                        <option value="all">🗺️ كافة المحافظات والمناطق</option>
+                        <option value="10thramadan">🏭 العاشر من رمضان</option>
+                        <option value="6october">🏭 السادس من أكتوبر</option>
+                        <option value="sadat">🏭 مدينة السادات</option>
+                        <option value="obour">🏭 مدينة العبور</option>
+                        <option value="badr">🏭 مدينة بدر والروبيكي</option>
+                        <option value="cairo">🏙️ القاهرة الكبرى</option>
+                        <option value="giza">🏙️ الجيزة</option>
+                        <option value="alexandria">🌊 الإسكندرية وبرج العرب</option>
+                        <option value="qalyubia">🌾 القليوبية وشبرا الخيمة</option>
+                        <option value="suez">🚢 السويس والعين السخنة</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Action Buttons Row -->
+            <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+                <button onclick="ScraperPage.scrapeFastBatch(100)" class="btn" style="background:linear-gradient(135deg, #3b82f6, #1d4ed8); color:#fff; border:none; padding:12px 20px; border-radius:12px; cursor:pointer; font-size:13.5px; font-weight:800; box-shadow:0 4px 15px rgba(59,130,246,0.4); display:flex; align-items:center; gap:8px;">
+                    <i class="fas fa-bolt"></i>
+                    <span>سحب فوري مستهدف (+100 شركة)</span>
                 </button>
-                <button onclick="ScraperPage.scrapeFastBatch(500)" style="background:linear-gradient(135deg, #8b5cf6, #6d28d9); color:#fff; border:none; padding:12px 18px; border-radius:12px; cursor:pointer; font-size:13.5px; font-weight:800; box-shadow:0 4px 15px rgba(139,92,246,0.4); display:flex; align-items:center; gap:8px;">
-                    <i class="fas fa-layer-group" style="font-size:15px;"></i>
+                <button onclick="ScraperPage.scrapeFastBatch(500)" class="btn" style="background:linear-gradient(135deg, #8b5cf6, #6d28d9); color:#fff; border:none; padding:12px 20px; border-radius:12px; cursor:pointer; font-size:13.5px; font-weight:800; box-shadow:0 4px 15px rgba(139,92,246,0.4); display:flex; align-items:center; gap:8px;">
+                    <i class="fas fa-layer-group"></i>
                     <span>سحب دفعة كبرى (+500 شركة)</span>
                 </button>
-                <button id="btn-toggle-scraper-main" onclick="ScraperPage.toggleProcess('scraper')" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; padding:12px 20px; border-radius:12px; cursor:pointer; font-size:13.5px; font-weight:800; box-shadow:0 4px 15px rgba(16,185,129,0.4); display:flex; align-items:center; gap:8px;">
-                    <i class="fas fa-sync-alt" style="font-size:15px;"></i>
-                    <span id="btn-scraper-main-text">تشغيل السحب التوربو المستمر</span>
+                <button id="btn-toggle-scraper-main" onclick="ScraperPage.toggleProcess('scraper')" class="btn" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; padding:12px 22px; border-radius:12px; cursor:pointer; font-size:13.5px; font-weight:800; box-shadow:0 4px 15px rgba(16,185,129,0.4); display:flex; align-items:center; gap:8px;">
+                    <i class="fas fa-sync-alt"></i>
+                    <span id="btn-scraper-main-text">تشغيل السحب التلقائي المستمر</span>
                 </button>
             </div>
         </div>
 
-        <!-- High Precision Data Verification Suite Panel -->
+        <!-- 2. High Precision Data Verification Suite Panel -->
         <div style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95)); border: 1.5px solid rgba(16, 185, 129, 0.4); border-radius: 16px; padding: 22px; margin-bottom: 24px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);">
             <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; margin-bottom: 16px;">
                 <div>
@@ -83,7 +122,7 @@ const ScraperPage = {
                     <p style="margin: 4px 0 0 0; font-size: 0.82rem; color: #94a3b8;">تصفية البيانات المستخرجة تلقائياً، والتحقق من الأرقام المصرية، ومنع التكرار، واستبعاد الكيانات غير B2B</p>
                 </div>
                 <button onclick="ScraperPage.runStrictVerification()" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none; padding: 10px 22px; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 0.9rem; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); display: flex; align-items: center; gap: 8px;">
-                    <i class="fas fa-wand-magic-sparkles"></i> تشغيل الفحص والتنقية الفورية (100% Verified Clean)
+                    <i class="fas fa-wand-magic-sparkles"></i> فحص وتنقية البيانات ومنع التكرار (100% Clean)
                 </button>
             </div>
 
@@ -108,7 +147,7 @@ const ScraperPage = {
             </div>
         </div>
 
-        <!-- Stats Cards -->
+        <!-- 3. Live Stats Cards -->
         <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); margin-bottom: 24px;">
             <div class="stat-card" style="border-right: 4px solid #7c3aed;">
                 <div class="stat-icon" style="background: rgba(124,58,237,0.15); color: #7c3aed;">
@@ -116,7 +155,7 @@ const ScraperPage = {
                 </div>
                 <div class="stat-info">
                     <div class="stat-number" id="sc-total" style="color:#7c3aed;">0</div>
-                    <div class="stat-label">إجمالي الشركات</div>
+                    <div class="stat-label">إجمالي الشركات الموثقة</div>
                 </div>
             </div>
             <div class="stat-card" style="border-right: 4px solid #10b981;">
@@ -125,16 +164,7 @@ const ScraperPage = {
                 </div>
                 <div class="stat-info">
                     <div class="stat-number" id="sc-phones" style="color:#10b981;">0</div>
-                    <div class="stat-label">بأرقام تليفون</div>
-                </div>
-            </div>
-            <div class="stat-card" style="border-right: 4px solid #0077b5;">
-                <div class="stat-icon" style="background: rgba(0,119,181,0.15); color: #0077b5;">
-                    <i class="fab fa-linkedin"></i>
-                </div>
-                <div class="stat-info">
-                    <div class="stat-number" id="sc-linkedin" style="color:#0077b5;">0</div>
-                    <div class="stat-label">مُثرى بـ LinkedIn</div>
+                    <div class="stat-label">بأرقام تليفون موثقة</div>
                 </div>
             </div>
             <div class="stat-card" style="border-right: 4px solid #3b82f6;">
@@ -143,7 +173,7 @@ const ScraperPage = {
                 </div>
                 <div class="stat-info">
                     <div class="stat-number" id="sc-searches" style="color:#3b82f6;">0</div>
-                    <div class="stat-label">عمليات بحث</div>
+                    <div class="stat-label">عمليات بحث ومسح</div>
                 </div>
             </div>
             <div class="stat-card" style="border-right: 4px solid #f59e0b;">
@@ -155,95 +185,41 @@ const ScraperPage = {
                     <div class="stat-label">شركة / دقيقة</div>
                 </div>
             </div>
-            <div class="stat-card" style="border-right: 4px solid #ec4899;">
-                <div class="stat-icon" style="background: rgba(236,72,153,0.15); color: #ec4899;">
-                    <i class="fas fa-clock"></i>
-                </div>
-                <div class="stat-info">
-                    <div class="stat-number" id="sc-eta" style="color:#ec4899;">—</div>
-                    <div class="stat-label">الوقت المتبقي</div>
-                </div>
-            </div>
         </div>
 
-        <!-- Progress Bar -->
-        <div class="card" style="margin-bottom: 24px;">
-            <div class="card-header">
-                <h3><i class="fas fa-chart-line"></i> التقدم نحو الهدف</h3>
-                <span id="sc-target-label" style="color: var(--text-secondary);">الهدف: جاري التحميل...</span>
-            </div>
-            <div class="card-body">
-                <div style="background: var(--bg-tertiary); border-radius: 999px; height: 36px; overflow: hidden; position: relative;">
-                    <div id="sc-progress-bar" style="height:100%;background:linear-gradient(90deg,#7c3aed,#a78bfa,#818cf8);border-radius:999px;transition:width 1s ease;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;min-width:50px;width:0%;">0%</div>
+        <!-- 4. Two columns: Recent Companies + Sectors Distribution -->
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+            <!-- Recent Companies -->
+            <div class="card">
+                <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                    <h3><i class="fas fa-clock"></i> آخر الشركات المستخرجة حديثاً</h3>
+                    <button class="btn btn-ghost btn-sm" onclick="App.navigateTo('companies')" style="font-size:12px; color:var(--accent);">
+                        عرض في الشركات <i class="fas fa-arrow-left"></i>
+                    </button>
                 </div>
-                <div id="sc-scale-labels" style="display:flex;justify-content:space-between;margin-top:8px;font-size:12px;color:var(--text-muted);">
-                    <span>0</span><span>20,000</span><span>40,000</span><span>60,000</span><span>80,000</span><span>100,000</span><span>120,000</span><span>140,000</span><span>160,000</span><span>180,000</span><span>200,000</span>
-                </div>
+                <div class="card-body" id="sc-recent" style="max-height: 380px; overflow-y: auto;"></div>
             </div>
-        </div>
 
-        <!-- Three columns: Sectors + Recent Companies + Recent LinkedIn Enriched -->
-        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
             <!-- Sectors -->
             <div class="card">
                 <div class="card-header">
-                    <h3><i class="fas fa-th-large"></i> القطاعات</h3>
+                    <h3><i class="fas fa-th-large"></i> توزيع الشركات حسب القطاع</h3>
                 </div>
-                <div class="card-body" id="sc-sectors" style="max-height: 400px; overflow-y: auto;"></div>
-            </div>
-
-            <!-- Recent Companies -->
-            <div class="card">
-                <div class="card-header">
-                    <h3><i class="fas fa-clock"></i> آخر الشركات المضافة</h3>
-                    <span id="sc-last-update" style="color: var(--text-secondary); font-size: 12px;">—</span>
-                </div>
-                <div class="card-body" id="sc-recent" style="max-height: 400px; overflow-y: auto;"></div>
-            </div>
-
-            <!-- Recent LinkedIn Enriched -->
-            <div class="card">
-                <div class="card-header" style="border-bottom: 2px solid #0077b5;">
-                    <h3 style="color:#0077b5;"><i class="fab fa-linkedin"></i> آخر إثراء من LinkedIn</h3>
-                </div>
-                <div class="card-body" id="sc-recent-linkedin" style="max-height: 400px; overflow-y: auto;"></div>
+                <div class="card-body" id="sc-sectors" style="max-height: 380px; overflow-y: auto;"></div>
             </div>
         </div>
 
-        <!-- Live Terminal Logs -->
+        <!-- 5. Live Terminal Logs -->
         <div class="card" style="margin-top: 20px; border:1px solid rgba(124,58,237,0.2);">
             <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
-                <h3 style="color:#4ade80;"><i class="fas fa-terminal"></i> سجل السحب والتشغيل اللحظي (Live Logs)</h3>
-                <div style="display:flex; gap:8px;">
-                    <button id="btn-show-scraper-log" onclick="ScraperPage.setActiveLog('scraper')" style="background:#7c3aed; color:#fff; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:600; transition:all 0.2s;">سجل الخرائط (Maps)</button>
-                    <button id="btn-show-enricher-log" onclick="ScraperPage.setActiveLog('enricher')" style="background:var(--bg-tertiary); color:var(--text-secondary); border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:600; transition:all 0.2s;">سجل الإثراء (LinkedIn/FB)</button>
-                </div>
+                <h3 style="color:#4ade80;"><i class="fas fa-terminal"></i> سجل السحب والتشغيل اللحظي (Live Harvester Logs)</h3>
+                <span class="badge" style="background:rgba(74,222,128,0.15); color:#4ade80; border:1px solid #4ade80; font-size:11px;">مباشر ⚡</span>
             </div>
             <div class="card-body" style="padding: 0; background: #000;">
                 <pre id="sc-live-terminal" style="margin: 0; padding: 16px; background: #000; color: #4ade80; font-family: 'Consolas', 'Courier New', monospace; font-size: 0.82rem; line-height: 1.5; max-height: 250px; overflow-y: auto; text-align: left; direction: ltr; white-space: pre-wrap; height:250px;">Loading live logs...</pre>
             </div>
         </div>
-
-        <!-- CRM Sync Status -->
-        <div class="card" style="margin-top: 20px;">
-            <div class="card-header">
-                <h3><i class="fas fa-database"></i> حالة المزامنة مع CRM</h3>
-            </div>
-            <div class="card-body" id="sc-sync-status">
-                <p style="color: var(--text-secondary);">جاري الفحص...</p>
-            </div>
-        </div>
         `;
-
-        // Bind header controls dynamically
-        const headerScraper = document.getElementById('btn-toggle-scraper-header');
-        const headerEnricher = document.getElementById('btn-toggle-enricher-header');
-        if (headerScraper) {
-            headerScraper.onclick = () => this.toggleProcess('scraper');
-        }
-        if (headerEnricher) {
-            headerEnricher.onclick = () => this.toggleProcess('enricher');
-        }
 
         // Start auto-refresh (4s interval for instant live updates)
         this.fetchData();
@@ -4806,25 +4782,37 @@ const ScraperPage = {
         const newBatch = [];
         let zoneIdx = (this._zoneIndex || 0);
 
+        const targetSector = document.getElementById('scraper-filter-sector')?.value || 'all';
+        const targetCity = document.getElementById('scraper-filter-city')?.value || 'all';
+
+        if (targetSector !== 'all' || targetCity !== 'all') {
+            const secName = targetSector !== 'all' ? (window.AppStorage?.getSectorLabel(targetSector) || targetSector) : 'كافة القطاعات';
+            const cityName = targetCity !== 'all' ? (window.AppStorage?.getRegionLabel(targetCity) || targetCity) : 'كافة المناطق';
+            log(`🎯 تطبيق الاستهداف المباشر: القطاع [${secName}] — المنطقة [${cityName}]`);
+        }
+
         // 1. Live Queries across Egyptian Industrial Zones
         let attempts = 0;
         while (newBatch.length < targetCount && attempts < 15) {
             attempts++;
             const currentZone = this._egyptianZones[zoneIdx % this._egyptianZones.length];
-            const currentKeyword = this._b2bKeywords[zoneIdx % this._b2bKeywords.length];
+            const currentKeyword = (targetSector !== 'all') ? targetSector : this._b2bKeywords[zoneIdx % this._b2bKeywords.length];
             zoneIdx++;
 
-            log(`🔍 سحب حي لمنطقة "${currentZone.name}" (${currentKeyword})...`);
-            const candidates = await this._fetchPhotonLiveEntities(currentZone, currentKeyword);
+            if (targetCity === 'all' || currentZone.city === targetCity) {
+                log(`🔍 سحب حي لمنطقة "${currentZone.name}" (${currentKeyword})...`);
+                const candidates = await this._fetchPhotonLiveEntities(currentZone, currentKeyword);
 
-            for (const cand of candidates) {
-                if (newBatch.length >= targetCount) break;
-                const nameKey = this._normalizeArabicName(cand.nameAr);
-                if (nameKey && !existingNames.has(nameKey)) {
-                    existingNames.add(nameKey);
-                    cand.id = 'real_osm_' + Date.now() + '_' + newBatch.length + '_' + Math.random().toString(36).slice(2, 6);
-                    newBatch.push(cand);
-                    log(`   ↳ 🏢 [خرائط مصر] "${cand.nameAr}" — 📍 ${cand.governorate} — 🚛 أسطول: ${cand.fleetSize} سيارة`);
+                for (const cand of candidates) {
+                    if (newBatch.length >= targetCount) break;
+                    if (targetSector !== 'all' && cand.sector !== targetSector) continue;
+                    const nameKey = this._normalizeArabicName(cand.nameAr);
+                    if (nameKey && !existingNames.has(nameKey)) {
+                        existingNames.add(nameKey);
+                        cand.id = 'real_osm_' + Date.now() + '_' + newBatch.length + '_' + Math.random().toString(36).slice(2, 6);
+                        newBatch.push(cand);
+                        log(`   ↳ 🏢 [خرائط مصر] "${cand.nameAr}" — 📍 ${cand.governorate} — 🚛 أسطول: ${cand.fleetSize} سيارة`);
+                    }
                 }
             }
         }
@@ -4833,7 +4821,17 @@ const ScraperPage = {
         // 2. Comprehensive Real Egyptian Enterprises Pool
         if (newBatch.length < targetCount) {
             const fullPool = await this._loadEnterprisePool();
-            for (const item of fullPool) {
+            let poolToUse = fullPool;
+            if (targetSector !== 'all') {
+                const filtered = fullPool.filter(item => item.sector === targetSector);
+                if (filtered.length > 0) poolToUse = filtered;
+            }
+            if (targetCity !== 'all') {
+                const filtered = poolToUse.filter(item => item.city === targetCity || (item.governorate && item.governorate.includes(targetCity)));
+                if (filtered.length > 0) poolToUse = filtered;
+            }
+
+            for (const item of poolToUse) {
                 if (newBatch.length >= targetCount) break;
                 const nameKey = this._normalizeArabicName(item.nameAr);
                 if (nameKey && !existingNames.has(nameKey)) {

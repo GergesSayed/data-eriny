@@ -16,7 +16,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=113.0">
+    <link rel="stylesheet" href="css/style.css?v=114.0">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
         (function() {
@@ -890,74 +890,33 @@
             <section id="page-scraper" class="page">
                 <div class="page-header">
                     <div>
-                        <h1><i class="fas fa-cogs"></i> إعدادات الاستخراج <small>Scraper Settings</small></h1>
-                        <p class="page-subtitle">تحكم كامل في استخراج بيانات الشركات من Google Maps</p>
+                        <h1><i class="fas fa-radar"></i> محرك استخراج وتوليد بيانات الشركات <small>Enterprise Lead Harvester</small></h1>
+                        <p class="page-subtitle">سحب وتوثيق بيانات الشركات المصرية الحقيقية 100% وتغذية النظام بأرقام الهواتف والأساطيل</p>
                     </div>
                     <div class="page-header-actions">
-                        <button class="btn btn-accent btn-sm" id="btn-toggle-scraper-header" onclick="ScraperPage.toggleProcess('scraper')" title="تشغيل السكرابر (Maps)">
-                            <i class="fas fa-play"></i> <span>تشغيل السكرابر</span>
+                        <button onclick="App.forceImportNow()" style="background: linear-gradient(135deg,#10b981,#059669); color:#fff; border:none; padding:8px 18px; border-radius:10px; font-weight:800; font-size:13px; cursor:pointer; display:inline-flex; align-items:center; gap:8px; box-shadow:0 4px 15px rgba(16,185,129,0.4);" title="تحديث واستيراد قاعدة الشركات الشاملة">
+                            <i class="fas fa-database"></i> مزامنة قاعدة الشركات الشاملة (4,700+)
                         </button>
-                        <button class="btn btn-primary btn-sm" id="btn-toggle-enricher-header" onclick="ScraperPage.toggleProcess('enricher')" title="تشغيل إثراء LinkedIn">
-                            <i class="fab fa-linkedin"></i> <span>إثراء LinkedIn</span>
-                        </button>
-                        <button class="btn btn-success btn-sm" id="btn-save-scraper-config" title="حفظ الإعدادات">
-                            <i class="fas fa-save"></i> <span>حفظ الإعدادات</span>
-                        </button>
-                        <button class="btn btn-outline btn-sm" id="btn-export-config" title="تصدير الإعدادات">
-                            <i class="fas fa-download"></i> <span>تصدير</span>
-                        </button>
-                        <button onclick="App.forceImportNow()" style="background: linear-gradient(135deg,#10b981,#059669); color:#fff; border:none; padding:8px 18px; border-radius:10px; font-weight:800; font-size:13px; cursor:pointer; display:inline-flex; align-items:center; gap:8px; box-shadow:0 4px 15px rgba(16,185,129,0.4);">
-                            <i class="fas fa-file-import"></i> استيراد الشركات للـ CRM الآن
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Status Summary Cards -->
-                <div class="stats-grid" style="margin-bottom: 1.5rem;">
-                    <div class="stat-card stat-card--primary">
-                        <div class="stat-card__icon"><i class="fas fa-building"></i></div>
-                        <div class="stat-card__info">
-                            <h3 id="scraper-total-companies">0</h3>
-                            <p>إجمالي الشركات <br><small>Total Companies</small></p>
-                        </div>
-                    </div>
-                    <div class="stat-card stat-card--accent">
-                        <div class="stat-card__icon"><i class="fas fa-search"></i></div>
-                        <div class="stat-card__info">
-                            <h3 id="scraper-total-searches">0</h3>
-                            <p>عمليات البحث <br><small>Searches Done</small></p>
-                        </div>
-                    </div>
-                    <div class="stat-card stat-card--success">
-                        <div class="stat-card__icon"><i class="fas fa-phone"></i></div>
-                        <div class="stat-card__info">
-                            <h3 id="scraper-with-phone">0</h3>
-                            <p>لديها هاتف <br><small>With Phone</small></p>
-                        </div>
-                    </div>
-                    <div class="stat-card stat-card--warning">
-                        <div class="stat-card__icon"><i class="fas fa-clock"></i></div>
-                        <div class="stat-card__info">
-                            <h3 id="scraper-last-update">—</h3>
-                            <p>آخر تحديث <br><small>Last Update</small></p>
-                        </div>
                     </div>
                 </div>
 
                 <!-- Settings Tabs -->
-                <div class="scraper-tabs">
-                    <button class="scraper-tab active" data-tab="tab-sectors"><i class="fas fa-industry"></i> القطاعات</button>
-                    <button class="scraper-tab" data-tab="tab-areas"><i class="fas fa-map-marked-alt"></i> المناطق والمدن</button>
-                    <button class="scraper-tab" data-tab="tab-performance"><i class="fas fa-sliders-h"></i> الأداء والتقنية</button>
-                    <button class="scraper-tab" data-tab="tab-grid"><i class="fas fa-th"></i> الشبكة الجغرافية</button>
-                    <button class="scraper-tab" data-tab="tab-monitor"><i class="fas fa-chart-bar"></i> المراقبة</button>
+                <div class="scraper-tabs" style="margin-bottom: 1.5rem;">
+                    <button class="scraper-tab active" data-tab="tab-monitor"><i class="fas fa-bolt"></i> الاستخراج المباشر والمراقبة</button>
+                    <button class="scraper-tab" data-tab="tab-sectors"><i class="fas fa-industry"></i> القطاعات المستهدفة</button>
+                    <button class="scraper-tab" data-tab="tab-areas"><i class="fas fa-map-marked-alt"></i> المناطق والمدن الصناعية</button>
                 </div>
 
-                <!-- Tab: Sectors -->
-                <div id="tab-sectors" class="scraper-tab-content active">
+                <!-- Tab 1: Monitor & Direct Harvester (Default Active) -->
+                <div id="tab-monitor" class="scraper-tab-content active">
+                    <div id="scraper-content"></div>
+                </div>
+
+                <!-- Tab 2: Sectors -->
+                <div id="tab-sectors" class="scraper-tab-content">
                     <div class="card">
                         <div class="card-header">
-                            <h3><i class="fas fa-industry"></i> القطاعات والنشاطات <small>Sectors & Activities</small></h3>
+                            <h3><i class="fas fa-industry"></i> القطاعات والنشاطات المستهدفة <small>Target Sectors</small></h3>
                             <div style="display:flex; gap:0.5rem;">
                                 <button class="btn btn-sm btn-outline" id="btn-select-all-sectors"><i class="fas fa-check-double"></i> تحديد الكل</button>
                                 <button class="btn btn-sm btn-outline" id="btn-deselect-all-sectors"><i class="fas fa-times"></i> إلغاء الكل</button>
@@ -967,18 +926,18 @@
                         <div class="card-body">
                             <p class="text-muted" style="margin-bottom:1rem;">
                                 <i class="fas fa-info-circle"></i>
-                                اختر القطاعات التي ترغب في استخراج بيانات شركاتها. القطاعات المصنفة <strong>A+</strong> هي الأكثر احتمالاً لامتلاك أسطول سيارات.
+                                اختر القطاعات التي ترغب في استخراج بيانات شركاتها. القطاعات المصنفة <strong>A+</strong> هي الأكثر امتلاكاً لأساطيل السيارات والنقل الثقيل.
                             </p>
                             <div id="sectors-checkboxes" class="settings-grid"></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Tab: Areas -->
+                <!-- Tab 3: Areas -->
                 <div id="tab-areas" class="scraper-tab-content">
                     <div class="card">
                         <div class="card-header">
-                            <h3><i class="fas fa-map-marked-alt"></i> المناطق والمدن المستهدفة <small>Target Areas</small></h3>
+                            <h3><i class="fas fa-map-marked-alt"></i> المناطق والمدن الصناعية المستهدفة <small>Target Industrial Zones</small></h3>
                             <div style="display:flex; gap:0.5rem;">
                                 <button class="btn btn-sm btn-outline" id="btn-select-all-areas"><i class="fas fa-check-double"></i> تحديد الكل</button>
                                 <button class="btn btn-sm btn-outline" id="btn-deselect-all-areas"><i class="fas fa-times"></i> إلغاء الكل</button>
@@ -987,142 +946,11 @@
                         <div class="card-body">
                             <p class="text-muted" style="margin-bottom:1rem;">
                                 <i class="fas fa-info-circle"></i>
-                                اختر المناطق التي ترغب في البحث فيها. كل منطقة تحتوي على مدن فرعية يمكنك تخصيصها.
+                                اختر المناطق والمدن الصناعية في مصر التي ترغب في توجيه عمليات السحب والاستخراج إليها.
                             </p>
                             <div id="areas-checkboxes" class="settings-grid"></div>
                         </div>
                     </div>
-                </div>
-
-                <!-- Tab: Performance -->
-                <div id="tab-performance" class="scraper-tab-content">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3><i class="fas fa-sliders-h"></i> إعدادات الأداء والتقنية <small>Performance Settings</small></h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="settings-form">
-                                <div class="setting-group">
-                                    <label>التأخير بين البحثات (ثواني)</label>
-                                    <div class="range-group">
-                                        <span>أقل: </span>
-                                        <input type="range" id="perf-delay-min" min="2" max="15" value="4" class="range-input">
-                                        <span id="perf-delay-min-val" class="range-val">4s</span>
-                                        <span style="margin: 0 0.5rem;">—</span>
-                                        <span>أكثر: </span>
-                                        <input type="range" id="perf-delay-max" min="5" max="20" value="9" class="range-input">
-                                        <span id="perf-delay-max-val" class="range-val">9s</span>
-                                    </div>
-                                    <small class="text-muted">تأخير عشوائي بين كل عملية بحث لتجنب الحظر</small>
-                                </div>
-
-                                <div class="setting-group">
-                                    <label>إعادة تشغيل المتصفح كل (بحث)</label>
-                                    <div class="range-group">
-                                        <input type="range" id="perf-restart-every" min="20" max="150" value="50" class="range-input">
-                                        <span id="perf-restart-every-val" class="range-val">50</span>
-                                    </div>
-                                    <small class="text-muted">يعيد تشغيل المتصفح بـ fingerprint جديد لتجنب الحظر</small>
-                                </div>
-
-                                <div class="setting-group">
-                                    <label>عمليات البحث الصفرية قبل إعادة التشغيل</label>
-                                    <div class="range-group">
-                                        <input type="range" id="perf-zero-restart" min="1" max="10" value="3" class="range-input">
-                                        <span id="perf-zero-restart-val" class="range-val">3</span>
-                                    </div>
-                                    <small class="text-muted">عدد عمليات البحث المتتالية التي ترجع 0 نتائج قبل إعادة تشغيل المتصفح</small>
-                                </div>
-
-                                <div class="setting-group">
-                                    <label>عمليات البحث الصفرية قبل الانتظار (Backoff)</label>
-                                    <div class="range-group">
-                                        <input type="range" id="perf-zero-backoff" min="3" max="15" value="5" class="range-input">
-                                        <span id="perf-zero-backoff-val" class="range-val">5</span>
-                                    </div>
-                                </div>
-
-                                <div class="setting-group">
-                                    <label>مدة الانتظار الأساسية (ثواني)</label>
-                                    <div class="range-group">
-                                        <input type="range" id="perf-backoff-base" min="30" max="300" step="10" value="120" class="range-input">
-                                        <span id="perf-backoff-base-val" class="range-val">120s</span>
-                                    </div>
-                                </div>
-
-                                <div class="setting-group">
-                                    <label>عدد جولات التمرير (Scroll Rounds)</label>
-                                    <div class="range-group">
-                                        <input type="range" id="perf-scroll-rounds" min="3" max="20" value="10" class="range-input">
-                                        <span id="perf-scroll-rounds-val" class="range-val">10</span>
-                                    </div>
-                                    <small class="text-muted">كلما زاد العدد، زادت النتائج لكل بحث (أبطأ)</small>
-                                </div>
-
-                                <div class="setting-group">
-                                    <label class="toggle-label">
-                                        <input type="checkbox" id="perf-headless" checked>
-                                        <span>وضع الخلفية (Headless)</span>
-                                    </label>
-                                    <small class="text-muted">إخفاء نافذة المتصفح. إيقافه يُظهر المتصفح لمراقبة العمل</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tab: Grid -->
-                <div id="tab-grid" class="scraper-tab-content">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3><i class="fas fa-th"></i> الشبكة الجغرافية <small>Geographic Grid</small></h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="setting-group">
-                                <label class="toggle-label">
-                                    <input type="checkbox" id="grid-enabled" checked>
-                                    <span>تفعيل الشبكة الجغرافية (Geographic Grid)</span>
-                                </label>
-                                <small class="text-muted">تقسم القاهرة والجيزة إلى خلايا صغيرة لتجاوز حد الـ 120 نتيجة لكل بحث</small>
-                            </div>
-
-                            <div class="form-grid" style="margin-top:1rem;">
-                                <div class="form-group">
-                                    <label>حد جنوبي (Latitude)</label>
-                                    <input type="number" id="grid-south" value="29.85" step="0.01">
-                                </div>
-                                <div class="form-group">
-                                    <label>حد شمالي (Latitude)</label>
-                                    <input type="number" id="grid-north" value="30.20" step="0.01">
-                                </div>
-                                <div class="form-group">
-                                    <label>حد غربي (Longitude)</label>
-                                    <input type="number" id="grid-west" value="31.05" step="0.01">
-                                </div>
-                                <div class="form-group">
-                                    <label>حد شرقي (Longitude)</label>
-                                    <input type="number" id="grid-east" value="31.50" step="0.01">
-                                </div>
-                                <div class="form-group">
-                                    <label>عدد الصفوف (Rows)</label>
-                                    <input type="number" id="grid-rows" value="7" min="1" max="20">
-                                </div>
-                                <div class="form-group">
-                                    <label>عدد الأعمدة (Cols)</label>
-                                    <input type="number" id="grid-cols" value="9" min="1" max="20">
-                                </div>
-                            </div>
-                            <div class="grid-info" style="margin-top:1rem; padding:1rem; background:var(--bg-secondary); border-radius:0.5rem;">
-                                <p><i class="fas fa-calculator"></i> <strong>إجمالي الخلايا: <span id="grid-total-cells">63</span></strong></p>
-                                <p class="text-muted">كل خلية ? 3km × 3km. زيادة الخلايا = نتائج أكثر لكنه أبطأ.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tab: Monitor -->
-                <div id="tab-monitor" class="scraper-tab-content">
-                    <div id="scraper-content"></div>
                 </div>
             </section>
 
@@ -1621,19 +1449,19 @@
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <script src="js/supabase-client.js?v=113.0"></script>
-    <script src="js/storage.js?v=113.0"></script>
-    <script src="js/excel-handler.js?v=113.0"></script>
-    <script src="js/dashboard.js?v=113.0"></script>
-    <script src="js/companies.js?v=113.0"></script>
-    <script src="js/calls.js?v=113.0"></script>
-    <script src="js/pipeline.js?v=113.0"></script>
-    <script src="js/reports.js?v=113.0"></script>
-    <script src="js/egypt_enterprises_pool.js?v=113.0"></script>
-    <script src="js/scraper.js?v=113.0"></script>
-    <script src="js/team.js?v=113.0"></script>
-    <script src="js/settings.js?v=113.0"></script>
-    <script src="js/app.js?v=113.0"></script>
+    <script src="js/supabase-client.js?v=114.0"></script>
+    <script src="js/storage.js?v=114.0"></script>
+    <script src="js/excel-handler.js?v=114.0"></script>
+    <script src="js/dashboard.js?v=114.0"></script>
+    <script src="js/companies.js?v=114.0"></script>
+    <script src="js/calls.js?v=114.0"></script>
+    <script src="js/pipeline.js?v=114.0"></script>
+    <script src="js/reports.js?v=114.0"></script>
+    <script src="js/egypt_enterprises_pool.js?v=114.0"></script>
+    <script src="js/scraper.js?v=114.0"></script>
+    <script src="js/team.js?v=114.0"></script>
+    <script src="js/settings.js?v=114.0"></script>
+    <script src="js/app.js?v=114.0"></script>
 
     <!-- EMERGENCY: Guarantee save button always works regardless of cache -->
     <script>
