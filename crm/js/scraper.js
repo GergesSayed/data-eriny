@@ -4776,7 +4776,7 @@ const ScraperPage = {
 
         const allCurrentCompanies = (window.AppStorage && window.AppStorage.getCompanies) ? window.AppStorage.getCompanies() : [];
         const existingNames = new Set(
-            allCurrentCompanies.map(c => this._normalizeArabicName(c.nameAr || c.name || c.nameEn || c.companyName))
+            allCurrentCompanies.map(c => this._normalizeArabicName(c.nameAr || c.name || c.nameEn || c.companyName) + '_' + String(c.city || c.governorate || c.gov || '').trim().toLowerCase())
         );
 
         const newBatch = [];
@@ -4807,8 +4807,10 @@ const ScraperPage = {
                     if (newBatch.length >= targetCount) break;
                     if (targetSector !== 'all' && cand.sector !== targetSector) continue;
                     const nameKey = this._normalizeArabicName(cand.nameAr);
-                    if (nameKey && !existingNames.has(nameKey)) {
-                        existingNames.add(nameKey);
+                    const cityKey = String(cand.city || cand.governorate || cand.gov || '').trim().toLowerCase();
+                    const comboKey = nameKey + '_' + cityKey;
+                    if (nameKey && !existingNames.has(comboKey)) {
+                        existingNames.add(comboKey);
                         cand.id = 'real_osm_' + Date.now() + '_' + newBatch.length + '_' + Math.random().toString(36).slice(2, 6);
                         newBatch.push(cand);
                         log(`   ↳ 🏢 [خرائط مصر] "${cand.nameAr}" — 📍 ${cand.governorate} — 🚛 أسطول: ${cand.fleetSize} سيارة`);
@@ -4834,8 +4836,10 @@ const ScraperPage = {
             for (const item of poolToUse) {
                 if (newBatch.length >= targetCount) break;
                 const nameKey = this._normalizeArabicName(item.nameAr);
-                if (nameKey && !existingNames.has(nameKey)) {
-                    existingNames.add(nameKey);
+                const cityKey = String(item.city || item.governorate || item.gov || '').trim().toLowerCase();
+                const comboKey = nameKey + '_' + cityKey;
+                if (nameKey && !existingNames.has(comboKey)) {
+                    existingNames.add(comboKey);
                     newBatch.push({
                         id: item.id || ('egy_pool_' + Date.now() + '_' + newBatch.length + '_' + Math.random().toString(36).slice(2, 6)),
                         nameAr: item.nameAr,
@@ -4922,7 +4926,7 @@ const ScraperPage = {
     async _scrapeOSMBatch(term, timeStr, statusText, statusDot) {
         const allCurrentCompanies = (window.AppStorage && window.AppStorage.getCompanies) ? window.AppStorage.getCompanies() : [];
         const existingNames = new Set(
-            allCurrentCompanies.map(c => this._normalizeArabicName(c.nameAr || c.name || c.nameEn || c.companyName))
+            allCurrentCompanies.map(c => this._normalizeArabicName(c.nameAr || c.name || c.nameEn || c.companyName) + '_' + String(c.city || c.governorate || c.gov || '').trim().toLowerCase())
         );
 
         const newCompanies = [];
@@ -4942,8 +4946,10 @@ const ScraperPage = {
         for (const cand of candidates) {
             if (newCompanies.length >= 10) break;
             const nameKey = this._normalizeArabicName(cand.nameAr);
-            if (nameKey && !existingNames.has(nameKey)) {
-                existingNames.add(nameKey);
+            const cityKey = String(cand.city || cand.governorate || cand.gov || '').trim().toLowerCase();
+            const comboKey = nameKey + '_' + cityKey;
+            if (nameKey && !existingNames.has(comboKey)) {
+                existingNames.add(comboKey);
                 cand.id = 'real_osm_' + Date.now() + '_' + newCompanies.length + '_' + Math.random().toString(36).slice(2, 6);
                 newCompanies.push(cand);
             }
@@ -4963,8 +4969,10 @@ const ScraperPage = {
                     const item = fullPool[idx];
                     if (!item) continue;
                     const nameKey = this._normalizeArabicName(item.nameAr);
-                    if (nameKey && !existingNames.has(nameKey)) {
-                        existingNames.add(nameKey);
+                    const cityKey = String(item.city || item.governorate || item.gov || '').trim().toLowerCase();
+                    const comboKey = nameKey + '_' + cityKey;
+                    if (nameKey && !existingNames.has(comboKey)) {
+                        existingNames.add(comboKey);
                         this._poolCursor = (idx + 1) % poolLen;
                         newCompanies.push({
                             id: item.id || ('egy_pool_' + Date.now() + '_' + newCompanies.length + '_' + Math.random().toString(36).slice(2, 6)),

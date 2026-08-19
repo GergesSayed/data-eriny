@@ -177,25 +177,13 @@ const App = {
                 }).catch(() => {});
             }, 60000);
 
-            // Real-time Supabase subscription for instant cross-device sync
+            // Real-time Cloud subscription for instant cross-device sync
             if (window.SupabaseClient) {
                 window.SupabaseClient.subscribeToChanges((newData) => {
-                    if (newData && Array.isArray(newData.companies)) {
-                        const companies = newData.companies;
-
-                        if (companies.length !== window.AppStorage.getCompanies().length) {
-                            if (companies.length > 0) {
-                                companies.forEach(c => {
-                                    c.sector = window.AppStorage.mapScraperSectorToCRM(c.sector);
-                                    c.city = window.AppStorage.mapScraperCityToCRM(c.city);
-                                    c.priority = window.AppStorage.calculatePriority(c.sector);
-                                });
-                            }
-                            window.AppStorage.setCompanies(companies);
-                            window.AppStorage.saveAllCompaniesToDB(companies);
-                            this.refreshCurrentPage();
-                        }
-                    }
+                    // Always use pullFromCloud() to safely merge cloud data without overwriting un-pushed local scraping
+                    window.AppStorage.pullFromCloud().then(wasUpdated => {
+                        if (wasUpdated) this.refreshCurrentPage();
+                    }).catch(() => {});
                 });
             }
         } catch (err) {
