@@ -715,16 +715,24 @@ const AppStorage = {
         }
         try { localStorage.removeItem(this.KEYS.COMPANIES); } catch(e) {}
 
+        // One-time automatic purge of old legacy company records
+        if (localStorage.getItem('fleetcrm_wipe_all_v128') !== 'done') {
+            this.deleteAllCompanies();
+            localStorage.setItem('fleetcrm_wipe_all_v128', 'done');
+        }
+
         return new Promise((resolve) => {
             if (typeof indexedDB === 'undefined') {
-                this._seedInitialJsonData(this.companiesMemory || []).then(() => resolve());
+                this.updateLiveCounters();
+                resolve();
                 return;
             }
             try {
                 const request = indexedDB.open('FleetCRM_DB', 4);
                 
                 request.onerror = (event) => {
-                    this._seedInitialJsonData(this.companiesMemory || []).then(() => resolve());
+                    this.updateLiveCounters();
+                    resolve();
                 };
                 
                 request.onsuccess = (event) => {
@@ -733,10 +741,12 @@ const AppStorage = {
                         this.loadCompaniesFromDB(db),
                         this.loadActivitiesFromDB(db)
                     ]).then(async () => {
-                        const targetMin = (window.__EGYPT_ENTERPRISE_POOL && Array.isArray(window.__EGYPT_ENTERPRISE_POOL)) ? window.__EGYPT_ENTERPRISE_POOL.length : 6500;
-                        if (!this.companiesMemory || this.companiesMemory.length < targetMin) {
+                        const pool = (window.__EGYPT_ENTERPRISE_POOL && Array.isArray(window.__EGYPT_ENTERPRISE_POOL)) ? window.__EGYPT_ENTERPRISE_POOL : [];
+                        const targetMin = pool.length;
+                        if (targetMin > 0 && (!this.companiesMemory || this.companiesMemory.length < targetMin)) {
                             await this._seedInitialJsonData(this.companiesMemory || []);
                         }
+                        this.updateLiveCounters();
                         resolve();
                     });
                 };
@@ -958,6 +968,7 @@ const AppStorage = {
             if (localStorage.getItem('fleetcrm_user_wiped_companies') === 'true') {
                 this.companiesMemory = [];
                 this._set(this.KEYS.COMPANIES, []);
+                this.updateLiveCounters();
                 resolve();
                 return;
             }
@@ -968,27 +979,25 @@ const AppStorage = {
                 
                 request.onsuccess = async (event) => {
                     const data = event.target.result || [];
-                    if (data && data.length >= 6500) {
-                        const cleaned = this.cleanAndFixCompanyData(data);
-                        const idbMapped = cleaned.map((c, idx) => this._normalizeCompanyData(c, idx));
-                        this.companiesMemory = idbMapped;
-                        localStorage.setItem('fleetcrm_company_count', idbMapped.length);
-                        
-                        if (idbMapped.length !== data.length) {
-                            this.saveAllCompaniesToDB(idbMapped);
-                        }
-
-                        this.updateLiveCounters();
-                        resolve();
-                    } else {
-                        // If IndexedDB has < 6500 companies (stale cache on mobile), auto-heal from baseline pool
-                        await this._seedInitialJsonData(cleaned || []);
-                        resolve();
+                    const cleaned = this.cleanAndFixCompanyData(data);
+                    const idbMapped = (cleaned || []).map((c, idx) => this._normalizeCompanyData(c, idx));
+                    this.companiesMemory = idbMapped;
+                    localStorage.setItem('fleetcrm_company_count', idbMapped.length);
+                    
+                    if (idbMapped.length !== data.length) {
+                        this.saveAllCompaniesToDB(idbMapped);
                     }
+
+                    this.updateLiveCounters();
+                    resolve();
                 };
                 
-                request.onerror = () => resolve();
+                request.onerror = () => {
+                    this.updateLiveCounters();
+                    resolve();
+                };
             } catch (e) {
+                this.updateLiveCounters();
                 resolve();
             }
         });
