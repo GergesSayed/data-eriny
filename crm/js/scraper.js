@@ -104,9 +104,9 @@ const ScraperPage = {
                     <i class="fas fa-layer-group"></i>
                     <span>سحب دفعة كبرى (+500 شركة)</span>
                 </button>
-                <button id="btn-toggle-scraper-main" onclick="ScraperPage.toggleProcess('scraper')" class="btn" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; padding:12px 22px; border-radius:12px; cursor:pointer; font-size:13.5px; font-weight:800; box-shadow:0 4px 15px rgba(16,185,129,0.4); display:flex; align-items:center; gap:8px;">
-                    <i class="fas fa-sync-alt"></i>
-                    <span id="btn-scraper-main-text">تشغيل السحب التلقائي المستمر</span>
+                <button id="btn-toggle-scraper-main" onclick="ScraperPage.toggleProcess('scraper')" class="btn" style="background:${this.isScraperActive ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'linear-gradient(135deg, #10b981, #059669)'}; color:#fff; border:none; padding:12px 22px; border-radius:12px; cursor:pointer; font-size:13.5px; font-weight:800; box-shadow:0 4px 15px ${this.isScraperActive ? 'rgba(239,68,68,0.5)' : 'rgba(16,185,129,0.4)'}; display:flex; align-items:center; gap:8px;">
+                    <i class="fas ${this.isScraperActive ? 'fa-stop' : 'fa-sync-alt'}"></i>
+                    <span id="btn-scraper-main-text">${this.isScraperActive ? 'إيقاف السحب التلقائي المستمر' : 'تشغيل السحب التلقائي المستمر'}</span>
                 </button>
             </div>
         </div>
@@ -5173,10 +5173,23 @@ const ScraperPage = {
         const isScraperRunning = this.isScraperActive;
         const isEnricherRunning = this.isEnricherActive;
 
+        const btnScraperMain = document.getElementById('btn-toggle-scraper-main');
         const btnScraper = document.getElementById('btn-toggle-scraper');
         const btnEnricher = document.getElementById('btn-toggle-enricher');
         const btnScraperHeader = document.getElementById('btn-toggle-scraper-header');
         const btnEnricherHeader = document.getElementById('btn-toggle-enricher-header');
+
+        if (btnScraperMain) {
+            if (isScraperRunning) {
+                btnScraperMain.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+                btnScraperMain.style.boxShadow = '0 4px 15px rgba(239,68,68,0.5)';
+                btnScraperMain.innerHTML = '<i class="fas fa-stop"></i> <span id="btn-scraper-main-text">إيقاف السحب التلقائي المستمر</span>';
+            } else {
+                btnScraperMain.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                btnScraperMain.style.boxShadow = '0 4px 15px rgba(16,185,129,0.4)';
+                btnScraperMain.innerHTML = '<i class="fas fa-sync-alt"></i> <span id="btn-scraper-main-text">تشغيل السحب التلقائي المستمر</span>';
+            }
+        }
 
         if (btnScraper) {
             if (isScraperRunning) {
