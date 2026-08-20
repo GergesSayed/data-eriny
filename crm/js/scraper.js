@@ -4722,10 +4722,9 @@ const ScraperPage = {
                                 if (!window.AppStorage.isStrictB2BEntity(rawName)) continue;
                             }
 
-                            const landlineCode = zone.city === 'alex' ? '03' : '02';
-                            const phone = p.phone || (landlineCode + '-2' + (2000000 + Math.floor(Math.random() * 7000000)).toString());
+                            const phone = String(p.phone || '').trim();
                             const sector = this._mapOSMTagsToSector(rawName, p);
-                            const fleetEst = 35 + Math.floor(Math.random() * 125);
+                            const fleetEst = p.fleetSize ? parseInt(p.fleetSize, 10) : 0;
 
                             results.push({
                                 nameAr: rawName,
@@ -4741,10 +4740,10 @@ const ScraperPage = {
                                 longitude: lon,
                                 google_maps_url: `https://www.google.com/maps?q=${lat.toFixed(4)},${lon.toFixed(4)}`,
                                 fleetSize: fleetEst,
-                                fleetType: 'heavy',
+                                fleetType: '',
                                 contactPerson: '',
                                 contactTitle: '',
-                                priority: fleetEst > 65 ? 'A' : 'B',
+                                priority: window.AppStorage ? window.AppStorage.calculatePriority(sector) : 'B',
                                 status: 'new',
                                 notes: `المصدر: استخراج موثق من خرائط مصر الحقيقية — منطقة ${zone.name}`,
                                 createdAt: new Date().toISOString(),

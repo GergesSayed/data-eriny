@@ -821,9 +821,9 @@ const AppStorage = {
         company.website = String(company.website || company.web || '').trim();
         company.google_maps_url = String(company.google_maps_url || company.map || ((company.latitude || company.lat) ? ('https://www.google.com/maps?q=' + (company.latitude || company.lat) + ',' + (company.longitude || company.lon)) : '')).trim();
 
-        const fs = Number(company.fleetSize || company.fleet || 30);
-        company.fleetSize = fs;
-        company.fleetType = String(company.fleetType || 'heavy');
+        const fs = Number(company.fleetSize || company.fleet || 0);
+        company.fleetSize = (!isNaN(fs) && fs >= 0) ? fs : 0;
+        company.fleetType = String(company.fleetType || '');
         company.status = String(company.status || company.st || 'new');
         company.assignedTo = String(company.assignedTo || company.asgn || '');
         company.contactPerson = String(company.contactPerson || company.cp || '').trim();
@@ -834,10 +834,12 @@ const AppStorage = {
 
         if (company.priority || company.prio) {
             company.priority = String(company.priority || company.prio).toUpperCase();
-        } else if (fs >= 100) {
+        } else if (company.fleetSize >= 120) {
             company.priority = 'A';
-        } else if (fs >= 35) {
+        } else if (company.fleetSize >= 50) {
             company.priority = 'B';
+        } else if (company.sector) {
+            company.priority = this.calculatePriority(company.sector);
         } else {
             company.priority = 'C';
         }
@@ -1267,12 +1269,6 @@ const AppStorage = {
     cleanAndFixCompanyData(companies) {
         if (!companies || !Array.isArray(companies) || companies.length === 0) return companies;
 
-        const fleetRanges = {
-            'transport': [80, 380], 'logistics': [60, 260], 'manufacturing': [45, 220],
-            'petroleum': [90, 320], 'contracting': [70, 290], 'food': [55, 190],
-            'distribution': [40, 160], 'tourism_fleet': [50, 180], 'shipping': [85, 340], 'other': [30, 110]
-        };
-
         const deduplicated = [];
         const seenIds = new Set();
         const seenNames = new Set();
@@ -1316,25 +1312,14 @@ const AppStorage = {
                 }
             }
 
-            // 2. Fix flat 10 fleet size
-            const sec = c.sector || 'other';
-            const range = fleetRanges[sec] || [30, 110];
-            const currentFleet = c.fleetSize;
-
-            if (!currentFleet || currentFleet == 10 || currentFleet == '10' || String(currentFleet).trim() === '10') {
-                const hash = (c.id || idx.toString()).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-                c.fleetSize = range[0] + (hash % (range[1] - range[0] + 1));
-            } else {
-                const val = parseInt(currentFleet, 10);
-                if (isNaN(val) || val <= 10) {
-                    const hash = (c.id || idx.toString()).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-                    c.fleetSize = range[0] + (hash % (range[1] - range[0] + 1));
-                }
-            }
+            // 2. Clean real fleet size without synthetic generation
+            const fs = parseInt(c.fleetSize, 10);
+            c.fleetSize = (!isNaN(fs) && fs >= 0) ? fs : 0;
 
             // 3. Compute priority
             if (c.fleetSize >= 120) c.priority = 'A';
             else if (c.fleetSize >= 50) c.priority = 'B';
+            else if (c.sector) c.priority = this.calculatePriority(c.sector);
             else c.priority = 'C';
 
             // 4. Clean decision maker fields — PURGE ALL generated titles/role strings. Leave strictly blank unless real name exists.
@@ -2111,31 +2096,15 @@ const AppStorage = {
 
     getActivities(limit = 50) {
         let acts = this._get(this.KEYS.ACTIVITIES);
-        if (!acts || !Array.isArray(acts) || acts.length === 0) {
-            acts = [
-                {
-                    id: 'act_seed_1',
-                    type: 'call',
-                    action: 'تسجيل مكالمة جديدة',
-                    detail: 'شركة النقل والملاحة — مكالمة استكشافية',
-                    timestamp: new Date(Date.now() - 15 * 60000).toISOString()
-                },
-                {
-                    id: 'act_seed_2',
-                    type: 'deal',
-                    action: 'تحديث خط المبيعات',
-                    detail: 'نقل صفقة إلى مرحلة إرسال عرض الأسعار',
-                    timestamp: new Date(Date.now() - 45 * 60000).toISOString()
-                },
-                {
-                    id: 'act_seed_3',
-                    type: 'company',
-                    action: 'مزامنة وتوثيق الشركات',
-                    detail: 'تحديث وتوثيق 3,560 شركة مصرية نشطة',
-                    timestamp: new Date(Date.now() - 2 * 3600000).toISOString()
-                }
-            ];
+        if (!acts || !Array.isArray(acts)) {
+            acts = [];
             try { this._set(this.KEYS.ACTIVITIES, acts); } catch(e){}
+        }
+        // Purge any legacy fake seed activities
+        const realActs = acts.filter(a => a && !String(a.id).startsWith('act_seed_'));
+        if (realActs.length !== acts.length) {
+            this._set(this.KEYS.ACTIVITIES, realActs);
+            acts = realActs;
         }
         return (acts || []).slice(0, limit);
     },
@@ -2229,361 +2198,8 @@ const AppStorage = {
 
     // ---- Seed Sample Data ----
     seedSampleData() {
-        // Seed sample companies when database is empty
-        const sampleCompanies = [
-            {
-                nameAr: 'شركة النقل المتحدة',
-                nameEn: 'United Transport Co.',
-                sector: 'transport',
-                city: 'cairo',
-                governorate: 'القاهرة',
-                phone1: '02-24567890',
-                mobile: '01012345678',
-                email: 'info@unitedtransport.com.eg',
-                website: 'https://unitedtransport.com.eg',
-                fleetSize: 250,
-                fleetType: 'heavy',
-                companySize: 'large',
-                contactPerson: 'أحمد محمد إبراهيم',
-                contactTitle: 'مدير مشتريات',
-                contactPhone: '01098765432',
-                priority: 'A',
-                source: 'manual',
-                branchesCount: 8
-            },
-            {
-                nameAr: 'شركة جهينة للصناعات الغذائية',
-                nameEn: 'Juhayna Food Industries',
-                sector: 'food',
-                city: '6october',
-                governorate: 'الجيزة',
-                phone1: '02-38271500',
-                email: 'info@juhayna.com',
-                website: 'https://www.juhayna.com',
-                fleetSize: 500,
-                fleetType: 'mixed',
-                companySize: 'large',
-                contactPerson: 'محمد عبدالله',
-                contactTitle: 'مدير أسطول',
-                priority: 'A',
-                source: 'website',
-                branchesCount: 15
-            },
-            {
-                nameAr: 'شركة أراسكو للنقل',
-                nameEn: 'Arasco Transport',
-                sector: 'transport',
-                city: '10thramadan',
-                governorate: 'الشرقية',
-                phone1: '015-3456789',
-                mobile: '01234567890',
-                fleetSize: 180,
-                fleetType: 'heavy',
-                companySize: 'large',
-                contactPerson: 'خالد سعيد',
-                contactTitle: 'مدير نقل',
-                priority: 'A',
-                source: 'referral'
-            },
-            {
-                nameAr: 'شركة المقاولون العرب',
-                nameEn: 'Arab Contractors',
-                sector: 'construction',
-                city: 'nasr_city',
-                governorate: 'القاهرة',
-                phone1: '02-24018999',
-                email: 'info@arabcont.com',
-                website: 'https://www.arabcont.com',
-                fleetSize: 1200,
-                fleetType: 'mixed',
-                companySize: 'large',
-                contactPerson: 'عمر فاروق',
-                contactTitle: 'مدير مشتريات',
-                priority: 'A',
-                source: 'website',
-                branchesCount: 50
-            },
-            {
-                nameAr: 'شركة فودافون مصر',
-                nameEn: 'Vodafone Egypt',
-                sector: 'distribution',
-                city: 'new_cairo',
-                governorate: 'القاهرة',
-                phone1: '02-25294000',
-                email: 'corporate@vodafone.com.eg',
-                website: 'https://www.vodafone.com.eg',
-                fleetSize: 300,
-                fleetType: 'light',
-                companySize: 'large',
-                priority: 'A',
-                source: 'website',
-                branchesCount: 100
-            },
-            {
-                nameAr: 'شركة فالكون للأمن والحراسة',
-                nameEn: 'Falcon Security Services',
-                sector: 'security',
-                city: 'giza',
-                governorate: 'الجيزة',
-                phone1: '02-37490000',
-                mobile: '01111234567',
-                fleetSize: 150,
-                fleetType: 'passenger',
-                companySize: 'large',
-                contactPerson: 'هشام عبدالرحمن',
-                contactTitle: 'مدير أسطول',
-                priority: 'B',
-                source: 'yellowpages'
-            },
-            {
-                nameAr: 'شركة ماونتن فيو للتطوير العقاري',
-                nameEn: 'Mountain View Development',
-                sector: 'construction',
-                city: 'new_cairo',
-                governorate: 'القاهرة',
-                phone1: '02-27266666',
-                website: 'https://www.mountainview.com.eg',
-                fleetSize: 80,
-                fleetType: 'mixed',
-                companySize: 'large',
-                priority: 'B',
-                source: 'website'
-            },
-            {
-                nameAr: 'شركة الفتح للنقل الدولي',
-                nameEn: 'Al Fath International Transport',
-                sector: 'transport',
-                city: 'helwan',
-                governorate: 'القاهرة',
-                phone1: '02-25560123',
-                mobile: '01098765000',
-                fleetSize: 100,
-                fleetType: 'heavy',
-                companySize: 'medium',
-                contactPerson: 'ياسر أحمد',
-                contactTitle: 'صاحب الشركة',
-                contactPhone: '01098765000',
-                priority: 'B',
-                source: 'yellowpages'
-            },
-            {
-                nameAr: 'شركة ايبيكو للأدوية',
-                nameEn: 'EIPICO Pharmaceuticals',
-                sector: 'pharma',
-                city: '10thramadan',
-                governorate: 'الشرقية',
-                phone1: '015-3641000',
-                email: 'info@eipico.com.eg',
-                website: 'https://www.eipico.com.eg',
-                fleetSize: 200,
-                fleetType: 'light',
-                companySize: 'large',
-                priority: 'A',
-                source: 'website',
-                branchesCount: 12
-            },
-            {
-                nameAr: 'شركة لاك كير لتأجير السيارات',
-                nameEn: 'LuxCar Rental',
-                sector: 'rental',
-                city: 'maadi',
-                governorate: 'القاهرة',
-                phone1: '02-23589000',
-                mobile: '01200111222',
-                fleetSize: 350,
-                fleetType: 'passenger',
-                companySize: 'medium',
-                contactPerson: 'ريم حسن',
-                contactTitle: 'مدير مشتريات',
-                priority: 'A',
-                source: 'google'
-            },
-            {
-                nameAr: 'شركة المشرق للصناعة والتجارة',
-                nameEn: 'Al Mashreq Industry & Trading',
-                sector: 'manufacturing',
-                city: 'new_cairo',
-                governorate: 'القاهرة',
-                phone1: '02-26154000',
-                fleetSize: 65,
-                fleetType: 'heavy',
-                companySize: 'medium',
-                priority: 'B',
-                source: 'google'
-            },
-            {
-                nameAr: 'شركة إكسبريس لتوصيل الطلبات',
-                nameEn: 'Express Delivery Co.',
-                sector: 'delivery',
-                city: 'cairo',
-                governorate: 'القاهرة',
-                mobile: '01155566677',
-                fleetSize: 200,
-                fleetType: 'light',
-                companySize: 'medium',
-                contactPerson: 'أحمد علي',
-                contactTitle: 'مدير عام',
-                priority: 'B',
-                source: 'referral'
-            },
-            {
-                nameAr: 'مصنع الأهرام للبلاستيك',
-                nameEn: 'Al Ahram Plastic Factory',
-                sector: 'manufacturing',
-                city: 'obour',
-                governorate: 'القليوبية',
-                phone1: '02-46789012',
-                fleetSize: 30,
-                fleetType: 'heavy',
-                companySize: 'medium',
-                priority: 'C',
-                source: 'yellowpages'
-            },
-            {
-                nameAr: 'شركة ترافكو للبترول',
-                nameEn: 'Trafco Petroleum',
-                sector: 'petroleum',
-                city: 'cairo',
-                governorate: 'القاهرة',
-                phone1: '02-27890123',
-                email: 'info@trafco.com.eg',
-                fleetSize: 90,
-                fleetType: 'heavy',
-                companySize: 'medium',
-                contactPerson: 'سامح فوزي',
-                contactTitle: 'مدير صيانة',
-                priority: 'B',
-                source: 'manual'
-            },
-            {
-                nameAr: 'شركة ترافل ستار للسياحة',
-                nameEn: 'Travel Star Tourism',
-                sector: 'tourism',
-                city: 'giza',
-                governorate: 'الجيزة',
-                phone1: '02-33440000',
-                mobile: '01001234567',
-                fleetSize: 60,
-                fleetType: 'passenger',
-                companySize: 'medium',
-                contactPerson: 'نادية يوسف',
-                contactTitle: 'مدير عام',
-                priority: 'B',
-                source: 'google'
-            },
-            {
-                nameAr: 'شركة السلام للخدمات اللوجستية والنقل',
-                nameEn: 'Al Salam Logistics & Transport',
-                sector: 'transport',
-                city: 'maadi',
-                governorate: 'القاهرة',
-                phone1: '02-25240250',
-                website: 'https://www.alsalam-logistics.com',
-                fleetSize: 110,
-                fleetType: 'heavy',
-                companySize: 'large',
-                priority: 'B',
-                source: 'website'
-            },
-            {
-                nameAr: 'شركة سوبر جيت للنقل الجماعي',
-                nameEn: 'SuperJet Public Transport',
-                sector: 'public_transport',
-                city: 'cairo',
-                governorate: 'القاهرة',
-                phone1: '02-22909099',
-                website: 'https://www.superjet.com.eg',
-                fleetSize: 400,
-                fleetType: 'passenger',
-                companySize: 'large',
-                contactPerson: 'محمود سالم',
-                contactTitle: 'مدير أسطول',
-                priority: 'A',
-                source: 'website',
-                branchesCount: 20
-            },
-            {
-                nameAr: 'مجموعة السويدي للكابلات',
-                nameEn: 'El Sewedy Electric',
-                sector: 'manufacturing',
-                city: '10thramadan',
-                governorate: 'الشرقية',
-                phone1: '02-22710800',
-                email: 'info@elsewedy.com',
-                website: 'https://www.elsewedyelectric.com',
-                fleetSize: 150,
-                fleetType: 'mixed',
-                companySize: 'large',
-                priority: 'A',
-                source: 'website',
-                branchesCount: 30
-            },
-            {
-                nameAr: 'شركة بيبسيكو مصر',
-                nameEn: 'PepsiCo Egypt',
-                sector: 'food',
-                city: '6october',
-                governorate: 'الجيزة',
-                phone1: '02-38274000',
-                website: 'https://www.pepsico.com.eg',
-                fleetSize: 600,
-                fleetType: 'mixed',
-                companySize: 'large',
-                contactPerson: 'طارق عادل',
-                contactTitle: 'مدير أسطول',
-                priority: 'A',
-                source: 'website',
-                branchesCount: 25
-            },
-            {
-                nameAr: 'شركة النيل للنقل البري',
-                nameEn: 'Nile Land Transport',
-                sector: 'transport',
-                city: 'shorouk',
-                governorate: 'القاهرة',
-                mobile: '01112223344',
-                fleetSize: 70,
-                fleetType: 'heavy',
-                companySize: 'small',
-                contactPerson: 'حسن محمود',
-                contactTitle: 'صاحب الشركة',
-                contactPhone: '01112223344',
-                priority: 'B',
-                source: 'referral'
-            }
-        ];
-
-        // Add IDs, timestamps, sector/city mapping, and push directly into memory
-        const now = new Date().toISOString();
-        const today2 = now.split('T')[0];
-        sampleCompanies.forEach((c, idx) => {
-            if (!c.id) c.id = 'seed_' + idx;
-            if (!c.createdAt) c.createdAt = now;
-            if (!c.lastUpdated) c.lastUpdated = today2;
-            if (!c.status) c.status = 'new';
-            if (!c.leadScore) c.leadScore = 50;
-            c.sector = this.mapScraperSectorToCRM(c.sector);
-            c.city = this.mapScraperCityToCRM(c.city);
-            c.priority = this.calculatePriority(c.sector);
-            this.companiesMemory.push(c);
-        });
-
-        // Assign sample companies to employees
-        this.ensureAssignedSampleCompanies();
-
-        // Bulk-save to IndexedDB
-        this.saveAllCompaniesToDB(this.companiesMemory);
-
-        // Sample deals
-        const companies = this.getCompanies();
-        const sampleDeals = [
-            { companyId: companies[0]?.id, title: 'توريد 100 إطار نقل ثقيل Bridgestone', value: 500000, stage: 'proposal', tireType: 'truck', quantity: 100 },
-            { companyId: companies[1]?.id, title: 'عقد سنوي إطارات أسطول التوزيع', value: 1200000, stage: 'negotiation', tireType: 'light_truck', quantity: 400 },
-        ];
-
-        sampleDeals.forEach(deal => {
-            if (deal.companyId) this.saveDeal(deal);
-        });
+        // Clean empty state - no synthetic sample data
+        return;
     },
 
     _dateStr(baseDate, offsetDays) {
