@@ -1146,20 +1146,27 @@ const AppStorage = {
             let updated = false;
 
             // 1. Merge baseline + local + dynamic cloud companies
-            const deletedCompIds = this.getDeletedIds('companies');
-            const cloudDynamic = (data.dynamicCompanies || []).filter(c => c && c.id && !deletedCompIds.has(String(c.id)));
-            const basePool = (window.__EGYPT_ENTERPRISE_POOL && Array.isArray(window.__EGYPT_ENTERPRISE_POOL)) ? window.__EGYPT_ENTERPRISE_POOL : [];
-            const localComps = (this.companiesMemory || []).filter(c => c && c.id && !deletedCompIds.has(String(c.id)));
-
-            const combined = [...basePool, ...localComps, ...cloudDynamic];
-            const cleanDeduplicated = this.cleanAndFixCompanyData(combined);
-
-            if (cleanDeduplicated.length > localComps.length || (cleanDeduplicated.length !== localComps.length && cleanDeduplicated.length >= 6500)) {
-                this.companiesMemory = cleanDeduplicated;
-                this._set(this.KEYS.COMPANIES, this.companiesMemory);
-                this.saveAllCompaniesToDB(this.companiesMemory);
+            const isWipedComps = localStorage.getItem('fleetcrm_user_wiped_companies') === 'true';
+            if (isWipedComps) {
+                this.companiesMemory = [];
+                this._set(this.KEYS.COMPANIES, []);
                 this.updateLiveCounters();
-                updated = true;
+            } else {
+                const deletedCompIds = this.getDeletedIds('companies');
+                const cloudDynamic = (data.dynamicCompanies || []).filter(c => c && c.id && !deletedCompIds.has(String(c.id)));
+                const basePool = (window.__EGYPT_ENTERPRISE_POOL && Array.isArray(window.__EGYPT_ENTERPRISE_POOL)) ? window.__EGYPT_ENTERPRISE_POOL : [];
+                const localComps = (this.companiesMemory || []).filter(c => c && c.id && !deletedCompIds.has(String(c.id)));
+
+                const combined = [...basePool, ...localComps, ...cloudDynamic];
+                const cleanDeduplicated = this.cleanAndFixCompanyData(combined);
+
+                if (cleanDeduplicated.length > localComps.length) {
+                    this.companiesMemory = cleanDeduplicated;
+                    this._set(this.KEYS.COMPANIES, this.companiesMemory);
+                    this.saveAllCompaniesToDB(this.companiesMemory);
+                    this.updateLiveCounters();
+                    updated = true;
+                }
             }
 
             if (data.users && Array.isArray(data.users) && data.users.length > 0) {
