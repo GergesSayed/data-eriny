@@ -337,6 +337,7 @@ const ScraperPage = {
                     const lon = el.lon || el.center?.lon || zone.lon;
                     const phone = String(tags.phone || tags['contact:phone'] || tags.mobile || '').trim();
 
+                    const mapSearchQuery = encodeURIComponent(`${rawName} ${zone.name} مصر`);
                     results.push({
                         id: `osm_${zone.id}_${el.id || Date.now()}_${results.length}`,
                         nameAr: rawName,
@@ -350,7 +351,7 @@ const ScraperPage = {
                         website: tags.website || tags['contact:website'] || '',
                         latitude: lat,
                         longitude: lon,
-                        google_maps_url: `https://www.google.com/maps?q=${lat.toFixed(5)},${lon.toFixed(5)}`,
+                        google_maps_url: `https://www.google.com/maps/search/?api=1&query=${mapSearchQuery}`,
                         fleetSize: 0,
                         fleetType: '',
                         priority: (sector === 'transport' || sector === 'construction' || sector === 'food') ? 'A' : 'B',
@@ -396,6 +397,7 @@ const ScraperPage = {
                             if (targetSector !== 'all' && sector !== targetSector) continue;
 
                             const phone = String(p.phone || p['contact:phone'] || '').trim();
+                            const mapSearchQuery = encodeURIComponent(`${rawName} ${zone.name} مصر`);
 
                             results.push({
                                 id: `ph_${zone.id}_${Date.now()}_${results.length}`,
@@ -410,7 +412,7 @@ const ScraperPage = {
                                 website: p.website || p['contact:website'] || '',
                                 latitude: lat,
                                 longitude: lon,
-                                google_maps_url: `https://www.google.com/maps?q=${lat.toFixed(5)},${lon.toFixed(5)}`,
+                                google_maps_url: `https://www.google.com/maps/search/?api=1&query=${mapSearchQuery}`,
                                 fleetSize: 0,
                                 fleetType: '',
                                 priority: (sector === 'transport' || sector === 'construction' || sector === 'food') ? 'A' : 'B',

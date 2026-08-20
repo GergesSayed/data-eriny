@@ -313,6 +313,7 @@ out center {limit};"""
                 phone = str(tags.get('phone') or tags.get('contact:phone') or tags.get('mobile') or '').strip()
                 website = str(tags.get('website') or tags.get('contact:website') or '').strip()
 
+                search_q = urllib.parse.quote(f"{raw_name} {zone['name']} مصر")
                 results.append({
                     'id': f"osm_{zone['id']}_{el.get('id', int(time.time()))}",
                     'nameAr': raw_name,
@@ -326,7 +327,7 @@ out center {limit};"""
                     'website': website,
                     'latitude': lat,
                     'longitude': lon,
-                    'google_maps_url': f"https://www.google.com/maps?q={lat:.5f},{lon:.5f}",
+                    'google_maps_url': f"https://www.google.com/maps/search/?api=1&query={search_q}",
                     'fleetSize': 0,
                     'fleetType': '',
                     'priority': 'A' if sector in ['transport', 'construction', 'food'] else 'B',
@@ -392,6 +393,7 @@ def fetch_photon_zone(zone, target_sector='all', limit=50):
 
                     phone = str(props.get('phone', '') or props.get('contact:phone', '') or '').strip()
                     website = str(props.get('website', '') or props.get('contact:website', '') or '').strip()
+                    search_q = urllib.parse.quote(f"{raw_name} {zone['name']} مصر")
 
                     results.append({
                         'id': f"ph_{zone['id']}_{int(time.time())}_{len(results)}",
@@ -406,7 +408,7 @@ def fetch_photon_zone(zone, target_sector='all', limit=50):
                         'website': website,
                         'latitude': lat,
                         'longitude': lon,
-                        'google_maps_url': f"https://www.google.com/maps?q={lat:.5f},{lon:.5f}",
+                        'google_maps_url': f"https://www.google.com/maps/search/?api=1&query={search_q}",
                         'fleetSize': 0,
                         'fleetType': '',
                         'priority': 'A' if sector in ['transport', 'construction', 'food'] else 'B',
