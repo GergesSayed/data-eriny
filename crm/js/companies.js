@@ -878,10 +878,31 @@ const Companies = {
 
     runAutoCleanAndMerge() {
         const res = window.AppStorage.autoCleanAndMergeDuplicates();
-        App.showToast(`✅ تم دمج ${res.mergedCount} شركة مكررة وتنظيف البيانات بنجاح! الإجمالي الآن: ${res.remainingTotal} شركة`, 'success');
+        App.showToast(`✅ تم دمج ${res.mergedCount} شركة مكررة وتنظيف وحذف كافة الكيانات غير التجارية بنجاح! الإجمالي الآن: ${res.remainingTotal} شركة`, 'success');
         this.openAuditModal();
         this.render();
         if (typeof Dashboard !== 'undefined') Dashboard.render();
+    },
+
+    resetToPristinePool() {
+        if (!window.AppStorage.isAdmin()) {
+            App.showToast('⛔ عذراً، إعادة ضبط قاعدة البيانات مقتصرة على المدير العام فقط!', 'error');
+            return;
+        }
+        App.confirm(
+            '🔄 إعادة ضبط وهيكلة قاعدة البيانات بالكامل',
+            'سيتم تنظيف وحذف أي كيانات عشوائية أو شوارع أو مطالع أو نتائج سحب قديمة، وإعادة ضبط قاعدة البيانات بالكامل على مجمع الـ 6,500 شركة الصناعية والتجارية المعتمدة 100%. هل تريد المتابعة؟',
+            async () => {
+                App.showToast('⏳ جاري إعادة الهيكلة والتنظيف الشامل من الصفر...', 'info');
+                localStorage.removeItem('fleetcrm_user_wiped_companies');
+                window.AppStorage.companiesMemory = [];
+                await window.AppStorage._seedInitialJsonData([]);
+                App.showToast('✨ تم بنجاح إعادة هيكلة قاعدة البيانات وتطهيرها بالكامل (6,500 شركة B2B معتمدة)!', 'success');
+                Companies.render();
+                if (typeof Dashboard !== 'undefined') Dashboard.render();
+                if (document.getElementById('modal-data-audit')) App.closeModal('modal-data-audit');
+            }
+        );
     },
 
     openLinkedinEnricherModal(id) {
