@@ -2147,10 +2147,8 @@ const AppStorage = {
         const deals = this.getDeals();
         const today = new Date().toISOString().split('T')[0];
 
-        const rawStored = parseInt(localStorage.getItem('fleetcrm_company_count') || '0');
-        const storedCount = rawStored > 0 ? rawStored : 3560;
         const compList = this.getCompanies();
-        const count = (compList && compList.length > 0) ? compList.length : storedCount;
+        const count = (compList && Array.isArray(compList)) ? compList.length : 0;
 
         const openDealsList = deals.filter(d => !['won', 'lost'].includes(d.stage));
         const calcDealsCount = openDealsList.length;

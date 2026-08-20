@@ -39,7 +39,7 @@ const ScraperPage = {
 
     render() {
         const main = document.getElementById('scraper-content');
-        const totalComps = (window.AppStorage && window.AppStorage.getCompanies) ? window.AppStorage.getCompanies().length : 3560;
+        const totalComps = (window.AppStorage && window.AppStorage.getCompanies) ? window.AppStorage.getCompanies().length : 0;
 
         main.innerHTML = `
         <!-- 1. Targeted Direct Harvester Control Panel -->
@@ -4879,7 +4879,7 @@ const ScraperPage = {
                 await window.AppStorage.addCompanies(newBatch);
             }
 
-            const totalNow = (window.AppStorage && window.AppStorage.getCompanies) ? window.AppStorage.getCompanies().length : 3560;
+            const totalNow = (window.AppStorage && window.AppStorage.getCompanies) ? window.AppStorage.getCompanies().length : 0;
 
             log('');
             log(`✅ تم بنجاح استخراج وتوثيق وحفظ +${newBatch.length} شركة مصرية حقيقية 100%!`);
@@ -4896,7 +4896,7 @@ const ScraperPage = {
                 window.App.showToast(`🎉 تم سحب +${newBatch.length} شركة حقيقية 100%! الإجمالي: ${totalNow.toLocaleString()} شركة`, 'success');
             }
         } else {
-            const totalNow = (window.AppStorage && window.AppStorage.getCompanies) ? window.AppStorage.getCompanies().length : 3560;
+            const totalNow = (window.AppStorage && window.AppStorage.getCompanies) ? window.AppStorage.getCompanies().length : 0;
             log('ℹ️ تم فحص كافة المناطق الصناعية وجميع الشركات مسجلة مسبقاً لمنع أي تكرار.');
             if (statusText) statusText.textContent = `🟢 جميع الشركات الحالية مسجلة وموثقة بدون أي تكرار (${totalNow.toLocaleString()} شركة)`;
             if (statusDot) { statusDot.style.background = '#10b981'; statusDot.style.animation = 'none'; }
@@ -5015,7 +5015,7 @@ const ScraperPage = {
             this._osmTotalAdded = (this._osmTotalAdded || 0) + newCompanies.length;
             this._updateCounters();
 
-            const totalNow = (window.AppStorage && window.AppStorage.getCompanies) ? window.AppStorage.getCompanies().length : 3560;
+            const totalNow = (window.AppStorage && window.AppStorage.getCompanies) ? window.AppStorage.getCompanies().length : 0;
 
             if (term) {
                 term.textContent += `[${timeStr}] [⚡ LIVE SUCCESS] تم استخراج +${newCompanies.length} شركة حقيقية جديدة من منطقة "${currentZone.name}"! (الإجمالي: ${totalNow.toLocaleString()} شركة)\n`;
