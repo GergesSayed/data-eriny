@@ -2177,18 +2177,6 @@ const AppStorage = {
                         result[sector] = (result[sector] || 0) + 1;
                     });
                 }
-                if (Object.keys(result).length === 0) {
-                    return {
-                        transport: 723,
-                        car_rental: 328,
-                        construction: 267,
-                        manufacturing: 263,
-                        food: 242,
-                        petroleum: 90,
-                        pharma: 37,
-                        other: 1587
-                    };
-                }
                 return result;
             })(),
             companiesByCity: (() => {

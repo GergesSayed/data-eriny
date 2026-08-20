@@ -57,9 +57,8 @@ const Dashboard = {
             const ctx = document.getElementById('chart-sectors');
             if (!ctx || typeof Chart === 'undefined') return;
 
-            const sectorData = (stats && stats.companiesBySector && Object.keys(stats.companiesBySector).length > 0) ? stats.companiesBySector : {
-                transport: 723, car_rental: 328, construction: 267, manufacturing: 263, food: 242, petroleum: 90, pharma: 37, other: 1587
-            };
+            const sectorData = (stats && stats.companiesBySector) ? stats.companiesBySector : {};
+            const keys = Object.keys(sectorData);
 
             const labels = [];
             const data = [];
@@ -69,17 +68,24 @@ const Dashboard = {
                 '#3b82f6', '#84cc16', '#a855f7', '#64748b', '#e11d48'
             ];
 
-            Object.entries(sectorData).forEach(([key, count]) => {
-                const sector = (window.AppStorage && window.AppStorage.SECTORS) ? window.AppStorage.SECTORS[key] : null;
-                labels.push(sector ? sector.ar : key);
-                data.push(count);
-            });
+            if (keys.length === 0) {
+                labels.push('لا توجد شركات');
+                data.push(1); // Placeholder segment for empty ring
+            } else {
+                Object.entries(sectorData).forEach(([key, count]) => {
+                    const sector = (window.AppStorage && window.AppStorage.SECTORS) ? window.AppStorage.SECTORS[key] : null;
+                    labels.push(sector ? sector.ar : key);
+                    data.push(count);
+                });
+            }
+
+            const bgColors = (keys.length === 0) ? ['rgba(100, 116, 139, 0.25)'] : colors.slice(0, data.length);
 
             const existingChart = Chart.getChart(ctx);
             if (existingChart) {
                 existingChart.data.labels = labels;
                 existingChart.data.datasets[0].data = data;
-                existingChart.data.datasets[0].backgroundColor = colors.slice(0, data.length);
+                existingChart.data.datasets[0].backgroundColor = bgColors;
                 existingChart.update();
                 this.charts.sectors = existingChart;
                 return;
@@ -91,10 +97,10 @@ const Dashboard = {
                     labels,
                     datasets: [{
                         data,
-                        backgroundColor: colors.slice(0, data.length),
+                        backgroundColor: bgColors,
                         borderColor: 'rgba(11, 14, 23, 0.8)',
                         borderWidth: 2,
-                        hoverOffset: 8
+                        hoverOffset: keys.length > 0 ? 8 : 0
                     }]
                 },
                 options: {
