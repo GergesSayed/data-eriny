@@ -735,7 +735,8 @@ const AppStorage = {
                         this.loadCompaniesFromDB(db),
                         this.loadActivitiesFromDB(db)
                     ]).then(async () => {
-                        if ((!this.companiesMemory || this.companiesMemory.length === 0) && localStorage.getItem('fleetcrm_user_wiped_companies') !== 'true') {
+                        const pool = (window.__EGYPT_ENTERPRISE_POOL && Array.isArray(window.__EGYPT_ENTERPRISE_POOL)) ? window.__EGYPT_ENTERPRISE_POOL : [];
+                        if ((!this.companiesMemory || this.companiesMemory.length === 0 || (pool.length > 0 && this.companiesMemory.length < pool.length)) && localStorage.getItem('fleetcrm_user_wiped_companies') !== 'true') {
                             await this._seedInitialJsonData(this.companiesMemory || []);
                         }
                         this.updateLiveCounters();
