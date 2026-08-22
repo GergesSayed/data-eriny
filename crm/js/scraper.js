@@ -512,30 +512,21 @@ const ScraperPage = {
             await window.AppStorage.addCompanies(toSave);
         }
 
+        if (window.AppStorage && window.AppStorage.updateLiveCounters) {
+            window.AppStorage.updateLiveCounters();
+        }
+
         this._log(`✅ تم اعتماد وحفظ ${toSave.length} شركة ومصنع أسطول في قاعدة البيانات بنجاح!`);
         this.stagedCompanies = [];
         this.selectedStagedIds.clear();
         this._renderStagedTable();
         this.render();
 
-        const totalComps = (window.AppStorage && window.AppStorage.getCompanies) ? window.AppStorage.getCompanies().length : 0;
-        const totalElem = document.getElementById('sc-total');
-        if (totalElem) totalElem.textContent = totalComps.toLocaleString();
-
-        const phoneElem = document.getElementById('sc-phones');
-        if (phoneElem) phoneElem.textContent = this._countWithPhone().toLocaleString();
-
-        const prioElem = document.getElementById('sc-priority');
-        if (prioElem) prioElem.textContent = this._countHighPriority().toLocaleString();
-
-        const sideElem = document.getElementById('sidebar-total-companies');
-        if (sideElem) sideElem.textContent = totalComps.toLocaleString();
-
-        if (typeof Companies !== 'undefined' && window.App && window.App.currentPage === 'companies') Companies.render();
-        if (typeof Dashboard !== 'undefined' && window.App && window.App.currentPage === 'dashboard') Dashboard.render();
+        if (typeof Companies !== 'undefined') Companies.render();
+        if (typeof Dashboard !== 'undefined') Dashboard.render();
 
         if (window.App && window.App.showToast) {
-            window.App.showToast(`🎉 تم حفظ ${toSave.length} شركة أسطول ومزامنتها سحابياً بنجاح!`, 'success');
+            window.App.showToast(`🎉 تم حفظ ${toSave.length} شركة أسطول ومزامنتها بنجاح!`, 'success');
         }
     },
 
@@ -587,10 +578,10 @@ const ScraperPage = {
             .replace(/ى/g, 'ي')
             .replace(/[ؤئ]/g, 'ء')
             .replace(/[\u064B-\u065F\u0670]/g, '')
-            .replace(/\s*\(فرع [^\)]+\)/g, '')
-            .replace(/\s*\(مجمع [^\)]+\)/g, '')
+            .replace(/(ش\.م\.م|ذ\.م\.م|م\.م|شمم|ذمم)/g, '')
+            .replace(/(مساهمه مصريه|ذات مسئوليه محدوده|شخص واحد)/g, '')
             .replace(/[^a-z0-9\u0600-\u06FF]/gi, '');
-        s = s.replace(/^(شركه|مصنع|مؤسسه|مجموعه|توكيل|مكتب)/, '');
+        s = s.replace(/^(شركه|مصنع|مؤسسه|مجموعه|توكيل|مكتب|معرض)/, '');
         return s;
     },
 

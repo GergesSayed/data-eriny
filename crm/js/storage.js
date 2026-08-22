@@ -787,8 +787,6 @@ const AppStorage = {
             .replace(/ى/g, 'ي')
             .replace(/[ؤئ]/g, 'ء')
             .replace(/[\u064B-\u065F\u0670]/g, '')
-            .replace(/\s*\(فرع \d+\)/g, '')
-            .replace(/\s*-\s*الفرع \d+/g, '')
             .replace(/(ش\.م\.م|ذ\.م\.م|م\.م|شمم|ذمم)/g, '')
             .replace(/(مساهمه مصريه|ذات مسئوليه محدوده|شخص واحد)/g, '')
             .replace(/[^a-z0-9\u0600-\u06FF]/gi, '');
@@ -1294,13 +1292,10 @@ const AppStorage = {
             const name = c.nameAr || c.name || c.nameEn || c.companyName || '';
             if (!name || String(name).trim().length < 2) return;
 
-            // 0. Clean branch suffix from nameAr
-            c.nameAr = String(name).replace(/\s*\(فرع \d+\)/g, '').trim();
-
             // 0b. Strict B2B entity filter (reject roads, ramps, bridges, courts, schools, clinics, cafes, etc.)
-            if (!this.isStrictB2BEntity(c.nameAr)) return;
+            if (!this.isStrictB2BEntity(name)) return;
 
-            const nameKey = this._normalizeArabicName(c.nameAr);
+            const nameKey = this._normalizeArabicName(name);
             const regionKey = String(c.governorate || c.gov || c.city || '').trim().toLowerCase();
             const comboKey = nameKey + '_' + regionKey;
             const idKey = c.id ? String(c.id).trim() : null;
@@ -1438,16 +1433,15 @@ const AppStorage = {
             if (!c) return;
             const name = c.nameAr || c.name || c.nameEn || c.companyName || '';
             if (!name || String(name).trim().length < 2) return;
-            c.nameAr = String(name).replace(/\s*\(فرع \d+\)/g, '').trim();
 
             // Block non-B2B entities at the gate (roads, ramps, courts, schools, clinics, retail)
-            if (!this.isStrictB2BEntity(c.nameAr)) return;
+            if (!this.isStrictB2BEntity(name)) return;
 
             c.sector = this.mapScraperSectorToCRM(c.sector);
             c.city = this.mapScraperCityToCRM(c.city);
             c.priority = this.calculatePriority(c.sector);
 
-            const nameKey = this._normalizeArabicName(c.nameAr);
+            const nameKey = this._normalizeArabicName(name);
             const cityKey = String(c.city || c.governorate || c.gov || '').trim().toLowerCase();
             const comboKey = nameKey + '_' + cityKey;
             const idKey = c.id ? ('id_' + c.id) : null;
