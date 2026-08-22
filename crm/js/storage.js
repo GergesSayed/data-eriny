@@ -715,12 +715,6 @@ const AppStorage = {
         }
         try { localStorage.removeItem(this.KEYS.COMPANIES); } catch(e) {}
 
-        // One-time automatic purge of old legacy company records
-        if (localStorage.getItem('fleetcrm_wipe_all_v128') !== 'done') {
-            this.deleteAllCompanies();
-            localStorage.setItem('fleetcrm_wipe_all_v128', 'done');
-        }
-
         return new Promise((resolve) => {
             if (typeof indexedDB === 'undefined') {
                 this.updateLiveCounters();
@@ -741,9 +735,7 @@ const AppStorage = {
                         this.loadCompaniesFromDB(db),
                         this.loadActivitiesFromDB(db)
                     ]).then(async () => {
-                        const pool = (window.__EGYPT_ENTERPRISE_POOL && Array.isArray(window.__EGYPT_ENTERPRISE_POOL)) ? window.__EGYPT_ENTERPRISE_POOL : [];
-                        const targetMin = pool.length;
-                        if (targetMin > 0 && (!this.companiesMemory || this.companiesMemory.length < targetMin)) {
+                        if ((!this.companiesMemory || this.companiesMemory.length === 0) && localStorage.getItem('fleetcrm_user_wiped_companies') !== 'true') {
                             await this._seedInitialJsonData(this.companiesMemory || []);
                         }
                         this.updateLiveCounters();
