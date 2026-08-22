@@ -464,6 +464,7 @@ const Companies = {
             const linkedinIcon = linkedinLink ? ` <a href="${linkedinLink}" target="_blank" style="color: #0077b5; margin-right: 6px; font-size: 14px;" title="LinkedIn الشركة" onclick="event.stopPropagation();"><i class="fab fa-linkedin"></i></a>` : '';
 
             const facebookLink = esc(typeof c.facebook === 'string' ? c.facebook : '');
+            const facebookIcon = facebookLink ? ` <a href="${facebookLink}" target="_blank" style="color: #1877f2; margin-right: 6px; font-size: 14px;" title="Facebook الشركة" onclick="event.stopPropagation();"><i class="fab fa-facebook-f"></i></a>` : '';
             const rawMaps = c.google_maps_url || ((c.latitude && c.longitude) ? `https://www.google.com/maps?q=${c.latitude},${c.longitude}` : (c.lat && c.lon ? `https://www.google.com/maps?q=${c.lat},${c.lon}` : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((c.nameAr || c.name || '') + ' ' + (c.address || '') + ' مصر')}`));
             const mapsLink = esc(rawMaps);
             const mapsIcon = mapsLink ? ` <a href="${mapsLink}" target="_blank" style="color: #ea4335; margin-right: 6px; font-size: 14px;" title="موقع الشركة على خرائط جوجل" onclick="event.stopPropagation();"><i class="fas fa-map-marker-alt"></i></a>` : '';
