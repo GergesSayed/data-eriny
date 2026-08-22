@@ -65,14 +65,16 @@
                         }
                         // Dynamically hydrate live company count from storage immediately
                         var rawCount = localStorage.getItem('fleetcrm_company_count');
-                        var poolCount = (window.__EGYPT_ENTERPRISE_POOL && Array.isArray(window.__EGYPT_ENTERPRISE_POOL)) ? window.__EGYPT_ENTERPRISE_POOL.length : 5419;
-                        var countNum = rawCount ? parseInt(rawCount, 10) : poolCount;
-                        if (isNaN(countNum) || countNum < poolCount) countNum = poolCount;
-                        var formatted = countNum.toLocaleString();
-                        var elSide = document.getElementById('sidebar-total-companies');
-                        var elDash = document.getElementById('dash-total-companies');
-                        if (elSide) elSide.textContent = formatted;
-                        if (elDash) elDash.textContent = formatted;
+                        if (rawCount) {
+                            var parsed = parseInt(rawCount, 10);
+                            if (!isNaN(parsed) && parsed >= 0) {
+                                var formatted = parsed.toLocaleString();
+                                var elSide = document.getElementById('sidebar-total-companies');
+                                var elDash = document.getElementById('dash-total-companies');
+                                if (elSide) elSide.textContent = formatted;
+                                if (elDash) elDash.textContent = formatted;
+                            }
+                        }
                     });
                 }
             } catch(e) {}
@@ -1449,19 +1451,19 @@
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <script src="js/supabase-client.js?v=146.0"></script>
-    <script src="js/egypt_enterprises_pool.js?v=146.0"></script>
-    <script src="js/storage.js?v=146.0"></script>
-    <script src="js/excel-handler.js?v=146.0"></script>
-    <script src="js/dashboard.js?v=146.0"></script>
-    <script src="js/companies.js?v=146.0"></script>
-    <script src="js/calls.js?v=146.0"></script>
-    <script src="js/pipeline.js?v=146.0"></script>
-    <script src="js/reports.js?v=146.0"></script>
-    <script src="js/scraper.js?v=146.0"></script>
-    <script src="js/team.js?v=146.0"></script>
-    <script src="js/settings.js?v=146.0"></script>
-    <script src="js/app.js?v=146.0"></script>
+    <script src="js/supabase-client.js?v=147.0"></script>
+    <script src="js/egypt_enterprises_pool.js?v=147.0"></script>
+    <script src="js/storage.js?v=147.0"></script>
+    <script src="js/excel-handler.js?v=147.0"></script>
+    <script src="js/dashboard.js?v=147.0"></script>
+    <script src="js/companies.js?v=147.0"></script>
+    <script src="js/calls.js?v=147.0"></script>
+    <script src="js/pipeline.js?v=147.0"></script>
+    <script src="js/reports.js?v=147.0"></script>
+    <script src="js/scraper.js?v=147.0"></script>
+    <script src="js/team.js?v=147.0"></script>
+    <script src="js/settings.js?v=147.0"></script>
+    <script src="js/app.js?v=147.0"></script>
 
     <!-- EMERGENCY: Guarantee save button always works regardless of cache -->
     <script>

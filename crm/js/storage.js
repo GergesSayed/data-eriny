@@ -735,9 +735,12 @@ const AppStorage = {
                         this.loadCompaniesFromDB(db),
                         this.loadActivitiesFromDB(db)
                     ]).then(async () => {
-                        const pool = (window.__EGYPT_ENTERPRISE_POOL && Array.isArray(window.__EGYPT_ENTERPRISE_POOL)) ? window.__EGYPT_ENTERPRISE_POOL : [];
-                        if ((!this.companiesMemory || this.companiesMemory.length === 0 || (pool.length > 0 && this.companiesMemory.length < pool.length)) && localStorage.getItem('fleetcrm_user_wiped_companies') !== 'true') {
-                            await this._seedInitialJsonData(this.companiesMemory || []);
+                        const isInitialized = localStorage.getItem('fleetcrm_db_initialized') === 'true';
+                        if (!isInitialized && (!this.companiesMemory || this.companiesMemory.length === 0) && localStorage.getItem('fleetcrm_user_wiped_companies') !== 'true') {
+                            await this._seedInitialJsonData([]);
+                            localStorage.setItem('fleetcrm_db_initialized', 'true');
+                        } else if (!isInitialized) {
+                            localStorage.setItem('fleetcrm_db_initialized', 'true');
                         }
                         this.updateLiveCounters();
                         resolve();
@@ -972,30 +975,22 @@ const AppStorage = {
                 const store = transaction.objectStore('companies');
                 const request = store.getAll();
                 
-                request.onsuccess = async (event) => {
+                request.onsuccess = (event) => {
                     const data = event.target.result || [];
-                    const pool = (window.__EGYPT_ENTERPRISE_POOL && Array.isArray(window.__EGYPT_ENTERPRISE_POOL)) ? window.__EGYPT_ENTERPRISE_POOL : [];
-                    const combined = (pool.length > 0) ? [...pool, ...data] : data;
-                    const cleaned = this.cleanAndFixCompanyData(combined);
-                    const idbMapped = (cleaned || []).map((c, idx) => this._normalizeCompanyData(c, idx));
+                    const idbMapped = (data || []).map((c, idx) => this._normalizeCompanyData(c, idx));
                     this.companiesMemory = idbMapped;
                     localStorage.setItem('fleetcrm_company_count', idbMapped.length);
-                    
-                    if (idbMapped.length !== data.length) {
-                        this.saveAllCompaniesToDB(idbMapped);
-                    }
-
                     this.updateLiveCounters();
-                    resolve();
+                    resolve(idbMapped);
                 };
                 
                 request.onerror = () => {
                     this.updateLiveCounters();
-                    resolve();
+                    resolve([]);
                 };
             } catch (e) {
                 this.updateLiveCounters();
-                resolve();
+                resolve([]);
             }
         });
     },
@@ -1142,26 +1137,30 @@ const AppStorage = {
 
             let updated = false;
 
-            // 1. Merge baseline + local + dynamic cloud companies
+            // 1. Sync companies with cloud without injecting static baseline catalog
             const isWipedComps = localStorage.getItem('fleetcrm_user_wiped_companies') === 'true';
             if (isWipedComps && (!this.companiesMemory || this.companiesMemory.length === 0)) {
                 this.companiesMemory = [];
-                this._set(this.KEYS.COMPANIES, []);
                 this.updateLiveCounters();
-            } else {
-                localStorage.removeItem('fleetcrm_user_wiped_companies');
+            } else if (data.dynamicCompanies && Array.isArray(data.dynamicCompanies)) {
                 const deletedCompIds = this.getDeletedIds('companies');
-                const cloudDynamic = (data.dynamicCompanies || []).filter(c => c && c.id && !deletedCompIds.has(String(c.id)));
-                const basePool = (window.__EGYPT_ENTERPRISE_POOL && Array.isArray(window.__EGYPT_ENTERPRISE_POOL)) ? window.__EGYPT_ENTERPRISE_POOL : [];
+                const cloudDynamic = data.dynamicCompanies.filter(c => c && c.id && !deletedCompIds.has(String(c.id)));
                 const localComps = (this.companiesMemory || []).filter(c => c && c.id && !deletedCompIds.has(String(c.id)));
 
-                const combined = [...basePool, ...localComps, ...cloudDynamic];
-                const cleanDeduplicated = this.cleanAndFixCompanyData(combined);
+                const companyMap = new Map();
+                localComps.forEach(c => { if (c && c.id) companyMap.set(c.id, c); });
+                cloudDynamic.forEach(c => {
+                    if (!c || !c.id) return;
+                    if (!companyMap.has(c.id)) {
+                        companyMap.set(c.id, this._normalizeCompanyData(c));
+                        updated = true;
+                    }
+                });
 
-                if (cleanDeduplicated.length > 0) {
-                    this.companiesMemory = cleanDeduplicated;
-                    this._set(this.KEYS.COMPANIES, this.companiesMemory);
-                    this.saveAllCompaniesToDB(this.companiesMemory);
+                const merged = Array.from(companyMap.values());
+                if (updated || merged.length !== this.companiesMemory.length) {
+                    this.companiesMemory = merged;
+                    this.saveAllCompaniesToDB(merged);
                     this.updateLiveCounters();
                     updated = true;
                 }
@@ -1402,12 +1401,8 @@ const AppStorage = {
     },
 
     getCompanies() {
-        if (!this.companiesMemory || !Array.isArray(this.companiesMemory) || this.companiesMemory.length === 0) {
-            if (window.__EGYPT_ENTERPRISE_POOL && Array.isArray(window.__EGYPT_ENTERPRISE_POOL) && window.__EGYPT_ENTERPRISE_POOL.length > 0) {
-                this.companiesMemory = window.__EGYPT_ENTERPRISE_POOL;
-            } else {
-                this.companiesMemory = [];
-            }
+        if (!this.companiesMemory || !Array.isArray(this.companiesMemory)) {
+            this.companiesMemory = [];
         }
         return this.companiesMemory;
     },
