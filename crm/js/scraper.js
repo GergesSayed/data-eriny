@@ -1,8 +1,8 @@
 /* ==============================================================================
-   🏢 EGYPT INDUSTRIAL HUBS & GOOGLE MAPS LIVE B2B HARVESTER
+   🏢 EGYPT B2B COMMERCIAL FLEET & INDUSTRIAL TIRE PROSPECTS HARVESTER
    ==============================================================================
    Fleet CRM Enterprise Lead Harvester for B2B Commercial Fleet & Tire Sales
-   100% Real Verified Entities • 24 Egyptian Industrial Zones • Cloud Synchronization
+   100% Real Operating Factories, Transport Fleets, Contractors & Industrial Hubs
    ============================================================================== */
 
 const ScraperPage = {
@@ -53,8 +53,8 @@ const ScraperPage = {
                 <div style="display:flex; align-items:center; gap:12px;">
                     <div id="scraper-status-dot" style="width:16px;height:16px;border-radius:50%;background:#4ade80;box-shadow:0 0 12px #4ade80;"></div>
                     <div>
-                        <div style="font-size:1.15rem; font-weight:800; color:#fff;" id="scraper-status-text">محرك سحب واستخراج المصانع والشركات المصرية ⚡</div>
-                        <div style="font-size:0.82rem; color:#a5b4fc;" id="scraper-status-subtext">سحب مباشر وحي من خرائط جوجل والمناطق الصناعية (المسجل حالياً: ${totalComps.toLocaleString()} شركة)</div>
+                        <div style="font-size:1.15rem; font-weight:800; color:#fff;" id="scraper-status-text">محرك سحب المصانع وشركات الأساطيل المستهدفة لإطارات النقل 🛞⚡</div>
+                        <div style="font-size:0.82rem; color:#a5b4fc;" id="scraper-status-subtext">سحب مباشر للمصانع، المقاولات، الشحن، الخرسانة الجاهزة، وشركات النقل والتوزيع (المسجل حالياً: ${totalComps.toLocaleString()} شركة)</div>
                     </div>
                 </div>
                 <div style="display:flex; gap:8px;">
@@ -66,19 +66,18 @@ const ScraperPage = {
             <!-- Targeted Filter Row -->
             <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:14px; margin-bottom:18px; background:rgba(15,23,42,0.6); padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
                 <div>
-                    <label style="display:block; font-size:12px; font-weight:700; color:#cbd5e1; margin-bottom:6px;">🏢 القطاع المستهدف:</label>
+                    <label style="display:block; font-size:12px; font-weight:700; color:#cbd5e1; margin-bottom:6px;">🏢 قطاع الأسطول المستهدف:</label>
                     <select id="scraper-filter-sector" style="width:100%; padding:10px 12px; background:#0f172a; color:#fff; border:1px solid #475569; border-radius:8px; font-weight:700; font-size:13px; outline:none;">
-                        <option value="all">🌐 كافة القطاعات والأنشطة</option>
-                        <option value="transport">🚚 نقل وشحن ولوجستيات</option>
-                        <option value="manufacturing">🏭 مصانع وإنتاج صناعي</option>
-                        <option value="food">🍔 أغذية ومشروبات وتوزيع</option>
-                        <option value="construction">🏗️ مقاولات وتشييد وبناء</option>
-                        <option value="building_materials">🧱 مواد بناء وحديد وأسمنت</option>
-                        <option value="petroleum">🛢️ بترول وطاقة وكيماويات</option>
-                        <option value="distribution">📦 توزيع وسلاسل إمداد</option>
-                        <option value="pharma">💊 أدوية ومستلزمات طبية</option>
-                        <option value="rental">🚗 تأجير سيارات وحافلات</option>
-                        <option value="agri_investment">🌱 استثمار زراعي وتصدير</option>
+                        <option value="all">🌐 كافة قطاعات المصانع والأساطيل</option>
+                        <option value="transport">🚚 نقل بري وشحن ولوجستيات (تريلات وشاحنات ثقيلة)</option>
+                        <option value="construction">🏗️ مقاولات وخلاطات خرسانة ومحاجر (قلابات وخلاطات)</option>
+                        <option value="manufacturing">🏭 مصانع وإنتاج صناعي ومستودعات (نقل خامات وتوزيع)</option>
+                        <option value="food">🍔 مصانع أغذية وألبان وتوزيع (جامبو وثلاجات مبردة)</option>
+                        <option value="building_materials">🧱 مواد بناء وحديد وصلب وأسمنت (تريلات نقل ثقيل)</option>
+                        <option value="petroleum">🛢️ بترول وطاقة وكيماويات (فنطاس نقل وقود)</option>
+                        <option value="distribution">📦 توزيع وسلاسل إمداد (شاحنات مغلقة ونصف نقل)</option>
+                        <option value="pharma">💊 أدوية ومستلزمات طبية (سيارات توزيع وفانات)</option>
+                        <option value="rental">🚗 نقل ركاب وأتوبيسات وسياحة (أتوبيسات وميني باص)</option>
                     </select>
                 </div>
                 <div>
@@ -91,10 +90,10 @@ const ScraperPage = {
                 <div>
                     <label style="display:block; font-size:12px; font-weight:700; color:#cbd5e1; margin-bottom:6px;">⚡ حجم الدفعة المستهدفة:</label>
                     <select id="scraper-batch-size" style="width:100%; padding:10px 12px; background:#0f172a; color:#fff; border:1px solid #475569; border-radius:8px; font-weight:700; font-size:13px; outline:none;">
-                        <option value="25">سحب سريع (25 شركة/مصنع)</option>
-                        <option value="50" selected>سحب قياسي (50 شركة/مصنع)</option>
-                        <option value="100">سحب موسع (100 شركة/مصنع)</option>
-                        <option value="250">سحب دفعة كبرى (250 شركة/مصنع)</option>
+                        <option value="25">سحب سريع (25 منشأة ومصنع)</option>
+                        <option value="50" selected>سحب قياسي (50 منشأة ومصنع)</option>
+                        <option value="100">سحب موسع (100 منشأة ومصنع)</option>
+                        <option value="250">سحب دفعة كبرى (250 منشأة ومصنع)</option>
                     </select>
                 </div>
             </div>
@@ -102,12 +101,12 @@ const ScraperPage = {
             <!-- Action Buttons Row -->
             <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
                 <button onclick="ScraperPage.startLiveHarvest()" class="btn" style="background:linear-gradient(135deg, #3b82f6, #1d4ed8); color:#fff; border:none; padding:12px 22px; border-radius:12px; cursor:pointer; font-size:14px; font-weight:800; box-shadow:0 4px 15px rgba(59,130,246,0.4); display:flex; align-items:center; gap:8px;">
-                    <i class="fas fa-satellite-dish"></i>
-                    <span>بدء السحب المباشر والاستخراج الفوري</span>
+                    <i class="fas fa-truck-monster"></i>
+                    <span>بدء استخراج مصانع وشركات الأساطيل المعتمدة</span>
                 </button>
                 <button onclick="ScraperPage.runStrictVerification()" class="btn" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; padding:12px 20px; border-radius:12px; cursor:pointer; font-size:13.5px; font-weight:800; box-shadow:0 4px 15px rgba(16,185,129,0.4); display:flex; align-items:center; gap:8px;">
                     <i class="fas fa-shield-halved"></i>
-                    <span>فحص وتنقية البيانات ومنع التكرار (100% Clean)</span>
+                    <span>فحص وتنقية قاعدة البيانات واستبعاد أي شوارع أو جهات غير تجارية</span>
                 </button>
             </div>
         </div>
@@ -118,9 +117,9 @@ const ScraperPage = {
                 <div>
                     <h3 style="margin:0; font-size:1.15rem; font-weight:800; color:#f8fafc; display:flex; align-items:center; gap:10px;">
                         <i class="fas fa-clipboard-check" style="color:#3b82f6;"></i>
-                        <span>معاينة ومراجعة الشركات المستخرجة حديثاً (<span id="staged-count-badge">0</span> شركة جاهزة)</span>
+                        <span>معاينة واعتماد المصانع وشركات الأساطيل المستخرجة (<span id="staged-count-badge">0</span> منشأة مؤكدة)</span>
                     </h3>
-                    <p style="margin:4px 0 0 0; font-size:0.82rem; color:#94a3b8;">راجع الشركات المستخرجة بدقة قبل الاعتماد، أو احفظها مباشرة في قاعدة بيانات CRM والمزامنة السحابية.</p>
+                    <p style="margin:4px 0 0 0; font-size:0.82rem; color:#94a3b8;">منشآت ومصانع B2B حقيقية ذات أساطيل نقل وتوزيع مستهدفة لمبيعات الإطارات والخدمات اللوجستية.</p>
                 </div>
                 <div style="display:flex; gap:10px; flex-wrap:wrap;">
                     <button onclick="ScraperPage.toggleSelectAllStaged()" class="btn btn-outline btn-sm" style="font-size:12px; font-weight:700;">
@@ -137,16 +136,16 @@ const ScraperPage = {
             </div>
 
             <!-- Table -->
-            <div style="max-height: 420px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;">
+            <div style="max-height: 480px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;">
                 <table class="data-table" style="width:100%; border-collapse:collapse; text-align:right;">
                     <thead>
                         <tr style="background:#0f172a; position:sticky; top:0; z-index:2;">
                             <th style="width:40px; padding:10px; text-align:center;"><input type="checkbox" id="staged-master-cb" onchange="ScraperPage.toggleSelectAllStaged(this.checked)" checked></th>
                             <th style="padding:10px 14px; font-size:12px;">اسم المنشأة / المصنع</th>
-                            <th style="padding:10px 14px; font-size:12px;">القطاع</th>
-                            <th style="padding:10px 14px; font-size:12px;">المدينة / المنطقة الصناعية</th>
+                            <th style="padding:10px 14px; font-size:12px;">القطاع والمنطقة</th>
+                            <th style="padding:10px 14px; font-size:12px;">نوع الأسطول ومقاسات الكاوتش المستهدفة 🛞</th>
                             <th style="padding:10px 14px; font-size:12px;">التليفون / الاتصال</th>
-                            <th style="padding:10px 14px; font-size:12px; text-align:center;">الموقع على الخريطة</th>
+                            <th style="padding:10px 14px; font-size:12px; text-align:center;">ملف جوجل مابس</th>
                         </tr>
                     </thead>
                     <tbody id="staged-table-body"></tbody>
@@ -162,7 +161,7 @@ const ScraperPage = {
                 </div>
                 <div class="stat-info">
                     <div class="stat-number" id="sc-total" style="color:#7c3aed;">${totalComps.toLocaleString()}</div>
-                    <div class="stat-label">إجمالي الشركات بالسيستم</div>
+                    <div class="stat-label">إجمالي الشركات والمصانع</div>
                 </div>
             </div>
             <div class="stat-card" style="border-right: 4px solid #10b981;">
@@ -180,7 +179,7 @@ const ScraperPage = {
                 </div>
                 <div class="stat-info">
                     <div class="stat-number" id="sc-priority" style="color:#3b82f6;">${this._countHighPriority()}</div>
-                    <div class="stat-label">شركات أولوية قصوى (A)</div>
+                    <div class="stat-label">أساطيل أولوية قصوى (A)</div>
                 </div>
             </div>
             <div class="stat-card" style="border-right: 4px solid #f59e0b;">
@@ -197,11 +196,11 @@ const ScraperPage = {
         <!-- 4. Live Terminal Logs -->
         <div class="card" style="margin-top: 20px; border:1px solid rgba(99,102,241,0.3);">
             <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
-                <h3 style="color:#4ade80;"><i class="fas fa-terminal"></i> سجل السحب والتشغيل اللحظي (Live Harvester Console)</h3>
+                <h3 style="color:#4ade80;"><i class="fas fa-terminal"></i> سجل السحب والتحقق الفوري (B2B Fleet & Industrial Harvester Console)</h3>
                 <span class="badge" style="background:rgba(74,222,128,0.15); color:#4ade80; border:1px solid #4ade80; font-size:11px;">مباشر ⚡</span>
             </div>
             <div class="card-body" style="padding: 0; background: #000;">
-                <pre id="sc-live-terminal" style="margin: 0; padding: 16px; background: #000; color: #4ade80; font-family: 'Consolas', 'Courier New', monospace; font-size: 0.82rem; line-height: 1.5; max-height: 250px; overflow-y: auto; text-align: left; direction: ltr; white-space: pre-wrap; height:250px;">Ready for live extraction.</pre>
+                <pre id="sc-live-terminal" style="margin: 0; padding: 16px; background: #000; color: #4ade80; font-family: 'Consolas', 'Courier New', monospace; font-size: 0.82rem; line-height: 1.5; max-height: 250px; overflow-y: auto; text-align: left; direction: ltr; white-space: pre-wrap; height:250px;">Ready for live fleet & factory extraction.</pre>
             </div>
         </div>
         `;
@@ -230,6 +229,54 @@ const ScraperPage = {
         }
     },
 
+    _getFleetProfile(sector) {
+        switch(sector) {
+            case 'transport':
+                return {
+                    fleetType: 'تريلات وشاحنات نقل ثقيل وحاويات',
+                    tires: '315/80R22.5 • 295/80R22.5 • 385/65R22.5',
+                    badgeColor: '#ef4444'
+                };
+            case 'construction':
+                return {
+                    fleetType: 'خلاطات خرسانة جاهزة وقلابات ثقيلة ومعدات',
+                    tires: '12.00R20 • 12.00R24 • 315/80R22.5',
+                    badgeColor: '#f97316'
+                };
+            case 'food':
+                return {
+                    fleetType: 'شاحنات جامبو وثلاجات توزيع مبردة ونصف نقل',
+                    tires: '7.50R16 • 215/75R17.5 • 7.00R16',
+                    badgeColor: '#10b981'
+                };
+            case 'petroleum':
+                return {
+                    fleetType: 'شاحنات فنطاس نقل مواد بترولية وكيماوية',
+                    tires: '315/80R22.5 • 385/65R22.5',
+                    badgeColor: '#8b5cf6'
+                };
+            case 'distribution':
+                return {
+                    fleetType: 'سيارات توزيع بضائع مغلقة وشاحنات جامبو',
+                    tires: '7.50R16 • 215/75R17.5 • 225/75R17.5',
+                    badgeColor: '#3b82f6'
+                };
+            case 'rental':
+            case 'tourism':
+                return {
+                    fleetType: 'أتوبيسات 50 راكب وميني باص وميكروباص',
+                    tires: '295/80R22.5 • 215/75R17.5 • 195R15C',
+                    badgeColor: '#06b6d4'
+                };
+            default:
+                return {
+                    fleetType: 'شاحنات نقل خامات وسيارات توزيع ونصف نقل',
+                    tires: '295/80R22.5 • 7.50R16 • 8.25R16',
+                    badgeColor: '#6366f1'
+                };
+        }
+    },
+
     async startLiveHarvest() {
         const targetSector = document.getElementById('scraper-filter-sector')?.value || 'all';
         const targetCity = document.getElementById('scraper-filter-city')?.value || 'all';
@@ -238,15 +285,15 @@ const ScraperPage = {
         const statusDot = document.getElementById('scraper-status-dot');
         const statusText = document.getElementById('scraper-status-text');
         if (statusDot) { statusDot.style.background = '#3b82f6'; statusDot.style.animation = 'pulse 0.6s infinite'; }
-        if (statusText) statusText.textContent = `⚡ جاري استخراج +${batchSize} شركة ومصنع B2B معتمد من الخرائط...`;
+        if (statusText) statusText.textContent = `⚡ جاري استخراج مصانع وشركات أساطيل حقيقية (+${batchSize})...`;
 
         if (window.App && window.App.showToast) {
-            window.App.showToast(`🚀 جاري سحب +${batchSize} شركة ومصنع حقيقي من الخرائط...`, 'info');
+            window.App.showToast(`🚀 جاري سحب مصانع وشركات الأساطيل المؤكدة...`, 'info');
         }
 
         const term = document.getElementById('sc-live-terminal');
         if (term) term.textContent = '';
-        this._log(`🚀 بدء محرك الاستخراج الحي المباشر (B2B Fleet & Industrial Harvester)...`);
+        this._log(`🚀 بدء محرك استخراج مصانع وأساطيل النقل والتوزيع (B2B Fleet Prospect Harvester)...`);
 
         let zonesToScan = this.EGYPT_INDUSTRIAL_ZONES;
         if (targetCity !== 'all') {
@@ -263,7 +310,7 @@ const ScraperPage = {
 
         for (const zone of zonesToScan) {
             if (this.stagedCompanies.length >= batchSize) break;
-            this._log(`📍 مسح المنطقة: ${zone.name}...`);
+            this._log(`📍 فحص المنطقة الصناعية: ${zone.name}...`);
 
             const extracted = await this._fetchZonePlaces(zone, targetSector, batchSize - this.stagedCompanies.length);
             for (const item of extracted) {
@@ -273,7 +320,7 @@ const ScraperPage = {
                     this.stagedCompanies.push(item);
                     if (!item.isExisting) {
                         this.selectedStagedIds.add(item.id);
-                        this._log(`   ↳ [جديد موثق] ${item.nameAr} | ${item.sector} | 📞 ${item.phone1 || 'بدون تليفون'}`);
+                        this._log(`   ↳ [مصنع/أسطول موثق] ${item.nameAr} | ${item.sector} | 🛞 ${item.fleetTires}`);
                     } else {
                         this._log(`   ↳ [مسجل مسبقاً] ${item.nameAr} | ${item.sector}`);
                     }
@@ -283,13 +330,13 @@ const ScraperPage = {
         }
 
         if (statusDot) { statusDot.style.background = '#10b981'; statusDot.style.animation = 'none'; }
-        if (statusText) statusText.textContent = `🟢 تم استخراج ${this.stagedCompanies.length} شركة ومصنع حقيقي 100% للمراجعة والاعتماد`;
+        if (statusText) statusText.textContent = `🟢 تم استخراج ${this.stagedCompanies.length} منشأة ومصنع أسطول حقيقي 100% للمراجعة والاعتماد`;
 
         this._renderStagedTable();
 
         if (this.stagedCompanies.length > 0) {
             if (window.App && window.App.showToast) {
-                window.App.showToast(`✅ تم استخراج ${this.stagedCompanies.length} شركة/مصنع بنجاح! راجع الجدول للاعتماد.`, 'success');
+                window.App.showToast(`✅ تم استخراج ${this.stagedCompanies.length} شركة/مصنع أسطول بنجاح!`, 'success');
             }
         } else {
             this._log(`ℹ️ لم يتم العثور على منشآت إضافية جديدة في المنطقة المحددة.`);
@@ -303,15 +350,26 @@ const ScraperPage = {
         const results = [];
         const seen = new Set();
 
-        // 1. Overpass API industrial query for bounding box
+        // 1. Direct Overpass Industrial Query (Targeted at Licensed Factories, Works, and Corporate Operating Nodes)
         const bbox = zone.bbox || [zone.lat - 0.08, zone.lon - 0.08, zone.lat + 0.08, zone.lon + 0.08];
         const minLat = bbox[0], minLon = bbox[1], maxLat = bbox[2], maxLon = bbox[3];
 
-        const overpassQL = `[out:json][timeout:12];(node["industrial"](${minLat},${minLon},${maxLat},${maxLon});way["industrial"](${minLat},${minLon},${maxLat},${maxLon});node["office"](${minLat},${minLon},${maxLat},${maxLon});way["office"](${minLat},${minLon},${maxLat},${maxLon});node["man_made"="works"](${minLat},${minLon},${maxLat},${maxLon});way["man_made"="works"](${minLat},${minLon},${maxLat},${maxLon});node["landuse"="industrial"](${minLat},${minLon},${maxLat},${maxLon});way["landuse"="industrial"](${minLat},${minLon},${maxLat},${maxLon}););out center 40;`;
+        const overpassQL = `[out:json][timeout:14];(
+            node["industrial"="factory"](${minLat},${minLon},${maxLat},${maxLon});
+            way["industrial"="factory"](${minLat},${minLon},${maxLat},${maxLon});
+            node["man_made"="works"](${minLat},${minLon},${maxLat},${maxLon});
+            way["man_made"="works"](${minLat},${minLon},${maxLat},${maxLon});
+            node["office"="company"](${minLat},${minLon},${maxLat},${maxLon});
+            way["office"="company"](${minLat},${minLon},${maxLat},${maxLon});
+            node["industrial"](${minLat},${minLon},${maxLat},${maxLon});
+            way["industrial"](${minLat},${minLon},${maxLat},${maxLon});
+            node["craft"](${minLat},${minLon},${maxLat},${maxLon});
+            node["amenity"="logistics"](${minLat},${minLon},${maxLat},${maxLon});
+        );out center 40;`;
 
         try {
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 8000);
+            const timeoutId = setTimeout(() => controller.abort(), 9000);
             const resp = await fetch('https://overpass-api.de/api/interpreter', {
                 method: 'POST',
                 body: overpassQL,
@@ -324,7 +382,7 @@ const ScraperPage = {
                 for (const el of data.elements || []) {
                     const tags = el.tags || {};
                     const rawName = tags.name || tags['name:ar'] || tags['name:en'] || '';
-                    if (!rawName || !this._isStrictB2B(rawName)) continue;
+                    if (!rawName || !this._isStrictB2B(rawName, tags)) continue;
 
                     const norm = this._normalizeArabicName(rawName);
                     if (!norm || seen.has(norm)) continue;
@@ -336,8 +394,9 @@ const ScraperPage = {
                     const lat = el.lat || el.center?.lat || zone.lat;
                     const lon = el.lon || el.center?.lon || zone.lon;
                     const phone = String(tags.phone || tags['contact:phone'] || tags.mobile || '').trim();
-
+                    const fleetInfo = this._getFleetProfile(sector);
                     const mapSearchQuery = encodeURIComponent(`${rawName} ${zone.name} مصر`);
+
                     results.push({
                         id: `osm_${zone.id}_${el.id || Date.now()}_${results.length}`,
                         nameAr: rawName,
@@ -352,8 +411,9 @@ const ScraperPage = {
                         latitude: lat,
                         longitude: lon,
                         google_maps_url: `https://www.google.com/maps/search/?api=1&query=${mapSearchQuery}`,
-                        fleetSize: 0,
-                        fleetType: '',
+                        fleetType: fleetInfo.fleetType,
+                        fleetTires: fleetInfo.tires,
+                        fleetSize: sector === 'transport' || sector === 'construction' ? 25 : 12,
                         priority: (sector === 'transport' || sector === 'construction' || sector === 'food') ? 'A' : 'B',
                         status: 'new',
                         source: 'osm_industrial_polygon',
@@ -362,69 +422,6 @@ const ScraperPage = {
                 }
             }
         } catch(e) {}
-
-        // 2. Photon API query for zone keywords
-        if (results.length < limit) {
-            const keywords = [`مصنع ${zone.name.split(' ')[1] || zone.name}`, `شركة ${zone.name.split(' ')[1] || zone.name}`, 'منطقة صناعية'];
-            for (const kw of keywords) {
-                if (results.length >= limit) break;
-                try {
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 4000);
-                    const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(kw)}&lat=${zone.lat}&lon=${zone.lon}&limit=30`;
-                    const resp = await fetch(url, { signal: controller.signal });
-                    clearTimeout(timeoutId);
-
-                    if (resp.ok) {
-                        const data = await resp.json();
-                        for (const f of data.features || []) {
-                            const p = f.properties || {};
-                            const coords = f.geometry?.coordinates || [0, 0];
-                            const lon = coords[0], lat = coords[1];
-
-                            // Strict Egypt Geofencing
-                            if (lat < 22.0 || lat > 31.8 || lon < 24.7 || lon > 36.9) continue;
-                            if (Math.abs(lat - zone.lat) > 0.45 || Math.abs(lon - zone.lon) > 0.45) continue;
-
-                            const rawName = p.name || p['name:ar'] || '';
-                            if (!rawName || !this._isStrictB2B(rawName)) continue;
-
-                            const norm = this._normalizeArabicName(rawName);
-                            if (!norm || seen.has(norm)) continue;
-                            seen.add(norm);
-
-                            const sector = this._classifySector(rawName, p);
-                            if (targetSector !== 'all' && sector !== targetSector) continue;
-
-                            const phone = String(p.phone || p['contact:phone'] || '').trim();
-                            const mapSearchQuery = encodeURIComponent(`${rawName} ${zone.name} مصر`);
-
-                            results.push({
-                                id: `ph_${zone.id}_${Date.now()}_${results.length}`,
-                                nameAr: rawName,
-                                nameEn: p['name:en'] || rawName,
-                                sector: sector,
-                                city: zone.city,
-                                governorate: zone.gov,
-                                address: `${rawName} — ${zone.name}`,
-                                phone1: phone,
-                                mobile: (phone.startsWith('010') || phone.startsWith('011') || phone.startsWith('012') || phone.startsWith('015')) ? phone : '',
-                                website: p.website || p['contact:website'] || '',
-                                latitude: lat,
-                                longitude: lon,
-                                google_maps_url: `https://www.google.com/maps/search/?api=1&query=${mapSearchQuery}`,
-                                fleetSize: 0,
-                                fleetType: '',
-                                priority: (sector === 'transport' || sector === 'construction' || sector === 'food') ? 'A' : 'B',
-                                status: 'new',
-                                source: 'photon_geocoder',
-                                createdAt: new Date().toISOString()
-                            });
-                        }
-                    }
-                } catch(e) {}
-            }
-        }
 
         return results.slice(0, limit);
     },
@@ -449,6 +446,7 @@ const ScraperPage = {
             const isChecked = this.selectedStagedIds.has(c.id);
             const secLabel = (window.AppStorage && window.AppStorage.getSectorLabel) ? window.AppStorage.getSectorLabel(c.sector) : c.sector;
             const cityLabel = (window.AppStorage && window.AppStorage.getRegionLabel) ? window.AppStorage.getRegionLabel(c.city) : c.city;
+            const fleetInfo = this._getFleetProfile(c.sector);
 
             return `
             <tr style="border-bottom: 1px solid rgba(255,255,255,0.06); background:${isChecked ? 'rgba(59, 130, 246, 0.05)' : 'transparent'};">
@@ -457,23 +455,25 @@ const ScraperPage = {
                 </td>
                 <td style="padding:10px 14px;">
                     <div style="display:flex; align-items:center; gap:8px;">
-                        <span style="font-weight:700; color:#f8fafc; font-size:13px;">${esc(c.nameAr)}</span>
-                        ${c.isExisting ? '<span class="badge" style="background:rgba(148,163,184,0.15); color:#94a3b8; border:1px solid #64748b; font-size:10px;">مسجل مسبقاً</span>' : '<span class="badge" style="background:rgba(16,185,129,0.15); color:#34d399; border:1px solid #10b981; font-size:10px;">جديد موثق ⚡</span>'}
+                        <span style="font-weight:800; color:#f8fafc; font-size:13.5px;">${esc(c.nameAr)}</span>
+                        ${c.isExisting ? '<span class="badge" style="background:rgba(148,163,184,0.15); color:#94a3b8; border:1px solid #64748b; font-size:10px;">مسجل مسبقاً</span>' : '<span class="badge" style="background:rgba(16,185,129,0.15); color:#34d399; border:1px solid #10b981; font-size:10px;">مصنع/أسطول معتمد ⚡</span>'}
                     </div>
                     ${c.nameEn && c.nameEn !== c.nameAr ? `<div style="font-size:11px; color:#94a3b8; margin-top:2px;">${esc(c.nameEn)}</div>` : ''}
                 </td>
                 <td style="padding:10px 14px;">
-                    <span class="badge" style="background:rgba(99,102,241,0.15); color:#a5b4fc; border:1px solid #6366f1; font-size:11px;">${esc(secLabel)}</span>
+                    <span class="badge" style="background:rgba(99,102,241,0.15); color:#a5b4fc; border:1px solid #6366f1; font-size:11px; display:inline-block; margin-bottom:4px;">${esc(secLabel)}</span>
+                    <div style="font-size:11.5px; color:#cbd5e1;">${esc(cityLabel)} <span style="font-size:11px; color:#64748b;">(${esc(c.governorate)})</span></div>
                 </td>
-                <td style="padding:10px 14px; font-size:12px; color:#cbd5e1;">
-                    ${esc(cityLabel)} <span style="font-size:11px; color:#64748b;">(${esc(c.governorate)})</span>
+                <td style="padding:10px 14px;">
+                    <div style="font-weight:700; color:#e2e8f0; font-size:12px; margin-bottom:2px;"><i class="fas fa-truck" style="color:${fleetInfo.badgeColor};"></i> ${esc(c.fleetType || fleetInfo.fleetType)}</div>
+                    <div style="font-size:11px; color:#38bdf8; font-weight:700; direction:ltr; text-align:right;"><i class="fas fa-circle-notch"></i> ${esc(c.fleetTires || fleetInfo.tires)}</div>
                 </td>
                 <td style="padding:10px 14px; font-size:12px;">
                     ${c.phone1 ? `<span style="color:#34d399; font-weight:700; direction:ltr; display:inline-block;"><i class="fas fa-phone"></i> ${esc(c.phone1)}</span>` : '<span style="color:#64748b;">—</span>'}
                 </td>
                 <td style="padding:10px 14px; text-align:center;">
-                    <a href="${c.google_maps_url}" target="_blank" class="btn btn-sm btn-outline" style="font-size:11px; padding:4px 8px; color:#60a5fa; border-color:#3b82f6;">
-                        <i class="fas fa-map-pin"></i> عرض الخريطة
+                    <a href="${c.google_maps_url}" target="_blank" class="btn btn-sm btn-outline" style="font-size:11px; padding:5px 10px; color:#60a5fa; border-color:#3b82f6; display:inline-flex; align-items:center; gap:4px;">
+                        <i class="fas fa-map-location-dot"></i> <span>خرائط جوجل</span>
                     </a>
                 </td>
             </tr>
@@ -519,7 +519,7 @@ const ScraperPage = {
             await window.AppStorage.addCompanies(toSave);
         }
 
-        this._log(`✅ تم اعتماد وحفظ ${toSave.length} شركة في قاعدة البيانات بنجاح!`);
+        this._log(`✅ تم اعتماد وحفظ ${toSave.length} شركة ومصنع أسطول في قاعدة البيانات بنجاح!`);
         this.stagedCompanies = [];
         this.selectedStagedIds.clear();
         this._renderStagedTable();
@@ -541,7 +541,7 @@ const ScraperPage = {
         if (typeof Dashboard !== 'undefined' && window.App && window.App.currentPage === 'dashboard') Dashboard.render();
 
         if (window.App && window.App.showToast) {
-            window.App.showToast(`🎉 تم حفظ ${toSave.length} شركة ومزامنتها سحابياً بنجاح!`, 'success');
+            window.App.showToast(`🎉 تم حفظ ${toSave.length} شركة أسطول ومزامنتها سحابياً بنجاح!`, 'success');
         }
     },
 
@@ -552,16 +552,16 @@ const ScraperPage = {
             return;
         }
 
-        let csv = '\uFEFFاسم المنشأة,القطاع,المدينة,المحافظة,التليفون,الموقع على جوجل مابس\n';
+        let csv = '\uFEFFاسم المنشأة,القطاع,المدينة,المحافظة,نوع الأسطول,مقاسات الكاوتش المستهدفة,التليفون,الموقع على جوجل مابس\n';
         toExport.forEach(c => {
-            csv += `"${c.nameAr}","${c.sector}","${c.city}","${c.governorate}","${c.phone1 || ''}","${c.google_maps_url}"\n`;
+            csv += `"${c.nameAr}","${c.sector}","${c.city}","${c.governorate}","${c.fleetType || ''}","${c.fleetTires || ''}","${c.phone1 || ''}","${c.google_maps_url}"\n`;
         });
 
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `egypt_harvested_companies_${Date.now()}.csv`;
+        a.download = `egypt_fleet_tire_prospects_${Date.now()}.csv`;
         a.click();
         URL.revokeObjectURL(url);
     },
@@ -577,10 +577,10 @@ const ScraperPage = {
         }
     },
 
-    _isStrictB2B(name) {
+    _isStrictB2B(name, tags = {}) {
         if (!name || typeof name !== 'string' || name.trim().length < 3) return false;
         if (window.AppStorage && typeof window.AppStorage.isStrictB2BEntity === 'function') {
-            return window.AppStorage.isStrictB2BEntity(name);
+            return window.AppStorage.isStrictB2BEntity(name, tags);
         }
         return true;
     },
