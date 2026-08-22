@@ -350,78 +350,99 @@ const ScraperPage = {
         const results = [];
         const seen = new Set();
 
-        // 1. Direct Overpass Industrial Query (Targeted at Licensed Factories, Works, and Corporate Operating Nodes)
-        const bbox = zone.bbox || [zone.lat - 0.08, zone.lon - 0.08, zone.lat + 0.08, zone.lon + 0.08];
-        const minLat = bbox[0], minLon = bbox[1], maxLat = bbox[2], maxLon = bbox[3];
+        // 1. Instant Verified Enterprise Pool for this Zone & Sector
+        const pool = Array.isArray(window.__EGYPT_ENTERPRISE_POOL) ? window.__EGYPT_ENTERPRISE_POOL : [];
+        const matchingFromPool = pool.filter(c => {
+            const matchesZone = (c.city === zone.city || c.city === zone.id || c.governorate === zone.gov || (c.address && c.address.includes(zone.name.split(' ')[1])));
+            const matchesSector = (targetSector === 'all' || c.sector === targetSector);
+            return matchesZone && matchesSector;
+        });
 
-        const overpassQL = `[out:json][timeout:14];(
-            node["industrial"="factory"](${minLat},${minLon},${maxLat},${maxLon});
-            way["industrial"="factory"](${minLat},${minLon},${maxLat},${maxLon});
-            node["man_made"="works"](${minLat},${minLon},${maxLat},${maxLon});
-            way["man_made"="works"](${minLat},${minLon},${maxLat},${maxLon});
-            node["office"="company"](${minLat},${minLon},${maxLat},${maxLon});
-            way["office"="company"](${minLat},${minLon},${maxLat},${maxLon});
-            node["industrial"](${minLat},${minLon},${maxLat},${maxLon});
-            way["industrial"](${minLat},${minLon},${maxLat},${maxLon});
-            node["craft"](${minLat},${minLon},${maxLat},${maxLon});
-            node["amenity"="logistics"](${minLat},${minLon},${maxLat},${maxLon});
-        );out center 40;`;
-
-        try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 9000);
-            const resp = await fetch('https://overpass-api.de/api/interpreter', {
-                method: 'POST',
-                body: overpassQL,
-                signal: controller.signal
-            });
-            clearTimeout(timeoutId);
-
-            if (resp.ok) {
-                const data = await resp.json();
-                for (const el of data.elements || []) {
-                    const tags = el.tags || {};
-                    const rawName = tags.name || tags['name:ar'] || tags['name:en'] || '';
-                    if (!rawName || !this._isStrictB2B(rawName, tags)) continue;
-
-                    const norm = this._normalizeArabicName(rawName);
-                    if (!norm || seen.has(norm)) continue;
-                    seen.add(norm);
-
-                    const sector = this._classifySector(rawName, tags);
-                    if (targetSector !== 'all' && sector !== targetSector) continue;
-
-                    const lat = el.lat || el.center?.lat || zone.lat;
-                    const lon = el.lon || el.center?.lon || zone.lon;
-                    const phone = String(tags.phone || tags['contact:phone'] || tags.mobile || '').trim();
-                    const fleetInfo = this._getFleetProfile(sector);
-                    const mapSearchQuery = encodeURIComponent(`${rawName} ${zone.name} مصر`);
-
-                    results.push({
-                        id: `osm_${zone.id}_${el.id || Date.now()}_${results.length}`,
-                        nameAr: rawName,
-                        nameEn: tags['name:en'] || rawName,
-                        sector: sector,
-                        city: zone.city,
-                        governorate: zone.gov,
-                        address: `${rawName} — ${zone.name}`,
-                        phone1: phone,
-                        mobile: (phone.startsWith('010') || phone.startsWith('011') || phone.startsWith('012') || phone.startsWith('015')) ? phone : '',
-                        website: tags.website || tags['contact:website'] || '',
-                        latitude: lat,
-                        longitude: lon,
-                        google_maps_url: `https://www.google.com/maps/search/?api=1&query=${mapSearchQuery}`,
-                        fleetType: fleetInfo.fleetType,
-                        fleetTires: fleetInfo.tires,
-                        fleetSize: sector === 'transport' || sector === 'construction' ? 25 : 12,
-                        priority: (sector === 'transport' || sector === 'construction' || sector === 'food') ? 'A' : 'B',
-                        status: 'new',
-                        source: 'osm_industrial_polygon',
-                        createdAt: new Date().toISOString()
-                    });
-                }
+        for (const item of matchingFromPool) {
+            if (results.length >= limit) break;
+            const norm = this._normalizeArabicName(item.nameAr || item.name);
+            if (norm && !seen.has(norm)) {
+                seen.add(norm);
+                const fleetInfo = this._getFleetProfile(item.sector);
+                results.push({
+                    ...item,
+                    fleetType: item.fleetType || fleetInfo.fleetType,
+                    fleetTires: item.fleetTires || item.targetTires || fleetInfo.tires
+                });
             }
-        } catch(e) {}
+        }
+
+        // 2. Hybrid Live Overpass Query for any additional licensed industrial nodes
+        if (results.length < limit) {
+            const bbox = zone.bbox || [zone.lat - 0.08, zone.lon - 0.08, zone.lat + 0.08, zone.lon + 0.08];
+            const minLat = bbox[0], minLon = bbox[1], maxLat = bbox[2], maxLon = bbox[3];
+
+            const overpassQL = `[out:json][timeout:6];(
+                node["industrial"="factory"](${minLat},${minLon},${maxLat},${maxLon});
+                way["industrial"="factory"](${minLat},${minLon},${maxLat},${maxLon});
+                node["man_made"="works"](${minLat},${minLon},${maxLat},${maxLon});
+                way["man_made"="works"](${minLat},${minLon},${maxLat},${maxLon});
+                node["office"="company"](${minLat},${minLon},${maxLat},${maxLon});
+                way["office"="company"](${minLat},${minLon},${maxLat},${maxLon});
+            );out center 20;`;
+
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 4000);
+                const resp = await fetch('https://overpass-api.de/api/interpreter', {
+                    method: 'POST',
+                    body: overpassQL,
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+
+                if (resp.ok) {
+                    const data = await resp.json();
+                    for (const el of data.elements || []) {
+                        if (results.length >= limit) break;
+                        const tags = el.tags || {};
+                        const rawName = tags.name || tags['name:ar'] || tags['name:en'] || '';
+                        if (!rawName || !this._isStrictB2B(rawName, tags)) continue;
+
+                        const norm = this._normalizeArabicName(rawName);
+                        if (!norm || seen.has(norm)) continue;
+                        seen.add(norm);
+
+                        const sector = this._classifySector(rawName, tags);
+                        if (targetSector !== 'all' && sector !== targetSector) continue;
+
+                        const lat = el.lat || el.center?.lat || zone.lat;
+                        const lon = el.lon || el.center?.lon || zone.lon;
+                        const phone = String(tags.phone || tags['contact:phone'] || tags.mobile || '').trim();
+                        const fleetInfo = this._getFleetProfile(sector);
+                        const mapSearchQuery = encodeURIComponent(`${rawName} ${zone.name} مصر`);
+
+                        results.push({
+                            id: `osm_${zone.id}_${el.id || Date.now()}_${results.length}`,
+                            nameAr: rawName,
+                            nameEn: tags['name:en'] || rawName,
+                            sector: sector,
+                            city: zone.city,
+                            governorate: zone.gov,
+                            address: `${rawName} — ${zone.name}`,
+                            phone1: phone,
+                            mobile: (phone.startsWith('010') || phone.startsWith('011') || phone.startsWith('012') || phone.startsWith('015')) ? phone : '',
+                            website: tags.website || tags['contact:website'] || '',
+                            latitude: lat,
+                            longitude: lon,
+                            google_maps_url: `https://www.google.com/maps/search/?api=1&query=${mapSearchQuery}`,
+                            fleetType: fleetInfo.fleetType,
+                            fleetTires: fleetInfo.tires,
+                            fleetSize: sector === 'transport' || sector === 'construction' ? 25 : 12,
+                            priority: (sector === 'transport' || sector === 'construction' || sector === 'food') ? 'A' : 'B',
+                            status: 'new',
+                            source: 'osm_industrial_polygon',
+                            createdAt: new Date().toISOString()
+                        });
+                    }
+                }
+            } catch(e) {}
+        }
 
         return results.slice(0, limit);
     },
