@@ -812,7 +812,7 @@ const AppStorage = {
         company.phone1 = p1 || mob;
         company.mobile = mob || p1;
         company.website = String(company.website || company.web || '').trim();
-        company.google_maps_url = String(company.google_maps_url || company.map || ((company.latitude || company.lat) ? ('https://www.google.com/maps?q=' + (company.latitude || company.lat) + ',' + (company.longitude || company.lon)) : '')).trim();
+        company.google_maps_url = String(company.google_maps_url || company.map || ((company.latitude || company.lat) ? ('https://www.google.com/maps?q=' + (company.latitude || company.lat) + ',' + (company.longitude || company.lon)) : ('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent((company.nameAr || '') + ' ' + (company.address || '') + ' مصر')))).trim();
 
         const fs = Number(company.fleetSize || company.fleet || 0);
         company.fleetSize = (!isNaN(fs) && fs >= 0) ? fs : 0;
@@ -1103,11 +1103,11 @@ const AppStorage = {
                 const users = this.getUsers ? this.getUsers() : [];
                 const activities = this.getActivities ? this.getActivities() : [];
 
-                // Extract dynamic companies (newly scraped / user added)
+                // Extract dynamic companies (custom / newly scraped only)
                 const dynamicCompanies = companies.filter(c => {
                     if (!c || !c.id) return false;
                     const id = String(c.id);
-                    return id.startsWith('real_osm_') || id.startsWith('custom_') || id.startsWith('egy_pool_') || id.startsWith('comp_') || !id.startsWith('pool_ent_');
+                    return id.startsWith('real_osm_') || id.startsWith('custom_') || id.startsWith('user_') || id.startsWith('scraped_') || c.isCustom === true;
                 });
 
                 const quickHash = `${dynamicCompanies.length}_${calls.length}_${deals.length}_${users.length}`;
@@ -1158,7 +1158,7 @@ const AppStorage = {
                 const combined = [...basePool, ...localComps, ...cloudDynamic];
                 const cleanDeduplicated = this.cleanAndFixCompanyData(combined);
 
-                if (cleanDeduplicated.length >= localComps.length) {
+                if (cleanDeduplicated.length > 0) {
                     this.companiesMemory = cleanDeduplicated;
                     this._set(this.KEYS.COMPANIES, this.companiesMemory);
                     this.saveAllCompaniesToDB(this.companiesMemory);
