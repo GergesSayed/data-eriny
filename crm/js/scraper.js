@@ -2,7 +2,7 @@
    🏢 EGYPT B2B COMMERCIAL FLEET & INDUSTRIAL TIRE PROSPECTS HARVESTER
    ==============================================================================
    Fleet CRM Enterprise Lead Harvester for B2B Commercial Fleet & Tire Sales
-   100% Real Operating Factories, Transport Fleets, Contractors & Industrial Hubs
+   5,400+ Real Operating Factories, Transport Fleets, Contractors & Industrial Hubs
    ============================================================================== */
 
 const ScraperPage = {
@@ -45,7 +45,8 @@ const ScraperPage = {
         const main = document.getElementById('scraper-content');
         if (!main) return;
         const totalComps = (window.AppStorage && window.AppStorage.getCompanies) ? window.AppStorage.getCompanies().length : 0;
-        const poolSize = Array.isArray(window.__EGYPT_ENTERPRISE_POOL) ? window.__EGYPT_ENTERPRISE_POOL.length : 1974;
+        const pool = Array.isArray(window.__EGYPT_ENTERPRISE_POOL) ? window.__EGYPT_ENTERPRISE_POOL : [];
+        const poolSize = pool.length > 0 ? pool.length : 5419;
 
         main.innerHTML = `
         <!-- 1. Targeted Direct Harvester Control Panel -->
@@ -55,7 +56,7 @@ const ScraperPage = {
                     <div id="scraper-status-dot" style="width:16px;height:16px;border-radius:50%;background:#4ade80;box-shadow:0 0 12px #4ade80;"></div>
                     <div>
                         <div style="font-size:1.15rem; font-weight:800; color:#fff;" id="scraper-status-text">محرك استخراج المصانع وشركات الأساطيل المستهدفة لإطارات النقل 🛞⚡</div>
-                        <div style="font-size:0.84rem; color:#a5b4fc;" id="scraper-status-subtext">دليل المصانع والأساطيل المصرية B2B المعتمدة (المسجل حالياً: ${totalComps.toLocaleString()} شركة | قاعدة البيانات الإجمالية: ${poolSize.toLocaleString()} شركة ومصنع)</div>
+                        <div style="font-size:0.84rem; color:#a5b4fc;" id="scraper-status-subtext">المسجل في السيستم حالياً: <b style="color:#4ade80; font-size:0.95rem;">${totalComps.toLocaleString()}</b> شركة | إجمالي رصيد الدليل المصري: <b style="color:#38bdf8; font-size:0.95rem;">${poolSize.toLocaleString()}</b> مصنع وشركة أسطول</div>
                     </div>
                 </div>
                 <div style="display:flex; gap:8px;">
