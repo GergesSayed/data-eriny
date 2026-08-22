@@ -974,7 +974,9 @@ const AppStorage = {
                 
                 request.onsuccess = async (event) => {
                     const data = event.target.result || [];
-                    const cleaned = this.cleanAndFixCompanyData(data);
+                    const pool = (window.__EGYPT_ENTERPRISE_POOL && Array.isArray(window.__EGYPT_ENTERPRISE_POOL)) ? window.__EGYPT_ENTERPRISE_POOL : [];
+                    const combined = (pool.length > 0) ? [...pool, ...data] : data;
+                    const cleaned = this.cleanAndFixCompanyData(combined);
                     const idbMapped = (cleaned || []).map((c, idx) => this._normalizeCompanyData(c, idx));
                     this.companiesMemory = idbMapped;
                     localStorage.setItem('fleetcrm_company_count', idbMapped.length);
