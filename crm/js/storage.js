@@ -1402,8 +1402,12 @@ const AppStorage = {
     },
 
     getCompanies() {
-        if (!this.companiesMemory || !Array.isArray(this.companiesMemory)) {
-            this.companiesMemory = [];
+        if (!this.companiesMemory || !Array.isArray(this.companiesMemory) || this.companiesMemory.length === 0) {
+            if (window.__EGYPT_ENTERPRISE_POOL && Array.isArray(window.__EGYPT_ENTERPRISE_POOL) && window.__EGYPT_ENTERPRISE_POOL.length > 0) {
+                this.companiesMemory = window.__EGYPT_ENTERPRISE_POOL;
+            } else {
+                this.companiesMemory = [];
+            }
         }
         return this.companiesMemory;
     },
