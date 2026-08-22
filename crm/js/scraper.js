@@ -103,15 +103,19 @@ const ScraperPage = {
 
             <!-- Action Buttons Row -->
             <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
-                <button onclick="ScraperPage.startLiveHarvest()" class="btn" style="background:linear-gradient(135deg, #3b82f6, #1d4ed8); color:#fff; border:none; padding:12px 22px; border-radius:12px; cursor:pointer; font-size:14px; font-weight:800; box-shadow:0 4px 15px rgba(59,130,246,0.4); display:flex; align-items:center; gap:8px;">
-                    <i class="fas fa-truck-monster"></i>
-                    <span>استخراج دفعة جديدة من المصانع والأساطيل (غير مسجلة) ⚡</span>
+                <button onclick="ScraperPage.quickHarvestAndSave()" class="btn" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; padding:12px 24px; border-radius:12px; cursor:pointer; font-size:14px; font-weight:800; box-shadow:0 4px 15px rgba(16,185,129,0.4); display:flex; align-items:center; gap:8px;">
+                    <i class="fas fa-bolt-lightning"></i>
+                    <span>سحب وحفظ فوري في السيستم والمزامنة (بنقرة واحدة) ⚡</span>
                 </button>
-                <button onclick="ScraperPage.importAllRemainingDirectly()" class="btn" style="background:linear-gradient(135deg, #8b5cf6, #6d28d9); color:#fff; border:none; padding:12px 20px; border-radius:12px; cursor:pointer; font-size:13.5px; font-weight:800; box-shadow:0 4px 15px rgba(139,92,246,0.4); display:flex; align-items:center; gap:8px;">
-                    <i class="fas fa-bolt"></i>
-                    <span>استيراد كافة المصانع المتبقية بالكامل (${poolSize.toLocaleString()} شركة) بنقرة واحدة 🚀</span>
+                <button onclick="ScraperPage.startLiveHarvest()" class="btn" style="background:linear-gradient(135deg, #3b82f6, #1d4ed8); color:#fff; border:none; padding:12px 20px; border-radius:12px; cursor:pointer; font-size:13.5px; font-weight:800; box-shadow:0 4px 15px rgba(59,130,246,0.4); display:flex; align-items:center; gap:8px;">
+                    <i class="fas fa-eye"></i>
+                    <span>استخراج ومعاينة قبل الحفظ 🔍</span>
                 </button>
-                <button onclick="ScraperPage.runStrictVerification()" class="btn" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; padding:12px 18px; border-radius:12px; cursor:pointer; font-size:13px; font-weight:800; box-shadow:0 4px 15px rgba(16,185,129,0.4); display:flex; align-items:center; gap:8px;">
+                <button onclick="ScraperPage.importAllRemainingDirectly()" class="btn" style="background:linear-gradient(135deg, #8b5cf6, #6d28d9); color:#fff; border:none; padding:12px 20px; border-radius:12px; cursor:pointer; font-size:13px; font-weight:800; box-shadow:0 4px 15px rgba(139,92,246,0.4); display:flex; align-items:center; gap:8px;">
+                    <i class="fas fa-layer-group"></i>
+                    <span>استيراد كافة الشركات المتبقية بالكامل (${poolSize.toLocaleString()} شركة) 🚀</span>
+                </button>
+                <button onclick="ScraperPage.runStrictVerification()" class="btn" style="background:linear-gradient(135deg, #475569, #334155); color:#fff; border:none; padding:12px 18px; border-radius:12px; cursor:pointer; font-size:13px; font-weight:800; display:flex; align-items:center; gap:8px;">
                     <i class="fas fa-shield-halved"></i>
                     <span>فحص وتنقية البيانات</span>
                 </button>
@@ -293,6 +297,93 @@ const ScraperPage = {
                     tires: '295/80R22.5 • 7.50R16 • 8.25R16',
                     badgeColor: '#6366f1'
                 };
+        }
+    },
+
+    async quickHarvestAndSave() {
+        const targetSector = document.getElementById('scraper-filter-sector')?.value || 'all';
+        const targetCity = document.getElementById('scraper-filter-city')?.value || 'all';
+        const batchSize = parseInt(document.getElementById('scraper-batch-size')?.value || '50', 10);
+
+        const statusDot = document.getElementById('scraper-status-dot');
+        const statusText = document.getElementById('scraper-status-text');
+        if (statusDot) { statusDot.style.background = '#3b82f6'; statusDot.style.animation = 'pulse 0.6s infinite'; }
+        if (statusText) statusText.textContent = `⚡ جاري سحب وحفظ دفعة جديدة (+${batchSize}) مباشرة...`;
+
+        if (window.App && window.App.showToast) {
+            window.App.showToast(`🚀 جاري سحب وإضافة المنشآت الجديدة مباشرة إلى السيستم...`, 'info');
+        }
+
+        const term = document.getElementById('sc-live-terminal');
+        if (term) term.textContent = '';
+        this._log(`🚀 بدء السحب والإضافة المباشرة لمنشآت وأساطيل النقل والتوزيع...`);
+
+        const allCurrentCompanies = (window.AppStorage && window.AppStorage.getCompanies) ? window.AppStorage.getCompanies() : [];
+        const existingNames = new Set(
+            allCurrentCompanies.map(c => this._normalizeArabicName(c.nameAr || c.name || c.nameEn || c.companyName))
+        );
+        const existingIds = new Set(
+            allCurrentCompanies.map(c => String(c.id))
+        );
+
+        const pool = Array.isArray(window.__EGYPT_ENTERPRISE_POOL) ? window.__EGYPT_ENTERPRISE_POOL : [];
+        
+        // Filter pool by sector, city, and ONLY unimported companies
+        const candidateCompanies = pool.filter(c => {
+            const matchesZone = (targetCity === 'all' || c.city === targetCity || c.city === targetCity.replace('_city', '') || (c.address && c.address.includes(targetCity)));
+            const matchesSector = (targetSector === 'all' || c.sector === targetSector);
+            const norm = this._normalizeArabicName(c.nameAr || c.name);
+            const isNotYetImported = !existingNames.has(norm) && !existingIds.has(String(c.id));
+            return matchesZone && matchesSector && isNotYetImported;
+        });
+
+        this._log(`📊 المنشآت المتاحة الجديدة غير المسجلة في هذا النطاق: ${candidateCompanies.length} منشأة ومصنع.`);
+
+        if (candidateCompanies.length === 0) {
+            if (statusDot) { statusDot.style.background = '#10b981'; statusDot.style.animation = 'none'; }
+            if (statusText) statusText.textContent = `🎉 تم استيراد كافة المصانع والشركات المتاحة لهذا النطاق بالكامل!`;
+            this._log(`🎉 رائع! تم استيراد وتسجيل كافة المنشآت والمصانع المتاحة في قاعدة البيانات لهذا القطاع بالكامل (${allCurrentCompanies.length} شركة مسجلة).`);
+            if (window.App && window.App.showToast) {
+                window.App.showToast(`🎉 كافة الشركات المتاحة في هذا النطاق مسجلة بالفعل بالكامل (${allCurrentCompanies.length} شركة)!`, 'info');
+            }
+            return;
+        }
+
+        const batch = candidateCompanies.slice(0, batchSize).map(item => {
+            const fleetInfo = this._getFleetProfile(item.sector);
+            return {
+                ...item,
+                fleetType: item.fleetType || fleetInfo.fleetType,
+                fleetTires: item.fleetTires || item.targetTires || fleetInfo.tires,
+                isCustom: true,
+                isExisting: false
+            };
+        });
+
+        batch.forEach(c => {
+            this._log(`   ↳ [إضافة فورية ✅] ${c.nameAr} | ${c.city} | 🛞 ${c.fleetTires}`);
+        });
+
+        if (window.AppStorage && window.AppStorage.addCompanies) {
+            await window.AppStorage.addCompanies(batch);
+        }
+
+        if (window.AppStorage && window.AppStorage.updateLiveCounters) {
+            window.AppStorage.updateLiveCounters();
+        }
+
+        const totalNow = (window.AppStorage && window.AppStorage.getCompanies) ? window.AppStorage.getCompanies().length : 0;
+
+        if (statusDot) { statusDot.style.background = '#10b981'; statusDot.style.animation = 'none'; }
+        if (statusText) statusText.textContent = `✅ تم سحب وحفظ ${batch.length} شركة بنجاح! الإجمالي الآن: ${totalNow.toLocaleString()} شركة`;
+        this._log(`✅ تم بنجاح سحب وإضافة ${batch.length} شركة جديدة ومزامنتها سحابياً! إجمالي الشركات الآن: ${totalNow.toLocaleString()}`);
+
+        this.render();
+        if (typeof Companies !== 'undefined') Companies.render();
+        if (typeof Dashboard !== 'undefined') Dashboard.render();
+
+        if (window.App && window.App.showToast) {
+            window.App.showToast(`🎉 تم سحب وإضافة ${batch.length} شركة جديدة بنجاح! الإجمالي الآن: ${totalNow.toLocaleString()} شركة`, 'success');
         }
     },
 
