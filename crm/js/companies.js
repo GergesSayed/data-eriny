@@ -464,8 +464,8 @@ const Companies = {
             const linkedinIcon = linkedinLink ? ` <a href="${linkedinLink}" target="_blank" style="color: #0077b5; margin-right: 6px; font-size: 14px;" title="LinkedIn الشركة" onclick="event.stopPropagation();"><i class="fab fa-linkedin"></i></a>` : '';
 
             const facebookLink = esc(typeof c.facebook === 'string' ? c.facebook : '');
-            const facebookIcon = facebookLink ? ` <a href="${facebookLink}" target="_blank" style="color: #1877f2; margin-right: 6px; font-size: 14px;" title="Facebook الشركة" onclick="event.stopPropagation();"><i class="fab fa-facebook-f"></i></a>` : '';
-            const mapsLink = esc(typeof c.google_maps_url === 'string' ? c.google_maps_url : '');
+            const rawMaps = c.google_maps_url || ((c.latitude && c.longitude) ? `https://www.google.com/maps?q=${c.latitude},${c.longitude}` : (c.lat && c.lon ? `https://www.google.com/maps?q=${c.lat},${c.lon}` : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((c.nameAr || c.name || '') + ' ' + (c.address || '') + ' مصر')}`));
+            const mapsLink = esc(rawMaps);
             const mapsIcon = mapsLink ? ` <a href="${mapsLink}" target="_blank" style="color: #ea4335; margin-right: 6px; font-size: 14px;" title="موقع الشركة على خرائط جوجل" onclick="event.stopPropagation();"><i class="fas fa-map-marker-alt"></i></a>` : '';
 
             const contactLinkedinRaw = typeof c.linkedinContactUrl === 'string' ? c.linkedinContactUrl : (typeof c.contactLinkedin === 'string' ? c.contactLinkedin : '');
@@ -1261,7 +1261,10 @@ const Companies = {
                         ${this._detailRow('المنطقة', window.AppStorage.getCityLabel(company.city))}
                         ${this._detailRow('المحافظة', esc(company.governorate))}
                         ${this._detailRow('العنوان', esc(company.address))}
-                        ${this._detailRow('الموقع على الخريطة', company.google_maps_url ? `<a href="${esc(company.google_maps_url)}" target="_blank" style="color:#ea4335;"><i class="fas fa-map-marker-alt"></i> عرض على Google Maps</a>` : '—')}
+                        ${this._detailRow('الموقع على الخريطة', (function(){
+                            const mUrl = company.google_maps_url || ((company.latitude && company.longitude) ? `https://www.google.com/maps?q=${company.latitude},${company.longitude}` : (company.lat && company.lon ? `https://www.google.com/maps?q=${company.lat},${company.lon}` : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((company.nameAr || company.name || '') + ' ' + (company.address || '') + ' مصر')}`));
+                            return `<a href="${esc(mUrl)}" target="_blank" style="color:#ea4335; font-weight:700; display:inline-flex; align-items:center; gap:6px;"><i class="fas fa-map-marker-alt"></i> <span>عرض الموقع الدقيق على Google Maps</span></a>`;
+                        })())}
                         ${this._detailRow('تقييم الشركة (Maps)', company.rating ? `⭐ ${company.rating} / 5 ${company.reviews_count ? `(${company.reviews_count} تقييم)` : ''}` : '—')}
                         ${this._detailRow('حجم الشركة', company.companySize || '—')}
                         ${this._detailRow('عدد الفروع', company.branchesCount || '—')}
