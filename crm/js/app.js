@@ -777,36 +777,6 @@ const App = {
         }
     },
 
-    async triggerCloudSyncNow() {
-        if (!window.AppStorage.isAdmin()) {
-            this.showToast('⛔ عذراً، المزامنة اليدوية أونلاين مقتصرة على المدير العام فقط!', 'error');
-            return;
-        }
-        if (!window.SupabaseClient) {
-            this.showToast('ℹ️ جاري الاتصال بقاعدة البيانات...', 'info');
-            return;
-        }
-        const compCount = window.AppStorage.getCompanies ? window.AppStorage.getCompanies().length : 0;
-        this.showToast('☁️ جاري المزامنة مع السحابة والتأكد من الحفظ المحلي...', 'info');
-        try {
-            const ok = await window.SupabaseClient.pushMasterData({
-                companies: window.AppStorage.getCompanies() || [],
-                users: window.AppStorage.getUsers ? (window.AppStorage.getUsers() || []) : [],
-                calls: window.AppStorage.getCalls ? (window.AppStorage.getCalls() || []) : [],
-                deals: window.AppStorage.getDeals ? (window.AppStorage.getDeals() || []) : [],
-                activities: window.AppStorage.getActivities ? (window.AppStorage.getActivities() || []) : []
-            });
-            if (ok) {
-                localStorage.setItem('fleetcrm_last_sync_time', Date.now());
-                this.showToast('✅ تم رفع وتحديث كافة البيانات في السحابة بنجاح (Supabase Synced)', 'success');
-            } else {
-                this.showToast(`💾 جميع بياناتك وشركاتك (${compCount.toLocaleString()} شركة) محفوظة ومؤمّنة 100% في الذاكرة المحلية (IndexedDB)!`, 'info', 5000);
-            }
-        } catch (e) {
-            this.showToast(`💾 بياناتك (${compCount.toLocaleString()} شركة) محفوظة ومؤمّنة محلياً في المتصفح.`, 'info', 4000);
-        }
-    },
-
     exportFullBackup() {
         const companies = window.AppStorage.getCompanies ? window.AppStorage.getCompanies() : [];
         const data = {

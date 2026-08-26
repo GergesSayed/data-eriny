@@ -1042,10 +1042,12 @@ const AppStorage = {
         return count;
     },
 
-    saveAllCompaniesToDB(companies) {
+    saveAllCompaniesToDB(companies, syncToCloud = true) {
         this.updateLiveCounters();
         this._writeToIDB(companies);
-        this.autoSyncToCloud(companies);
+        if (syncToCloud && this.autoSyncToCloud) {
+            this.autoSyncToCloud(companies);
+        }
     },
 
     _writeToIDB(companies) {
@@ -1180,7 +1182,7 @@ const AppStorage = {
                 const merged = Array.from(companyMap.values());
                 if (updated || merged.length !== this.companiesMemory.length) {
                     this.companiesMemory = merged;
-                    this.saveAllCompaniesToDB(merged);
+                    this.saveAllCompaniesToDB(merged, false);
                     this.updateLiveCounters();
                     updated = true;
                 }
