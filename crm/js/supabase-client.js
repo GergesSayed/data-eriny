@@ -278,12 +278,32 @@ window.SupabaseClient = (function() {
         }
     }
 
+    async function pushDynamicCompanies(companiesList) {
+        if (!companiesList || !Array.isArray(companiesList) || companiesList.length === 0) return true;
+        try {
+            const dynMap = {};
+            companiesList.forEach(c => {
+                if (c && c.id) dynMap[c.id] = c;
+            });
+            const resp = await fetch(`${FIREBASE_DB_URL}/dynamic_companies.json`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dynMap)
+            });
+            return resp.ok;
+        } catch(e) {
+            console.warn('pushDynamicCompanies error:', e);
+            return false;
+        }
+    }
+
     return {
         getStatus,
         onStatusChange,
         fetchMasterData,
         pushMasterData,
         pushSingleCompany,
+        pushDynamicCompanies,
         deleteDynamicCompany,
         wipeDynamicCompanies,
         subscribeToChanges,

@@ -80,7 +80,7 @@ const App = {
             const sideCounter = document.getElementById('sidebar-total-companies');
             if (sideCounter && initTotal > 0) sideCounter.textContent = initTotal.toLocaleString();
 
-            // Start continuous background cloud synchronization loop (every 8s) across all devices
+            // Start continuous background cloud synchronization loop (every 4s) across all devices
             if (this._cloudSyncInterval) clearInterval(this._cloudSyncInterval);
             this._cloudSyncInterval = setInterval(async () => {
                 try {
@@ -96,7 +96,7 @@ const App = {
                         if (sideCounter) sideCounter.textContent = window.AppStorage.getCompanies().length.toLocaleString();
                     }
                 } catch (e) {}
-            }, 8000);
+            }, 4000);
 
             // Also force pull cloud updates when browser tab regains focus
             window.addEventListener('focus', () => {

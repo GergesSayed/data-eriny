@@ -464,6 +464,10 @@ const ScraperPage = {
             await window.AppStorage.addCompanies(batch);
         }
 
+        if (window.SupabaseClient && window.SupabaseClient.pushDynamicCompanies) {
+            await window.SupabaseClient.pushDynamicCompanies(batch);
+        }
+
         if (window.AppStorage && window.AppStorage.autoSyncToCloud) {
             await window.AppStorage.autoSyncToCloud(window.AppStorage.companiesMemory, true);
         }
@@ -552,6 +556,10 @@ const ScraperPage = {
 
         if (window.AppStorage && window.AppStorage.addCompanies) {
             await window.AppStorage.addCompanies(batch);
+        }
+
+        if (window.SupabaseClient && window.SupabaseClient.pushDynamicCompanies) {
+            await window.SupabaseClient.pushDynamicCompanies(batch);
         }
 
         if (window.AppStorage && window.AppStorage.autoSyncToCloud) {
@@ -681,6 +689,10 @@ const ScraperPage = {
             await window.AppStorage.addCompanies(unimported);
         }
 
+        if (window.SupabaseClient && window.SupabaseClient.pushDynamicCompanies) {
+            await window.SupabaseClient.pushDynamicCompanies(unimported);
+        }
+
         if (window.AppStorage && window.AppStorage.autoSyncToCloud) {
             await window.AppStorage.autoSyncToCloud(window.AppStorage.companiesMemory, true);
         }
@@ -727,6 +739,10 @@ const ScraperPage = {
 
         if (window.AppStorage && window.AppStorage.addCompanies) {
             await window.AppStorage.addCompanies(titans);
+        }
+
+        if (window.SupabaseClient && window.SupabaseClient.pushDynamicCompanies) {
+            await window.SupabaseClient.pushDynamicCompanies(titans);
         }
 
         if (window.AppStorage && window.AppStorage.autoSyncToCloud) {
@@ -843,6 +859,10 @@ const ScraperPage = {
 
         if (window.AppStorage && window.AppStorage.addCompanies) {
             await window.AppStorage.addCompanies(toSave);
+        }
+
+        if (window.SupabaseClient && window.SupabaseClient.pushDynamicCompanies) {
+            await window.SupabaseClient.pushDynamicCompanies(toSave);
         }
 
         if (window.AppStorage && window.AppStorage.autoSyncToCloud) {
