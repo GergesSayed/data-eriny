@@ -1120,15 +1120,15 @@ const AppStorage = {
                 const users = this.getUsers ? this.getUsers() : [];
                 const activities = this.getActivities ? this.getActivities() : [];
 
-                // Extract dynamic companies (custom / newly scraped only)
+                // Extract dynamic companies (custom / newly scraped / titans)
                 const dynamicCompanies = companies.filter(c => {
                     if (!c || !c.id) return false;
                     const id = String(c.id);
-                    return id.startsWith('real_osm_') || id.startsWith('custom_') || id.startsWith('user_') || id.startsWith('scraped_') || c.isCustom === true;
+                    return id.startsWith('real_osm_') || id.startsWith('custom_') || id.startsWith('user_') || id.startsWith('scraped_') || id.startsWith('eg_titan_') || c.isCustom === true || c.isTitan === true;
                 });
 
                 const quickHash = `${dynamicCompanies.length}_${calls.length}_${deals.length}_${users.length}`;
-                if (!forceSync && quickHash === localStorage.getItem('fleetcrm_last_synced_hash')) return;
+                if (!forceSync && quickHash === localStorage.getItem('fleetcrm_last_synced_hash')) return true;
 
                 const ok = await window.SupabaseClient.pushMasterData({
                     dynamicCompanies: dynamicCompanies,
@@ -1141,13 +1141,21 @@ const AppStorage = {
                     localStorage.setItem('fleetcrm_last_synced_hash', quickHash);
                     localStorage.setItem('fleetcrm_last_sync_time', Date.now());
                 }
-            } catch (err) {}
+                return ok;
+            } catch (err) {
+                return false;
+            }
         };
 
         if (forceSync) {
-            syncFn();
+            return syncFn();
         } else {
-            this._cloudSyncDebounce = setTimeout(syncFn, 300);
+            return new Promise((resolve) => {
+                this._cloudSyncDebounce = setTimeout(async () => {
+                    const res = await syncFn();
+                    resolve(res);
+                }, 300);
+            });
         }
     },
 

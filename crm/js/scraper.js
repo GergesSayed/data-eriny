@@ -464,6 +464,10 @@ const ScraperPage = {
             await window.AppStorage.addCompanies(batch);
         }
 
+        if (window.AppStorage && window.AppStorage.autoSyncToCloud) {
+            await window.AppStorage.autoSyncToCloud(window.AppStorage.companiesMemory, true);
+        }
+
         if (window.AppStorage && window.AppStorage.updateLiveCounters) {
             window.AppStorage.updateLiveCounters();
         }
@@ -548,6 +552,10 @@ const ScraperPage = {
 
         if (window.AppStorage && window.AppStorage.addCompanies) {
             await window.AppStorage.addCompanies(batch);
+        }
+
+        if (window.AppStorage && window.AppStorage.autoSyncToCloud) {
+            await window.AppStorage.autoSyncToCloud(window.AppStorage.companiesMemory, true);
         }
 
         if (window.AppStorage && window.AppStorage.updateLiveCounters) {
@@ -673,6 +681,14 @@ const ScraperPage = {
             await window.AppStorage.addCompanies(unimported);
         }
 
+        if (window.AppStorage && window.AppStorage.autoSyncToCloud) {
+            await window.AppStorage.autoSyncToCloud(window.AppStorage.companiesMemory, true);
+        }
+
+        if (window.AppStorage && window.AppStorage.updateLiveCounters) {
+            window.AppStorage.updateLiveCounters();
+        }
+
         this._log(`✅ تم اعتماد واستيراد ${unimported.length} شركة ومصنع بنجاح!`);
         this.stagedCompanies = [];
         this.selectedStagedIds.clear();
@@ -711,6 +727,10 @@ const ScraperPage = {
 
         if (window.AppStorage && window.AppStorage.addCompanies) {
             await window.AppStorage.addCompanies(titans);
+        }
+
+        if (window.AppStorage && window.AppStorage.autoSyncToCloud) {
+            await window.AppStorage.autoSyncToCloud(window.AppStorage.companiesMemory, true);
         }
 
         if (window.AppStorage && window.AppStorage.updateLiveCounters) {
@@ -823,6 +843,10 @@ const ScraperPage = {
 
         if (window.AppStorage && window.AppStorage.addCompanies) {
             await window.AppStorage.addCompanies(toSave);
+        }
+
+        if (window.AppStorage && window.AppStorage.autoSyncToCloud) {
+            await window.AppStorage.autoSyncToCloud(window.AppStorage.companiesMemory, true);
         }
 
         if (window.AppStorage && window.AppStorage.updateLiveCounters) {

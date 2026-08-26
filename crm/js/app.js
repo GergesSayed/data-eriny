@@ -1195,6 +1195,34 @@ const App = {
         }, 4000);
     },
 
+    async triggerCloudSyncNow() {
+        const icon = document.getElementById('cloud-sync-icon');
+        const label = document.getElementById('cloud-sync-label');
+        if (icon) { icon.className = 'fas fa-spinner fa-spin'; }
+        if (label) { label.textContent = 'جاري المزامنة...'; }
+        if (this.showToast) this.showToast('☁️ جاري المزامنة السحابية الفورية وتحديث كافة البيانات...', 'info');
+
+        try {
+            if (window.AppStorage && window.AppStorage.autoSyncToCloud) {
+                await window.AppStorage.autoSyncToCloud(window.AppStorage.companiesMemory, true);
+            }
+            if (window.AppStorage && window.AppStorage.pullFromCloud) {
+                await window.AppStorage.pullFromCloud();
+            }
+            if (typeof Companies !== 'undefined' && this.currentPage === 'companies') Companies.render();
+            if (typeof Dashboard !== 'undefined' && this.currentPage === 'dashboard') Dashboard.render();
+            if (window.AppStorage && window.AppStorage.updateLiveCounters) window.AppStorage.updateLiveCounters();
+
+            if (icon) { icon.className = 'fas fa-check-circle'; }
+            if (label) { label.textContent = 'متزامن سحابياً'; }
+            const total = (window.AppStorage && window.AppStorage.getCompanies) ? window.AppStorage.getCompanies().length : 0;
+            if (this.showToast) this.showToast(`🎉 تمت المزامنة السحابية بنجاح 100%! إجمالي الشركات: ${total.toLocaleString()}`, 'success');
+        } catch(err) {
+            if (icon) { icon.className = 'fas fa-exclamation-circle'; }
+            if (label) { label.textContent = 'تعذر المزامنة'; }
+        }
+    },
+
     initUserSwitcher() {
         const select = document.getElementById('user-switcher-select');
         if (!select) return;
