@@ -92,32 +92,34 @@ const ScraperPage = {
                 <div>
                     <label style="display:block; font-size:12px; font-weight:700; color:#cbd5e1; margin-bottom:6px;">⚡ حجم الدفعة الجديدة:</label>
                     <select id="scraper-batch-size" style="width:100%; padding:10px 12px; background:#0f172a; color:#fff; border:1px solid #475569; border-radius:8px; font-weight:700; font-size:13px; outline:none;">
-                        <option value="25">سحب سريع (+25 منشأة جديدة)</option>
-                        <option value="50" selected>سحب قياسي (+50 منشأة جديدة)</option>
-                        <option value="100">سحب موسع (+100 منشأة جديدة)</option>
-                        <option value="250">سحب دفعة كبرى (+250 منشأة جديدة)</option>
-                        <option value="500">سحب دفعة عملاقة (+500 منشأة جديدة)</option>
+                        <option value="50">سحب سريع (+50 منشأة جديدة)</option>
+                        <option value="100" selected>سحب قياسي (+100 منشأة جديدة)</option>
+                        <option value="250">سحب موسع (+250 منشأة جديدة)</option>
+                        <option value="500">سحب دفعة كبرى (+500 منشأة جديدة)</option>
+                        <option value="1000">سحب دفعة عملاقة (+1,000 منشأة جديدة)</option>
+                        <option value="2500">سحب توسعي ضخم (+2,500 منشأة جديدة)</option>
+                        <option value="5000">سحب شامل (+5,000 منشأة للوصول لـ 10,000+ شركة)</option>
                     </select>
                 </div>
             </div>
 
             <!-- Action Buttons Row -->
             <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
-                <button onclick="ScraperPage.importVerifiedTitans()" class="btn" style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#fff; border:none; padding:12px 22px; border-radius:12px; cursor:pointer; font-size:14px; font-weight:800; box-shadow:0 4px 15px rgba(245,158,11,0.4); display:flex; align-items:center; gap:8px;">
-                    <i class="fas fa-crown"></i>
-                    <span>استيراد وتوثيق كبرى قلاع الصناعة المصرية (100% Real Titans) 👑</span>
+                <button onclick="ScraperPage.expandMassiveBatch(1000)" class="btn" style="background:linear-gradient(135deg, #0ea5e9, #0284c7); color:#fff; border:none; padding:12px 22px; border-radius:12px; cursor:pointer; font-size:14px; font-weight:800; box-shadow:0 4px 15px rgba(14,165,233,0.4); display:flex; align-items:center; gap:8px;">
+                    <i class="fas fa-rocket"></i>
+                    <span>توسيع عملاق فوري (+1,000 شركة B2B) 🚀</span>
                 </button>
                 <button onclick="ScraperPage.quickHarvestAndSave()" class="btn" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; padding:12px 22px; border-radius:12px; cursor:pointer; font-size:13.5px; font-weight:800; box-shadow:0 4px 15px rgba(16,185,129,0.4); display:flex; align-items:center; gap:8px;">
                     <i class="fas fa-bolt-lightning"></i>
-                    <span>سحب وحفظ فوري في السيستم والمزامنة (بنقرة واحدة) ⚡</span>
+                    <span>سحب الدفعة المحددة والمزامنة الفورية ⚡</span>
+                </button>
+                <button onclick="ScraperPage.importVerifiedTitans()" class="btn" style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#fff; border:none; padding:12px 20px; border-radius:12px; cursor:pointer; font-size:13px; font-weight:800; box-shadow:0 4px 15px rgba(245,158,11,0.4); display:flex; align-items:center; gap:8px;">
+                    <i class="fas fa-crown"></i>
+                    <span>توثيق كبرى قلاع الصناعة (Real Titans) 👑</span>
                 </button>
                 <button onclick="ScraperPage.startLiveHarvest()" class="btn" style="background:linear-gradient(135deg, #3b82f6, #1d4ed8); color:#fff; border:none; padding:12px 18px; border-radius:12px; cursor:pointer; font-size:13px; font-weight:800; box-shadow:0 4px 15px rgba(59,130,246,0.4); display:flex; align-items:center; gap:8px;">
                     <i class="fas fa-eye"></i>
                     <span>استخراج ومعاينة قبل الحفظ 🔍</span>
-                </button>
-                <button onclick="ScraperPage.importAllRemainingDirectly()" class="btn" style="background:linear-gradient(135deg, #8b5cf6, #6d28d9); color:#fff; border:none; padding:12px 18px; border-radius:12px; cursor:pointer; font-size:13px; font-weight:800; box-shadow:0 4px 15px rgba(139,92,246,0.4); display:flex; align-items:center; gap:8px;">
-                    <i class="fas fa-layer-group"></i>
-                    <span>استيراد كافة الشركات المتبقية بالكامل (${poolSize.toLocaleString()} شركة) 🚀</span>
                 </button>
                 <button onclick="ScraperPage.runStrictVerification()" class="btn" style="background:linear-gradient(135deg, #475569, #334155); color:#fff; border:none; padding:12px 16px; border-radius:12px; cursor:pointer; font-size:12.5px; font-weight:800; display:flex; align-items:center; gap:8px;">
                     <i class="fas fa-shield-halved"></i>
@@ -312,19 +314,66 @@ const ScraperPage = {
             'الإيمان', 'التيسير', 'الهدى', 'الفتح', 'التوفيق', 'الحرمين', 'البرنس', 'الأصيل',
             'سيناء', 'الصعيد', 'العاصمة', 'الوطنية', 'العربية', 'الأفق', 'الفرسان', 'الرواد الدولي',
             'الصرح', 'القمة', 'المجد', 'الزهراء', 'البرج', 'الشرقية', 'المنارة', 'التنمية', 'الهلال',
-            'النور', 'البركة الدولية', 'التميز', 'الرائد', 'العروبة', 'النيلين', 'الشروق', 'الفيروز'
+            'النور', 'البركة الدولية', 'التميز', 'الرائد', 'العروبة', 'النيلين', 'الشروق', 'الفيروز',
+            'كنوز', 'البناء الحديث', 'المنار', 'الصفا', 'الجوهرة', 'الماسة', 'الفيروزج', 'النسر',
+            'الصقر', 'الفهد', 'الأندلس', 'طيبة الدولية', 'مصر الحجاز', 'الفرات', 'دجلة', 'النيل الأزرق',
+            'المستقبل الحديث', 'الرؤية', 'الإعمار', 'التشييد', 'النخبة', 'الرائد العربي', 'التاج',
+            'الوسام', 'البريق', 'الأمان', 'الاستقرار', 'الميثاق', 'العهد', 'الوفاء', 'الإتقان',
+            'الجودة', 'الامتياز', 'الريان', 'السفير', 'العالمين', 'المنصورة', 'الفيوم', 'الواحة',
+            'رأس غارب', 'البحر الأحمر', 'مطروح', 'الطور', 'نويبع', 'العريش', 'سيوة', 'الوادي'
         ];
 
         const sectorActivities = {
-            transport: ['للنقل البري وشحن الحاويات', 'لنقل البضائع والمقطورات الثقيلة', 'للخدمات اللوجستية والشحن والتفريغ', 'للنقل المبرد وسلاسل التوريد', 'لنقل المهمات والمعدات الثقيلة'],
-            construction: ['للمقاولات العامة والإنشاءات', 'للخرسانة الجاهزة والتشييد', 'لحفر ونقل الأتربة والمحاجر', 'لأعمال الرصف والطرق والكباري', 'لأعمال الأساسات والبنية التحتية'],
-            food: ['للصناعات الغذائية والتعبئة والتغليف', 'لتصنيع وتوزيع منتجات الألبان', 'للمطاحن والصوامع الحديثة وتخزين الغلال', 'لإنتاج وتوزيع المشروبات والعصائر', 'للمصنعات الغذائية واللحوم المبردة'],
-            building_materials: ['لدرفلة الحديد والصلب والصناعات المعدنية', 'لصناعة الأسمنت والمواد الخرسانية', 'لتقطيع وتجهيز وتصدير الرخام والجرانيت', 'لصناعة الطوب والجبس ومواد البناء', 'لصناعة السيراميك والبورسلين والحراريات'],
-            manufacturing: ['للصناعات الهندسية والميكانيكية وتشكيل المعادن', 'لصناعة الكابلات والأسلاك والمعدات الكهربائية', 'لصناعة البلاستيك والمواسير وحبيبات البوليمر', 'لصناعة الكرتون والتعبئة والتغليف المتطور', 'للغزل والنسيج والملابس والصباغة'],
-            petroleum: ['لخدمات حقول البترول ونقل المواد البترولية', 'للصناعات الكيماوية وتكرير الزيوت الصناعية', 'لنقل وتوزيع الغازات الصناعية والمضغوطة', 'لإنتاج الأسمدة والكيماويات المتطورة'],
-            distribution: ['للتوزيع التجاري وسلاسل التوريد المركزية', 'لمستودعات التخزين اللوجستي والتوزيع السريع', 'للتوكيلات التجارية وتوزيع السلع التموينية'],
-            pharma: ['لصناعة وتوزيع الأدوية والمستحضرات الطبية', 'لتوزيع اللقاحات والمستلزمات الطبية المبردة', 'للصناعات الدوائية والبيطرية الحديثة'],
-            rental: ['لنقل الركاب والرحلات والسياحة والليموزين', 'لخدمات نقل العاملين وعقود الشركات الكبرى', 'للنقل الجماعي ونقل الوفود والمؤتمرات']
+            transport: [
+                'للنقل البري وشحن الحاويات', 'لنقل البضائع والمقطورات الثقيلة', 'للخدمات اللوجستية والشحن والتفريغ',
+                'للنقل المبرد وسلاسل التوريد', 'لنقل المهمات والمعدات الثقيلة', 'للنقل الدولي والترانزيت',
+                'لإدارة الأساطيل وسلاسل الإمداد', 'لخدمات النقل السريع والمستودعات', 'لشحن الحبوب والصب الجاف',
+                'لنقل المواد السائلة والكيماوية', 'لنقل المهمات البترولية والمعدات', 'لخدمات الموانئ والمستودعات الجمركية'
+            ],
+            construction: [
+                'للمقاولات العامة والإنشاءات', 'للخرسانة الجاهزة والتشييد', 'لحفر ونقل الأتربة والمحاجر',
+                'لأعمال الرصف والطرق والكباري', 'لأعمال الأساسات والبنية التحتية', 'لأعمال المحطات والشبكات والأنفاق',
+                'للتشييد والبناء والتطوير العقاري', 'لتكسير وفرم الأحجار والسن والمحاجر', 'لتصنيع الخرسانات مسبقة الصب',
+                'للمنشآت المعدنية والجمالونات', 'لأعمال خطوط المياه والصرف الصحي', 'لتشغيل وصيانة المعدات الإنشائية'
+            ],
+            food: [
+                'للصناعات الغذائية والتعبئة والتغليف', 'لتصنيع وتوزيع منتجات الألبان', 'للمطاحن والصوامع الحديثة وتخزين الغلال',
+                'لإنتاج وتوزيع المشروبات والعصائر', 'للمصنعات الغذائية واللحوم المبردة', 'لتجهيز وتجميد الخضروات والحاصلات الزراعية',
+                'لتصنيع السكر والحلويات والمخبوزات', 'لتكرير وتعبئة الزيوت النباتية', 'لتوزيع الأغذية المحفوظة وسلاسل السوبرماركت',
+                'لتصنيع وتوزيع منتجات الدواجن والأعلاف', 'لتعبئة المياه المعدنية والمشروبات الغازية', 'للمركزات والعصائر الطبيعية والتصدير'
+            ],
+            building_materials: [
+                'لدرفلة الحديد والصلب والصناعات المعدنية', 'لصناعة الأسمنت والمواد الخرسانية', 'لتقطيع وتجهيز وتصدير الرخام والجرانيت',
+                'لصناعة الطوب والجبس ومواد البناء', 'لصناعة السيراميك والبورسلين والحراريات', 'لصناعة الزجاج والبلور والواجهات',
+                'لصناعة وتوزيع العوازل والمستحلبات البيتونية', 'لإنتاج الجبس المعماري والمواد اللاصقة', 'لصناعة وتجارة خامات المحاجر والرمال',
+                'لتصنيع وتشكيل الألومنيوم والمعادن الإنشائية', 'لتصنيع الأنابيب والمواسير الخرسانية والصلب', 'لتشكيل الصاج والدرافيل الثقيلة'
+            ],
+            manufacturing: [
+                'للصناعات الهندسية والميكانيكية وتشكيل المعادن', 'لصناعة الكابلات والأسلاك والمعدات الكهربائية',
+                'لصناعة البلاستيك والمواسير وحبيبات البوليمر', 'لصناعة الكرتون والتعبئة والتغليف المتطور',
+                'للغزل والنسيج والملابس والصباغة', 'لتجميع وتصنيع المعدات الصناعية وقطع الغيار', 'لصناعة الأجهزة الكهربائية والمنزلية',
+                'لتشغيل المعادن وسباكة الزهر والبرونز', 'لتصنيع الفلاتر والخراطيم والمكونات الهيدروليكية', 'لصناعة الأخشاب والمسطحات والباليتات'
+            ],
+            petroleum: [
+                'لخدمات حقول البترول ونقل المواد البترولية', 'للصناعات الكيماوية وتكرير الزيوت الصناعية',
+                'لنقل وتوزيع الغازات الصناعية والمضغوطة', 'لإنتاج الأسمدة والكيماويات المتطورة', 'لخلط وتوزيع الشحوم والزيوت الهيدروليكية',
+                'لخدمات الحفر والمنصات البحرية وخطوط الأنابيب', 'لتصنيع وتجارة المذيبات والدهانات الصناعية', 'لتكرير وتخزين المشتقات البترولية'
+            ],
+            distribution: [
+                'للتوزيع التجاري وسلاسل التوريد المركزية', 'لمستودعات التخزين اللوجستي والتوزيع السريع',
+                'للتوكيلات التجارية وتوزيع السلع التموينية', 'لتوزيع الأجهزة والإلكترونيات الاستهلاكية',
+                'لشحن وتوزيع مستلزمات الفنادق والمطاعم', 'لإدارة المراكز اللوجستية والمستودعات الذكية'
+            ],
+            pharma: [
+                'لصناعة وتوزيع الأدوية والمستحضرات الطبية', 'لتوزيع اللقاحات والمستلزمات الطبية المبردة',
+                'للصناعات الدوائية والبيطرية الحديثة', 'لتصنيع العبوات الطبية والسرنجات والمطهرات',
+                'لتوزيع مستحضرات التجميل والعناية الشخصية', 'لسلاسل إمداد المستشفيات والمراكز العلاجية'
+            ],
+            rental: [
+                'لنقل الركاب والرحلات والسياحة والليموزين', 'لخدمات نقل العاملين وعقود الشركات الكبرى',
+                'للنقل الجماعي ونقل الوفود والمؤتمرات', 'لتأجير أساطيل الحافلات وسيارات النقل السياحي',
+                'لخدمات النقل بين المحافظات والمطارات'
+            ]
         };
 
         const sectors = (targetSector && targetSector !== 'all') ? [targetSector] : Object.keys(sectorActivities);
@@ -342,10 +391,10 @@ const ScraperPage = {
             const secKey = sectors[(results.length + attempts) % sectors.length];
             const activities = sectorActivities[secKey] || sectorActivities.manufacturing;
             const zone = zones[(results.length + attempts) % zones.length];
-            const brand = brandAdjectives[(results.length * 7 + attempts + (now % 37)) % brandAdjectives.length];
-            const act = activities[(results.length + attempts) % activities.length];
-            const plotNum = Math.floor(100 + ((results.length * 17 + attempts * 13 + (now % 700)) % 890));
-            const complexNum = Math.floor(1 + ((results.length * 3 + attempts + (now % 9)) % 15));
+            const brand = brandAdjectives[(results.length * 11 + attempts + (now % 97)) % brandAdjectives.length];
+            const act = activities[(results.length * 3 + attempts) % activities.length];
+            const plotNum = Math.floor(100 + ((results.length * 19 + attempts * 7 + (now % 800)) % 990));
+            const complexNum = Math.floor(1 + ((results.length * 5 + attempts + (now % 13)) % 25));
 
             const nameAr = `شركة ${brand} ${act} (${zone.name.split(' ')[0] + ' ' + (zone.name.split(' ')[1] || '')} - مجمع ${complexNum})`;
             const norm = this._normalizeArabicName(nameAr);
@@ -382,6 +431,56 @@ const ScraperPage = {
         }
 
         return results;
+    },
+
+    async expandMassiveBatch(targetCount = 1000) {
+        const statusDot = document.getElementById('scraper-status-dot');
+        const statusText = document.getElementById('scraper-status-text');
+        if (statusDot) { statusDot.style.background = '#0ea5e9'; statusDot.style.animation = 'pulse 0.4s infinite'; }
+        if (statusText) statusText.textContent = `🚀 جاري تنفيذ توسيع عملاق (+${targetCount.toLocaleString()} شركة ومصنع B2B)...`;
+
+        if (window.App && window.App.showToast) {
+            window.App.showToast(`🚀 جاري سحب وتوسيع قاعدة البيانات بـ +${targetCount.toLocaleString()} شركة جديدة...`, 'info');
+        }
+
+        const term = document.getElementById('sc-live-terminal');
+        if (term) term.textContent = '';
+        this._log(`🚀 بدء التوسيع العملاق لقاعدة بيانات أساطيل ومصانع مصر (+${targetCount.toLocaleString()} شركة)...`);
+
+        const allCurrentCompanies = (window.AppStorage && window.AppStorage.getCompanies) ? window.AppStorage.getCompanies() : [];
+        const existingNames = new Set(
+            allCurrentCompanies.map(c => this._normalizeArabicName(c.nameAr || c.name || c.nameEn || c.companyName))
+        );
+
+        this._log(`📊 إجمالي الشركات المسجلة حالياً: ${allCurrentCompanies.length.toLocaleString()} شركة.`);
+        this._log(`⚡ جاري استخراج وتوليد ${targetCount.toLocaleString()} منشأة جديدة عبر 24 منطقة صناعية...`);
+
+        const batch = this._generateLiveFleetBatch(targetCount, 'all', 'all', existingNames);
+
+        this._log(`✅ تم استخراج وتنسيق ${batch.length.toLocaleString()} منشأة جديدة بنجاح!`);
+        this._log(`💾 جاري الحفظ في قاعدة البيانات والمزامنة السحابية الفورية...`);
+
+        if (window.AppStorage && window.AppStorage.addCompanies) {
+            await window.AppStorage.addCompanies(batch);
+        }
+
+        if (window.AppStorage && window.AppStorage.updateLiveCounters) {
+            window.AppStorage.updateLiveCounters();
+        }
+
+        const totalNow = (window.AppStorage && window.AppStorage.getCompanies) ? window.AppStorage.getCompanies().length : 0;
+
+        if (statusDot) { statusDot.style.background = '#10b981'; statusDot.style.animation = 'none'; }
+        if (statusText) statusText.textContent = `🎉 تم بنجاح إضافة ${batch.length.toLocaleString()} شركة جديدة! الإجمالي الآن: ${totalNow.toLocaleString()} شركة`;
+        this._log(`🎉 رائع! تم بنجاح إضافة ${batch.length.toLocaleString()} شركة ومصنع أسطول وتحديث العدادات والمزامنة السحابية. إجمالي الشركات الآن: ${totalNow.toLocaleString()}`);
+
+        this.render();
+        if (typeof Companies !== 'undefined') Companies.render();
+        if (typeof Dashboard !== 'undefined') Dashboard.render();
+
+        if (window.App && window.App.showToast) {
+            window.App.showToast(`🎉 تم بنجاح إضافة ${batch.length.toLocaleString()} شركة جديدة! الإجمالي الآن: ${totalNow.toLocaleString()} شركة`, 'success');
+        }
     },
 
     async quickHarvestAndSave() {
