@@ -762,7 +762,6 @@ const AppStorage = {
                             if (titansToAdd.length > 0) {
                                 this.companiesMemory.unshift(...titansToAdd);
                                 this.saveAllCompaniesToDB(this.companiesMemory);
-                                if (this.autoSyncToCloud) this.autoSyncToCloud(this.companiesMemory);
                             }
                         }
 
@@ -883,8 +882,9 @@ const AppStorage = {
         } catch (e) {}
 
         if (window.SupabaseClient) {
+            window.SupabaseClient.wipeDynamicCompanies();
             window.SupabaseClient.pushMasterData({
-                companies: [],
+                dynamicCompanies: [],
                 users: this.getUsers(),
                 calls: this.getCalls ? this.getCalls() : [],
                 deals: this.getDeals ? this.getDeals() : [],
@@ -964,16 +964,6 @@ const AppStorage = {
 
             const sideCounter = document.getElementById('sidebar-total-companies');
             if (sideCounter) sideCounter.textContent = this.companiesMemory.length.toLocaleString();
-
-            if (window.SupabaseClient) {
-                window.SupabaseClient.pushMasterData({
-                    companies: this.companiesMemory,
-                    users: this.getUsers(),
-                    calls: this.getCalls ? this.getCalls() : [],
-                    deals: this.getDeals ? this.getDeals() : [],
-                    activities: this.getActivities ? this.getActivities() : []
-                }).catch(() => {});
-            }
             return;
         }
 
@@ -1588,6 +1578,9 @@ const AppStorage = {
         const deals = (this.getDeals() || []).filter(d => d && d.companyId !== id);
         this._set(this.KEYS.DEALS, deals);
 
+        if (window.SupabaseClient && window.SupabaseClient.deleteDynamicCompany) {
+            window.SupabaseClient.deleteDynamicCompany(id);
+        }
         this.autoSyncToCloud(companies, true);
         this.updateLiveCounters();
     },

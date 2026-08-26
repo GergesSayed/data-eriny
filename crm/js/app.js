@@ -62,21 +62,23 @@ const App = {
                 localStorage.removeItem('fleetcrm_deals_cleared_v3');
             } catch(e) {}
 
-            // Initialize Database and hydrate 3,560 companies into RAM memory FIRST
+            // Initialize Database and hydrate baseline into RAM memory FIRST
             try {
                 await window.AppStorage.initDB();
             } catch(dbErr) {
                 console.warn('DB Init notice:', dbErr);
             }
 
+            // Immediately pull and merge latest cloud dataset (including all harvested companies)
+            try {
+                const cloudPromise = window.AppStorage.pullFromCloud();
+                const timeoutPromise = new Promise(r => setTimeout(r, 2500));
+                await Promise.race([cloudPromise, timeoutPromise]);
+            } catch(e) {}
+
             const initTotal = (window.AppStorage.getCompanies() || []).length;
             const sideCounter = document.getElementById('sidebar-total-companies');
             if (sideCounter && initTotal > 0) sideCounter.textContent = initTotal.toLocaleString();
-
-            // Pull latest from cloud asynchronously in background without blocking UI
-            window.AppStorage.pullFromCloud().then(wasUpdated => {
-                if (wasUpdated) this.refreshCurrentPage();
-            }).catch(() => false);
 
             // Start continuous background cloud synchronization loop (every 8s) across all devices
             if (this._cloudSyncInterval) clearInterval(this._cloudSyncInterval);

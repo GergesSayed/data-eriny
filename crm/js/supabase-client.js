@@ -102,15 +102,15 @@ window.SupabaseClient = (function() {
         try {
             const promises = [];
 
-            // 1. Sync dynamic companies
-            if (data.dynamicCompanies && Array.isArray(data.dynamicCompanies)) {
+            // 1. Sync dynamic companies (additive merge via PATCH)
+            if (data.dynamicCompanies && Array.isArray(data.dynamicCompanies) && data.dynamicCompanies.length > 0) {
                 const dynMap = {};
                 data.dynamicCompanies.forEach(c => {
                     if (c && c.id) dynMap[c.id] = c;
                 });
                 promises.push(
                     fetch(`${FIREBASE_DB_URL}/dynamic_companies.json`, {
-                        method: 'PUT',
+                        method: 'PATCH',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(dynMap),
                         signal: controller.signal
@@ -259,12 +259,33 @@ window.SupabaseClient = (function() {
         }
     }
 
+    async function wipeDynamicCompanies() {
+        try {
+            await fetch(`${FIREBASE_DB_URL}/dynamic_companies.json`, { method: 'DELETE' });
+            return true;
+        } catch(e) {
+            return false;
+        }
+    }
+
+    async function deleteDynamicCompany(id) {
+        if (!id) return false;
+        try {
+            await fetch(`${FIREBASE_DB_URL}/dynamic_companies/${id}.json`, { method: 'DELETE' });
+            return true;
+        } catch(e) {
+            return false;
+        }
+    }
+
     return {
         getStatus,
         onStatusChange,
         fetchMasterData,
         pushMasterData,
         pushSingleCompany,
+        deleteDynamicCompany,
+        wipeDynamicCompanies,
         subscribeToChanges,
         unsubscribe
     };
