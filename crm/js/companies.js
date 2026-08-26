@@ -492,6 +492,10 @@ const Companies = {
                 callResultBadge = `<span style="color:var(--text-muted); font-size:11px;">⚪ لم يتواصل بعد</span>`;
             }
 
+            const isTitan = Boolean(c.isTitan || (c.id && String(c.id).startsWith('eg_titan_')));
+            const titanBadge = isTitan ? `<span class="badge" style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#fff; font-size:10px; padding:2px 6px; border-radius:5px; font-weight:800; display:inline-flex; align-items:center; gap:3px;"><i class="fas fa-crown"></i> قلعة معتمدة</span>` : '';
+            const hotlineBadge = c.hotline ? `<span class="badge" style="background:rgba(59,130,246,0.15); color:#3b82f6; font-size:11px; padding:1px 6px; border-radius:4px; font-family:Inter; font-weight:800;" title="الخط الساخن"><i class="fas fa-headset"></i> ${esc(c.hotline)}</span>` : '';
+
             return `
                 <tr class="${isChecked ? 'row-selected' : ''}" onclick="Companies.showDetail('${c.id}')" style="cursor: pointer;">
                     ${isAdmin ? `
@@ -501,18 +505,22 @@ const Companies = {
                     ` : ''}
                     <td>
                         <div class="company-name-cell">
-                            <div style="display:flex; align-items:center; gap: 4px;">
-                                <span class="name-ar">${mainName}</span>
+                            <div style="display:flex; align-items:center; gap: 6px; flex-wrap:wrap;">
+                                <span class="name-ar" style="font-weight:700;">${mainName}</span>
+                                ${titanBadge}
                                 ${linkedinIcon}
                                 ${facebookIcon}
                                 ${mapsIcon}
                             </div>
-                            ${subName ? `<span class="name-en">${subName}</span>` : ''}
+                            <div style="display:flex; align-items:center; gap:8px; margin-top:2px;">
+                                ${subName ? `<span class="name-en" style="font-size:0.75rem; color:var(--text-muted);">${subName}</span>` : ''}
+                                ${hotlineBadge}
+                            </div>
                         </div>
                     </td>
                     <td><span class="badge sector-badge">${sectorLabel}</span></td>
                     <td>${cityLabel}</td>
-                    <td style="direction:ltr; text-align:right; font-family:Inter;">${phone}</td>
+                    <td style="direction:ltr; text-align:right; font-family:Inter; font-weight:600;">${phone}</td>
                     <td><span class="fleet-badge">${fleet}</span></td>
                     <td><span class="badge priority-badge priority-${c.priority || 'B'}">${c.priority || 'B'}</span></td>
                     <td>${assignedBadge}</td>
@@ -1280,6 +1288,7 @@ const Companies = {
                 <div>
                     <div class="detail-section">
                         <h3><i class="fas fa-phone"></i> بيانات الاتصال</h3>
+                        ${company.hotline ? this._detailRow('الخط الساخن (Hotline)', `<span style="color:#3b82f6; font-weight:800; font-family:Inter; font-size:1.1rem;"><i class="fas fa-headset"></i> ${esc(company.hotline)}</span>`) : ''}
                         ${this._detailRow('هاتف 1', esc(company.phone1), true)}
                         ${this._detailRow('هاتف 2', esc(company.phone2), true)}
                         ${this._detailRow('موبايل', esc(company.mobile), true)}

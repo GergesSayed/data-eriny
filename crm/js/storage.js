@@ -742,6 +742,30 @@ const AppStorage = {
                         } else if (!isInitialized) {
                             localStorage.setItem('fleetcrm_db_initialized', 'true');
                         }
+
+                        // Auto-inject and prioritize Verified Egyptian Enterprise Titans
+                        if (window.__EGYPT_VERIFIED_TITANS && Array.isArray(window.__EGYPT_VERIFIED_TITANS) && localStorage.getItem('fleetcrm_user_wiped_companies') !== 'true') {
+                            const existingIds = new Set(this.companiesMemory.map(c => String(c.id)));
+                            const existingNames = new Set(this.companiesMemory.map(c => this._normalizeArabicName(c.nameAr || c.name)));
+                            const titansToAdd = [];
+                            window.__EGYPT_VERIFIED_TITANS.forEach(t => {
+                                const norm = this._normalizeArabicName(t.nameAr);
+                                if (!existingIds.has(String(t.id)) && !existingNames.has(norm)) {
+                                    titansToAdd.push(t);
+                                } else {
+                                    const existing = this.companiesMemory.find(c => String(c.id) === String(t.id) || this._normalizeArabicName(c.nameAr || c.name) === norm);
+                                    if (existing) {
+                                        Object.assign(existing, t);
+                                    }
+                                }
+                            });
+                            if (titansToAdd.length > 0) {
+                                this.companiesMemory.unshift(...titansToAdd);
+                                this.saveAllCompaniesToDB(this.companiesMemory);
+                                if (this.autoSyncToCloud) this.autoSyncToCloud(this.companiesMemory);
+                            }
+                        }
+
                         this.updateLiveCounters();
                         resolve();
                     });
