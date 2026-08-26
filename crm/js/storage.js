@@ -1159,7 +1159,7 @@ const AppStorage = {
 
             let updated = false;
 
-            // 1. Sync companies with cloud without injecting static baseline catalog
+            // 1. Sync companies with cloud with guaranteed baseline pool and titans
             const isWipedComps = localStorage.getItem('fleetcrm_user_wiped_companies') === 'true';
             if (isWipedComps && (!this.companiesMemory || this.companiesMemory.length === 0)) {
                 this.companiesMemory = [];
@@ -1170,7 +1170,34 @@ const AppStorage = {
                 const localComps = (this.companiesMemory || []).filter(c => c && c.id && !deletedCompIds.has(String(c.id)));
 
                 const companyMap = new Map();
-                localComps.forEach(c => { if (c && c.id) companyMap.set(c.id, c); });
+
+                // 1. Immutable Baseline Egyptian Enterprise Pool (5,419 companies)
+                const basePool = (window.__EGYPT_ENTERPRISE_POOL && Array.isArray(window.__EGYPT_ENTERPRISE_POOL)) ? window.__EGYPT_ENTERPRISE_POOL : [];
+                basePool.forEach((c, idx) => {
+                    if (!c) return;
+                    const id = c.id || `comp_base_${idx}`;
+                    if (!deletedCompIds.has(String(id))) {
+                        companyMap.set(id, this._normalizeCompanyData(c, idx));
+                    }
+                });
+
+                // 2. Egyptian Verified Titans (34 major enterprises)
+                const titans = (window.__EGYPT_VERIFIED_TITANS && Array.isArray(window.__EGYPT_VERIFIED_TITANS)) ? window.__EGYPT_VERIFIED_TITANS : [];
+                titans.forEach(t => {
+                    if (!t || !t.id) return;
+                    if (!deletedCompIds.has(String(t.id))) {
+                        companyMap.set(t.id, t);
+                    }
+                });
+
+                // 3. Local In-Memory modifications / custom records
+                localComps.forEach(c => {
+                    if (c && c.id && !deletedCompIds.has(String(c.id))) {
+                        companyMap.set(c.id, c);
+                    }
+                });
+
+                // 4. Cloud dynamic scraped / expanded entities from Firebase
                 cloudDynamic.forEach(c => {
                     if (!c || !c.id) return;
                     if (!companyMap.has(c.id)) {
