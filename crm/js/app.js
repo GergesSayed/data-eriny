@@ -59,9 +59,9 @@ const App = {
             // Clear legacy reset flags to preserve user login session and data
             try {
                 localStorage.removeItem('fleetcrm_auth_reset_v5');
-                localStorage.removeItem('fleetcrm_deals_cleared_v3');
-                const realDeals = (window.AppStorage && window.AppStorage.getOpenDeals) ? window.AppStorage.getOpenDeals().length : 0;
-                localStorage.setItem('fleetcrm_deals_count', String(realDeals));
+                localStorage.removeItem('fleetcrm_deals');
+                localStorage.removeItem('fleetcrm_deals_count');
+                localStorage.removeItem('fleetcrm_user_wiped_deals');
             } catch(e) {}
 
             // Initialize Database and hydrate baseline into RAM memory FIRST
@@ -146,7 +146,7 @@ const App = {
             if (isAdmin) {
                 targetPage = (hash && hash !== 'login') ? hash : 'dashboard';
             } else {
-                targetPage = (hash === 'companies' || hash === 'calls' || hash === 'pipeline') ? hash : 'companies';
+                targetPage = (hash === 'companies' || hash === 'calls') ? hash : 'companies';
             }
 
             this.currentPage = null;
@@ -525,7 +525,6 @@ const App = {
         const btnWipeAllCompanies = document.getElementById('btn-wipe-all-companies');
         const btnCloudSync = document.getElementById('btn-cloud-sync');
         const btnClearCalls = document.getElementById('btn-clear-calls');
-        const btnClearDeals = document.getElementById('btn-clear-deals');
 
         if (btnAuditData) btnAuditData.style.display = isAdmin ? 'inline-flex' : 'none';
         if (btnWipeAllCompanies) btnWipeAllCompanies.style.display = isAdmin ? 'inline-flex' : 'none';
@@ -727,7 +726,7 @@ const App = {
             page = 'companies'; // Default page for sales agents
         }
 
-        const validPages = ['dashboard', 'companies', 'calls', 'pipeline', 'reports', 'scraper', 'team', 'employees'];
+        const validPages = ['dashboard', 'companies', 'calls', 'reports', 'scraper', 'team', 'employees'];
         if (!validPages.includes(page)) page = canViewAll ? 'dashboard' : 'companies';
 
         this.currentPage = page;
