@@ -1027,14 +1027,20 @@ const AppStorage = {
 
     updateLiveCounters() {
         const count = (this.companiesMemory && Array.isArray(this.companiesMemory)) ? this.companiesMemory.length : 0;
+        const openDeals = this.getOpenDeals ? this.getOpenDeals().length : 0;
         try {
             localStorage.setItem('fleetcrm_company_count', count);
+            localStorage.setItem('fleetcrm_deals_count', openDeals);
         } catch(e) {}
         const formatted = count > 0 ? count.toLocaleString() : '0';
         const sideEl = document.getElementById('sidebar-total-companies');
         if (sideEl) sideEl.textContent = formatted;
         const dashEl = document.getElementById('dash-total-companies');
         if (dashEl) dashEl.textContent = formatted;
+        const sideDeals = document.getElementById('sidebar-total-deals');
+        if (sideDeals) sideDeals.textContent = openDeals.toLocaleString();
+        const dashDeals = document.getElementById('dash-open-deals');
+        if (dashDeals) dashDeals.textContent = openDeals.toLocaleString();
         const scTotal = document.getElementById('sc-total');
         if (scTotal) scTotal.textContent = formatted;
         const subText = document.getElementById('scraper-status-subtext');
