@@ -266,7 +266,6 @@ const Dashboard = {
             let iconClass = 'activity-icon';
             let icon = 'fas fa-circle';
             if (act.type === 'call') { iconClass += ' call'; icon = 'fas fa-phone'; }
-            else if (act.type === 'deal') { iconClass += ' deal'; icon = 'fas fa-handshake'; }
             else { icon = 'fas fa-building'; }
 
             const timeAgo = this._timeAgo(act.timestamp);

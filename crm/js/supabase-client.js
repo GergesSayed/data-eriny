@@ -40,10 +40,9 @@ window.SupabaseClient = (function() {
         const timeoutId = setTimeout(() => controller.abort(), 6000); // 6s timeout
 
         try {
-            const [dynResp, callsResp, dealsResp, usersResp, actsResp] = await Promise.all([
+            const [dynResp, callsResp, usersResp, actsResp] = await Promise.all([
                 fetch(`${FIREBASE_DB_URL}/dynamic_companies.json?t=${Date.now()}`, { signal: controller.signal }),
                 fetch(`${FIREBASE_DB_URL}/calls.json?t=${Date.now()}`, { signal: controller.signal }),
-                fetch(`${FIREBASE_DB_URL}/deals.json?t=${Date.now()}`, { signal: controller.signal }),
                 fetch(`${FIREBASE_DB_URL}/users.json?t=${Date.now()}`, { signal: controller.signal }),
                 fetch(`${FIREBASE_DB_URL}/activities.json?t=${Date.now()}`, { signal: controller.signal })
             ]);
@@ -51,7 +50,6 @@ window.SupabaseClient = (function() {
 
             const dynamicCompaniesObj = dynResp.ok ? await dynResp.json() : {};
             const calls = callsResp.ok ? await callsResp.json() : [];
-            const deals = dealsResp.ok ? await dealsResp.json() : [];
             const users = usersResp.ok ? await usersResp.json() : [];
             const activities = actsResp.ok ? await actsResp.json() : [];
 
@@ -69,7 +67,6 @@ window.SupabaseClient = (function() {
             return {
                 dynamicCompanies: dynamicCompanies,
                 calls: Array.isArray(calls) ? calls : (calls ? Object.values(calls) : []),
-                deals: Array.isArray(deals) ? deals : (deals ? Object.values(deals) : []),
                 users: Array.isArray(users) ? users : (users ? Object.values(users) : []),
                 activities: Array.isArray(activities) ? activities : (activities ? Object.values(activities) : []),
                 updated_at: new Date().toISOString()
@@ -130,17 +127,6 @@ window.SupabaseClient = (function() {
                 );
             }
 
-            // 3. Sync deals
-            if (data.deals && Array.isArray(data.deals)) {
-                promises.push(
-                    fetch(`${FIREBASE_DB_URL}/deals.json`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(data.deals),
-                        signal: controller.signal
-                    })
-                );
-            }
 
             // 4. Sync users
             if (data.users && Array.isArray(data.users) && data.users.length > 0) {

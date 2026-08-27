@@ -783,7 +783,6 @@ const App = {
             timestamp: new Date().toISOString(),
             companies: companies,
             calls: window.AppStorage.getCalls ? window.AppStorage.getCalls() : [],
-            deals: window.AppStorage.getDeals ? window.AppStorage.getDeals() : [],
             users: window.AppStorage.getUsers ? window.AppStorage.getUsers() : [],
             activities: window.AppStorage.getActivities ? window.AppStorage.getActivities() : []
         };
@@ -817,9 +816,6 @@ const App = {
                     }
                     if (data.calls && Array.isArray(data.calls) && window.AppStorage._set) {
                         window.AppStorage._set(window.AppStorage.KEYS.CALLS, data.calls);
-                    }
-                    if (data.deals && Array.isArray(data.deals) && window.AppStorage._set) {
-                        window.AppStorage._set(window.AppStorage.KEYS.DEALS, data.deals);
                     }
                     alert(`✅ تم استيراد وتحديث البيانات بنجاح! إجمالي الشركات الآن: ${(window.AppStorage.getCompanies() || []).length.toLocaleString()} شركة.`);
                     window.location.reload();

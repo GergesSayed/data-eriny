@@ -42,7 +42,6 @@ const AppStorage = {
             exportedAt: new Date().toISOString(),
             companies: this.getCompanies(),
             calls: this.getCalls(),
-            deals: this.getDeals(),
             users: this.getUsers().map(u => ({ ...u, password: '***' })),
             activities: this.getActivities(100)
         };
@@ -67,9 +66,6 @@ const AppStorage = {
             }
             if (Array.isArray(data.calls) && data.calls.length > 0) {
                 this._set(this.KEYS.CALLS, data.calls);
-            }
-            if (Array.isArray(data.deals) && data.deals.length > 0) {
-                this._set(this.KEYS.DEALS, data.deals);
             }
             this.addActivity('system', 'restore', 'استعادة نسخة احتياطية', `تم استعادة ${data.companies.length} شركة و${(data.calls || []).length} مكالمة`);
             return { success: true, count: data.companies.length };
@@ -479,7 +475,6 @@ const AppStorage = {
                     companies: this.companiesMemory || [],
                     users: this.getUsers(),
                     calls: this.getCalls ? this.getCalls() : [],
-                    deals: this.getDeals ? this.getDeals() : [],
                     activities: this.getActivities ? this.getActivities() : []
                 });
                 localStorage.setItem('fleetcrm_last_sync_time', Date.now());
@@ -658,14 +653,7 @@ const AppStorage = {
         visited: { ar: 'تم الزيارة', en: 'Visited', icon: '🏢' }
     },
 
-    PIPELINE_STAGES: {
-        initial_contact: { ar: 'اتصال أولي', en: 'Initial Contact', color: '#64748b' },
-        interested: { ar: 'مهتم', en: 'Interested', color: '#3b82f6' },
-        proposal: { ar: 'عرض سعر', en: 'Proposal', color: '#6366f1' },
-        negotiation: { ar: 'تفاوض', en: 'Negotiation', color: '#f59e0b' },
-        won: { ar: 'تم البيع', en: 'Won', color: '#10b981' },
-        lost: { ar: 'خسارة', en: 'Lost', color: '#ef4444' }
-    },
+
 
     // Memory Cache for Companies to allow synchronous reads across the app
     companiesMemory: [],
@@ -887,7 +875,6 @@ const AppStorage = {
                 dynamicCompanies: [],
                 users: this.getUsers(),
                 calls: this.getCalls ? this.getCalls() : [],
-                deals: this.getDeals ? this.getDeals() : [],
                 activities: this.getActivities ? this.getActivities() : []
             });
         }
@@ -1109,7 +1096,6 @@ const AppStorage = {
         const syncFn = async () => {
             try {
                 const calls = this.getCalls ? this.getCalls() : [];
-                const deals = this.getDeals ? this.getDeals() : [];
                 const users = this.getUsers ? this.getUsers() : [];
                 const activities = this.getActivities ? this.getActivities() : [];
 
@@ -1120,14 +1106,13 @@ const AppStorage = {
                     return id.startsWith('real_osm_') || id.startsWith('custom_') || id.startsWith('user_') || id.startsWith('scraped_') || id.startsWith('eg_titan_') || c.isCustom === true || c.isTitan === true;
                 });
 
-                const quickHash = `${dynamicCompanies.length}_${calls.length}_${deals.length}_${users.length}`;
+                const quickHash = `${dynamicCompanies.length}_${calls.length}_${users.length}`;
                 if (!forceSync && quickHash === localStorage.getItem('fleetcrm_last_synced_hash')) return true;
 
                 const ok = await window.SupabaseClient.pushMasterData({
                     dynamicCompanies: dynamicCompanies,
                     users: users,
                     calls: calls,
-                    deals: deals,
                     activities: activities
                 });
                 if (ok) {
@@ -1246,39 +1231,12 @@ const AppStorage = {
                 }
             }
 
-            // 3. Deals sync with tombstone filtering
-            const isWipedDeals = localStorage.getItem('fleetcrm_user_wiped_deals') === 'true';
-            const deletedDealIds = this.getDeletedIds('deals');
-            if (isWipedDeals) {
-                this._set(this.KEYS.DEALS, []);
-            } else if (data.deals && Array.isArray(data.deals)) {
-                const localDeals = (this._get(this.KEYS.DEALS) || []).filter(d => d && d.id && !deletedDealIds.has(String(d.id)));
-                const dealMap = new Map();
-                localDeals.forEach(d => { if (d && d.id) dealMap.set(String(d.id), d); });
-                data.deals.forEach(d => {
-                    if (d && d.id && !deletedDealIds.has(String(d.id))) {
-                        const key = String(d.id);
-                        if (!dealMap.has(key)) {
-                            dealMap.set(key, d);
-                        } else {
-                            const existing = dealMap.get(key);
-                            dealMap.set(key, { ...existing, ...d });
-                        }
-                    }
-                });
-                const mergedDeals = Array.from(dealMap.values());
-                if (mergedDeals.length !== localDeals.length || JSON.stringify(mergedDeals) !== JSON.stringify(localDeals)) {
-                    this._set(this.KEYS.DEALS, mergedDeals);
-                    updated = true;
-                }
-            }
-
             if (data.activities && Array.isArray(data.activities)) {
                 this._set(this.KEYS.ACTIVITIES, data.activities);
             }
 
             // If any tombstoned items were filtered from cloud data, push cleaned state back to cloud immediately
-            if (deletedCompIds.size > 0 || deletedDealIds.size > 0 || deletedCallIds.size > 0) {
+            if (deletedCompIds.size > 0 || deletedCallIds.size > 0) {
                 this.autoSyncToCloud(this.companiesMemory, true);
             }
 
@@ -1618,10 +1576,7 @@ const AppStorage = {
         const calls = (this.getCalls() || []).filter(c => c && c.companyId !== id);
         this._set(this.KEYS.CALLS, calls);
 
-        const relatedDeals = (this.getDeals() || []).filter(d => d && d.companyId === id);
-        relatedDeals.forEach(d => this.recordDeletedId('deals', d.id));
-        const deals = (this.getDeals() || []).filter(d => d && d.companyId !== id);
-        this._set(this.KEYS.DEALS, deals);
+
 
         if (window.SupabaseClient && window.SupabaseClient.deleteDynamicCompany) {
             window.SupabaseClient.deleteDynamicCompany(id);
@@ -1851,16 +1806,6 @@ const AppStorage = {
                     });
                     if (callsUpdated) this._set(this.KEYS.CALLS, calls);
 
-                    // Re-link deals from duplicate ID to main company ID
-                    const deals = this.getDeals();
-                    let dealsUpdated = false;
-                    deals.forEach(deal => {
-                        if (deal.companyId === dup.id) {
-                            deal.companyId = c.id;
-                            dealsUpdated = true;
-                        }
-                    });
-                    if (dealsUpdated) this._set(this.KEYS.DEALS, deals);
                 });
             }
 
@@ -1886,7 +1831,6 @@ const AppStorage = {
                 companies: mergedList,
                 users: this.getUsers(),
                 calls: this.getCalls ? this.getCalls() : [],
-                deals: this.getDeals ? this.getDeals() : [],
                 activities: this.getActivities ? this.getActivities() : []
             });
         }
@@ -2024,84 +1968,14 @@ const AppStorage = {
     },
 
     // ---- Deals ----
-    getDeals() {
-        let deals = this._get(this.KEYS.DEALS);
-        const isWiped = localStorage.getItem('fleetcrm_user_wiped_deals') === 'true';
-        const deletedDealIds = this.getDeletedIds('deals');
-        if (isWiped) return [];
-
-        if (!deals || !Array.isArray(deals)) {
-            return [];
-        }
-
-        return deals.filter(d => d && d.id && !deletedDealIds.has(String(d.id)));
-    },
-
-    getDeal(id) {
-        return this.getDeals().find(d => d && d.id === id);
-    },
-
-    saveDeal(deal) {
-        const deals = this.getDeals();
-        if (deal.id) {
-            const index = deals.findIndex(d => d && d.id === deal.id);
-            if (index >= 0) {
-                deals[index] = { ...deals[index], ...deal };
-            } else {
-                if (!deal.createdAt) deal.createdAt = new Date().toISOString();
-                deals.push(deal);
-            }
-        } else {
-            deal.id = this._generateId('deal');
-            deal.createdAt = new Date().toISOString();
-            deals.push(deal);
-        }
-        this._set(this.KEYS.DEALS, deals);
-        const company = this.getCompany(deal.companyId);
-        const companyName = company ? company.nameAr : 'شركة';
-        this.addActivity('deal', deal.id, deal.id ? 'تحديث صفقة' : 'إضافة صفقة', companyName);
-        this.autoSyncToCloud(this.companiesMemory, true);
-        return deal;
-    },
-
-    deleteDeal(id) {
-        this.recordDeletedId('deals', id);
-        const deals = this.getDeals().filter(d => d && d.id !== id);
-        this._set(this.KEYS.DEALS, deals);
-        if (deals.length === 0) {
-            localStorage.setItem('fleetcrm_user_wiped_deals', 'true');
-        }
-        this.autoSyncToCloud(this.companiesMemory, true);
-        this.updateLiveCounters();
-    },
-
-    clearAllDeals() {
-        const existing = this.getDeals() || [];
-        existing.forEach(d => { if (d && d.id) this.recordDeletedId('deals', d.id); });
-        this._set(this.KEYS.DEALS, []);
-        localStorage.setItem('fleetcrm_user_wiped_deals', 'true');
-        this.autoSyncToCloud(this.companiesMemory, true);
-        this.updateLiveCounters();
-    },
-
-    updateDealStage(dealId, newStage) {
-        const deals = this.getDeals();
-        const index = deals.findIndex(d => d.id === dealId);
-        if (index >= 0) {
-            deals[index].stage = newStage;
-            deals[index].lastUpdated = new Date().toISOString();
-            this._set(this.KEYS.DEALS, deals);
-            this.addActivity('deal', dealId, `نقل صفقة إلى: ${this.PIPELINE_STAGES[newStage]?.ar || newStage}`, '');
-        }
-    },
-
-    getOpenDeals() {
-        return this.getDeals().filter(d => !['won', 'lost'].includes(d.stage));
-    },
-
-    getPipelineValue() {
-        return this.getOpenDeals().reduce((sum, d) => sum + (Number(d.value) || 0), 0);
-    },
+    getDeals() { return []; },
+    getDeal(id) { return null; },
+    saveDeal(deal) { return deal; },
+    deleteDeal(id) {},
+    clearAllDeals() {},
+    updateDealStage(dealId, newStage) {},
+    getOpenDeals() { return []; },
+    getPipelineValue() { return 0; },
 
     // ---- Activities Persistence Engine ----
     loadActivitiesFromDB(db) {
@@ -2195,25 +2069,16 @@ const AppStorage = {
     getStats() {
         const companies = this.getScopedCompanies();
         const calls = this.getCalls();
-        const deals = this.getDeals();
         const today = new Date().toISOString().split('T')[0];
-
         const compList = this.getCompanies();
         const count = (compList && Array.isArray(compList)) ? compList.length : 0;
-
-        const openDealsList = deals.filter(d => !['won', 'lost'].includes(d.stage));
-        const calcDealsCount = openDealsList.length;
-        const calcPipelineValue = openDealsList.reduce((sum, d) => sum + (Number(d.value) || 0), 0);
-
-        const openDealsCount = calcDealsCount;
-        const pipelineVal = calcPipelineValue;
 
         return {
             totalCompanies: count,
             callsToday: calls.filter(c => c.date === today).length,
-            openDeals: openDealsCount,
-            pipelineValue: pipelineVal,
-            wonDeals: deals.filter(d => d.stage === 'won').length,
+            openDeals: 0,
+            pipelineValue: 0,
+            wonDeals: 0,
             totalCallsThisWeek: (() => {
                 const weekAgo = new Date();
                 weekAgo.setDate(weekAgo.getDate() - 7);
@@ -2266,13 +2131,6 @@ const AppStorage = {
                         count: calls.filter(c => c.date === dateStr).length
                     });
                 }
-                return result;
-            })(),
-            dealsByStage: (() => {
-                const result = {};
-                Object.keys(AppStorage.PIPELINE_STAGES).forEach(stage => {
-                    result[stage] = deals.filter(d => d.stage === stage);
-                });
                 return result;
             })()
         };
