@@ -1453,10 +1453,25 @@ const AppStorage = {
     },
 
     getCompanies() {
-        if (!this.companiesMemory || !Array.isArray(this.companiesMemory)) {
-            this.companiesMemory = [];
+        if (!this.companiesMemory || !Array.isArray(this.companiesMemory) || this.companiesMemory.length === 0) {
+            if (localStorage.getItem('fleetcrm_user_wiped_companies') !== 'true') {
+                const syncMap = new Map();
+                if (window.__EGYPT_ENTERPRISE_POOL && Array.isArray(window.__EGYPT_ENTERPRISE_POOL)) {
+                    window.__EGYPT_ENTERPRISE_POOL.forEach((c, idx) => {
+                        if (c) syncMap.set(c.id || `comp_base_${idx}`, c);
+                    });
+                }
+                if (window.__EGYPT_VERIFIED_TITANS && Array.isArray(window.__EGYPT_VERIFIED_TITANS)) {
+                    window.__EGYPT_VERIFIED_TITANS.forEach(t => {
+                        if (t && t.id) syncMap.set(t.id, t);
+                    });
+                }
+                if (syncMap.size > 0) {
+                    this.companiesMemory = Array.from(syncMap.values());
+                }
+            }
         }
-        return this.companiesMemory;
+        return this.companiesMemory || [];
     },
 
     getCompany(id) {
@@ -2471,3 +2486,24 @@ const AppStorage = {
 window.AppStorage = AppStorage;
 window.FleetStorage = AppStorage;
 var Storage = AppStorage;
+
+// Synchronous immediate memory hydration on script load — eliminates 0-count startup flash!
+try {
+    if (localStorage.getItem('fleetcrm_user_wiped_companies') !== 'true') {
+        const syncMap = new Map();
+        if (window.__EGYPT_ENTERPRISE_POOL && Array.isArray(window.__EGYPT_ENTERPRISE_POOL)) {
+            window.__EGYPT_ENTERPRISE_POOL.forEach((c, idx) => {
+                if (c) syncMap.set(c.id || `comp_base_${idx}`, c);
+            });
+        }
+        if (window.__EGYPT_VERIFIED_TITANS && Array.isArray(window.__EGYPT_VERIFIED_TITANS)) {
+            window.__EGYPT_VERIFIED_TITANS.forEach(t => {
+                if (t && t.id) syncMap.set(t.id, t);
+            });
+        }
+        if (syncMap.size > 0) {
+            AppStorage.companiesMemory = Array.from(syncMap.values());
+            AppStorage.updateLiveCounters();
+        }
+    }
+} catch(e) {}
