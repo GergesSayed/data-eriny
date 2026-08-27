@@ -60,6 +60,8 @@ const App = {
             try {
                 localStorage.removeItem('fleetcrm_auth_reset_v5');
                 localStorage.removeItem('fleetcrm_deals_cleared_v3');
+                const realDeals = (window.AppStorage && window.AppStorage.getOpenDeals) ? window.AppStorage.getOpenDeals().length : 0;
+                localStorage.setItem('fleetcrm_deals_count', String(realDeals));
             } catch(e) {}
 
             // Initialize Database and hydrate baseline into RAM memory FIRST

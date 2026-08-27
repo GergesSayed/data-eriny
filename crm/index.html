@@ -75,11 +75,23 @@
                                 if (elDash) elDash.textContent = formatted;
                             }
                         }
-                        var rawDeals = localStorage.getItem('fleetcrm_deals_count') || '0';
+                        var rawDealsData = localStorage.getItem('fleetcrm_deals');
+                        var dealsCount = 0;
+                        if (rawDealsData) {
+                            try {
+                                var parsedDeals = JSON.parse(rawDealsData);
+                                if (Array.isArray(parsedDeals)) {
+                                    dealsCount = parsedDeals.filter(function(d) {
+                                        return d && d.id && d.stage !== 'won' && d.stage !== 'lost';
+                                    }).length;
+                                }
+                            } catch(e) { dealsCount = 0; }
+                        }
+                        localStorage.setItem('fleetcrm_deals_count', String(dealsCount));
                         var elSideDeals = document.getElementById('sidebar-total-deals');
                         var elDashDeals = document.getElementById('dash-open-deals');
-                        if (elSideDeals) elSideDeals.textContent = rawDeals;
-                        if (elDashDeals) elDashDeals.textContent = rawDeals;
+                        if (elSideDeals) elSideDeals.textContent = dealsCount.toLocaleString();
+                        if (elDashDeals) elDashDeals.textContent = dealsCount.toLocaleString();
                     });
                 }
             } catch(e) {}
@@ -1456,20 +1468,20 @@
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <script src="js/supabase-client.js?v=162.0"></script>
-    <script src="js/egypt_verified_titans.js?v=162.0"></script>
-    <script src="js/egypt_enterprises_pool.js?v=162.0"></script>
-    <script src="js/storage.js?v=162.0"></script>
-    <script src="js/excel-handler.js?v=162.0"></script>
-    <script src="js/dashboard.js?v=162.0"></script>
-    <script src="js/companies.js?v=162.0"></script>
-    <script src="js/calls.js?v=162.0"></script>
-    <script src="js/pipeline.js?v=162.0"></script>
-    <script src="js/reports.js?v=162.0"></script>
-    <script src="js/scraper.js?v=162.0"></script>
-    <script src="js/team.js?v=162.0"></script>
-    <script src="js/settings.js?v=162.0"></script>
-    <script src="js/app.js?v=162.0"></script>
+    <script src="js/supabase-client.js?v=163.0"></script>
+    <script src="js/egypt_verified_titans.js?v=163.0"></script>
+    <script src="js/egypt_enterprises_pool.js?v=163.0"></script>
+    <script src="js/storage.js?v=163.0"></script>
+    <script src="js/excel-handler.js?v=163.0"></script>
+    <script src="js/dashboard.js?v=163.0"></script>
+    <script src="js/companies.js?v=163.0"></script>
+    <script src="js/calls.js?v=163.0"></script>
+    <script src="js/pipeline.js?v=163.0"></script>
+    <script src="js/reports.js?v=163.0"></script>
+    <script src="js/scraper.js?v=163.0"></script>
+    <script src="js/team.js?v=163.0"></script>
+    <script src="js/settings.js?v=163.0"></script>
+    <script src="js/app.js?v=163.0"></script>
 
     <!-- EMERGENCY: Guarantee save button always works regardless of cache -->
     <script>
