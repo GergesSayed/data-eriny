@@ -1,4 +1,6 @@
 {
+  "framework": null,
+  "buildCommand": null,
   "outputDirectory": "crm",
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" }
