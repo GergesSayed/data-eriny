@@ -167,7 +167,6 @@ const App = {
             safeInit('Dashboard', Dashboard, () => Dashboard.init());
             safeInit('Companies', Companies, () => Companies.init());
             safeInit('Calls', Calls, () => Calls.init());
-            safeInit('Pipeline', Pipeline, () => Pipeline.init());
             safeInit('Reports', Reports, () => Reports.init());
             safeInit('Team', Team, () => Team.init());
 
@@ -759,7 +758,6 @@ const App = {
                 case 'dashboard': if (typeof Dashboard !== 'undefined') Dashboard.render(); break;
                 case 'companies': if (typeof Companies !== 'undefined') Companies.render(); break;
                 case 'calls': if (typeof Calls !== 'undefined') Calls.render(); break;
-                case 'pipeline': if (typeof Pipeline !== 'undefined') { Pipeline.render(); Pipeline.initDragAndDrop(); } break;
                 case 'reports': if (typeof Reports !== 'undefined') Reports.render(); break;
                 case 'scraper': if (typeof ScraperPage !== 'undefined') ScraperPage.render(); break;
                 case 'team': if (typeof Team !== 'undefined') Team.render(); break;
@@ -885,13 +883,9 @@ const App = {
         document.getElementById('btn-quick-call')?.addEventListener('click', () => Calls.openAddModal());
         document.getElementById('btn-add-call')?.addEventListener('click', () => Calls.openAddModal());
 
-        // Add deal button
-        document.getElementById('btn-add-deal')?.addEventListener('click', () => Pipeline.openAddModal());
-
         // Save buttons
         document.getElementById('btn-save-company')?.addEventListener('click', () => Companies.save());
         document.getElementById('btn-save-call')?.addEventListener('click', () => Calls.save());
-        document.getElementById('btn-save-deal')?.addEventListener('click', () => Pipeline.save());
 
         // Modal close buttons
         document.querySelectorAll('.modal-close, .modal-overlay').forEach(el => {

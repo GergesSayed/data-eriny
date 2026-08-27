@@ -37,8 +37,6 @@ const Team = {
             const users = window.AppStorage.getUsers() || [];
             const allCompanies = window.AppStorage.getCompanies() || [];
             const allCalls = window.AppStorage.getCalls() || [];
-            const allDeals = window.AppStorage.getDeals() || [];
-
             const activeUserKeys = new Set(users.flatMap(u => [u.id, u.username, u.name].filter(Boolean)));
 
             const usersStats = users.map(user => {
@@ -49,9 +47,6 @@ const Team = {
                 const notInterestedLeads = assignedCompanies.filter(c => c.lastCallResult === 'not_interested' || c.lastCallResult === 'wrong_number');
 
                 const userCalls = allCalls.filter(call => call && (call.userId === user.id || call.createdByName === user.name));
-                const userDeals = allDeals.filter(deal => deal && (deal.assignedTo === user.id || deal.createdByName === user.name));
-                const wonDeals = userDeals.filter(deal => deal && deal.stage === 'won');
-                const totalRevenue = wonDeals.reduce((sum, d) => sum + (Number(d.value) || 0), 0);
 
                 return {
                     ...user,
@@ -60,10 +55,7 @@ const Team = {
                     remainingCount: remainingCompanies.length,
                     interestedCount: interestedLeads.length,
                     notInterestedCount: notInterestedLeads.length,
-                    callsCount: userCalls.length,
-                    dealsCount: userDeals.length,
-                    wonDealsCount: wonDeals.length,
-                    totalRevenue
+                    callsCount: userCalls.length
                 };
             });
 
@@ -119,7 +111,7 @@ const Team = {
                                 <th>متبقية لم يتصل <small>Remaining</small></th>
                                 <th>عملاء مهتمين <small>Interested</small></th>
                                 <th>غير مهتمين <small>Uninterested</small></th>
-                                <th>صفقات ناجحة <small>Won Deals</small></th>
+                                <th>إجمالي المكالمات <small>Total Calls</small></th>
                                 <th>إجراءات <small>Actions</small></th>
                             </tr>
                         </thead>
@@ -155,7 +147,7 @@ const Team = {
                                     </td>
                                     <td><span class="badge" style="background:#7c3aed22; color:#7c3aed; border:1px solid #7c3aed; font-weight:700;">💚 ${u.interestedCount} مهتم</span></td>
                                     <td><span class="badge" style="background:#ef444422; color:#ef4444; border:1px solid #ef4444;">🔴 ${u.notInterestedCount} غير مهتم</span></td>
-                                    <td><b>${u.wonDealsCount}</b> (${u.totalRevenue.toLocaleString()} ج.م)</td>
+                                    <td><b style="color:#10b981; font-size:15px;">📞 ${u.callsCount}</b> مكالمة</td>
                                     <td>
                                         <div class="table-actions">
                                             <button class="btn btn-primary btn-sm" onclick="Team.openEmployeeProgressModal('${u.id}')" title="تقرير تواصل شركات هذا الموظف تفصيلياً" style="background:var(--gradient-primary); color:#fff; font-weight:700;">

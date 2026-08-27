@@ -101,26 +101,23 @@ const Reports = {
         if (!ctx) return;
         if (this.charts.salesReport) this.charts.salesReport.destroy();
 
-        const deals = window.AppStorage.getDeals();
-        const stageData = {};
-        Object.keys(window.AppStorage.PIPELINE_STAGES).forEach(stage => {
-            const stageDeals = deals.filter(d => d.stage === stage);
-            stageData[stage] = {
-                count: stageDeals.length,
-                value: stageDeals.reduce((sum, d) => sum + (Number(d.value) || 0), 0)
-            };
+        const companies = window.AppStorage.getCompanies();
+        const priorityCounts = { A: 0, B: 0, C: 0 };
+        companies.forEach(c => {
+            const p = c.priority || 'B';
+            if (priorityCounts[p] !== undefined) priorityCounts[p]++;
         });
 
-        const labels = Object.keys(stageData).map(key => window.AppStorage.PIPELINE_STAGES[key]?.ar || key);
-        const values = Object.values(stageData).map(s => s.value);
-        const colors = Object.keys(stageData).map(key => window.AppStorage.PIPELINE_STAGES[key]?.color || '#64748b');
+        const labels = ['فئة A (أساطيل ضخمة)', 'فئة B (أساطيل متوسطة)', 'فئة C (أساطيل صغيرة)'];
+        const values = [priorityCounts.A, priorityCounts.B, priorityCounts.C];
+        const colors = ['#ef4444', '#f59e0b', '#3b82f6'];
 
         this.charts.salesReport = new Chart(ctx, {
             type: 'bar',
             data: {
                 labels,
                 datasets: [{
-                    label: 'القيمة (ج.م)',
+                    label: 'عدد الشركات',
                     data: values,
                     backgroundColor: colors.map(c => c + '80'),
                     borderColor: colors,
@@ -140,7 +137,7 @@ const Reports = {
                         bodyFont: { family: 'Cairo' },
                         cornerRadius: 8,
                         callbacks: {
-                            label: (context) => `القيمة: ${window.AppStorage.formatCurrency(context.parsed.y)} ج.م`
+                            label: (context) => `عدد المنشآت: ${context.parsed.y.toLocaleString()} شركة`
                         }
                     }
                 },
@@ -153,9 +150,9 @@ const Reports = {
                         beginAtZero: true,
                         grid: { color: 'rgba(255,255,255,0.04)' },
                         ticks: {
-                            color: '#64748b',
-                            font: { family: 'Inter', size: 11 },
-                            callback: (value) => window.AppStorage.formatCurrency(value)
+                            color: '#94a3b8',
+                            font: { family: 'Inter', size: 10 },
+                            callback: (v) => v.toLocaleString()
                         }
                     }
                 }
@@ -313,23 +310,20 @@ const Reports = {
 
     renderPerformanceSummary() {
         const calls = window.AppStorage.getCalls();
-        const deals = window.AppStorage.getDeals();
         const companies = window.AppStorage.getCompanies();
 
-        // Response rate: interested + meeting + proposal / total calls
+        // Response rate: positive calls / total calls
         const positiveCalls = calls.filter(c =>
             ['interested', 'meeting_scheduled', 'proposal_sent', 'visited'].includes(c.result)
         ).length;
         const responseRate = calls.length > 0 ? Math.round((positiveCalls / calls.length) * 100) : 0;
 
-        // Conversion rate: won deals / total deals
-        const wonDeals = deals.filter(d => d.stage === 'won').length;
-        const conversionRate = deals.length > 0 ? Math.round((wonDeals / deals.length) * 100) : 0;
+        // Coverage rate: contacted companies / total companies
+        const contactedCompanies = companies.filter(c => c.status === 'contacted' || c.status === 'interested' || c.lastCallResult).length;
+        const coverageRate = companies.length > 0 ? Math.round((contactedCompanies / companies.length) * 100) : 0;
 
-        // Average deal value
-        const totalDealValue = deals.reduce((sum, d) => sum + (Number(d.value) || 0), 0);
-        const avgDealValue = deals.length > 0 ? Math.round(totalDealValue / deals.length) : 0;
-        const maxPossibleAvg = 2000000; // For display scaling
+        // Interested leads count
+        const interestedCompanies = companies.filter(c => c.status === 'interested' || c.lastCallResult === 'interested').length;
 
         // Update UI safely
         const respEl = document.getElementById('perf-response-rate');
@@ -339,13 +333,12 @@ const Reports = {
 
         const convEl = document.getElementById('perf-conversion-rate');
         const convValEl = document.getElementById('perf-conversion-value');
-        if (convEl) convEl.style.width = conversionRate + '%';
-        if (convValEl) convValEl.textContent = conversionRate + '%';
+        if (convEl) convEl.style.width = coverageRate + '%';
+        if (convValEl) convValEl.textContent = coverageRate + '%';
 
-        const avgWidth = Math.min(100, Math.round((avgDealValue / maxPossibleAvg) * 100));
         const avgEl = document.getElementById('perf-avg-deal');
         const avgValEl = document.getElementById('perf-avg-deal-value');
-        if (avgEl) avgEl.style.width = avgWidth + '%';
-        if (avgValEl) avgValEl.textContent = window.AppStorage.formatCurrency(avgDealValue) + ' ج.م';
+        if (avgEl) avgEl.style.width = Math.min(100, Math.round((interestedCompanies / Math.max(1, contactedCompanies)) * 100)) + '%';
+        if (avgValEl) avgValEl.textContent = interestedCompanies + ' شركة';
     }
 };

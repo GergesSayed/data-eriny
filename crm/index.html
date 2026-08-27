@@ -75,7 +75,7 @@
                                 navLinks[j].classList.remove('active');
                             }
                         }
-                        // Dynamically hydrate live company count and deals from storage immediately
+                        // Dynamically hydrate live company count from storage immediately
                         var rawCount = localStorage.getItem('fleetcrm_company_count') || '7,487';
                         if (rawCount) {
                             var parsed = parseInt(String(rawCount).replace(/,/g, ''), 10);
@@ -87,23 +87,6 @@
                                 if (elDash) elDash.textContent = formatted;
                             }
                         }
-                        var rawDealsData = localStorage.getItem('fleetcrm_deals');
-                        var dealsCount = 0;
-                        if (rawDealsData) {
-                            try {
-                                var parsedDeals = JSON.parse(rawDealsData);
-                                if (Array.isArray(parsedDeals)) {
-                                    dealsCount = parsedDeals.filter(function(d) {
-                                        return d && d.id && d.stage !== 'won' && d.stage !== 'lost';
-                                    }).length;
-                                }
-                            } catch(e) { dealsCount = 0; }
-                        }
-                        localStorage.setItem('fleetcrm_deals_count', String(dealsCount));
-                        var elSideDeals = document.getElementById('sidebar-total-deals');
-                        var elDashDeals = document.getElementById('dash-open-deals');
-                        if (elSideDeals) elSideDeals.textContent = dealsCount.toLocaleString();
-                        if (elDashDeals) elDashDeals.textContent = dealsCount.toLocaleString();
                     });
                 }
             } catch(e) {}
@@ -257,11 +240,6 @@
                 <span>سجل المكالمات</span>
                 <small>Call Log</small>
             </a>
-            <a href="javascript:void(0)" class="nav-link admin-only-nav" data-page="pipeline" onclick="App.navigateTo('pipeline'); App.closeSidebar();">
-                <i class="fas fa-filter"></i>
-                <span>خط المبيعات</span>
-                <small>Sales Pipeline</small>
-            </a>
             <a href="javascript:void(0)" class="nav-link admin-only-nav" data-page="reports" onclick="App.navigateTo('reports'); App.closeSidebar();">
                 <i class="fas fa-chart-pie"></i>
                 <span>التقارير</span>
@@ -285,17 +263,12 @@
         </nav>
 
         <div class="sidebar-footer admin-only-nav">
-            <div class="sidebar-stats">
-                <div class="sidebar-stat">
+            <div class="sidebar-stats" style="justify-content:center;">
+                <div class="sidebar-stat" style="width:100%; text-align:center;">
                     <span class="stat-num" id="sidebar-total-companies">7,487</span>
-                    <span class="stat-label">شركة</span>
-                </div>
-                <div class="sidebar-stat">
-                    <span class="stat-num" id="sidebar-total-deals">0</span>
-                    <span class="stat-label">صفقة</span>
+                    <span class="stat-label">شركة ومصنع مسجل</span>
                 </div>
             </div>
-            <script>(function(){ try{ var el = document.getElementById('sidebar-total-deals'); if (el) el.textContent = '0'; }catch(e){} })();</script>
         </div>
     </aside>
 
@@ -384,25 +357,14 @@
                         <div class="stat-card__trend up">
                             <i class="fas fa-arrow-up"></i>
                         </div>
-                    </div>
-                    <div class="stat-card stat-card--success">
-                        <div class="stat-card__icon"><i class="fas fa-handshake"></i></div>
-                        <div class="stat-card__info">
-                            <h3 id="dash-open-deals">0</h3>
-                            <p>صفقات مفتوحة <br><small>Open Deals</small></p>
-                        </div>
-                        <div class="stat-card__trend">
-                            <i class="fas fa-minus"></i>
-                        </div>
-                    </div>
                     <div class="stat-card stat-card--warning">
-                        <div class="stat-card__icon"><i class="fas fa-coins"></i></div>
+                        <div class="stat-card__icon"><i class="fas fa-bell"></i></div>
                         <div class="stat-card__info">
-                            <h3 id="dash-pipeline-value">0</h3>
-                            <p>قيمة الصفقات (ج.م) <br><small>Pipeline Value (EGP)</small></p>
+                            <h3 id="dash-followups-today">0</h3>
+                            <p>متابعات اليوم <br><small>Today's Follow-ups</small></p>
                         </div>
                         <div class="stat-card__trend up">
-                            <i class="fas fa-arrow-up"></i>
+                            <i class="fas fa-calendar-check"></i>
                         </div>
                     </div>
                 </div>
@@ -745,97 +707,6 @@
                 <div class="pagination" id="calls-pagination"></div>
             </section>
 
-            <!-- ===================== PIPELINE PAGE ===================== -->
-            <section id="page-pipeline" class="page">
-                <div class="page-header">
-                    <div>
-                        <h1><i class="fas fa-filter"></i> خط المبيعات <small>Sales Pipeline</small></h1>
-                        <p class="page-subtitle">تتبع مراحل الصفقات من الاتصال الأولي حتى إتمام البيع</p>
-                    </div>
-                    <div class="page-header-actions">
-                        <button class="btn btn-outline btn-sm" id="btn-clear-deals" onclick="Pipeline.clearAllDeals()" title="مسح الصفقات التجريبية">
-                            <i class="fas fa-trash"></i> مسح السجل التجريبي
-                        </button>
-                        <div class="pipeline-total">
-                            <span>إجمالي القيمة:</span>
-                            <strong id="pipeline-total-value">0 ج.م</strong>
-                        </div>
-                        <button class="btn btn-primary btn-sm" id="btn-add-deal" onclick="Pipeline.openAddModal()">
-                            <i class="fas fa-plus"></i> إضافة صفقة
-                        </button>
-                    </div>
-                </div>
-
-                <div class="kanban-board" id="kanban-board">
-                    <div class="kanban-column" data-stage="initial_contact">
-                        <div class="kanban-column__header">
-                            <div class="kanban-column__title">
-                                <span class="stage-dot stage-dot--initial"></span>
-                                <h3>اتصال أولي</h3>
-                                <small>Initial Contact</small>
-                            </div>
-                            <span class="kanban-column__count" id="stage-count-initial_contact">0</span>
-                        </div>
-                        <div class="kanban-column__cards" data-stage="initial_contact"></div>
-                    </div>
-                    <div class="kanban-column" data-stage="interested">
-                        <div class="kanban-column__header">
-                            <div class="kanban-column__title">
-                                <span class="stage-dot stage-dot--interested"></span>
-                                <h3>مهتم</h3>
-                                <small>Interested</small>
-                            </div>
-                            <span class="kanban-column__count" id="stage-count-interested">0</span>
-                        </div>
-                        <div class="kanban-column__cards" data-stage="interested"></div>
-                    </div>
-                    <div class="kanban-column" data-stage="proposal">
-                        <div class="kanban-column__header">
-                            <div class="kanban-column__title">
-                                <span class="stage-dot stage-dot--proposal"></span>
-                                <h3>عرض سعر</h3>
-                                <small>Proposal</small>
-                            </div>
-                            <span class="kanban-column__count" id="stage-count-proposal">0</span>
-                        </div>
-                        <div class="kanban-column__cards" data-stage="proposal"></div>
-                    </div>
-                    <div class="kanban-column" data-stage="negotiation">
-                        <div class="kanban-column__header">
-                            <div class="kanban-column__title">
-                                <span class="stage-dot stage-dot--negotiation"></span>
-                                <h3>تفاوض</h3>
-                                <small>Negotiation</small>
-                            </div>
-                            <span class="kanban-column__count" id="stage-count-negotiation">0</span>
-                        </div>
-                        <div class="kanban-column__cards" data-stage="negotiation"></div>
-                    </div>
-                    <div class="kanban-column" data-stage="won">
-                        <div class="kanban-column__header">
-                            <div class="kanban-column__title">
-                                <span class="stage-dot stage-dot--won"></span>
-                                <h3>تم البيع ?</h3>
-                                <small>Won</small>
-                            </div>
-                            <span class="kanban-column__count" id="stage-count-won">0</span>
-                        </div>
-                        <div class="kanban-column__cards" data-stage="won"></div>
-                    </div>
-                    <div class="kanban-column kanban-column--lost" data-stage="lost">
-                        <div class="kanban-column__header">
-                            <div class="kanban-column__title">
-                                <span class="stage-dot stage-dot--lost"></span>
-                                <h3>خسارة</h3>
-                                <small>Lost</small>
-                            </div>
-                            <span class="kanban-column__count" id="stage-count-lost">0</span>
-                        </div>
-                        <div class="kanban-column__cards" data-stage="lost"></div>
-                    </div>
-                </div>
-            </section>
-
             <!-- ===================== REPORTS PAGE ===================== -->
             <section id="page-reports" class="page">
                 <div class="page-header">
@@ -865,7 +736,7 @@
                     </div>
                     <div class="card report-card">
                         <div class="card-header">
-                            <h3><i class="fas fa-funnel-dollar"></i> تقرير المبيعات <small>Sales Report</small></h3>
+                            <h3><i class="fas fa-layer-group"></i> توزيع أولويات الشركات <small>Company Priority Distribution</small></h3>
                         </div>
                         <div class="card-body chart-container">
                             <canvas id="chart-sales-report"></canvas>
@@ -892,24 +763,24 @@
                 <!-- Performance Table -->
                 <div class="card" style="margin-top: 1.5rem;">
                     <div class="card-header">
-                        <h3><i class="fas fa-trophy"></i> ملخص الأداء <small>Performance Summary</small></h3>
+                        <h3><i class="fas fa-trophy"></i> ملخص الأداء والتغطية <small>Performance & Outreach Summary</small></h3>
                     </div>
                     <div class="card-body">
                         <div class="performance-grid" id="performance-summary">
                             <div class="perf-item">
-                                <div class="perf-label">معدل الاستجابة <small>Response Rate</small></div>
+                                <div class="perf-label">معدل الاستجابة الإيجابية <small>Positive Response Rate</small></div>
                                 <div class="perf-bar"><div class="perf-fill" id="perf-response-rate" style="width:0%"></div></div>
                                 <div class="perf-value" id="perf-response-value">0%</div>
                             </div>
                             <div class="perf-item">
-                                <div class="perf-label">معدل التحويل <small>Conversion Rate</small></div>
+                                <div class="perf-label">نسبة تغطية الشركات <small>Company Coverage</small></div>
                                 <div class="perf-bar"><div class="perf-fill perf-fill--accent" id="perf-conversion-rate" style="width:0%"></div></div>
                                 <div class="perf-value" id="perf-conversion-value">0%</div>
                             </div>
                             <div class="perf-item">
-                                <div class="perf-label">متوسط قيمة الصفقة <small>Avg Deal Value</small></div>
+                                <div class="perf-label">العملاء المهتمين <small>Interested Leads</small></div>
                                 <div class="perf-bar"><div class="perf-fill perf-fill--success" id="perf-avg-deal" style="width:0%"></div></div>
-                                <div class="perf-value" id="perf-avg-deal-value">0 ج.م</div>
+                                <div class="perf-value" id="perf-avg-deal-value">0 شركة</div>
                             </div>
                         </div>
                     </div>
@@ -1308,77 +1179,6 @@
         </div>
     </div>
 
-    <!-- Deal Modal -->
-    <div id="modal-deal" class="modal">
-        <div class="modal-overlay" onclick="App.closeModal('modal-deal')"></div>
-        <div class="modal-dialog">
-            <div class="modal-header">
-                <h2 id="modal-deal-title"><i class="fas fa-handshake"></i> إضافة صفقة جديدة</h2>
-                <button class="modal-close" data-modal="modal-deal" onclick="App.closeModal('modal-deal')"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <form id="form-deal">
-                    <input type="hidden" id="deal-id">
-                    <div class="form-grid">
-                        <div class="form-group full-width">
-                            <label for="deal-companyId">الشركة *</label>
-                            <select id="deal-companyId" required>
-                                <option value="">اختر الشركة</option>
-                            </select>
-                        </div>
-                        <div class="form-group full-width">
-                            <label for="deal-title">عنوان الصفقة *</label>
-                            <input type="text" id="deal-title" required placeholder="مثال: توريد 100 إطار نقل ثقيل">
-                        </div>
-                        <div class="form-group">
-                            <label for="deal-value">القيمة (ج.م) *</label>
-                            <input type="number" id="deal-value" required placeholder="250000" min="0">
-                        </div>
-                        <div class="form-group">
-                            <label for="deal-stage">المرحلة</label>
-                            <select id="deal-stage">
-                                <option value="initial_contact">اتصال أولي</option>
-                                <option value="interested">مهتم</option>
-                                <option value="proposal">عرض سعر</option>
-                                <option value="negotiation">تفاوض</option>
-                                <option value="won">تم البيع</option>
-                                <option value="lost">خسارة</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="deal-tireType">نوع الإطارات</label>
-                            <select id="deal-tireType">
-                                <option value="all">جميع الأنواع</option>
-                                <option value="truck">إطارات نقل ثقيل</option>
-                                <option value="light_truck">إطارات نقل خفيف</option>
-                                <option value="passenger">إطارات ملاكي</option>
-                                <option value="bus">إطارات باصات</option>
-                                <option value="suv">إطارات SUV</option>
-                                <option value="forklift">إطارات رافعات</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="deal-quantity">الكمية (إطار)</label>
-                            <input type="number" id="deal-quantity" placeholder="100" min="0">
-                        </div>
-                        <div class="form-group">
-                            <label for="deal-expectedCloseDate">تاريخ الإغلاق المتوقع</label>
-                            <input type="date" id="deal-expectedCloseDate">
-                        </div>
-                        <div class="form-group full-width">
-                            <label for="deal-notes">ملاحظات</label>
-                            <textarea id="deal-notes" rows="3" placeholder="تفاصيل الصفقة..."></textarea>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-ghost" data-modal="modal-deal">إلغاء</button>
-                <button class="btn btn-primary" id="btn-save-deal"><i class="fas fa-save"></i> حفظ الصفقة</button>
-            </div>
-        </div>
-    </div>
-
     <!-- Confirm Modal -->
     <div id="modal-confirm" class="modal">
         <div class="modal-overlay" onclick="App.closeModal('modal-confirm')"></div>
@@ -1481,20 +1281,19 @@
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <script src="js/supabase-client.js?v=165.0"></script>
-    <script src="js/egypt_verified_titans.js?v=165.0"></script>
-    <script src="js/egypt_enterprises_pool.js?v=165.0"></script>
-    <script src="js/storage.js?v=165.0"></script>
-    <script src="js/excel-handler.js?v=165.0"></script>
-    <script src="js/dashboard.js?v=165.0"></script>
-    <script src="js/companies.js?v=165.0"></script>
-    <script src="js/calls.js?v=165.0"></script>
-    <script src="js/pipeline.js?v=165.0"></script>
-    <script src="js/reports.js?v=165.0"></script>
-    <script src="js/scraper.js?v=165.0"></script>
-    <script src="js/team.js?v=165.0"></script>
-    <script src="js/settings.js?v=165.0"></script>
-    <script src="js/app.js?v=165.0"></script>
+    <script src="js/supabase-client.js?v=166.0"></script>
+    <script src="js/egypt_verified_titans.js?v=166.0"></script>
+    <script src="js/egypt_enterprises_pool.js?v=166.0"></script>
+    <script src="js/storage.js?v=166.0"></script>
+    <script src="js/excel-handler.js?v=166.0"></script>
+    <script src="js/dashboard.js?v=166.0"></script>
+    <script src="js/companies.js?v=166.0"></script>
+    <script src="js/calls.js?v=166.0"></script>
+    <script src="js/reports.js?v=166.0"></script>
+    <script src="js/scraper.js?v=166.0"></script>
+    <script src="js/team.js?v=166.0"></script>
+    <script src="js/settings.js?v=166.0"></script>
+    <script src="js/app.js?v=166.0"></script>
 
     <!-- EMERGENCY: Guarantee save button always works regardless of cache -->
     <script>

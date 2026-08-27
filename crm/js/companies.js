@@ -1089,7 +1089,6 @@ const Companies = {
         document.getElementById('detail-company-name').textContent = company.nameAr || company.nameEn;
 
         const calls = window.AppStorage.getCallsForCompany(id);
-        const deals = window.AppStorage.getDeals().filter(d => d.companyId === id);
 
         // Tire lead logic
         let tirePitchHtml = '';
@@ -1335,19 +1334,6 @@ const Companies = {
                     </div>
                 `).join('')}
             </div>
-
-            ${deals.length > 0 ? `
-                <div class="detail-section">
-                    <h3><i class="fas fa-handshake"></i> الصفقات (${deals.length})</h3>
-                    ${deals.map(deal => `
-                        <div class="detail-call-item">
-                            <span style="font-weight:600; font-size:0.85rem;">${deal.title}</span>
-                            <span class="badge badge-accent" style="font-family:Inter;">${window.AppStorage.formatCurrency(deal.value)} ج.م</span>
-                            <span class="badge badge-primary">${window.AppStorage.PIPELINE_STAGES[deal.stage]?.ar || deal.stage}</span>
-                        </div>
-                    `).join('')}
-                </div>
-            ` : ''}
         `;
 
         // Wire up detail modal buttons

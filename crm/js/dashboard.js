@@ -29,27 +29,19 @@ const Dashboard = {
             ? stats.totalCompanies
             : (window.AppStorage ? (window.AppStorage.getCompanies().length || 0) : 0);
 
-        const openDealsCount = (stats.openDeals !== undefined && stats.openDeals !== null) ? stats.openDeals : 0;
-        const pipelineVal = (stats.pipelineValue !== undefined && stats.pipelineValue !== null) ? stats.pipelineValue : 0;
-
         const compEl = document.getElementById('dash-total-companies');
         if (compEl) compEl.textContent = totalComps.toLocaleString('en-US');
 
         const callsEl = document.getElementById('dash-calls-today');
         if (callsEl) callsEl.textContent = (stats.callsToday || 0).toLocaleString('en-US');
 
-        const dealsEl = document.getElementById('dash-open-deals');
-        if (dealsEl) dealsEl.textContent = openDealsCount.toLocaleString('en-US');
-
-        const valEl = document.getElementById('dash-pipeline-value');
-        if (valEl) valEl.textContent = pipelineVal.toLocaleString('en-US');
+        const followupsEl = document.getElementById('dash-followups-today');
+        const followupsCount = window.AppStorage ? (window.AppStorage.getTodaysFollowUps ? window.AppStorage.getTodaysFollowUps().length : 0) : 0;
+        if (followupsEl) followupsEl.textContent = followupsCount.toLocaleString('en-US');
 
         // Sidebar stats
         const sideComp = document.getElementById('sidebar-total-companies');
         if (sideComp) sideComp.textContent = totalComps.toLocaleString('en-US');
-
-        const sideDeals = document.getElementById('sidebar-total-deals');
-        if (sideDeals) sideDeals.textContent = openDealsCount.toLocaleString('en-US');
     },
 
     renderSectorChart(stats) {
