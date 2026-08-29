@@ -394,6 +394,15 @@ const App = {
 
                 this.checkAuth();
 
+                // Immediately initialize DB and pull latest cloud data after fresh login
+                try {
+                    window.AppStorage.initDB().then(() => window.AppStorage.pullFromCloud()).then(() => {
+                        if (typeof Dashboard !== 'undefined' && this.currentPage === 'dashboard') Dashboard.render();
+                        if (typeof Companies !== 'undefined' && this.currentPage === 'companies') Companies.render();
+                        window.AppStorage.updateLiveCounters();
+                    });
+                } catch(e) {}
+
                 const isAdmin = window.AppStorage.isAdmin(res.user);
                 const targetPage = isAdmin ? 'dashboard' : 'companies';
                 window.location.hash = '#' + targetPage;
