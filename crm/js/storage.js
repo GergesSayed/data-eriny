@@ -1012,8 +1012,9 @@ const AppStorage = {
         }
     },
 
-    updateLiveCounters() {
-        const count = (this.companiesMemory && Array.isArray(this.companiesMemory)) ? this.companiesMemory.length : 0;
+    updateLiveCounters(overrideCount) {
+        const rawCount = (this.companiesMemory && Array.isArray(this.companiesMemory)) ? this.companiesMemory.length : 0;
+        const count = (typeof overrideCount === 'number' && overrideCount > 0) ? overrideCount : rawCount;
         try {
             localStorage.setItem('fleetcrm_company_count', count);
             localStorage.removeItem('fleetcrm_deals_count');
@@ -2356,7 +2357,12 @@ try {
         }
         if (syncMap.size > 0) {
             AppStorage.companiesMemory = Array.from(syncMap.values());
-            AppStorage.updateLiveCounters();
+            const savedCount = parseInt(localStorage.getItem('fleetcrm_company_count') || '0', 10);
+            if (!isNaN(savedCount) && savedCount > syncMap.size) {
+                AppStorage.updateLiveCounters(savedCount);
+            } else {
+                AppStorage.updateLiveCounters();
+            }
         }
     }
 } catch(e) {}
