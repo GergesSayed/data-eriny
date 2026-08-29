@@ -111,8 +111,8 @@ const App = {
 
             // Migrate existing companies' sectors/cities to canonical keys if not done yet
             if (!localStorage.getItem('fleetcrm_city_sector_mapped_v7')) {
-                const companies = window.AppStorage.getCompanies();
-                if (companies.length > 0) {
+                const companies = (window.AppStorage && window.AppStorage.getCompanies) ? (window.AppStorage.getCompanies() || []) : [];
+                if (companies && companies.length > 0) {
                     const migrated = companies.map(c => {
                         c.sector = window.AppStorage.mapScraperSectorToCRM(c.sector);
                         c.city = window.AppStorage.mapScraperCityToCRM(c.city);
@@ -837,9 +837,9 @@ const App = {
         }
 
         // Navigation links click listener
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('click', (e) => {
-                const page = link.dataset.page;
+        (document.querySelectorAll('.nav-link') || []).forEach(link => {
+            link?.addEventListener('click', (e) => {
+                const page = link.dataset?.page;
                 if (page) {
                     this.navigateTo(page);
                     // Close sidebar on mobile after navigation
@@ -862,7 +862,7 @@ const App = {
 
         // Close notifications dropdown on outside click
         document.addEventListener('click', (e) => {
-            if (!e.target.closest('.notification-center-wrapper')) {
+            if (!e.target || (e.target.closest && !e.target.closest('.notification-center-wrapper'))) {
                 document.getElementById('notifications-dropdown')?.classList.remove('show');
             }
         });
@@ -883,24 +883,24 @@ const App = {
         document.getElementById('btn-save-call')?.addEventListener('click', () => Calls.save());
 
         // Modal close buttons
-        document.querySelectorAll('.modal-close, .modal-overlay').forEach(el => {
-            el.addEventListener('click', (e) => {
-                const modalId = el.dataset?.modal || el.closest('.modal')?.id;
+        (document.querySelectorAll('.modal-close, .modal-overlay') || []).forEach(el => {
+            el?.addEventListener('click', (e) => {
+                const modalId = el.dataset?.modal || el.closest?.('.modal')?.id;
                 if (modalId) this.closeModal(modalId);
             });
         });
 
         // Ghost buttons that close modals
-        document.querySelectorAll('.btn-ghost[data-modal]').forEach(el => {
-            el.addEventListener('click', () => this.closeModal(el.dataset.modal));
+        (document.querySelectorAll('.btn-ghost[data-modal]') || []).forEach(el => {
+            el?.addEventListener('click', () => this.closeModal(el.dataset?.modal));
         });
 
         // Excel import/export
         document.getElementById('btn-import-excel')?.addEventListener('click', () => {
-            document.getElementById('excel-file-input').click();
+            document.getElementById('excel-file-input')?.click();
         });
         document.getElementById('excel-file-input')?.addEventListener('change', (e) => {
-            const file = e.target.files[0];
+            const file = (e && e.target && e.target.files) ? e.target.files[0] : null;
             if (file) {
                 ExcelHandler.importCompanies(file, (count) => {
                     if (count > 0) {
@@ -922,19 +922,21 @@ const App = {
 
         searchInput?.addEventListener('input', (e) => {
             const esc = (s) => window.AppStorage.escapeHtml(s || '');
-            const query = e.target.value.toLowerCase().trim();
-            if (query.length < 2) {
-                searchResults.classList.remove('show');
+            const query = (e && e.target && e.target.value) ? e.target.value.toLowerCase().trim() : '';
+            if (!query || query.length < 2) {
+                searchResults?.classList.remove('show');
                 return;
             }
 
-            const companies = window.AppStorage.getCompanies().filter(c =>
+            const companies = (window.AppStorage && window.AppStorage.getCompanies ? (window.AppStorage.getCompanies() || []) : []).filter(c =>
                 (c.nameAr && c.nameAr.includes(query)) ||
                 (c.nameEn && c.nameEn.toLowerCase().includes(query)) ||
                 (c.contactPerson && c.contactPerson.includes(query)) ||
                 (c.phone1 && c.phone1.includes(query)) ||
                 (c.mobile && c.mobile.includes(query))
             ).slice(0, 8);
+
+            if (!searchResults) return;
 
             if (companies.length === 0) {
                 searchResults.innerHTML = '<div class="search-dropdown-item"><span class="result-name">لا توجد نتائج</span></div>';
@@ -953,7 +955,7 @@ const App = {
         });
 
         searchInput?.addEventListener('blur', () => {
-            setTimeout(() => searchResults.classList.remove('show'), 200);
+            setTimeout(() => searchResults?.classList.remove('show'), 200);
         });
 
         // ESC to close modals
@@ -974,16 +976,20 @@ const App = {
             if (!sidebar) return;
 
             sidebar.addEventListener('touchstart', (e) => {
-                touchStartX = e.touches[0].clientX;
-                touchStartY = e.touches[0].clientY;
+                if (e && e.touches && e.touches[0]) {
+                    touchStartX = e.touches[0].clientX;
+                    touchStartY = e.touches[0].clientY;
+                }
             }, { passive: true });
 
             sidebar.addEventListener('touchend', (e) => {
-                const deltaX = e.changedTouches[0].clientX - touchStartX;
-                const deltaY = Math.abs(e.changedTouches[0].clientY - touchStartY);
-                // Swipe left (RTL: swipe right to close) — must be horizontal
-                if (deltaX > 80 && deltaY < 50) {
-                    this.closeSidebar();
+                if (e && e.changedTouches && e.changedTouches[0]) {
+                    const deltaX = e.changedTouches[0].clientX - touchStartX;
+                    const deltaY = Math.abs(e.changedTouches[0].clientY - touchStartY);
+                    // Swipe left (RTL: swipe right to close) — must be horizontal
+                    if (deltaX > 80 && deltaY < 50) {
+                        this.closeSidebar();
+                    }
                 }
             }, { passive: true });
         })();
@@ -1025,8 +1031,8 @@ const App = {
         const headerCount = document.getElementById('notif-header-count');
         if (!list) return;
 
-        const followUps = window.AppStorage.getTodaysFollowUps() || [];
-        const count = followUps.length;
+        const followUps = (window.AppStorage && window.AppStorage.getTodaysFollowUps) ? (window.AppStorage.getTodaysFollowUps() || []) : [];
+        const count = (followUps && followUps.length) ? followUps.length : 0;
         if (badge) {
             badge.style.display = count > 0 ? 'inline-block' : 'none';
             badge.textContent = count;
