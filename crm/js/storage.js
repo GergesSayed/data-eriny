@@ -1033,6 +1033,18 @@ const AppStorage = {
 
     saveAllCompaniesToDB(companies, syncToCloud = true) {
         this.updateLiveCounters();
+        try {
+            const dynamicCompanies = (companies || []).filter(c => {
+                if (!c || !c.id) return false;
+                const id = String(c.id);
+                return c.isCustom || id.startsWith('scraped_live') || id.startsWith('user_') || id.startsWith('custom_') || (!id.startsWith('eg_b2b_') && !id.startsWith('eg_titan_'));
+            });
+            if (dynamicCompanies.length > 0) {
+                localStorage.setItem('fleetcrm_dynamic_companies', JSON.stringify(dynamicCompanies));
+            } else {
+                localStorage.removeItem('fleetcrm_dynamic_companies');
+            }
+        } catch(e) {}
         this._writeToIDB(companies);
         if (syncToCloud && this.autoSyncToCloud) {
             this.autoSyncToCloud(companies);
@@ -2355,14 +2367,17 @@ try {
                 if (t && t.id) syncMap.set(t.id, t);
             });
         }
+        try {
+            const cachedDynamic = JSON.parse(localStorage.getItem('fleetcrm_dynamic_companies') || '[]');
+            if (Array.isArray(cachedDynamic) && cachedDynamic.length > 0) {
+                cachedDynamic.forEach(c => {
+                    if (c && c.id) syncMap.set(c.id, c);
+                });
+            }
+        } catch(e) {}
         if (syncMap.size > 0) {
             AppStorage.companiesMemory = Array.from(syncMap.values());
-            const savedCount = parseInt(localStorage.getItem('fleetcrm_company_count') || '0', 10);
-            if (!isNaN(savedCount) && savedCount > syncMap.size) {
-                AppStorage.updateLiveCounters(savedCount);
-            } else {
-                AppStorage.updateLiveCounters();
-            }
+            AppStorage.updateLiveCounters();
         }
     }
 } catch(e) {}
