@@ -1007,7 +1007,7 @@ const App = {
             };
             // Insert after 3rd child
             const children = filtersBar.children;
-            if (children.length > 3) {
+            if (children && children.length > 3) {
                 filtersBar.insertBefore(toggleBtn, children[3]);
             }
         })();

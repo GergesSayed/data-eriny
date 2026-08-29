@@ -1473,3 +1473,5 @@ const Companies = {
         printWindow.document.close();
     }
 };
+
+window.Companies = Companies;

@@ -342,3 +342,5 @@ const Reports = {
         if (avgValEl) avgValEl.textContent = interestedCompanies + ' شركة';
     }
 };
+
+window.Reports = Reports;

@@ -1093,3 +1093,5 @@ const Team = {
         }
     }
 };
+
+window.Team = Team;

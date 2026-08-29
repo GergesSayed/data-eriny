@@ -404,3 +404,5 @@ const Calls = {
         App.openModal('modal-confirm');
     }
 };
+
+window.Calls = Calls;
