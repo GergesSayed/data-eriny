@@ -98,7 +98,10 @@ const ScraperPage = {
                         <option value="500">سحب دفعة كبرى (+500 منشأة جديدة)</option>
                         <option value="1000">سحب دفعة عملاقة (+1,000 منشأة جديدة)</option>
                         <option value="2500">سحب توسعي ضخم (+2,500 منشأة جديدة)</option>
-                        <option value="5000">سحب شامل (+5,000 منشأة للوصول لـ 10,000+ شركة)</option>
+                        <option value="5000">سحب موسع (+5,000 منشأة جديدة)</option>
+                        <option value="10000">سحب عملاق (+10,000 منشأة جديدة)</option>
+                        <option value="25000">سحب فائق (+25,000 منشأة جديدة)</option>
+                        <option value="50000">سحب شامل للوصول لـ 100,000+ شركة 🚀</option>
                     </select>
                 </div>
             </div>

@@ -710,10 +710,11 @@ const AppStorage = {
                 return;
             }
             try {
-                const request = indexedDB.open('FleetCRM_DB', 4);
+                const request = indexedDB.open('FleetCRM_DB', 5);
                 
                 request.onerror = (event) => {
                     this.updateLiveCounters();
+                    this.initWorker();
                     resolve();
                 };
                 
@@ -754,6 +755,7 @@ const AppStorage = {
                         }
 
                         this.updateLiveCounters();
+                        this.initWorker();
                         resolve();
                     });
                 };
@@ -776,6 +778,18 @@ const AppStorage = {
                     if (!store.indexNames.contains('city')) {
                         store.createIndex('city', 'city', { unique: false });
                     }
+                    if (!store.indexNames.contains('priority')) {
+                        store.createIndex('priority', 'priority', { unique: false });
+                    }
+                    if (!store.indexNames.contains('assignedTo')) {
+                        store.createIndex('assignedTo', 'assignedTo', { unique: false });
+                    }
+                    if (!store.indexNames.contains('createdAt')) {
+                        store.createIndex('createdAt', 'createdAt', { unique: false });
+                    }
+                    if (!store.indexNames.contains('fleetSize')) {
+                        store.createIndex('fleetSize', 'fleetSize', { unique: false });
+                    }
                     if (!store.indexNames.contains('leadScore')) {
                         store.createIndex('leadScore', 'leadScore', { unique: false });
                     }
@@ -785,9 +799,217 @@ const AppStorage = {
                     }
                 };
             } catch (e) {
+                this.initWorker();
                 resolve();
             }
         });
+    },
+
+    _worker: null,
+    _workerReady: false,
+    _workerCallbacks: {},
+
+    initWorker() {
+        if (typeof window === 'undefined' || typeof Worker === 'undefined') return;
+        if (this._worker) {
+            this._worker.postMessage({ action: 'INIT_INDEX', payload: this.companiesMemory || [] });
+            return;
+        }
+        try {
+            this._worker = new Worker('js/companies-worker.js?v=173.0');
+            this._worker.onmessage = (e) => {
+                const { action, queryId, items, total, totalPages, page, pageSize } = e.data || {};
+                if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
+                    this._workerReady = true;
+                } else if (action === 'FILTER_RESULT' && queryId && this._workerCallbacks[queryId]) {
+                    this._workerCallbacks[queryId]({ items, total, totalPages, page, pageSize });
+                    delete this._workerCallbacks[queryId];
+                }
+            };
+            this._worker.postMessage({ action: 'INIT_INDEX', payload: this.companiesMemory || [] });
+        } catch (e) {
+            console.warn('Worker initialization fallback:', e);
+        }
+    },
+
+    queryCompanies(options = {}) {
+        return new Promise((resolve) => {
+            const {
+                search = '',
+                sector = '',
+                city = '',
+                priority = '',
+                fleetType = '',
+                fleetSize = '',
+                assigned = '',
+                addedDate = '',
+                sortMode = 'latest',
+                page = 1,
+                pageSize = 15
+            } = options;
+
+            const currentUser = this.getCurrentUser();
+            const isAdmin = this.canViewAll(currentUser);
+            const currentUserId = currentUser ? (currentUser.id || currentUser.username) : '';
+
+            // 1. Try Web Worker first for non-blocking 60fps search
+            if (this._worker && this._workerReady) {
+                const queryId = 'q_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6);
+                const timeout = setTimeout(() => {
+                    delete this._workerCallbacks[queryId];
+                    resolve(this._queryCompaniesFallback(options));
+                }, 250);
+
+                this._workerCallbacks[queryId] = (result) => {
+                    clearTimeout(timeout);
+                    resolve(result);
+                };
+
+                this._worker.postMessage({
+                    action: 'FILTER_AND_SEARCH',
+                    queryId,
+                    payload: {
+                        search,
+                        sector,
+                        city,
+                        priority,
+                        fleetType,
+                        fleetSize,
+                        assigned,
+                        addedDate,
+                        sortMode,
+                        page,
+                        pageSize,
+                        currentUserId,
+                        isAdmin
+                    }
+                });
+                return;
+            }
+
+            // 2. Fallback to in-memory filter
+            resolve(this._queryCompaniesFallback(options));
+        });
+    },
+
+    _queryCompaniesFallback(options = {}) {
+        const {
+            search = '',
+            sector = '',
+            city = '',
+            priority = '',
+            fleetType = '',
+            fleetSize = '',
+            assigned = '',
+            addedDate = '',
+            sortMode = 'latest',
+            page = 1,
+            pageSize = 15
+        } = options;
+
+        const rawCompanies = this.getScopedCompanies() || [];
+        const normSearch = this._normalizeArabicName(search);
+        const now = Date.now();
+        const todayStr = new Date().toISOString().split('T')[0];
+        const currentUser = this.getCurrentUser();
+
+        let filtered = rawCompanies.filter(c => {
+            if (sector && c.sector !== sector) return false;
+            if (city && c.city !== city) return false;
+            if (priority && c.priority !== priority) return false;
+            if (fleetType && c.fleetType !== fleetType) return false;
+
+            if (fleetSize) {
+                const s = Number(c.fleetSize) || 0;
+                if (fleetSize === 'large_fleet' && s < 50) return false;
+                if (fleetSize === 'medium_fleet' && (s < 15 || s >= 50)) return false;
+                if (fleetSize === 'small_fleet' && (s <= 0 || s >= 15)) return false;
+                if (fleetSize === 'no_fleet' && s > 0) return false;
+            }
+
+            if (addedDate) {
+                if (addedDate === 'today' && (!c.createdAt || !c.createdAt.startsWith(todayStr))) return false;
+                if (addedDate === 'recent_7days') {
+                    const ts = c.createdAt ? new Date(c.createdAt).getTime() : 0;
+                    if ((now - ts) > (7 * 24 * 60 * 60 * 1000)) return false;
+                }
+                if (addedDate === 'recent_30days') {
+                    const ts = c.createdAt ? new Date(c.createdAt).getTime() : 0;
+                    if ((now - ts) > (30 * 24 * 60 * 60 * 1000)) return false;
+                }
+            }
+
+            if (assigned) {
+                if (assigned === 'my_leads') {
+                    if (c.assignedTo !== currentUser?.id && c.assignedTo !== currentUser?.username) return false;
+                } else if (assigned === 'unassigned') {
+                    if (c.assignedTo) return false;
+                } else {
+                    if (c.assignedTo !== assigned) return false;
+                }
+            }
+
+            if (normSearch) {
+                const nameNorm = this._normalizeArabicName(c.nameAr || c.name || '');
+                const phone = String(c.phone1 || c.mobile || '').replace(/[^0-9+]/g, '');
+                if (!nameNorm.includes(normSearch) && !phone.includes(normSearch)) return false;
+            }
+
+            return true;
+        });
+
+        if (sortMode === 'oldest') {
+            filtered.sort((a, b) => (new Date(a.createdAt || 0)) - (new Date(b.createdAt || 0)));
+        } else if (sortMode === 'fleet_desc') {
+            filtered.sort((a, b) => (Number(b.fleetSize) || 0) - (Number(a.fleetSize) || 0));
+        } else if (sortMode === 'name_asc') {
+            filtered.sort((a, b) => (a.nameAr || '').localeCompare(b.nameAr || '', 'ar'));
+        } else if (sortMode === 'priority_desc') {
+            filtered.sort((a, b) => (a.priority || 'B').localeCompare(b.priority || 'B'));
+        } else {
+            filtered.sort((a, b) => (new Date(b.createdAt || 0)) - (new Date(a.createdAt || 0)));
+        }
+
+        const total = filtered.length;
+        const totalPages = Math.ceil(total / pageSize) || 1;
+        const safePage = Math.max(1, Math.min(page, totalPages));
+        const start = (safePage - 1) * pageSize;
+        const items = filtered.slice(start, start + pageSize);
+
+        return { items, total, totalPages, page: safePage, pageSize };
+    },
+
+    async saveBatchToIDB(records, chunkSize = 500, onProgress = null) {
+        if (!Array.isArray(records) || records.length === 0) return;
+        const total = records.length;
+        for (let i = 0; i < total; i += chunkSize) {
+            const chunk = records.slice(i, i + chunkSize);
+            await new Promise((resolve) => {
+                try {
+                    const request = indexedDB.open('FleetCRM_DB', 5);
+                    request.onsuccess = (e) => {
+                        const db = e.target.result;
+                        if (!db.objectStoreNames.contains('companies')) { resolve(); return; }
+                        const tx = db.transaction(['companies'], 'readwrite');
+                        const store = tx.objectStore('companies');
+                        chunk.forEach(c => { if (c && c.id) store.put(c); });
+                        tx.oncomplete = () => resolve();
+                        tx.onerror = () => resolve();
+                    };
+                    request.onerror = () => resolve();
+                } catch(err) {
+                    resolve();
+                }
+            });
+            if (typeof onProgress === 'function') {
+                const percent = Math.min(100, Math.round(((i + chunk.length) / total) * 100));
+                onProgress(percent, i + chunk.length, total);
+            }
+            await new Promise(r => setTimeout(r, 0));
+        }
+        if (this._worker && this._workerReady) {
+            this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: records });
+        }
     },
 
     _normalizeArabicName(str) {
@@ -1506,36 +1728,8 @@ const AppStorage = {
         this.saveAllCompaniesToDB(this.companiesMemory);
         if (this.autoSyncToCloud) this.autoSyncToCloud(this.companiesMemory);
 
-        // 2. Safe IndexedDB write with version 4
-        return new Promise((resolve) => {
-            try {
-                const request = indexedDB.open('FleetCRM_DB', 4);
-                request.onsuccess = (event) => {
-                    const db = event.target.result;
-                    if (!db.objectStoreNames.contains('companies')) { resolve(); return; }
-                    try {
-                        const transaction = db.transaction(['companies'], 'readwrite');
-                        const store = transaction.objectStore('companies');
-                        newCompanies.forEach(c => {
-                            if (c && c.id) store.put(c);
-                        });
-                        transaction.oncomplete = () => resolve();
-                        transaction.onerror = () => resolve();
-                    } catch (txErr) {
-                        resolve();
-                    }
-                };
-                request.onupgradeneeded = (event) => {
-                    const db = event.target.result;
-                    if (!db.objectStoreNames.contains('companies')) {
-                        db.createObjectStore('companies', { keyPath: 'id' });
-                    }
-                };
-                request.onerror = () => resolve();
-            } catch (e) {
-                resolve();
-            }
-        });
+        // 2. Safe chunked IndexedDB write with version 5
+        return this.saveBatchToIDB(newCompanies);
     },
 
     saveCompany(company) {

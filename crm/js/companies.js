@@ -142,22 +142,32 @@ const Companies = {
         }
     },
 
-    onFilterChange() {
-        this.currentPage = 1;
-        this.render();
+    _searchDebounceTimer: null,
+
+    onFilterChange(isImmediate = false) {
+        if (this._searchDebounceTimer) clearTimeout(this._searchDebounceTimer);
+        if (isImmediate) {
+            this.currentPage = 1;
+            this.render();
+        } else {
+            this._searchDebounceTimer = setTimeout(() => {
+                this.currentPage = 1;
+                this.render();
+            }, 180);
+        }
     },
 
     bindEvents() {
         // Filters
-        document.getElementById('filter-sector')?.addEventListener('change', () => this.onFilterChange());
-        document.getElementById('filter-city')?.addEventListener('change', () => this.onFilterChange());
-        document.getElementById('filter-priority')?.addEventListener('change', () => this.onFilterChange());
-        document.getElementById('filter-fleet-type')?.addEventListener('change', () => this.onFilterChange());
-        document.getElementById('filter-fleet-size')?.addEventListener('change', () => this.onFilterChange());
-        document.getElementById('filter-added-date')?.addEventListener('change', () => this.onFilterChange());
-        document.getElementById('filter-sort')?.addEventListener('change', () => this.onFilterChange());
-        document.getElementById('filter-assigned')?.addEventListener('change', () => this.onFilterChange());
-        document.getElementById('filter-search')?.addEventListener('input', () => this.onFilterChange());
+        document.getElementById('filter-sector')?.addEventListener('change', () => this.onFilterChange(true));
+        document.getElementById('filter-city')?.addEventListener('change', () => this.onFilterChange(true));
+        document.getElementById('filter-priority')?.addEventListener('change', () => this.onFilterChange(true));
+        document.getElementById('filter-fleet-type')?.addEventListener('change', () => this.onFilterChange(true));
+        document.getElementById('filter-fleet-size')?.addEventListener('change', () => this.onFilterChange(true));
+        document.getElementById('filter-added-date')?.addEventListener('change', () => this.onFilterChange(true));
+        document.getElementById('filter-sort')?.addEventListener('change', () => this.onFilterChange(true));
+        document.getElementById('filter-assigned')?.addEventListener('change', () => this.onFilterChange(true));
+        document.getElementById('filter-search')?.addEventListener('input', () => this.onFilterChange(false));
         document.getElementById('btn-clear-filters')?.addEventListener('click', () => this.clearFilters());
 
         // View toggle
@@ -377,15 +387,37 @@ const Companies = {
         return companies;
     },
 
-    render() {
+    async render() {
         this.refreshUserFilter();
-        const companies = this.getFilteredCompanies();
-        const total = companies.length;
-        const totalPages = Math.ceil(total / this.pageSize);
-        if (this.currentPage > totalPages) this.currentPage = Math.max(1, totalPages);
 
-        const start = (this.currentPage - 1) * this.pageSize;
-        const pageCompanies = companies.slice(start, start + this.pageSize);
+        const sector = document.getElementById('filter-sector')?.value || '';
+        const city = document.getElementById('filter-city')?.value || '';
+        const priority = document.getElementById('filter-priority')?.value || '';
+        const fleetType = document.getElementById('filter-fleet-type')?.value || '';
+        const fleetSize = document.getElementById('filter-fleet-size')?.value || '';
+        const addedDate = document.getElementById('filter-added-date')?.value || '';
+        const sortMode = document.getElementById('filter-sort')?.value || 'latest';
+        const assigned = document.getElementById('filter-assigned')?.value || '';
+        const search = document.getElementById('filter-search')?.value?.trim() || '';
+
+        const result = await window.AppStorage.queryCompanies({
+            search,
+            sector,
+            city,
+            priority,
+            fleetType,
+            fleetSize,
+            assigned,
+            addedDate,
+            sortMode,
+            page: this.currentPage,
+            pageSize: this.pageSize
+        });
+
+        const pageCompanies = result.items || [];
+        const total = result.total || 0;
+        const totalPages = result.totalPages || 1;
+        this.currentPage = result.page || 1;
 
         // Update count & view mode toggle buttons
         const currentUser = window.AppStorage.getCurrentUser();

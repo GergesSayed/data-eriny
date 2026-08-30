@@ -266,21 +266,27 @@ window.SupabaseClient = (function() {
 
     async function pushDynamicCompanies(companiesList) {
         if (!companiesList || !Array.isArray(companiesList) || companiesList.length === 0) return true;
-        try {
-            const dynMap = {};
-            companiesList.forEach(c => {
-                if (c && c.id) dynMap[c.id] = c;
-            });
-            const resp = await fetch(`${FIREBASE_DB_URL}/dynamic_companies.json`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(dynMap)
-            });
-            return resp.ok;
-        } catch(e) {
-            console.warn('pushDynamicCompanies error:', e);
-            return false;
+        const chunkSize = 500;
+        let allSuccess = true;
+        for (let i = 0; i < companiesList.length; i += chunkSize) {
+            const chunk = companiesList.slice(i, i + chunkSize);
+            try {
+                const dynMap = {};
+                chunk.forEach(c => {
+                    if (c && c.id) dynMap[c.id] = c;
+                });
+                const resp = await fetch(`${FIREBASE_DB_URL}/dynamic_companies.json`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dynMap)
+                });
+                if (!resp.ok) allSuccess = false;
+            } catch(e) {
+                console.warn('pushDynamicCompanies chunk error:', e);
+                allSuccess = false;
+            }
         }
+        return allSuccess;
     }
 
     return {
