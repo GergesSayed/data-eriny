@@ -37,21 +37,26 @@ window.SupabaseClient = (function() {
      */
     async function fetchMasterData() {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 25000); // 25s timeout for large datasets
+        const timeoutId = setTimeout(() => controller.abort(), 12000); // 12s timeout max
 
         try {
-            const [dynResp, callsResp, usersResp, actsResp] = await Promise.all([
-                fetch(`${FIREBASE_DB_URL}/dynamic_companies.json?t=${Date.now()}`, { signal: controller.signal }),
-                fetch(`${FIREBASE_DB_URL}/calls.json?t=${Date.now()}`, { signal: controller.signal }),
-                fetch(`${FIREBASE_DB_URL}/users.json?t=${Date.now()}`, { signal: controller.signal }),
-                fetch(`${FIREBASE_DB_URL}/activities.json?t=${Date.now()}`, { signal: controller.signal })
+            const safeFetch = async (url, fallback) => {
+                try {
+                    const r = await fetch(url, { signal: controller.signal });
+                    if (!r.ok) return fallback;
+                    return await r.json();
+                } catch(e) {
+                    return fallback;
+                }
+            };
+
+            const [dynamicCompaniesObj, callsData, usersData, actsData] = await Promise.all([
+                safeFetch(`${FIREBASE_DB_URL}/dynamic_companies.json?t=${Date.now()}`, {}),
+                safeFetch(`${FIREBASE_DB_URL}/calls.json?t=${Date.now()}`, []),
+                safeFetch(`${FIREBASE_DB_URL}/users.json?t=${Date.now()}`, []),
+                safeFetch(`${FIREBASE_DB_URL}/activities.json?t=${Date.now()}`, [])
             ]);
             clearTimeout(timeoutId);
-
-            const dynamicCompaniesObj = dynResp.ok ? await dynResp.json() : {};
-            const calls = callsResp.ok ? await callsResp.json() : [];
-            const users = usersResp.ok ? await usersResp.json() : [];
-            const activities = actsResp.ok ? await actsResp.json() : [];
 
             let dynamicCompanies = [];
             if (dynamicCompaniesObj && typeof dynamicCompaniesObj === 'object') {
@@ -66,9 +71,9 @@ window.SupabaseClient = (function() {
 
             return {
                 dynamicCompanies: dynamicCompanies,
-                calls: Array.isArray(calls) ? calls : (calls ? Object.values(calls) : []),
-                users: Array.isArray(users) ? users : (users ? Object.values(users) : []),
-                activities: Array.isArray(activities) ? activities : (activities ? Object.values(activities) : []),
+                calls: Array.isArray(callsData) ? callsData : (callsData ? Object.values(callsData) : []),
+                users: Array.isArray(usersData) ? usersData : (usersData ? Object.values(usersData) : []),
+                activities: Array.isArray(actsData) ? actsData : (actsData ? Object.values(actsData) : []),
                 updated_at: new Date().toISOString()
             };
         } catch (err) {
