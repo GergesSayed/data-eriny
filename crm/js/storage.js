@@ -1930,22 +1930,30 @@ const AppStorage = {
         let mergedCount = 0;
         let cleanedCount = 0;
 
-        const normalizeStr = (str) => {
+        const normalizeRoot = (str) => {
             if (!str) return '';
             return String(str).toLowerCase().trim()
-                .replace(/[أإآ]/g, 'ا')
+                .replace(/\s*\([^)]*\)\s*/g, ' ')
+                .replace(/[أإآٱ]/g, 'ا')
                 .replace(/ة/g, 'ه')
                 .replace(/ى/g, 'ي')
+                .replace(/[ؤئ]/g, 'ء')
+                .replace(/[\u064B-\u065F\u0670]/g, '')
                 .replace(/[^a-z0-9\u0600-\u06FF]/gi, '');
         };
 
-        const normalizePhone = (num) => {
-            if (!num) return '';
-            const cleaned = String(num).replace(/[^0-9]/g, '');
-            return cleaned.length >= 8 ? cleaned.slice(-8) : cleaned;
+        const extractCleanNameAr = (str) => {
+            if (!str) return '';
+            return str.replace(/\s*\([^)]*\)\s*/g, ' ').replace(/\s{2,}/g, ' ').trim();
         };
 
-        // 1. Remove completely empty records and non-B2B entities (roads, ramps, courts, schools, gov buildings, etc.)
+        const extractBranchTag = (str) => {
+            if (!str) return '';
+            const m = str.match(/\(([^)]+)\)/);
+            return m ? m[1].trim() : '';
+        };
+
+        // 1. Remove non-B2B entities
         const validCompanies = companies.filter(c => {
             const name = c.nameAr || c.name || c.nameEn || '';
             const hasName = name && name.trim().length > 0;
@@ -1956,87 +1964,121 @@ const AppStorage = {
             return true;
         });
 
-        // 2. Merge Duplicates
-        const mergedList = [];
-        const processedIds = new Set();
-
+        // 2. Group by canonical identity
+        const groupMap = new Map();
         validCompanies.forEach(c => {
-            if (processedIds.has(c.id)) return;
+            const rootAr = normalizeRoot(c.nameAr || c.name);
+            const rootEn = normalizeRoot(c.nameEn);
+            const key = rootAr || rootEn;
+            if (!key) return;
+            if (!groupMap.has(key)) groupMap.set(key, []);
+            groupMap.get(key).push(c);
+        });
 
-            const nameNorm = normalizeStr(c.nameAr || c.nameEn);
-            const phoneNorm = normalizePhone(c.phone1 || c.mobile || c.phone2);
-            const emailNorm = (c.email || '').toLowerCase().trim();
+        const mergedList = [];
+        const calls = this.getCalls ? this.getCalls() : [];
+        let callsUpdated = false;
 
-            // Find all matching duplicates
-            const duplicates = validCompanies.filter(other => {
-                if (other.id === c.id || processedIds.has(other.id)) return false;
-                const oNameNorm = normalizeStr(other.nameAr || other.nameEn);
-                const oPhoneNorm = normalizePhone(other.phone1 || other.mobile || other.phone2);
-                const oEmailNorm = (other.email || '').toLowerCase().trim();
+        groupMap.forEach((group) => {
+            if (group.length === 1) {
+                mergedList.push(group[0]);
+                return;
+            }
 
-                const nameMatch = nameNorm && oNameNorm && nameNorm === oNameNorm;
-                const phoneMatch = phoneNorm && oPhoneNorm && phoneNorm.length >= 8 && phoneNorm === oPhoneNorm;
-                const emailMatch = emailNorm && oEmailNorm && emailNorm.includes('@') && emailNorm === oEmailNorm;
+            mergedCount += (group.length - 1);
 
-                return nameMatch || phoneMatch || emailMatch;
+            // Sort so Titan or Base records become master
+            group.sort((a, b) => {
+                const isTitanA = String(a.id).startsWith('eg_titan_') ? 10 : 0;
+                const isTitanB = String(b.id).startsWith('eg_titan_') ? 10 : 0;
+                const isBaseA = String(a.id).startsWith('eg_b2b_fleet_') ? 5 : 0;
+                const isBaseB = String(b.id).startsWith('eg_b2b_fleet_') ? 5 : 0;
+                const fleetA = Number(a.fleetSize) || 0;
+                const fleetB = Number(b.fleetSize) || 0;
+                return (isTitanB + isBaseB + fleetB) - (isTitanA + isBaseA + fleetA);
             });
 
-            if (duplicates.length > 0) {
-                // Merge all duplicates into primary copy 'c'
-                duplicates.forEach(dup => {
-                    processedIds.add(dup.id);
-                    mergedCount++;
+            const master = { ...group[0] };
+            master.nameAr = extractCleanNameAr(master.nameAr || master.name);
 
-                    // Combine fields
-                    if (!c.nameEn && dup.nameEn) c.nameEn = dup.nameEn;
-                    if (!c.phone1 && dup.phone1) c.phone1 = dup.phone1;
-                    if (!c.phone2 && dup.phone2) c.phone2 = dup.phone2;
-                    if (!c.mobile && dup.mobile) c.mobile = dup.mobile;
-                    if (!c.email && dup.email) c.email = dup.email;
-                    if (!c.website && dup.website) c.website = dup.website;
-                    if (!c.address && dup.address) c.address = dup.address;
-                    if (!c.contactPerson && dup.contactPerson) c.contactPerson = dup.contactPerson;
-                    if (!c.contactTitle && dup.contactTitle) c.contactTitle = dup.contactTitle;
-                    if (!c.fleetSize && dup.fleetSize) c.fleetSize = dup.fleetSize;
-                    if (!c.linkedin && dup.linkedin) c.linkedin = dup.linkedin;
-                    if (!c.facebook && dup.facebook) c.facebook = dup.facebook;
-                    if (!c.google_maps_url && dup.google_maps_url) c.google_maps_url = dup.google_maps_url;
-                    if (!c.assignedTo && dup.assignedTo) c.assignedTo = dup.assignedTo;
+            const phonesSet = new Set();
+            const branchList = [];
+            const addressList = [];
 
-                    // Re-link calls from duplicate ID to main company ID
-                    const calls = this.getCalls();
-                    let callsUpdated = false;
+            group.forEach(item => {
+                [item.phone1, item.phone2, item.mobile, item.hotline, item.contactPhone].forEach(p => {
+                    if (p && String(p).trim().length >= 8) phonesSet.add(String(p).trim());
+                });
+
+                const branch = extractBranchTag(item.nameAr || item.name);
+                if (branch && !branchList.includes(branch)) branchList.push(branch);
+
+                if (item.address && !addressList.includes(item.address)) addressList.push(item.address);
+
+                if (!master.email && item.email) master.email = item.email;
+                if (!master.website && item.website) master.website = item.website;
+                if (!master.linkedin && item.linkedin) master.linkedin = item.linkedin;
+                if (!master.facebook && item.facebook) master.facebook = item.facebook;
+                if (!master.google_maps_url && item.google_maps_url) master.google_maps_url = item.google_maps_url;
+                if (!master.contactPerson && item.contactPerson) master.contactPerson = item.contactPerson;
+                if (!master.contactTitle && item.contactTitle) master.contactTitle = item.contactTitle;
+
+                if (item.priority === 'A') master.priority = 'A';
+                else if (item.priority === 'B' && master.priority !== 'A') master.priority = 'B';
+
+                const fSize = Number(item.fleetSize) || 0;
+                if (fSize > (Number(master.fleetSize) || 0)) master.fleetSize = fSize;
+
+                // Re-link calls
+                if (item.id !== master.id) {
                     calls.forEach(call => {
-                        if (call.companyId === dup.id) {
-                            call.companyId = c.id;
+                        if (call.companyId === item.id) {
+                            call.companyId = master.id;
                             callsUpdated = true;
                         }
                     });
-                    if (callsUpdated) this._set(this.KEYS.CALLS, calls);
+                }
+            });
 
-                });
+            const allPhones = Array.from(phonesSet);
+            if (allPhones.length > 0) master.phone1 = allPhones[0];
+            if (allPhones.length > 1) master.phone2 = allPhones[1];
+            if (allPhones.length > 2) master.mobile = allPhones[2];
+            if (allPhones.length > 3) master.otherPhones = allPhones.slice(3).join(', ');
+
+            if (branchList.length > 0) {
+                master.branches = branchList;
+                master.branchesCount = branchList.length;
             }
 
-            processedIds.add(c.id);
+            if (addressList.length > 1) {
+                master.address = addressList.slice(0, 3).join(' | ');
+            }
 
-            // Ensure canonical mappings and priorities
-            c.sector = this.mapScraperSectorToCRM(c.sector);
-            c.city = this.mapScraperCityToCRM(c.city);
-            c.priority = this.calculatePriority(c.sector);
+            master.sector = this.mapScraperSectorToCRM(master.sector);
+            master.city = this.mapScraperCityToCRM(master.city);
+            master.priority = this.calculatePriority(master.sector);
 
-            mergedList.push(c);
+            mergedList.push(master);
         });
+
+        if (callsUpdated && this._set) {
+            this._set(this.KEYS.CALLS, calls);
+        }
 
         this.companiesMemory = this.cleanAndFixCompanyData(mergedList);
         this.saveAllCompaniesToDB(mergedList);
 
-        // Update cloud timestamp and push cleaned dataset immediately so cloud never reverts
         const now = Date.now();
+        localStorage.setItem('fleetcrm_company_count', mergedList.length);
         localStorage.setItem('fleetcrm_last_synced_hash', mergedList.length + '_' + (mergedList[0]?.id || ''));
         localStorage.setItem('fleetcrm_last_sync_time', now);
+        this.updateLiveCounters();
+
         if (window.SupabaseClient) {
             window.SupabaseClient.pushMasterData({
                 companies: mergedList,
+                dynamicCompanies: mergedList.filter(c => c.isCustom || String(c.id).startsWith('scraped_')),
                 users: this.getUsers(),
                 calls: this.getCalls ? this.getCalls() : [],
                 activities: this.getActivities ? this.getActivities() : []

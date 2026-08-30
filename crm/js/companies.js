@@ -1313,6 +1313,8 @@ const Companies = {
                         ${this._detailRow('هاتف 1', esc(company.phone1), true)}
                         ${this._detailRow('هاتف 2', esc(company.phone2), true)}
                         ${this._detailRow('موبايل', esc(company.mobile), true)}
+                        ${company.otherPhones ? this._detailRow('أرقام إضافية / مدمجة', `<span style="direction:ltr; font-family:Inter; color:#22d3ee; font-weight:700;">${esc(company.otherPhones)}</span>`, true) : ''}
+                        ${company.branches && company.branches.length > 0 ? this._detailRow('الفروع والمجمعات', `<div style="display:flex; flex-wrap:wrap; gap:4px; margin-top:4px;">${company.branches.map(b => `<span style="background:rgba(124,58,237,0.2); color:#c4b5fd; border:1px solid rgba(124,58,237,0.3); padding:2px 8px; border-radius:6px; font-size:11px; font-weight:700;">${esc(b)}</span>`).join('')}</div>`) : ''}
                         ${this._detailRow('البريد', company.email ? `<a href="mailto:${esc(company.email)}">${esc(company.email)}</a>` : '—')}
                         ${this._detailRow('الموقع', company.website ? `<a href="${esc(company.website)}" target="_blank">${esc(company.website)}</a>` : '—')}
                         ${this._detailRow('LinkedIn الشركة', (company.linkedinUrl || company.linkedin) ? `<a href="${esc(company.linkedinUrl || company.linkedin)}" target="_blank" style="color:#0077b5;"><i class="fab fa-linkedin"></i> عرض الصفحة</a>` : '—')}
