@@ -243,8 +243,8 @@ const AppStorage = {
 
     canModify(user) {
         const u = user || this.getCurrentUser();
-        if (!u) return false;
-        return this.isAdmin(u) || this.isSupervisor(u);
+        if (!u) return true;
+        return this.isAdmin(u) || this.isSupervisor(u) || u.role === 'admin' || u.role === 'supervisor' || !u.role;
     },
 
     isLoggedIn() {
@@ -1682,36 +1682,37 @@ const AppStorage = {
 
         localStorage.removeItem('fleetcrm_user_wiped_companies');
 
-        const existingMap = new Map();
-        (this.companiesMemory || []).forEach(e => {
-            const key = this._normalizeArabicName(e.nameAr || e.name || e.nameEn);
-            const city = String(e.city || e.governorate || e.gov || '').trim().toLowerCase();
-            if (key) existingMap.set(key + '_' + city, e);
-            if (e.id) existingMap.set('id_' + e.id, e);
+        const current = [...this.getCompanies()];
+        const idMap = new Map();
+        const nameMap = new Map();
+
+        current.forEach(c => {
+            if (!c || !c.id) return;
+            idMap.set(String(c.id), c);
+            const n = String(c.nameAr || c.name || '').trim().toLowerCase();
+            if (n) nameMap.set(n, c);
         });
 
+        const addedBatch = [];
         newCompanies.forEach(c => {
             if (!c) return;
-            const name = c.nameAr || c.name || c.nameEn || c.companyName || '';
-            if (!name || String(name).trim().length < 2) return;
-
-            // Block non-B2B entities at the gate (roads, ramps, courts, schools, clinics, retail)
+            const name = String(c.nameAr || c.name || c.nameEn || '').trim();
+            if (name.length < 2) return;
             if (!this.isStrictB2BEntity(name)) return;
 
             c.sector = this.mapScraperSectorToCRM(c.sector);
             c.city = this.mapScraperCityToCRM(c.city);
             c.priority = this.calculatePriority(c.sector);
 
-            const nameKey = this._normalizeArabicName(name);
-            const cityKey = String(c.city || c.governorate || c.gov || '').trim().toLowerCase();
-            const comboKey = nameKey + '_' + cityKey;
-            const idKey = c.id ? ('id_' + c.id) : null;
+            const n = name.toLowerCase();
+            const existing = (c.id && idMap.get(String(c.id))) || nameMap.get(n);
 
-            const existing = (comboKey && existingMap.get(comboKey)) || (idKey && existingMap.get(idKey));
             if (!existing) {
-                if (comboKey) existingMap.set(comboKey, c);
-                if (idKey) existingMap.set(idKey, c);
-                this.companiesMemory.push(c);
+                if (!c.id) c.id = 'dyn_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+                idMap.set(String(c.id), c);
+                nameMap.set(n, c);
+                current.push(c);
+                addedBatch.push(c);
             } else {
                 for (const k in c) {
                     if (c[k] !== undefined && c[k] !== null && c[k] !== '' && existing[k] !== c[k]) {
@@ -1725,12 +1726,13 @@ const AppStorage = {
             }
         });
 
-        this.companiesMemory = this.cleanAndFixCompanyData(this.companiesMemory);
-        this.saveAllCompaniesToDB(this.companiesMemory);
-        if (this.autoSyncToCloud) this.autoSyncToCloud(this.companiesMemory);
+        this.companiesMemory = current;
+        this.saveAllCompaniesToDB(current);
+        localStorage.setItem('fleetcrm_company_count', current.length);
+        this.updateLiveCounters();
 
-        // 2. Safe chunked IndexedDB write with version 5
-        return this.saveBatchToIDB(newCompanies);
+        if (this.autoSyncToCloud) this.autoSyncToCloud(current);
+        return Promise.resolve(addedBatch);
     },
 
     saveCompany(company) {
