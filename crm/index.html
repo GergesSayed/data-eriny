@@ -11,11 +11,16 @@
     <script>
         // Force purge any legacy service workers, disk caches, and old deals storage immediately
         (function() {
-            var CURRENT_VER = '175.0';
+            var CURRENT_VER = '176.0';
             try {
                 localStorage.removeItem('fleetcrm_deals');
                 localStorage.removeItem('fleetcrm_deals_count');
                 localStorage.removeItem('fleetcrm_user_wiped_deals');
+                localStorage.removeItem('fleetcrm_dynamic_companies');
+                var rawCount = localStorage.getItem('fleetcrm_company_count');
+                if (!rawCount || parseInt(String(rawCount).replace(/,/g, ''), 10) < 18453) {
+                    localStorage.setItem('fleetcrm_company_count', '18453');
+                }
                 if (window.location.hash === '#pipeline') {
                     window.location.hash = '#companies';
                 }
@@ -43,7 +48,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=175.0">
+    <link rel="stylesheet" href="css/style.css?v=176.0">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
         (function() {
@@ -263,7 +268,7 @@
             </div>
             <div class="brand-text">
                 <h2>Fleet CRM</h2>
-                <span>إدارة بيع الإطارات <small style="background:#7c3aed33; color:#a78bfa; padding:1px 6px; border-radius:6px; font-size:10px; font-weight:700;">v175.0</small></span>
+                <span>إدارة بيع الإطارات <small style="background:#7c3aed33; color:#a78bfa; padding:1px 6px; border-radius:6px; font-size:10px; font-weight:700;">v176.0</small></span>
             </div>
         </div>
 
@@ -1325,19 +1330,19 @@
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <script src="js/supabase-client.js?v=175.0"></script>
-    <script src="js/egypt_verified_titans.js?v=175.0"></script>
-    <script src="js/egypt_enterprises_pool.js?v=175.0"></script>
-    <script src="js/storage.js?v=175.0"></script>
-    <script src="js/excel-handler.js?v=175.0"></script>
-    <script src="js/dashboard.js?v=175.0"></script>
-    <script src="js/companies.js?v=175.0"></script>
-    <script src="js/calls.js?v=175.0"></script>
-    <script src="js/reports.js?v=175.0"></script>
-    <script src="js/scraper.js?v=175.0"></script>
-    <script src="js/team.js?v=175.0"></script>
-    <script src="js/settings.js?v=175.0"></script>
-    <script src="js/app.js?v=175.0"></script>
+    <script src="js/supabase-client.js?v=176.0"></script>
+    <script src="js/egypt_verified_titans.js?v=176.0"></script>
+    <script src="js/egypt_enterprises_pool.js?v=176.0"></script>
+    <script src="js/storage.js?v=176.0"></script>
+    <script src="js/excel-handler.js?v=176.0"></script>
+    <script src="js/dashboard.js?v=176.0"></script>
+    <script src="js/companies.js?v=176.0"></script>
+    <script src="js/calls.js?v=176.0"></script>
+    <script src="js/reports.js?v=176.0"></script>
+    <script src="js/scraper.js?v=176.0"></script>
+    <script src="js/team.js?v=176.0"></script>
+    <script src="js/settings.js?v=176.0"></script>
+    <script src="js/app.js?v=176.0"></script>
 
     <!-- EMERGENCY: Guarantee save button always works regardless of cache -->
     <script>

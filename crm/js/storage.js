@@ -723,35 +723,7 @@ const AppStorage = {
                     Promise.all([
                         this.loadCompaniesFromDB(db),
                         this.loadActivitiesFromDB(db)
-                    ]).then(async () => {
-                        const isWiped = localStorage.getItem('fleetcrm_user_wiped_companies') === 'true';
-                        if (!isWiped && (!this.companiesMemory || this.companiesMemory.length <= 34)) {
-                            await this._seedInitialJsonData([]);
-                            localStorage.setItem('fleetcrm_db_initialized', 'true');
-                        }
-
-                        // Auto-inject and prioritize Verified Egyptian Enterprise Titans
-                        if (window.__EGYPT_VERIFIED_TITANS && Array.isArray(window.__EGYPT_VERIFIED_TITANS) && !isWiped) {
-                            const existingIds = new Set(this.companiesMemory.map(c => String(c.id)));
-                            const existingNames = new Set(this.companiesMemory.map(c => this._normalizeArabicName(c.nameAr || c.name)));
-                            const titansToAdd = [];
-                            window.__EGYPT_VERIFIED_TITANS.forEach(t => {
-                                const norm = this._normalizeArabicName(t.nameAr);
-                                if (!existingIds.has(String(t.id)) && !existingNames.has(norm)) {
-                                    titansToAdd.push(t);
-                                } else {
-                                    const existing = this.companiesMemory.find(c => String(c.id) === String(t.id) || this._normalizeArabicName(c.nameAr || c.name) === norm);
-                                    if (existing) {
-                                        Object.assign(existing, t);
-                                    }
-                                }
-                            });
-                            if (titansToAdd.length > 0) {
-                                this.companiesMemory.unshift(...titansToAdd);
-                                this.saveAllCompaniesToDB(this.companiesMemory);
-                            }
-                        }
-
+                    ]).then(() => {
                         this.updateLiveCounters();
                         this.initWorker();
                         resolve();
@@ -1180,13 +1152,35 @@ const AppStorage = {
         }
     },
 
+    _fallbackHydrateBaseline() {
+        const syncMap = new Map();
+        const deletedCompIds = this.getDeletedIds('companies');
+        const basePool = (window.__EGYPT_ENTERPRISE_POOL && Array.isArray(window.__EGYPT_ENTERPRISE_POOL)) ? window.__EGYPT_ENTERPRISE_POOL : [];
+        basePool.forEach((c, idx) => {
+            if (!c) return;
+            const id = c.id || `comp_base_${idx}`;
+            if (!deletedCompIds.has(String(id))) {
+                syncMap.set(id, this._normalizeCompanyData(c, idx));
+            }
+        });
+        const titans = (window.__EGYPT_VERIFIED_TITANS && Array.isArray(window.__EGYPT_VERIFIED_TITANS)) ? window.__EGYPT_VERIFIED_TITANS : [];
+        titans.forEach(t => {
+            if (t && t.id && !deletedCompIds.has(String(t.id))) {
+                syncMap.set(t.id, t);
+            }
+        });
+        this.companiesMemory = Array.from(syncMap.values());
+        localStorage.setItem('fleetcrm_company_count', this.companiesMemory.length);
+        this.updateLiveCounters();
+    },
+
     loadCompaniesFromDB(db) {
         return new Promise((resolve) => {
             if (localStorage.getItem('fleetcrm_user_wiped_companies') === 'true') {
                 this.companiesMemory = [];
                 this._set(this.KEYS.COMPANIES, []);
                 this.updateLiveCounters();
-                resolve();
+                resolve([]);
                 return;
             }
             try {
@@ -1195,21 +1189,62 @@ const AppStorage = {
                 const request = store.getAll();
                 
                 request.onsuccess = (event) => {
-                    const data = event.target.result || [];
-                    const idbMapped = (data || []).map((c, idx) => this._normalizeCompanyData(c, idx));
-                    this.companiesMemory = idbMapped;
-                    localStorage.setItem('fleetcrm_company_count', idbMapped.length);
+                    const idbData = event.target.result || [];
+                    const deletedCompIds = this.getDeletedIds('companies');
+
+                    // 1. Immutable Master Map starting with all 18,419 Pool Companies
+                    const masterMap = new Map();
+                    const basePool = (window.__EGYPT_ENTERPRISE_POOL && Array.isArray(window.__EGYPT_ENTERPRISE_POOL)) ? window.__EGYPT_ENTERPRISE_POOL : [];
+                    basePool.forEach((c, idx) => {
+                        if (!c) return;
+                        const id = c.id || `comp_base_${idx}`;
+                        if (!deletedCompIds.has(String(id))) {
+                            masterMap.set(id, this._normalizeCompanyData(c, idx));
+                        }
+                    });
+
+                    // 2. Add 34 Verified Titans
+                    const titans = (window.__EGYPT_VERIFIED_TITANS && Array.isArray(window.__EGYPT_VERIFIED_TITANS)) ? window.__EGYPT_VERIFIED_TITANS : [];
+                    titans.forEach(t => {
+                        if (!t || !t.id) return;
+                        if (!deletedCompIds.has(String(t.id))) {
+                            masterMap.set(t.id, t);
+                        }
+                    });
+
+                    // 3. Merge all IndexedDB records (user additions, dynamic scrapes, call modifications)
+                    idbData.forEach(c => {
+                        if (!c || !c.id) return;
+                        if (!deletedCompIds.has(String(c.id))) {
+                            const existing = masterMap.get(c.id);
+                            if (existing) {
+                                masterMap.set(c.id, Object.assign({}, existing, c));
+                            } else {
+                                masterMap.set(c.id, this._normalizeCompanyData(c));
+                            }
+                        }
+                    });
+
+                    const merged = Array.from(masterMap.values());
+                    this.companiesMemory = merged;
+                    localStorage.setItem('fleetcrm_company_count', merged.length);
                     this.updateLiveCounters();
-                    resolve(idbMapped);
+                    
+                    // If IndexedDB had an incomplete dataset (e.g. old 4,500 state), backfill all 18,453 to disk
+                    if (idbData.length < merged.length) {
+                        this.saveBatchToIDB(merged);
+                    }
+
+                    resolve(merged);
                 };
                 
                 request.onerror = () => {
-                    this.updateLiveCounters();
-                    resolve([]);
+                    this._fallbackHydrateBaseline();
+                    resolve(this.companiesMemory);
                 };
             } catch (e) {
-                this.updateLiveCounters();
-                resolve([]);
+                this._fallbackHydrateBaseline();
+                resolve(this.companiesMemory);
             }
         });
     },

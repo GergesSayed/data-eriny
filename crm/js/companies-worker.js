@@ -10,11 +10,11 @@ let _idMap = new Map();
 function normalizeArabic(str) {
     if (!str || typeof str !== 'string') return '';
     return str.toLowerCase().trim()
-        .replace(/[أإآٱ]/g, 'ا')
-        .replace(/ة/g, 'ه')
-        .replace(/ى/g, 'ي')
-        .replace(/[ؤئ]/g, 'ء')
-        .replace(/[ً-ٰٟ]/g, '')
+        .replace(/[\u0622\u0623\u0625\u0671]/g, '\u0627')
+        .replace(/\u0629/g, '\u0647')
+        .replace(/\u0649/g, '\u064A')
+        .replace(/[\u0624\u0626]/g, '\u0621')
+        .replace(/[\u064B-\u065F\u0670]/g, '')
         .replace(/[\s\-_/\\]+/g, ' ');
 }
 

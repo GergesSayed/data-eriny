@@ -509,7 +509,7 @@ const ScraperPage = {
             this._log(`   ↳ 💾 تم الحفظ والمزامنة السحابية بنجاح. إجمالي شركات السيستم الآن: ${totalNow.toLocaleString()} شركة!`);
 
             if (statusText) {
-                statusText.textContent = `✅ تم إنجاز الدفعة #${this._continuousRound} (+${this._continuousHarvestedTotal.toLocaleString()} شركة جديدة مستخرجة حتى الآن) | الإجمالي: ${totalNow.toLocaleString()}`;
+                statusText.textContent = `✅ تم إنجاز الدفعة #${this._continuousRound} (+${batch.length.toLocaleString()} شركة جديدة) ⬅️ إجمالي شركات السيستم: ${totalNow.toLocaleString()} شركة`;
             }
 
             this.render();
@@ -535,7 +535,7 @@ const ScraperPage = {
         const statusDot = document.getElementById('scraper-status-dot');
         const statusText = document.getElementById('scraper-status-text');
         if (statusDot) { statusDot.style.background = '#10b981'; statusDot.style.animation = 'none'; }
-        if (statusText) statusText.textContent = `🛑 تم إيقاف السحب التلقائي. تم استخراج +${this._continuousHarvestedTotal.toLocaleString()} شركة جديدة (الإجمالي: ${totalNow.toLocaleString()})`;
+        if (statusText) statusText.textContent = `🛑 تم إيقاف السحب التلقائي | إجمالي شركات السيستم: ${totalNow.toLocaleString()} شركة (تمت إضافة +${this._continuousHarvestedTotal.toLocaleString()} جديدة)`;
 
         if (window.App && window.App.showToast) {
             window.App.showToast(`🛑 تم إيقاف السحب التلقائي بنجاح. إجمالي الشركات الآن: ${totalNow.toLocaleString()} شركة!`, 'success');
