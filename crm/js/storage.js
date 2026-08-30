@@ -949,34 +949,29 @@ const AppStorage = {
         return { items, total, totalPages, page: safePage, pageSize };
     },
 
-    async saveBatchToIDB(records, chunkSize = 500, onProgress = null) {
+    async saveBatchToIDB(records, onProgress = null) {
         if (!Array.isArray(records) || records.length === 0) return;
         const total = records.length;
-        for (let i = 0; i < total; i += chunkSize) {
-            const chunk = records.slice(i, i + chunkSize);
-            await new Promise((resolve) => {
-                try {
-                    const request = indexedDB.open('FleetCRM_DB', 5);
-                    request.onsuccess = (e) => {
-                        const db = e.target.result;
-                        if (!db.objectStoreNames.contains('companies')) { resolve(); return; }
-                        const tx = db.transaction(['companies'], 'readwrite');
-                        const store = tx.objectStore('companies');
-                        chunk.forEach(c => { if (c && c.id) store.put(c); });
-                        tx.oncomplete = () => resolve();
-                        tx.onerror = () => resolve();
-                    };
-                    request.onerror = () => resolve();
-                } catch(err) {
-                    resolve();
-                }
-            });
-            if (typeof onProgress === 'function') {
-                const percent = Math.min(100, Math.round(((i + chunk.length) / total) * 100));
-                onProgress(percent, i + chunk.length, total);
+        
+        await new Promise((resolve) => {
+            try {
+                const request = indexedDB.open('FleetCRM_DB', 5);
+                request.onsuccess = (e) => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains('companies')) { resolve(); return; }
+                    const tx = db.transaction(['companies'], 'readwrite');
+                    const store = tx.objectStore('companies');
+                    records.forEach(c => { if (c && c.id) store.put(c); });
+                    tx.oncomplete = () => resolve();
+                    tx.onerror = () => resolve();
+                    tx.onabort = () => resolve();
+                };
+                request.onerror = () => resolve();
+            } catch(err) {
+                resolve();
             }
-            await new Promise(r => setTimeout(r, 0));
-        }
+        });
+
         if (this._worker && this._workerReady) {
             this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: records });
         }
@@ -1647,23 +1642,19 @@ const AppStorage = {
         if (this.autoSyncToCloud) this.autoSyncToCloud(clean);
     },
 
-    addCompanies(newCompanies) {
+    async addCompanies(newCompanies) {
         if (!Array.isArray(newCompanies) || newCompanies.length === 0) {
             if (this.autoSyncToCloud) this.autoSyncToCloud(this.companiesMemory);
-            return Promise.resolve();
+            return [];
         }
 
         localStorage.removeItem('fleetcrm_user_wiped_companies');
 
         const current = [...this.getCompanies()];
         const idMap = new Map();
-        const nameMap = new Map();
 
         current.forEach(c => {
-            if (!c || !c.id) return;
-            idMap.set(String(c.id), c);
-            const n = String(c.nameAr || c.name || '').trim().toLowerCase();
-            if (n) nameMap.set(n, c);
+            if (c && c.id) idMap.set(String(c.id), c);
         });
 
         const addedBatch = [];
@@ -1677,13 +1668,11 @@ const AppStorage = {
             c.city = this.mapScraperCityToCRM(c.city);
             c.priority = this.calculatePriority(c.sector);
 
-            const n = name.toLowerCase();
-            const existing = (c.id && idMap.get(String(c.id))) || nameMap.get(n);
+            if (!c.id) c.id = 'dyn_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+            const existing = idMap.get(String(c.id));
 
             if (!existing) {
-                if (!c.id) c.id = 'dyn_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
                 idMap.set(String(c.id), c);
-                nameMap.set(n, c);
                 current.push(c);
                 addedBatch.push(c);
             } else {
@@ -1696,16 +1685,20 @@ const AppStorage = {
                 existing.city = this.mapScraperCityToCRM(existing.city);
                 existing.priority = this.calculatePriority(existing.sector);
                 existing.lastUpdated = new Date().toISOString().split('T')[0];
+                addedBatch.push(existing);
             }
         });
 
         this.companiesMemory = current;
-        this.saveAllCompaniesToDB(current);
         localStorage.setItem('fleetcrm_company_count', current.length);
         this.updateLiveCounters();
 
+        if (addedBatch.length > 0) {
+            await this.saveBatchToIDB(addedBatch);
+        }
+
         if (this.autoSyncToCloud) this.autoSyncToCloud(current);
-        return Promise.resolve(addedBatch);
+        return addedBatch;
     },
 
     saveCompany(company) {
