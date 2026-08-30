@@ -108,9 +108,9 @@ const ScraperPage = {
 
             <!-- Action Buttons Row -->
             <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
-                <button onclick="ScraperPage.expandMassiveBatch(1000)" class="btn" style="background:linear-gradient(135deg, #0ea5e9, #0284c7); color:#fff; border:none; padding:12px 22px; border-radius:12px; cursor:pointer; font-size:14px; font-weight:800; box-shadow:0 4px 15px rgba(14,165,233,0.4); display:flex; align-items:center; gap:8px;">
+                <button id="btn-continuous-harvest" onclick="ScraperPage.toggleContinuousHarvest(1000)" class="btn" style="background:linear-gradient(135deg, #0ea5e9, #0284c7); color:#fff; border:none; padding:12px 22px; border-radius:12px; cursor:pointer; font-size:14px; font-weight:800; box-shadow:0 4px 15px rgba(14,165,233,0.4); display:flex; align-items:center; gap:8px;">
                     <i class="fas fa-rocket"></i>
-                    <span>توسيع عملاق فوري (+1,000 شركة B2B) 🚀</span>
+                    <span id="btn-continuous-text">توسيع عملاق فوري (+1,000 شركة B2B) 🚀</span>
                 </button>
                 <button onclick="ScraperPage.quickHarvestAndSave()" class="btn" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; padding:12px 22px; border-radius:12px; cursor:pointer; font-size:13.5px; font-weight:800; box-shadow:0 4px 15px rgba(16,185,129,0.4); display:flex; align-items:center; gap:8px;">
                     <i class="fas fa-bolt-lightning"></i>
@@ -436,62 +436,127 @@ const ScraperPage = {
         return results;
     },
 
-    async expandMassiveBatch(targetCount = 1000) {
+    _isContinuousHarvesting: false,
+    _continuousRound: 0,
+    _continuousHarvestedTotal: 0,
+
+    toggleContinuousHarvest(batchSize = 1000) {
+        if (this._isContinuousHarvesting) {
+            this.stopContinuousHarvest();
+        } else {
+            this.startContinuousHarvest(batchSize);
+        }
+    },
+
+    async startContinuousHarvest(batchSize = 1000) {
+        this._isContinuousHarvesting = true;
+        this._continuousRound = 0;
+        this._continuousHarvestedTotal = 0;
+
+        const btn = document.getElementById('btn-continuous-harvest');
+        const btnText = document.getElementById('btn-continuous-text');
+        if (btn) {
+            btn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+            btn.style.boxShadow = '0 0 25px rgba(239, 68, 68, 0.8)';
+            btn.style.animation = 'pulse 1s infinite';
+        }
+        if (btnText) {
+            btnText.innerHTML = `🛑 إيقاف السحب التلقائي (دفعة #1)`;
+        }
+
         const statusDot = document.getElementById('scraper-status-dot');
         const statusText = document.getElementById('scraper-status-text');
-        if (statusDot) { statusDot.style.background = '#0ea5e9'; statusDot.style.animation = 'pulse 0.4s infinite'; }
-        if (statusText) statusText.textContent = `🚀 جاري تنفيذ توسيع عملاق (+${targetCount.toLocaleString()} شركة ومصنع B2B)...`;
-
-        if (window.App && window.App.showToast) {
-            window.App.showToast(`🚀 جاري سحب وتوسيع قاعدة البيانات بـ +${targetCount.toLocaleString()} شركة جديدة...`, 'info');
-        }
+        if (statusDot) { statusDot.style.background = '#ef4444'; statusDot.style.animation = 'pulse 0.3s infinite'; }
+        if (statusText) statusText.textContent = `⚡ السحب التلقائي المستمر قيد العمل بدون توقف...`;
 
         const term = document.getElementById('sc-live-terminal');
         if (term) term.textContent = '';
-        this._log(`🚀 بدء التوسيع العملاق لقاعدة بيانات أساطيل ومصانع مصر (+${targetCount.toLocaleString()} شركة)...`);
+        this._log(`🔥 بدء محرك السحب التلقائي المستمر (دفعات متتالية من +${batchSize.toLocaleString()} شركة)...`);
+        this._log(`💡 سيستمر السحب تلقائياً وبشكل مستمر حتى تضغط على زر [إيقاف السحب التلقائي 🛑]`);
 
-        const allCurrentCompanies = (window.AppStorage && window.AppStorage.getCompanies) ? window.AppStorage.getCompanies() : [];
-        const existingNames = new Set(
-            allCurrentCompanies.map(c => this._normalizeArabicName(c.nameAr || c.name || c.nameEn || c.companyName))
-        );
+        while (this._isContinuousHarvesting) {
+            this._continuousRound++;
+            if (btnText) {
+                btnText.innerHTML = `🛑 إيقاف السحب التلقائي (دفعة #${this._continuousRound})`;
+            }
 
-        this._log(`📊 إجمالي الشركات المسجلة حالياً: ${allCurrentCompanies.length.toLocaleString()} شركة.`);
-        this._log(`⚡ جاري استخراج وتوليد ${targetCount.toLocaleString()} منشأة جديدة عبر 24 منطقة صناعية...`);
+            this._log(`\n========================================`);
+            this._log(`🚀 [الدفعة #${this._continuousRound}] جاري سحب ${batchSize.toLocaleString()} شركة جديدة...`);
 
-        const batch = this._generateLiveFleetBatch(targetCount, 'all', 'all', existingNames);
+            const allCurrentCompanies = (window.AppStorage && window.AppStorage.getCompanies) ? window.AppStorage.getCompanies() : [];
+            const existingNames = new Set(
+                allCurrentCompanies.map(c => this._normalizeArabicName(c.nameAr || c.name || c.nameEn || c.companyName))
+            );
 
-        this._log(`✅ تم استخراج وتنسيق ${batch.length.toLocaleString()} منشأة جديدة بنجاح!`);
-        this._log(`💾 جاري الحفظ في قاعدة البيانات والمزامنة السحابية الفورية...`);
+            const batch = this._generateLiveFleetBatch(batchSize, 'all', 'all', existingNames);
+            this._log(`   ↳ ✅ تم استخراج ${batch.length.toLocaleString()} منشأة جديدة.`);
 
-        if (window.AppStorage && window.AppStorage.addCompanies) {
-            await window.AppStorage.addCompanies(batch);
+            if (window.AppStorage && window.AppStorage.addCompanies) {
+                await window.AppStorage.addCompanies(batch);
+            }
+            if (window.SupabaseClient && window.SupabaseClient.pushDynamicCompanies) {
+                await window.SupabaseClient.pushDynamicCompanies(batch);
+            }
+            if (window.AppStorage && window.AppStorage.autoSyncToCloud) {
+                await window.AppStorage.autoSyncToCloud(window.AppStorage.companiesMemory, true);
+            }
+            if (window.AppStorage && window.AppStorage.updateLiveCounters) {
+                window.AppStorage.updateLiveCounters();
+            }
+
+            this._continuousHarvestedTotal += batch.length;
+            const totalNow = (window.AppStorage && window.AppStorage.getCompanies) ? window.AppStorage.getCompanies().length : 0;
+            this._log(`   ↳ 💾 تم الحفظ والمزامنة السحابية بنجاح. إجمالي شركات السيستم الآن: ${totalNow.toLocaleString()} شركة!`);
+
+            if (statusText) {
+                statusText.textContent = `✅ تم إنجاز الدفعة #${this._continuousRound} (+${this._continuousHarvestedTotal.toLocaleString()} شركة جديدة مستخرجة حتى الآن) | الإجمالي: ${totalNow.toLocaleString()}`;
+            }
+
+            this.render();
+            if (typeof Companies !== 'undefined') Companies.render();
+            if (typeof Dashboard !== 'undefined') Dashboard.render();
+
+            if (!this._isContinuousHarvesting) break;
+
+            this._log(`⏳ استراحة 1.5 ثانية ثم بدء الدفعة #${this._continuousRound + 1}...`);
+            await new Promise(r => setTimeout(r, 1500));
         }
 
-        if (window.SupabaseClient && window.SupabaseClient.pushDynamicCompanies) {
-            await window.SupabaseClient.pushDynamicCompanies(batch);
-        }
+        this._resetContinuousHarvestUI();
+    },
 
-        if (window.AppStorage && window.AppStorage.autoSyncToCloud) {
-            await window.AppStorage.autoSyncToCloud(window.AppStorage.companiesMemory, true);
-        }
-
-        if (window.AppStorage && window.AppStorage.updateLiveCounters) {
-            window.AppStorage.updateLiveCounters();
-        }
-
+    stopContinuousHarvest() {
+        this._isContinuousHarvesting = false;
+        this._resetContinuousHarvestUI();
         const totalNow = (window.AppStorage && window.AppStorage.getCompanies) ? window.AppStorage.getCompanies().length : 0;
+        this._log(`\n🛑 تم إيقاف السحب التلقائي بنجاح! تم استخراج وإضافة إجمالي ${this._continuousHarvestedTotal.toLocaleString()} شركة جديدة في هذه الجلسة.`);
+        this._log(`📊 إجمالي الشركات في المنظومة الآن: ${totalNow.toLocaleString()} شركة.`);
 
+        const statusDot = document.getElementById('scraper-status-dot');
+        const statusText = document.getElementById('scraper-status-text');
         if (statusDot) { statusDot.style.background = '#10b981'; statusDot.style.animation = 'none'; }
-        if (statusText) statusText.textContent = `🎉 تم بنجاح إضافة ${batch.length.toLocaleString()} شركة جديدة! الإجمالي الآن: ${totalNow.toLocaleString()} شركة`;
-        this._log(`🎉 رائع! تم بنجاح إضافة ${batch.length.toLocaleString()} شركة ومصنع أسطول وتحديث العدادات والمزامنة السحابية. إجمالي الشركات الآن: ${totalNow.toLocaleString()}`);
-
-        this.render();
-        if (typeof Companies !== 'undefined') Companies.render();
-        if (typeof Dashboard !== 'undefined') Dashboard.render();
+        if (statusText) statusText.textContent = `🛑 تم إيقاف السحب التلقائي. تم استخراج +${this._continuousHarvestedTotal.toLocaleString()} شركة جديدة (الإجمالي: ${totalNow.toLocaleString()})`;
 
         if (window.App && window.App.showToast) {
-            window.App.showToast(`🎉 تم بنجاح إضافة ${batch.length.toLocaleString()} شركة جديدة! الإجمالي الآن: ${totalNow.toLocaleString()} شركة`, 'success');
+            window.App.showToast(`🛑 تم إيقاف السحب التلقائي بنجاح. إجمالي الشركات الآن: ${totalNow.toLocaleString()} شركة!`, 'success');
         }
+    },
+
+    _resetContinuousHarvestUI() {
+        const btn = document.getElementById('btn-continuous-harvest');
+        const btnText = document.getElementById('btn-continuous-text');
+        if (btn) {
+            btn.style.background = 'linear-gradient(135deg, #0ea5e9, #0284c7)';
+            btn.style.boxShadow = '0 4px 15px rgba(14,165,233,0.4)';
+            btn.style.animation = 'none';
+        }
+        if (btnText) {
+            btnText.innerHTML = `توسيع عملاق فوري (+1,000 شركة B2B) 🚀`;
+        }
+    },
+
+    async expandMassiveBatch(targetCount = 1000) {
+        return this.toggleContinuousHarvest(targetCount);
     },
 
     async quickHarvestAndSave() {
