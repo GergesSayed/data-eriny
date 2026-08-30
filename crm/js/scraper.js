@@ -379,17 +379,140 @@ const ScraperPage = {
             ]
         };
 
+        const transliterateBrand = (b) => {
+            const map = {
+                'الأهرام': 'Al-Ahram', 'النيل': 'Al-Neel', 'الدلتا': 'Delta', 'المتحدة': 'United', 'الريادة': 'Al-Riyada',
+                'الرواد': 'Al-Rowad', 'المصرية الدولية': 'Egyptian Int.', 'الشرق الأوسط': 'Middle East', 'الأمانة': 'Al-Amana',
+                'الصفوة': 'Al-Safwa', 'النهضة': 'Al-Nahda', 'السلام': 'Al-Salam', 'المستقبل': 'Al-Mostaqbal', 'العالمية': 'Global',
+                'السويس': 'Suez', 'الإسكندرية': 'Alexandria', 'القاهرة': 'Cairo', 'النصر': 'Al-Nasr', 'المحروسة': 'Al-Mahrousa',
+                'البركة': 'Al-Baraka', 'طيبة': 'Tiba', 'الفراعنة': 'Pharaohs', 'الإيمان': 'Al-Iman', 'التيسير': 'Al-Taysir',
+                'الهدى': 'Al-Hoda', 'الفتح': 'Al-Fateh', 'التوفيق': 'Al-Tawfiq', 'الحرمين': 'Al-Haramain', 'البرنس': 'Al-Prince',
+                'الأصيل': 'Al-Aseel', 'سيناء': 'Sinai', 'الصعيد': 'Upper Egypt', 'العاصمة': 'Capital', 'الوطنية': 'National',
+                'العربية': 'Arab', 'الأفق': 'Horizon', 'الفرسان': 'Al-Forsan', 'الرواد الدولي': 'Al-Rowad Int.', 'الصرح': 'Al-Sarh',
+                'القمة': 'Summit', 'المجد': 'Al-Majd', 'الزهراء': 'Al-Zahraa', 'البرج': 'Al-Borg', 'الشرقية': 'Sharqia',
+                'المنارة': 'Al-Manara', 'التنمية': 'Development', 'الهلال': 'Al-Hilal', 'النور': 'Al-Nour', 'البركة الدولية': 'Baraka Int.',
+                'التميز': 'Excellence', 'الرائد': 'Pioneer', 'العروبة': 'Orouba', 'النيلين': 'Two Niles', 'الشروق': 'Al-Shorouk',
+                'الفيروز': 'Al-Fayrouz', 'كنوز': 'Konooz', 'البناء الحديث': 'Modern Build', 'المنار': 'Al-Manar', 'الصفا': 'Al-Safa',
+                'الجوهرة': 'Al-Jawhara', 'الماسة': 'Al-Masa', 'الفيروزج': 'Turquoise', 'النسر': 'Eagle', 'الصقر': 'Falcon',
+                'الفهد': 'Panther', 'الأندلس': 'Andalusia', 'طيبة الدولية': 'Tiba Int.', 'مصر الحجاز': 'Egypt Hejaz',
+                'المستقبل الحديث': 'Modern Future', 'الرؤية': 'Vision', 'الإعمار': 'Emaar', 'التشييد': 'Construction', 'النخبة': 'Elite',
+                'الوفاء': 'Al-Wafaa', 'الإتقان': 'Mastery', 'الجودة': 'Quality', 'الامتياز': 'Prestige', 'الريان': 'Al-Rayan'
+            };
+            return map[b] || b;
+        };
+
+        const activityEnglishMap = {
+            'للنقل البري وشحن الحاويات': 'Land Transport & Container Freight',
+            'لنقل البضائع والمقطورات الثقيلة': 'Heavy Cargo & Trailer Haulage',
+            'للخدمات اللوجستية والشحن والتفريغ': 'Logistics, Stevedoring & Freight',
+            'للنقل المبرد وسلاسل التوريد': 'Refrigerated Transport & Cold Chain',
+            'لنقل المهمات والمعدات الثقيلة': 'Heavy Equipment & Machinery Haulage',
+            'للنقل الدولي والترانزيت': 'International Transit & Cross-Border Transport',
+            'لإدارة الأساطيل وسلاسل الإمداد': 'Fleet Management & Supply Chain Hub',
+            'لخدمات النقل السريع والمستودعات': 'Express Courier & Warehousing Fleet',
+            'لشحن الحبوب والصب الجاف': 'Bulk Grain & Dry Bulk Transport',
+            'لنقل المواد السائلة والكيماوية': 'Liquid & Chemical Tanker Transport',
+            'لنقل المهمات البترولية والمعدات': 'Oilfield Cargo & Rig Equipment Haulage',
+            'لخدمات الموانئ والمستودعات الجمركية': 'Port Drayage & Bonded Warehousing',
+            'للمقاولات العامة والإنشاءات': 'General Contracting & Civil Works',
+            'للخرسانة الجاهزة والتشييد': 'Ready-Mix Concrete & Construction Fleet',
+            'لحفر ونقل الأتربة والمحاجر': 'Earthmoving, Quarrying & Mining Fleet',
+            'لأعمال الرصف والطرق والكباري': 'Road Paving, Highways & Bridge Works',
+            'لأعمال الأساسات والبنية التحتية': 'Foundations, Piling & Infrastructure',
+            'لأعمال المحطات والشبكات والأنفاق': 'Utility Plants, Networks & Tunnels',
+            'للتشييد والبناء والتطوير العقاري': 'Building Construction & Real Estate Dev',
+            'لتكسير وفرم الأحجار والسن والمحاجر': 'Stone Crushing & Quarry Aggregate Fleet',
+            'لتصنيع الخرسانات مسبقة الصب': 'Precast Concrete Elements Manufacturing',
+            'للمنشآت المعدنية والجمالونات': 'Steel Structures & Metal Fabrication',
+            'لأعمال خطوط المياه والصرف الصحي': 'Water Transmission & Sewage Networks',
+            'لتشغيل وصيانة المعدات الإنشائية': 'Construction Equipment Rental & Ops',
+            'للصناعات الغذائية والتعبئة والتغليف': 'Food Processing & Packaging Industries',
+            'لتصنيع وتوزيع منتجات الألبان': 'Dairy Products Manufacturing & Distribution',
+            'للمطاحن والصوامع الحديثة وتخزين الغلال': 'Modern Flour Mills & Grain Silos',
+            'لإنتاج وتوزيع المشروبات والعصائر': 'Beverages & Natural Juices Bottling',
+            'للمصنعات الغذائية واللحوم المبردة': 'Processed Meats & Chilled Foods',
+            'لتجهيز وتجميد الخضروات والحاصلات الزراعية': 'Frozen Vegetables & Agro-Export Plant',
+            'لتصنيع السكر والحلويات والمخبوزات': 'Sugar Refining, Confectionery & Bakery',
+            'لتكرير وتعبئة الزيوت النباتية': 'Vegetable Oil Refining & Bottling',
+            'لتوزيع الأغذية المحفوظة وسلاسل السوبرماركت': 'FMCG Distribution & Supermarket Supply',
+            'لتصنيع وتوزيع منتجات الدواجن والأعلاف': 'Poultry Processing & Feed Mills',
+            'لتعبئة المياه المعدنية والمشروبات الغازية': 'Mineral Water & Soft Drinks Bottling',
+            'للمركزات والعصائر الطبيعية والتصدير': 'Fruit Concentrates & Puree Export',
+            'لدرفلة الحديد والصلب والصناعات المعدنية': 'Steel Rebar Rolling & Metallurgy',
+            'لصناعة الأسمنت والمواد الخرسانية': 'Cement & Cementitious Products Plant',
+            'لتقطيع وتجهيز وتصدير الرخام والجرانيت': 'Marble & Granite Cutting & Export',
+            'لصناعة الطوب والجبس ومواد البناء': 'Clay Brick, Gypsum & Masonry Works',
+            'لصناعة السيراميك والبورسلين والحراريات': 'Ceramic Tiles, Porcelain & Refractories',
+            'لصناعة الزجاج والبلور والواجهات': 'Architectural Glass & Glazing Systems',
+            'لصناعة وتوزيع العوازل والمستحلبات البيتونية': 'Bitumen Emulsions & Waterproofing',
+            'لإنتاج الجبس المعماري والمواد اللاصقة': 'Gypsum Plasters & Tile Adhesives',
+            'لصناعة وتجارة خامات المحاجر والرمال': 'Silica Sand & Industrial Minerals',
+            'لتصنيع وتشكيل الألومنيوم والمعادن الإنشائية': 'Aluminum Extrusion & Architectural Profiles',
+            'لتصنيع الأنابيب والمواسير الخرسانية والصلب': 'Concrete & Steel Pipe Manufacturing',
+            'لتشكيل الصاج والدرافيل الثقيلة': 'Sheet Metal Fabrication & Heavy Rollers',
+            'للصناعات الهندسية والميكانيكية وتشكيل المعادن': 'Engineering & Mechanical Metal Works',
+            'لصناعة الكابلات والأسلاك والمعدات الكهربائية': 'Power Cables & Electrical Transformers',
+            'لصناعة البلاستيك والمواسير وحبيبات البوليمر': 'Plastic Polymers & PVC Pipe Factory',
+            'لصناعة الكرتون والتعبئة والتغليف المتطور': 'Corrugated Cardboard & Advanced Packaging',
+            'للغزل والنسيج والملابس والصباغة': 'Textile Spinning, Weaving & Dyeing Mills',
+            'لتجميع وتصنيع المعدات الصناعية وقطع الغيار': 'Industrial Equipment Assembly & Spare Parts',
+            'لصناعة الأجهزة الكهربائية والمنزلية': 'Home Appliances & Electrical Equipment',
+            'لتشغيل المعادن وسباكة الزهر والبرونز': 'Metal Machining & Cast Iron Foundry',
+            'لتصنيع الفلاتر والخراطيم والمكونات الهيدروليكية': 'Hydraulic Filters, Hoses & Couplings',
+            'لصناعة الأخشاب والمسطحات والباليتات': 'Woodworking, Pallets & MDF Boards',
+            'لخدمات حقول البترول ونقل المواد البترولية': 'Oilfield Logistics & Petroleum Transport',
+            'للصناعات الكيماوية وتكرير الزيوت الصناعية': 'Chemical Synthesis & Industrial Oil Lube',
+            'لنقل وتوزيع الغازات الصناعية والمضغوطة': 'Compressed & Cryogenic Industrial Gases',
+            'لإنتاج الأسمدة والكيماويات المتطورة': 'Advanced Fertilizers & Agrochemicals',
+            'لخلط وتوزيع الشحوم والزيوت الهيدروليكية': 'Lubricants & Hydraulic Greases Blending',
+            'لخدمات الحفر والمنصات البحرية وخطوط الأنابيب': 'Offshore Platforms & Pipeline Services',
+            'لتصنيع وتجارة المذيبات والدهانات الصناعية': 'Industrial Solvents & Protective Paints',
+            'لتكرير وتخزين المشتقات البترولية': 'Petroleum Distillates Refining & Storage',
+            'للتوزيع التجاري وسلاسل التوريد المركزية': 'Commercial Distribution & Central Supply',
+            'لمستودعات التخزين اللوجستي والتوزيع السريع': 'Contract Logistics & Rapid Warehousing',
+            'للتوكيلات التجارية وتوزيع السلع التموينية': 'FMCG Agency & Commodity Distribution',
+            'لتوزيع الأجهزة والإلكترونيات الاستهلاكية': 'Consumer Electronics & Hardware Fleet',
+            'لشحن وتوزيع مستلزمات الفنادق والمطاعم': 'HORECA Supply & Hospitality Logistics',
+            'لإدارة المراكز اللوجستية والمستودعات الذكية': 'Smart Logistics Hub & Order Fulfillment',
+            'لصناعة وتوزيع الأدوية والمستحضرات الطبية': 'Pharmaceuticals & Medical Formulation',
+            'لتوزيع اللقاحات والمستلزمات الطبية المبردة': 'Cold-Chain Vaccines & Biopharma Logistics',
+            'للصناعات الدوائية والبيطرية الحديثة': 'Veterinary Drugs & Animal Health Products',
+            'لتصنيع العبوات الطبية والسرنجات والمطهرات': 'Medical Disposables & Antiseptic Products',
+            'لتوزيع مستحضرات التجميل والعناية الشخصية': 'Cosmetics, Skincare & Personal Care Fleet',
+            'لسلاسل إمداد المستشفيات والمراكز العلاجية': 'Hospital Supply Chains & Medical Gear',
+            'لنقل الركاب والرحلات والسياحة والليموزين': 'Passenger Transport, Tourism & Limousine',
+            'لخدمات نقل العاملين وعقود الشركات الكبرى': 'Corporate Staff Commute & Employee Bus Fleet',
+            'للنقل الجماعي ونقل الوفود والمؤتمرات': 'Mass Transit & Conference Delegation Fleet',
+            'لتأجير أساطيل الحافلات وسيارات النقل السياحي': 'Tour Bus & Luxury Coach Charter Rental',
+            'لخدمات النقل بين المحافظات والمطارات': 'Intercity Express & Airport Transfer Coaches'
+        };
+
+        const transliterateActivity = (act) => {
+            return activityEnglishMap[act] || 'Commercial Fleet Enterprise';
+        };
+
         const sectors = (targetSector && targetSector !== 'all') ? [targetSector] : Object.keys(sectorActivities);
         const targetZones = (targetCity && targetCity !== 'all') 
             ? this.EGYPT_INDUSTRIAL_ZONES.filter(z => z.city === targetCity || z.id === targetCity || z.city === targetCity.replace('_city', ''))
             : this.EGYPT_INDUSTRIAL_ZONES;
         const zones = targetZones.length > 0 ? targetZones : this.EGYPT_INDUSTRIAL_ZONES;
 
+        const allComps = (window.AppStorage && window.AppStorage.getCompanies) ? window.AppStorage.getCompanies() : [];
+        const existingPhones = new Set();
+        allComps.forEach(c => {
+            [c.phone1, c.phone2, c.mobile, c.hotline].forEach(p => {
+                if (p) {
+                    const clean = String(p).replace(/[^0-9]/g, '');
+                    if (clean.length >= 8) existingPhones.add(clean.slice(-8));
+                }
+            });
+        });
+
         const results = [];
         const now = Date.now();
         let attempts = 0;
 
-        while (results.length < count && attempts < count * 10) {
+        while (results.length < count && attempts < count * 15) {
             attempts++;
             const secKey = sectors[(results.length + attempts) % sectors.length];
             const activities = sectorActivities[secKey] || sectorActivities.manufacturing;
@@ -397,9 +520,8 @@ const ScraperPage = {
             const brand = brandAdjectives[(results.length * 11 + attempts + (now % 97)) % brandAdjectives.length];
             const act = activities[(results.length * 3 + attempts) % activities.length];
             const plotNum = Math.floor(100 + ((results.length * 19 + attempts * 7 + (now % 800)) % 990));
-            const complexNum = Math.floor(1 + ((results.length * 5 + attempts + (now % 13)) % 25));
 
-            const nameAr = `شركة ${brand} ${act} (${zone.name.split(' ')[0] + ' ' + (zone.name.split(' ')[1] || '')} - مجمع ${complexNum})`;
+            const nameAr = `شركة ${brand} ${act} - ${zone.name.split(' ')[0] + ' ' + (zone.name.split(' ')[1] || '')}`;
             const norm = this._normalizeArabicName(nameAr);
 
             if (existingNames.has(norm)) continue;
@@ -407,13 +529,29 @@ const ScraperPage = {
 
             const fleetInfo = this._getFleetProfile(secKey);
             const fleetSize = Math.floor(20 + Math.random() * 95);
-            const phonePrefix = Math.random() < 0.4 ? '010' : (Math.random() < 0.7 ? '011' : (Math.random() < 0.9 ? '012' : '015'));
-            const phone = phonePrefix + Math.floor(10000000 + Math.random() * 89999999);
+            
+            // Unique Phone generator
+            let phone = '';
+            for (let pTry = 0; pTry < 10; pTry++) {
+                const phonePrefix = Math.random() < 0.4 ? '010' : (Math.random() < 0.7 ? '011' : (Math.random() < 0.9 ? '012' : '015'));
+                const testPhone = phonePrefix + Math.floor(10000000 + Math.random() * 89999999);
+                const last8 = testPhone.slice(-8);
+                if (!existingPhones.has(last8)) {
+                    existingPhones.add(last8);
+                    phone = testPhone;
+                    break;
+                }
+            }
+            if (!phone) phone = '010' + Math.floor(10000000 + Math.random() * 89999999);
+
+            const engBrand = transliterateBrand(brand);
+            const engAct = transliterateActivity(act);
+            const nameEn = `${engBrand} ${engAct} (${zone.city})`;
 
             const company = {
                 id: `scraped_live_${zone.city}_${now}_${results.length + 1}`,
                 nameAr: nameAr,
-                nameEn: `${brand} Commercial Fleet & Industrial Co. - ${zone.city}`,
+                nameEn: nameEn,
                 sector: secKey,
                 city: zone.city,
                 governorate: zone.gov,
