@@ -72,41 +72,28 @@ const App = {
             }
 
             // Immediately pull and merge latest cloud dataset (including all harvested companies)
-            try {
-                const cloudPromise = window.AppStorage.pullFromCloud();
-                const timeoutPromise = new Promise(r => setTimeout(r, 2500));
-                await Promise.race([cloudPromise, timeoutPromise]);
-            } catch(e) {}
+            window.AppStorage.pullFromCloud().then(wasUpdated => {
+                const total = (window.AppStorage.getCompanies() || []).length;
+                const sideCounter = document.getElementById('sidebar-total-companies');
+                if (sideCounter && total > 0) sideCounter.textContent = total.toLocaleString();
+                if (wasUpdated) {
+                    if (typeof Companies !== 'undefined' && this.currentPage === 'companies') Companies.render();
+                    if (typeof Dashboard !== 'undefined' && this.currentPage === 'dashboard') Dashboard.render();
+                }
+            }).catch(() => {});
 
-            const initTotal = (window.AppStorage.getCompanies() || []).length;
-            const sideCounter = document.getElementById('sidebar-total-companies');
-            if (sideCounter && initTotal > 0) sideCounter.textContent = initTotal.toLocaleString();
-
-            // Start background cloud synchronization loop (every 30s) across all devices
-            if (this._cloudSyncInterval) clearInterval(this._cloudSyncInterval);
-            this._cloudSyncInterval = setInterval(async () => {
-                try {
-                    const wasUpdated = await window.AppStorage.pullFromCloud();
-                    if (wasUpdated) {
-                        if (typeof Companies !== 'undefined' && this.currentPage === 'companies') {
-                            Companies.render();
-                        }
-                        if (typeof Dashboard !== 'undefined' && this.currentPage === 'dashboard') {
-                            Dashboard.render();
-                        }
-                        const sideCounter = document.getElementById('sidebar-total-companies');
-                        if (sideCounter) sideCounter.textContent = window.AppStorage.getCompanies().length.toLocaleString();
-                    }
-                } catch (e) {}
-            }, 30000);
-
-            // Also force pull cloud updates when browser tab regains focus
-            window.addEventListener('focus', () => {
+            // Also force pull cloud updates instantly when browser tab/app regains focus or visibility (e.g. mobile unlock)
+            const handleInstantSync = () => {
                 window.AppStorage.pullFromCloud().then(wasUpdated => {
-                    if (wasUpdated && typeof Companies !== 'undefined' && this.currentPage === 'companies') {
-                        Companies.render();
+                    if (wasUpdated) {
+                        if (typeof Companies !== 'undefined' && this.currentPage === 'companies') Companies.render();
+                        if (typeof Dashboard !== 'undefined' && this.currentPage === 'dashboard') Dashboard.render();
                     }
                 }).catch(() => {});
+            };
+            window.addEventListener('focus', handleInstantSync);
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') handleInstantSync();
             });
 
             // Migrate existing companies' sectors/cities to canonical keys if not done yet

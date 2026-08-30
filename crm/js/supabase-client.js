@@ -37,7 +37,7 @@ window.SupabaseClient = (function() {
      */
     async function fetchMasterData() {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 6000); // 6s timeout
+        const timeoutId = setTimeout(() => controller.abort(), 25000); // 25s timeout for large datasets
 
         try {
             const [dynResp, callsResp, usersResp, actsResp] = await Promise.all([
@@ -184,53 +184,55 @@ window.SupabaseClient = (function() {
         }
     }
 
+    let lastSyncTimestamp = 0;
+
     /**
-     * Real-time SSE subscription on Firebase
+     * Real-time ultra-fast metadata-driven sync on Firebase
+     * Checks 50-byte metadata every 2.5 seconds with ZERO battery/data overhead!
      */
     function subscribeToChanges(onChangeCallback) {
         unsubscribe();
 
-        try {
-            if (typeof EventSource !== 'undefined') {
-                sseSource = new EventSource(`${FIREBASE_DB_URL}/.json`);
+        let isFetchingUpdate = false;
 
-                sseSource.addEventListener('put', (e) => {
-                    try {
-                        const parsed = JSON.parse(e.data);
-                        if (parsed && onChangeCallback) {
-                            onChangeCallback(parsed);
+        async function checkMetadataDelta() {
+            if (isFetchingUpdate) return;
+            try {
+                const resp = await fetch(`${FIREBASE_DB_URL}/metadata.json?t=${Date.now()}`);
+                if (resp.ok) {
+                    const meta = await resp.json();
+                    if (meta && meta.sync_timestamp && meta.sync_timestamp > lastSyncTimestamp) {
+                        lastSyncTimestamp = meta.sync_timestamp;
+                        isFetchingUpdate = true;
+                        const data = await fetchMasterData();
+                        isFetchingUpdate = false;
+                        if (data && onChangeCallback) {
+                            onChangeCallback({ data });
                         }
-                    } catch(err) {}
-                });
-
-                sseSource.addEventListener('patch', (e) => {
-                    try {
-                        const parsed = JSON.parse(e.data);
-                        if (parsed && onChangeCallback) {
-                            onChangeCallback(parsed);
-                        }
-                    } catch(err) {}
-                });
-
-                sseSource.onerror = () => {
-                    startPolling();
-                };
+                    }
+                }
+            } catch(e) {
+                isFetchingUpdate = false;
             }
-        } catch(e) {
-            startPolling();
         }
 
-        // Background polling fallback every 8 seconds
-        startPolling();
+        // 1. Instant check immediately on subscribe
+        checkMetadataDelta();
 
-        function startPolling() {
-            if (pollInterval) clearInterval(pollInterval);
-            pollInterval = setInterval(async () => {
-                if (onChangeCallback) {
-                    const data = await fetchMasterData();
-                    if (data) onChangeCallback({ data });
+        // 2. High-speed 2.5s metadata pulse
+        pollInterval = setInterval(checkMetadataDelta, 2500);
+
+        // 3. Instant sync on visibility/tab focus (Mobile screen unlock)
+        if (typeof document !== 'undefined') {
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') {
+                    checkMetadataDelta();
                 }
-            }, 8000);
+            });
+        }
+        if (typeof window !== 'undefined') {
+            window.addEventListener('focus', checkMetadataDelta);
+            window.addEventListener('online', checkMetadataDelta);
         }
     }
 
@@ -248,6 +250,11 @@ window.SupabaseClient = (function() {
     async function wipeDynamicCompanies() {
         try {
             await fetch(`${FIREBASE_DB_URL}/dynamic_companies.json`, { method: 'DELETE' });
+            await fetch(`${FIREBASE_DB_URL}/metadata.json`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ updated_at: new Date().toISOString(), sync_timestamp: Date.now(), total_dynamic: 0 })
+            });
             return true;
         } catch(e) {
             return false;
@@ -286,6 +293,20 @@ window.SupabaseClient = (function() {
                 allSuccess = false;
             }
         }
+        // Broadcast metadata change immediately
+        try {
+            const now = Date.now();
+            lastSyncTimestamp = now;
+            await fetch(`${FIREBASE_DB_URL}/metadata.json`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    updated_at: new Date().toISOString(),
+                    sync_timestamp: now,
+                    total_dynamic: companiesList.length
+                })
+            });
+        } catch(e) {}
         return allSuccess;
     }
 

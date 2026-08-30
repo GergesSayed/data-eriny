@@ -1430,6 +1430,9 @@ const AppStorage = {
                     this.companiesMemory = merged;
                     this.saveAllCompaniesToDB(merged, false);
                     this.updateLiveCounters();
+                    if (this._worker && this._workerReady) {
+                        this._worker.postMessage({ action: 'INIT_INDEX', payload: merged });
+                    }
                     updated = true;
                 }
             }
