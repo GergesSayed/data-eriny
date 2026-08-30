@@ -94,26 +94,28 @@ window.SupabaseClient = (function() {
         setStatus('syncing');
 
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+        const timeoutId = setTimeout(() => controller.abort(), 35000); // 35s timeout
 
         try {
-            const promises = [];
-
-            // 1. Sync dynamic companies (additive merge via PATCH)
+            // 1. Sync dynamic companies in fast 400-item chunks
             if (data.dynamicCompanies && Array.isArray(data.dynamicCompanies) && data.dynamicCompanies.length > 0) {
-                const dynMap = {};
-                data.dynamicCompanies.forEach(c => {
-                    if (c && c.id) dynMap[c.id] = c;
-                });
-                promises.push(
-                    fetch(`${FIREBASE_DB_URL}/dynamic_companies.json`, {
+                const chunkSize = 400;
+                for (let i = 0; i < data.dynamicCompanies.length; i += chunkSize) {
+                    const chunk = data.dynamicCompanies.slice(i, i + chunkSize);
+                    const dynMap = {};
+                    chunk.forEach(c => {
+                        if (c && c.id) dynMap[c.id] = c;
+                    });
+                    await fetch(`${FIREBASE_DB_URL}/dynamic_companies.json`, {
                         method: 'PATCH',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(dynMap),
                         signal: controller.signal
-                    })
-                );
+                    });
+                }
             }
+
+            const promises = [];
 
             // 2. Sync calls
             if (data.calls && Array.isArray(data.calls)) {
@@ -127,8 +129,7 @@ window.SupabaseClient = (function() {
                 );
             }
 
-
-            // 4. Sync users
+            // 3. Sync users
             if (data.users && Array.isArray(data.users) && data.users.length > 0) {
                 promises.push(
                     fetch(`${FIREBASE_DB_URL}/users.json`, {
@@ -140,13 +141,16 @@ window.SupabaseClient = (function() {
                 );
             }
 
-            // 5. Sync metadata
+            // 4. Sync metadata with sync_timestamp
+            const now = Date.now();
+            lastSyncTimestamp = now;
             promises.push(
                 fetch(`${FIREBASE_DB_URL}/metadata.json`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         updated_at: new Date().toISOString(),
+                        sync_timestamp: now,
                         updated_by: 'client_v122',
                         total_dynamic: data.dynamicCompanies ? data.dynamicCompanies.length : 0
                     }),
@@ -201,8 +205,9 @@ window.SupabaseClient = (function() {
                 const resp = await fetch(`${FIREBASE_DB_URL}/metadata.json?t=${Date.now()}`);
                 if (resp.ok) {
                     const meta = await resp.json();
-                    if (meta && meta.sync_timestamp && meta.sync_timestamp > lastSyncTimestamp) {
-                        lastSyncTimestamp = meta.sync_timestamp;
+                    const metaTs = Number(meta && (meta.sync_timestamp || (meta.updated_at ? new Date(meta.updated_at).getTime() : 0))) || 0;
+                    if (metaTs > lastSyncTimestamp || (meta && meta.total_dynamic && lastSyncTimestamp === 0)) {
+                        lastSyncTimestamp = metaTs || Date.now();
                         isFetchingUpdate = true;
                         const data = await fetchMasterData();
                         isFetchingUpdate = false;
@@ -219,20 +224,18 @@ window.SupabaseClient = (function() {
         // 1. Instant check immediately on subscribe
         checkMetadataDelta();
 
-        // 2. High-speed 2.5s metadata pulse
+        // 2. High-speed 2.5s pulse polling
         pollInterval = setInterval(checkMetadataDelta, 2500);
 
-        // 3. Instant sync on visibility/tab focus (Mobile screen unlock)
-        if (typeof document !== 'undefined') {
+        // 3. Instant trigger on mobile tab focus or screen unlock
+        if (typeof document !== 'undefined' && typeof window !== 'undefined') {
+            const handleMobileFocus = () => {
+                checkMetadataDelta();
+            };
+            window.addEventListener('focus', handleMobileFocus);
             document.addEventListener('visibilitychange', () => {
-                if (document.visibilityState === 'visible') {
-                    checkMetadataDelta();
-                }
+                if (document.visibilityState === 'visible') handleMobileFocus();
             });
-        }
-        if (typeof window !== 'undefined') {
-            window.addEventListener('focus', checkMetadataDelta);
-            window.addEventListener('online', checkMetadataDelta);
         }
     }
 
