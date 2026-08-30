@@ -1224,12 +1224,6 @@ const AppStorage = {
                     this.companiesMemory = merged;
                     localStorage.setItem('fleetcrm_company_count', merged.length);
                     this.updateLiveCounters();
-                    
-                    // If IndexedDB had an incomplete dataset (e.g. old 4,500 state), backfill all 18,453 to disk
-                    if (idbData.length < merged.length) {
-                        this.saveBatchToIDB(merged);
-                    }
-
                     resolve(merged);
                 };
                 
@@ -1327,11 +1321,15 @@ const AppStorage = {
                 const users = this.getUsers ? this.getUsers() : [];
                 const activities = this.getActivities ? this.getActivities() : [];
 
-                // Extract dynamic companies (custom / newly scraped / titans)
+                const basePool = (window.__EGYPT_ENTERPRISE_POOL && Array.isArray(window.__EGYPT_ENTERPRISE_POOL)) ? window.__EGYPT_ENTERPRISE_POOL : [];
+                const baseIds = new Set(basePool.map(c => String(c.id)));
+                const titanIds = new Set(((window.__EGYPT_VERIFIED_TITANS && Array.isArray(window.__EGYPT_VERIFIED_TITANS)) ? window.__EGYPT_VERIFIED_TITANS : []).map(t => String(t.id)));
+
+                // Extract dynamic companies (custom / newly scraped)
                 const dynamicCompanies = companies.filter(c => {
                     if (!c || !c.id) return false;
                     const id = String(c.id);
-                    return id.startsWith('real_osm_') || id.startsWith('custom_') || id.startsWith('user_') || id.startsWith('scraped_') || id.startsWith('eg_titan_') || c.isCustom === true || c.isTitan === true;
+                    return !baseIds.has(id) && !titanIds.has(id);
                 });
 
                 const quickHash = `${dynamicCompanies.length}_${calls.length}_${users.length}`;
