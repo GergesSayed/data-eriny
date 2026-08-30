@@ -1079,7 +1079,7 @@ const AppStorage = {
         localStorage.setItem('fleetcrm_user_wiped_companies', 'true');
         
         try {
-            const request = indexedDB.open('FleetCRM_DB', 4);
+            const request = indexedDB.open('FleetCRM_DB', 5);
             request.onsuccess = (event) => {
                 const db = event.target.result;
                 if (!db.objectStoreNames.contains('companies')) return;
@@ -1253,49 +1253,14 @@ const AppStorage = {
 
     saveAllCompaniesToDB(companies, syncToCloud = true) {
         this.updateLiveCounters();
-        try {
-            const dynamicCompanies = (companies || []).filter(c => {
-                if (!c || !c.id) return false;
-                const id = String(c.id);
-                return c.isCustom || id.startsWith('scraped_live') || id.startsWith('user_') || id.startsWith('custom_') || (!id.startsWith('eg_b2b_') && !id.startsWith('eg_titan_'));
-            });
-            if (dynamicCompanies.length > 0) {
-                localStorage.setItem('fleetcrm_dynamic_companies', JSON.stringify(dynamicCompanies));
-            } else {
-                localStorage.removeItem('fleetcrm_dynamic_companies');
-            }
-        } catch(e) {}
-        this._writeToIDB(companies);
+        this.saveBatchToIDB(companies);
         if (syncToCloud && this.autoSyncToCloud) {
             this.autoSyncToCloud(companies);
         }
     },
 
     _writeToIDB(companies) {
-        return new Promise((resolve) => {
-            if (typeof indexedDB === 'undefined') { resolve(); return; }
-            try {
-                const request = indexedDB.open('FleetCRM_DB', 4);
-                request.onsuccess = (event) => {
-                    const db = event.target.result;
-                    if (!db.objectStoreNames.contains('companies')) { resolve(); return; }
-                    try {
-                        const transaction = db.transaction(['companies'], 'readwrite');
-                        const store = transaction.objectStore('companies');
-                        companies.forEach(c => {
-                            if (c && c.id) store.put(c);
-                        });
-                        transaction.oncomplete = () => resolve();
-                        transaction.onerror = () => resolve();
-                    } catch (txErr) {
-                        resolve();
-                    }
-                };
-                request.onerror = () => resolve();
-            } catch (e) {
-                resolve();
-            }
-        });
+        return this.saveBatchToIDB(companies);
     },
 
     // ---- Tombstone Deleted Items Registry ----
@@ -2217,7 +2182,7 @@ const AppStorage = {
     saveActivityToDB(act) {
         if (!act || !act.id) return;
         try {
-            const req = indexedDB.open('FleetCRM_DB', 4);
+            const req = indexedDB.open('FleetCRM_DB', 5);
             req.onsuccess = (e) => {
                 const db = e.target.result;
                 if (db.objectStoreNames.contains('activities')) {
@@ -2562,17 +2527,10 @@ try {
                 if (t && t.id) syncMap.set(t.id, t);
             });
         }
-        try {
-            const cachedDynamic = JSON.parse(localStorage.getItem('fleetcrm_dynamic_companies') || '[]');
-            if (Array.isArray(cachedDynamic) && cachedDynamic.length > 0) {
-                cachedDynamic.forEach(c => {
-                    if (c && c.id) syncMap.set(c.id, c);
-                });
-            }
-        } catch(e) {}
         if (syncMap.size > 0) {
             AppStorage.companiesMemory = Array.from(syncMap.values());
-            AppStorage.updateLiveCounters();
+            const savedCount = parseInt(localStorage.getItem('fleetcrm_company_count'), 10);
+            AppStorage.updateLiveCounters(savedCount > syncMap.size ? savedCount : syncMap.size);
         }
     }
 } catch(e) {}
