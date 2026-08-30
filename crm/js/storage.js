@@ -724,16 +724,14 @@ const AppStorage = {
                         this.loadCompaniesFromDB(db),
                         this.loadActivitiesFromDB(db)
                     ]).then(async () => {
-                        const isInitialized = localStorage.getItem('fleetcrm_db_initialized') === 'true';
-                        if (!isInitialized && (!this.companiesMemory || this.companiesMemory.length === 0) && localStorage.getItem('fleetcrm_user_wiped_companies') !== 'true') {
+                        const isWiped = localStorage.getItem('fleetcrm_user_wiped_companies') === 'true';
+                        if (!isWiped && (!this.companiesMemory || this.companiesMemory.length <= 34)) {
                             await this._seedInitialJsonData([]);
-                            localStorage.setItem('fleetcrm_db_initialized', 'true');
-                        } else if (!isInitialized) {
                             localStorage.setItem('fleetcrm_db_initialized', 'true');
                         }
 
                         // Auto-inject and prioritize Verified Egyptian Enterprise Titans
-                        if (window.__EGYPT_VERIFIED_TITANS && Array.isArray(window.__EGYPT_VERIFIED_TITANS) && localStorage.getItem('fleetcrm_user_wiped_companies') !== 'true') {
+                        if (window.__EGYPT_VERIFIED_TITANS && Array.isArray(window.__EGYPT_VERIFIED_TITANS) && !isWiped) {
                             const existingIds = new Set(this.companiesMemory.map(c => String(c.id)));
                             const existingNames = new Set(this.companiesMemory.map(c => this._normalizeArabicName(c.nameAr || c.name)));
                             const titansToAdd = [];
@@ -1117,10 +1115,10 @@ const AppStorage = {
             : null;
 
         if (!baseData) {
-            const jsonPaths = ['./data/companies.json', '/data/companies.json'];
+            const jsonPaths = ['./data/egypt_enterprises_pool.json', '/data/egypt_enterprises_pool.json', './data/companies.json', '/data/companies.json'];
             for (const path of jsonPaths) {
                 try {
-                    const resp = await fetch(path + '?v=116.0&t=' + Date.now(), { cache: 'no-store' });
+                    const resp = await fetch(path + '?v=173.0&t=' + Date.now(), { cache: 'no-store' });
                     if (resp.ok) {
                         const jsonData = await resp.json();
                         if (Array.isArray(jsonData) && jsonData.length > 0) {
