@@ -431,9 +431,9 @@ const Companies = {
             if (!canViewAll) {
                 countDisplay.textContent = `معروض: ${total.toLocaleString()} شركة فقط`;
             } else if (total === masterTotal) {
-                countDisplay.textContent = `إجمالي شركات السيستم: ${total.toLocaleString()} شركة`;
+                countDisplay.textContent = `📊 إجمالي شركات السيستم: ${total.toLocaleString()} شركة`;
             } else {
-                countDisplay.textContent = `معروض: ${total.toLocaleString()} شركة (من إجمالي ${masterTotal.toLocaleString()} شركة)`;
+                countDisplay.textContent = `🔍 نتائج البحث والفلترة: ${total.toLocaleString()} شركة مطابقة (من إجمالي ${masterTotal.toLocaleString()} شركة في السيستم)`;
             }
         }
 
