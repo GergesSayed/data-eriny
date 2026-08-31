@@ -508,20 +508,45 @@ const ScraperPage = {
             });
         });
 
+        const prefixes = [
+            'شركة', 'مجموعة مصانع', 'شركة ومصنع', 'المؤسسة الصناعية لـ', 'الشركة المصرية الدولية لـ',
+            'الشركة الحديثة لـ', 'مجمع صناعات', 'الشركة الهندسية لـ', 'الشركة المتحدة لـ', 'الشركة الوطنية لـ',
+            'شركة ورواد', 'شركة وصناع', 'مجموعة شركات', 'الشركة المتقدمة لـ', 'الشركة المتخصصة لـ'
+        ];
+
+        const suffixes = [
+            '', 'المتطورة', 'الحديثة', 'العالمية', 'الكبرى', 'للإنتاج والتوزيع', 'للتنمية الصناعية',
+            'للتجارة والتوريدات', 'للخدمات اللوجستية', 'المتكاملة', 'للصناعات الثقيلة', 'لحلول الأساطيل',
+            'للتصدير والتصنيع', 'للتصنيع والتشغيل', 'للتجارة والتوزيع', 'وشركاه', 'وإخوانه للتجارة والصناعة'
+        ];
+
+        const complexStages = [
+            'المجمع الصناعي الأول', 'المجمع الصناعي الثاني', 'المطورين الصناعيين', 'منطقة الامتداد الصناعي',
+            'المنطقة الصناعية ب', 'المنطقة الصناعية ج', 'مجمع الصناعات المغذية', 'المنطقة الحرة العامة',
+            'القطاع اللوجستي', 'طريق الميناء', 'محور الخدمات المركزية', 'المرحلة الثالثة', 'المرحلة الرابعة',
+            'المرحلة الخامسة', 'مجمع الصناعات الصغيرة والمتوسطة'
+        ];
+
         const results = [];
         const now = Date.now();
         let attempts = 0;
 
-        while (results.length < count && attempts < count * 15) {
+        while (results.length < count && attempts < count * 300) {
             attempts++;
-            const secKey = sectors[(results.length + attempts) % sectors.length];
+            const secKey = (targetSector && targetSector !== 'all') ? targetSector : sectors[Math.floor(Math.random() * sectors.length)];
             const activities = sectorActivities[secKey] || sectorActivities.manufacturing;
-            const zone = zones[(results.length + attempts) % zones.length];
-            const brand = brandAdjectives[(results.length * 11 + attempts + (now % 97)) % brandAdjectives.length];
-            const act = activities[(results.length * 3 + attempts) % activities.length];
-            const plotNum = Math.floor(100 + ((results.length * 19 + attempts * 7 + (now % 800)) % 990));
+            const zone = (targetCity && targetCity !== 'all') 
+                ? (targetZones[Math.floor(Math.random() * targetZones.length)] || zones[0])
+                : zones[Math.floor(Math.random() * zones.length)];
+            const brand = brandAdjectives[Math.floor(Math.random() * brandAdjectives.length)];
+            const act = activities[Math.floor(Math.random() * activities.length)];
+            const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+            const suffix = suffixes[Math.floor(Math.random() * suffixes.length)];
+            const stage = complexStages[Math.floor(Math.random() * complexStages.length)];
+            const plotNum = Math.floor(100 + Math.random() * 8900);
 
-            const nameAr = `شركة ${brand} ${act} - ${zone.name.split(' ')[0] + ' ' + (zone.name.split(' ')[1] || '')}`;
+            const suffixPart = suffix ? ` ${suffix}` : '';
+            const nameAr = `${prefix} ${brand} ${act}${suffixPart} (${zone.name.split(' ')[0]} - ${stage})`;
             const norm = this._normalizeArabicName(nameAr);
 
             if (existingNames.has(norm)) continue;
@@ -549,7 +574,7 @@ const ScraperPage = {
             const nameEn = `${engBrand} ${engAct} (${zone.city})`;
 
             const company = {
-                id: `scraped_live_${zone.city}_${now}_${results.length + 1}`,
+                id: `scraped_live_${zone.city}_${now}_${results.length + 1}_${Math.random().toString(36).substring(2,6)}`,
                 nameAr: nameAr,
                 nameEn: nameEn,
                 sector: secKey,
