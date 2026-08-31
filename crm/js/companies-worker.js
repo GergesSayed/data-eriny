@@ -110,6 +110,7 @@ self.onmessage = function(e) {
             page = 1,
             pageSize = 15,
             currentUserId = '',
+            userKeys = [],
             isAdmin = true
         } = payload || {};
 
@@ -119,8 +120,15 @@ self.onmessage = function(e) {
 
         // 1. Fast Filter Pass
         let filtered = _companiesIndex.filter(c => {
-            if (!isAdmin && currentUserId) {
-                if (c.assignedTo && c.assignedTo !== currentUserId) return false;
+            // Strict Employee Isolation: Non-admin can ONLY view companies assigned to them!
+            if (!isAdmin) {
+                if (!c.assignedTo) return false;
+                const assignedLower = String(c.assignedTo).trim().toLowerCase();
+                if (userKeys && Array.isArray(userKeys) && userKeys.length > 0) {
+                    if (!userKeys.includes(assignedLower)) return false;
+                } else if (currentUserId && assignedLower !== String(currentUserId).trim().toLowerCase()) {
+                    return false;
+                }
             }
 
             if (sector && c.sector !== sector) return false;

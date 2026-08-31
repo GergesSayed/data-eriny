@@ -468,7 +468,16 @@ const Companies = {
 
         if (total === 0) {
             tbody.innerHTML = '';
-            if (empty) empty.style.display = 'block';
+            if (empty) {
+                empty.style.display = 'block';
+                if (!window.AppStorage.canViewAll(currentUser)) {
+                    empty.innerHTML = `
+                        <i class="fas fa-user-shield" style="font-size:3rem; color:#818cf8; margin-bottom:1rem; display:block;"></i>
+                        <h3 style="color:var(--text-primary); margin-bottom:0.5rem;">لا توجد شركات مخصصة لك حالياً</h3>
+                        <p style="color:var(--text-muted); max-width:420px; margin:0 auto; line-height:1.6;">ستظهر الشركات الخاصة بك هنا فور قيام الإدارة بتخصيص وإسناد قائمة العملاء والمصانع لك لبدء التواصل ومتابعة المكالمات.</p>
+                    `;
+                }
+            }
             return;
         }
         if (empty) empty.style.display = 'none';
@@ -595,7 +604,17 @@ const Companies = {
 
         if (total === 0) {
             cardsView.innerHTML = '';
-            if (empty) empty.style.display = 'block';
+            if (empty) {
+                empty.style.display = 'block';
+                const currentUser = (window.AppStorage && typeof window.AppStorage.getCurrentUser === 'function') ? window.AppStorage.getCurrentUser() : null;
+                if (currentUser && !window.AppStorage.canViewAll(currentUser)) {
+                    empty.innerHTML = `
+                        <i class="fas fa-user-shield" style="font-size:3rem; color:#818cf8; margin-bottom:1rem; display:block;"></i>
+                        <h3 style="color:var(--text-primary); margin-bottom:0.5rem;">لا توجد شركات مخصصة لك حالياً</h3>
+                        <p style="color:var(--text-muted); max-width:420px; margin:0 auto; line-height:1.6;">ستظهر الشركات الخاصة بك هنا فور قيام الإدارة بتخصيص وإسناد قائمة العملاء والمصانع لك لبدء التواصل ومتابعة المكالمات.</p>
+                    `;
+                }
+            }
             return;
         }
         if (empty) empty.style.display = 'none';

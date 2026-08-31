@@ -821,6 +821,12 @@ const AppStorage = {
             const currentUser = this.getCurrentUser();
             const isAdmin = this.canViewAll(currentUser);
             const currentUserId = currentUser ? (currentUser.id || currentUser.username) : '';
+            const userKeys = currentUser ? [
+                String(currentUser.id || '').toLowerCase(),
+                String(currentUser.username || '').toLowerCase(),
+                String(currentUser.email || '').toLowerCase(),
+                String(currentUser.name || '').toLowerCase()
+            ].filter(Boolean) : [];
 
             // 1. Try Web Worker first for non-blocking 60fps search
             if (this._worker && this._workerReady) {
@@ -851,6 +857,7 @@ const AppStorage = {
                         page,
                         pageSize,
                         currentUserId,
+                        userKeys,
                         isAdmin
                     }
                 });
@@ -1257,21 +1264,29 @@ const AppStorage = {
     },
 
     updateLiveCounters(overrideCount) {
+        const currentUser = this.getCurrentUser();
+        const canViewAll = this.canViewAll(currentUser);
+        const scopedComps = this.getScopedCompanies();
         const rawCount = (this.companiesMemory && Array.isArray(this.companiesMemory)) ? this.companiesMemory.length : 0;
-        const count = (typeof overrideCount === 'number' && overrideCount > 0) ? overrideCount : rawCount;
+        const userVisibleCount = canViewAll ? rawCount : (scopedComps ? scopedComps.length : 0);
+        const count = (typeof overrideCount === 'number' && overrideCount >= 0) ? overrideCount : userVisibleCount;
+
         try {
-            localStorage.setItem('fleetcrm_company_count', count);
+            if (canViewAll) {
+                localStorage.setItem('fleetcrm_company_count', String(rawCount));
+            }
             localStorage.removeItem('fleetcrm_deals_count');
         } catch(e) {}
+
         const formatted = count > 0 ? count.toLocaleString() : '0';
         const sideEl = document.getElementById('sidebar-total-companies');
         if (sideEl) sideEl.textContent = formatted;
         const dashEl = document.getElementById('dash-total-companies');
         if (dashEl) dashEl.textContent = formatted;
         const scTotal = document.getElementById('sc-total');
-        if (scTotal) scTotal.textContent = formatted;
+        if (scTotal) scTotal.textContent = rawCount.toLocaleString();
         const subText = document.getElementById('scraper-status-subtext');
-        if (subText) subText.textContent = `المحرك الموحد المباشر (${formatted} شركة موثقة 100%)`;
+        if (subText) subText.textContent = `المحرك الموحد المباشر (${rawCount.toLocaleString()} شركة موثقة 100%)`;
         return count;
     },
 
@@ -1629,6 +1644,28 @@ const AppStorage = {
         return this.companiesMemory || [];
     },
 
+    getScopedCompanies(user) {
+        const currentUser = user || this.getCurrentUser();
+        const allCompanies = this.getCompanies();
+        if (!currentUser) return allCompanies;
+        if (this.canViewAll(currentUser)) {
+            return allCompanies; // Admin & Supervisor can view all companies
+        }
+        // Strict Employee isolation: Sales rep ONLY sees companies explicitly assigned to them!
+        const myKeys = new Set([
+            String(currentUser.id || '').trim().toLowerCase(),
+            String(currentUser.username || '').trim().toLowerCase(),
+            String(currentUser.email || '').trim().toLowerCase(),
+            String(currentUser.name || '').trim().toLowerCase()
+        ].filter(Boolean));
+
+        return allCompanies.filter(c => {
+            if (!c || !c.assignedTo) return false;
+            const assignedKey = String(c.assignedTo).trim().toLowerCase();
+            return myKeys.has(assignedKey);
+        });
+    },
+
     getCompany(id) {
         return this.getCompanies().find(c => c.id === id);
     },
@@ -1748,6 +1785,50 @@ const AppStorage = {
         }
         this.autoSyncToCloud(companies, true);
         this.updateLiveCounters();
+    },
+
+    assignCompany(companyId, userId) {
+        const company = this.getCompany(companyId);
+        if (!company) return null;
+        company.assignedTo = userId || '';
+        company.assignedAt = userId ? new Date().toISOString() : null;
+        company.lastUpdated = new Date().toISOString().split('T')[0];
+        
+        this.saveCompany(company);
+        this.saveBatchToIDB([company]);
+        if (this.autoSyncToCloud) this.autoSyncToCloud(this.companiesMemory);
+        
+        const targetUser = userId ? this.getUser(userId) : null;
+        const userName = targetUser ? targetUser.name : (userId || 'إلغاء التعيين');
+        this.addActivity('company', company.id, 'إسناد وتخصيص', `تم إسناد شركة "${company.nameAr || company.nameEn}" إلى: ${userName}`);
+        return company;
+    },
+
+    bulkAssignCompanies(companyIds, userId) {
+        if (!Array.isArray(companyIds) || companyIds.length === 0) return 0;
+        const now = new Date().toISOString();
+        const today = now.split('T')[0];
+        const targetUser = userId ? this.getUser(userId) : null;
+        const userName = targetUser ? targetUser.name : (userId || 'إلغاء التعيين');
+        const idSet = new Set(companyIds.map(String));
+        
+        const updatedBatch = [];
+        this.getCompanies().forEach(c => {
+            if (c && idSet.has(String(c.id))) {
+                c.assignedTo = userId || '';
+                c.assignedAt = userId ? now : null;
+                c.lastUpdated = today;
+                updatedBatch.push(c);
+            }
+        });
+
+        if (updatedBatch.length > 0) {
+            this.saveBatchToIDB(updatedBatch);
+            this.saveAllCompaniesToDB(this.companiesMemory);
+            if (this.autoSyncToCloud) this.autoSyncToCloud(this.companiesMemory);
+            this.addActivity('company', 'bulk', 'تخصيص جماعي', `تم إسناد وتخصيص ${updatedBatch.length} شركة إلى: ${userName}`);
+        }
+        return updatedBatch.length;
     },
 
     autoCleanAndMergeDuplicates() {
@@ -2261,14 +2342,17 @@ const AppStorage = {
 
     // ---- Statistics ----
     getStats() {
+        const currentUser = this.getCurrentUser();
+        const canViewAll = this.canViewAll(currentUser);
         const companies = this.getScopedCompanies();
-        const calls = this.getCalls();
+        const calls = this.getScopedCalls();
         const today = new Date().toISOString().split('T')[0];
         const compList = this.getCompanies();
-        const count = (compList && Array.isArray(compList)) ? compList.length : 0;
+        const fullCount = (compList && Array.isArray(compList)) ? compList.length : 0;
+        const scopedCount = (companies && Array.isArray(companies)) ? companies.length : 0;
 
         return {
-            totalCompanies: count,
+            totalCompanies: canViewAll ? fullCount : scopedCount,
             callsToday: calls.filter(c => c.date === today).length,
             openDeals: 0,
             pipelineValue: 0,
