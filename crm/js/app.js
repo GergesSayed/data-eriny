@@ -124,20 +124,24 @@ const App = {
             this.renderNotifications();
             this.bindEvents();
 
-            // Landing page resolution: Admin defaults to dashboard on login/refresh
+            // Landing page resolution:
             const currentUser = window.AppStorage.getCurrentUser();
             const isAdmin = window.AppStorage.isAdmin(currentUser);
+            const canViewAll = window.AppStorage.canViewAll(currentUser);
+            let storedPage = '';
+            try { storedPage = sessionStorage.getItem('fleetcrm_active_page') || ''; } catch(e) {}
             let hash = window.location.hash.replace('#', '');
-            let targetPage;
+            let targetPage = hash || storedPage;
 
-            if (isAdmin) {
-                targetPage = (hash && hash !== 'login') ? hash : 'dashboard';
+            if (canViewAll) {
+                targetPage = (targetPage && targetPage !== 'login') ? targetPage : 'dashboard';
             } else {
-                targetPage = (hash === 'companies' || hash === 'calls') ? hash : 'companies';
+                targetPage = (targetPage === 'companies' || targetPage === 'calls') ? targetPage : 'companies';
             }
 
-            this.currentPage = null;
+            this.currentPage = targetPage;
             window.location.hash = '#' + targetPage;
+            try { sessionStorage.setItem('fleetcrm_active_page', targetPage); } catch(e) {}
 
             // Activate target page element immediately in DOM before module init to prevent layout flash
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -728,6 +732,10 @@ const App = {
         if (!validPages.includes(page)) page = canViewAll ? 'dashboard' : 'companies';
 
         this.currentPage = page;
+        window.location.hash = '#' + page;
+        try {
+            sessionStorage.setItem('fleetcrm_active_page', page);
+        } catch(e) {}
 
         // Update active page element
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
