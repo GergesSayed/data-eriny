@@ -318,6 +318,33 @@ window.SupabaseClient = (function() {
         return allSuccess;
     }
 
+    async function pushUsers(users) {
+        if (!users || !Array.isArray(users)) return false;
+        try {
+            const resp = await fetch(`${FIREBASE_DB_URL}/users.json`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(users)
+            });
+            try {
+                const now = Date.now();
+                lastSyncTimestamp = now;
+                await fetch(`${FIREBASE_DB_URL}/metadata.json`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        updated_at: new Date().toISOString(),
+                        sync_timestamp: now
+                    })
+                });
+            } catch(e) {}
+            return resp.ok;
+        } catch(e) {
+            console.warn('pushUsers error:', e);
+            return false;
+        }
+    }
+
     return {
         getStatus,
         onStatusChange,
@@ -325,6 +352,7 @@ window.SupabaseClient = (function() {
         pushMasterData,
         pushSingleCompany,
         pushDynamicCompanies,
+        pushUsers,
         deleteDynamicCompany,
         wipeDynamicCompanies,
         subscribeToChanges,

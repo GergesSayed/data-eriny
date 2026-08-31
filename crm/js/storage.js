@@ -90,13 +90,15 @@ const AppStorage = {
             }
         }
 
-        if (!stored || !Array.isArray(stored) || stored.length === 0 || !stored[0].username) {
+        if (!stored || !Array.isArray(stored) || stored.length === 0) {
             this._set(this.KEYS.USERS, this.DEFAULT_USERS);
             return this.DEFAULT_USERS;
         }
 
-        // Always ensure default users have active status and valid names/emails if not specified
+        // Always ensure default users have active status, usernames, and valid names/emails
         stored.forEach(u => {
+            if (!u) return;
+            if (!u.username) u.username = u.email ? u.email.split('@')[0] : (u.id || 'user');
             if (!u.status) u.status = 'active';
             if (!u.name) u.name = (u.id === 'admin' || u.role === 'admin') ? 'Admin' : (u.username || 'موظف');
             if (!u.email) u.email = (u.id === 'admin' || u.role === 'admin') ? 'admin@fleet.com' : (u.username ? (u.username.includes('@') ? u.username : u.username + '@fleet.com') : 'user@fleet.com');
@@ -137,7 +139,7 @@ const AppStorage = {
         const randomPw = Array.from(crypto.getRandomValues(new Uint8Array(10)), b => b.toString(16).padStart(2, '0')).join('');
         const hashedPw = await this.hashPw(randomPw);
         const newUser = {
-            id: 'u_' + Date.now(),
+            id: 'u_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
             email: email.trim(),
             username: email.split('@')[0],
             name: name || email.split('@')[0],
@@ -396,7 +398,7 @@ const AppStorage = {
         const fullName = `${firstName} ${lastName}`.trim() || userData.name || email.split('@')[0];
 
         const newUser = {
-            id: 'usr_' + Date.now(),
+            id: 'usr_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
             firstName,
             lastName,
             email,
@@ -468,18 +470,18 @@ const AppStorage = {
     },
 
     _syncUsersToCloud() {
-        if (!window.SupabaseClient) return;
-        setTimeout(async () => {
-            try {
-                await window.SupabaseClient.pushMasterData({
-                    companies: this.companiesMemory || [],
-                    users: this.getUsers(),
-                    calls: this.getCalls ? this.getCalls() : [],
-                    activities: this.getActivities ? this.getActivities() : []
-                });
-                localStorage.setItem('fleetcrm_last_sync_time', Date.now());
-            } catch (err) {}
-        }, 500);
+        const users = this.getUsers();
+        if (window.SupabaseClient) {
+            if (window.SupabaseClient.pushUsers) {
+                window.SupabaseClient.pushUsers(users);
+            }
+            window.SupabaseClient.pushMasterData({
+                companies: this.companiesMemory || [],
+                users: users,
+                calls: this.getCalls ? this.getCalls() : [],
+                activities: this.getActivities ? this.getActivities() : []
+            }).catch(() => {});
+        }
     },
 
     async resetUserPassword(id, newPassword) {
@@ -505,90 +507,6 @@ const AppStorage = {
     setCurrentUser(userId) {
         localStorage.setItem(this.KEYS.CURRENT_USER, userId);
         this.addActivity('user', userId, 'تغيير المستخدم النشط', this.getUser(userId)?.name || userId);
-    },
-
-    // ---- Data Scoping for Role-Based Access ----
-    getScopedCompanies() {
-        const currentUser = this.getCurrentUser();
-        const all = this.getCompanies() || [];
-        if (!currentUser || this.canViewAll(currentUser)) {
-            return all; // Admin, Supervisor or Default session sees ALL companies!
-        }
-        // Sales Agent sees ONLY companies assigned to them (or all if none assigned)
-        const rawId = String(currentUser.id || '').toLowerCase().trim();
-        const rawUname = String(currentUser.username || '').toLowerCase().trim();
-        const rawEmail = String(currentUser.email || '').toLowerCase().trim();
-        const rawName = String(currentUser.name || '').toLowerCase().trim();
-
-        // Match all possible identifiers across users list
-        const users = this.getUsers() || [];
-        const matchedUser = users.find(u => 
-            (u.id && String(u.id).toLowerCase().trim() === rawId) ||
-            (u.username && String(u.username).toLowerCase().trim() === rawUname) ||
-            (u.email && String(u.email).toLowerCase().trim() === rawEmail)
-        ) || currentUser;
-
-        const userKeys = new Set([
-            String(matchedUser.id || '').toLowerCase().trim(),
-            String(matchedUser.username || '').toLowerCase().trim(),
-            String(matchedUser.email || '').toLowerCase().trim(),
-            String(matchedUser.name || '').toLowerCase().trim(),
-            rawId, rawUname, rawEmail, rawName
-        ].filter(Boolean));
-
-        const scoped = all.filter(c => {
-            if (!c || !c.assignedTo) return false;
-            const target = String(c.assignedTo).toLowerCase().trim();
-            return userKeys.has(target);
-        });
-
-        return scoped.length > 0 ? scoped : all;
-    },
-
-    assignCompany(companyId, userId) {
-        const company = this.getCompany(companyId);
-        if (!company) return null;
-        company.assignedTo = userId || '';
-        company.assignedAt = userId ? new Date().toISOString() : '';
-        this.saveCompany(company);
-        
-        // Force immediate sync to cloud so background pull cannot overwrite this assignment
-        localStorage.removeItem('fleetcrm_last_synced_hash');
-        localStorage.setItem('fleetcrm_last_sync_time', Date.now());
-        this.autoSyncToCloud(this.companiesMemory, true);
-
-        const userName = userId ? (this.getUser(userId)?.name || userId) : 'غير مسندة';
-        this.addActivity('company', companyId, 'تخصيص الشركة', `مسندة إلى: ${userName}`);
-        return company;
-    },
-
-    bulkAssignCompanies(companyIds, userId) {
-        if (!Array.isArray(companyIds) || companyIds.length === 0) return 0;
-        let updatedCount = 0;
-        const companies = [...this.getCompanies()];
-        const targetUser = this.getUser(userId);
-        const userName = userId ? (targetUser?.name || userId) : 'غير مسندة';
-
-        companyIds.forEach(id => {
-            const index = companies.findIndex(c => c.id === id);
-            if (index >= 0) {
-                companies[index].assignedTo = userId || '';
-                companies[index].assignedAt = userId ? new Date().toISOString() : '';
-                companies[index].lastUpdated = new Date().toISOString().split('T')[0];
-                updatedCount++;
-            }
-        });
-
-        if (updatedCount > 0) {
-            this.companiesMemory = companies;
-            localStorage.removeItem('fleetcrm_last_synced_hash');
-            localStorage.setItem('fleetcrm_last_sync_time', Date.now());
-            this.saveAllCompaniesToDB(companies);
-            this.autoSyncToCloud(companies, true);
-            localStorage.removeItem(this.KEYS.COMPANIES);
-            this.addActivity('company', 'bulk', `تخصيص ${updatedCount} شركة`, `تم التعيين لـ: ${userName}`);
-        }
-        return updatedCount;
     },
 
     // ---- Sector Definitions ----
@@ -1418,9 +1336,43 @@ const AppStorage = {
                 }
             }
 
-            if (data.users && Array.isArray(data.users) && data.users.length > 0) {
-                this._set(this.KEYS.USERS, data.users);
-                updated = true;
+            // 2. Users sync with smart merge — NEVER delete or drop locally created employee accounts!
+            if (data.users && Array.isArray(data.users)) {
+                const localUsers = this.getUsers() || [];
+                const userMap = new Map();
+                
+                // Add local users first
+                localUsers.forEach(u => {
+                    if (u && (u.id || u.email || u.username)) {
+                        const key = String(u.id || u.email || u.username).toLowerCase().trim();
+                        userMap.set(key, u);
+                    }
+                });
+
+                // Union merge cloud users
+                data.users.forEach(u => {
+                    if (u && (u.id || u.email || u.username)) {
+                        const key = String(u.id || u.email || u.username).toLowerCase().trim();
+                        if (!userMap.has(key)) {
+                            userMap.set(key, u);
+                        } else {
+                            const existing = userMap.get(key);
+                            userMap.set(key, { ...existing, ...u });
+                        }
+                    }
+                });
+
+                const mergedUsers = Array.from(userMap.values());
+                if (mergedUsers.length > 0) {
+                    const changed = mergedUsers.length !== localUsers.length || JSON.stringify(mergedUsers) !== JSON.stringify(localUsers);
+                    if (changed) {
+                        this._set(this.KEYS.USERS, mergedUsers);
+                        if (window.SupabaseClient && window.SupabaseClient.pushUsers) {
+                            window.SupabaseClient.pushUsers(mergedUsers);
+                        }
+                        updated = true;
+                    }
+                }
             }
 
             // 2. Calls sync with tombstone filtering
