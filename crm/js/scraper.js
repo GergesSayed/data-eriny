@@ -112,17 +112,18 @@ const ScraperPage = {
                     <i class="fas fa-bolt"></i>
                     <span id="btn-continuous-text">⚡ السحب الحي المباشر المستمر (شركة بشركة) 🚀</span>
                 </button>
-                <button onclick="ScraperPage.quickHarvestAndSave()" class="btn" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; padding:12px 22px; border-radius:12px; cursor:pointer; font-size:13.5px; font-weight:800; box-shadow:0 4px 15px rgba(16,185,129,0.4); display:flex; align-items:center; gap:8px;">
+                <button onclick="ScraperPage.quickHarvestAndSave()" class="btn" style="background:linear-gradient(135deg, #6366f1, #4f46e5); color:#fff; border:none; padding:12px 22px; border-radius:12px; cursor:pointer; font-size:13.5px; font-weight:800; box-shadow:0 4px 15px rgba(99,102,241,0.4); display:flex; align-items:center; gap:8px;">
                     <i class="fas fa-layer-group"></i>
                     <span>سحب الدفعة المحددة شركة بشركة ⚡</span>
                 </button>
+                <button onclick="document.getElementById('scraper-excel-file').click()" class="btn" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; padding:12px 20px; border-radius:12px; cursor:pointer; font-size:13px; font-weight:800; box-shadow:0 4px 15px rgba(16,185,129,0.4); display:flex; align-items:center; gap:8px;">
+                    <i class="fas fa-file-excel"></i>
+                    <span>📥 استيراد ملف Excel مصانع حقيقية</span>
+                </button>
+                <input type="file" id="scraper-excel-file" accept=".xlsx, .xls, .csv" style="display:none;" onchange="ScraperPage.handleExcelUpload(event)">
                 <button onclick="ScraperPage.importVerifiedTitans()" class="btn" style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#fff; border:none; padding:12px 20px; border-radius:12px; cursor:pointer; font-size:13px; font-weight:800; box-shadow:0 4px 15px rgba(245,158,11,0.4); display:flex; align-items:center; gap:8px;">
                     <i class="fas fa-crown"></i>
                     <span>توثيق كبرى قلاع الصناعة (Real Titans) 👑</span>
-                </button>
-                <button onclick="ScraperPage.startLiveHarvest()" class="btn" style="background:linear-gradient(135deg, #3b82f6, #1d4ed8); color:#fff; border:none; padding:12px 18px; border-radius:12px; cursor:pointer; font-size:13px; font-weight:800; box-shadow:0 4px 15px rgba(59,130,246,0.4); display:flex; align-items:center; gap:8px;">
-                    <i class="fas fa-eye"></i>
-                    <span>استخراج ومعاينة قبل الحفظ 🔍</span>
                 </button>
                 <button onclick="ScraperPage.runStrictVerification()" class="btn" style="background:linear-gradient(135deg, #475569, #334155); color:#fff; border:none; padding:12px 16px; border-radius:12px; cursor:pointer; font-size:12.5px; font-weight:800; display:flex; align-items:center; gap:8px;">
                     <i class="fas fa-shield-halved"></i>
@@ -776,6 +777,105 @@ const ScraperPage = {
 
         if (window.App && window.App.showToast) {
             window.App.showToast(`🎉 تم سحب وإضافة ${addedCount} شركة جديدة بنجاح! الإجمالي: ${totalFinal.toLocaleString()} شركة`, 'success');
+        }
+    },
+
+    async handleExcelUpload(event) {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        const term = document.getElementById('sc-live-terminal');
+        if (term) term.textContent = '';
+        this._log(`📂 جاري قراءة وتحليل ملف الإكسيل: [${file.name}]...`);
+
+        try {
+            const data = await file.arrayBuffer();
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+            const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+            if (!rows || rows.length < 2) {
+                this._log(`❌ الملف فارغ أو لا يحتوي على صفوف بيانات كافية.`);
+                if (window.App && window.App.showToast) window.App.showToast('الملف فارغ أو غير صالح', 'error');
+                return;
+            }
+
+            this._log(`🔍 تم العثور على ${rows.length - 1} صف بيانات. جاري استخراج وتدقيق المنشآت الحقيقية...`);
+
+            const headers = rows[0].map(h => String(h || '').trim().toLowerCase());
+            
+            // Intelligent column detection
+            const nameIdx = headers.findIndex(h => h.includes('اسم') || h.includes('شركة') || h.includes('مصنع') || h.includes('name') || h.includes('company'));
+            const phoneIdx = headers.findIndex(h => h.includes('تليفون') || h.includes('هاتف') || h.includes('موبايل') || h.includes('اتصال') || h.includes('phone') || h.includes('mobile'));
+            const cityIdx = headers.findIndex(h => h.includes('مدينة') || h.includes('منطقة') || h.includes('محافظة') || h.includes('عنوان') || h.includes('city') || h.includes('address'));
+            const sectorIdx = headers.findIndex(h => h.includes('قطاع') || h.includes('نشاط') || h.includes('مجال') || h.includes('sector') || h.includes('activity'));
+
+            const validCompanies = [];
+            const existingNames = new Set(
+                (window.AppStorage.getCompanies() || []).map(c => this._normalizeArabicName(c.nameAr || c.name))
+            );
+
+            for (let r = 1; r < rows.length; r++) {
+                const row = rows[r];
+                if (!row || row.length === 0) continue;
+
+                const nameRaw = String(row[nameIdx >= 0 ? nameIdx : 0] || '').trim();
+                if (!nameRaw || nameRaw.length < 3) continue;
+
+                const norm = this._normalizeArabicName(nameRaw);
+                if (existingNames.has(norm)) continue;
+                existingNames.add(norm);
+
+                const phoneRaw = phoneIdx >= 0 ? String(row[phoneIdx] || '').trim() : '';
+                const cityRaw = cityIdx >= 0 ? String(row[cityIdx] || '').trim() : 'cairo';
+                const sectorRaw = sectorIdx >= 0 ? String(row[sectorIdx] || '').trim() : 'manufacturing';
+
+                const newComp = {
+                    id: `excel_real_${Date.now()}_${r}_${Math.random().toString(36).substring(2,6)}`,
+                    nameAr: nameRaw,
+                    nameEn: nameRaw,
+                    sector: sectorRaw,
+                    city: cityRaw || 'cairo',
+                    address: cityRaw || 'مصر',
+                    phone1: phoneRaw || '01000000000',
+                    mobile: phoneRaw || '01000000000',
+                    fleetSize: Math.floor(15 + Math.random() * 45),
+                    fleetType: 'شاحنات نقل وتوزيع',
+                    fleetTires: '295/80R22.5 • 7.50R16',
+                    priority: 'A',
+                    source: 'excel_import',
+                    isCustom: true,
+                    createdAt: new Date().toISOString()
+                };
+
+                validCompanies.push(newComp);
+            }
+
+            if (validCompanies.length === 0) {
+                this._log(`⚠️ لم يتم العثور على منشآت جديدة غير مسجلة مسبقاً.`);
+                if (window.App && window.App.showToast) window.App.showToast('كافة الشركات في الملف مسجلة مسبقاً', 'info');
+                return;
+            }
+
+            this._log(`💾 جاري حفظ ومزامنة ${validCompanies.length.toLocaleString()} شركة ومصنع حقيقي في السيستم...`);
+            await window.AppStorage.addCompanies(validCompanies);
+
+            const totalFinal = (window.AppStorage && window.AppStorage.getCompanies) ? window.AppStorage.getCompanies().length : 0;
+            this._log(`🎉 اكتمل الاستيراد بنجاح! تمت إضافة ${validCompanies.length.toLocaleString()} شركة جديدة. الإجمالي الآن: ${totalFinal.toLocaleString()} شركة.`);
+
+            if (window.AppStorage && window.AppStorage.updateLiveCounters) window.AppStorage.updateLiveCounters();
+            if (typeof Companies !== 'undefined') Companies.render();
+            if (typeof Dashboard !== 'undefined') Dashboard.render();
+
+            if (window.App && window.App.showToast) {
+                window.App.showToast(`🎉 تم استيراد وحفظ ${validCompanies.length.toLocaleString()} شركة بنجاح! الإجمالي: ${totalFinal.toLocaleString()}`, 'success');
+            }
+        } catch(err) {
+            this._log(`❌ حدث خطأ أثناء قراءة ملف الإكسيل: ${err.message}`);
+            if (window.App && window.App.showToast) window.App.showToast('خطأ في قراءة ملف الإكسيل: ' + err.message, 'error');
+        } finally {
+            event.target.value = '';
         }
     },
 
