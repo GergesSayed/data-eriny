@@ -1743,20 +1743,149 @@ const AppStorage = {
             localStorage.setItem('fleetcrm_user_wiped_companies', 'true');
         }
         this.saveAllCompaniesToDB(companies);
-
-        // Also delete and record related calls and deals
-        const relatedCalls = (this.getCalls() || []).filter(c => c && c.companyId === id);
-        relatedCalls.forEach(c => this.recordDeletedId('calls', c.id));
-        const calls = (this.getCalls() || []).filter(c => c && c.companyId !== id);
-        this._set(this.KEYS.CALLS, calls);
-
-
-
-        if (window.SupabaseClient && window.SupabaseClient.deleteDynamicCompany) {
+                if (window.SupabaseClient && window.SupabaseClient.deleteDynamicCompany) {
             window.SupabaseClient.deleteDynamicCompany(id);
         }
         this.autoSyncToCloud(companies, true);
         this.updateLiveCounters();
+    },
+
+    autoCleanAndMergeDuplicates() {
+        const companies = [...this.getCompanies()];
+        const auditReport = this.auditCompanyData();
+        const duplicateGroups = auditReport.duplicateGroups || [];
+
+        if (duplicateGroups.length === 0) {
+            return { mergedCount: 0, cleanedCount: 0, remainingTotal: companies.length };
+        }
+
+        const mergedMap = new Map();
+        const duplicateIdToMaster = new Map();
+        const calls = this.getCalls ? this.getCalls() : [];
+        let callsUpdated = false;
+
+        // Initialize with all companies
+        companies.forEach(c => {
+            if (c && c.id) mergedMap.set(c.id, { ...c });
+        });
+
+        let totalMerged = 0;
+
+        duplicateGroups.forEach(group => {
+            const items = group.items;
+            if (!items || items.length < 2) return;
+
+            // Sort to select the most complete / primary entity as master
+            items.sort((a, b) => {
+                const isTitanA = String(a.id).startsWith('eg_titan_') ? 10 : 0;
+                const isTitanB = String(b.id).startsWith('eg_titan_') ? 10 : 0;
+                const isBaseA = String(a.id).startsWith('eg_b2b_fleet_') ? 5 : 0;
+                const isBaseB = String(b.id).startsWith('eg_b2b_fleet_') ? 5 : 0;
+                const fleetA = Number(a.fleetSize) || 0;
+                const fleetB = Number(b.fleetSize) || 0;
+                return (isTitanB + isBaseB + fleetB) - (isTitanA + isBaseA + fleetA);
+            });
+
+            const masterId = items[0].id;
+            const master = mergedMap.get(masterId) || { ...items[0] };
+
+            const phonesSet = new Set();
+            [master.phone1, master.phone2, master.mobile, master.hotline, master.contactPhone].forEach(p => {
+                if (p && String(p).trim().length >= 7) phonesSet.add(String(p).trim());
+            });
+
+            const addressList = master.address ? [master.address] : [];
+            const branchList = master.branches ? [...master.branches] : [];
+
+            for (let i = 1; i < items.length; i++) {
+                const dupe = items[i];
+                if (dupe.id === masterId) continue;
+
+                totalMerged++;
+                duplicateIdToMaster.set(dupe.id, masterId);
+
+                // Collect and merge all phones from duplicate
+                [dupe.phone1, dupe.phone2, dupe.mobile, dupe.hotline, dupe.contactPhone].forEach(p => {
+                    if (p && String(p).trim().length >= 7) phonesSet.add(String(p).trim());
+                });
+
+                if (dupe.address && !addressList.includes(dupe.address)) {
+                    addressList.push(dupe.address);
+                }
+
+                if (dupe.branches && Array.isArray(dupe.branches)) {
+                    dupe.branches.forEach(b => {
+                        if (b && !branchList.includes(b)) branchList.push(b);
+                    });
+                }
+
+                if (!master.email && dupe.email) master.email = dupe.email;
+                if (!master.website && dupe.website) master.website = dupe.website;
+                if (!master.linkedin && dupe.linkedin) master.linkedin = dupe.linkedin;
+                if (!master.facebook && dupe.facebook) master.facebook = dupe.facebook;
+                if (!master.google_maps_url && dupe.google_maps_url) master.google_maps_url = dupe.google_maps_url;
+                if (!master.contactPerson && dupe.contactPerson) master.contactPerson = dupe.contactPerson;
+                if (!master.contactTitle && dupe.contactTitle) master.contactTitle = dupe.contactTitle;
+
+                if (Number(dupe.fleetSize) > Number(master.fleetSize || 0)) {
+                    master.fleetSize = dupe.fleetSize;
+                }
+
+                // Re-link calls from duplicate to master
+                calls.forEach(call => {
+                    if (call.companyId === dupe.id) {
+                        call.companyId = masterId;
+                        callsUpdated = true;
+                    }
+                });
+
+                // Remove duplicate record from dataset
+                mergedMap.delete(dupe.id);
+            }
+
+            // Distribute merged unique phone numbers
+            const allPhones = Array.from(phonesSet);
+            if (allPhones.length > 0) master.phone1 = allPhones[0];
+            if (allPhones.length > 1) master.phone2 = allPhones[1];
+            if (allPhones.length > 2) master.mobile = allPhones[2];
+            if (allPhones.length > 3) master.otherPhones = allPhones.slice(3).join(', ');
+
+            if (addressList.length > 1) master.address = addressList.slice(0, 3).join(' | ');
+            if (branchList.length > 0) {
+                master.branches = branchList;
+                master.branchesCount = branchList.length;
+            }
+
+            mergedMap.set(masterId, master);
+        });
+
+        const mergedList = Array.from(mergedMap.values());
+
+        if (callsUpdated && this._set) {
+            this._set(this.KEYS.CALLS, calls);
+        }
+
+        this.companiesMemory = mergedList;
+        this.saveAllCompaniesToDB(mergedList);
+
+        const now = Date.now();
+        localStorage.setItem('fleetcrm_company_count', String(mergedList.length));
+        localStorage.setItem('fleetcrm_last_synced_hash', mergedList.length + '_' + (mergedList[0]?.id || ''));
+        localStorage.setItem('fleetcrm_last_sync_time', String(now));
+        this.updateLiveCounters();
+
+        if (window.SupabaseClient) {
+            window.SupabaseClient.pushMasterData({
+                companies: mergedList,
+                dynamicCompanies: mergedList.filter(c => c.isCustom || String(c.id).startsWith('scraped_') || String(c.id).startsWith('excel_')),
+                users: this.getUsers(),
+                calls: this.getCalls ? this.getCalls() : [],
+                activities: this.getActivities ? this.getActivities() : []
+            });
+        }
+
+        this.addActivity('system', 'audit', 'تنظيف ودمج البيانات', `تم دمج ${totalMerged} سجل مكرر بنجاح وحفظ كافة أرقام الهواتف`);
+        return { mergedCount: totalMerged, cleanedCount: 0, remainingTotal: mergedList.length };
     },
 
     importCompanies(companiesData) {
@@ -1889,170 +2018,6 @@ const AppStorage = {
 
         report.cleanDataCount = report.total - report.invalidCount - report.totalDuplicates;
         return report;
-    },
-
-    autoCleanAndMergeDuplicates() {
-        const companies = [...this.getCompanies()];
-        let mergedCount = 0;
-        let cleanedCount = 0;
-
-        const normalizeRoot = (str) => {
-            if (!str) return '';
-            return String(str).toLowerCase().trim()
-                .replace(/\s*\([^)]*\)\s*/g, ' ')
-                .replace(/[أإآٱ]/g, 'ا')
-                .replace(/ة/g, 'ه')
-                .replace(/ى/g, 'ي')
-                .replace(/[ؤئ]/g, 'ء')
-                .replace(/[\u064B-\u065F\u0670]/g, '')
-                .replace(/[^a-z0-9\u0600-\u06FF]/gi, '');
-        };
-
-        const extractCleanNameAr = (str) => {
-            if (!str) return '';
-            return str.replace(/\s*\([^)]*\)\s*/g, ' ').replace(/\s{2,}/g, ' ').trim();
-        };
-
-        const extractBranchTag = (str) => {
-            if (!str) return '';
-            const m = str.match(/\(([^)]+)\)/);
-            return m ? m[1].trim() : '';
-        };
-
-        // 1. Remove non-B2B entities
-        const validCompanies = companies.filter(c => {
-            const name = c.nameAr || c.name || c.nameEn || '';
-            const hasName = name && name.trim().length > 0;
-            if (!hasName || !this.isStrictB2BEntity(name)) {
-                cleanedCount++;
-                return false;
-            }
-            return true;
-        });
-
-        // 2. Group by canonical identity
-        const groupMap = new Map();
-        validCompanies.forEach(c => {
-            const rootAr = normalizeRoot(c.nameAr || c.name);
-            const rootEn = normalizeRoot(c.nameEn);
-            const key = rootAr || rootEn;
-            if (!key) return;
-            if (!groupMap.has(key)) groupMap.set(key, []);
-            groupMap.get(key).push(c);
-        });
-
-        const mergedList = [];
-        const calls = this.getCalls ? this.getCalls() : [];
-        let callsUpdated = false;
-
-        groupMap.forEach((group) => {
-            if (group.length === 1) {
-                mergedList.push(group[0]);
-                return;
-            }
-
-            mergedCount += (group.length - 1);
-
-            // Sort so Titan or Base records become master
-            group.sort((a, b) => {
-                const isTitanA = String(a.id).startsWith('eg_titan_') ? 10 : 0;
-                const isTitanB = String(b.id).startsWith('eg_titan_') ? 10 : 0;
-                const isBaseA = String(a.id).startsWith('eg_b2b_fleet_') ? 5 : 0;
-                const isBaseB = String(b.id).startsWith('eg_b2b_fleet_') ? 5 : 0;
-                const fleetA = Number(a.fleetSize) || 0;
-                const fleetB = Number(b.fleetSize) || 0;
-                return (isTitanB + isBaseB + fleetB) - (isTitanA + isBaseA + fleetA);
-            });
-
-            const master = { ...group[0] };
-            master.nameAr = extractCleanNameAr(master.nameAr || master.name);
-
-            const phonesSet = new Set();
-            const branchList = [];
-            const addressList = [];
-
-            group.forEach(item => {
-                [item.phone1, item.phone2, item.mobile, item.hotline, item.contactPhone].forEach(p => {
-                    if (p && String(p).trim().length >= 8) phonesSet.add(String(p).trim());
-                });
-
-                const branch = extractBranchTag(item.nameAr || item.name);
-                if (branch && !branchList.includes(branch)) branchList.push(branch);
-
-                if (item.address && !addressList.includes(item.address)) addressList.push(item.address);
-
-                if (!master.email && item.email) master.email = item.email;
-                if (!master.website && item.website) master.website = item.website;
-                if (!master.linkedin && item.linkedin) master.linkedin = item.linkedin;
-                if (!master.facebook && item.facebook) master.facebook = item.facebook;
-                if (!master.google_maps_url && item.google_maps_url) master.google_maps_url = item.google_maps_url;
-                if (!master.contactPerson && item.contactPerson) master.contactPerson = item.contactPerson;
-                if (!master.contactTitle && item.contactTitle) master.contactTitle = item.contactTitle;
-
-                if (item.priority === 'A') master.priority = 'A';
-                else if (item.priority === 'B' && master.priority !== 'A') master.priority = 'B';
-
-                const fSize = Number(item.fleetSize) || 0;
-                if (fSize > (Number(master.fleetSize) || 0)) master.fleetSize = fSize;
-
-                // Re-link calls
-                if (item.id !== master.id) {
-                    calls.forEach(call => {
-                        if (call.companyId === item.id) {
-                            call.companyId = master.id;
-                            callsUpdated = true;
-                        }
-                    });
-                }
-            });
-
-            const allPhones = Array.from(phonesSet);
-            if (allPhones.length > 0) master.phone1 = allPhones[0];
-            if (allPhones.length > 1) master.phone2 = allPhones[1];
-            if (allPhones.length > 2) master.mobile = allPhones[2];
-            if (allPhones.length > 3) master.otherPhones = allPhones.slice(3).join(', ');
-
-            if (branchList.length > 0) {
-                master.branches = branchList;
-                master.branchesCount = branchList.length;
-            }
-
-            if (addressList.length > 1) {
-                master.address = addressList.slice(0, 3).join(' | ');
-            }
-
-            master.sector = this.mapScraperSectorToCRM(master.sector);
-            master.city = this.mapScraperCityToCRM(master.city);
-            master.priority = this.calculatePriority(master.sector);
-
-            mergedList.push(master);
-        });
-
-        if (callsUpdated && this._set) {
-            this._set(this.KEYS.CALLS, calls);
-        }
-
-        this.companiesMemory = this.cleanAndFixCompanyData(mergedList);
-        this.saveAllCompaniesToDB(mergedList);
-
-        const now = Date.now();
-        localStorage.setItem('fleetcrm_company_count', mergedList.length);
-        localStorage.setItem('fleetcrm_last_synced_hash', mergedList.length + '_' + (mergedList[0]?.id || ''));
-        localStorage.setItem('fleetcrm_last_sync_time', now);
-        this.updateLiveCounters();
-
-        if (window.SupabaseClient) {
-            window.SupabaseClient.pushMasterData({
-                companies: mergedList,
-                dynamicCompanies: mergedList.filter(c => c.isCustom || String(c.id).startsWith('scraped_')),
-                users: this.getUsers(),
-                calls: this.getCalls ? this.getCalls() : [],
-                activities: this.getActivities ? this.getActivities() : []
-            });
-        }
-
-        this.addActivity('system', 'audit', 'تنظيف ودمج البيانات', `تم دمج ${mergedCount} شركة مكررة وتنظيف ${cleanedCount} سجل فارغ`);
-        return { mergedCount, cleanedCount, remainingTotal: mergedList.length };
     },
 
     // ---- Calls ----

@@ -909,7 +909,11 @@ const Companies = {
 
     runAutoCleanAndMerge() {
         const res = window.AppStorage.autoCleanAndMergeDuplicates();
-        App.showToast(`✅ تم دمج ${res.mergedCount} شركة مكررة وتنظيف وحذف كافة الكيانات غير التجارية بنجاح! الإجمالي الآن: ${res.remainingTotal} شركة`, 'success');
+        if (res.mergedCount > 0) {
+            App.showToast(`🎉 تم بنجاح دمج وتوحيد ${res.mergedCount} سجل مكرر وحفظ كافة أرقام الهواتف! الإجمالي الآن: ${res.remainingTotal.toLocaleString()} شركة فريدة 100%`, 'success');
+        } else {
+            App.showToast(`✨ قاعدة البيانات نظيفة تماماً! لا توجد سجلات مكررة (إجمالي ${res.remainingTotal.toLocaleString()} شركة فريدة 100%)`, 'info');
+        }
         this.openAuditModal();
         this.render();
         if (typeof Dashboard !== 'undefined') Dashboard.render();
