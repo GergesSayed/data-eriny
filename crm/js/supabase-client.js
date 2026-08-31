@@ -50,8 +50,9 @@ window.SupabaseClient = (function() {
                 }
             };
 
-            const [dynamicCompaniesObj, callsData, usersData, actsData] = await Promise.all([
+            const [dynamicCompaniesObj, assignmentsObj, callsData, usersData, actsData] = await Promise.all([
                 safeFetch(`${FIREBASE_DB_URL}/dynamic_companies.json?t=${Date.now()}`, {}),
+                safeFetch(`${FIREBASE_DB_URL}/assignments.json?t=${Date.now()}`, {}),
                 safeFetch(`${FIREBASE_DB_URL}/calls.json?t=${Date.now()}`, []),
                 safeFetch(`${FIREBASE_DB_URL}/users.json?t=${Date.now()}`, []),
                 safeFetch(`${FIREBASE_DB_URL}/activities.json?t=${Date.now()}`, [])
@@ -71,6 +72,7 @@ window.SupabaseClient = (function() {
 
             return {
                 dynamicCompanies: dynamicCompanies,
+                assignments: (assignmentsObj && typeof assignmentsObj === 'object') ? assignmentsObj : {},
                 calls: Array.isArray(callsData) ? callsData : (callsData ? Object.values(callsData) : []),
                 users: Array.isArray(usersData) ? usersData : (usersData ? Object.values(usersData) : []),
                 activities: Array.isArray(actsData) ? actsData : (actsData ? Object.values(actsData) : []),
@@ -345,6 +347,33 @@ window.SupabaseClient = (function() {
         }
     }
 
+    async function pushAssignments(assignmentsMap) {
+        if (!assignmentsMap || typeof assignmentsMap !== 'object' || Object.keys(assignmentsMap).length === 0) return true;
+        try {
+            const resp = await fetch(`${FIREBASE_DB_URL}/assignments.json`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(assignmentsMap)
+            });
+            try {
+                const now = Date.now();
+                lastSyncTimestamp = now;
+                await fetch(`${FIREBASE_DB_URL}/metadata.json`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        updated_at: new Date().toISOString(),
+                        sync_timestamp: now
+                    })
+                });
+            } catch(e) {}
+            return resp.ok;
+        } catch(e) {
+            console.warn('pushAssignments error:', e);
+            return false;
+        }
+    }
+
     return {
         getStatus,
         onStatusChange,
@@ -353,6 +382,7 @@ window.SupabaseClient = (function() {
         pushSingleCompany,
         pushDynamicCompanies,
         pushUsers,
+        pushAssignments,
         deleteDynamicCompany,
         wipeDynamicCompanies,
         subscribeToChanges,

@@ -573,6 +573,11 @@ const App = {
             window.AppStorage.setCurrentUser(userId);
         }
         this.updateUserUI();
+        window.AppStorage.updateLiveCounters();
+        if (typeof Companies !== 'undefined') {
+            Companies.refreshUserFilter();
+            Companies.render();
+        }
         const user = window.AppStorage.getCurrentUser();
         const isAdmin = user && user.role === 'admin';
         this.showToast(isAdmin ? `👑 تم تفعيل حساب: ${user.name} - تحكم كامل بالمأذونيات` : `👤 تم التبديل إلى حساب: ${user.name}`, 'success');

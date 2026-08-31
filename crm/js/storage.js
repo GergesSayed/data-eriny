@@ -704,7 +704,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=173.0');
+            this._worker = new Worker('js/companies-worker.js?v=202.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -739,11 +739,17 @@ const AppStorage = {
             const currentUser = this.getCurrentUser();
             const isAdmin = this.canViewAll(currentUser);
             const currentUserId = currentUser ? (currentUser.id || currentUser.username) : '';
-            const userKeys = currentUser ? [
-                String(currentUser.id || '').toLowerCase(),
-                String(currentUser.username || '').toLowerCase(),
-                String(currentUser.email || '').toLowerCase(),
-                String(currentUser.name || '').toLowerCase()
+            
+            const matchedUser = currentUser ? (this.getUser(currentUser.id) || this.getUserByUsername(currentUser.username) || this.getUserByEmail(currentUser.email) || currentUser) : null;
+            const userKeys = matchedUser ? [
+                String(matchedUser.id || '').trim().toLowerCase(),
+                String(matchedUser.username || '').trim().toLowerCase(),
+                String(matchedUser.email || '').trim().toLowerCase(),
+                String(matchedUser.name || '').trim().toLowerCase(),
+                String(currentUser.id || '').trim().toLowerCase(),
+                String(currentUser.username || '').trim().toLowerCase(),
+                String(currentUser.email || '').trim().toLowerCase(),
+                String(currentUser.name || '').trim().toLowerCase()
             ].filter(Boolean) : [];
 
             // 1. Try Web Worker first for non-blocking 60fps search
@@ -1258,18 +1264,36 @@ const AppStorage = {
                 const baseIds = new Set(basePool.map(c => String(c.id)));
                 const titanIds = new Set(((window.__EGYPT_VERIFIED_TITANS && Array.isArray(window.__EGYPT_VERIFIED_TITANS)) ? window.__EGYPT_VERIFIED_TITANS : []).map(t => String(t.id)));
 
-                // Extract dynamic companies (custom / newly scraped)
-                const dynamicCompanies = companies.filter(c => {
-                    if (!c || !c.id) return false;
-                    const id = String(c.id);
-                    return !baseIds.has(id) && !titanIds.has(id);
+                // Extract dynamic companies (custom / newly scraped or modified)
+                const dynamicCompanies = [];
+                const assignmentsMap = {};
+
+                companies.forEach(c => {
+                    if (!c || !c.id) return;
+                    const sId = String(c.id);
+                    if (c.assignedTo) {
+                        assignmentsMap[sId] = {
+                            assignedTo: c.assignedTo,
+                            assignedAt: c.assignedAt || new Date().toISOString()
+                        };
+                    }
+                    const isNew = !baseIds.has(sId) && !titanIds.has(sId);
+                    if (isNew) {
+                        dynamicCompanies.push(c);
+                    }
                 });
 
-                const quickHash = `${dynamicCompanies.length}_${calls.length}_${users.length}`;
+                // Immediately push assignments
+                if (Object.keys(assignmentsMap).length > 0 && window.SupabaseClient.pushAssignments) {
+                    window.SupabaseClient.pushAssignments(assignmentsMap).catch(() => {});
+                }
+
+                const quickHash = `${dynamicCompanies.length}_${Object.keys(assignmentsMap).length}_${calls.length}_${users.length}`;
                 if (!forceSync && quickHash === localStorage.getItem('fleetcrm_last_synced_hash')) return true;
 
                 const ok = await window.SupabaseClient.pushMasterData({
                     dynamicCompanies: dynamicCompanies,
+                    assignments: assignmentsMap,
                     users: users,
                     calls: calls,
                     activities: activities
@@ -1309,30 +1333,62 @@ const AppStorage = {
             if (isWipedComps && (!this.companiesMemory || this.companiesMemory.length === 0)) {
                 this.companiesMemory = [];
                 this.updateLiveCounters();
-            } else if (data.dynamicCompanies && Array.isArray(data.dynamicCompanies)) {
-                const deletedCompIds = this.getDeletedIds('companies');
-                const cloudDynamic = data.dynamicCompanies.filter(c => c && c.id && !deletedCompIds.has(String(c.id)));
+            } else {
+                const idMap = new Map();
+                (this.companiesMemory || []).forEach(c => { if (c && c.id) idMap.set(String(c.id), c); });
+                let anyChanged = false;
 
-                if (cloudDynamic.length > 0) {
-                    const idMap = new Map();
-                    (this.companiesMemory || []).forEach(c => { if (c && c.id) idMap.set(String(c.id), c); });
-                    let newAdded = false;
+                // A. Apply dynamic companies (newly scraped/custom)
+                if (data.dynamicCompanies && Array.isArray(data.dynamicCompanies)) {
+                    const deletedCompIds = this.getDeletedIds('companies');
+                    const cloudDynamic = data.dynamicCompanies.filter(c => c && c.id && !deletedCompIds.has(String(c.id)));
+
                     cloudDynamic.forEach(c => {
-                        if (c && c.id && !idMap.has(String(c.id))) {
-                            idMap.set(String(c.id), this._normalizeCompanyData(c));
-                            newAdded = true;
+                        if (!c || !c.id) return;
+                        const sId = String(c.id);
+                        const existing = idMap.get(sId);
+                        if (!existing) {
+                            idMap.set(sId, this._normalizeCompanyData(c));
+                            anyChanged = true;
+                        } else {
+                            if (c.assignedTo !== undefined && existing.assignedTo !== c.assignedTo) {
+                                existing.assignedTo = c.assignedTo;
+                                anyChanged = true;
+                            }
+                            if (c.status !== undefined && existing.status !== c.status) {
+                                existing.status = c.status;
+                                anyChanged = true;
+                            }
                         }
                     });
-                    if (newAdded) {
-                        const merged = Array.from(idMap.values());
-                        this.companiesMemory = merged;
-                        this.saveAllCompaniesToDB(merged, false);
-                        this.updateLiveCounters();
-                        if (this._worker && this._workerReady) {
-                            this._worker.postMessage({ action: 'INIT_INDEX', payload: merged });
+                }
+
+                // B. Apply assignments directly from cloud assignments endpoint
+                if (data.assignments && typeof data.assignments === 'object') {
+                    for (const [compId, assignData] of Object.entries(data.assignments)) {
+                        if (!assignData) continue;
+                        const comp = idMap.get(String(compId));
+                        if (comp) {
+                            const targetUser = typeof assignData === 'string' ? assignData : (assignData.assignedTo || '');
+                            const targetAt = assignData.assignedAt || null;
+                            if (comp.assignedTo !== targetUser) {
+                                comp.assignedTo = targetUser;
+                                comp.assignedAt = targetAt;
+                                anyChanged = true;
+                            }
                         }
-                        updated = true;
                     }
+                }
+
+                if (anyChanged) {
+                    const merged = Array.from(idMap.values());
+                    this.companiesMemory = merged;
+                    this.saveAllCompaniesToDB(merged, false);
+                    this.updateLiveCounters();
+                    if (this._worker && this._workerReady) {
+                        this._worker.postMessage({ action: 'INIT_INDEX', payload: merged });
+                    }
+                    updated = true;
                 }
             }
 
@@ -1603,8 +1659,14 @@ const AppStorage = {
         if (this.canViewAll(currentUser)) {
             return allCompanies; // Admin & Supervisor can view all companies
         }
-        // Strict Employee isolation: Sales rep ONLY sees companies explicitly assigned to them!
+        
+        // Match all user keys (id, username, email, name)
+        const matchedUser = this.getUser(currentUser.id) || this.getUserByUsername(currentUser.username) || this.getUserByEmail(currentUser.email) || currentUser;
         const myKeys = new Set([
+            String(matchedUser.id || '').trim().toLowerCase(),
+            String(matchedUser.username || '').trim().toLowerCase(),
+            String(matchedUser.email || '').trim().toLowerCase(),
+            String(matchedUser.name || '').trim().toLowerCase(),
             String(currentUser.id || '').trim().toLowerCase(),
             String(currentUser.username || '').trim().toLowerCase(),
             String(currentUser.email || '').trim().toLowerCase(),
@@ -1626,6 +1688,9 @@ const AppStorage = {
         const clean = this.cleanAndFixCompanyData(companies || []);
         this.companiesMemory = clean;
         this.saveAllCompaniesToDB(clean);
+        if (this._worker && this._workerReady) {
+            this._worker.postMessage({ action: 'INIT_INDEX', payload: clean });
+        }
         if (this.autoSyncToCloud) this.autoSyncToCloud(clean);
     },
 
@@ -1682,6 +1747,9 @@ const AppStorage = {
 
         if (addedBatch.length > 0) {
             await this.saveBatchToIDB(addedBatch);
+            if (this._worker && this._workerReady) {
+                this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: addedBatch });
+            }
         }
 
         if (this.autoSyncToCloud) this.autoSyncToCloud(current);
@@ -1696,6 +1764,7 @@ const AppStorage = {
         company.city = this.mapScraperCityToCRM(company.city);
         company.priority = this.calculatePriority(company.sector);
 
+        let updatedItem = company;
         if (company.id) {
             const index = companies.findIndex(c => c.id === company.id);
             if (index >= 0) {
@@ -1706,18 +1775,24 @@ const AppStorage = {
                 companies[index].sector = this.mapScraperSectorToCRM(companies[index].sector);
                 companies[index].city = this.mapScraperCityToCRM(companies[index].city);
                 companies[index].priority = this.calculatePriority(companies[index].sector);
+                updatedItem = companies[index];
             }
         } else {
             company.id = this._generateId('comp');
             company.createdAt = new Date().toISOString();
             company.lastUpdated = new Date().toISOString().split('T')[0];
             companies.push(company);
+            updatedItem = company;
         }
         this.companiesMemory = companies;
         this.saveAllCompaniesToDB(companies);
+
+        if (this._worker && this._workerReady) {
+            this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: [updatedItem] });
+        }
         
         this.addActivity('company', company.id, company.id ? 'تعديل شركة' : 'إضافة شركة', company.nameAr);
-        return company;
+        return updatedItem;
     },
 
     deleteCompany(id) {
@@ -1732,7 +1807,7 @@ const AppStorage = {
             localStorage.setItem('fleetcrm_user_wiped_companies', 'true');
         }
         this.saveAllCompaniesToDB(companies);
-                if (window.SupabaseClient && window.SupabaseClient.deleteDynamicCompany) {
+        if (window.SupabaseClient && window.SupabaseClient.deleteDynamicCompany) {
             window.SupabaseClient.deleteDynamicCompany(id);
         }
         this.autoSyncToCloud(companies, true);
@@ -1748,7 +1823,23 @@ const AppStorage = {
         
         this.saveCompany(company);
         this.saveBatchToIDB([company]);
-        if (this.autoSyncToCloud) this.autoSyncToCloud(this.companiesMemory);
+        
+        if (this._worker && this._workerReady) {
+            this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: [company] });
+        }
+        
+        const assignmentsMap = {
+            [String(companyId)]: {
+                assignedTo: userId || '',
+                assignedAt: company.assignedAt
+            }
+        };
+        if (window.SupabaseClient && window.SupabaseClient.pushAssignments) {
+            window.SupabaseClient.pushAssignments(assignmentsMap).catch(() => {});
+        }
+        if (this.autoSyncToCloud) this.autoSyncToCloud(this.companiesMemory, true);
+        
+        this.updateLiveCounters();
         
         const targetUser = userId ? this.getUser(userId) : null;
         const userName = targetUser ? targetUser.name : (userId || 'إلغاء التعيين');
@@ -1765,19 +1856,35 @@ const AppStorage = {
         const idSet = new Set(companyIds.map(String));
         
         const updatedBatch = [];
+        const assignmentsMap = {};
+        
         this.getCompanies().forEach(c => {
             if (c && idSet.has(String(c.id))) {
                 c.assignedTo = userId || '';
                 c.assignedAt = userId ? now : null;
                 c.lastUpdated = today;
                 updatedBatch.push(c);
+                assignmentsMap[String(c.id)] = {
+                    assignedTo: userId || '',
+                    assignedAt: c.assignedAt
+                };
             }
         });
 
         if (updatedBatch.length > 0) {
             this.saveBatchToIDB(updatedBatch);
             this.saveAllCompaniesToDB(this.companiesMemory);
-            if (this.autoSyncToCloud) this.autoSyncToCloud(this.companiesMemory);
+            
+            if (this._worker && this._workerReady) {
+                this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: updatedBatch });
+            }
+            
+            if (window.SupabaseClient && window.SupabaseClient.pushAssignments) {
+                window.SupabaseClient.pushAssignments(assignmentsMap).catch(() => {});
+            }
+            if (this.autoSyncToCloud) this.autoSyncToCloud(this.companiesMemory, true);
+            
+            this.updateLiveCounters();
             this.addActivity('company', 'bulk', 'تخصيص جماعي', `تم إسناد وتخصيص ${updatedBatch.length} شركة إلى: ${userName}`);
         }
         return updatedBatch.length;
