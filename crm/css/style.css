@@ -2612,3 +2612,11 @@ html.user-role-agent #th-select-all-companies,
 html.user-role-agent #filter-assigned-group {
     display: none !important;
 }
+
+/* Lock Cloud Sync Indicator for Employees (Visible as status only, non-clickable) */
+html.user-role-agent #cloud-sync-indicator {
+    cursor: default !important;
+    pointer-events: none !important;
+    user-select: none !important;
+    opacity: 0.9;
+}

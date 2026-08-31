@@ -532,11 +532,22 @@ const App = {
         if (btnWipeAllCompanies) btnWipeAllCompanies.style.display = isAdmin ? 'inline-flex' : 'none';
         if (btnCloudSync) btnCloudSync.style.display = isAdmin ? 'inline-flex' : 'none';
         if (btnClearCalls) btnClearCalls.style.display = isAdmin ? 'inline-flex' : 'none';
-        const sidebarFooter = document.querySelector('.sidebar-footer');
-        if (sidebarFooter) sidebarFooter.style.display = canViewAll ? 'block' : 'none';
-
         const filterAssignedGroup = document.getElementById('filter-assigned-group') || document.getElementById('filter-assigned')?.parentElement;
         if (filterAssignedGroup) filterAssignedGroup.style.display = canViewAll ? 'block' : 'none';
+
+        // Cloud sync widget: interactive for admin, locked/status-only for employees
+        const cloudSyncPill = document.getElementById('cloud-sync-indicator');
+        if (cloudSyncPill) {
+            if (isAdmin) {
+                cloudSyncPill.style.cursor = 'pointer';
+                cloudSyncPill.style.pointerEvents = 'auto';
+                cloudSyncPill.title = 'حالة المزامنة السحابية الفورية (اضغط للمزامنة اليدوية)';
+            } else {
+                cloudSyncPill.style.cursor = 'default';
+                cloudSyncPill.style.pointerEvents = 'none';
+                cloudSyncPill.title = 'النظام متزامن سحابياً وتلقائياً بالكامل 🔒';
+            }
+        }
 
         // Topbar User Avatar & Name
         const avatarEl = document.getElementById('current-user-avatar');
@@ -1171,6 +1182,9 @@ const App = {
     },
 
     async triggerCloudSyncNow() {
+        if (!window.AppStorage || !window.AppStorage.isAdmin()) {
+            return;
+        }
         const icon = document.getElementById('cloud-sync-icon');
         const label = document.getElementById('cloud-sync-label');
         if (icon) { icon.className = 'fas fa-spinner fa-spin'; }
