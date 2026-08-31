@@ -1804,6 +1804,19 @@ const AppStorage = {
                 totalMerged++;
                 duplicateIdToMaster.set(dupe.id, masterId);
 
+                // 1. Record Tombstone permanently so it NEVER re-hydrates
+                this.recordDeletedId('companies', dupe.id);
+
+                // 2. Delete duplicate from IndexedDB
+                if (this.deleteFromIDB) {
+                    this.deleteFromIDB(dupe.id);
+                }
+
+                // 3. Delete duplicate from Firebase
+                if (window.SupabaseClient && window.SupabaseClient.deleteDynamicCompany) {
+                    window.SupabaseClient.deleteDynamicCompany(dupe.id);
+                }
+
                 // Collect and merge all phones from duplicate
                 [dupe.phone1, dupe.phone2, dupe.mobile, dupe.hotline, dupe.contactPhone].forEach(p => {
                     if (p && String(p).trim().length >= 7) phonesSet.add(String(p).trim());
