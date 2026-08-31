@@ -516,12 +516,14 @@ const App = {
         if (btnQuickAdd) btnQuickAdd.style.display = canModify ? 'inline-flex' : 'none';
         if (bulkBar && !canModify) bulkBar.style.display = 'none';
 
-        // Strictly restrict Data Audit, Data Wipe, Cloud Sync, and Clear Log buttons to Admin ONLY
+        // Strictly restrict Data Audit, Deduplication, Data Wipe, Cloud Sync, and Clear Log buttons to Admin ONLY
+        const btnRemoveDuplicates = document.getElementById('btn-remove-duplicates');
         const btnAuditData = document.getElementById('btn-audit-data');
         const btnWipeAllCompanies = document.getElementById('btn-wipe-all-companies');
         const btnCloudSync = document.getElementById('btn-cloud-sync');
         const btnClearCalls = document.getElementById('btn-clear-calls');
 
+        if (btnRemoveDuplicates) btnRemoveDuplicates.style.display = isAdmin ? 'inline-flex' : 'none';
         if (btnAuditData) btnAuditData.style.display = isAdmin ? 'inline-flex' : 'none';
         if (btnWipeAllCompanies) btnWipeAllCompanies.style.display = isAdmin ? 'inline-flex' : 'none';
         if (btnCloudSync) btnCloudSync.style.display = isAdmin ? 'inline-flex' : 'none';

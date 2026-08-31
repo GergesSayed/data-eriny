@@ -2595,3 +2595,20 @@ html.user-logged-in .login-screen-bg {
     font-size: 0.78rem;
     color: #64748b;
 }
+
+/* Strict Employee Role Security Shield — Hide Admin Actions */
+html.user-role-agent #btn-remove-duplicates,
+html.user-role-agent #btn-audit-data,
+html.user-role-agent #btn-wipe-all-companies,
+html.user-role-agent #btn-import-excel,
+html.user-role-agent #btn-export-excel,
+html.user-role-agent #btn-cloud-sync,
+html.user-role-agent #btn-clear-calls,
+html.user-role-agent #btn-add-company,
+html.user-role-agent #bulk-actions-bar,
+html.user-role-agent .th-company-select,
+html.user-role-agent .td-company-select,
+html.user-role-agent #th-select-all-companies,
+html.user-role-agent #filter-assigned-group {
+    display: none !important;
+}
