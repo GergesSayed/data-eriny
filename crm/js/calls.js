@@ -346,7 +346,18 @@ const Calls = {
         App.openModal('modal-call');
     },
 
+    _isSaving: false,
+
     save() {
+        if (this._isSaving) return;
+        this._isSaving = true;
+
+        const saveBtn = document.getElementById('btn-save-call');
+        if (saveBtn) {
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+        }
+
         try {
             const currentUser = window.AppStorage.getCurrentUser();
             const companyId = document.getElementById('call-companyId')?.value;
@@ -387,6 +398,14 @@ const Calls = {
         } catch (err) {
             console.error('Calls.save() error:', err);
             alert('خطأ في حفظ المكالمة: ' + err.message);
+        } finally {
+            setTimeout(() => {
+                this._isSaving = false;
+                if (saveBtn) {
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = '<i class="fas fa-save"></i> حفظ المكالمة';
+                }
+            }, 600);
         }
     },
 

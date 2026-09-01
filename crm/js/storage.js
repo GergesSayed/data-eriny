@@ -2180,13 +2180,33 @@ const AppStorage = {
             calls = [];
             try { this._set(this.KEYS.CALLS, calls); } catch(e){}
         }
-        // Permanently purge any legacy fake seed calls
-        const realCalls = calls.filter(c => c && !String(c.id).startsWith('call_seed_'));
-        if (realCalls.length !== calls.length) {
-            this._set(this.KEYS.CALLS, realCalls);
-            calls = realCalls;
+        
+        // 1. Purge legacy fake seed calls
+        let clean = calls.filter(c => c && !String(c.id).startsWith('call_seed_'));
+
+        // 2. Automatic call de-duplication (merge/remove duplicate logs)
+        const seenKey = new Set();
+        const deduplicated = [];
+        let hasDuplicates = false;
+
+        clean.forEach(c => {
+            if (!c || !c.companyId) return;
+            const key = `${c.companyId}_${c.date || ''}_${c.time || ''}_${c.userId || ''}_${c.result || ''}_${(c.notes || '').trim()}`;
+            if (!seenKey.has(key)) {
+                seenKey.add(key);
+                deduplicated.push(c);
+            } else {
+                hasDuplicates = true;
+            }
+        });
+
+        if (hasDuplicates || deduplicated.length !== calls.length) {
+            this._set(this.KEYS.CALLS, deduplicated);
+            clean = deduplicated;
+            if (this.autoSyncToCloud) this.autoSyncToCloud(this.companiesMemory, true);
         }
-        return calls;
+
+        return clean;
     },
 
     getScopedCalls() {
@@ -2230,6 +2250,27 @@ const AppStorage = {
         if (!call.createdByName && currentUser) call.createdByName = currentUser.name;
 
         const calls = this.getCalls();
+
+        // Anti-duplicate protection: ignore identical duplicate call submitted within 5 seconds
+        if (!call.id) {
+            const nowTime = Date.now();
+            const existingDuplicate = calls.find(c => {
+                if (!c) return false;
+                const matchComp = String(c.companyId) === String(call.companyId);
+                const matchUser = String(c.userId || '') === String(call.userId || '');
+                const matchDate = c.date === call.date;
+                const matchResult = c.result === call.result;
+                const createdTs = c.createdAt ? new Date(c.createdAt).getTime() : 0;
+                const isVeryRecent = Math.abs(nowTime - createdTs) < 5000;
+                return matchComp && matchUser && matchDate && matchResult && isVeryRecent;
+            });
+
+            if (existingDuplicate) {
+                console.warn('Blocked duplicate call submission');
+                return existingDuplicate;
+            }
+        }
+
         if (call.id) {
             const index = calls.findIndex(c => c && c.id === call.id);
             if (index >= 0) {

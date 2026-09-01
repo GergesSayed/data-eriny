@@ -896,14 +896,6 @@ const App = {
         document.getElementById('btn-quick-add')?.addEventListener('click', () => Companies.openAddModal());
         document.getElementById('btn-add-company')?.addEventListener('click', () => Companies.openAddModal());
 
-        // Quick call button
-        document.getElementById('btn-quick-call')?.addEventListener('click', () => Calls.openAddModal());
-        document.getElementById('btn-add-call')?.addEventListener('click', () => Calls.openAddModal());
-
-        // Save buttons
-        document.getElementById('btn-save-company')?.addEventListener('click', () => Companies.save());
-        document.getElementById('btn-save-call')?.addEventListener('click', () => Calls.save());
-
         // Modal close buttons
         (document.querySelectorAll('.modal-close, .modal-overlay') || []).forEach(el => {
             el?.addEventListener('click', (e) => {
