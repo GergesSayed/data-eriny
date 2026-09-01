@@ -77,17 +77,70 @@ const AppStorage = {
         { id: 'admin', username: 'admin@fleet.com', email: 'admin@fleet.com', password: 'Admin@123', name: 'Admin', role: 'admin', status: 'active', avatar: '👑', color: '#7c3aed', _needsPasswordChange: false }
     ],
 
+    cleanAndDeduplicateUsers(usersList) {
+        if (!usersList || !Array.isArray(usersList) || usersList.length === 0) {
+            return [...this.DEFAULT_USERS];
+        }
+
+        const seenKeys = new Set();
+        const deduplicated = [];
+
+        // 1. Ensure admin is always present and clean
+        let adminUser = usersList.find(u => u && (u.id === 'admin' || u.role === 'admin' || (u.email && u.email.toLowerCase() === 'admin@fleet.com')));
+        if (!adminUser) {
+            adminUser = { ...this.DEFAULT_USERS[0] };
+        } else {
+            adminUser = {
+                ...adminUser,
+                id: 'admin',
+                name: 'Admin',
+                username: 'admin@fleet.com',
+                email: 'admin@fleet.com',
+                role: 'admin',
+                status: 'active',
+                avatar: '👑',
+                color: '#7c3aed'
+            };
+        }
+        deduplicated.push(adminUser);
+        seenKeys.add('admin');
+        seenKeys.add('admin@fleet.com');
+
+        // 2. Iterate non-admin users and deduplicate by email, username, id, or name
+        usersList.forEach(u => {
+            if (!u || u.id === 'admin' || u.role === 'admin') return;
+
+            const emailKey = u.email ? String(u.email).trim().toLowerCase() : '';
+            const usernameKey = u.username ? String(u.username).trim().toLowerCase() : '';
+            const nameKey = u.name ? String(u.name).trim().toLowerCase() : '';
+            const idKey = u.id ? String(u.id).trim().toLowerCase() : '';
+
+            // If already seen by email, username, id, or name -> merge & skip duplicate!
+            if ((emailKey && seenKeys.has(emailKey)) || 
+                (usernameKey && seenKeys.has(usernameKey)) || 
+                (idKey && seenKeys.has(idKey)) ||
+                (nameKey && nameKey !== 'admin' && seenKeys.has(nameKey))) {
+                return;
+            }
+
+            if (emailKey) seenKeys.add(emailKey);
+            if (usernameKey) seenKeys.add(usernameKey);
+            if (idKey) seenKeys.add(idKey);
+            if (nameKey) seenKeys.add(nameKey);
+
+            deduplicated.push(u);
+        });
+
+        return deduplicated;
+    },
+
     // ---- User Profiles & Auth ----
     getUsers() {
         let stored = this._get(this.KEYS.USERS);
 
         // Remove legacy test users (agent_1, agent_2, agent_3) if they exist
         if (stored && Array.isArray(stored)) {
-            const originalLength = stored.length;
-            stored = stored.filter(u => u.id !== 'agent_1' && u.id !== 'agent_2' && u.id !== 'agent_3');
-            if (stored.length !== originalLength) {
-                this._set(this.KEYS.USERS, stored);
-            }
+            stored = stored.filter(u => u && u.id !== 'agent_1' && u.id !== 'agent_2' && u.id !== 'agent_3');
         }
 
         if (!stored || !Array.isArray(stored) || stored.length === 0) {
@@ -95,7 +148,7 @@ const AppStorage = {
             return this.DEFAULT_USERS;
         }
 
-        // Always ensure default users have active status, usernames, and valid names/emails
+        // Always ensure users have active status, usernames, and valid names/emails
         stored.forEach(u => {
             if (!u) return;
             if (!u.username) u.username = u.email ? u.email.split('@')[0] : (u.id || 'user');
@@ -104,24 +157,15 @@ const AppStorage = {
             if (!u.email) u.email = (u.id === 'admin' || u.role === 'admin') ? 'admin@fleet.com' : (u.username ? (u.username.includes('@') ? u.username : u.username + '@fleet.com') : 'user@fleet.com');
         });
 
-        // Strictly enforce admin user details
-        let adminUser = stored.find(u => u.id === 'admin' || u.username === 'admin' || u.email === 'admin@fleet.com' || u.role === 'admin');
-        if (!adminUser) {
-            stored.unshift(this.DEFAULT_USERS[0]);
-            this._set(this.KEYS.USERS, stored);
-        } else {
-            adminUser.id = 'admin';
-            adminUser.name = 'Admin';
-            adminUser.username = 'admin@fleet.com';
-            adminUser.email = 'admin@fleet.com';
-            adminUser.role = 'admin';
-            adminUser.status = 'active';
-            adminUser.avatar = '👑';
-            adminUser.color = '#7c3aed';
-            this._set(this.KEYS.USERS, stored);
+        const deduplicated = this.cleanAndDeduplicateUsers(stored);
+        if (deduplicated.length !== stored.length) {
+            this._set(this.KEYS.USERS, deduplicated);
+            if (window.SupabaseClient && window.SupabaseClient.pushUsers) {
+                window.SupabaseClient.pushUsers(deduplicated);
+            }
         }
 
-        return stored;
+        return deduplicated;
     },
 
     getPendingUsers() {
@@ -704,7 +748,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=205.0');
+            this._worker = new Worker('js/companies-worker.js?v=206.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -1392,42 +1436,19 @@ const AppStorage = {
                 }
             }
 
-            // 2. Users sync with smart merge — NEVER delete or drop locally created employee accounts!
+            // 2. Users sync with smart merge — deduplicate by identity (email/username/name)
             if (data.users && Array.isArray(data.users)) {
                 const localUsers = this.getUsers() || [];
-                const userMap = new Map();
-                
-                // Add local users first
-                localUsers.forEach(u => {
-                    if (u && (u.id || u.email || u.username)) {
-                        const key = String(u.id || u.email || u.username).toLowerCase().trim();
-                        userMap.set(key, u);
-                    }
-                });
+                const combined = [...localUsers, ...data.users];
+                const deduplicated = this.cleanAndDeduplicateUsers(combined);
 
-                // Union merge cloud users
-                data.users.forEach(u => {
-                    if (u && (u.id || u.email || u.username)) {
-                        const key = String(u.id || u.email || u.username).toLowerCase().trim();
-                        if (!userMap.has(key)) {
-                            userMap.set(key, u);
-                        } else {
-                            const existing = userMap.get(key);
-                            userMap.set(key, { ...existing, ...u });
-                        }
+                const changed = deduplicated.length !== localUsers.length || JSON.stringify(deduplicated) !== JSON.stringify(localUsers);
+                if (changed) {
+                    this._set(this.KEYS.USERS, deduplicated);
+                    if (window.SupabaseClient && window.SupabaseClient.pushUsers) {
+                        window.SupabaseClient.pushUsers(deduplicated);
                     }
-                });
-
-                const mergedUsers = Array.from(userMap.values());
-                if (mergedUsers.length > 0) {
-                    const changed = mergedUsers.length !== localUsers.length || JSON.stringify(mergedUsers) !== JSON.stringify(localUsers);
-                    if (changed) {
-                        this._set(this.KEYS.USERS, mergedUsers);
-                        if (window.SupabaseClient && window.SupabaseClient.pushUsers) {
-                            window.SupabaseClient.pushUsers(mergedUsers);
-                        }
-                        updated = true;
-                    }
+                    updated = true;
                 }
             }
 
