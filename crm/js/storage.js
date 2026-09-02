@@ -753,7 +753,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=210.0');
+            this._worker = new Worker('js/companies-worker.js?v=211.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -2780,6 +2780,27 @@ const AppStorage = {
     getCallResultLabel(resultKey) {
         const r = this.CALL_RESULTS[resultKey];
         return r ? `${r.icon} ${r.ar}` : resultKey;
+    },
+
+    getGoogleMapsUrl(c) {
+        if (!c) return '';
+        if (c.google_maps_url && typeof c.google_maps_url === 'string' && c.google_maps_url.startsWith('http')) {
+            return c.google_maps_url;
+        }
+        if (c.latitude && c.longitude) {
+            return `https://www.google.com/maps?q=${c.latitude},${c.longitude}`;
+        }
+        if (c.lat && c.lon) {
+            return `https://www.google.com/maps?q=${c.lat},${c.lon}`;
+        }
+        
+        // Smart clean search query for Google Maps
+        const rawName = c.nameAr || c.name || c.nameEn || '';
+        const cleanName = rawName.replace(/\([^)]*\)/g, '').replace(/[-–—]/g, ' ').trim();
+        const cityLabel = this.getCityLabel(c.city) || c.city || '';
+        const address = (c.address || '').replace(/[-–—]/g, ' ').trim();
+        const queryParts = [cleanName, address, cityLabel, 'مصر'].filter(Boolean);
+        return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(queryParts.join(' '))}`;
     },
 
     // ---- Clear All Data ----
