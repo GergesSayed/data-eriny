@@ -748,7 +748,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=207.0');
+            this._worker = new Worker('js/companies-worker.js?v=208.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -1185,6 +1185,7 @@ const AppStorage = {
                     // 3. Merge all IndexedDB records (user additions, dynamic scrapes, call modifications)
                     idbData.forEach(c => {
                         if (!c || !c.id) return;
+                        if (!this.isStrictB2BEntity(c.nameAr || c.name || c.nameEn || '')) return;
                         if (!deletedCompIds.has(String(c.id))) {
                             const existing = masterMap.get(c.id);
                             if (existing) {
@@ -1386,7 +1387,7 @@ const AppStorage = {
                 // A. Apply dynamic companies (newly scraped/custom)
                 if (data.dynamicCompanies && Array.isArray(data.dynamicCompanies)) {
                     const deletedCompIds = this.getDeletedIds('companies');
-                    const cloudDynamic = data.dynamicCompanies.filter(c => c && c.id && !deletedCompIds.has(String(c.id)));
+                    const cloudDynamic = data.dynamicCompanies.filter(c => c && c.id && !deletedCompIds.has(String(c.id)) && this.isStrictB2BEntity(c.nameAr || c.name || c.nameEn || ''));
 
                     cloudDynamic.forEach(c => {
                         if (!c || !c.id) return;
