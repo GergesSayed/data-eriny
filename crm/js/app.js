@@ -930,42 +930,55 @@ const App = {
             ExcelHandler.exportCompanies(companies);
         });
 
-        // Global search
+        // Fast Debounced Global search backed by Web Worker
         const searchInput = document.getElementById('global-search');
         const searchResults = document.getElementById('search-results');
+        let searchDebounceTimer = null;
 
         searchInput?.addEventListener('input', (e) => {
-            const esc = (s) => window.AppStorage.escapeHtml(s || '');
-            const query = (e && e.target && e.target.value) ? e.target.value.toLowerCase().trim() : '';
+            const query = (e && e.target && e.target.value) ? e.target.value.trim() : '';
+            if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
+
             if (!query || query.length < 2) {
                 searchResults?.classList.remove('show');
                 return;
             }
 
-            const companies = (window.AppStorage && window.AppStorage.getCompanies ? (window.AppStorage.getCompanies() || []) : []).filter(c =>
-                (c.nameAr && c.nameAr.includes(query)) ||
-                (c.nameEn && c.nameEn.toLowerCase().includes(query)) ||
-                (c.contactPerson && c.contactPerson.includes(query)) ||
-                (c.phone1 && c.phone1.includes(query)) ||
-                (c.mobile && c.mobile.includes(query))
-            ).slice(0, 8);
+            searchDebounceTimer = setTimeout(async () => {
+                const esc = (s) => window.AppStorage.escapeHtml(s || '');
+                let matches = [];
 
-            if (!searchResults) return;
+                if (window.AppStorage && window.AppStorage.queryCompanies) {
+                    const res = await window.AppStorage.queryCompanies({ search: query, page: 1, pageSize: 8 });
+                    matches = (res && res.items) ? res.items : [];
+                } else {
+                    const lowerQuery = query.toLowerCase();
+                    matches = (window.AppStorage && window.AppStorage.getCompanies ? (window.AppStorage.getCompanies() || []) : []).filter(c =>
+                        (c.nameAr && c.nameAr.includes(lowerQuery)) ||
+                        (c.nameEn && c.nameEn.toLowerCase().includes(lowerQuery)) ||
+                        (c.contactPerson && c.contactPerson.includes(lowerQuery)) ||
+                        (c.phone1 && c.phone1.includes(lowerQuery)) ||
+                        (c.mobile && c.mobile.includes(lowerQuery))
+                    ).slice(0, 8);
+                }
 
-            if (companies.length === 0) {
-                searchResults.innerHTML = '<div class="search-dropdown-item"><span class="result-name">لا توجد نتائج</span></div>';
-            } else {
-                searchResults.innerHTML = companies.map(c => `
-                    <div class="search-dropdown-item" onclick="App.searchSelect('${esc(c.id)}')">
-                        <i class="fas fa-building" style="color:var(--primary-light);"></i>
-                        <div>
-                            <div class="result-name">${esc(c.nameAr || c.nameEn)}</div>
-                            <div class="result-sector">${window.AppStorage.getSectorLabel(c.sector)} — ${window.AppStorage.getCityLabel(c.city)}</div>
+                if (!searchResults) return;
+
+                if (matches.length === 0) {
+                    searchResults.innerHTML = '<div class="search-dropdown-item"><span class="result-name">لا توجد نتائج مطابقة</span></div>';
+                } else {
+                    searchResults.innerHTML = matches.map(c => `
+                        <div class="search-dropdown-item" onclick="App.searchSelect('${esc(c.id)}')">
+                            <i class="fas fa-building" style="color:var(--primary-light);"></i>
+                            <div>
+                                <div class="result-name">${esc(c.nameAr || c.nameEn)}</div>
+                                <div class="result-sector">${window.AppStorage.getSectorLabel(c.sector)} — ${window.AppStorage.getCityLabel(c.city)}</div>
+                            </div>
                         </div>
-                    </div>
-                `).join('');
-            }
-            searchResults.classList.add('show');
+                    `).join('');
+                }
+                searchResults.classList.add('show');
+            }, 120);
         });
 
         searchInput?.addEventListener('blur', () => {

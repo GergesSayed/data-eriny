@@ -231,17 +231,30 @@ window.SupabaseClient = (function() {
         // 1. Instant check immediately on subscribe
         checkMetadataDelta();
 
-        // 2. High-speed 2.5s pulse polling
-        pollInterval = setInterval(checkMetadataDelta, 2500);
+        // 2. Smart visibility-aware polling (5s active, paused when tab hidden)
+        const startPolling = () => {
+            if (pollInterval) clearInterval(pollInterval);
+            pollInterval = setInterval(() => {
+                if (typeof document !== 'undefined' && document.hidden) return; // Skip if tab in background
+                checkMetadataDelta();
+            }, 5000);
+        };
+        startPolling();
 
         // 3. Instant trigger on mobile tab focus or screen unlock
         if (typeof document !== 'undefined' && typeof window !== 'undefined') {
             const handleMobileFocus = () => {
                 checkMetadataDelta();
+                startPolling();
             };
             window.addEventListener('focus', handleMobileFocus);
             document.addEventListener('visibilitychange', () => {
-                if (document.visibilityState === 'visible') handleMobileFocus();
+                if (document.visibilityState === 'visible') {
+                    handleMobileFocus();
+                } else if (pollInterval) {
+                    clearInterval(pollInterval);
+                    pollInterval = null;
+                }
             });
         }
     }

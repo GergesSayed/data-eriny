@@ -748,7 +748,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=206.0');
+            this._worker = new Worker('js/companies-worker.js?v=207.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -1259,6 +1259,7 @@ const AppStorage = {
     },
 
     saveAllCompaniesToDB(companies, syncToCloud = true) {
+        this.invalidateStatsCache();
         this.updateLiveCounters();
         this.saveBatchToIDB(companies);
         if (syncToCloud && this.autoSyncToCloud) {
@@ -2461,10 +2462,27 @@ const AppStorage = {
         return (acts || []).slice(0, limit);
     },
 
-    // ---- Statistics ----
+    _statsCache: null,
+    _statsCacheUserId: null,
+    _statsCacheTime: 0,
+
+    invalidateStatsCache() {
+        this._statsCache = null;
+        this._statsCacheTime = 0;
+    },
+
+    // ---- Statistics (Ultra-Fast Single-Pass Engine) ----
     getStats() {
         const currentUser = this.getCurrentUser();
         const canViewAll = this.canViewAll(currentUser);
+        const currentUserId = currentUser ? (currentUser.id || currentUser.username) : '';
+
+        // Check 3-second cache
+        const now = Date.now();
+        if (this._statsCache && this._statsCacheUserId === currentUserId && (now - this._statsCacheTime < 3000)) {
+            return this._statsCache;
+        }
+
         const companies = this.getScopedCompanies();
         const calls = this.getScopedCalls();
         const today = new Date().toISOString().split('T')[0];
@@ -2472,67 +2490,82 @@ const AppStorage = {
         const fullCount = (compList && Array.isArray(compList)) ? compList.length : 0;
         const scopedCount = (companies && Array.isArray(companies)) ? companies.length : 0;
 
-        return {
+        // High speed single pass across companies
+        const companiesBySector = {};
+        const companiesByCity = {};
+        const companiesByPriority = { A: 0, B: 0, C: 0 };
+
+        if (companies && Array.isArray(companies)) {
+            for (let i = 0; i < companies.length; i++) {
+                const c = companies[i];
+                if (!c) continue;
+                const sector = c.sector || 'other';
+                companiesBySector[sector] = (companiesBySector[sector] || 0) + 1;
+                const city = c.city || 'unknown';
+                companiesByCity[city] = (companiesByCity[city] || 0) + 1;
+                const p = c.priority || 'B';
+                companiesByPriority[p] = (companiesByPriority[p] || 0) + 1;
+            }
+        }
+
+        // Single pass across calls
+        const callsByResult = {};
+        let callsTodayCount = 0;
+        let weekCallsCount = 0;
+        const weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        const weekAgoStr = weekAgo.toISOString().split('T')[0];
+
+        const dayCounts = {};
+        for (let i = 6; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            dayCounts[d.toISOString().split('T')[0]] = 0;
+        }
+
+        if (calls && Array.isArray(calls)) {
+            for (let i = 0; i < calls.length; i++) {
+                const call = calls[i];
+                if (!call) continue;
+                if (call.result) callsByResult[call.result] = (callsByResult[call.result] || 0) + 1;
+                if (call.date === today) callsTodayCount++;
+                if (call.date && call.date >= weekAgoStr) weekCallsCount++;
+                if (call.date && dayCounts[call.date] !== undefined) dayCounts[call.date]++;
+            }
+        }
+
+        const weeklyCallData = [];
+        for (let i = 6; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            const dateStr = d.toISOString().split('T')[0];
+            const dayName = d.toLocaleDateString('ar-EG', { weekday: 'short' });
+            weeklyCallData.push({
+                date: dateStr,
+                day: dayName,
+                count: dayCounts[dateStr] || 0
+            });
+        }
+
+        const stats = {
             totalCompanies: canViewAll ? fullCount : scopedCount,
-            callsToday: calls.filter(c => c.date === today).length,
+            callsToday: callsTodayCount,
             openDeals: 0,
             pipelineValue: 0,
             wonDeals: 0,
-            totalCallsThisWeek: (() => {
-                const weekAgo = new Date();
-                weekAgo.setDate(weekAgo.getDate() - 7);
-                const weekAgoStr = weekAgo.toISOString().split('T')[0];
-                return calls.filter(c => c.date >= weekAgoStr).length;
-            })(),
-            companiesBySector: (() => {
-                const result = {};
-                if (companies && companies.length > 0) {
-                    companies.forEach(c => {
-                        const sector = c.sector || 'other';
-                        result[sector] = (result[sector] || 0) + 1;
-                    });
-                }
-                return result;
-            })(),
-            companiesByCity: (() => {
-                const result = {};
-                companies.forEach(c => {
-                    const city = c.city || 'unknown';
-                    result[city] = (result[city] || 0) + 1;
-                });
-                return result;
-            })(),
-            companiesByPriority: (() => {
-                const result = { A: 0, B: 0, C: 0 };
-                companies.forEach(c => {
-                    const p = c.priority || 'B';
-                    result[p] = (result[p] || 0) + 1;
-                });
-                return result;
-            })(),
-            callsByResult: (() => {
-                const result = {};
-                calls.forEach(c => {
-                    result[c.result] = (result[c.result] || 0) + 1;
-                });
-                return result;
-            })(),
-            weeklyCallData: (() => {
-                const result = [];
-                for (let i = 6; i >= 0; i--) {
-                    const d = new Date();
-                    d.setDate(d.getDate() - i);
-                    const dateStr = d.toISOString().split('T')[0];
-                    const dayName = d.toLocaleDateString('ar-EG', { weekday: 'short' });
-                    result.push({
-                        date: dateStr,
-                        day: dayName,
-                        count: calls.filter(c => c.date === dateStr).length
-                    });
-                }
-                return result;
-            })()
+            totalCallsThisWeek: weekCallsCount,
+            companiesBySector,
+            companiesByCity,
+            companiesByPriority,
+            callsByResult,
+            weeklyCallData
         };
+
+        this._statsCache = stats;
+        this._statsCacheUserId = currentUserId;
+        this._statsCacheTime = now;
+
+        return stats;
     },
 
     // ---- Seed Sample Data ----

@@ -6,6 +6,7 @@
 
 let _companiesIndex = [];
 let _idMap = new Map();
+let _idToIndexMap = new Map();
 
 function normalizeArabic(str) {
     if (!str || typeof str !== 'string') return '';
@@ -24,7 +25,12 @@ self.onmessage = function(e) {
     if (action === 'INIT_INDEX') {
         const companies = payload || [];
         _idMap.clear();
-        _companiesIndex = companies.map((c, idx) => {
+        _idToIndexMap.clear();
+        _companiesIndex = new Array(companies.length);
+        
+        for (let idx = 0; idx < companies.length; idx++) {
+            const c = companies[idx];
+            if (!c) continue;
             const normNameAr = normalizeArabic(c.nameAr || c.name || '');
             const normNameEn = (c.nameEn || '').toLowerCase().trim();
             const normPhone = (c.phone1 || c.mobile || c.phone2 || '').replace(/[^0-9+]/g, '');
@@ -48,9 +54,10 @@ self.onmessage = function(e) {
                 createdAt: c.createdAt || '',
                 raw: c
             };
+            _companiesIndex[idx] = indexed;
             _idMap.set(id, indexed);
-            return indexed;
-        });
+            _idToIndexMap.set(id, idx);
+        }
 
         self.postMessage({ action: 'INDEX_READY', queryId, totalCount: _companiesIndex.length });
         return;
@@ -58,8 +65,9 @@ self.onmessage = function(e) {
 
     if (action === 'UPDATE_COMPANIES') {
         const batch = payload || [];
-        batch.forEach(c => {
-            if (!c || !c.id) return;
+        for (let i = 0; i < batch.length; i++) {
+            const c = batch[i];
+            if (!c || !c.id) continue;
             const normNameAr = normalizeArabic(c.nameAr || c.name || '');
             const normNameEn = (c.nameEn || '').toLowerCase().trim();
             const normPhone = (c.phone1 || c.mobile || c.phone2 || '').replace(/[^0-9+]/g, '');
@@ -83,14 +91,16 @@ self.onmessage = function(e) {
                 raw: c
             };
 
-            const existingIdx = _companiesIndex.findIndex(item => item.id === c.id);
-            if (existingIdx >= 0) {
+            const existingIdx = _idToIndexMap.get(c.id);
+            if (existingIdx !== undefined && existingIdx >= 0 && existingIdx < _companiesIndex.length) {
                 _companiesIndex[existingIdx] = indexed;
             } else {
+                const newIdx = _companiesIndex.length;
                 _companiesIndex.push(indexed);
+                _idToIndexMap.set(c.id, newIdx);
             }
             _idMap.set(c.id, indexed);
-        });
+        }
 
         self.postMessage({ action: 'UPDATE_DONE', queryId, totalCount: _companiesIndex.length });
         return;

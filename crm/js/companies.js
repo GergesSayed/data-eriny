@@ -96,6 +96,7 @@ const Companies = {
         this.onFilterChange();
     },
 
+    _lastUsersCount: 0,
     refreshUserFilter() {
         const currentUser = window.AppStorage.getCurrentUser();
         const isAdmin = window.AppStorage.isAdmin(currentUser);
@@ -109,6 +110,14 @@ const Companies = {
         }
 
         const sel = document.getElementById('filter-assigned');
+        const bulkSel = document.getElementById('bulk-assign-user-select');
+
+        // Avoid rebuilding DOM if already populated with same user count
+        if (sel && sel.options.length > 3 && this._lastUsersCount === allUsers.length && bulkSel && bulkSel.options.length > 2) {
+            return;
+        }
+        this._lastUsersCount = allUsers.length;
+
         if (sel) {
             const currentVal = sel.value;
             const userOptions = allUsers.map(u => {
@@ -127,7 +136,6 @@ const Companies = {
         }
 
         // 2. Bulk assign user select dropdown
-        const bulkSel = document.getElementById('bulk-assign-user-select');
         if (bulkSel) {
             const currentVal = bulkSel.value;
             const optionsHtml = allUsers.map(u =>
