@@ -748,7 +748,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=208.0');
+            this._worker = new Worker('js/companies-worker.js?v=209.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -1780,7 +1780,8 @@ const AppStorage = {
     },
 
     saveCompany(company) {
-        const companies = [...this.getCompanies()];
+        if (!company) return null;
+        const companies = this.companiesMemory || this.getCompanies();
         
         // Ensure canonical mappings and priorities are computed
         company.sector = this.mapScraperSectorToCRM(company.sector);
@@ -1789,7 +1790,7 @@ const AppStorage = {
 
         let updatedItem = company;
         if (company.id) {
-            const index = companies.findIndex(c => c.id === company.id);
+            const index = companies.findIndex(c => c && c.id === company.id);
             if (index >= 0) {
                 company.lastUpdated = new Date().toISOString().split('T')[0];
                 companies[index] = { ...companies[index], ...company };
@@ -1799,6 +1800,8 @@ const AppStorage = {
                 companies[index].city = this.mapScraperCityToCRM(companies[index].city);
                 companies[index].priority = this.calculatePriority(companies[index].sector);
                 updatedItem = companies[index];
+            } else {
+                companies.push(company);
             }
         } else {
             company.id = this._generateId('comp');
@@ -1808,10 +1811,15 @@ const AppStorage = {
             updatedItem = company;
         }
         this.companiesMemory = companies;
-        this.saveAllCompaniesToDB(companies);
+        this.invalidateStatsCache();
+        this.saveBatchToIDB([updatedItem]);
 
         if (this._worker && this._workerReady) {
             this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: [updatedItem] });
+        }
+
+        if (window.SupabaseClient && window.SupabaseClient.pushSingleCompany && (company.source === 'scraper' || company.isCustom || !String(company.id).startsWith('eg_b2b_fleet_'))) {
+            window.SupabaseClient.pushSingleCompany(updatedItem).catch(() => {});
         }
         
         this.addActivity('company', company.id, company.id ? 'تعديل شركة' : 'إضافة شركة', company.nameAr);
@@ -1844,7 +1852,7 @@ const AppStorage = {
         company.assignedAt = userId ? new Date().toISOString() : null;
         company.lastUpdated = new Date().toISOString().split('T')[0];
         
-        this.saveCompany(company);
+        this.invalidateStatsCache();
         this.saveBatchToIDB([company]);
         
         if (this._worker && this._workerReady) {
@@ -1860,7 +1868,6 @@ const AppStorage = {
         if (window.SupabaseClient && window.SupabaseClient.pushAssignments) {
             window.SupabaseClient.pushAssignments(assignmentsMap).catch(() => {});
         }
-        if (this.autoSyncToCloud) this.autoSyncToCloud(this.companiesMemory, true);
         
         this.updateLiveCounters();
         
@@ -1895,8 +1902,8 @@ const AppStorage = {
         });
 
         if (updatedBatch.length > 0) {
+            this.invalidateStatsCache();
             this.saveBatchToIDB(updatedBatch);
-            this.saveAllCompaniesToDB(this.companiesMemory);
             
             if (this._worker && this._workerReady) {
                 this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: updatedBatch });
@@ -1905,7 +1912,6 @@ const AppStorage = {
             if (window.SupabaseClient && window.SupabaseClient.pushAssignments) {
                 window.SupabaseClient.pushAssignments(assignmentsMap).catch(() => {});
             }
-            if (this.autoSyncToCloud) this.autoSyncToCloud(this.companiesMemory, true);
             
             this.updateLiveCounters();
             this.addActivity('company', 'bulk', 'تخصيص جماعي', `تم إسناد وتخصيص ${updatedBatch.length} شركة إلى: ${userName}`);
@@ -2308,6 +2314,7 @@ const AppStorage = {
             calls.push(call);
         }
         this._set(this.KEYS.CALLS, calls);
+        this.invalidateStatsCache();
 
         // Update company's call status & result
         if (call.companyId) {
@@ -2327,7 +2334,10 @@ const AppStorage = {
                     company.status = 'contacted';
                 }
                 
-                this.saveCompany(company);
+                this.saveBatchToIDB([company]);
+                if (this._worker && this._workerReady) {
+                    this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: [company] });
+                }
             }
         }
 
@@ -2335,8 +2345,10 @@ const AppStorage = {
         const companyName = company ? company.nameAr : 'شركة';
         this.addActivity('call', call.id, 'تسجيل مكالمة', companyName);
 
-        // Force immediate cloud sync so call is saved to cloud across all devices/browsers
-        this.autoSyncToCloud(this.companiesMemory);
+        // Immediate cloud sync of calls
+        if (window.SupabaseClient && window.SupabaseClient.pushMasterData) {
+            window.SupabaseClient.pushMasterData({ calls, activities: this.getActivities() }).catch(() => {});
+        }
 
         return call;
     },
@@ -2345,7 +2357,10 @@ const AppStorage = {
         this.recordDeletedId('calls', id);
         const calls = this.getCalls().filter(c => c && c.id !== id);
         this._set(this.KEYS.CALLS, calls);
-        this.autoSyncToCloud(this.companiesMemory, true);
+        this.invalidateStatsCache();
+        if (window.SupabaseClient && window.SupabaseClient.pushMasterData) {
+            window.SupabaseClient.pushMasterData({ calls, activities: this.getActivities() }).catch(() => {});
+        }
     },
 
     clearAllCalls() {
