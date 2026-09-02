@@ -74,7 +74,12 @@ const AppStorage = {
         }
     },
     DEFAULT_USERS: [
-        { id: 'admin', username: 'admin@fleet.com', email: 'admin@fleet.com', password: 'Admin@123', name: 'Admin', role: 'admin', status: 'active', avatar: '👑', color: '#7c3aed', _needsPasswordChange: false }
+        { id: 'admin', username: 'admin@fleet.com', email: 'admin@fleet.com', password: 'Admin@123', name: 'Admin', role: 'admin', status: 'active', avatar: '👑', color: '#7c3aed', _needsPasswordChange: false },
+        { id: 'usr_1788179815076', username: 'josephe.saweras', email: 'josephe.saweras@elaggar.com', firstName: 'Joseph', lastName: 'Saweras', name: 'Joseph Saweras', role: 'agent', status: 'active', avatar: '👨‍💼', color: '#3b82f6', region: 'cairo', erpCode: '', password: '1073aa3607683ac8a0415e0834a3b45a:e602caa945113168c77324c76b8d7116462090d9af2898bc97612778fb367779' },
+        { id: 'usr_1788180842487_gjo2b', username: 'andrew.farid', email: 'andrew.farid@elaggar.com', firstName: 'Andrew', lastName: 'Farid', name: 'Andrew Farid', role: 'agent', status: 'active', avatar: '👨‍💼', color: '#3b82f6', region: 'cairo', erpCode: '', password: 'e8036ab7a22ad4d8ca545a6fb3feef30:7702438b60e2facee9965f69c21ad3bf213c9107fea96a95d58cb0617f182401' },
+        { id: 'usr_1788180884769_rucvo', username: 'peter.samer', email: 'peter.samer@elaggar.com', firstName: 'Peter', lastName: 'Samer', name: 'Peter Samer', role: 'agent', status: 'active', avatar: '👨‍💼', color: '#3b82f6', region: 'cairo', erpCode: '', password: 'cd13db366624c6cce9c3acbcac811091:66bed43344770ba5b5ea319f56272500c44351f32ce0b4efd6cae1d1eb42e47d' },
+        { id: 'usr_1788180919739_o8ztp', username: 'mohab.medhat', email: 'mohab.medhat@elaggar.com', firstName: 'Mohab', lastName: 'Medhat', name: 'Mohab Medhat', role: 'agent', status: 'active', avatar: '👨‍💼', color: '#3b82f6', region: 'cairo', erpCode: '', password: 'fecd049fe2154e87c70cb272b024007a:d984c0ef557deffb0be7d603127667f1f6aa30fa1e472bed10a5074ff136493f' },
+        { id: 'usr_1788180951434_blg3x', username: 'mohamed.abouelenein', email: 'mohamed.abouelenein@elaggar.com', firstName: 'Mohamd', lastName: 'Abouelenein', name: 'Mohamd Abouelenein', role: 'agent', status: 'active', avatar: '👨‍💼', color: '#3b82f6', region: 'cairo', erpCode: '', password: '76100dcb60abc40cfbb1cb27ba735c89:73a2e3a7d6a8db67de3048ecd019261d26910199ea32a14358045b47f9f83837' }
     ],
 
     cleanAndDeduplicateUsers(usersList) {
@@ -748,7 +753,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=209.0');
+            this._worker = new Worker('js/companies-worker.js?v=210.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
