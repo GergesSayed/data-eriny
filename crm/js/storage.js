@@ -753,7 +753,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=212.0');
+            this._worker = new Worker('js/companies-worker.js?v=213.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -1680,12 +1680,23 @@ const AppStorage = {
         return this.companiesMemory || [];
     },
 
+    _scopedCacheByUser: new Map(),
+
+    invalidateScopedCache() {
+        this._scopedCacheByUser.clear();
+    },
+
     getScopedCompanies(user) {
         const currentUser = user || this.getCurrentUser();
         const allCompanies = this.getCompanies();
         if (!currentUser) return allCompanies;
         if (this.canViewAll(currentUser)) {
             return allCompanies; // Admin & Supervisor can view all companies
+        }
+
+        const uKey = String(currentUser.id || currentUser.username || '').toLowerCase();
+        if (this._scopedCacheByUser.has(uKey)) {
+            return this._scopedCacheByUser.get(uKey);
         }
         
         // Match all user keys (id, username, email, name)
@@ -1701,11 +1712,15 @@ const AppStorage = {
             String(currentUser.name || '').trim().toLowerCase()
         ].filter(Boolean));
 
-        return allCompanies.filter(c => {
-            if (!c || !c.assignedTo) return false;
-            const assignedKey = String(c.assignedTo).trim().toLowerCase();
-            return myKeys.has(assignedKey);
-        });
+        const res = [];
+        for (let i = 0; i < allCompanies.length; i++) {
+            const c = allCompanies[i];
+            if (c && c.assignedTo && myKeys.has(String(c.assignedTo).trim().toLowerCase())) {
+                res.push(c);
+            }
+        }
+        this._scopedCacheByUser.set(uKey, res);
+        return res;
     },
 
     getCompany(id) {
@@ -1817,6 +1832,7 @@ const AppStorage = {
         }
         this.companiesMemory = companies;
         this.invalidateStatsCache();
+        this.invalidateScopedCache();
         this.saveBatchToIDB([updatedItem]);
 
         if (this._worker && this._workerReady) {
@@ -1839,6 +1855,7 @@ const AppStorage = {
         this.recordDeletedId('companies', id);
         const companies = this.getCompanies().filter(c => c && c.id !== id);
         this.companiesMemory = companies;
+        this.invalidateScopedCache();
         if (companies.length === 0) {
             localStorage.setItem('fleetcrm_user_wiped_companies', 'true');
         }
@@ -1858,6 +1875,7 @@ const AppStorage = {
         company.lastUpdated = new Date().toISOString().split('T')[0];
         
         this.invalidateStatsCache();
+        this.invalidateScopedCache();
         this.saveBatchToIDB([company]);
         
         if (this._worker && this._workerReady) {
@@ -1908,6 +1926,7 @@ const AppStorage = {
 
         if (updatedBatch.length > 0) {
             this.invalidateStatsCache();
+            this.invalidateScopedCache();
             this.saveBatchToIDB(updatedBatch);
             
             if (this._worker && this._workerReady) {

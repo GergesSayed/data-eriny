@@ -161,7 +161,7 @@ const Companies = {
             this._searchDebounceTimer = setTimeout(() => {
                 this.currentPage = 1;
                 this.render();
-            }, 180);
+            }, 75);
         }
     },
 

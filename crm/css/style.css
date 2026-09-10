@@ -862,6 +862,8 @@ a:hover { color: var(--accent); }
 }
 .data-table tbody tr {
     transition: background var(--transition-fast);
+    content-visibility: auto;
+    contain-intrinsic-size: 56px;
 }
 .data-table tbody tr:hover {
     background: rgba(99, 102, 241, 0.04);
@@ -995,9 +997,13 @@ a:hover { color: var(--accent); }
     transition: all var(--transition-base);
     position: relative;
     overflow: hidden;
+    content-visibility: auto;
+    contain-intrinsic-size: 140px;
+    transform: translateZ(0);
+    backface-visibility: hidden;
 }
 .company-card:hover {
-    transform: translateY(-3px);
+    transform: translateY(-3px) translateZ(0);
     box-shadow: var(--shadow-md);
     border-color: var(--primary);
 }
