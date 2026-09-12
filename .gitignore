@@ -48,9 +48,13 @@ node_modules/
 package-lock.json
 
 # Large Data Files
+crm/backups/
 *.iso
 *.dmg
 *.exe
 *.zip
 *.tar.gz
 *.rar
+*.bak
+.vercel
+.env*
