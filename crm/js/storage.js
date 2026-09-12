@@ -753,7 +753,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=214.0');
+            this._worker = new Worker('js/companies-worker.js?v=217.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -2849,8 +2849,9 @@ try {
         }
         if (syncMap.size > 0) {
             AppStorage.companiesMemory = Array.from(syncMap.values());
-            const savedCount = parseInt(localStorage.getItem('fleetcrm_company_count'), 10);
-            AppStorage.updateLiveCounters(savedCount > syncMap.size ? savedCount : syncMap.size);
+            const rawSaved = localStorage.getItem('fleetcrm_company_count');
+            const savedCount = rawSaved ? parseInt(String(rawSaved).replace(/,/g, ''), 10) : 0;
+            AppStorage.updateLiveCounters((savedCount && savedCount > syncMap.size) ? savedCount : syncMap.size);
         }
     }
 } catch(e) {}

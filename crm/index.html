@@ -11,7 +11,7 @@
     <script>
         // Force purge any legacy service workers, disk caches, and old deals storage immediately
         (function() {
-            var CURRENT_VER = '216.0';
+            var CURRENT_VER = '217.0';
             try {
                 localStorage.removeItem('fleetcrm_deals');
                 localStorage.removeItem('fleetcrm_deals_count');
@@ -48,7 +48,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=216.0">
+    <link rel="stylesheet" href="css/style.css?v=217.0">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
         (function() {
@@ -66,6 +66,8 @@
                                 if (dEl) dEl.textContent = formatted;
                                 var scEl = document.getElementById('sc-total');
                                 if (scEl) scEl.textContent = formatted;
+                                var ccEl = document.getElementById('companies-count-display');
+                                if (ccEl) ccEl.textContent = '📊 إجمالي شركات السيستم: ' + formatted + ' شركة';
                             }
                         }
                     }
@@ -126,15 +128,17 @@
                             }
                         }
                         // Dynamically hydrate live company count from storage immediately
-                        var rawCount = localStorage.getItem('fleetcrm_company_count') || '10,453';
+                        var rawCount = localStorage.getItem('fleetcrm_company_count') || '27,026';
                         if (rawCount) {
                             var parsed = parseInt(String(rawCount).replace(/,/g, ''), 10);
                             if (!isNaN(parsed) && parsed > 0) {
                                 var formatted = parsed.toLocaleString();
                                 var elSide = document.getElementById('sidebar-total-companies');
                                 var elDash = document.getElementById('dash-total-companies');
+                                var elComp = document.getElementById('companies-count-display');
                                 if (elSide) elSide.textContent = formatted;
                                 if (elDash) elDash.textContent = formatted;
+                                if (elComp) elComp.textContent = '📊 إجمالي شركات السيستم: ' + formatted + ' شركة';
                             }
                         }
                     });
@@ -616,7 +620,7 @@
 
                 <!-- Company Stats Bar -->
                 <div class="table-stats-bar">
-                    <span id="companies-count-display">0 شركة</span>
+                    <span id="companies-count-display"><script>document.write('📊 إجمالي شركات السيستم: ' + (localStorage.getItem('fleetcrm_company_count') ? parseInt(String(localStorage.getItem('fleetcrm_company_count')).replace(/,/g,''),10).toLocaleString() : '27,026') + ' شركة');</script></span>
                     <div class="table-view-toggle">
                         <button class="btn-icon active" id="btn-view-table" title="عرض جدول"><i class="fas fa-table"></i></button>
                         <button class="btn-icon" id="btn-view-cards" title="عرض بطاقات"><i class="fas fa-th-large"></i></button>
@@ -1333,20 +1337,20 @@
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <script src="js/supabase-client.js?v=216.0"></script>
-    <script src="js/egypt_verified_titans.js?v=216.0"></script>
-    <script src="js/egypt_enterprises_pool.js?v=216.0"></script>
-    <script src="js/companies-worker.js?v=216.0"></script>
-    <script src="js/storage.js?v=216.0"></script>
-    <script src="js/excel-handler.js?v=216.0"></script>
-    <script src="js/dashboard.js?v=216.0"></script>
-    <script src="js/companies.js?v=216.0"></script>
-    <script src="js/calls.js?v=216.0"></script>
-    <script src="js/reports.js?v=216.0"></script>
-    <script src="js/scraper.js?v=216.0"></script>
-    <script src="js/team.js?v=216.0"></script>
-    <script src="js/settings.js?v=216.0"></script>
-    <script src="js/app.js?v=216.0"></script>
+    <script src="js/supabase-client.js?v=217.0"></script>
+    <script src="js/egypt_verified_titans.js?v=217.0"></script>
+    <script src="js/egypt_enterprises_pool.js?v=217.0"></script>
+    <script src="js/companies-worker.js?v=217.0"></script>
+    <script src="js/storage.js?v=217.0"></script>
+    <script src="js/excel-handler.js?v=217.0"></script>
+    <script src="js/dashboard.js?v=217.0"></script>
+    <script src="js/companies.js?v=217.0"></script>
+    <script src="js/calls.js?v=217.0"></script>
+    <script src="js/reports.js?v=217.0"></script>
+    <script src="js/scraper.js?v=217.0"></script>
+    <script src="js/team.js?v=217.0"></script>
+    <script src="js/settings.js?v=217.0"></script>
+    <script src="js/app.js?v=217.0"></script>
 
     <!-- Cleanup overlay on load - runs once only, does NOT override App.checkAuth -->
     <script>
