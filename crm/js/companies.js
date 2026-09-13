@@ -1496,11 +1496,70 @@ const Companies = {
         if (!company) return;
 
         App.confirm('🗑️ حذف الشركة', `هل أنت متأكد من حذف "${company.nameAr || company.nameEn}"؟ سيتم حذف جميع المكالمات والصفقات المرتبطة بها.`, () => {
-            window.AppStorage.deleteCompany(id);
+            // 1. Instant close and toast (0ms latency!)
+            App.closeModal('modal-confirm');
             App.showToast('تم حذف الشركة بنجاح', 'success');
-            this.render();
-            if (typeof Dashboard !== 'undefined') Dashboard.render();
+
+            // 2. Instant optimistic DOM removal (0ms!)
+            try {
+                const sId = String(id);
+                const tr = Array.from(document.querySelectorAll('#companies-tbody tr')).find(r => r.innerHTML.includes(sId));
+                if (tr) {
+                    tr.style.transition = 'all 0.15s ease';
+                    tr.style.opacity = '0';
+                    tr.style.transform = 'scale(0.97)';
+                    setTimeout(() => tr.remove(), 150);
+                }
+                const card = Array.from(document.querySelectorAll('.company-card')).find(c => c.innerHTML.includes(sId));
+                if (card) {
+                    card.style.transition = 'all 0.15s ease';
+                    card.style.opacity = '0';
+                    setTimeout(() => card.remove(), 150);
+                }
+            } catch(e) {}
+
+            // 3. Storage deletion and re-render in background
+            setTimeout(() => {
+                window.AppStorage.deleteCompany(id);
+                this.render();
+                if (typeof Dashboard !== 'undefined') Dashboard.render();
+            }, 10);
         });
+    },
+
+    deleteCallFromDetail(callId, companyId, btnEl) {
+        if (!callId) return;
+        const callItem = btnEl ? btnEl.closest('.detail-call-item') : null;
+        if (callItem) {
+            callItem.style.transition = 'all 0.15s ease';
+            callItem.style.opacity = '0';
+            callItem.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                callItem.remove();
+                const remaining = document.querySelectorAll('.detail-call-item').length;
+                const header = document.querySelector('.detail-calls-history h3');
+                if (header) {
+                    header.innerHTML = `<i class="fas fa-history"></i> سجل المكالمات (${remaining})`;
+                }
+                if (remaining === 0) {
+                    const histContainer = document.querySelector('.detail-calls-history');
+                    if (histContainer && !histContainer.querySelector('p')) {
+                        histContainer.innerHTML += '<p style="color:var(--text-muted); font-size:0.85rem;">لا توجد مكالمات بعد</p>';
+                    }
+                }
+            }, 150);
+        }
+        App.showToast('تم حذف المكالمة بنجاح', 'success');
+
+        setTimeout(() => {
+            window.AppStorage.deleteCall(callId);
+            if (typeof Calls !== 'undefined') {
+                try { Calls.render(); } catch(e) {}
+            }
+            if (typeof Dashboard !== 'undefined') {
+                try { Dashboard.render(); } catch(e) {}
+            }
+        }, 10);
     },
 
     showDetail(id) {
@@ -1766,7 +1825,7 @@ const Companies = {
                         <span class="result-badge result-${call.result}">${window.AppStorage.getCallResultLabel(call.result)}</span>
                         <span style="flex:1; font-size:0.8rem; color:var(--text-secondary);">${esc(call.notes || '')}</span>
                         ${currentUser && currentUser.role === 'admin' ? `
-                            <button class="btn-icon btn-delete" style="padding:2px 6px; font-size:11px; margin-right:auto; color:var(--danger, #ef4444); background:transparent; border:none; cursor:pointer;" onclick="event.stopPropagation(); window.AppStorage.deleteCall('${call.id}'); Companies.showDetail('${id}'); if(typeof Calls !== 'undefined') Calls.render(); App.showToast('تم حذف المكالمة بنجاح', 'success');" title="حذف المكالمة"><i class="fas fa-trash"></i></button>
+                            <button class="btn-icon btn-delete" style="padding:2px 6px; font-size:11px; margin-right:auto; color:var(--danger, #ef4444); background:transparent; border:none; cursor:pointer;" onclick="event.stopPropagation(); Companies.deleteCallFromDetail('${call.id}', '${id}', this);" title="حذف المكالمة"><i class="fas fa-trash"></i></button>
                         ` : ''}
                     </div>
                 `).join('')}

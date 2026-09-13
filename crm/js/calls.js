@@ -414,11 +414,37 @@ const Calls = {
 
         const confirmBtn = document.getElementById('btn-confirm-action');
         confirmBtn.onclick = () => {
-            window.AppStorage.deleteCall(id);
+            // 1. Instant close and toast (0ms latency!)
             App.closeModal('modal-confirm');
-            App.showToast('تم حذف المكالمة', 'success');
-            try { this.render(); } catch (e) {}
-            try { if (typeof Dashboard !== 'undefined') Dashboard.render(); } catch (e) {}
+            App.showToast('تم حذف المكالمة بنجاح', 'success');
+
+            // 2. Instant optimistic DOM removal (0ms!)
+            try {
+                const sId = String(id);
+                const tr = Array.from(document.querySelectorAll('#calls-tbody tr')).find(r => r.innerHTML.includes(sId));
+                if (tr) {
+                    tr.style.transition = 'all 0.15s ease';
+                    tr.style.opacity = '0';
+                    tr.style.transform = 'scale(0.97)';
+                    setTimeout(() => tr.remove(), 150);
+                }
+                const groupCard = Array.from(document.querySelectorAll('.calls-group-card')).find(c => c.innerHTML.includes(sId));
+                if (groupCard) {
+                    const rowInGroup = Array.from(groupCard.querySelectorAll('[style*="border-bottom"]')).find(r => r.innerHTML.includes(sId));
+                    if (rowInGroup) {
+                        rowInGroup.style.transition = 'all 0.15s ease';
+                        rowInGroup.style.opacity = '0';
+                        setTimeout(() => rowInGroup.remove(), 150);
+                    }
+                }
+            } catch(e) {}
+
+            // 3. Storage deletion and re-render in background
+            setTimeout(() => {
+                window.AppStorage.deleteCall(id);
+                try { this.render(); } catch (e) {}
+                try { if (typeof Dashboard !== 'undefined') Dashboard.render(); } catch (e) {}
+            }, 10);
         };
         App.openModal('modal-confirm');
     }

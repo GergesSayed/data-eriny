@@ -146,6 +146,27 @@ self.onmessage = function(e) {
         return;
     }
 
+    if (action === 'DELETE_COMPANY') {
+        const id = String(payload || '');
+        if (id) {
+            const existingIdx = _idToIndexMap.get(id);
+            if (existingIdx !== undefined && existingIdx >= 0 && existingIdx < _companiesIndex.length) {
+                _companiesIndex.splice(existingIdx, 1);
+                _idMap.delete(id);
+                _idToIndexMap.delete(id);
+                for (let i = existingIdx; i < _companiesIndex.length; i++) {
+                    const item = _companiesIndex[i];
+                    if (item && item.id) {
+                        _idToIndexMap.set(item.id, i);
+                    }
+                }
+                rebuildBuckets();
+            }
+        }
+        self.postMessage({ action: 'UPDATE_DONE', queryId, totalCount: _companiesIndex.length });
+        return;
+    }
+
     if (action === 'FILTER_AND_SEARCH') {
         const {
             search = '',
