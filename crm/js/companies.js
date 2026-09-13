@@ -1693,7 +1693,15 @@ const Companies = {
                         ${this._detailRow('العنوان', esc(company.address))}
                         ${this._detailRow('الموقع على الخريطة', (function(){
                             const mUrl = window.AppStorage.getGoogleMapsUrl ? window.AppStorage.getGoogleMapsUrl(company) : (company.google_maps_url || '');
-                            return `<a href="${esc(mUrl)}" target="_blank" style="color:#ea4335; font-weight:700; display:inline-flex; align-items:center; gap:6px;"><i class="fas fa-map-marker-alt"></i> <span>عرض والبحث عن موقع الشركة على Google Maps</span></a>`;
+                            let html = `<div style="display:flex; flex-direction:column; gap:6px;">`;
+                            html += `<a href="${esc(mUrl)}" target="_blank" rel="noopener noreferrer" style="color:#ea4335; font-weight:700; display:inline-flex; align-items:center; gap:6px;"><i class="fas fa-map-marked-alt"></i> <span>📍 عرض بروفايل وبطاقة الشركة الرسمية على Google Maps</span></a>`;
+                            if ((company.latitude && company.longitude) || (company.lat && company.lng)) {
+                                const lat = company.latitude || company.lat;
+                                const lng = company.longitude || company.lng;
+                                html += `<a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}" target="_blank" rel="noopener noreferrer" style="color:#38bdf8; font-size:12px; font-weight:700; display:inline-flex; align-items:center; gap:6px;"><i class="fas fa-route"></i> <span>🧭 بدء الملاحة وتوجيه الـ GPS (بوابة المصنع)</span></a>`;
+                            }
+                            html += `</div>`;
+                            return html;
                         })())}
                         ${this._detailRow('تقييم الشركة (Maps)', company.rating ? `⭐ ${company.rating} / 5 ${company.reviews_count ? `(${company.reviews_count} تقييم)` : ''}` : '—')}
                         ${this._detailRow('حجم الشركة', company.companySize || '—')}

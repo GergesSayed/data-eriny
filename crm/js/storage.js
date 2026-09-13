@@ -755,7 +755,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=219.0');
+            this._worker = new Worker('js/companies-worker.js?v=220.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -2827,23 +2827,94 @@ const AppStorage = {
 
     getGoogleMapsUrl(c) {
         if (!c) return '';
-        if (c.google_maps_url && typeof c.google_maps_url === 'string' && c.google_maps_url.startsWith('http')) {
-            return c.google_maps_url;
+
+        // 1. Direct Place or CID URL already registered
+        if (c.google_maps_url && typeof c.google_maps_url === 'string') {
+            const u = c.google_maps_url.trim();
+            if (u.includes('/place/') || u.includes('cid=') || u.includes('query_place_id=')) {
+                return u;
+            }
         }
-        if (c.latitude && c.longitude) {
-            return `https://www.google.com/maps?q=${c.latitude},${c.longitude}`;
+
+        // 2. Extract and clean brand names
+        let rawNameAr = String(c.nameAr || c.name || '').trim();
+        let rawNameEn = String(c.nameEn || '').trim();
+
+        // Strip pipes and em-dashes (e.g. from merged branch lists)
+        let primaryNameAr = rawNameAr.split('|')[0].split('—')[0].trim();
+        let primaryNameEn = rawNameEn.split('|')[0].split('—')[0].trim();
+
+        // Extract parenthesized English brand if present in Arabic string (e.g. "(Pharco Pharmaceuticals Group)")
+        let embeddedEn = '';
+        const matchEnInParen = primaryNameAr.match(/\(([A-Za-z0-9\s&.,'-]+)\)/);
+        if (matchEnInParen && matchEnInParen[1]) {
+            embeddedEn = matchEnInParen[1].trim();
         }
-        if (c.lat && c.lon) {
-            return `https://www.google.com/maps?q=${c.lat},${c.lon}`;
+
+        // Clean Arabic: remove parentheses and contents, hyphens, and normalize spaces
+        let cleanAr = primaryNameAr
+            .replace(/\([^)]*\)/g, ' ')
+            .replace(/[-–—_]/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+
+        // Clean English
+        let cleanEn = (primaryNameEn || embeddedEn)
+            .replace(/\([^)]*\)/g, ' ')
+            .replace(/[-–—_]/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+
+        // Prevent repetitive consecutive duplicate phrases in Arabic (e.g. "شركة كذا شركة كذا")
+        const words = cleanAr.split(' ');
+        if (words.length >= 6) {
+            const half = Math.floor(words.length / 2);
+            const firstHalf = words.slice(0, half).join(' ');
+            const secondHalf = words.slice(half).join(' ');
+            if (secondHalf.includes(firstHalf)) {
+                cleanAr = firstHalf;
+            }
         }
-        
-        // Smart clean search query for Google Maps
-        const rawName = c.nameAr || c.name || c.nameEn || '';
-        const cleanName = rawName.replace(/\([^)]*\)/g, '').replace(/[-–—]/g, ' ').trim();
-        const cityLabel = this.getCityLabel(c.city) || c.city || '';
-        const address = (c.address || '').replace(/[-–—]/g, ' ').trim();
-        const queryParts = [cleanName, address, cityLabel, 'مصر'].filter(Boolean);
-        return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(queryParts.join(' '))}`;
+
+        // 3. Location / Industrial city / Governorate
+        let cityLabel = '';
+        if (c.city && this.CITIES && this.CITIES[c.city]) {
+            cityLabel = this.CITIES[c.city].ar || '';
+        } else if (c.city && this.getCityLabel) {
+            cityLabel = this.getCityLabel(c.city) || '';
+        }
+        if (!cityLabel && c.city && c.city !== 'other') {
+            cityLabel = c.city;
+        }
+
+        let govLabel = c.governorate || '';
+
+        // Extract zone or street hint from primary address if relevant
+        let zoneHint = '';
+        if (c.address && typeof c.address === 'string') {
+            let firstAddr = c.address.split('|')[0].split('—')[0].trim();
+            // If the address repeats the company name, remove it
+            if (cleanAr && firstAddr.includes(cleanAr)) {
+                firstAddr = firstAddr.replace(cleanAr, '').trim();
+            }
+            const zoneMatch = firstAddr.match(/(منطقة\s+[^\d,،|—]+|مدينة\s+[^\d,،|—]+|طريق\s+[^\d,،|—]+|مجمع\s+[^\d,،|—]+)/);
+            if (zoneMatch && zoneMatch[0]) {
+                const z = zoneMatch[0].trim();
+                if (z.length < 35) zoneHint = z;
+            }
+        }
+
+        // 4. Assemble High-Precision Place Search Query
+        const tokens = [];
+        if (cleanEn && cleanEn.length > 3) tokens.push(cleanEn);
+        if (cleanAr) tokens.push(cleanAr);
+        if (zoneHint && !tokens.some(t => t.includes(zoneHint))) tokens.push(zoneHint);
+        if (cityLabel && !tokens.some(t => t.includes(cityLabel))) tokens.push(cityLabel);
+        if (govLabel && govLabel !== cityLabel && !tokens.some(t => t.includes(govLabel))) tokens.push(govLabel);
+        tokens.push('مصر');
+
+        const finalQuery = tokens.filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
+        return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(finalQuery)}`;
     },
 
     // ---- Clear All Data ----

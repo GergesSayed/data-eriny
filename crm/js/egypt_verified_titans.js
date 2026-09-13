@@ -32,7 +32,7 @@ window.__EGYPT_VERIFIED_TITANS = [
     "contactPerson": "مدير عام الحركة والأساطيل والمشتريات",
     "contactTitle": "Fleet & Procurement Director",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=29.93245,32.47612"
+    "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Ezz%20Steel%20Group%20%D9%85%D8%AC%D9%85%D9%88%D8%B9%D8%A9%20%D8%AD%D8%AF%D9%8A%D8%AF%20%D8%B9%D8%B2%20%D9%84%D9%84%D8%B5%D9%84%D8%A8%20%D8%A7%D9%84%D8%B3%D9%88%D9%8A%D8%B3%20%D9%85%D8%B5%D8%B1"
   },
   {
     "id": "eg_titan_002",
@@ -60,7 +60,7 @@ window.__EGYPT_VERIFIED_TITANS = [
     "contactPerson": "رئيس قطاع سلاسل الإمداد والنقل المركزي",
     "contactTitle": "Supply Chain & Logistics Head",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=30.29814,31.7512"
+    "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Elsewedy%20Electric%20Group%20%D9%85%D8%AC%D9%85%D9%88%D8%B9%D8%A9%20%D8%A7%D9%84%D8%B3%D9%88%D9%8A%D8%AF%D9%8A%20%D8%A5%D9%84%D9%8A%D9%83%D8%AA%D8%B1%D9%8A%D9%83%20%D8%A7%D9%84%D8%B4%D8%B1%D9%82%D9%8A%D8%A9%20%D9%85%D8%B5%D8%B1"
   },
   {
     "id": "eg_titan_003",
@@ -88,7 +88,7 @@ window.__EGYPT_VERIFIED_TITANS = [
     "contactPerson": "مدير الخدمات اللوجستية وإدارة الأسطول",
     "contactTitle": "Logistics & Fleet Operations Manager",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=29.6158,32.3489"
+    "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Egyptian%20Steel%20Group%20%D9%85%D8%AC%D9%85%D9%88%D8%B9%D8%A9%20%D8%AD%D8%AF%D9%8A%D8%AF%20%D8%A7%D9%84%D9%85%D8%B5%D8%B1%D9%8A%D9%8A%D9%86%20%D8%A7%D9%84%D8%B3%D9%88%D9%8A%D8%B3%20%D9%85%D8%B5%D8%B1"
   },
   {
     "id": "eg_titan_004",
@@ -116,7 +116,7 @@ window.__EGYPT_VERIFIED_TITANS = [
     "contactPerson": "مدير إدارة النقليات والصيانة",
     "contactTitle": "Transport & Maintenance Manager",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=29.8752,32.4891"
+    "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Suez%20Steel%20Company%20%D8%B4%D8%B1%D9%83%D8%A9%20%D8%A7%D9%84%D8%B3%D9%88%D9%8A%D8%B3%20%D9%84%D9%84%D8%B5%D9%84%D8%A8%20%D8%A7%D9%84%D8%B3%D9%88%D9%8A%D8%B3%20%D9%85%D8%B5%D8%B1"
   },
   {
     "id": "eg_titan_005",
@@ -144,7 +144,7 @@ window.__EGYPT_VERIFIED_TITANS = [
     "contactPerson": "مدير النقل والمشتريات المركزية",
     "contactTitle": "Fleet & Purchasing Manager",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=30.3125,31.7389"
+    "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Kandil%20Steel%20%D9%85%D8%AC%D9%85%D9%88%D8%B9%D8%A9%20%D9%82%D9%86%D8%AF%D9%8A%D9%84%20%D9%84%D9%84%D8%B5%D9%84%D8%A8%20%D8%A7%D9%84%D8%B4%D8%B1%D9%82%D9%8A%D8%A9%20%D9%85%D8%B5%D8%B1"
   },
   {
     "id": "eg_titan_006",
@@ -172,7 +172,7 @@ window.__EGYPT_VERIFIED_TITANS = [
     "contactPerson": "مدير قطاع النقل والمعدات الميكانيكية",
     "contactTitle": "Transport & Mechanical Equipment Director",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=26.0421,32.2215"
+    "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Egypt%20Aluminium%20Company%20%D8%B4%D8%B1%D9%83%D8%A9%20%D9%85%D8%B5%D8%B1%20%D9%84%D9%84%D8%A3%D9%84%D9%88%D9%85%D9%86%D9%8A%D9%88%D9%85%20%D9%82%D9%86%D8%A7%20%D9%85%D8%B5%D8%B1"
   },
   {
     "id": "eg_titan_007",
@@ -200,7 +200,7 @@ window.__EGYPT_VERIFIED_TITANS = [
     "contactPerson": "مدير أسطول النقل اللوجستي وسلاسل التوريد",
     "contactTitle": "Country Logistics & Fleet Director",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=29.6843,32.3124"
+    "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Lafarge%20Cement%20Egypt%20%D8%B4%D8%B1%D9%83%D8%A9%20%D9%84%D8%A7%D9%81%D8%A7%D8%B1%D8%AC%20%D9%84%D9%84%D8%A3%D8%B3%D9%85%D9%86%D8%AA%20%D9%85%D8%B5%D8%B1%20%D8%A7%D9%84%D8%B3%D9%88%D9%8A%D8%B3%20%D9%85%D8%B5%D8%B1"
   },
   {
     "id": "eg_titan_008",
@@ -228,7 +228,7 @@ window.__EGYPT_VERIFIED_TITANS = [
     "contactPerson": "مدير قطاع النقل وتوريد المعدات",
     "contactTitle": "Fleet & Material Handling Manager",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=29.8241,31.3219"
+    "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Suez%20Cement%20Group%20%D9%85%D8%AC%D9%85%D9%88%D8%B9%D8%A9%20%D8%A7%D9%84%D8%B3%D9%88%D9%8A%D8%B3%20%D9%84%D9%84%D8%A3%D8%B3%D9%85%D9%86%D8%AA%20%D8%A7%D9%84%D9%82%D8%A7%D9%87%D8%B1%D8%A9%20%D9%85%D8%B5%D8%B1"
   },
   {
     "id": "eg_titan_009",
@@ -256,7 +256,7 @@ window.__EGYPT_VERIFIED_TITANS = [
     "contactPerson": "مدير العمليات اللوجستية والأساطيل",
     "contactTitle": "Logistics & Ready-Mix Fleet Manager",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=27.1654,31.0542"
+    "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Assiut%20Cement%20Company%20%D8%B4%D8%B1%D9%83%D8%A9%20%D8%A3%D8%B3%D9%85%D9%86%D8%AA%20%D8%A3%D8%B3%D9%8A%D9%88%D8%B7%20%D8%A3%D8%B3%D9%8A%D9%88%D8%B7%20%D9%85%D8%B5%D8%B1"
   },
   {
     "id": "eg_titan_010",
@@ -284,7 +284,7 @@ window.__EGYPT_VERIFIED_TITANS = [
     "contactPerson": "مدير عام النقل والحركة المركزي",
     "contactTitle": "General Transport & Logistics Director",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=30.2891,31.7456"
+    "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Ceramica%20Cleopatra%20Group%20%D9%85%D8%AC%D9%85%D9%88%D8%B9%D8%A9%20%D8%B3%D9%8A%D8%B1%D8%A7%D9%85%D9%8A%D9%83%D8%A7%20%D9%83%D9%84%D9%8A%D9%88%D8%A8%D8%A7%D8%AA%D8%B1%D8%A7%20%D8%A7%D9%84%D8%B4%D8%B1%D9%82%D9%8A%D8%A9%20%D9%85%D8%B5%D8%B1"
   },
   {
     "id": "eg_titan_011",
@@ -312,7 +312,7 @@ window.__EGYPT_VERIFIED_TITANS = [
     "contactPerson": "رئيس الإدارة المركزية للشؤون الميكانيكية والسيارات والمعدات",
     "contactTitle": "Mechanical Fleet & Vehicles Chief Executive",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=30.0567,31.2432"
+    "google_maps_url": "https://www.google.com/maps/search/?api=1&query=The%20Arab%20Contractors%20%D8%B4%D8%B1%D9%83%D8%A9%20%D8%A7%D9%84%D9%85%D9%82%D8%A7%D9%88%D9%84%D9%88%D9%86%20%D8%A7%D9%84%D8%B9%D8%B1%D8%A8%20%D8%A7%D9%84%D9%82%D8%A7%D9%87%D8%B1%D8%A9%20%D9%85%D8%B5%D8%B1"
   },
   {
     "id": "eg_titan_012",
@@ -340,7 +340,7 @@ window.__EGYPT_VERIFIED_TITANS = [
     "contactPerson": "مدير إدارة المعدات والأسطول اللوجستي",
     "contactTitle": "Heavy Fleet & Equipment Assets Director",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=30.0712,31.2289"
+    "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Orascom%20Construction%20PLC%20%D8%B4%D8%B1%D9%83%D8%A9%20%D8%A3%D9%88%D8%B1%D8%A7%D8%B3%D9%83%D9%88%D9%85%20%D9%84%D9%84%D8%A5%D9%86%D8%B4%D8%A7%D8%A1%D8%A7%D8%AA%20%D8%A7%D9%84%D8%AC%D9%8A%D8%B2%D8%A9%20%D9%85%D8%B5%D8%B1"
   },
   {
     "id": "eg_titan_013",
@@ -368,7 +368,7 @@ window.__EGYPT_VERIFIED_TITANS = [
     "contactPerson": "مدير إدارة الأسطول وسلاسل الإمداد",
     "contactTitle": "Plant & Fleet Machinery Director",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=30.0245,31.4589"
+    "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Hassan%20Allam%20Holding%20%D9%85%D8%AC%D9%85%D9%88%D8%B9%D8%A9%20%D8%AD%D8%B3%D9%86%20%D8%B9%D9%84%D8%A7%D9%85%20%D8%A7%D9%84%D9%82%D8%A7%D8%A8%D8%B6%D8%A9%20%D8%A7%D9%84%D9%82%D8%A7%D9%87%D8%B1%D8%A9%20%D9%85%D8%B5%D8%B1"
   },
   {
     "id": "eg_titan_014",
@@ -396,7 +396,7 @@ window.__EGYPT_VERIFIED_TITANS = [
     "contactPerson": "مساعد رئيس الشركة للشؤون الميكانيكية والنقل",
     "contactTitle": "Mechanical Equipment & Transport VP",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=30.1124,31.3412"
+    "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Petrojet%20Petroleum%20Projects%20%26%20Heavy%20Equipment%20%D8%B4%D8%B1%D9%83%D8%A9%20%D8%A8%D8%AA%D8%B1%D9%88%D8%AC%D9%8A%D8%AA%20%D9%84%D9%84%D9%85%D8%B4%D8%B1%D9%88%D8%B9%D8%A7%D8%AA%20%D8%A7%D9%84%D8%A8%D8%AA%D8%B1%D9%88%D9%84%D9%8A%D8%A9%20%D9%88%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D8%B4%D8%A7%D8%B1%D8%A7%D8%AA%20%D8%A7%D9%84%D9%81%D9%86%D9%8A%D8%A9%20%D8%A7%D9%84%D9%82%D8%A7%D9%87%D8%B1%D8%A9%20%D9%85%D8%B5%D8%B1"
   },
   {
     "id": "eg_titan_015",
@@ -424,7 +424,7 @@ window.__EGYPT_VERIFIED_TITANS = [
     "contactPerson": "مدير عام أسطول التوزيع والنقل المركزي",
     "contactTitle": "National Fleet & Logistics Operations Director",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=29.9541,30.9324"
+    "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Juhayna%20Food%20Industries%20%D8%B4%D8%B1%D9%83%D8%A9%20%D8%AC%D9%87%D9%8A%D9%86%D8%A9%20%D9%84%D9%84%D8%B5%D9%86%D8%A7%D8%B9%D8%A7%D8%AA%20%D8%A7%D9%84%D8%BA%D8%B0%D8%A7%D8%A6%D9%8A%D8%A9%20%D8%A7%D9%84%D8%AC%D9%8A%D8%B2%D8%A9%20%D9%85%D8%B5%D8%B1"
   },
   {
     "id": "eg_titan_016",
@@ -452,7 +452,7 @@ window.__EGYPT_VERIFIED_TITANS = [
     "contactPerson": "مدير قطاع النقل والحركة",
     "contactTitle": "Fleet & Distribution Logistics Head",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=29.9412,30.9156"
+    "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Arabian%20Food%20Industries%20%D8%B4%D8%B1%D9%83%D8%A9%20%D8%A7%D9%84%D8%B5%D9%86%D8%A7%D8%B9%D8%A7%D8%AA%20%D8%A7%D9%84%D8%BA%D8%B0%D8%A7%D8%A6%D9%8A%D8%A9%20%D8%A7%D9%84%D8%B9%D8%B1%D8%A8%D9%8A%D8%A9%20%D8%A7%D9%84%D8%AC%D9%8A%D8%B2%D8%A9%20%D9%85%D8%B5%D8%B1"
   },
   {
     "id": "eg_titan_017",
@@ -480,7 +480,7 @@ window.__EGYPT_VERIFIED_TITANS = [
     "contactPerson": "رئيس إدارة النقل والعمليات الميدانية",
     "contactTitle": "Fleet & Field Operations Manager",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=29.9214,30.8975"
+    "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Edita%20Food%20Industries%20%D8%B4%D8%B1%D9%83%D8%A9%20%D8%A5%D9%8A%D8%AF%D9%8A%D8%AA%D8%A7%20%D9%84%D9%84%D8%B5%D9%86%D8%A7%D8%B9%D8%A7%D8%AA%20%D8%A7%D9%84%D8%BA%D8%B0%D8%A7%D8%A6%D9%8A%D8%A9%20%D8%A7%D9%84%D8%AC%D9%8A%D8%B2%D8%A9%20%D9%85%D8%B5%D8%B1"
   },
   {
     "id": "eg_titan_018",
@@ -508,7 +508,7 @@ window.__EGYPT_VERIFIED_TITANS = [
     "contactPerson": "مدير عام الأسطول الوطني وسلاسل التبريد",
     "contactTitle": "National Fleet & Cold-Chain Director",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=30.6712,30.0891"
+    "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Beyti%20%2F%20Almarai%20Egypt%20%D8%B4%D8%B1%D9%83%D8%A9%20%D8%A7%D9%84%D9%85%D8%B1%D8%A7%D8%B9%D9%8A%20%2F%20%D8%A7%D9%84%D8%AF%D9%88%D9%84%D9%8A%D8%A9%20%D9%84%D9%85%D8%B4%D8%B1%D9%88%D8%B9%D8%A7%D8%AA%20%D8%A7%D9%84%D8%AA%D8%B5%D9%86%D9%8A%D8%B9%20%D8%A7%D9%84%D8%B2%D8%B1%D8%A7%D8%B9%D9%8A%20%D8%A7%D9%84%D8%A5%D8%B3%D9%83%D9%86%D8%AF%D8%B1%D9%8A%D8%A9%20%D9%85%D8%B5%D8%B1"
   },
   {
     "id": "eg_titan_019",
@@ -536,7 +536,7 @@ window.__EGYPT_VERIFIED_TITANS = [
     "contactPerson": "مدير إدارة الأسطول والنقليات الإقليمي",
     "contactTitle": "Regional Fleet Logistics Director",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=29.9189,30.9082"
+    "google_maps_url": "https://www.google.com/maps/search/?api=1&query=PepsiCo%20Egypt%20%26%20Chipsy%20for%20Food%20Industries%20%D8%B4%D8%B1%D9%83%D8%A9%20%D8%A8%D9%8A%D8%A8%D8%B3%D9%8A%D9%83%D9%88%20%D9%85%D8%B5%D8%B1%20%D8%A7%D9%84%D8%AC%D9%8A%D8%B2%D8%A9%20%D9%85%D8%B5%D8%B1"
   },
   {
     "id": "eg_titan_020",
@@ -564,7 +564,7 @@ window.__EGYPT_VERIFIED_TITANS = [
     "contactPerson": "مدير حركة وتوزيع السيارات",
     "contactTitle": "Fleet Distribution Head",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=30.2215,31.4789"
+    "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Obour%20Land%20for%20Food%20Industries%20%D8%B4%D8%B1%D9%83%D8%A9%20%D8%B9%D8%A8%D9%88%D8%B1%20%D9%84%D8%A7%D9%86%D8%AF%20%D9%84%D9%84%D8%B5%D9%86%D8%A7%D8%B9%D8%A7%D8%AA%20%D8%A7%D9%84%D8%BA%D8%B0%D8%A7%D8%A6%D9%8A%D8%A9%20%D8%A7%D9%84%D9%82%D9%84%D9%8A%D9%88%D8%A8%D9%8A%D8%A9%20%D9%85%D8%B5%D8%B1"
   },
   {
     "id": "eg_titan_021",
@@ -592,7 +592,7 @@ window.__EGYPT_VERIFIED_TITANS = [
     "contactPerson": "رئيس قطاع التشغيل والحركة المركزي",
     "contactTitle": "Central Operations & Fleet Director",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=30.1254,31.2891"
+    "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Nile%20Heavy%20Transport%20Company%20%D8%B4%D8%B1%D9%83%D8%A9%20%D8%A7%D9%84%D9%86%D9%8A%D9%84%20%D8%A7%D9%84%D9%88%D8%B7%D9%86%D9%8A%D8%A9%20%D9%84%D9%84%D9%86%D9%82%D9%84%20%D8%A7%D9%84%D8%A8%D8%B1%D9%8A%20%D8%A7%D9%84%D9%82%D8%A7%D9%87%D8%B1%D8%A9%20%D9%85%D8%B5%D8%B1"
   },
   {
     "id": "eg_titan_022",
@@ -620,7 +620,7 @@ window.__EGYPT_VERIFIED_TITANS = [
     "contactPerson": "مدير إدارة المعدات الميكانيكية والشاحنات",
     "contactTitle": "Port Equipment & Yard Fleets Director",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=31.1895,29.8712"
+    "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Alexandria%20Container%20%26%20Cargo%20Handling%20Co.%20%D8%B4%D8%B1%D9%83%D8%A9%20%D8%A7%D9%84%D8%A5%D8%B3%D9%83%D9%86%D8%AF%D8%B1%D9%8A%D8%A9%20%D9%84%D8%AA%D8%AF%D8%A7%D9%88%D9%84%20%D8%A7%D9%84%D8%AD%D8%A7%D9%88%D9%8A%D8%A7%D8%AA%20%D9%88%D8%A7%D9%84%D8%A8%D8%B6%D8%A7%D8%A6%D8%B9%20%D8%A7%D9%84%D8%A5%D8%B3%D9%83%D9%86%D8%AF%D8%B1%D9%8A%D8%A9%20%D9%85%D8%B5%D8%B1"
   },
   {
     "id": "eg_titan_023",
@@ -648,7 +648,7 @@ window.__EGYPT_VERIFIED_TITANS = [
     "contactPerson": "مدير الأسطول الوطني لجمهورية مصر العربية",
     "contactTitle": "Country Fleet Manager",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=30.1215,31.4012"
+    "google_maps_url": "https://www.google.com/maps/search/?api=1&query=DHL%20Express%20Egypt%20%D8%B4%D8%B1%D9%83%D8%A9%20%D8%AF%D9%8A%20%D8%A5%D8%AA%D8%B4%20%D8%A5%D9%84%20%D8%A5%D9%83%D8%B3%D8%A8%D8%B1%D9%8A%D8%B3%20%D9%85%D8%B5%D8%B1%20%D8%A7%D9%84%D9%82%D8%A7%D9%87%D8%B1%D8%A9%20%D9%85%D8%B5%D8%B1"
   },
   {
     "id": "eg_titan_024",
@@ -676,7 +676,7 @@ window.__EGYPT_VERIFIED_TITANS = [
     "contactPerson": "مدير العمليات والأساطيل في مصر",
     "contactTitle": "Operations & Fleet Director - Egypt",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=29.9312,30.9124"
+    "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Aramex%20Egypt%20%D8%B4%D8%B1%D9%83%D8%A9%20%D8%A3%D8%B1%D8%A7%D9%85%D9%83%D8%B3%20%D9%85%D8%B5%D8%B1%20%D9%84%D9%84%D8%B4%D8%AD%D9%86%20%D9%88%D8%A7%D9%84%D9%84%D9%88%D8%AC%D8%B3%D8%AA%D9%8A%D8%A7%D8%AA%20%D8%A7%D9%84%D8%AC%D9%8A%D8%B2%D8%A9%20%D9%85%D8%B5%D8%B1"
   },
   {
     "id": "eg_titan_025",
@@ -704,7 +704,7 @@ window.__EGYPT_VERIFIED_TITANS = [
     "contactPerson": "مدير عام النقل والخدمات البحرية واللوجستية",
     "contactTitle": "Logistics & Fleet General Manager",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=31.4321,31.7612"
+    "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Misr%20Fertilizers%20Production%20Company%20%D8%A7%D9%84%D8%B4%D8%B1%D9%83%D8%A9%20%D8%A7%D9%84%D9%85%D8%B5%D8%B1%D9%8A%D8%A9%20%D9%84%D8%A5%D9%86%D8%AA%D8%A7%D8%AC%20%D8%A7%D9%84%D8%A3%D8%B3%D9%85%D8%AF%D8%A9%20%D8%AF%D9%85%D9%8A%D8%A7%D8%B7%20%D9%85%D8%B5%D8%B1"
   },
   {
     "id": "eg_titan_026",
@@ -732,7 +732,7 @@ window.__EGYPT_VERIFIED_TITANS = [
     "contactPerson": "مدير إدارة الخدمات العامة والنقليات",
     "contactTitle": "Transport & Plant Services Manager",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=31.0541,29.7412"
+    "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Sidi%20Kerir%20Petrochemicals%20Company%20%D8%B4%D8%B1%D9%83%D8%A9%20%D8%B3%D9%8A%D8%AF%D9%8A%20%D9%83%D8%B1%D9%8A%D8%B1%20%D9%84%D9%84%D8%A8%D8%AA%D8%B1%D9%88%D9%83%D9%8A%D9%85%D8%A7%D9%88%D9%8A%D8%A7%D8%AA%20%D8%A7%D9%84%D8%A5%D8%B3%D9%83%D9%86%D8%AF%D8%B1%D9%8A%D8%A9%20%D9%85%D8%B5%D8%B1"
   },
   {
     "id": "eg_titan_027",
@@ -760,7 +760,7 @@ window.__EGYPT_VERIFIED_TITANS = [
     "contactPerson": "مدير عام النقل البري والصهاريج",
     "contactTitle": "Tanker Fleets & Bulk Transport General Manager",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=30.0521,31.2489"
+    "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Misr%20Petroleum%20Company%20%D8%B4%D8%B1%D9%83%D8%A9%20%D9%85%D8%B5%D8%B1%20%D9%84%D9%84%D8%A8%D8%AA%D8%B1%D9%88%D9%84%20%D8%A7%D9%84%D9%82%D8%A7%D9%87%D8%B1%D8%A9%20%D9%85%D8%B5%D8%B1"
   },
   {
     "id": "eg_titan_028",
@@ -788,7 +788,7 @@ window.__EGYPT_VERIFIED_TITANS = [
     "contactPerson": "مدير إدارة الحركة والنقل اللوجستي",
     "contactTitle": "Pharma Fleet & Distribution Manager",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=30.3089,31.7456"
+    "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Egyptian%20International%20Pharmaceutical%20Industries%20%D8%A7%D9%84%D8%B4%D8%B1%D9%83%D8%A9%20%D8%A7%D9%84%D9%85%D8%B5%D8%B1%D9%8A%D8%A9%20%D8%A7%D9%84%D8%AF%D9%88%D9%84%D9%8A%D8%A9%20%D9%84%D9%84%D8%B5%D9%86%D8%A7%D8%B9%D8%A7%D8%AA%20%D8%A7%D9%84%D8%AF%D9%88%D8%A7%D8%A6%D9%8A%D8%A9%20%D8%A7%D9%84%D8%B4%D8%B1%D9%82%D9%8A%D8%A9%20%D9%85%D8%B5%D8%B1"
   },
   {
     "id": "eg_titan_029",
@@ -803,8 +803,8 @@ window.__EGYPT_VERIFIED_TITANS = [
     "mobile": "01229876543",
     "hotline": "16124",
     "website": "https://www.pharco.org",
-    "latitude": 31.0215,
-    "longitude": 29.7891,
+    "latitude": 31.02299,
+    "longitude": 29.78668,
     "fleetSize": 260,
     "fleetType": "سيارات نقل مبردة وفانات توزيع دوائي وشاحنات نقل خامات وأتوبيسات",
     "fleetTires": "7.50R16 • 215/75R17.5 • 195R15C • 295/80R22.5",
@@ -816,7 +816,7 @@ window.__EGYPT_VERIFIED_TITANS = [
     "contactPerson": "مدير الخدمات اللوجستية والنقليات",
     "contactTitle": "Pharma Logistics & Fleet Operations Head",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=31.0215,29.7891"
+    "google_maps_url": "https://www.google.com/maps/place/Pharco+Pharmaceuticals+Factory/@31.0229953,29.7866796,18z/data=!4m6!3m5!1s0x14f592d2c7ad1bab:0xa4a3dd1321f5a10!8m2!3d31.0229909!4d29.7892545"
   },
   {
     "id": "eg_titan_030",
@@ -844,7 +844,7 @@ window.__EGYPT_VERIFIED_TITANS = [
     "contactPerson": "رئيس قطاع الأسطول والنقل المركزي",
     "contactTitle": "Director of Fleet & Distribution Operations",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=30.2289,31.4812"
+    "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Ibnsina%20Pharma%20%D8%B4%D8%B1%D9%83%D8%A9%20%D8%A7%D8%A8%D9%86%20%D8%B3%D9%8A%D9%86%D8%A7%20%D9%81%D8%A7%D8%B1%D9%85%D8%A7%20%D9%84%D8%AA%D9%88%D8%B2%D9%8A%D8%B9%20%D8%A7%D9%84%D8%A3%D8%AF%D9%88%D9%8A%D8%A9%20%D8%A7%D9%84%D9%82%D9%84%D9%8A%D9%88%D8%A8%D9%8A%D8%A9%20%D9%85%D8%B5%D8%B1"
   },
   {
     "id": "eg_titan_031",
@@ -872,7 +872,7 @@ window.__EGYPT_VERIFIED_TITANS = [
     "contactPerson": "رئيس الإدارة المركزية للشؤون الفنية والصيانة والإطارات",
     "contactTitle": "Technical & Tires Maintenance Director",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=30.1089,31.3654"
+    "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Arab%20Union%20for%20Land%20Transport%20%26%20Tourism%20%D8%B4%D8%B1%D9%83%D8%A9%20%D8%A7%D9%84%D8%A7%D8%AA%D8%AD%D8%A7%D8%AF%20%D8%A7%D9%84%D8%B9%D8%B1%D8%A8%D9%8A%20%D9%84%D9%84%D9%86%D9%82%D9%84%20%D8%A7%D9%84%D8%A8%D8%B1%D9%8A%20%D9%88%D8%A7%D9%84%D8%B3%D9%8A%D8%A7%D8%AD%D8%A9%20%D8%A7%D9%84%D9%82%D8%A7%D9%87%D8%B1%D8%A9%20%D9%85%D8%B5%D8%B1"
   },
   {
     "id": "eg_titan_032",
@@ -900,7 +900,7 @@ window.__EGYPT_VERIFIED_TITANS = [
     "contactPerson": "مدير عام الحركة والأسطول والصيانة",
     "contactTitle": "Fleet Operations & Maintenance General Manager",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=30.0489,31.2341"
+    "google_maps_url": "https://www.google.com/maps/search/?api=1&query=Go%20Bus%20Egypt%20%D8%B4%D8%B1%D9%83%D8%A9%20%D8%AC%D9%88%20%D8%A8%D8%A7%D8%B5%20%D9%84%D9%84%D9%86%D9%82%D9%84%20%D8%A7%D9%84%D8%A8%D8%B1%D9%8A%20%D9%88%D8%A7%D9%84%D8%B3%D9%8A%D8%A7%D8%AD%D9%8A%20%D8%A7%D9%84%D9%82%D8%A7%D9%87%D8%B1%D8%A9%20%D9%85%D8%B5%D8%B1"
   },
   {
     "id": "eg_titan_033",
@@ -928,7 +928,7 @@ window.__EGYPT_VERIFIED_TITANS = [
     "contactPerson": "مدير عام الشؤون الفنية والورش المركزية",
     "contactTitle": "Technical Affairs & Central Workshops Director",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=30.0612,31.3324"
+    "google_maps_url": "https://www.google.com/maps/search/?api=1&query=East%20Delta%20for%20Land%20Transport%20%26%20Tourism%20%D8%B4%D8%B1%D9%83%D8%A9%20%D8%B4%D8%B1%D9%82%20%D8%A7%D9%84%D8%AF%D9%84%D8%AA%D8%A7%20%D9%84%D9%84%D9%86%D9%82%D9%84%20%D9%88%D8%A7%D9%84%D8%B3%D9%8A%D8%A7%D8%AD%D8%A9%20%D8%A7%D9%84%D9%82%D8%A7%D9%87%D8%B1%D8%A9%20%D9%85%D8%B5%D8%B1"
   },
   {
     "id": "eg_titan_034",
@@ -956,6 +956,6 @@ window.__EGYPT_VERIFIED_TITANS = [
     "contactPerson": "رئيس قطاع التشغيل والصيانة",
     "contactTitle": "Fleet Maintenance & Operations VP",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=31.2189,29.9412"
+    "google_maps_url": "https://www.google.com/maps/search/?api=1&query=West%20%26%20Middle%20Delta%20for%20Transport%20%26%20Tourism%20%D8%B4%D8%B1%D9%83%D8%A9%20%D8%BA%D8%B1%D8%A8%20%D9%88%D9%88%D8%B3%D8%B7%20%D8%A7%D9%84%D8%AF%D9%84%D8%AA%D8%A7%20%D9%84%D9%84%D9%86%D9%82%D9%84%20%D9%88%D8%A7%D9%84%D8%B3%D9%8A%D8%A7%D8%AD%D8%A9%20%D8%A7%D9%84%D8%A5%D8%B3%D9%83%D9%86%D8%AF%D8%B1%D9%8A%D8%A9%20%D9%85%D8%B5%D8%B1"
   }
 ];
