@@ -11,7 +11,7 @@
     <script>
         // Force purge any legacy service workers, disk caches, and old deals storage immediately
         (function() {
-            var CURRENT_VER = '218.0';
+            var CURRENT_VER = '219.0';
             try {
                 localStorage.removeItem('fleetcrm_deals');
                 localStorage.removeItem('fleetcrm_deals_count');
@@ -48,7 +48,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=218.0">
+    <link rel="stylesheet" href="css/style.css?v=219.0">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
         (function() {
@@ -507,76 +507,98 @@
                 </div>
 
                 <!-- Modern Clean Filters Bar -->
-                <div class="filters-bar" style="background: rgba(30, 41, 59, 0.5); padding: 14px 18px; border-radius: 16px; border: 1px solid var(--border-color); display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 20px;">
+                <div class="filters-bar" style="background: rgba(30, 41, 59, 0.5); padding: 14px 18px; border-radius: 16px; border: 1px solid var(--border-color); display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 12px;">
                     <!-- 1. Search Box (Prominent) -->
                     <div class="filter-group search-filter" style="flex: 1 1 240px; min-width: 200px;">
                         <i class="fas fa-search" style="color: var(--accent);"></i>
                         <input type="text" id="filter-search" placeholder="🔍 بحث بالاسم، الهاتف، أو المدينة..." oninput="Companies.onFilterChange()" style="width:100%; padding: 10px 14px 10px 38px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); font-size: 13px; outline: none;">
                     </div>
 
-                    <!-- 2. Sector Filter -->
-                    <div class="filter-group" style="flex: 1 1 180px; min-width: 150px;">
-                        <select id="filter-sector" class="filter-select" onchange="Companies.onFilterChange()" style="width:100%; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); font-size: 13px; outline: none;">
-                            <option value="">🏢 كل القطاعات (23 قطاع)</option>
-                            <option value="agri_investment">🌱 استثمار واستصلاح زراعي</option>
-                            <option value="transport">🚚 نقل وشحن</option>
-                            <option value="food">🍔 أغذية ومشروبات</option>
-                            <option value="pharma">💊 أدوية ومستلزمات طبية</option>
-                            <option value="construction">🏗️ مقاولات وتشييد</option>
-                            <option value="building_materials">🧱 مواد بناء وحديد وصلب</option>
-                            <option value="petroleum">🛢️ بترول وطاقة</option>
-                            <option value="renewable_energy">⚡ طاقة متجددة وكابلات</option>
-                            <option value="distribution">📦 توزيع وسلاسل إمداد</option>
-                            <option value="packaging_paper">📦 تعبئة وتغليف وورق</option>
-                            <option value="chemicals_plastic">🧪 كيماويات وبلاستيك ودهانات</option>
-                            <option value="real_estate_dev">🏬 تطوير واستثمار عقاري</option>
-                            <option value="textile_apparel">🧵 غزل ونسيج وملابس</option>
-                            <option value="waste_environment">♻️ إدارة مخلفات وتدوير</option>
-                            <option value="security">🛡️ أمن وحراسة ونقل أموال</option>
-                            <option value="rental">🚗 تأجير سيارات وأساطيل</option>
-                            <option value="manufacturing">🏭 مصانع وإنتاج صناعي</option>
-                            <option value="education">🎓 مدارس وجامعات</option>
-                            <option value="healthcare">🏥 مستشفيات ورعاية طبية</option>
-                            <option value="tourism">✈️ سياحة ونقل سياحي</option>
-                            <option value="public_transport">🚌 نقل جماعي وأتوبيسات</option>
-                            <option value="delivery">🛵 توصيل ودليفري سريع</option>
-                            <option value="government">🏛️ جهات وهيئات حكومية</option>
+                    <!-- 2. Multi-Select Sector Filter -->
+                    <div class="filter-group custom-multiselect" id="multiselect-sectors-wrapper" style="flex: 1 1 190px; min-width: 160px;">
+                        <button type="button" class="multiselect-trigger" id="multiselect-sectors-btn" onclick="Companies.toggleMultiDropdown('sectors', event)">
+                            <span class="multiselect-label" id="multiselect-sectors-label"><i class="fas fa-industry" style="color:#38bdf8;"></i> كل القطاعات (الكل)</span>
+                            <span class="multiselect-badge" id="multiselect-sectors-badge" style="display:none;">0</span>
+                            <i class="fas fa-chevron-down multiselect-arrow"></i>
+                        </button>
+                        <div class="multiselect-menu" id="multiselect-sectors-menu">
+                            <div class="multiselect-search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" placeholder="بحث في القطاعات..." oninput="Companies.filterDropdownList('sectors', this.value)">
+                            </div>
+                            <div class="multiselect-actions">
+                                <button type="button" class="ms-btn-action" onclick="Companies.selectAllDropdown('sectors')"><i class="fas fa-check-double"></i> تحديد الكل</button>
+                                <button type="button" class="ms-btn-action" onclick="Companies.clearDropdown('sectors')"><i class="fas fa-times"></i> إلغاء التحديد</button>
+                            </div>
+                            <div class="multiselect-list" id="multiselect-sectors-list">
+                                <!-- Populated dynamically by JS -->
+                            </div>
+                        </div>
+                        <!-- Hidden legacy select for fallback compatibility -->
+                        <select id="filter-sector" style="display:none;"><option value=""></option></select>
+                    </div>
+
+                    <!-- 3. Multi-Select City / Region Filter -->
+                    <div class="filter-group custom-multiselect" id="multiselect-cities-wrapper" style="flex: 1 1 190px; min-width: 160px;">
+                        <button type="button" class="multiselect-trigger" id="multiselect-cities-btn" onclick="Companies.toggleMultiDropdown('cities', event)">
+                            <span class="multiselect-label" id="multiselect-cities-label"><i class="fas fa-map-marker-alt" style="color:#f43f5e;"></i> كل المحافظات والمدن (الكل)</span>
+                            <span class="multiselect-badge" id="multiselect-cities-badge" style="display:none;">0</span>
+                            <i class="fas fa-chevron-down multiselect-arrow"></i>
+                        </button>
+                        <div class="multiselect-menu" id="multiselect-cities-menu">
+                            <div class="multiselect-search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" placeholder="بحث في المناطق..." oninput="Companies.filterDropdownList('cities', this.value)">
+                            </div>
+                            <div class="multiselect-actions">
+                                <button type="button" class="ms-btn-action" onclick="Companies.selectAllDropdown('cities')"><i class="fas fa-check-double"></i> تحديد الكل</button>
+                                <button type="button" class="ms-btn-action" onclick="Companies.clearDropdown('cities')"><i class="fas fa-times"></i> إلغاء التحديد</button>
+                            </div>
+                            <div class="multiselect-quick-groups">
+                                <span class="ms-pill" onclick="Companies.selectCityGroup('industrial')">🏭 المدن الصناعية</span>
+                                <span class="ms-pill" onclick="Companies.selectCityGroup('cairo_metro')">🏙️ القاهرة الكبرى</span>
+                            </div>
+                            <div class="multiselect-list" id="multiselect-cities-list">
+                                <!-- Populated dynamically by JS -->
+                            </div>
+                        </div>
+                        <!-- Hidden legacy select for fallback compatibility -->
+                        <select id="filter-city" style="display:none;"><option value=""></option></select>
+                    </div>
+
+                    <!-- 4. Contact & Data Readiness Filter (New Super Feature) -->
+                    <div class="filter-group" style="flex: 1 1 170px; min-width: 145px;">
+                        <select id="filter-contact-type" class="filter-select" onchange="Companies.onFilterChange()" style="width:100%; padding: 10px 14px; border-radius: 10px; border: 1px solid #06b6d4; background: var(--bg-primary); color: #67e8f9; font-size: 13px; font-weight: 700; outline: none;">
+                            <option value="">📞 بيانات الاتصال (الكل)</option>
+                            <option value="has_phone">📱 بها هاتف مباشر فقط</option>
+                            <option value="has_maps">📍 مزودة بخرائط جوجل و GPS</option>
+                            <option value="has_website">🌐 بها موقع إلكتروني رسمي</option>
                         </select>
                     </div>
 
-                    <!-- 3. City / Region Filter -->
-                    <div class="filter-group" style="flex: 1 1 160px; min-width: 140px;">
-                        <select id="filter-city" class="filter-select" onchange="Companies.onFilterChange()" style="width:100%; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); font-size: 13px; outline: none;">
-                            <option value="">🏙️ كل المحافظات والمدن</option>
-                            <option value="cairo">القاهرة</option>
-                            <option value="giza">الجيزة</option>
-                            <option value="qalyubia">القليوبية</option>
-                            <option value="6october">6 أكتوبر</option>
-                            <option value="10thramadan">العاشر من رمضان</option>
-                            <option value="obour">العبور</option>
-                            <option value="shorouk">الشروق</option>
-                            <option value="helwan">حلوان</option>
-                            <option value="nasr_city">مدينة نصر</option>
-                            <option value="maadi">المعادي</option>
-                            <option value="new_cairo">القاهرة الجديدة</option>
-                            <option value="alex">الإسكندرية</option>
-                            <option value="suez">السويس والساحل</option>
-                            <option value="sadat">مدينة السادات</option>
-                        </select>
-                    </div>
-
-                    <!-- 4. Fleet Size Filter -->
-                    <div class="filter-group" style="flex: 1 1 170px; min-width: 150px;">
+                    <!-- 5. Fleet Size Filter -->
+                    <div class="filter-group" style="flex: 1 1 170px; min-width: 145px;">
                         <select id="filter-fleet-size" class="filter-select" onchange="Companies.onFilterChange()" style="width:100%; padding: 10px 14px; border-radius: 10px; border: 1px solid #10b981; background: var(--bg-primary); color: #6ee7b7; font-size: 13px; font-weight: 700; outline: none;">
                             <option value="">🚛 حجم الأسطول (الكل)</option>
-                            <option value="large_fleet">🏆 أساطيل ضخمة (50+ مركبة)</option>
+                            <option value="giant_fleet">👑 أساطيل عملاقة (100+ مركبة)</option>
+                            <option value="large_fleet">🏆 أساطيل ضخمة (50 - 99 مركبة)</option>
                             <option value="medium_fleet">🚚 أساطيل متوسطة (15 - 49 مركبة)</option>
                             <option value="small_fleet">🚐 أساطيل صغيرة (&lt; 15 مركبة)</option>
                         </select>
                     </div>
 
-                    <!-- 5. Assigned Employee Filter (Visible to Admin/Supervisor) -->
-                    <div class="filter-group" id="filter-assigned-group" style="flex: 1 1 180px; min-width: 150px;">
+                    <!-- 6. Priority Filter -->
+                    <div class="filter-group" style="flex: 1 1 140px; min-width: 130px;">
+                        <select id="filter-priority" class="filter-select" onchange="Companies.onFilterChange()" style="width:100%; padding: 10px 14px; border-radius: 10px; border: 1px solid #f59e0b; background: var(--bg-primary); color: #fcd34d; font-size: 13px; font-weight: 700; outline: none;">
+                            <option value="">🎯 الأولوية (الكل)</option>
+                            <option value="A">⭐ أولوية A (مرتفعة)</option>
+                            <option value="B">🔹 أولوية B (متوسطة)</option>
+                            <option value="C">⚪ أولوية C (عادية)</option>
+                        </select>
+                    </div>
+
+                    <!-- 7. Assigned Employee Filter (Visible to Admin/Supervisor) -->
+                    <div class="filter-group" id="filter-assigned-group" style="flex: 1 1 170px; min-width: 145px;">
                         <select id="filter-assigned" class="filter-select" onchange="Companies.onFilterChange()" style="width:100%; padding: 10px 14px; border-radius: 10px; border: 1px solid #7c3aed; background: var(--bg-primary); color: #c4b5fd; font-size: 13px; font-weight: 700; outline: none;">
                             <option value="">👤 كل الموظفين / التخصيص</option>
                             <option value="my_leads">⭐ شركاتي أنا فقط</option>
@@ -584,8 +606,8 @@
                         </select>
                     </div>
 
-                    <!-- 6. Sort Order -->
-                    <div class="filter-group" style="flex: 1 1 170px; min-width: 140px;">
+                    <!-- 8. Sort Order -->
+                    <div class="filter-group" style="flex: 1 1 160px; min-width: 135px;">
                         <select id="filter-sort" class="filter-select" onchange="Companies.onFilterChange()" style="width:100%; padding: 10px 14px; border-radius: 10px; border: 1px solid #3b82f6; background: var(--bg-primary); color: #93c5fd; font-size: 13px; font-weight: 700; outline: none;">
                             <option value="latest">🆕 الأحدث إضافة أولاً</option>
                             <option value="fleet_desc">📈 الأكثر في الأسطول أولاً</option>
@@ -595,9 +617,19 @@
                         </select>
                     </div>
 
-                    <!-- 7. Reset Filters Button -->
+                    <!-- 9. Reset Filters Button -->
                     <button class="btn btn-ghost btn-sm" id="btn-clear-filters" onclick="Companies.clearFilters()" style="padding: 10px 18px; border-radius: 10px; border: 1px solid rgba(239, 68, 68, 0.4); color: #fca5a5; font-weight: 700; cursor: pointer; transition: all 0.2s; white-space: nowrap;">
                         <i class="fas fa-undo"></i> إعادة ضبط الفلاتر
+                    </button>
+                </div>
+
+                <!-- Active Filter Badges Bar -->
+                <div id="active-filters-bar" class="active-filters-bar" style="display:none; margin-top: -6px; margin-bottom: 16px; padding: 10px 16px; background: rgba(15, 23, 42, 0.7); border-radius: 12px; border: 1px solid rgba(99, 102, 241, 0.25); align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;" id="active-chips-container">
+                        <!-- Chips rendered here dynamically -->
+                    </div>
+                    <button type="button" class="btn btn-link btn-sm" onclick="Companies.clearFilters()" style="color: #f87171; font-size: 12px; text-decoration: none; cursor: pointer; padding: 2px 6px; background: none; border: none;">
+                        <i class="fas fa-times-circle"></i> مسح جميع الفلاتر
                     </button>
                 </div>
 
@@ -1337,20 +1369,20 @@
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <script src="js/supabase-client.js?v=218.0"></script>
-    <script src="js/egypt_verified_titans.js?v=218.0"></script>
-    <script src="js/egypt_enterprises_pool.js?v=218.0"></script>
-    <script src="js/companies-worker.js?v=218.0"></script>
-    <script src="js/storage.js?v=218.0"></script>
-    <script src="js/excel-handler.js?v=218.0"></script>
-    <script src="js/dashboard.js?v=218.0"></script>
-    <script src="js/companies.js?v=218.0"></script>
-    <script src="js/calls.js?v=218.0"></script>
-    <script src="js/reports.js?v=218.0"></script>
-    <script src="js/scraper.js?v=218.0"></script>
-    <script src="js/team.js?v=218.0"></script>
-    <script src="js/settings.js?v=218.0"></script>
-    <script src="js/app.js?v=218.0"></script>
+    <script src="js/supabase-client.js?v=219.0"></script>
+    <script src="js/egypt_verified_titans.js?v=219.0"></script>
+    <script src="js/egypt_enterprises_pool.js?v=219.0"></script>
+    <script src="js/companies-worker.js?v=219.0"></script>
+    <script src="js/storage.js?v=219.0"></script>
+    <script src="js/excel-handler.js?v=219.0"></script>
+    <script src="js/dashboard.js?v=219.0"></script>
+    <script src="js/companies.js?v=219.0"></script>
+    <script src="js/calls.js?v=219.0"></script>
+    <script src="js/reports.js?v=219.0"></script>
+    <script src="js/scraper.js?v=219.0"></script>
+    <script src="js/team.js?v=219.0"></script>
+    <script src="js/settings.js?v=219.0"></script>
+    <script src="js/app.js?v=219.0"></script>
 
     <!-- Cleanup overlay on load - runs once only, does NOT override App.checkAuth -->
     <script>

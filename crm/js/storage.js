@@ -599,7 +599,9 @@ const AppStorage = {
         maadi: { ar: 'المعادي', en: 'Maadi' },
         new_cairo: { ar: 'القاهرة الجديدة', en: 'New Cairo' },
         badr: { ar: 'مدينة بدر', en: 'Badr City' },
-        sadat: { ar: 'مدينة السادات', en: 'Sadat City' }
+        sadat: { ar: 'مدينة السادات', en: 'Sadat City' },
+        alexandria: { ar: 'الإسكندرية', en: 'Alexandria' },
+        suez: { ar: 'السويس', en: 'Suez' }
     },
 
     FLEET_TYPES: {
@@ -753,7 +755,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=218.0');
+            this._worker = new Worker('js/companies-worker.js?v=219.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -774,7 +776,10 @@ const AppStorage = {
             const {
                 search = '',
                 sector = '',
+                sectors = [],
                 city = '',
+                cities = [],
+                contactType = '',
                 priority = '',
                 fleetType = '',
                 fleetSize = '',
@@ -820,7 +825,10 @@ const AppStorage = {
                     payload: {
                         search,
                         sector,
+                        sectors,
                         city,
+                        cities,
+                        contactType,
                         priority,
                         fleetType,
                         fleetSize,
@@ -846,7 +854,10 @@ const AppStorage = {
         const {
             search = '',
             sector = '',
+            sectors = [],
             city = '',
+            cities = [],
+            contactType = '',
             priority = '',
             fleetType = '',
             fleetSize = '',
@@ -863,15 +874,28 @@ const AppStorage = {
         const todayStr = new Date().toISOString().split('T')[0];
         const currentUser = this.getCurrentUser();
 
+        let sectorList = Array.isArray(sectors) ? sectors.filter(Boolean) : [];
+        if (sector && !sectorList.includes(sector)) sectorList.push(sector);
+        const sectorSet = sectorList.length > 0 ? new Set(sectorList) : null;
+
+        let cityList = Array.isArray(cities) ? cities.filter(Boolean) : [];
+        if (city && !cityList.includes(city)) cityList.push(city);
+        const citySet = cityList.length > 0 ? new Set(cityList) : null;
+
         let filtered = rawCompanies.filter(c => {
-            if (sector && c.sector !== sector) return false;
-            if (city && c.city !== city) return false;
+            if (sectorSet && !sectorSet.has(c.sector)) return false;
+            if (citySet && !citySet.has(c.city)) return false;
             if (priority && c.priority !== priority) return false;
             if (fleetType && c.fleetType !== fleetType) return false;
 
+            if (contactType === 'has_phone' && !c.phone1 && !c.mobile && !c.phone2) return false;
+            if (contactType === 'has_maps' && !((c.latitude && c.longitude) || (c.lat && c.lng))) return false;
+            if (contactType === 'has_website' && (!c.website || c.website === '—')) return false;
+
             if (fleetSize) {
                 const s = Number(c.fleetSize) || 0;
-                if (fleetSize === 'large_fleet' && s < 50) return false;
+                if (fleetSize === 'giant_fleet' && s < 100) return false;
+                if (fleetSize === 'large_fleet' && (s < 50 || s >= 100)) return false;
                 if (fleetSize === 'medium_fleet' && (s < 15 || s >= 50)) return false;
                 if (fleetSize === 'small_fleet' && (s <= 0 || s >= 15)) return false;
                 if (fleetSize === 'no_fleet' && s > 0) return false;

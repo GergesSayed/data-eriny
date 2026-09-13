@@ -150,7 +150,10 @@ self.onmessage = function(e) {
         const {
             search = '',
             sector = '',
+            sectors = [],
             city = '',
+            cities = [],
+            contactType = '',
             priority = '',
             fleetType = '',
             fleetSize = '',
@@ -168,6 +171,16 @@ self.onmessage = function(e) {
         const now = Date.now();
         const todayStr = new Date().toISOString().split('T')[0];
 
+        // Multi-sector normalization
+        let sectorList = Array.isArray(sectors) ? sectors.filter(Boolean) : [];
+        if (sector && !sectorList.includes(sector)) sectorList.push(sector);
+        const sectorSet = sectorList.length > 0 ? new Set(sectorList) : null;
+
+        // Multi-city normalization
+        let cityList = Array.isArray(cities) ? cities.filter(Boolean) : [];
+        if (city && !cityList.includes(city)) cityList.push(city);
+        const citySet = cityList.length > 0 ? new Set(cityList) : null;
+
         // 1. Smart Candidate Selection using pre-computed buckets for 10x-50x speedup
         let candidateIndices = null;
 
@@ -178,10 +191,20 @@ self.onmessage = function(e) {
                 if (arr) combined.push(...arr);
             }
             candidateIndices = combined;
-        } else if (sector && _sectorBuckets.has(sector)) {
-            candidateIndices = _sectorBuckets.get(sector);
-        } else if (city && _cityBuckets.has(city)) {
-            candidateIndices = _cityBuckets.get(city);
+        } else if (sectorSet && sectorSet.size <= 2) {
+            const combined = [];
+            sectorSet.forEach(sec => {
+                const arr = _sectorBuckets.get(sec);
+                if (arr) combined.push(...arr);
+            });
+            candidateIndices = combined;
+        } else if (citySet && citySet.size <= 2) {
+            const combined = [];
+            citySet.forEach(ct => {
+                const arr = _cityBuckets.get(ct);
+                if (arr) combined.push(...arr);
+            });
+            candidateIndices = combined;
         } else if (assigned && assigned !== 'my_leads' && assigned !== 'unassigned' && _assignedBuckets.has(assigned.toLowerCase())) {
             candidateIndices = _assignedBuckets.get(assigned.toLowerCase());
         }
@@ -206,14 +229,20 @@ self.onmessage = function(e) {
                 }
             }
 
-            if (sector && c.sector !== sector) continue;
-            if (city && c.city !== city) continue;
+            if (sectorSet && !sectorSet.has(c.sector)) continue;
+            if (citySet && !citySet.has(c.city)) continue;
             if (priority && c.priority !== priority) continue;
             if (fleetType && c.fleetType !== fleetType) continue;
 
+            // Contact & Data Readiness filter
+            if (contactType === 'has_phone' && !c.normPhone) continue;
+            if (contactType === 'has_maps' && (!c.raw || !((c.raw.latitude && c.raw.longitude) || (c.raw.lat && c.raw.lng)))) continue;
+            if (contactType === 'has_website' && (!c.raw || !c.raw.website || c.raw.website === '—')) continue;
+
             if (fleetSize) {
                 const s = c.fleetSize;
-                if (fleetSize === 'large_fleet' && s < 50) continue;
+                if (fleetSize === 'giant_fleet' && s < 100) continue;
+                if (fleetSize === 'large_fleet' && (s < 50 || s >= 100)) continue;
                 if (fleetSize === 'medium_fleet' && (s < 15 || s >= 50)) continue;
                 if (fleetSize === 'small_fleet' && (s <= 0 || s >= 15)) continue;
                 if (fleetSize === 'no_fleet' && s > 0) continue;

@@ -9,10 +9,13 @@ const Companies = {
     sortDir: 'asc',
     viewMode: 'table', // 'table' or 'cards'
     selectedCompanies: new Set(),
+    selectedSectors: new Set(),
+    selectedCities: new Set(),
 
     init() {
         this.viewMode = (window.innerWidth <= 768) ? 'cards' : 'table';
         this.populateSectorSelects();
+        this.initMultiSelects();
         this.bindEvents();
         this.refreshUserFilter();
         if (typeof App !== 'undefined' && App.currentPage === 'companies') {
@@ -20,27 +23,338 @@ const Companies = {
         }
     },
 
+    initMultiSelects() {
+        const sectors = window.AppStorage ? window.AppStorage.SECTORS : null;
+        const cities = window.AppStorage ? window.AppStorage.CITIES : null;
+        const allCompanies = window.AppStorage ? window.AppStorage.getCompanies() : [];
+
+        // Count companies per sector and city
+        const sectorCounts = {};
+        const cityCounts = {};
+        allCompanies.forEach(c => {
+            const sec = c.sector || 'other';
+            const ct = c.city || 'other';
+            sectorCounts[sec] = (sectorCounts[sec] || 0) + 1;
+            cityCounts[ct] = (cityCounts[ct] || 0) + 1;
+        });
+
+        // 1. Populate Sectors List
+        const sectorsListEl = document.getElementById('multiselect-sectors-list');
+        if (sectorsListEl && sectors) {
+            let html = '';
+            const sortedSectors = Object.keys(sectors).sort((a, b) => (sectorCounts[b] || 0) - (sectorCounts[a] || 0));
+            sortedSectors.forEach(key => {
+                const s = sectors[key];
+                const count = sectorCounts[key] || 0;
+                const isChecked = this.selectedSectors.has(key);
+                html += `
+                    <div class="multiselect-item ${isChecked ? 'selected' : ''}" data-key="${key}" onclick="Companies.toggleDropdownItem('sectors', '${key}')">
+                        <input type="checkbox" class="multiselect-checkbox" ${isChecked ? 'checked' : ''} onclick="event.stopPropagation(); Companies.toggleDropdownItem('sectors', '${key}')">
+                        <span class="multiselect-item-label">${s.icon || '🏢'} ${s.ar}</span>
+                        <span class="multiselect-item-count">${count.toLocaleString()}</span>
+                    </div>
+                `;
+            });
+            sectorsListEl.innerHTML = html;
+        }
+
+        // 2. Populate Cities List
+        const citiesListEl = document.getElementById('multiselect-cities-list');
+        if (citiesListEl && cities) {
+            let html = '';
+            const sortedCities = Object.keys(cities).sort((a, b) => (cityCounts[b] || 0) - (cityCounts[a] || 0));
+            sortedCities.forEach(key => {
+                const c = cities[key];
+                const count = cityCounts[key] || 0;
+                const isChecked = this.selectedCities.has(key);
+                html += `
+                    <div class="multiselect-item ${isChecked ? 'selected' : ''}" data-key="${key}" onclick="Companies.toggleDropdownItem('cities', '${key}')">
+                        <input type="checkbox" class="multiselect-checkbox" ${isChecked ? 'checked' : ''} onclick="event.stopPropagation(); Companies.toggleDropdownItem('cities', '${key}')">
+                        <span class="multiselect-item-label">📍 ${c.ar}</span>
+                        <span class="multiselect-item-count">${count.toLocaleString()}</span>
+                    </div>
+                `;
+            });
+            citiesListEl.innerHTML = html;
+        }
+
+        this.updateMultiSelectLabels();
+    },
+
+    toggleMultiDropdown(type, event) {
+        if (event) event.stopPropagation();
+        const wrapper = document.getElementById(`multiselect-${type}-wrapper`);
+        if (!wrapper) return;
+        const wasOpen = wrapper.classList.contains('open');
+        this.closeAllMultiDropdowns();
+        if (!wasOpen) {
+            wrapper.classList.add('open');
+            const input = wrapper.querySelector('.multiselect-search-box input');
+            if (input) setTimeout(() => input.focus(), 50);
+        }
+    },
+
+    closeAllMultiDropdowns() {
+        document.querySelectorAll('.custom-multiselect.open').forEach(el => el.classList.remove('open'));
+    },
+
+    toggleDropdownItem(type, key) {
+        const set = (type === 'sectors') ? this.selectedSectors : this.selectedCities;
+        if (set.has(key)) {
+            set.delete(key);
+        } else {
+            set.add(key);
+        }
+        this._syncDropdownDOM(type);
+        this.updateMultiSelectLabels();
+        this.onFilterChange(true);
+    },
+
+    selectAllDropdown(type) {
+        const set = (type === 'sectors') ? this.selectedSectors : this.selectedCities;
+        const source = (type === 'sectors') ? (window.AppStorage?.SECTORS || {}) : (window.AppStorage?.CITIES || {});
+        Object.keys(source).forEach(k => set.add(k));
+        this._syncDropdownDOM(type);
+        this.updateMultiSelectLabels();
+        this.onFilterChange(true);
+    },
+
+    clearDropdown(type) {
+        const set = (type === 'sectors') ? this.selectedSectors : this.selectedCities;
+        set.clear();
+        this._syncDropdownDOM(type);
+        this.updateMultiSelectLabels();
+        this.onFilterChange(true);
+    },
+
+    selectCityGroup(groupKey) {
+        const industrialCities = ['6october', '10thramadan', 'obour', 'badr', 'sadat', 'helwan'];
+        const cairoMetroCities = ['cairo', 'giza', 'nasr_city', 'new_cairo', 'maadi', 'qalyubia', 'shorouk'];
+        this.selectedCities.clear();
+        const targetList = groupKey === 'industrial' ? industrialCities : cairoMetroCities;
+        targetList.forEach(k => this.selectedCities.add(k));
+        this._syncDropdownDOM('cities');
+        this.updateMultiSelectLabels();
+        this.onFilterChange(true);
+        if (typeof App !== 'undefined' && App.showToast) {
+            App.showToast(groupKey === 'industrial' ? 'تم تحديد المدن والمجمعات الصناعية الكبرى' : 'تم تحديد نطاق القاهرة الكبرى والجيزة', 'info');
+        }
+    },
+
+    filterDropdownList(type, query) {
+        const listEl = document.getElementById(`multiselect-${type}-list`);
+        if (!listEl) return;
+        const q = String(query || '').toLowerCase().trim();
+        const items = listEl.querySelectorAll('.multiselect-item');
+        items.forEach(item => {
+            const text = item.textContent.toLowerCase();
+            item.style.display = (!q || text.includes(q)) ? 'flex' : 'none';
+        });
+    },
+
+    _syncDropdownDOM(type) {
+        const set = (type === 'sectors') ? this.selectedSectors : this.selectedCities;
+        const listEl = document.getElementById(`multiselect-${type}-list`);
+        if (!listEl) return;
+        listEl.querySelectorAll('.multiselect-item').forEach(item => {
+            const key = item.dataset.key;
+            const isSelected = set.has(key);
+            item.classList.toggle('selected', isSelected);
+            const cb = item.querySelector('.multiselect-checkbox');
+            if (cb) cb.checked = isSelected;
+        });
+    },
+
+    updateMultiSelectLabels() {
+        const sectors = window.AppStorage?.SECTORS || {};
+        const cities = window.AppStorage?.CITIES || {};
+
+        // Sectors
+        const secLabel = document.getElementById('multiselect-sectors-label');
+        const secBadge = document.getElementById('multiselect-sectors-badge');
+        if (secLabel && secBadge) {
+            const size = this.selectedSectors.size;
+            if (size === 0) {
+                secLabel.innerHTML = '<i class="fas fa-industry" style="color:#38bdf8;"></i> كل القطاعات (الكل)';
+                secBadge.style.display = 'none';
+            } else if (size === 1) {
+                const singleKey = Array.from(this.selectedSectors)[0];
+                const s = sectors[singleKey];
+                secLabel.innerHTML = `${s?.icon || '🏢'} ${s?.ar || singleKey}`;
+                secBadge.style.display = 'none';
+            } else {
+                secLabel.innerHTML = `<i class="fas fa-industry" style="color:#38bdf8;"></i> ${size} قطاعات محددة`;
+                secBadge.textContent = size;
+                secBadge.style.display = 'inline-block';
+            }
+        }
+
+        // Cities
+        const cityLabel = document.getElementById('multiselect-cities-label');
+        const cityBadge = document.getElementById('multiselect-cities-badge');
+        if (cityLabel && cityBadge) {
+            const size = this.selectedCities.size;
+            if (size === 0) {
+                cityLabel.innerHTML = '<i class="fas fa-map-marker-alt" style="color:#f43f5e;"></i> كل المحافظات والمدن (الكل)';
+                cityBadge.style.display = 'none';
+            } else if (size === 1) {
+                const singleKey = Array.from(this.selectedCities)[0];
+                const c = cities[singleKey];
+                cityLabel.innerHTML = `📍 ${c?.ar || singleKey}`;
+                cityBadge.style.display = 'none';
+            } else {
+                cityLabel.innerHTML = `<i class="fas fa-map-marker-alt" style="color:#f43f5e;"></i> ${size} مناطق محددة`;
+                cityBadge.textContent = size;
+                cityBadge.style.display = 'inline-block';
+            }
+        }
+    },
+
+    renderActiveFilterChips() {
+        const container = document.getElementById('active-filters-bar');
+        const chipsBox = document.getElementById('active-chips-container');
+        if (!container || !chipsBox) return;
+
+        const sectors = window.AppStorage?.SECTORS || {};
+        const cities = window.AppStorage?.CITIES || {};
+
+        const search = document.getElementById('filter-search')?.value?.trim() || '';
+        const contactType = document.getElementById('filter-contact-type')?.value || '';
+        const fleetSize = document.getElementById('filter-fleet-size')?.value || '';
+        const priority = document.getElementById('filter-priority')?.value || '';
+        const assigned = document.getElementById('filter-assigned')?.value || '';
+
+        const hasActiveFilters = (
+            this.selectedSectors.size > 0 ||
+            this.selectedCities.size > 0 ||
+            search ||
+            contactType ||
+            fleetSize ||
+            priority ||
+            assigned
+        );
+
+        if (!hasActiveFilters) {
+            container.style.display = 'none';
+            chipsBox.innerHTML = '';
+            return;
+        }
+
+        container.style.display = 'flex';
+        let chipsHtml = '';
+
+        // Sectors Chips
+        this.selectedSectors.forEach(k => {
+            const s = sectors[k];
+            chipsHtml += `
+                <span class="active-filter-chip">
+                    <span>${s?.icon || '🏢'} ${s?.ar || k}</span>
+                    <i class="fas fa-times chip-remove" title="إزالة" onclick="Companies.removeActiveFilter('sector', '${k}')"></i>
+                </span>
+            `;
+        });
+
+        // Cities Chips
+        this.selectedCities.forEach(k => {
+            const c = cities[k];
+            chipsHtml += `
+                <span class="active-filter-chip" style="background:rgba(244, 63, 94, 0.18); border-color:rgba(244, 63, 94, 0.35); color:#fecdd3;">
+                    <span>📍 ${c?.ar || k}</span>
+                    <i class="fas fa-times chip-remove" title="إزالة" onclick="Companies.removeActiveFilter('city', '${k}')"></i>
+                </span>
+            `;
+        });
+
+        // Contact Type Chip
+        if (contactType) {
+            const labelMap = {
+                has_phone: '📱 بها هاتف مباشر',
+                has_maps: '📍 خرائط جوجل و GPS',
+                has_website: '🌐 موقع رسمي'
+            };
+            chipsHtml += `
+                <span class="active-filter-chip" style="background:rgba(6, 182, 212, 0.18); border-color:rgba(6, 182, 212, 0.35); color:#a5f3fc;">
+                    <span>${labelMap[contactType] || contactType}</span>
+                    <i class="fas fa-times chip-remove" title="إزالة" onclick="Companies.removeActiveFilter('contactType')"></i>
+                </span>
+            `;
+        }
+
+        // Fleet Size Chip
+        if (fleetSize) {
+            const labelMap = {
+                giant_fleet: '👑 أساطيل عملاقة (100+)',
+                large_fleet: '🏆 أساطيل ضخمة (50 - 99)',
+                medium_fleet: '🚚 أساطيل متوسطة (15 - 49)',
+                small_fleet: '🚐 أساطيل صغيرة (< 15)'
+            };
+            chipsHtml += `
+                <span class="active-filter-chip" style="background:rgba(16, 185, 129, 0.18); border-color:rgba(16, 185, 129, 0.35); color:#a7f3d0;">
+                    <span>${labelMap[fleetSize] || fleetSize}</span>
+                    <i class="fas fa-times chip-remove" title="إزالة" onclick="Companies.removeActiveFilter('fleetSize')"></i>
+                </span>
+            `;
+        }
+
+        // Priority Chip
+        if (priority) {
+            chipsHtml += `
+                <span class="active-filter-chip" style="background:rgba(245, 158, 11, 0.18); border-color:rgba(245, 158, 11, 0.35); color:#fde68a;">
+                    <span>🎯 أولوية ${priority}</span>
+                    <i class="fas fa-times chip-remove" title="إزالة" onclick="Companies.removeActiveFilter('priority')"></i>
+                </span>
+            `;
+        }
+
+        // Search Chip
+        if (search) {
+            chipsHtml += `
+                <span class="active-filter-chip" style="background:rgba(56, 189, 248, 0.18); border-color:rgba(56, 189, 248, 0.35); color:#bae6fd;">
+                    <span>🔍 "${search}"</span>
+                    <i class="fas fa-times chip-remove" title="إزالة" onclick="Companies.removeActiveFilter('search')"></i>
+                </span>
+            `;
+        }
+
+        chipsBox.innerHTML = chipsHtml;
+    },
+
+    removeActiveFilter(type, key) {
+        if (type === 'sector' && key) {
+            this.selectedSectors.delete(key);
+            this._syncDropdownDOM('sectors');
+            this.updateMultiSelectLabels();
+        } else if (type === 'city' && key) {
+            this.selectedCities.delete(key);
+            this._syncDropdownDOM('cities');
+            this.updateMultiSelectLabels();
+        } else if (type === 'contactType') {
+            const el = document.getElementById('filter-contact-type');
+            if (el) el.value = '';
+        } else if (type === 'fleetSize') {
+            const el = document.getElementById('filter-fleet-size');
+            if (el) el.value = '';
+        } else if (type === 'priority') {
+            const el = document.getElementById('filter-priority');
+            if (el) el.value = '';
+        } else if (type === 'search') {
+            const el = document.getElementById('filter-search');
+            if (el) el.value = '';
+        }
+        this.onFilterChange(true);
+    },
+
     populateSectorSelects() {
         const sectors = window.AppStorage ? window.AppStorage.SECTORS : null;
         if (!sectors) return;
 
-        const filterSec = document.getElementById('filter-sector');
         const modalSec = document.getElementById('company-sector');
-
-        let optionsHtml = '<option value="">كل القطاعات</option>';
         let modalOptionsHtml = '<option value="">اختر القطاع</option>';
 
         Object.keys(sectors).forEach(key => {
             const s = sectors[key];
-            optionsHtml += `<option value="${key}">${s.icon} ${s.ar}</option>`;
             modalOptionsHtml += `<option value="${key}">${s.icon} ${s.ar}</option>`;
         });
-
-        if (filterSec) {
-            const curVal = filterSec.value;
-            filterSec.innerHTML = optionsHtml;
-            if (curVal) filterSec.value = curVal;
-        }
 
         if (modalSec) {
             const curValModal = modalSec.value;
@@ -63,21 +377,20 @@ const Companies = {
             sectorCounts[secKey] = (sectorCounts[secKey] || 0) + 1;
         });
 
-        const activeSector = document.getElementById('filter-sector')?.value || '';
+        const isAllActive = this.selectedSectors.size === 0;
 
         let html = `<span style="font-size: 13px; font-weight: 800; color: #38bdf8; margin-left: 6px;"><i class="fas fa-layer-group" style="color:#38bdf8;"></i> قطاعات الأعمال والإنتاج (اضغط للتصفية المباشرة):</span>`;
         
-        const isAllActive = !activeSector ? 'active' : '';
-        const allStyle = !activeSector 
+        const allStyle = isAllActive 
             ? 'background: rgba(56, 189, 248, 0.3); color: #7dd3fc; border: 1px solid #38bdf8; font-weight: 800;'
             : 'background: rgba(30, 41, 59, 0.6); color: #94a3b8; border: 1px solid #475569;';
 
-        html += `<button type="button" class="btn btn-sm sector-pill ${isAllActive}" onclick="Companies.setSectorFilter('', this)" style="${allStyle} border-radius: 20px; font-size: 12px; padding: 5px 13px; cursor: pointer; transition: all 0.2s;">🌐 جميع القطاعات (${allCompanies.length})</button>`;
+        html += `<button type="button" class="btn btn-sm sector-pill ${isAllActive ? 'active' : ''}" onclick="Companies.setSectorFilter('', this)" style="${allStyle} border-radius: 20px; font-size: 12px; padding: 5px 13px; cursor: pointer; transition: all 0.2s;">🌐 جميع القطاعات (${allCompanies.length})</button>`;
 
         Object.keys(sectors).forEach(key => {
             const s = sectors[key];
             const count = sectorCounts[key] || 0;
-            const isActive = activeSector === key;
+            const isActive = this.selectedSectors.has(key);
             const pillStyle = isActive 
                 ? 'background: rgba(16, 185, 129, 0.3); color: #6ee7b7; border: 1px solid #10b981; font-weight: 800;' 
                 : 'background: rgba(30, 41, 59, 0.6); color: #cbd5e1; border: 1px solid #475569;';
@@ -89,11 +402,20 @@ const Companies = {
     },
 
     setSectorFilter(sectorKey, btnEl) {
-        const filterSec = document.getElementById('filter-sector');
-        if (filterSec) {
-            filterSec.value = sectorKey;
+        if (!sectorKey) {
+            this.selectedSectors.clear();
+        } else {
+            if (this.selectedSectors.has(sectorKey) && this.selectedSectors.size === 1) {
+                this.selectedSectors.clear();
+            } else {
+                this.selectedSectors.clear();
+                this.selectedSectors.add(sectorKey);
+            }
         }
-        this.onFilterChange();
+        this._syncDropdownDOM('sectors');
+        this.updateMultiSelectLabels();
+        this.renderSectorPills();
+        this.onFilterChange(true);
     },
 
     _lastUsersCount: 0,
@@ -169,6 +491,7 @@ const Companies = {
         // Filters
         document.getElementById('filter-sector')?.addEventListener('change', () => this.onFilterChange(true));
         document.getElementById('filter-city')?.addEventListener('change', () => this.onFilterChange(true));
+        document.getElementById('filter-contact-type')?.addEventListener('change', () => this.onFilterChange(true));
         document.getElementById('filter-priority')?.addEventListener('change', () => this.onFilterChange(true));
         document.getElementById('filter-fleet-type')?.addEventListener('change', () => this.onFilterChange(true));
         document.getElementById('filter-fleet-size')?.addEventListener('change', () => this.onFilterChange(true));
@@ -177,6 +500,13 @@ const Companies = {
         document.getElementById('filter-assigned')?.addEventListener('change', () => this.onFilterChange(true));
         document.getElementById('filter-search')?.addEventListener('input', () => this.onFilterChange(false));
         document.getElementById('btn-clear-filters')?.addEventListener('click', () => this.clearFilters());
+
+        // Close multi-select dropdowns on outside click
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.custom-multiselect')) {
+                Companies.closeAllMultiDropdowns();
+            }
+        });
 
         // View toggle
         document.getElementById('btn-view-table')?.addEventListener('click', () => this.setView('table'));
@@ -248,12 +578,21 @@ const Companies = {
     },
 
     clearFilters() {
-        ['filter-sector', 'filter-city', 'filter-priority', 'filter-fleet-type', 'filter-fleet-size', 'filter-added-date', 'filter-sort', 'filter-assigned', 'filter-search'].forEach(id => {
+        ['filter-sector', 'filter-city', 'filter-contact-type', 'filter-priority', 'filter-fleet-type', 'filter-fleet-size', 'filter-added-date', 'filter-sort', 'filter-assigned', 'filter-search'].forEach(id => {
             const el = document.getElementById(id);
             if (el) el.value = '';
         });
         const sortSelect = document.getElementById('filter-sort');
         if (sortSelect) sortSelect.value = 'latest';
+
+        // Reset multi-select sets & UI
+        this.selectedSectors.clear();
+        this.selectedCities.clear();
+        this._syncDropdownDOM('sectors');
+        this._syncDropdownDOM('cities');
+        this.updateMultiSelectLabels();
+        this.renderSectorPills();
+        this.renderActiveFilterChips();
 
         document.querySelectorAll('.company-quick-pill').forEach(b => {
             b.style.opacity = '0.6';
@@ -278,8 +617,9 @@ const Companies = {
         }
         if (!rawCompanies || rawCompanies.length === 0) return [];
 
-        const sector = document.getElementById('filter-sector')?.value;
-        const city = document.getElementById('filter-city')?.value;
+        const legacySector = document.getElementById('filter-sector')?.value;
+        const legacyCity = document.getElementById('filter-city')?.value;
+        const contactType = document.getElementById('filter-contact-type')?.value;
         const priority = document.getElementById('filter-priority')?.value;
         const fleetType = document.getElementById('filter-fleet-type')?.value;
         const fleetSize = document.getElementById('filter-fleet-size')?.value;
@@ -291,16 +631,24 @@ const Companies = {
         const now = Date.now();
         const todayStr = new Date().toISOString().split('T')[0];
 
+        const sectorSet = this.selectedSectors.size > 0 ? this.selectedSectors : (legacySector ? new Set([legacySector]) : null);
+        const citySet = this.selectedCities.size > 0 ? this.selectedCities : (legacyCity ? new Set([legacyCity]) : null);
+
         // 1 SINGLE OPTIMIZED PASS FILTER (100X Faster!)
         const companies = rawCompanies.filter(c => {
-            if (sector && c.sector !== sector) return false;
-            if (city && c.city !== city) return false;
+            if (sectorSet && !sectorSet.has(c.sector)) return false;
+            if (citySet && !citySet.has(c.city)) return false;
             if (priority && c.priority !== priority) return false;
             if (fleetType && c.fleetType !== fleetType) return false;
 
+            if (contactType === 'has_phone' && !c.phone1 && !c.mobile && !c.phone2) return false;
+            if (contactType === 'has_maps' && !((c.latitude && c.longitude) || (c.lat && c.lng))) return false;
+            if (contactType === 'has_website' && (!c.website || c.website === '—')) return false;
+
             if (fleetSize) {
                 const size = Number(c.fleetSize) || 0;
-                if (fleetSize === 'large_fleet' && size < 50) return false;
+                if (fleetSize === 'giant_fleet' && size < 100) return false;
+                if (fleetSize === 'large_fleet' && (size < 50 || size >= 100)) return false;
                 if (fleetSize === 'medium_fleet' && (size < 15 || size >= 50)) return false;
                 if (fleetSize === 'small_fleet' && (size <= 0 || size >= 15)) return false;
                 if (fleetSize === 'no_fleet' && size > 0) return false;
@@ -365,7 +713,7 @@ const Companies = {
                 const pB = order[b.priority] || 2;
                 return pA - pB;
             }
-            if (sortMode === 'name_asc') {
+            if (sortMode === 'name' || sortMode === 'name_asc') {
                 return (a.nameAr || a.nameEn || '').localeCompare(b.nameAr || b.nameEn || '', 'ar');
             }
 
@@ -398,8 +746,23 @@ const Companies = {
     async render() {
         this.refreshUserFilter();
 
-        const sector = document.getElementById('filter-sector')?.value || '';
-        const city = document.getElementById('filter-city')?.value || '';
+        const sectorsListEl = document.getElementById('multiselect-sectors-list');
+        if (sectorsListEl && sectorsListEl.children.length === 0) {
+            this.initMultiSelects();
+        }
+        const pillsContainer = document.getElementById('sector-quick-pills-bar');
+        if (pillsContainer && pillsContainer.children.length === 0) {
+            this.renderSectorPills();
+        }
+
+        const sectors = Array.from(this.selectedSectors);
+        const cities = Array.from(this.selectedCities);
+        const legacySector = document.getElementById('filter-sector')?.value || '';
+        const legacyCity = document.getElementById('filter-city')?.value || '';
+        const finalSectors = sectors.length > 0 ? sectors : (legacySector ? [legacySector] : []);
+        const finalCities = cities.length > 0 ? cities : (legacyCity ? [legacyCity] : []);
+
+        const contactType = document.getElementById('filter-contact-type')?.value || '';
         const priority = document.getElementById('filter-priority')?.value || '';
         const fleetType = document.getElementById('filter-fleet-type')?.value || '';
         const fleetSize = document.getElementById('filter-fleet-size')?.value || '';
@@ -410,8 +773,11 @@ const Companies = {
 
         const result = await window.AppStorage.queryCompanies({
             search,
-            sector,
-            city,
+            sector: finalSectors.length === 1 ? finalSectors[0] : '',
+            sectors: finalSectors,
+            city: finalCities.length === 1 ? finalCities[0] : '',
+            cities: finalCities,
+            contactType,
             priority,
             fleetType,
             fleetSize,
@@ -421,6 +787,8 @@ const Companies = {
             page: this.currentPage,
             pageSize: this.pageSize
         });
+
+        this.renderActiveFilterChips();
 
         const pageCompanies = result.items || [];
         const total = result.total || 0;
