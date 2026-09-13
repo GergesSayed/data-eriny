@@ -287,6 +287,9 @@ const Calls = {
                 timeEl.value = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
             }
 
+            const searchInput = document.getElementById('call-company-search');
+            if (searchInput) searchInput.value = '';
+
             this.populateCompanyDropdown('call-companyId', companyId);
 
             if (companyId) {
@@ -303,28 +306,68 @@ const Calls = {
         }
     },
 
-    populateCompanyDropdown(selectId, selectedCompanyId = '') {
+    populateCompanyDropdown(selectId, selectedCompanyId = '', filterQuery = '') {
         const select = document.getElementById(selectId);
         if (!select) return;
 
-        let companies = window.AppStorage.getScopedCompanies();
+        const allCompanies = (window.AppStorage && window.AppStorage.getScopedCompanies) ? window.AppStorage.getScopedCompanies() : [];
+        const normQuery = filterQuery ? (window.AppStorage._normalizeArabicName ? window.AppStorage._normalizeArabicName(filterQuery) : filterQuery.toLowerCase().trim()) : '';
+        const searchInput = document.getElementById('call-company-search');
 
-        // If a specific company is selected, ensure it exists in the options even if scoping would filter it out
+        let targetComp = null;
         if (selectedCompanyId) {
-            const targetComp = window.AppStorage.getCompany(selectedCompanyId);
-            if (targetComp && !companies.some(c => String(c.id) === String(selectedCompanyId))) {
-                companies = [targetComp, ...companies];
+            targetComp = window.AppStorage.getCompany ? window.AppStorage.getCompany(selectedCompanyId) : null;
+            if (targetComp && searchInput && !filterQuery) {
+                searchInput.value = targetComp.nameAr || targetComp.nameEn || '';
             }
         }
 
+        let matches = [];
+        if (normQuery) {
+            // Live in-memory search across companies (takes < 2ms)
+            for (let i = 0; i < allCompanies.length && matches.length < 50; i++) {
+                const c = allCompanies[i];
+                if (!c) continue;
+                const nameNorm = window.AppStorage._normalizeArabicName ? window.AppStorage._normalizeArabicName(c.nameAr || c.nameEn || c.name || '') : (c.nameAr || '').toLowerCase();
+                const phone = String(c.phone1 || c.mobile || '').replace(/[^0-9+]/g, '');
+                if (nameNorm.includes(normQuery) || phone.includes(normQuery)) {
+                    matches.push(c);
+                }
+            }
+        } else {
+            // Limit initial list to 40 items for instant 0ms DOM rendering
+            matches = allCompanies.slice(0, 40);
+        }
+
+        // Guarantee target company is at the top of the list if selected
+        if (targetComp && !matches.some(c => String(c.id) === String(targetComp.id))) {
+            matches.unshift(targetComp);
+        }
+
         let html = '<option value="">اختر الشركة...</option>';
-        companies.forEach(c => {
-            const isSelected = (String(c.id) === String(selectedCompanyId)) ? 'selected="selected"' : '';
+        matches.forEach(c => {
+            const isSelected = (targetComp && String(c.id) === String(targetComp.id)) ? 'selected="selected"' : '';
             const name = c.nameAr || c.nameEn || 'بدون اسم';
-            html += `<option value="${c.id}" ${isSelected}>${name} (${window.AppStorage.getSectorLabel(c.sector)})</option>`;
+            const sector = (window.AppStorage && window.AppStorage.getSectorLabel) ? window.AppStorage.getSectorLabel(c.sector) : (c.sector || '');
+            html += `<option value="${c.id}" ${isSelected}>${name} (${sector})</option>`;
         });
         select.innerHTML = html;
-        select.value = selectedCompanyId || '';
+        if (selectedCompanyId) {
+            select.value = selectedCompanyId;
+        }
+
+        select.onchange = () => {
+            const opt = select.options[select.selectedIndex];
+            if (opt && opt.value && searchInput) {
+                searchInput.value = opt.text.split('(')[0].trim();
+            }
+        };
+    },
+
+    filterCompanyDropdown(query) {
+        const select = document.getElementById('call-companyId');
+        const currentVal = select ? select.value : '';
+        this.populateCompanyDropdown('call-companyId', currentVal, query);
     },
 
     edit(id) {
@@ -333,6 +376,9 @@ const Calls = {
 
         document.getElementById('modal-call-title').innerHTML = '<i class="fas fa-edit"></i> تعديل المكالمة';
         document.getElementById('call-id').value = call.id;
+
+        const searchInput = document.getElementById('call-company-search');
+        if (searchInput) searchInput.value = '';
 
         this.populateCompanyDropdown('call-companyId', call.companyId);
 
