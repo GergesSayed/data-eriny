@@ -12,13 +12,37 @@ const Companies = {
     selectedSectors: new Set(),
     selectedCities: new Set(),
 
+    _countsCache: null,
+    _countsCacheLength: 0,
+
+    getSectorAndCityCounts() {
+        const allCompanies = window.AppStorage ? window.AppStorage.getCompanies() : [];
+        if (this._countsCache && this._countsCacheLength === allCompanies.length) {
+            return this._countsCache;
+        }
+
+        const sectorCounts = {};
+        const cityCounts = {};
+        for (let i = 0; i < allCompanies.length; i++) {
+            const c = allCompanies[i];
+            if (!c) continue;
+            const sec = c.sector || 'other';
+            const ct = c.city || 'other';
+            sectorCounts[sec] = (sectorCounts[sec] || 0) + 1;
+            cityCounts[ct] = (cityCounts[ct] || 0) + 1;
+        }
+        this._countsCacheLength = allCompanies.length;
+        this._countsCache = { sectorCounts, cityCounts, total: allCompanies.length };
+        return this._countsCache;
+    },
+
     init() {
         this.viewMode = (window.innerWidth <= 768) ? 'cards' : 'table';
         this.populateSectorSelects();
-        this.initMultiSelects();
         this.bindEvents();
         this.refreshUserFilter();
         if (typeof App !== 'undefined' && App.currentPage === 'companies') {
+            this.initMultiSelects();
             this.render();
         }
     },
@@ -26,17 +50,7 @@ const Companies = {
     initMultiSelects() {
         const sectors = window.AppStorage ? window.AppStorage.SECTORS : null;
         const cities = window.AppStorage ? window.AppStorage.CITIES : null;
-        const allCompanies = window.AppStorage ? window.AppStorage.getCompanies() : [];
-
-        // Count companies per sector and city
-        const sectorCounts = {};
-        const cityCounts = {};
-        allCompanies.forEach(c => {
-            const sec = c.sector || 'other';
-            const ct = c.city || 'other';
-            sectorCounts[sec] = (sectorCounts[sec] || 0) + 1;
-            cityCounts[ct] = (cityCounts[ct] || 0) + 1;
-        });
+        const { sectorCounts, cityCounts } = this.getSectorAndCityCounts();
 
         // 1. Populate Sectors List
         const sectorsListEl = document.getElementById('multiselect-sectors-list');
@@ -371,11 +385,7 @@ const Companies = {
         const sectors = window.AppStorage.SECTORS;
         if (!sectors) return;
 
-        const sectorCounts = {};
-        allCompanies.forEach(c => {
-            const secKey = c.sector || 'other';
-            sectorCounts[secKey] = (sectorCounts[secKey] || 0) + 1;
-        });
+        const { sectorCounts } = this.getSectorAndCityCounts();
 
         const isAllActive = this.selectedSectors.size === 0;
 

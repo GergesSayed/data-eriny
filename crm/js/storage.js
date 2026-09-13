@@ -1830,6 +1830,7 @@ const AppStorage = {
 
     invalidateScopedCache() {
         this._scopedCacheByUser.clear();
+        this._companyIdMap = null;
     },
 
     getScopedCompanies(user) {
@@ -1869,13 +1870,32 @@ const AppStorage = {
         return res;
     },
 
+    _companyIdMap: null,
+
+    _getCompanyIdMap() {
+        const memLen = this.companiesMemory ? this.companiesMemory.length : 0;
+        if (!this._companyIdMap || this._companyIdMap.size !== memLen) {
+            const map = new Map();
+            const list = this.getCompanies() || [];
+            for (let i = 0; i < list.length; i++) {
+                const c = list[i];
+                if (c && c.id) map.set(String(c.id), c);
+            }
+            this._companyIdMap = map;
+        }
+        return this._companyIdMap;
+    },
+
     getCompany(id) {
-        return this.getCompanies().find(c => c.id === id);
+        if (!id) return null;
+        const map = this._getCompanyIdMap();
+        return map.get(String(id)) || null;
     },
 
     setCompanies(companies) {
         const clean = this.cleanAndFixCompanyData(companies || []);
         this.companiesMemory = clean;
+        this.invalidateScopedCache();
         this.saveAllCompaniesToDB(clean);
         if (this._worker) {
             this._worker.postMessage({ action: 'INIT_INDEX', payload: clean });

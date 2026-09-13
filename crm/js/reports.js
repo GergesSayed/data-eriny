@@ -7,7 +7,9 @@ const Reports = {
 
     init() {
         document.getElementById('report-period')?.addEventListener('change', () => this.render());
-        this.render();
+        if (typeof App !== 'undefined' && App.currentPage === 'reports') {
+            this.render();
+        }
     },
 
     render() {

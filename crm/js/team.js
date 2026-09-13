@@ -6,7 +6,9 @@
 const Team = {
     init() {
         this.bindEvents();
-        this.render();
+        if (typeof App !== 'undefined' && App.currentPage === 'team') {
+            this.render();
+        }
     },
 
     bindEvents() {
@@ -37,30 +39,59 @@ const Team = {
             const users = window.AppStorage.getUsers() || [];
             const allCompanies = window.AppStorage.getCompanies() || [];
             const allCalls = window.AppStorage.getCalls() || [];
-            const activeUserKeys = new Set(users.flatMap(u => [u.id, u.username, u.name].filter(Boolean)));
 
+            // High speed single-pass performance aggregation
+            const userIndexMap = new Map();
             const usersStats = users.map(user => {
-                const assignedCompanies = allCompanies.filter(c => c && (c.assignedTo === user.id || c.assignedTo === user.username || (user.name && c.assignedTo === user.name)));
-                const contactedCompanies = assignedCompanies.filter(c => c.lastCallResult || c.status === 'interested' || c.status === 'contacted' || c.status === 'unqualified');
-                const remainingCompanies = assignedCompanies.filter(c => !c.lastCallResult && c.status !== 'interested' && c.status !== 'contacted' && c.status !== 'unqualified');
-                const interestedLeads = assignedCompanies.filter(c => c.status === 'interested' || c.lastCallResult === 'interested' || c.lastCallResult === 'meeting_scheduled' || c.lastCallResult === 'proposal_sent');
-                const notInterestedLeads = assignedCompanies.filter(c => c.lastCallResult === 'not_interested' || c.lastCallResult === 'wrong_number');
-
-                const userCalls = allCalls.filter(call => call && (call.userId === user.id || call.createdByName === user.name));
-
-                return {
+                const s = {
                     ...user,
-                    assignedCount: assignedCompanies.length,
-                    contactedCount: contactedCompanies.length,
-                    remainingCount: remainingCompanies.length,
-                    interestedCount: interestedLeads.length,
-                    notInterestedCount: notInterestedLeads.length,
-                    callsCount: userCalls.length
+                    assignedCompanies: [],
+                    assignedCount: 0,
+                    contactedCount: 0,
+                    remainingCount: 0,
+                    interestedCount: 0,
+                    notInterestedCount: 0,
+                    callsCount: 0
                 };
+                if (user.id) userIndexMap.set(String(user.id).trim().toLowerCase(), s);
+                if (user.username) userIndexMap.set(String(user.username).trim().toLowerCase(), s);
+                if (user.name) userIndexMap.set(String(user.name).trim().toLowerCase(), s);
+                return s;
             });
 
-            const totalAssigned = allCompanies.filter(c => c && c.assignedTo && activeUserKeys.has(c.assignedTo)).length;
+            let totalAssigned = 0;
+            for (let i = 0; i < allCompanies.length; i++) {
+                const c = allCompanies[i];
+                if (!c || !c.assignedTo) continue;
+                const s = userIndexMap.get(String(c.assignedTo).trim().toLowerCase());
+                if (s) {
+                    totalAssigned++;
+                    s.assignedCount++;
+                    s.assignedCompanies.push(c);
+                    const isContacted = Boolean(c.lastCallResult || c.status === 'interested' || c.status === 'contacted' || c.status === 'unqualified');
+                    if (isContacted) s.contactedCount++;
+                    else s.remainingCount++;
+                    if (c.status === 'interested' || ['interested', 'meeting_scheduled', 'proposal_sent'].includes(c.lastCallResult)) {
+                        s.interestedCount++;
+                    }
+                    if (['not_interested', 'wrong_number'].includes(c.lastCallResult)) {
+                        s.notInterestedCount++;
+                    }
+                }
+            }
             const totalUnassigned = allCompanies.length - totalAssigned;
+
+            for (let i = 0; i < allCalls.length; i++) {
+                const call = allCalls[i];
+                if (!call) continue;
+                if (call.userId) {
+                    const s = userIndexMap.get(String(call.userId).trim().toLowerCase());
+                    if (s) s.callsCount++;
+                } else if (call.createdByName) {
+                    const s = userIndexMap.get(String(call.createdByName).trim().toLowerCase());
+                    if (s) s.callsCount++;
+                }
+            }
 
             teamPage.innerHTML = `
                 <div class="page-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
