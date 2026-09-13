@@ -329,6 +329,7 @@ const AppStorage = {
         if (!userId) {
             sessionStorage.removeItem(this.KEYS.CURRENT_USER);
             localStorage.removeItem(this.KEYS.CURRENT_USER);
+            this.invalidateScopedCache();
             return;
         }
         sessionStorage.setItem(this.KEYS.CURRENT_USER, userId);
@@ -337,6 +338,7 @@ const AppStorage = {
         } else {
             localStorage.removeItem(this.KEYS.CURRENT_USER);
         }
+        this.invalidateScopedCache();
     },
 
     resetToAdmin() {
@@ -404,6 +406,7 @@ const AppStorage = {
         }
         sessionStorage.removeItem(this.KEYS.CURRENT_USER);
         localStorage.removeItem(this.KEYS.CURRENT_USER);
+        this.invalidateScopedCache();
     },
 
     REGIONS: {
@@ -755,7 +758,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=223.0');
+            this._worker = new Worker('js/companies-worker.js?v=225.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -976,7 +979,7 @@ const AppStorage = {
             }
         });
 
-        if (this._worker && this._workerReady) {
+        if (this._worker) {
             this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: records });
         }
     },
@@ -1225,8 +1228,12 @@ const AppStorage = {
                         }
                     });
 
+                    // 4. Apply stored assignments from localStorage (instant 0ms)
+                    this.applyStoredAssignments(masterMap);
+
                     const merged = Array.from(masterMap.values());
                     this.companiesMemory = merged;
+                    this.invalidateScopedCache();
                     localStorage.setItem('fleetcrm_company_count', merged.length);
                     this.updateLiveCounters();
                     resolve(merged);
@@ -1443,6 +1450,10 @@ const AppStorage = {
 
                 // B. Apply assignments directly from cloud assignments endpoint
                 if (data.assignments && typeof data.assignments === 'object') {
+                    this.setStoredAssignments(data.assignments);
+                    this.invalidateScopedCache();
+                    const changedComps = [];
+
                     for (const [compId, assignData] of Object.entries(data.assignments)) {
                         if (!assignData) continue;
                         const comp = idMap.get(String(compId));
@@ -1453,17 +1464,23 @@ const AppStorage = {
                                 comp.assignedTo = targetUser;
                                 comp.assignedAt = targetAt;
                                 anyChanged = true;
+                                changedComps.push(comp);
                             }
                         }
+                    }
+
+                    if (changedComps.length > 0) {
+                        this.saveBatchToIDB(changedComps);
                     }
                 }
 
                 if (anyChanged) {
+                    this.invalidateScopedCache();
+                    this.invalidateStatsCache();
                     const merged = Array.from(idMap.values());
                     this.companiesMemory = merged;
-                    this.saveAllCompaniesToDB(merged, false);
                     this.updateLiveCounters();
-                    if (this._worker && this._workerReady) {
+                    if (this._worker) {
                         this._worker.postMessage({ action: 'INIT_INDEX', payload: merged });
                     }
                     updated = true;
@@ -1741,6 +1758,50 @@ const AppStorage = {
         return deduplicated;
     },
 
+    getStoredAssignments() {
+        try {
+            const raw = localStorage.getItem('fleetcrm_assignments');
+            return raw ? JSON.parse(raw) : {};
+        } catch(e) {
+            return {};
+        }
+    },
+
+    setStoredAssignments(map) {
+        try {
+            if (map && typeof map === 'object') {
+                localStorage.setItem('fleetcrm_assignments', JSON.stringify(map));
+            }
+        } catch(e) {}
+    },
+
+    applyStoredAssignments(target) {
+        const assignments = this.getStoredAssignments();
+        if (!assignments || typeof assignments !== 'object' || Object.keys(assignments).length === 0) return;
+        
+        if (target instanceof Map) {
+            for (const [compId, assignData] of Object.entries(assignments)) {
+                if (!assignData) continue;
+                const comp = target.get(String(compId));
+                if (comp) {
+                    comp.assignedTo = typeof assignData === 'string' ? assignData : (assignData.assignedTo || '');
+                    comp.assignedAt = assignData.assignedAt || comp.assignedAt || null;
+                }
+            }
+        } else if (Array.isArray(target)) {
+            const assignMap = new Map(Object.entries(assignments));
+            for (let i = 0; i < target.length; i++) {
+                const comp = target[i];
+                if (!comp || !comp.id) continue;
+                const assignData = assignMap.get(String(comp.id));
+                if (assignData) {
+                    comp.assignedTo = typeof assignData === 'string' ? assignData : (assignData.assignedTo || '');
+                    comp.assignedAt = assignData.assignedAt || comp.assignedAt || null;
+                }
+            }
+        }
+    },
+
     getCompanies() {
         if (!this.companiesMemory || !Array.isArray(this.companiesMemory) || this.companiesMemory.length === 0) {
             if (localStorage.getItem('fleetcrm_user_wiped_companies') !== 'true') {
@@ -1755,8 +1816,10 @@ const AppStorage = {
                         if (t && t.id) syncMap.set(t.id, t);
                     });
                 }
+                this.applyStoredAssignments(syncMap);
                 if (syncMap.size > 0) {
                     this.companiesMemory = Array.from(syncMap.values());
+                    this.invalidateScopedCache();
                 }
             }
         }
@@ -1814,7 +1877,7 @@ const AppStorage = {
         const clean = this.cleanAndFixCompanyData(companies || []);
         this.companiesMemory = clean;
         this.saveAllCompaniesToDB(clean);
-        if (this._worker && this._workerReady) {
+        if (this._worker) {
             this._worker.postMessage({ action: 'INIT_INDEX', payload: clean });
         }
         if (this.autoSyncToCloud) this.autoSyncToCloud(clean);
@@ -1873,7 +1936,7 @@ const AppStorage = {
 
         if (addedBatch.length > 0) {
             await this.saveBatchToIDB(addedBatch);
-            if (this._worker && this._workerReady) {
+            if (this._worker) {
                 this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: addedBatch });
             }
         }
@@ -1918,7 +1981,7 @@ const AppStorage = {
         this.invalidateScopedCache();
         this.saveBatchToIDB([updatedItem]);
 
-        if (this._worker && this._workerReady) {
+        if (this._worker) {
             this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: [updatedItem] });
         }
 
@@ -1966,7 +2029,7 @@ const AppStorage = {
         } catch(e) {}
 
         // 3. Fast single-record deletion in Web Worker (0.1ms)
-        if (this._worker && this._workerReady) {
+        if (this._worker) {
             this._worker.postMessage({ action: 'DELETE_COMPANY', payload: sId });
         }
 
@@ -1990,11 +2053,19 @@ const AppStorage = {
         company.assignedAt = userId ? new Date().toISOString() : null;
         company.lastUpdated = new Date().toISOString().split('T')[0];
         
+        // Update local persistent assignments store
+        const storedAssignments = this.getStoredAssignments();
+        storedAssignments[String(companyId)] = {
+            assignedTo: userId || '',
+            assignedAt: company.assignedAt
+        };
+        this.setStoredAssignments(storedAssignments);
+
         this.invalidateStatsCache();
         this.invalidateScopedCache();
         this.saveBatchToIDB([company]);
         
-        if (this._worker && this._workerReady) {
+        if (this._worker) {
             this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: [company] });
         }
         
@@ -2041,11 +2112,16 @@ const AppStorage = {
         });
 
         if (updatedBatch.length > 0) {
+            // Update local persistent assignments store
+            const storedAssignments = this.getStoredAssignments();
+            Object.assign(storedAssignments, assignmentsMap);
+            this.setStoredAssignments(storedAssignments);
+
             this.invalidateStatsCache();
             this.invalidateScopedCache();
             this.saveBatchToIDB(updatedBatch);
             
-            if (this._worker && this._workerReady) {
+            if (this._worker) {
                 this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: updatedBatch });
             }
             
@@ -2483,7 +2559,7 @@ const AppStorage = {
                 }
                 
                 this.saveBatchToIDB([company]);
-                if (this._worker && this._workerReady) {
+                if (this._worker) {
                     this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: [company] });
                 }
             }
