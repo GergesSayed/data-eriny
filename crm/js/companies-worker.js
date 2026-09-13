@@ -185,38 +185,47 @@ self.onmessage = function(e) {
         let candidateIndices = null;
 
         if (!isAdmin && userKeys && Array.isArray(userKeys) && userKeys.length > 0) {
-            const combined = [];
+            const seenCandidateIdx = new Set();
             for (let i = 0; i < userKeys.length; i++) {
-                const arr = _assignedBuckets.get(userKeys[i]);
-                if (arr) combined.push(...arr);
+                const k = userKeys[i];
+                if (!k) continue;
+                const arr = _assignedBuckets.get(k);
+                if (arr) {
+                    for (let j = 0; j < arr.length; j++) seenCandidateIdx.add(arr[j]);
+                }
             }
-            candidateIndices = combined;
+            candidateIndices = Array.from(seenCandidateIdx);
         } else if (sectorSet && sectorSet.size <= 2) {
-            const combined = [];
+            const seenCandidateIdx = new Set();
             sectorSet.forEach(sec => {
                 const arr = _sectorBuckets.get(sec);
-                if (arr) combined.push(...arr);
+                if (arr) {
+                    for (let j = 0; j < arr.length; j++) seenCandidateIdx.add(arr[j]);
+                }
             });
-            candidateIndices = combined;
+            candidateIndices = Array.from(seenCandidateIdx);
         } else if (citySet && citySet.size <= 2) {
-            const combined = [];
+            const seenCandidateIdx = new Set();
             citySet.forEach(ct => {
                 const arr = _cityBuckets.get(ct);
-                if (arr) combined.push(...arr);
+                if (arr) {
+                    for (let j = 0; j < arr.length; j++) seenCandidateIdx.add(arr[j]);
+                }
             });
-            candidateIndices = combined;
+            candidateIndices = Array.from(seenCandidateIdx);
         } else if (assigned && assigned !== 'my_leads' && assigned !== 'unassigned' && _assignedBuckets.has(assigned.toLowerCase())) {
             candidateIndices = _assignedBuckets.get(assigned.toLowerCase());
         }
 
         const sourceLength = candidateIndices ? candidateIndices.length : _companiesIndex.length;
         const filtered = [];
+        const seenIds = new Set();
 
         // 2. High-Speed Loop with zero closure allocations
         for (let i = 0; i < sourceLength; i++) {
             const idx = candidateIndices ? candidateIndices[i] : i;
             const c = _companiesIndex[idx];
-            if (!c) continue;
+            if (!c || seenIds.has(c.id)) continue;
 
             // Strict Employee Isolation: Non-admin can ONLY view companies assigned to them!
             if (!isAdmin) {
@@ -278,6 +287,7 @@ self.onmessage = function(e) {
                 if (!matchAr && !matchEn && !matchPhone && !matchContact) continue;
             }
 
+            seenIds.add(c.id);
             filtered.push(c);
         }
 

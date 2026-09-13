@@ -755,7 +755,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=220.0');
+            this._worker = new Worker('js/companies-worker.js?v=221.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -795,16 +795,16 @@ const AppStorage = {
             const currentUserId = currentUser ? (currentUser.id || currentUser.username) : '';
             
             const matchedUser = currentUser ? (this.getUser(currentUser.id) || this.getUserByUsername(currentUser.username) || this.getUserByEmail(currentUser.email) || currentUser) : null;
-            const userKeys = matchedUser ? [
-                String(matchedUser.id || '').trim().toLowerCase(),
-                String(matchedUser.username || '').trim().toLowerCase(),
-                String(matchedUser.email || '').trim().toLowerCase(),
-                String(matchedUser.name || '').trim().toLowerCase(),
-                String(currentUser.id || '').trim().toLowerCase(),
-                String(currentUser.username || '').trim().toLowerCase(),
-                String(currentUser.email || '').trim().toLowerCase(),
-                String(currentUser.name || '').trim().toLowerCase()
-            ].filter(Boolean) : [];
+            const userKeys = Array.from(new Set([
+                String(matchedUser ? matchedUser.id : '').trim().toLowerCase(),
+                String(matchedUser ? matchedUser.username : '').trim().toLowerCase(),
+                String(matchedUser ? matchedUser.email : '').trim().toLowerCase(),
+                String(matchedUser ? matchedUser.name : '').trim().toLowerCase(),
+                String(currentUser ? currentUser.id : '').trim().toLowerCase(),
+                String(currentUser ? currentUser.username : '').trim().toLowerCase(),
+                String(currentUser ? currentUser.email : '').trim().toLowerCase(),
+                String(currentUser ? currentUser.name : '').trim().toLowerCase()
+            ].filter(Boolean)));
 
             // 1. Try Web Worker first for non-blocking 60fps search
             if (this._worker && this._workerReady) {
