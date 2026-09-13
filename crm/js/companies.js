@@ -1504,9 +1504,11 @@ const Companies = {
     },
 
     showDetail(id) {
+        this.currentDetailId = id;
         const company = window.AppStorage.getCompany(id);
         if (!company) return;
 
+        const currentUser = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
         const esc = (s) => window.AppStorage.escapeHtml(s || '');
         document.getElementById('detail-company-name').textContent = company.nameAr || company.nameEn;
 
@@ -1759,10 +1761,13 @@ const Companies = {
                 <h3><i class="fas fa-history"></i> سجل المكالمات (${calls.length})</h3>
                 ${calls.length === 0 ? '<p style="color:var(--text-muted); font-size:0.85rem;">لا توجد مكالمات بعد</p>' :
                 calls.slice(0, 10).map(call => `
-                    <div class="detail-call-item">
+                    <div class="detail-call-item" style="display:flex; align-items:center; gap:8px; padding:6px 8px; border-radius:6px; margin-bottom:4px; background:rgba(255,255,255,0.02);">
                         <span style="color:var(--text-muted); font-family:Inter; font-size:0.75rem; min-width:80px;">${call.date}</span>
                         <span class="result-badge result-${call.result}">${window.AppStorage.getCallResultLabel(call.result)}</span>
-                        <span style="flex:1; font-size:0.8rem; color:var(--text-secondary);">${call.notes || ''}</span>
+                        <span style="flex:1; font-size:0.8rem; color:var(--text-secondary);">${esc(call.notes || '')}</span>
+                        ${currentUser && currentUser.role === 'admin' ? `
+                            <button class="btn-icon btn-delete" style="padding:2px 6px; font-size:11px; margin-right:auto; color:var(--danger, #ef4444); background:transparent; border:none; cursor:pointer;" onclick="event.stopPropagation(); window.AppStorage.deleteCall('${call.id}'); Companies.showDetail('${id}'); if(typeof Calls !== 'undefined') Calls.render(); App.showToast('تم حذف المكالمة بنجاح', 'success');" title="حذف المكالمة"><i class="fas fa-trash"></i></button>
+                        ` : ''}
                     </div>
                 `).join('')}
             </div>

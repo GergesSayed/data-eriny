@@ -50,12 +50,13 @@ window.SupabaseClient = (function() {
                 }
             };
 
-            const [dynamicCompaniesObj, assignmentsObj, callsData, usersData, actsData] = await Promise.all([
+            const [dynamicCompaniesObj, assignmentsObj, callsData, usersData, actsData, deletedCallsObj] = await Promise.all([
                 safeFetch(`${FIREBASE_DB_URL}/dynamic_companies.json?t=${Date.now()}`, {}),
                 safeFetch(`${FIREBASE_DB_URL}/assignments.json?t=${Date.now()}`, {}),
                 safeFetch(`${FIREBASE_DB_URL}/calls.json?t=${Date.now()}`, []),
                 safeFetch(`${FIREBASE_DB_URL}/users.json?t=${Date.now()}`, []),
-                safeFetch(`${FIREBASE_DB_URL}/activities.json?t=${Date.now()}`, [])
+                safeFetch(`${FIREBASE_DB_URL}/activities.json?t=${Date.now()}`, []),
+                safeFetch(`${FIREBASE_DB_URL}/deleted_calls.json?t=${Date.now()}`, {})
             ]);
             clearTimeout(timeoutId);
 
@@ -68,12 +69,22 @@ window.SupabaseClient = (function() {
                 }
             }
 
+            let deletedCallsList = [];
+            if (deletedCallsObj && typeof deletedCallsObj === 'object') {
+                if (Array.isArray(deletedCallsObj)) {
+                    deletedCallsList = deletedCallsObj.filter(Boolean).map(String);
+                } else {
+                    deletedCallsList = Object.keys(deletedCallsObj);
+                }
+            }
+
             setStatus('synced', { dynamicCount: dynamicCompanies.length });
 
             return {
                 dynamicCompanies: dynamicCompanies,
                 assignments: (assignmentsObj && typeof assignmentsObj === 'object') ? assignmentsObj : {},
                 calls: Array.isArray(callsData) ? callsData : (callsData ? Object.values(callsData) : []),
+                deletedCalls: deletedCallsList,
                 users: Array.isArray(usersData) ? usersData : (usersData ? Object.values(usersData) : []),
                 activities: Array.isArray(actsData) ? actsData : (actsData ? Object.values(actsData) : []),
                 updated_at: new Date().toISOString()
@@ -131,6 +142,22 @@ window.SupabaseClient = (function() {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(data.calls),
+                        signal: controller.signal
+                    })
+                );
+            }
+
+            // 2.1 Sync deleted call tombstones if provided
+            if (data.deletedCalls && Array.isArray(data.deletedCalls) && data.deletedCalls.length > 0) {
+                const delMap = {};
+                data.deletedCalls.forEach(id => {
+                    if (id) delMap[String(id)] = { deletedAt: Date.now() };
+                });
+                promises.push(
+                    fetch(`${FIREBASE_DB_URL}/deleted_calls.json`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(delMap),
                         signal: controller.signal
                     })
                 );
@@ -387,6 +414,33 @@ window.SupabaseClient = (function() {
         }
     }
 
+    async function pushDeletedCall(id) {
+        if (!id) return false;
+        try {
+            const resp = await fetch(`${FIREBASE_DB_URL}/deleted_calls/${id}.json`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ deletedAt: Date.now() })
+            });
+            try {
+                const now = Date.now();
+                lastSyncTimestamp = now;
+                await fetch(`${FIREBASE_DB_URL}/metadata.json`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        updated_at: new Date().toISOString(),
+                        sync_timestamp: now
+                    })
+                });
+            } catch(e) {}
+            return resp.ok;
+        } catch(e) {
+            console.warn('pushDeletedCall error:', e);
+            return false;
+        }
+    }
+
     return {
         getStatus,
         onStatusChange,
@@ -396,6 +450,7 @@ window.SupabaseClient = (function() {
         pushDynamicCompanies,
         pushUsers,
         pushAssignments,
+        pushDeletedCall,
         deleteDynamicCompany,
         wipeDynamicCompanies,
         subscribeToChanges,
