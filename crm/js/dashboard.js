@@ -223,25 +223,40 @@ const Dashboard = {
         if (followups.length === 0) {
             container.innerHTML = `
                 <div class="empty-state small">
-                    <i class="fas fa-check-circle"></i>
-                    <p>لا توجد متابعات لليوم 🎉</p>
+                    <i class="fas fa-check-circle" style="color: #10b981;"></i>
+                    <p>لا توجد متابعات مستحقة لليوم 🎉</p>
                 </div>`;
             return;
         }
 
+        const today = new Date().toISOString().split('T')[0];
+
         container.innerHTML = followups.map(call => {
             const company = window.AppStorage.getCompany(call.companyId);
-            const companyName = company ? esc(company.nameAr) : 'شركة غير معروفة';
+            const companyName = company ? esc(company.nameAr || company.nameEn) : 'شركة غير معروفة';
+            const isOverdue = call.followUpDate && call.followUpDate < today;
+            const phone = company ? (company.mobile || company.phone1 || company.phone || '') : '';
+            const statusBadge = isOverdue
+                ? `<span style="font-size: 10px; color: #ef4444; background: rgba(239, 68, 68, 0.12); padding: 2px 6px; border-radius: 6px; font-weight: 700; border: 1px solid rgba(239, 68, 68, 0.25);">⚠️ متأخرة (${call.followUpDate})</span>`
+                : `<span style="font-size: 10px; color: #3b82f6; background: rgba(59, 130, 246, 0.12); padding: 2px 6px; border-radius: 6px; font-weight: 700; border: 1px solid rgba(59, 130, 246, 0.25);">📅 مستحقة اليوم</span>`;
+
             return `
-                <div class="followup-item">
-                    <div class="followup-icon"><i class="fas fa-bell"></i></div>
-                    <div class="followup-info">
-                        <div class="name">${companyName}</div>
-                        <div class="detail">${esc(call.contactPerson || '')} — ${window.AppStorage.getCallResultLabel(call.result)}</div>
+                <div class="followup-item" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 10px; margin-bottom: 8px;">
+                    <div class="followup-icon" style="width: 36px; height: 36px; border-radius: 8px; background: ${isOverdue ? 'rgba(239,68,68,0.15)' : 'rgba(124,58,237,0.15)'}; color: ${isOverdue ? '#ef4444' : '#7c3aed'}; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                        <i class="fas ${isOverdue ? 'fa-exclamation-triangle' : 'fa-bell'}"></i>
                     </div>
-                    <div class="followup-action">
-                        <button class="btn btn-accent btn-sm" onclick="App.logCallForCompany('${call.companyId}')">
-                            <i class="fas fa-phone"></i>
+                    <div class="followup-info" style="flex: 1; min-width: 0;">
+                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <span class="name" style="font-weight: 700; font-size: 13px; cursor: pointer; color: var(--text-primary);" onclick="Companies.showDetail('${call.companyId}')">${companyName}</span>
+                            ${statusBadge}
+                        </div>
+                        <div class="detail" style="font-size: 11px; color: var(--text-muted); margin-top: 3px;">
+                            ${call.contactPerson ? `👤 ${esc(call.contactPerson)} — ` : ''}${phone ? `📞 <a href="tel:${phone}" style="color: var(--primary-light); text-decoration: none;">${phone}</a> — ` : ''}<span style="color: var(--text-secondary);">${esc(call.notes || window.AppStorage.getCallResultLabel(call.result))}</span>
+                        </div>
+                    </div>
+                    <div class="followup-action" style="display: flex; gap: 6px;">
+                        <button class="btn btn-accent btn-sm" onclick="App.logCallForCompany('${call.companyId}')" title="تسجيل مكالمة متابعة">
+                            <i class="fas fa-phone-alt"></i>
                         </button>
                     </div>
                 </div>`;

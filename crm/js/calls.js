@@ -6,6 +6,8 @@ const Calls = {
     currentPage: 1,
     pageSize: 20,
     groupMode: 'company', // 'company' or 'flat'
+    activeFilter: 'all', // 'all' | 'today' | 'interested' | 'followup' | 'not_interested'
+    searchQuery: '',
 
     init() {
         if (typeof App !== 'undefined' && App.currentPage === 'calls') {
@@ -20,6 +22,77 @@ const Calls = {
         if (btnCompany) btnCompany.classList.toggle('active', mode === 'company');
         if (btnFlat) btnFlat.classList.toggle('active', mode === 'flat');
         this.renderTable();
+    },
+
+    setFilter(filter) {
+        if (this.activeFilter === filter) {
+            this.activeFilter = 'all';
+        } else {
+            this.activeFilter = filter;
+        }
+        this.currentPage = 1;
+        this.updateFilterUI();
+        this.renderTable();
+    },
+
+    onSearchChange(val) {
+        this.searchQuery = (val || '').toLowerCase().trim();
+        this.currentPage = 1;
+        this.updateFilterUI();
+        this.renderTable();
+    },
+
+    clearFilter() {
+        this.activeFilter = 'all';
+        this.searchQuery = '';
+        const input = document.getElementById('calls-search-input');
+        if (input) input.value = '';
+        this.currentPage = 1;
+        this.updateFilterUI();
+        this.renderTable();
+    },
+
+    updateFilterUI() {
+        const map = {
+            'today': 'card-filter-calls-today',
+            'interested': 'card-filter-calls-interested',
+            'followup': 'card-filter-calls-followup',
+            'not_interested': 'card-filter-calls-not-interested'
+        };
+        Object.entries(map).forEach(([key, id]) => {
+            const el = document.getElementById(id);
+            if (el) {
+                if (this.activeFilter === key) {
+                    el.style.boxShadow = '0 0 0 2px #7c3aed, 0 6px 18px rgba(124, 58, 237, 0.35)';
+                    el.style.transform = 'translateY(-2px)';
+                    el.style.borderColor = '#7c3aed';
+                } else {
+                    el.style.boxShadow = '';
+                    el.style.transform = '';
+                    el.style.borderColor = '';
+                }
+            }
+        });
+
+        const filterBadge = document.getElementById('calls-active-filter-badge');
+        if (filterBadge) {
+            if (this.activeFilter !== 'all' || this.searchQuery) {
+                let label = '';
+                if (this.activeFilter === 'today') label = '📅 مكالمات اليوم';
+                else if (this.activeFilter === 'interested') label = '👍 العملاء المهتمين';
+                else if (this.activeFilter === 'followup') label = '🔔 المتابعات المستحقة';
+                else if (this.activeFilter === 'not_interested') label = '❌ غير مهتمين';
+                if (this.searchQuery) label += (label ? ' + ' : '') + `🔍 "${this.searchQuery}"`;
+                filterBadge.innerHTML = `<span style="background:rgba(124,58,237,0.15); color:#a78bfa; border:1px solid rgba(124,58,237,0.3); padding:4px 10px; border-radius:8px; font-size:12px; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+                    تصفية نشطة: ${label}
+                    <button onclick="Calls.clearFilter()" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:14px; padding:0 2px;" title="إلغاء التصفية">✕</button>
+                </span>`;
+                filterBadge.style.display = 'inline-block';
+            } else {
+                filterBadge.style.display = 'none';
+                filterBadge.innerHTML = '';
+            }
+        }
     },
 
     render() {
@@ -51,13 +124,16 @@ const Calls = {
         if (totalEl) totalEl.textContent = todayCalls.length;
 
         const intEl = document.getElementById('calls-interested');
-        if (intEl) intEl.textContent = todayCalls.filter(c => ['interested', 'meeting_scheduled', 'proposal_sent'].includes(c.result)).length;
+        if (intEl) intEl.textContent = calls.filter(c => ['interested', 'meeting_scheduled', 'proposal_sent'].includes(c.result)).length;
 
         const folEl = document.getElementById('calls-followup');
-        if (folEl) folEl.textContent = todayCalls.filter(c => c.result === 'callback').length;
+        const followupsCount = (window.AppStorage && window.AppStorage.getTodaysFollowUps) ? window.AppStorage.getTodaysFollowUps().length : calls.filter(c => c.result === 'callback').length;
+        if (folEl) folEl.textContent = followupsCount;
 
         const notIntEl = document.getElementById('calls-not-interested');
-        if (notIntEl) notIntEl.textContent = todayCalls.filter(c => ['not_interested', 'wrong_number'].includes(c.result)).length;
+        if (notIntEl) notIntEl.textContent = calls.filter(c => ['not_interested', 'wrong_number'].includes(c.result)).length;
+
+        this.updateFilterUI();
     },
 
     getCallAgentName(call) {
@@ -78,15 +154,48 @@ const Calls = {
 
     renderTable() {
         const currentUser = window.AppStorage.getCurrentUser();
-        const calls = window.AppStorage.getScopedCalls().sort((a, b) => {
+        const allCalls = window.AppStorage.getScopedCalls().sort((a, b) => {
             const dateA = new Date(a.date + 'T' + (a.time || '23:59'));
             const dateB = new Date(b.date + 'T' + (b.time || '23:59'));
             return dateB - dateA;
         });
 
+        const today = new Date().toISOString().split('T')[0];
+        let calls = allCalls;
+
+        // Apply active filter
+        if (this.activeFilter === 'today') {
+            calls = calls.filter(c => c.date === today);
+        } else if (this.activeFilter === 'interested') {
+            calls = calls.filter(c => ['interested', 'meeting_scheduled', 'proposal_sent'].includes(c.result));
+        } else if (this.activeFilter === 'followup') {
+            calls = calls.filter(c => c.result === 'callback' || (c.followUpDate && c.followUpDate <= today));
+        } else if (this.activeFilter === 'not_interested') {
+            calls = calls.filter(c => ['not_interested', 'wrong_number'].includes(c.result));
+        }
+
+        // Apply search query
+        if (this.searchQuery) {
+            const q = this.searchQuery;
+            calls = calls.filter(c => {
+                const comp = window.AppStorage.getCompany(c.companyId);
+                const compName = comp ? (comp.nameAr || comp.nameEn || '').toLowerCase() : '';
+                const agent = (c.createdByName || '').toLowerCase();
+                const notes = (c.notes || '').toLowerCase();
+                const contact = (c.contactPerson || '').toLowerCase();
+                return compName.includes(q) || agent.includes(q) || notes.includes(q) || contact.includes(q);
+            });
+        }
+
         const total = calls.length;
         const countDisplay = document.getElementById('calls-count-display');
-        if (countDisplay) countDisplay.textContent = `${total} مكالمة مسجلة`;
+        if (countDisplay) {
+            if (this.activeFilter !== 'all' || this.searchQuery) {
+                countDisplay.textContent = `📊 تم العثور على ${total} مكالمة (من إجمالي ${allCalls.length})`;
+            } else {
+                countDisplay.textContent = `${total} مكالمة مسجلة`;
+            }
+        }
 
         const groupedContainer = document.getElementById('calls-grouped-container');
         const tableContainer = document.getElementById('calls-table-container');

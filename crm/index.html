@@ -11,7 +11,7 @@
     <script>
         // Force purge any legacy service workers, disk caches, and old deals storage immediately
         (function() {
-            var CURRENT_VER = '230.0';
+            var CURRENT_VER = '231.0';
             try {
                 localStorage.removeItem('fleetcrm_deals');
                 localStorage.removeItem('fleetcrm_deals_count');
@@ -285,7 +285,7 @@
             </div>
             <div class="brand-text">
                 <h2>Fleet CRM</h2>
-                <span>إدارة بيع الإطارات <small style="background:#7c3aed33; color:#a78bfa; padding:1px 6px; border-radius:6px; font-size:10px; font-weight:700;">v230.0</small></span>
+                <span>إدارة بيع الإطارات <small style="background:#7c3aed33; color:#a78bfa; padding:1px 6px; border-radius:6px; font-size:10px; font-weight:700;">v231.0</small></span>
             </div>
         </div>
 
@@ -730,40 +730,49 @@
                     </div>
                 </div>
 
-                <!-- Call Stats -->
+                <!-- Call Stats (Interactive Quick Filters) -->
                 <div class="stats-grid stats-grid--small">
-                    <div class="stat-card stat-card--mini stat-card--primary">
+                    <div class="stat-card stat-card--mini stat-card--primary" id="card-filter-calls-today" onclick="Calls.setFilter('today')" style="cursor: pointer; transition: all 0.2s ease;" title="انقر لفلترة مكالمات اليوم">
                         <div class="stat-card__icon"><i class="fas fa-phone"></i></div>
                         <div class="stat-card__info">
                             <h3 id="calls-total-today">0</h3>
-                            <p>مكالمات اليوم</p>
+                            <p>مكالمات اليوم <small style="font-size:10px; opacity:0.8;">(انقر للفلترة)</small></p>
                         </div>
                     </div>
-                    <div class="stat-card stat-card--mini stat-card--success">
+                    <div class="stat-card stat-card--mini stat-card--success" id="card-filter-calls-interested" onclick="Calls.setFilter('interested')" style="cursor: pointer; transition: all 0.2s ease;" title="انقر لعرض العملاء المهتمين">
                         <div class="stat-card__icon"><i class="fas fa-thumbs-up"></i></div>
                         <div class="stat-card__info">
                             <h3 id="calls-interested">0</h3>
-                            <p>مهتمين</p>
+                            <p>مهتمين <small style="font-size:10px; opacity:0.8;">(انقر للفلترة)</small></p>
                         </div>
                     </div>
-                    <div class="stat-card stat-card--mini stat-card--warning">
-                        <div class="stat-card__icon"><i class="fas fa-redo"></i></div>
+                    <div class="stat-card stat-card--mini stat-card--warning" id="card-filter-calls-followup" onclick="Calls.setFilter('followup')" style="cursor: pointer; transition: all 0.2s ease;" title="انقر لعرض المتابعات المستحقة">
+                        <div class="stat-card__icon"><i class="fas fa-bell"></i></div>
                         <div class="stat-card__info">
                             <h3 id="calls-followup">0</h3>
-                            <p>متابعة</p>
+                            <p>متابعة مستحقة <small style="font-size:10px; opacity:0.8;">(انقر للفلترة)</small></p>
                         </div>
                     </div>
-                    <div class="stat-card stat-card--mini stat-card--danger">
+                    <div class="stat-card stat-card--mini stat-card--danger" id="card-filter-calls-not-interested" onclick="Calls.setFilter('not_interested')" style="cursor: pointer; transition: all 0.2s ease;" title="انقر لعرض غير المهتمين">
                         <div class="stat-card__icon"><i class="fas fa-times"></i></div>
                         <div class="stat-card__info">
                             <h3 id="calls-not-interested">0</h3>
-                            <p>غير مهتمين</p>
+                            <p>غير مهتمين <small style="font-size:10px; opacity:0.8;">(انقر للفلترة)</small></p>
                         </div>
                     </div>
                 </div>
 
+                <!-- Calls Search & Quick Filter Bar -->
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-top: 14px; margin-bottom: 6px;">
+                    <div class="search-box" style="flex: 1 1 260px; max-width: 420px; position: relative;">
+                        <i class="fas fa-search" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 13px;"></i>
+                        <input type="text" id="calls-search-input" placeholder="بحث في المكالمات (اسم الشركة، الموظف، الملاحظات)..." oninput="Calls.onSearchChange(this.value)" style="width: 100%; padding: 9px 36px 9px 14px; border-radius: 10px; border: 1px solid var(--border-light); background: var(--bg-card); color: var(--text-primary); font-size: 13px; outline: none;">
+                    </div>
+                    <div id="calls-active-filter-badge" style="display: none;"></div>
+                </div>
+
                 <!-- Calls Stats & View Toggle Bar -->
-                <div class="table-stats-bar" style="margin-top: 16px; margin-bottom: 12px;">
+                <div class="table-stats-bar" style="margin-top: 8px; margin-bottom: 12px;">
                     <span id="calls-count-display" style="font-weight:700; color:var(--text-secondary);">0 مكالمة مسجلة</span>
                     <div class="table-view-toggle">
                         <button class="btn-icon active" id="btn-calls-group-company" onclick="Calls.setGroupMode('company')" title="تجميع حسب الشركة (Grouped by Company)" style="padding:6px 12px; width:auto; border-radius:8px; font-size:12px; display:inline-flex; align-items:center; gap:6px;">
@@ -1384,20 +1393,20 @@
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <script src="js/supabase-client.js?v=229.0"></script>
-    <script src="js/egypt_verified_titans.js?v=229.0"></script>
-    <script src="js/egypt_enterprises_pool.js?v=229.0"></script>
-    <script src="js/companies-worker.js?v=229.0"></script>
-    <script src="js/storage.js?v=229.0"></script>
-    <script src="js/excel-handler.js?v=229.0"></script>
-    <script src="js/dashboard.js?v=229.0"></script>
-    <script src="js/companies.js?v=229.0"></script>
-    <script src="js/calls.js?v=229.0"></script>
-    <script src="js/reports.js?v=229.0"></script>
-    <script src="js/scraper.js?v=229.0"></script>
-    <script src="js/team.js?v=229.0"></script>
-    <script src="js/settings.js?v=229.0"></script>
-    <script src="js/app.js?v=229.0"></script>
+    <script src="js/supabase-client.js?v=231.0"></script>
+    <script src="js/egypt_verified_titans.js?v=231.0"></script>
+    <script src="js/egypt_enterprises_pool.js?v=231.0"></script>
+    <script src="js/companies-worker.js?v=231.0"></script>
+    <script src="js/storage.js?v=231.0"></script>
+    <script src="js/excel-handler.js?v=231.0"></script>
+    <script src="js/dashboard.js?v=231.0"></script>
+    <script src="js/companies.js?v=231.0"></script>
+    <script src="js/calls.js?v=231.0"></script>
+    <script src="js/reports.js?v=231.0"></script>
+    <script src="js/scraper.js?v=231.0"></script>
+    <script src="js/team.js?v=231.0"></script>
+    <script src="js/settings.js?v=231.0"></script>
+    <script src="js/app.js?v=231.0"></script>
 
     <!-- Cleanup overlay on load - runs once only, does NOT override App.checkAuth -->
     <script>

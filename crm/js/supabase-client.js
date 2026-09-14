@@ -135,23 +135,41 @@ window.SupabaseClient = (function() {
 
             const promises = [];
 
-            // 2. Sync calls
-            if (data.calls && Array.isArray(data.calls)) {
-                promises.push(
-                    fetch(`${FIREBASE_DB_URL}/calls.json`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(data.calls),
-                        signal: controller.signal
-                    })
-                );
+            // 2. Sync calls safely via PATCH with keyed call IDs to prevent overwriting other reps' calls
+            if (data.calls && Array.isArray(data.calls) && data.calls.length > 0) {
+                const callsMap = {};
+                data.calls.forEach(c => {
+                    if (c && c.id) {
+                        callsMap[String(c.id)] = c;
+                    }
+                });
+                if (Object.keys(callsMap).length > 0) {
+                    promises.push(
+                        fetch(`${FIREBASE_DB_URL}/calls.json`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(callsMap),
+                            signal: controller.signal
+                        })
+                    );
+                }
             }
 
-            // 2.1 Sync deleted call tombstones if provided
+            // 2.1 Sync deleted call tombstones and remove key from Firebase
             if (data.deletedCalls && Array.isArray(data.deletedCalls) && data.deletedCalls.length > 0) {
                 const delMap = {};
                 data.deletedCalls.forEach(id => {
-                    if (id) delMap[String(id)] = { deletedAt: Date.now() };
+                    if (id) {
+                        const sId = String(id);
+                        delMap[sId] = { deletedAt: Date.now() };
+                        // Direct atomic removal from cloud calls node
+                        promises.push(
+                            fetch(`${FIREBASE_DB_URL}/calls/${sId}.json`, {
+                                method: 'DELETE',
+                                signal: controller.signal
+                            }).catch(() => {})
+                        );
+                    }
                 });
                 promises.push(
                     fetch(`${FIREBASE_DB_URL}/deleted_calls.json`, {

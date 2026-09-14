@@ -2683,12 +2683,27 @@ const AppStorage = {
 
     getTodaysCalls() {
         const today = new Date().toISOString().split('T')[0];
-        return this.getCalls().filter(c => c && c.date === today);
+        const calls = this.getScopedCalls();
+        return (calls || []).filter(c => c && c.date === today);
     },
 
     getTodaysFollowUps() {
         const today = new Date().toISOString().split('T')[0];
-        return this.getCalls().filter(c => c && c.followUpDate === today);
+        const calls = this.getScopedCalls();
+        return (calls || []).filter(c => {
+            if (!c || !c.followUpDate) return false;
+            // Include calls scheduled for today or uncompleted callbacks that are overdue
+            return c.followUpDate === today || (c.result === 'callback' && c.followUpDate <= today);
+        }).sort((a, b) => {
+            if (a.followUpDate !== b.followUpDate) return a.followUpDate > b.followUpDate ? 1 : -1;
+            return 0;
+        });
+    },
+
+    getOverdueFollowUps() {
+        const today = new Date().toISOString().split('T')[0];
+        const calls = this.getScopedCalls();
+        return (calls || []).filter(c => c && c.followUpDate && c.followUpDate < today && c.result === 'callback');
     },
 
     // ---- Deals ----
@@ -2877,6 +2892,7 @@ const AppStorage = {
         const stats = {
             totalCompanies: canViewAll ? fullCount : scopedCount,
             callsToday: callsTodayCount,
+            followupsToday: this.getTodaysFollowUps().length,
             openDeals: 0,
             pipelineValue: 0,
             wonDeals: 0,
