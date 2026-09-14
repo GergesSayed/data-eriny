@@ -100,6 +100,11 @@ window.SupabaseClient = (function() {
      * Push dynamic companies & app state to Firebase (< 20KB total)
      */
     async function pushMasterData(data) {
+        if (!navigator.onLine) {
+            enqueueOffline(data);
+            return false;
+        }
+
         if (isPushing) {
             // Wait up to 1 second for previous push to complete
             let waited = 0;
@@ -219,9 +224,56 @@ window.SupabaseClient = (function() {
             clearTimeout(timeoutId);
             setStatus('local', { error: err.message });
             isPushing = false;
+            enqueueOffline(data);
             return false;
         }
     }
+
+    // ---- Offline Sync Queue ----
+    function getOfflineQueue() {
+        try {
+            return JSON.parse(localStorage.getItem('fleetcrm_offline_queue') || '[]');
+        } catch(e) { return []; }
+    }
+
+    function saveOfflineQueue(queue) {
+        try {
+            localStorage.setItem('fleetcrm_offline_queue', JSON.stringify(queue || []));
+        } catch(e) {}
+    }
+
+    function enqueueOffline(item) {
+        if (!item) return;
+        const q = getOfflineQueue();
+        if (q.length > 50) q.shift();
+        q.push({ data: item, queuedAt: Date.now() });
+        saveOfflineQueue(q);
+        setStatus('offline', { queued: q.length });
+    }
+
+    async function processOfflineQueue() {
+        if (!navigator.onLine) return;
+        const q = getOfflineQueue();
+        if (!q || q.length === 0) return;
+        saveOfflineQueue([]);
+        for (const item of q) {
+            try {
+                if (item && item.data) {
+                    await pushMasterData(item.data);
+                }
+            } catch(e) {
+                enqueueOffline(item.data);
+                break;
+            }
+        }
+        if (typeof App !== 'undefined' && App.showToast) {
+            App.showToast('🟢 تمت استعادة الاتصال ومزامنة العمليات المعلقة بنجاح', 'success');
+        }
+    }
+
+    window.addEventListener('online', () => {
+        processOfflineQueue();
+    });
 
     /**
      * Push a single dynamic company in < 50ms

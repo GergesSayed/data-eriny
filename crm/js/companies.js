@@ -8,6 +8,7 @@ const Companies = {
     sortField: 'priority',
     sortDir: 'asc',
     viewMode: 'table', // 'table' or 'cards'
+    myPortfolioOnly: false,
     selectedCompanies: new Set(),
     selectedSectors: new Set(),
     selectedCities: new Set(),
@@ -676,6 +677,12 @@ const Companies = {
                 }
             }
 
+            if (this.myPortfolioOnly) {
+                if (!c.assignedTo) return false;
+                const matchesMy = c.assignedTo === currentUser?.id || c.assignedTo === currentUser?.username || c.assignedTo === currentUser?.email || c.assignedTo === currentUser?.name;
+                if (!matchesMy) return false;
+            }
+
             if (assigned) {
                 if (assigned === 'my_leads') {
                     if (!c.assignedTo) return false;
@@ -824,7 +831,11 @@ const Companies = {
         const masterTotal = window.AppStorage.getCompanies().length;
         const countDisplay = document.getElementById('companies-count-display');
         if (countDisplay) {
-            if (!canViewAll) {
+            if (this.myPortfolioOnly) {
+                const contacted = companies.filter(c => c.lastCallDate).length;
+                const pct = total > 0 ? Math.round((contacted / total) * 100) : 0;
+                countDisplay.textContent = `💼 محفظتي: تم التواصل مع ${contacted.toLocaleString()} من أصل ${total.toLocaleString()} شركة مسندة إليك (${pct}%)`;
+            } else if (!canViewAll) {
                 countDisplay.textContent = `معروض: ${total.toLocaleString()} شركة فقط`;
             } else if (total === masterTotal) {
                 countDisplay.textContent = `📊 إجمالي شركات السيستم: ${total.toLocaleString()} شركة`;
@@ -923,6 +934,19 @@ const Companies = {
             const titanBadge = isTitan ? `<span class="badge" style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#fff; font-size:10px; padding:2px 6px; border-radius:5px; font-weight:800; display:inline-flex; align-items:center; gap:3px;"><i class="fas fa-crown"></i> قلعة معتمدة</span>` : '';
             const hotlineBadge = c.hotline ? `<span class="badge" style="background:rgba(59,130,246,0.15); color:#3b82f6; font-size:11px; padding:1px 6px; border-radius:4px; font-family:Inter; font-weight:800;" title="الخط الساخن"><i class="fas fa-headset"></i> ${esc(c.hotline)}</span>` : '';
 
+            // Recency Warning Badge (Avoid double-calling)
+            let recencyBadge = '';
+            if (c.lastCallDate) {
+                const callDate = new Date(c.lastCallDate);
+                const todayDate = new Date(new Date().toISOString().split('T')[0]);
+                const diffDays = Math.round((todayDate - callDate) / (1000 * 60 * 60 * 24));
+                if (diffDays === 0) {
+                    recencyBadge = `<span class="badge" style="background:rgba(239, 68, 68, 0.15); color:#ef4444; border:1px solid rgba(239, 68, 68, 0.35); font-size:10px; font-weight:700; padding:1px 6px; border-radius:5px;" title="تم الاتصال بها اليوم!"><i class="fas fa-history"></i> اتصلت اليوم</span>`;
+                } else if (diffDays === 1) {
+                    recencyBadge = `<span class="badge" style="background:rgba(245, 158, 11, 0.15); color:#f59e0b; border:1px solid rgba(245, 158, 11, 0.35); font-size:10px; font-weight:700; padding:1px 6px; border-radius:5px;" title="تم الاتصال بها أمس"><i class="fas fa-history"></i> اتصلت أمس</span>`;
+                }
+            }
+
             return `
                 <tr class="${isChecked ? 'row-selected' : ''}" onclick="Companies.showDetail('${c.id}')" style="cursor: pointer;">
                     ${isAdmin ? `
@@ -935,6 +959,7 @@ const Companies = {
                             <div style="display:flex; align-items:center; gap: 6px; flex-wrap:wrap;">
                                 <span class="name-ar" style="font-weight:700;">${mainName}</span>
                                 ${titanBadge}
+                                ${recencyBadge}
                                 ${linkedinIcon}
                                 ${facebookIcon}
                                 ${mapsIcon}
@@ -964,8 +989,14 @@ const Companies = {
                             <button class="btn-icon btn-view" onclick="event.stopPropagation(); Companies.showDetail('${c.id}')" title="تفاصيل">
                                 <i class="fas fa-eye"></i>
                             </button>
-                            <button class="btn-icon btn-call" onclick="event.stopPropagation(); App.logCallForCompany('${c.id}')" title="مكالمة">
+                            <button class="btn-icon btn-call" onclick="event.stopPropagation(); App.logCallForCompany('${c.id}')" title="مكالمة تفصيلية">
                                 <i class="fas fa-phone"></i>
+                            </button>
+                            <button class="btn-icon" onclick="Companies.quickLogCall('${c.id}', 'no_answer', event)" title="تسجيل فوري: لم يرد 📵" style="color:#f59e0b; background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.25);">
+                                <i class="fas fa-phone-slash"></i>
+                            </button>
+                            <button class="btn-icon" onclick="Companies.quickLogCall('${c.id}', 'busy', event)" title="تسجيل فوري: مشغول ⏳" style="color:#64748b; background:rgba(100,116,139,0.12); border:1px solid rgba(100,116,139,0.25);">
+                                <i class="fas fa-hourglass-half"></i>
                             </button>
                             ${window.AppStorage.canModify(currentUser) ? `
                                 <button class="btn-icon btn-edit" onclick="event.stopPropagation(); Companies.edit('${c.id}')" title="تعديل">
@@ -1064,14 +1095,20 @@ const Companies = {
                         ${c.contactPerson ? `<div class="company-card__detail" style="display:flex; align-items:center; gap: 4px;"><i class="fas fa-user"></i> <span>${contactPerson}${contactTitle ? ' — ' + contactTitle : ''}</span>${contactLinkedinIcon}</div>` : ''}
                     </div>
                     <div class="company-card__footer" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; padding-top: 10px; border-top: 1px solid var(--border-light); margin-top: 8px;">
-                        <div style="display: flex; gap: 6px; align-items: center;">
+                        <div style="display: flex; gap: 5px; align-items: center; flex-wrap: wrap;">
                             ${cleanPhone ? `
-                                <a href="tel:${cleanPhone}" class="btn btn-sm" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;" onclick="event.stopPropagation();" title="اتصال مباشر">
+                                <a href="tel:${cleanPhone}" class="btn btn-sm" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); padding: 5px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;" onclick="event.stopPropagation();" title="اتصال مباشر">
                                     <i class="fas fa-phone"></i> اتصال
                                 </a>
                             ` : ''}
-                            <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); App.logCallForCompany('${c.id}')" style="font-size: 12px; padding: 6px 14px; border-radius: 8px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(124, 58, 237, 0.3);">
-                                <i class="fas fa-phone-alt"></i> + تسجيل مكالمة
+                            <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); App.logCallForCompany('${c.id}')" style="font-size: 11px; padding: 5px 10px; border-radius: 8px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 3px 10px rgba(124, 58, 237, 0.3);" title="تسجيل مكالمة تفصيلية">
+                                <i class="fas fa-phone-alt"></i> + مكالمة
+                            </button>
+                            <button class="btn btn-sm" onclick="Companies.quickLogCall('${c.id}', 'no_answer', event)" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); padding: 5px 8px; border-radius: 8px; font-size: 11px; font-weight: 700;" title="تسجيل سريع: لم يرد">
+                                <i class="fas fa-phone-slash"></i> لم يرد
+                            </button>
+                            <button class="btn btn-sm" onclick="Companies.quickLogCall('${c.id}', 'busy', event)" style="background: rgba(100, 116, 139, 0.15); color: #94a3b8; border: 1px solid rgba(100, 116, 139, 0.3); padding: 5px 8px; border-radius: 8px; font-size: 11px; font-weight: 700;" title="تسجيل سريع: مشغول">
+                                <i class="fas fa-hourglass-half"></i> مشغول
                             </button>
                         </div>
                         <div class="table-actions" onclick="event.stopPropagation();">
@@ -1132,6 +1169,70 @@ const Companies = {
         window.AppStorage.assignCompany(companyId, currentUser.id);
         App.showToast(`✅ تم حجز الشركة باسم ${currentUser.name}`);
         this.render();
+    },
+
+    quickLogCall(companyId, result, event) {
+        if (event) {
+            event.stopPropagation();
+            event.preventDefault();
+        }
+        const company = window.AppStorage.getCompany(companyId);
+        if (!company) return;
+        const currentUser = window.AppStorage.getCurrentUser();
+        const now = new Date();
+        const dateStr = now.toISOString().split('T')[0];
+        const timeStr = now.toTimeString().split(' ')[0].substring(0, 5);
+
+        const resultLabels = {
+            'no_answer': '📵 لم يرد',
+            'busy': '⏳ الرقم مشغول',
+            'wrong_number': '❌ غير متاح / غير صحيح'
+        };
+        const label = resultLabels[result] || 'مكالمة سريعة';
+
+        const call = {
+            id: 'c_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+            companyId: companyId,
+            date: dateStr,
+            time: timeStr,
+            contactPerson: company.contactPerson || '',
+            result: result,
+            followUpDate: '',
+            notes: `تسجيل فوري: ${label}`,
+            userId: currentUser ? currentUser.id : 'admin',
+            createdByName: currentUser ? currentUser.name : 'المدير العام',
+            createdAt: now.toISOString()
+        };
+
+        window.AppStorage.saveCall(call);
+        App.showToast(`تم تسجيل: ${label} (${company.nameAr || company.nameEn})`, 'success');
+
+        if (typeof Calls !== 'undefined') {
+            try { Calls.renderStats(); } catch(e) {}
+        }
+        if (typeof Dashboard !== 'undefined') {
+            try { Dashboard.render(); } catch(e) {}
+        }
+
+        this.render();
+    },
+
+    toggleMyPortfolio() {
+        this.myPortfolioOnly = !this.myPortfolioOnly;
+        const btn = document.getElementById('btn-toggle-my-portfolio');
+        if (btn) {
+            if (this.myPortfolioOnly) {
+                btn.style.background = '#7c3aed';
+                btn.style.color = '#ffffff';
+                btn.style.boxShadow = '0 0 0 2px #7c3aed, 0 4px 12px rgba(124, 58, 237, 0.4)';
+            } else {
+                btn.style.background = 'rgba(124, 58, 237, 0.12)';
+                btn.style.color = '#a78bfa';
+                btn.style.boxShadow = '';
+            }
+        }
+        this.currentPage = 1;
+        this.onFilterChange();
     },
 
     toggleSelectCompany(id, isChecked) {

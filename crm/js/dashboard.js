@@ -41,6 +41,17 @@ const Dashboard = {
         const followupsCount = window.AppStorage ? (window.AppStorage.getTodaysFollowUps ? window.AppStorage.getTodaysFollowUps().length : 0) : 0;
         if (followupsEl) followupsEl.textContent = followupsCount.toLocaleString('en-US');
 
+        // KPI Daily Target Tracker
+        const dailyTarget = parseInt(localStorage.getItem('fleetcrm_daily_target') || '40', 10);
+        const callsCount = stats.callsToday || 0;
+        const kpiCountEl = document.getElementById('dash-kpi-count');
+        const kpiPercentEl = document.getElementById('dash-kpi-percent');
+        const kpiProgressEl = document.getElementById('dash-kpi-progress');
+        if (kpiCountEl) kpiCountEl.textContent = `${callsCount} / ${dailyTarget}`;
+        const pct = Math.min(100, Math.round((callsCount / dailyTarget) * 100));
+        if (kpiPercentEl) kpiPercentEl.textContent = `${pct}%`;
+        if (kpiProgressEl) kpiProgressEl.style.width = `${pct}%`;
+
         // Sidebar stats
         const sideComp = document.getElementById('sidebar-total-companies');
         if (sideComp) sideComp.textContent = totalComps.toLocaleString('en-US');
