@@ -696,6 +696,7 @@ const AppStorage = {
                         this.loadCompaniesFromDB(db),
                         this.loadActivitiesFromDB(db)
                     ]).then(() => {
+                        this.syncCallsToCompanies();
                         this.updateLiveCounters();
                         this.initWorker();
                         resolve();
@@ -1231,6 +1232,9 @@ const AppStorage = {
                     // 4. Apply stored assignments from localStorage (instant 0ms)
                     this.applyStoredAssignments(masterMap);
 
+                    // 5. Apply latest calls from calls log to companies (instant 0ms)
+                    this.applyCallsToCompanies(masterMap);
+
                     const merged = Array.from(masterMap.values());
                     this.companiesMemory = merged;
                     this.invalidateScopedCache();
@@ -1562,10 +1566,12 @@ const AppStorage = {
                 if (mergedCalls.length !== localRawCalls.length || JSON.stringify(mergedCalls) !== JSON.stringify(localRawCalls)) {
                     this._set(this.KEYS.CALLS, mergedCalls);
                     this.invalidateStatsCache();
+                    this.syncCallsToCompanies();
                     updated = true;
 
                     try { if (typeof Calls !== 'undefined' && Calls.render) Calls.render(); } catch (e) {}
                     try { if (typeof Dashboard !== 'undefined' && Dashboard.render) Dashboard.render(); } catch (e) {}
+                    try { if (typeof Companies !== 'undefined' && Companies.render) Companies.render(); } catch (e) {}
                     try {
                         if (typeof Companies !== 'undefined') {
                             const modal = document.getElementById('modal-company-detail');
@@ -1805,6 +1811,112 @@ const AppStorage = {
                 }
             }
         }
+    },
+
+    applyCallsToCompanies(target) {
+        const calls = this.getCalls() || [];
+        if (!calls || calls.length === 0) return;
+
+        // Build a map of the latest call for each companyId
+        const latestCallMap = new Map();
+        for (let i = 0; i < calls.length; i++) {
+            const call = calls[i];
+            if (!call || !call.companyId) continue;
+            const cId = String(call.companyId).trim();
+            const existing = latestCallMap.get(cId);
+            if (!existing) {
+                latestCallMap.set(cId, call);
+            } else {
+                const timeNew = new Date(call.createdAt || call.date || 0).getTime();
+                const timeExisting = new Date(existing.createdAt || existing.date || 0).getTime();
+                if (timeNew >= timeExisting) {
+                    latestCallMap.set(cId, call);
+                }
+            }
+        }
+
+        if (latestCallMap.size === 0) return;
+
+        const updateCompanyWithCall = (comp, latestCall) => {
+            if (!comp || !latestCall) return false;
+            let changed = false;
+            if (comp.lastCallResult !== latestCall.result) {
+                comp.lastCallResult = latestCall.result;
+                changed = true;
+            }
+            if (comp.lastCallDate !== latestCall.date) {
+                comp.lastCallDate = latestCall.date;
+                changed = true;
+            }
+            if (latestCall.notes && comp.lastCallNotes !== latestCall.notes) {
+                comp.lastCallNotes = latestCall.notes;
+                changed = true;
+            }
+            if (['interested', 'meeting_scheduled', 'proposal_sent'].includes(latestCall.result)) {
+                if (comp.status !== 'interested') {
+                    comp.status = 'interested';
+                    changed = true;
+                }
+            } else if (['not_interested', 'wrong_number'].includes(latestCall.result)) {
+                if (comp.status !== 'unqualified') {
+                    comp.status = 'unqualified';
+                    changed = true;
+                }
+            } else if (latestCall.result === 'callback') {
+                if (comp.status !== 'contacted') {
+                    comp.status = 'contacted';
+                    changed = true;
+                }
+            }
+            return changed;
+        };
+
+        if (target instanceof Map) {
+            for (const [compId, latestCall] of latestCallMap.entries()) {
+                const comp = target.get(String(compId));
+                if (comp) {
+                    updateCompanyWithCall(comp, latestCall);
+                }
+            }
+        } else if (Array.isArray(target)) {
+            for (let i = 0; i < target.length; i++) {
+                const comp = target[i];
+                if (!comp || !comp.id) continue;
+                const latestCall = latestCallMap.get(String(comp.id).trim());
+                if (latestCall) {
+                    updateCompanyWithCall(comp, latestCall);
+                }
+            }
+        }
+    },
+
+    syncCallsToCompanies() {
+        if (!this.companiesMemory || !Array.isArray(this.companiesMemory) || this.companiesMemory.length === 0) return;
+        this.applyCallsToCompanies(this.companiesMemory);
+        this.invalidateScopedCache();
+        this.invalidateStatsCache();
+        if (this._worker) {
+            this._worker.postMessage({ action: 'INIT_INDEX', payload: this.companiesMemory });
+        }
+    },
+
+    getLatestCallForCompany(companyId) {
+        if (!companyId) return null;
+        const calls = this.getCalls() || [];
+        const targetId = String(companyId).trim();
+        let latest = null;
+        let latestTime = -1;
+        for (let i = 0; i < calls.length; i++) {
+            const c = calls[i];
+            if (c && String(c.companyId).trim() === targetId) {
+                const t = new Date(c.createdAt || c.date || 0).getTime();
+                if (t >= latestTime) {
+                    latestTime = t;
+                    latest = c;
+                }
+            }
+        }
+        return latest;
     },
 
     getCompanies() {

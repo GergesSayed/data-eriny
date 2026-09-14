@@ -889,6 +889,24 @@ const Companies = {
         }
         if (empty) empty.style.display = 'none';
 
+        const allCalls = (window.AppStorage && window.AppStorage.getCalls) ? window.AppStorage.getCalls() : [];
+        const latestCallsMap = new Map();
+        for (let i = 0; i < allCalls.length; i++) {
+            const call = allCalls[i];
+            if (!call || !call.companyId) continue;
+            const cId = String(call.companyId).trim();
+            const existing = latestCallsMap.get(cId);
+            if (!existing) {
+                latestCallsMap.set(cId, call);
+            } else {
+                const timeNew = new Date(call.createdAt || call.date || 0).getTime();
+                const timeExisting = new Date(existing.createdAt || existing.date || 0).getTime();
+                if (timeNew >= timeExisting) {
+                    latestCallsMap.set(cId, call);
+                }
+            }
+        }
+
         tbody.innerHTML = companies.map(c => {
             const esc = (s) => window.AppStorage.escapeHtml(s || '');
             const sectorLabel = window.AppStorage.getSectorLabel(c.sector);
@@ -918,17 +936,25 @@ const Companies = {
             const rawSub = (c.nameEn && c.nameEn.trim() !== (c.nameAr || '').trim()) ? esc(c.nameEn.trim()) : '';
             const subName = (rawSub && rawSub.toLowerCase() !== mainName.toLowerCase()) ? rawSub : '';
 
+            const latestCall = latestCallsMap.get(String(c.id).trim());
+            const callResult = c.lastCallResult || (latestCall ? latestCall.result : null);
+            const callDate = c.lastCallDate || (latestCall ? latestCall.date : null);
+            if (!c.lastCallResult && callResult) {
+                c.lastCallResult = callResult;
+                c.lastCallDate = callDate;
+            }
+
             let callResultBadge = '';
-            if (c.lastCallResult) {
+            if (callResult) {
                 callResultBadge = `
-                    <div>
-                        <span class="result-badge result-${c.lastCallResult}" style="font-size:0.75rem;">${window.AppStorage.getCallResultLabel(c.lastCallResult)}</span>
-                        ${c.lastCallDate ? `<small style="display:block; font-size:10px; color:var(--text-muted); margin-top:2px;">${c.lastCallDate}</small>` : ''}
+                    <div style="white-space:nowrap;">
+                        <span class="result-badge result-${callResult}" style="font-size:0.75rem;">${window.AppStorage.getCallResultLabel(callResult)}</span>
+                        ${callDate ? `<small style="display:block; font-size:10px; color:var(--text-muted); margin-top:2px;">${callDate}</small>` : ''}
                     </div>`;
             } else if (c.status === 'interested') {
-                callResultBadge = `<span class="badge" style="background:#10b98122; color:#10b981; border:1px solid #10b981; font-size:0.75rem;">💚 عميل مهتم</span>`;
+                callResultBadge = `<span class="badge" style="background:#10b98122; color:#10b981; border:1px solid #10b981; font-size:0.75rem; white-space:nowrap;">💚 عميل مهتم</span>`;
             } else {
-                callResultBadge = `<span style="color:var(--text-muted); font-size:11px;">⚪ لم يتواصل بعد</span>`;
+                callResultBadge = `<span style="color:var(--text-muted); font-size:11px; white-space:nowrap;">⚪ لم يتواصل بعد</span>`;
             }
 
             const isTitan = Boolean(c.isTitan || (c.id && String(c.id).startsWith('eg_titan_')));
@@ -937,14 +963,15 @@ const Companies = {
 
             // Recency Warning Badge (Avoid double-calling)
             let recencyBadge = '';
-            if (c.lastCallDate) {
-                const callDate = new Date(c.lastCallDate);
+            const finalCallDate = callDate || c.lastCallDate;
+            if (finalCallDate) {
+                const cd = new Date(finalCallDate);
                 const todayDate = new Date(new Date().toISOString().split('T')[0]);
-                const diffDays = Math.round((todayDate - callDate) / (1000 * 60 * 60 * 24));
+                const diffDays = Math.round((todayDate - cd) / (1000 * 60 * 60 * 24));
                 if (diffDays === 0) {
-                    recencyBadge = `<span class="badge" style="background:rgba(239, 68, 68, 0.15); color:#ef4444; border:1px solid rgba(239, 68, 68, 0.35); font-size:10px; font-weight:700; padding:1px 6px; border-radius:5px;" title="تم الاتصال بها اليوم!"><i class="fas fa-history"></i> اتصلت اليوم</span>`;
+                    recencyBadge = `<span class="badge" style="background:rgba(239, 68, 68, 0.15); color:#ef4444; border:1px solid rgba(239, 68, 68, 0.35); font-size:10px; font-weight:700; padding:1px 6px; border-radius:5px; white-space:nowrap;" title="تم الاتصال بها اليوم!"><i class="fas fa-history"></i> اتصلت اليوم</span>`;
                 } else if (diffDays === 1) {
-                    recencyBadge = `<span class="badge" style="background:rgba(245, 158, 11, 0.15); color:#f59e0b; border:1px solid rgba(245, 158, 11, 0.35); font-size:10px; font-weight:700; padding:1px 6px; border-radius:5px;" title="تم الاتصال بها أمس"><i class="fas fa-history"></i> اتصلت أمس</span>`;
+                    recencyBadge = `<span class="badge" style="background:rgba(245, 158, 11, 0.15); color:#f59e0b; border:1px solid rgba(245, 158, 11, 0.35); font-size:10px; font-weight:700; padding:1px 6px; border-radius:5px; white-space:nowrap;" title="تم الاتصال بها أمس"><i class="fas fa-history"></i> اتصلت أمس</span>`;
                 }
             }
 
@@ -1043,6 +1070,24 @@ const Companies = {
 
         const currentUser = (window.AppStorage && typeof window.AppStorage.getCurrentUser === 'function') ? window.AppStorage.getCurrentUser() : null;
 
+        const allCalls = (window.AppStorage && window.AppStorage.getCalls) ? window.AppStorage.getCalls() : [];
+        const latestCallsMap = new Map();
+        for (let i = 0; i < allCalls.length; i++) {
+            const call = allCalls[i];
+            if (!call || !call.companyId) continue;
+            const cId = String(call.companyId).trim();
+            const existing = latestCallsMap.get(cId);
+            if (!existing) {
+                latestCallsMap.set(cId, call);
+            } else {
+                const timeNew = new Date(call.createdAt || call.date || 0).getTime();
+                const timeExisting = new Date(existing.createdAt || existing.date || 0).getTime();
+                if (timeNew >= timeExisting) {
+                    latestCallsMap.set(cId, call);
+                }
+            }
+        }
+
         cardsView.innerHTML = companies.map(c => {
             const esc = (s) => window.AppStorage.escapeHtml(s || '');
             const sectorLabel = window.AppStorage.getSectorLabel(c.sector);
@@ -1067,6 +1112,10 @@ const Companies = {
 
             const assignedBadge = this.buildAssignedWidget(c);
 
+            const latestCall = latestCallsMap.get(String(c.id).trim());
+            const callResult = c.lastCallResult || (latestCall ? latestCall.result : null);
+            const callDate = c.lastCallDate || (latestCall ? latestCall.date : null);
+
             return `
                 <div class="company-card" data-priority="${c.priority || 'B'}" onclick="Companies.showDetail('${c.id}')" style="cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: rgba(99, 102, 241, 0.2);">
                     <div class="company-card__header">
@@ -1086,6 +1135,7 @@ const Companies = {
                         <div class="company-card__detail"><i class="fas fa-map-marker-alt"></i> ${cityLabel}</div>
                         <div class="company-card__detail"><i class="fas fa-phone"></i> <span style="direction:ltr;">${phone}</span></div>
                         <div class="company-card__detail"><i class="fas fa-user-tag"></i> المسند إليه: ${assignedBadge}</div>
+                        ${callResult ? `<div class="company-card__detail"><i class="fas fa-phone-volume"></i> نتيجة المكالمة: <span class="result-badge result-${callResult}" style="font-size:11px;">${window.AppStorage.getCallResultLabel(callResult)}</span> ${callDate ? `<small style="color:var(--text-muted); font-size:10px;">(${callDate})</small>` : ''}</div>` : ''}
                         ${c.rating ? `<div class="company-card__detail"><i class="fas fa-star" style="color:#f59e0b;"></i> التقييم: ${c.rating} / 5</div>` : ''}
                         ${c.fleetSize ? `<div class="company-card__detail"><i class="fas fa-truck"></i> أسطول: ${c.fleetSize} سيارة</div>` : ''}
                         ${c.contactPerson ? `<div class="company-card__detail" style="display:flex; align-items:center; gap: 4px;"><i class="fas fa-user"></i> <span>${contactPerson}${contactTitle ? ' — ' + contactTitle : ''}</span>${contactLinkedinIcon}</div>` : ''}
