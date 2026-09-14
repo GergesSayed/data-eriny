@@ -634,7 +634,7 @@ const Companies = {
         const fleetType = document.getElementById('filter-fleet-type')?.value;
         const fleetSize = document.getElementById('filter-fleet-size')?.value;
         const addedDate = document.getElementById('filter-added-date')?.value;
-        const sortMode = document.getElementById('filter-sort')?.value || 'latest';
+        const sortMode = document.getElementById('filter-sort')?.value || 'priority_fleet';
         const assigned = document.getElementById('filter-assigned')?.value;
         const search = document.getElementById('filter-search')?.value?.toLowerCase().trim();
         const currentUser = window.AppStorage.getCurrentUser();
@@ -705,6 +705,16 @@ const Companies = {
 
         // Fast Sort
         return companies.sort((a, b) => {
+            if (sortMode === 'priority_fleet') {
+                const order = { A: 1, B: 2, C: 3 };
+                const pA = order[a.priority] || 2;
+                const pB = order[b.priority] || 2;
+                if (pA !== pB) return pA - pB;
+                const fA = Number(a.fleetSize) || 0;
+                const fB = Number(b.fleetSize) || 0;
+                if (fA !== fB) return fB - fA;
+                return (new Date(b.createdAt || 0)) - (new Date(a.createdAt || 0));
+            }
             if (sortMode === 'oldest') {
                 return (new Date(a.createdAt || 0)) - (new Date(b.createdAt || 0));
             }
