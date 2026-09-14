@@ -11,7 +11,7 @@
     <script>
         // Force purge any legacy service workers, disk caches, and old deals storage immediately
         (function() {
-            var CURRENT_VER = '234.0';
+            var CURRENT_VER = '235.0';
             try {
                 localStorage.removeItem('fleetcrm_deals');
                 localStorage.removeItem('fleetcrm_deals_count');
@@ -59,7 +59,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=234.0">
+    <link rel="stylesheet" href="css/style.css?v=235.0">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
         (function() {
@@ -285,7 +285,7 @@
             </div>
             <div class="brand-text">
                 <h2>Fleet CRM</h2>
-                <span>إدارة بيع الإطارات <small style="background:#7c3aed33; color:#a78bfa; padding:1px 6px; border-radius:6px; font-size:10px; font-weight:700;">v234.0</small></span>
+                <span>إدارة بيع الإطارات <small style="background:#7c3aed33; color:#a78bfa; padding:1px 6px; border-radius:6px; font-size:10px; font-weight:700;">v235.0</small></span>
             </div>
         </div>
 
@@ -692,17 +692,17 @@
                     <table class="data-table" id="companies-table">
                         <thead>
                             <tr>
-                                <th id="th-select-all-companies" style="width:36px; text-align:center;"><input type="checkbox" id="select-all-companies" title="تحديد الكل"></th>
-                                <th class="sortable" data-sort="nameAr" style="min-width: 220px;">الشركة <small>Company</small></th>
-                                <th class="sortable" data-sort="sector" style="min-width: 140px;">القطاع <small>Sector</small></th>
-                                <th class="sortable" data-sort="city" style="min-width: 110px;">المنطقة <small>Area</small></th>
-                                <th style="min-width: 130px;">الهاتف <small>Phone</small></th>
-                                <th class="sortable" data-sort="fleetSize" style="min-width: 90px;">الأسطول <small>Fleet</small></th>
-                                <th class="sortable" data-sort="priority" style="min-width: 85px;">الأولوية <small>Priority</small></th>
-                                <th style="min-width: 135px;">المسند إليه <small>Assigned</small></th>
-                                <th style="min-width: 125px;">نتيجة المكالمة <small>Call Result</small></th>
-                                <th style="min-width: 130px;">جهة الاتصال <small>Contact</small></th>
-                                <th style="min-width: 135px; text-align: center;">إجراءات <small>Actions</small></th>
+                                <th id="th-select-all-companies" style="width:28px; text-align:center;"><input type="checkbox" id="select-all-companies" title="تحديد الكل"></th>
+                                <th class="sortable" data-sort="nameAr">الشركة <small>Company</small></th>
+                                <th class="sortable" data-sort="sector">القطاع <small>Sector</small></th>
+                                <th class="sortable" data-sort="city">المنطقة <small>Area</small></th>
+                                <th>الهاتف <small>Phone</small></th>
+                                <th class="sortable" data-sort="fleetSize" style="text-align:center;">الأسطول <small>Fleet</small></th>
+                                <th class="sortable" data-sort="priority" style="text-align:center;">الأولوية <small>Priority</small></th>
+                                <th>المسند إليه <small>Assigned</small></th>
+                                <th>نتيجة المكالمة <small>Call Result</small></th>
+                                <th>جهة الاتصال <small>Contact</small></th>
+                                <th style="text-align:center; width:75px;">إجراءات <small>Actions</small></th>
                             </tr>
                         </thead>
                         <tbody id="companies-tbody"></tbody>
@@ -1409,20 +1409,20 @@
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <script src="js/supabase-client.js?v=234.0"></script>
-    <script src="js/egypt_verified_titans.js?v=234.0"></script>
-    <script src="js/egypt_enterprises_pool.js?v=234.0"></script>
-    <script src="js/companies-worker.js?v=234.0"></script>
-    <script src="js/storage.js?v=234.0"></script>
-    <script src="js/excel-handler.js?v=234.0"></script>
-    <script src="js/dashboard.js?v=234.0"></script>
-    <script src="js/companies.js?v=234.0"></script>
-    <script src="js/calls.js?v=234.0"></script>
-    <script src="js/reports.js?v=234.0"></script>
-    <script src="js/scraper.js?v=234.0"></script>
-    <script src="js/team.js?v=234.0"></script>
-    <script src="js/settings.js?v=234.0"></script>
-    <script src="js/app.js?v=234.0"></script>
+    <script src="js/supabase-client.js?v=235.0"></script>
+    <script src="js/egypt_verified_titans.js?v=235.0"></script>
+    <script src="js/egypt_enterprises_pool.js?v=235.0"></script>
+    <script src="js/companies-worker.js?v=235.0"></script>
+    <script src="js/storage.js?v=235.0"></script>
+    <script src="js/excel-handler.js?v=235.0"></script>
+    <script src="js/dashboard.js?v=235.0"></script>
+    <script src="js/companies.js?v=235.0"></script>
+    <script src="js/calls.js?v=235.0"></script>
+    <script src="js/reports.js?v=235.0"></script>
+    <script src="js/scraper.js?v=235.0"></script>
+    <script src="js/team.js?v=235.0"></script>
+    <script src="js/settings.js?v=235.0"></script>
+    <script src="js/app.js?v=235.0"></script>
 
     <!-- Cleanup overlay on load - runs once only, does NOT override App.checkAuth -->
     <script>

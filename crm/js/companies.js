@@ -921,14 +921,14 @@ const Companies = {
             let callResultBadge = '';
             if (c.lastCallResult) {
                 callResultBadge = `
-                    <div>
-                        <span class="result-badge result-${c.lastCallResult}" style="font-size:0.75rem;">${window.AppStorage.getCallResultLabel(c.lastCallResult)}</span>
-                        ${c.lastCallDate ? `<small style="display:block; font-size:10px; color:var(--text-muted); margin-top:2px;">${c.lastCallDate}</small>` : ''}
+                    <div style="overflow:hidden; text-overflow:ellipsis;">
+                        <span class="result-badge result-${c.lastCallResult}" style="font-size:10px; padding:1px 4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block;">${window.AppStorage.getCallResultLabel(c.lastCallResult)}</span>
+                        ${c.lastCallDate ? `<small style="display:block; font-size:9px; color:var(--text-muted);">${c.lastCallDate}</small>` : ''}
                     </div>`;
             } else if (c.status === 'interested') {
-                callResultBadge = `<span class="badge" style="background:#10b98122; color:#10b981; border:1px solid #10b981; font-size:0.75rem;">💚 عميل مهتم</span>`;
+                callResultBadge = `<span class="badge" style="background:#10b98122; color:#10b981; border:1px solid #10b981; font-size:10px; padding:1px 4px; white-space:nowrap;">💚 مهتم</span>`;
             } else {
-                callResultBadge = `<span style="color:var(--text-muted); font-size:11px;">⚪ لم يتواصل بعد</span>`;
+                callResultBadge = `<span style="color:var(--text-muted); font-size:10px; white-space:nowrap;">⚪ لم يتواصل</span>`;
             }
 
             const isTitan = Boolean(c.isTitan || (c.id && String(c.id).startsWith('eg_titan_')));
@@ -971,35 +971,24 @@ const Companies = {
                             </div>
                         </div>
                     </td>
-                    <td><span class="badge sector-badge">${sectorLabel}</span></td>
-                    <td>${cityLabel}</td>
-                    <td style="direction:ltr; text-align:right; font-family:Inter; font-weight:600;">${phone}</td>
-                    <td><span class="fleet-badge">${fleet}</span></td>
-                    <td><span class="badge priority-badge priority-${c.priority || 'B'}">${c.priority || 'B'}</span></td>
+                    <td><span class="badge sector-badge" style="font-size:10px; padding:2px 4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block;" title="${sectorLabel}">${sectorLabel}</span></td>
+                    <td style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:11px;" title="${cityLabel}">${cityLabel}</td>
+                    <td style="direction:ltr; text-align:right; font-family:Inter; font-size:11px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${phone}">${phone}</td>
+                    <td style="text-align:center;"><span class="fleet-badge" style="font-size:10px; padding:2px 4px;">${fleet}</span></td>
+                    <td style="text-align:center;"><span class="badge priority-badge priority-${c.priority || 'B'}" style="font-size:10px; padding:1px 5px;">${c.priority || 'B'}</span></td>
                     <td>${assignedBadge}</td>
                     <td>${callResultBadge}</td>
-                    <td>
-                        <div style="font-size:0.8rem; display:flex; align-items:center; gap: 2px;">
-                            <span>${contact}</span>
-                            ${contactLinkedinIcon}
-                        </div>
-                        <div style="font-size:0.65rem; color:var(--text-muted);">${contactTitle}</div>
+                    <td style="overflow:hidden; font-size:11px;">
+                        <div style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${contact}">${contact}</div>
+                        ${contactTitle ? `<div style="font-size:9px; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${contactTitle}">${contactTitle}</div>` : ''}
                     </td>
-                    <td>
-                        <div class="table-actions" onclick="event.stopPropagation();">
-                            <button class="btn-icon btn-view" onclick="event.stopPropagation(); Companies.showDetail('${c.id}')" title="تفاصيل">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="btn-icon btn-call" onclick="event.stopPropagation(); App.logCallForCompany('${c.id}')" title="مكالمة">
-                                <i class="fas fa-phone"></i>
-                            </button>
+                    <td style="text-align:center;">
+                        <div class="table-actions" style="justify-content:center; gap:2px;" onclick="event.stopPropagation();">
+                            <button class="btn-icon btn-view" style="width:24px; height:24px; font-size:10px;" onclick="event.stopPropagation(); Companies.showDetail('${c.id}')" title="تفاصيل"><i class="fas fa-eye"></i></button>
+                            <button class="btn-icon btn-call" style="width:24px; height:24px; font-size:10px;" onclick="event.stopPropagation(); App.logCallForCompany('${c.id}')" title="مكالمة"><i class="fas fa-phone"></i></button>
                             ${window.AppStorage.canModify(currentUser) ? `
-                                <button class="btn-icon btn-edit" onclick="event.stopPropagation(); Companies.edit('${c.id}')" title="تعديل">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn-icon btn-delete" onclick="event.stopPropagation(); Companies.confirmDelete('${c.id}')" title="حذف">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                                <button class="btn-icon btn-edit" style="width:24px; height:24px; font-size:10px;" onclick="event.stopPropagation(); Companies.edit('${c.id}')" title="تعديل"><i class="fas fa-edit"></i></button>
+                                <button class="btn-icon btn-delete" style="width:24px; height:24px; font-size:10px;" onclick="event.stopPropagation(); Companies.confirmDelete('${c.id}')" title="حذف"><i class="fas fa-trash"></i></button>
                             ` : ''}
                         </div>
                     </td>
@@ -1926,27 +1915,27 @@ const Companies = {
         if (assignedUser) {
             const userName = assignedUser.name || assignedUser.username || 'موظف';
             return `
-                <div style="display:inline-flex; align-items:center; gap:6px;" onclick="event.stopPropagation();">
-                    <span class="badge" style="background:${assignedUser.color || '#7c3aed'}22; color:${assignedUser.color || '#7c3aed'}; border:1px solid ${assignedUser.color || '#7c3aed'}66; padding:4px 8px; font-weight:700; font-size:0.75rem; border-radius:6px; display:inline-flex; align-items:center; gap:4px;" title="تاريخ التعيين: ${c.assignedAt ? new Date(c.assignedAt).toLocaleDateString('ar-EG') : ''}">
+                <div style="display:flex; flex-direction:column; gap:2px; max-width:100%;" onclick="event.stopPropagation();">
+                    <span class="badge" style="background:${assignedUser.color || '#7c3aed'}22; color:${assignedUser.color || '#7c3aed'}; border:1px solid ${assignedUser.color || '#7c3aed'}66; padding:2px 5px; font-weight:700; font-size:10px; border-radius:4px; display:inline-flex; align-items:center; gap:3px; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="تاريخ التعيين: ${c.assignedAt ? new Date(c.assignedAt).toLocaleDateString('ar-EG') : ''}">
                         ${assignedUser.avatar || '👤'} ${userName}
                     </span>
                     ${window.AppStorage.canModify() ? `
-                        <select onchange="Companies.assignToUser('${c.id}', this.value)" style="padding:2px 6px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-muted); font-size:11px; cursor:pointer;" title="تغيير الموظف المسند إليه أو إلغاء التعيين">
+                        <select onchange="Companies.assignToUser('${c.id}', this.value)" style="padding:1px 3px; border-radius:4px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-muted); font-size:10px; cursor:pointer; width:100%;" title="تغيير الموظف المسند إليه أو إلغاء التعيين">
                             <option value="${assignedUser.id}" selected>✏️ تغيير</option>
-                            <option value="">⚪ إلغاء التعيين</option>
+                            <option value="">⚪ إلغاء</option>
                             ${users.filter(u => u && u.id !== assignedUser.id).map(u => `<option value="${u.id}">👤 ${u.name || u.username || 'موظف'}</option>`).join('')}
                         </select>
                     ` : ''}
                 </div>`;
         } else {
             return window.AppStorage.canModify() ? `
-                <div onclick="event.stopPropagation();" style="display:inline-block;">
-                    <select onchange="Companies.assignToUser('${c.id}', this.value)" style="padding:4px 8px; border-radius:6px; border:1px dashed #7c3aed; background:rgba(124, 58, 237, 0.1); color:#7c3aed; font-size:0.75rem; font-weight:700; cursor:pointer;" title="اختر الموظف لإسناد هذه الشركة له">
-                        <option value="" selected>➕ إسناد لموظف...</option>
-                        <option value="current_user">🙋‍♂️ حجز لي (${currentName})</option>
-                        ${users.map(u => `<option value="${u.id}">👤 ${u.name || u.username || 'موظف'} (${u.role === 'admin' ? 'مدير' : u.role === 'supervisor' ? 'مشرف' : 'مبيعات'})</option>`).join('')}
+                <div onclick="event.stopPropagation();" style="display:block; max-width:100%;">
+                    <select onchange="Companies.assignToUser('${c.id}', this.value)" style="padding:2px 4px; border-radius:4px; border:1px dashed #7c3aed; background:rgba(124, 58, 237, 0.1); color:#7c3aed; font-size:10px; font-weight:700; cursor:pointer; width:100%;" title="اختر الموظف لإسناد هذه الشركة له">
+                        <option value="" selected>➕ إسناد...</option>
+                        <option value="current_user">🙋‍♂️ لي (${currentName})</option>
+                        ${users.map(u => `<option value="${u.id}">👤 ${u.name || u.username || 'موظف'}</option>`).join('')}
                     </select>
-                </div>` : `<span style="color:var(--text-muted); font-size:11px;">⚪ غير مسندة</span>`;
+                </div>` : `<span style="color:var(--text-muted); font-size:10px;">⚪ غير مسندة</span>`;
         }
     },
 
