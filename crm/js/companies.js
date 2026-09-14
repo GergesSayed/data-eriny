@@ -915,7 +915,8 @@ const Companies = {
             const assignedBadge = this.buildAssignedWidget(c);
 
             const mainName = esc(c.nameAr || c.nameEn || 'شركة بدون اسم');
-            const subName = (c.nameAr && c.nameEn) ? esc(c.nameEn) : '';
+            const rawSub = (c.nameEn && c.nameEn.trim() !== (c.nameAr || '').trim()) ? esc(c.nameEn.trim()) : '';
+            const subName = (rawSub && rawSub.toLowerCase() !== mainName.toLowerCase()) ? rawSub : '';
 
             let callResultBadge = '';
             if (c.lastCallResult) {
@@ -1064,8 +1065,9 @@ const Companies = {
             const facebookIcon = facebookLink ? ` <a href="${facebookLink}" target="_blank" style="color: #1877f2; margin-right: 6px; font-size: 14px;" title="Facebook الشركة" onclick="event.stopPropagation();"><i class="fab fa-facebook-f"></i></a>` : '';
             const contactLinkedin = esc(c.linkedinContactUrl || c.contactLinkedin);
             const contactLinkedinIcon = contactLinkedin ? ` <a href="${contactLinkedin}" target="_blank" style="color: #0077b5; margin-right: 6px; font-size: 12px;" title="LinkedIn المسؤول" onclick="event.stopPropagation();"><i class="fab fa-linkedin"></i></a>` : '';
-            const nameAr = esc(c.nameAr);
-            const nameEn = esc(c.nameEn);
+            const nameAr = esc(c.nameAr || c.nameEn || 'شركة بدون اسم');
+            const rawNameEn = (c.nameEn && c.nameEn.trim() !== (c.nameAr || '').trim()) ? esc(c.nameEn.trim()) : '';
+            const nameEn = (rawNameEn && rawNameEn.toLowerCase() !== nameAr.toLowerCase()) ? rawNameEn : '';
             const contactPerson = esc(c.contactPerson);
             const contactTitle = esc(c.contactTitle);
 
@@ -1081,7 +1083,7 @@ const Companies = {
                                 ${facebookIcon}
                                 ${mapsIcon}
                             </div>
-                            <div class="company-card__name-en">${nameEn}</div>
+                            ${nameEn ? `<div class="company-card__name-en">${nameEn}</div>` : ''}
                         </div>
                         <span class="badge priority-badge priority-${c.priority || 'B'}">${c.priority || 'B'}</span>
                     </div>
