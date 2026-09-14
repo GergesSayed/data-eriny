@@ -990,14 +990,8 @@ const Companies = {
                             <button class="btn-icon btn-view" onclick="event.stopPropagation(); Companies.showDetail('${c.id}')" title="تفاصيل">
                                 <i class="fas fa-eye"></i>
                             </button>
-                            <button class="btn-icon btn-call" onclick="event.stopPropagation(); App.logCallForCompany('${c.id}')" title="مكالمة تفصيلية">
+                            <button class="btn-icon btn-call" onclick="event.stopPropagation(); App.logCallForCompany('${c.id}')" title="مكالمة">
                                 <i class="fas fa-phone"></i>
-                            </button>
-                            <button class="btn-icon" onclick="Companies.quickLogCall('${c.id}', 'no_answer', event)" title="تسجيل فوري: لم يرد 📵" style="color:#f59e0b; background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.25);">
-                                <i class="fas fa-phone-slash"></i>
-                            </button>
-                            <button class="btn-icon" onclick="Companies.quickLogCall('${c.id}', 'busy', event)" title="تسجيل فوري: مشغول ⏳" style="color:#64748b; background:rgba(100,116,139,0.12); border:1px solid rgba(100,116,139,0.25);">
-                                <i class="fas fa-hourglass-half"></i>
                             </button>
                             ${window.AppStorage.canModify(currentUser) ? `
                                 <button class="btn-icon btn-edit" onclick="event.stopPropagation(); Companies.edit('${c.id}')" title="تعديل">
@@ -1103,14 +1097,8 @@ const Companies = {
                                     <i class="fas fa-phone"></i> اتصال
                                 </a>
                             ` : ''}
-                            <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); App.logCallForCompany('${c.id}')" style="font-size: 11px; padding: 5px 10px; border-radius: 8px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 3px 10px rgba(124, 58, 237, 0.3);" title="تسجيل مكالمة تفصيلية">
-                                <i class="fas fa-phone-alt"></i> + مكالمة
-                            </button>
-                            <button class="btn btn-sm" onclick="Companies.quickLogCall('${c.id}', 'no_answer', event)" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); padding: 5px 8px; border-radius: 8px; font-size: 11px; font-weight: 700;" title="تسجيل سريع: لم يرد">
-                                <i class="fas fa-phone-slash"></i> لم يرد
-                            </button>
-                            <button class="btn btn-sm" onclick="Companies.quickLogCall('${c.id}', 'busy', event)" style="background: rgba(100, 116, 139, 0.15); color: #94a3b8; border: 1px solid rgba(100, 116, 139, 0.3); padding: 5px 8px; border-radius: 8px; font-size: 11px; font-weight: 700;" title="تسجيل سريع: مشغول">
-                                <i class="fas fa-hourglass-half"></i> مشغول
+                            <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); App.logCallForCompany('${c.id}')" style="font-size: 12px; padding: 6px 14px; border-radius: 8px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(124, 58, 237, 0.3);">
+                                <i class="fas fa-phone-alt"></i> + تسجيل مكالمة
                             </button>
                         </div>
                         <div class="table-actions" onclick="event.stopPropagation();">
@@ -1173,51 +1161,6 @@ const Companies = {
         this.render();
     },
 
-    quickLogCall(companyId, result, event) {
-        if (event) {
-            event.stopPropagation();
-            event.preventDefault();
-        }
-        const company = window.AppStorage.getCompany(companyId);
-        if (!company) return;
-        const currentUser = window.AppStorage.getCurrentUser();
-        const now = new Date();
-        const dateStr = now.toISOString().split('T')[0];
-        const timeStr = now.toTimeString().split(' ')[0].substring(0, 5);
-
-        const resultLabels = {
-            'no_answer': '📵 لم يرد',
-            'busy': '⏳ الرقم مشغول',
-            'wrong_number': '❌ غير متاح / غير صحيح'
-        };
-        const label = resultLabels[result] || 'مكالمة سريعة';
-
-        const call = {
-            id: 'c_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
-            companyId: companyId,
-            date: dateStr,
-            time: timeStr,
-            contactPerson: company.contactPerson || '',
-            result: result,
-            followUpDate: '',
-            notes: `تسجيل فوري: ${label}`,
-            userId: currentUser ? currentUser.id : 'admin',
-            createdByName: currentUser ? currentUser.name : 'المدير العام',
-            createdAt: now.toISOString()
-        };
-
-        window.AppStorage.saveCall(call);
-        App.showToast(`تم تسجيل: ${label} (${company.nameAr || company.nameEn})`, 'success');
-
-        if (typeof Calls !== 'undefined') {
-            try { Calls.renderStats(); } catch(e) {}
-        }
-        if (typeof Dashboard !== 'undefined') {
-            try { Dashboard.render(); } catch(e) {}
-        }
-
-        this.render();
-    },
 
     toggleMyPortfolio() {
         this.myPortfolioOnly = !this.myPortfolioOnly;
