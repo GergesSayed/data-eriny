@@ -11,7 +11,7 @@
     <script>
         // Force purge any legacy service workers, disk caches, and old deals storage immediately
         (function() {
-            var CURRENT_VER = '236.0';
+            var CURRENT_VER = '237.0';
             try {
                 localStorage.removeItem('fleetcrm_deals');
                 localStorage.removeItem('fleetcrm_deals_count');
@@ -59,7 +59,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=236.0">
+    <link rel="stylesheet" href="css/style.css?v=237.0">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
         (function() {
@@ -285,7 +285,7 @@
             </div>
             <div class="brand-text">
                 <h2>Fleet CRM</h2>
-                <span>إدارة بيع الإطارات <small style="background:#7c3aed33; color:#a78bfa; padding:1px 6px; border-radius:6px; font-size:10px; font-weight:700;">v236.0</small></span>
+                <span>إدارة بيع الإطارات <small style="background:#7c3aed33; color:#a78bfa; padding:1px 6px; border-radius:6px; font-size:10px; font-weight:700;">v237.0</small></span>
             </div>
         </div>
 
@@ -679,9 +679,6 @@
                 <div class="table-stats-bar">
                     <span id="companies-count-display"><script>document.write('📊 إجمالي شركات السيستم: ' + (localStorage.getItem('fleetcrm_company_count') ? parseInt(String(localStorage.getItem('fleetcrm_company_count')).replace(/,/g,''),10).toLocaleString() : '36,964') + ' شركة');</script></span>
                     <div class="table-view-toggle">
-                        <button class="btn-icon" id="btn-toggle-my-portfolio" onclick="Companies.toggleMyPortfolio()" title="عرض الشركات المسندة لمحفظتي فقط" style="padding: 6px 12px; width: auto; border-radius: 8px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; background: rgba(124, 58, 237, 0.12); color: #a78bfa; border: 1px solid rgba(124, 58, 237, 0.25); cursor: pointer;">
-                            <i class="fas fa-briefcase"></i> محفظتي المسندة لي
-                        </button>
                         <button class="btn-icon active" id="btn-view-table" title="عرض جدول"><i class="fas fa-table"></i></button>
                         <button class="btn-icon" id="btn-view-cards" title="عرض بطاقات"><i class="fas fa-th-large"></i></button>
                     </div>
@@ -1409,20 +1406,20 @@
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <script src="js/supabase-client.js?v=236.0"></script>
-    <script src="js/egypt_verified_titans.js?v=236.0"></script>
-    <script src="js/egypt_enterprises_pool.js?v=236.0"></script>
-    <script src="js/companies-worker.js?v=236.0"></script>
-    <script src="js/storage.js?v=236.0"></script>
-    <script src="js/excel-handler.js?v=236.0"></script>
-    <script src="js/dashboard.js?v=236.0"></script>
-    <script src="js/companies.js?v=236.0"></script>
-    <script src="js/calls.js?v=236.0"></script>
-    <script src="js/reports.js?v=236.0"></script>
-    <script src="js/scraper.js?v=236.0"></script>
-    <script src="js/team.js?v=236.0"></script>
-    <script src="js/settings.js?v=236.0"></script>
-    <script src="js/app.js?v=236.0"></script>
+    <script src="js/supabase-client.js?v=237.0"></script>
+    <script src="js/egypt_verified_titans.js?v=237.0"></script>
+    <script src="js/egypt_enterprises_pool.js?v=237.0"></script>
+    <script src="js/companies-worker.js?v=237.0"></script>
+    <script src="js/storage.js?v=237.0"></script>
+    <script src="js/excel-handler.js?v=237.0"></script>
+    <script src="js/dashboard.js?v=237.0"></script>
+    <script src="js/companies.js?v=237.0"></script>
+    <script src="js/calls.js?v=237.0"></script>
+    <script src="js/reports.js?v=237.0"></script>
+    <script src="js/scraper.js?v=237.0"></script>
+    <script src="js/team.js?v=237.0"></script>
+    <script src="js/settings.js?v=237.0"></script>
+    <script src="js/app.js?v=237.0"></script>
 
     <!-- Cleanup overlay on load - runs once only, does NOT override App.checkAuth -->
     <script>
