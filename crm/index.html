@@ -11,7 +11,7 @@
     <script>
         // Force purge any legacy service workers, disk caches, and old deals storage immediately
         (function() {
-            var CURRENT_VER = '238.0';
+            var CURRENT_VER = '239.0';
             try {
                 localStorage.removeItem('fleetcrm_deals');
                 localStorage.removeItem('fleetcrm_deals_count');
@@ -59,7 +59,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=238.0">
+    <link rel="stylesheet" href="css/style.css?v=239.0">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
         (function() {
@@ -285,7 +285,7 @@
             </div>
             <div class="brand-text">
                 <h2>Fleet CRM</h2>
-                <span>إدارة بيع الإطارات <small style="background:#7c3aed33; color:#a78bfa; padding:1px 6px; border-radius:6px; font-size:10px; font-weight:700;">v238.0</small></span>
+                <span>إدارة بيع الإطارات <small style="background:#7c3aed33; color:#a78bfa; padding:1px 6px; border-radius:6px; font-size:10px; font-weight:700;">v239.0</small></span>
             </div>
         </div>
 
@@ -435,16 +435,41 @@
                         </div>
                     </div>
                     <div class="stat-card stat-card--success" id="card-dash-kpi" style="border: 1px solid rgba(16, 185, 129, 0.25);">
-                        <div class="stat-card__icon" style="background: rgba(16, 185, 129, 0.15); color: #10b981;"><i class="fas fa-bullseye"></i></div>
+                        <div class="stat-card__icon" style="background: rgba(16, 185, 129, 0.15); color: #10b981;"><i class="fas fa-users-cog"></i></div>
                         <div class="stat-card__info" style="width: 100%;">
                             <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <h3 id="dash-kpi-count" style="margin: 0; font-size: 1.25rem;">0 / 40</h3>
-                                <span id="dash-kpi-percent" style="font-size: 12px; font-weight: 800; color: #10b981; background: rgba(16, 185, 129, 0.15); padding: 1px 6px; border-radius: 6px;">0%</span>
+                                <h3 id="dash-team-progress-count" style="margin: 0; font-size: 1.25rem;">0 / 0</h3>
+                                <span id="dash-team-progress-percent" style="font-size: 12px; font-weight: 800; color: #10b981; background: rgba(16, 185, 129, 0.15); padding: 1px 6px; border-radius: 6px;">0%</span>
                             </div>
-                            <p style="margin: 2px 0 0 0;">هدف اليوم <br><small>Daily Target</small></p>
+                            <p style="margin: 2px 0 0 0;">إنجاز محفظة الفريق <br><small>Team Portfolio Progress</small></p>
                             <div style="width: 100%; height: 5px; background: rgba(255,255,255,0.08); border-radius: 8px; overflow: hidden; margin-top: 6px;">
-                                <div id="dash-kpi-progress" style="width: 0%; height: 100%; background: linear-gradient(90deg, #10b981, #06b6d4); border-radius: 8px; transition: width 0.4s ease;"></div>
+                                <div id="dash-team-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #10b981, #06b6d4); border-radius: 8px; transition: width 0.4s ease;"></div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sales Team Goals & Performance Section -->
+                <div class="card team-performance-card" id="dash-team-goals-card" style="margin-bottom: 24px; border: 1px solid var(--border-color); background: var(--bg-card); border-radius: 14px; overflow: hidden;">
+                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding: 16px 20px; border-bottom: 1px solid var(--border-light);">
+                        <div>
+                            <h3 style="margin: 0; display: flex; align-items: center; gap: 8px; font-size: 1.1rem; color: var(--text-primary);">
+                                <i class="fas fa-bullseye" style="color: #7c3aed;"></i> أهداف وإنجازات فريق المبيعات
+                                <small style="color: var(--text-muted); font-size: 0.8rem; font-weight: normal;">Sales Team Targets & Conversion</small>
+                            </h3>
+                            <p style="margin: 4px 0 0 0; font-size: 12px; color: var(--text-secondary);">
+                                رصد دقيق لكل موظف: كم شركة تم التواصل معها من محفظته، والشركات التي انضمت أو أبدت اهتماماً، والشركات المستبعدة
+                            </p>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <button class="btn btn-ghost btn-sm" onclick="App.navigate('team')" style="font-size: 12px; font-weight: 700; color: #a78bfa; border: 1px solid rgba(124, 58, 237, 0.3); padding: 5px 12px; border-radius: 8px; cursor: pointer;">
+                                <i class="fas fa-users-cog"></i> إدارة فريق المبيعات
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body" style="padding: 20px;">
+                        <div id="dash-team-goals-grid" class="team-goals-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">
+                            <!-- Populated dynamically by Dashboard.renderTeamGoals() -->
                         </div>
                     </div>
                 </div>
@@ -1406,20 +1431,20 @@
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <script src="js/supabase-client.js?v=238.0"></script>
-    <script src="js/egypt_verified_titans.js?v=238.0"></script>
-    <script src="js/egypt_enterprises_pool.js?v=238.0"></script>
-    <script src="js/companies-worker.js?v=238.0"></script>
-    <script src="js/storage.js?v=238.0"></script>
-    <script src="js/excel-handler.js?v=238.0"></script>
-    <script src="js/dashboard.js?v=238.0"></script>
-    <script src="js/companies.js?v=238.0"></script>
-    <script src="js/calls.js?v=238.0"></script>
-    <script src="js/reports.js?v=238.0"></script>
-    <script src="js/scraper.js?v=238.0"></script>
-    <script src="js/team.js?v=238.0"></script>
-    <script src="js/settings.js?v=238.0"></script>
-    <script src="js/app.js?v=238.0"></script>
+    <script src="js/supabase-client.js?v=239.0"></script>
+    <script src="js/egypt_verified_titans.js?v=239.0"></script>
+    <script src="js/egypt_enterprises_pool.js?v=239.0"></script>
+    <script src="js/companies-worker.js?v=239.0"></script>
+    <script src="js/storage.js?v=239.0"></script>
+    <script src="js/excel-handler.js?v=239.0"></script>
+    <script src="js/dashboard.js?v=239.0"></script>
+    <script src="js/companies.js?v=239.0"></script>
+    <script src="js/calls.js?v=239.0"></script>
+    <script src="js/reports.js?v=239.0"></script>
+    <script src="js/scraper.js?v=239.0"></script>
+    <script src="js/team.js?v=239.0"></script>
+    <script src="js/settings.js?v=239.0"></script>
+    <script src="js/app.js?v=239.0"></script>
 
     <!-- Cleanup overlay on load - runs once only, does NOT override App.checkAuth -->
     <script>

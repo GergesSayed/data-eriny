@@ -15,6 +15,7 @@ const Dashboard = {
         try {
             const stats = window.AppStorage ? window.AppStorage.getStats() : {};
             this.updateStatCards(stats);
+            this.renderTeamGoals();
             this.renderFollowUps();
             this.renderActivities();
             this.updateCurrentDate();
@@ -320,6 +321,189 @@ const Dashboard = {
                 day: 'numeric'
             });
         }
+    },
+
+    renderTeamGoals() {
+        const grid = document.getElementById('dash-team-goals-grid');
+        if (!grid) return;
+
+        const users = (window.AppStorage && window.AppStorage.getUsers) ? window.AppStorage.getUsers() : [];
+        const allCompanies = (window.AppStorage && window.AppStorage.getCompanies) ? window.AppStorage.getCompanies() : [];
+        const allCalls = (window.AppStorage && window.AppStorage.getCalls) ? window.AppStorage.getCalls() : [];
+
+        if (!users || users.length === 0) {
+            grid.innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; padding: 24px; color: var(--text-muted);">
+                    <i class="fas fa-user-plus" style="font-size: 2rem; margin-bottom: 8px; display: block; color: #8b5cf6;"></i>
+                    لم يتم تسجيل موظفين في النظام بعد. يمكنك إضافة موظفين من شاشة "إدارة الموظفين".
+                </div>`;
+            return;
+        }
+
+        // High speed single-pass performance aggregation
+        const userIndexMap = new Map();
+        const usersStats = users.map(user => {
+            const s = {
+                ...user,
+                assignedCompanies: [],
+                assignedCount: 0,
+                contactedCount: 0,
+                remainingCount: 0,
+                interestedCount: 0,
+                notInterestedCount: 0,
+                callsCount: 0
+            };
+            if (user.id) userIndexMap.set(String(user.id).trim().toLowerCase(), s);
+            if (user.username) userIndexMap.set(String(user.username).trim().toLowerCase(), s);
+            if (user.name) userIndexMap.set(String(user.name).trim().toLowerCase(), s);
+            return s;
+        });
+
+        // 1. Assign companies to user buckets
+        let totalAssignedAll = 0;
+        let totalContactedAll = 0;
+
+        for (let i = 0; i < allCompanies.length; i++) {
+            const c = allCompanies[i];
+            if (!c || !c.assignedTo) continue;
+            const s = userIndexMap.get(String(c.assignedTo).trim().toLowerCase());
+            if (s) {
+                totalAssignedAll++;
+                s.assignedCount++;
+                s.assignedCompanies.push(c);
+
+                const isContacted = Boolean(c.lastCallResult || c.status === 'interested' || c.status === 'contacted' || c.status === 'unqualified');
+                if (isContacted) {
+                    s.contactedCount++;
+                    totalContactedAll++;
+                } else {
+                    s.remainingCount++;
+                }
+
+                if (c.status === 'interested' || ['interested', 'meeting_scheduled', 'proposal_sent'].includes(c.lastCallResult)) {
+                    s.interestedCount++;
+                }
+                if (c.status === 'unqualified' || ['not_interested', 'wrong_number'].includes(c.lastCallResult)) {
+                    s.notInterestedCount++;
+                }
+            }
+        }
+
+        // 2. Count calls made by each user
+        for (let i = 0; i < allCalls.length; i++) {
+            const call = allCalls[i];
+            if (!call) continue;
+            if (call.userId) {
+                const s = userIndexMap.get(String(call.userId).trim().toLowerCase());
+                if (s) s.callsCount++;
+            } else if (call.createdByName) {
+                const s = userIndexMap.get(String(call.createdByName).trim().toLowerCase());
+                if (s) s.callsCount++;
+            }
+        }
+
+        // Update the top stat card with team completion
+        const teamCountEl = document.getElementById('dash-team-progress-count');
+        const teamPercentEl = document.getElementById('dash-team-progress-percent');
+        const teamProgressEl = document.getElementById('dash-team-progress-bar');
+        if (teamCountEl) teamCountEl.textContent = `${totalContactedAll} / ${totalAssignedAll}`;
+        const totalPct = totalAssignedAll > 0 ? Math.min(100, Math.round((totalContactedAll / totalAssignedAll) * 100)) : 0;
+        if (teamPercentEl) teamPercentEl.textContent = `${totalPct}%`;
+        if (teamProgressEl) teamProgressEl.style.width = `${totalPct}%`;
+
+        // 3. Render employee goal cards
+        grid.innerHTML = usersStats.map(u => {
+            const pct = u.assignedCount > 0 ? Math.round((u.contactedCount / u.assignedCount) * 100) : 0;
+            const roleBadge = u.role === 'admin' ? '👑 مدير عام' : (u.role === 'supervisor' ? '⭐ مشرف' : '💼 مبيعات');
+            const userColor = u.color || '#7c3aed';
+            const avatar = u.avatar || '👤';
+            const uName = u.name || u.username || 'موظف';
+            
+            // Color of progress based on completion
+            let progressGradient = 'linear-gradient(90deg, #6366f1, #8b5cf6)';
+            if (pct >= 80) progressGradient = 'linear-gradient(90deg, #10b981, #059669)';
+            else if (pct >= 50) progressGradient = 'linear-gradient(90deg, #3b82f6, #06b6d4)';
+            else if (pct >= 25) progressGradient = 'linear-gradient(90deg, #f59e0b, #d97706)';
+
+            return `
+                <div class="employee-goal-card" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; transition: all 0.2s ease; position: relative;" onmouseover="this.style.borderColor='rgba(124, 58, 237, 0.4)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.borderColor='var(--border-color)'; this.style.transform='none';">
+                    <!-- Card Header: Employee info & Role -->
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: ${userColor}22; color: ${userColor}; border: 1px solid ${userColor}55; font-size: 1.2rem;">
+                                ${avatar}
+                            </span>
+                            <div>
+                                <h4 style="margin: 0; font-size: 0.95rem; font-weight: 700; color: var(--text-primary);">${uName}</h4>
+                                <span style="font-size: 11px; color: var(--text-muted); display: inline-flex; align-items: center; gap: 4px; margin-top: 2px;">
+                                    ${roleBadge} • 📞 ${u.callsCount} مكالمة
+                                </span>
+                            </div>
+                        </div>
+                        <span style="font-size: 13px; font-weight: 800; color: ${pct >= 50 ? '#10b981' : '#f59e0b'}; background: ${pct >= 50 ? 'rgba(16, 185, 129, 0.12)' : 'rgba(245, 158, 11, 0.12)'}; padding: 3px 8px; border-radius: 6px;">
+                            ${pct}% إنجاز
+                        </span>
+                    </div>
+
+                    <!-- Progress Bar & Companies Contacted -->
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin-bottom: 5px;">
+                            <span style="color: var(--text-secondary); font-weight: 600;">الشركات المنجزة:</span>
+                            <span style="font-weight: 700; color: var(--text-primary);"><b style="color: #60a5fa;">${u.contactedCount}</b> من أصل <b>${u.assignedCount}</b> شركة</span>
+                        </div>
+                        <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.06); border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);">
+                            <div style="width: ${pct}%; height: 100%; background: ${progressGradient}; border-radius: 10px; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);"></div>
+                        </div>
+                    </div>
+
+                    <!-- 3 Key Result Metrics: Interested / Unqualified / Remaining -->
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center;">
+                        <!-- Won / Interested -->
+                        <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 8px; padding: 8px 4px; cursor: pointer;" onclick="Dashboard.filterCompaniesByEmployee('${u.id}', 'interested')" title="عرض الشركات المهتمة والمنضمة">
+                            <div style="font-size: 1.1rem; font-weight: 800; color: #10b981;">${u.interestedCount}</div>
+                            <div style="font-size: 10.5px; color: #34d399; font-weight: 600; margin-top: 2px;">💚 انضمت / مهتمة</div>
+                        </div>
+
+                        <!-- Unqualified / Rejected -->
+                        <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 8px; padding: 8px 4px; cursor: pointer;" onclick="Dashboard.filterCompaniesByEmployee('${u.id}', 'unqualified')" title="عرض الشركات المستبعدة وغير المهتمة">
+                            <div style="font-size: 1.1rem; font-weight: 800; color: #ef4444;">${u.notInterestedCount}</div>
+                            <div style="font-size: 10.5px; color: #f87171; font-weight: 600; margin-top: 2px;">🔴 غير مناسبة</div>
+                        </div>
+
+                        <!-- Pending / Remaining -->
+                        <div style="background: rgba(148, 163, 184, 0.08); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 8px; padding: 8px 4px; cursor: pointer;" onclick="Dashboard.filterCompaniesByEmployee('${u.id}', 'remaining')" title="عرض الشركات المتبقية في انتظار التواصل">
+                            <div style="font-size: 1.1rem; font-weight: 800; color: #94a3b8;">${u.remainingCount}</div>
+                            <div style="font-size: 10.5px; color: #cbd5e1; font-weight: 600; margin-top: 2px;">⚪ متبقي للاتصال</div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Action: Go to Employee's Companies in Companies Table -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-light); padding-top: 10px; margin-top: 2px;">
+                        <span style="font-size: 11px; color: var(--text-muted);">
+                            ${u.assignedCount === 0 ? '⚪ لا توجد شركات مسندة' : (u.remainingCount === 0 ? '🎉 أنجز كل شركاته بالكامل!' : `متبقي ${u.remainingCount} شركة`)}
+                        </span>
+                        <button class="btn btn-sm" onclick="Dashboard.filterCompaniesByEmployee('${u.id}')" style="background: rgba(124, 58, 237, 0.12); color: #a78bfa; border: 1px solid rgba(124, 58, 237, 0.3); font-size: 11.5px; font-weight: 700; padding: 4px 10px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
+                            <i class="fas fa-search"></i> عرض الشركات
+                        </button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    },
+
+    filterCompaniesByEmployee(userId, filterType = '') {
+        if (!userId) return;
+        App.navigate('companies');
+        setTimeout(() => {
+            const assignedFilter = document.getElementById('filter-assigned');
+            if (assignedFilter) {
+                assignedFilter.value = userId;
+            }
+            if (typeof Companies !== 'undefined') {
+                Companies.currentPage = 1;
+                Companies.render();
+            }
+        }, 80);
     },
 
     _timeAgo(timestamp) {
