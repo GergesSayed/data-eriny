@@ -11,15 +11,15 @@
     <script>
         // Force purge any legacy service workers, disk caches, and old deals storage immediately
         (function() {
-            var CURRENT_VER = '243.0';
+            var CURRENT_VER = '244.0';
             try {
                 localStorage.removeItem('fleetcrm_deals');
                 localStorage.removeItem('fleetcrm_deals_count');
                 localStorage.removeItem('fleetcrm_user_wiped_deals');
                 localStorage.removeItem('fleetcrm_dynamic_companies');
                 var rawCount = localStorage.getItem('fleetcrm_company_count');
-                if (!rawCount || parseInt(String(rawCount).replace(/,/g, ''), 10) !== 32130) {
-                    localStorage.setItem('fleetcrm_company_count', '32130');
+                if (!rawCount || parseInt(String(rawCount).replace(/,/g, ''), 10) !== 32026) {
+                    localStorage.setItem('fleetcrm_company_count', '32026');
                 }
                 if (window.location.hash === '#pipeline') {
                     window.location.hash = '#companies';
@@ -27,7 +27,7 @@
                 var lastVer = localStorage.getItem('fleetcrm_app_version');
                 if (lastVer !== CURRENT_VER) {
                     localStorage.setItem('fleetcrm_app_version', CURRENT_VER);
-                    localStorage.setItem('fleetcrm_company_count', '32130');
+                    localStorage.setItem('fleetcrm_company_count', '32026');
                     try {
                         var req = indexedDB.open('FleetCRM_DB', 5);
                         req.onsuccess = function(e) {
@@ -59,14 +59,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=243.0">
+    <link rel="stylesheet" href="css/style.css?v=244.0">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
         (function() {
             function updateImmediateCounters() {
                 try {
                     if (localStorage.getItem('fleetcrm_user_wiped_companies') !== 'true') {
-                        var rawCount = localStorage.getItem('fleetcrm_company_count') || '32,130';
+                        var rawCount = localStorage.getItem('fleetcrm_company_count') || '32,026';
                         if (rawCount) {
                             var parsed = parseInt(String(rawCount).replace(/,/g, ''), 10);
                             if (!isNaN(parsed) && parsed > 0) {
@@ -139,7 +139,7 @@
                             }
                         }
                         // Dynamically hydrate live company count from storage immediately
-                        var rawCount = localStorage.getItem('fleetcrm_company_count') || '32,130';
+                        var rawCount = localStorage.getItem('fleetcrm_company_count') || '32,026';
                         if (rawCount) {
                             var parsed = parseInt(String(rawCount).replace(/,/g, ''), 10);
                             if (!isNaN(parsed) && parsed > 0) {
@@ -285,7 +285,7 @@
             </div>
             <div class="brand-text">
                 <h2>Fleet CRM</h2>
-                <span>إدارة بيع الإطارات <small style="background:#7c3aed33; color:#a78bfa; padding:1px 6px; border-radius:6px; font-size:10px; font-weight:700;">v243.0</small></span>
+                <span>إدارة بيع الإطارات <small style="background:#7c3aed33; color:#a78bfa; padding:1px 6px; border-radius:6px; font-size:10px; font-weight:700;">v244.0</small></span>
             </div>
         </div>
 
@@ -331,7 +331,7 @@
         <div class="sidebar-footer admin-only-nav">
             <div class="sidebar-stats" style="justify-content:center;">
                 <div class="sidebar-stat" style="width:100%; text-align:center;">
-                    <span class="stat-num" id="sidebar-total-companies"><script>document.write(localStorage.getItem('fleetcrm_company_count') ? parseInt(String(localStorage.getItem('fleetcrm_company_count')).replace(/,/g,''),10).toLocaleString() : '32,130');</script></span>
+                    <span class="stat-num" id="sidebar-total-companies"><script>document.write(localStorage.getItem('fleetcrm_company_count') ? parseInt(String(localStorage.getItem('fleetcrm_company_count')).replace(/,/g,''),10).toLocaleString() : '32,026');</script></span>
                     <span class="stat-label">شركة ومصنع مسجل</span>
                 </div>
             </div>
@@ -407,7 +407,7 @@
                     <div class="stat-card stat-card--primary">
                         <div class="stat-card__icon"><i class="fas fa-building"></i></div>
                         <div class="stat-card__info">
-                            <h3 id="dash-total-companies"><script>document.write(localStorage.getItem('fleetcrm_company_count') ? parseInt(String(localStorage.getItem('fleetcrm_company_count')).replace(/,/g,''),10).toLocaleString() : '32,130');</script></h3>
+                            <h3 id="dash-total-companies"><script>document.write(localStorage.getItem('fleetcrm_company_count') ? parseInt(String(localStorage.getItem('fleetcrm_company_count')).replace(/,/g,''),10).toLocaleString() : '32,026');</script></h3>
                             <p>إجمالي الشركات <br><small>Total Companies</small></p>
                         </div>
                         <div class="stat-card__trend up">
@@ -702,7 +702,7 @@
 
                 <!-- Company Stats Bar -->
                 <div class="table-stats-bar">
-                    <span id="companies-count-display"><script>document.write('📊 إجمالي شركات السيستم: ' + (localStorage.getItem('fleetcrm_company_count') ? parseInt(String(localStorage.getItem('fleetcrm_company_count')).replace(/,/g,''),10).toLocaleString() : '32,130') + ' شركة');</script></span>
+                    <span id="companies-count-display"><script>document.write('📊 إجمالي شركات السيستم: ' + (localStorage.getItem('fleetcrm_company_count') ? parseInt(String(localStorage.getItem('fleetcrm_company_count')).replace(/,/g,''),10).toLocaleString() : '32,026') + ' شركة');</script></span>
                     <div class="table-view-toggle">
                         <button class="btn-icon active" id="btn-view-table" title="عرض جدول"><i class="fas fa-table"></i></button>
                         <button class="btn-icon" id="btn-view-cards" title="عرض بطاقات"><i class="fas fa-th-large"></i></button>
@@ -1431,20 +1431,20 @@
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <script src="js/supabase-client.js?v=243.0"></script>
-    <script src="js/egypt_verified_titans.js?v=243.0"></script>
-    <script src="js/egypt_enterprises_pool.js?v=243.0"></script>
-    <script src="js/companies-worker.js?v=243.0"></script>
-    <script src="js/storage.js?v=243.0"></script>
-    <script src="js/excel-handler.js?v=243.0"></script>
-    <script src="js/dashboard.js?v=243.0"></script>
-    <script src="js/companies.js?v=243.0"></script>
-    <script src="js/calls.js?v=243.0"></script>
-    <script src="js/reports.js?v=243.0"></script>
-    <script src="js/scraper.js?v=243.0"></script>
-    <script src="js/team.js?v=243.0"></script>
-    <script src="js/settings.js?v=243.0"></script>
-    <script src="js/app.js?v=243.0"></script>
+    <script src="js/supabase-client.js?v=244.0"></script>
+    <script src="js/egypt_verified_titans.js?v=244.0"></script>
+    <script src="js/egypt_enterprises_pool.js?v=244.0"></script>
+    <script src="js/companies-worker.js?v=244.0"></script>
+    <script src="js/storage.js?v=244.0"></script>
+    <script src="js/excel-handler.js?v=244.0"></script>
+    <script src="js/dashboard.js?v=244.0"></script>
+    <script src="js/companies.js?v=244.0"></script>
+    <script src="js/calls.js?v=244.0"></script>
+    <script src="js/reports.js?v=244.0"></script>
+    <script src="js/scraper.js?v=244.0"></script>
+    <script src="js/team.js?v=244.0"></script>
+    <script src="js/settings.js?v=244.0"></script>
+    <script src="js/app.js?v=244.0"></script>
 
     <!-- Cleanup overlay on load - runs once only, does NOT override App.checkAuth -->
     <script>
