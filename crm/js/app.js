@@ -730,6 +730,10 @@ const App = {
         });
     },
 
+    navigate(page, force = false) {
+        return this.navigateTo(page, force);
+    },
+
     navigateTo(page, force = false) {
         const activePageEl = document.getElementById(`page-${page}`);
         if (!force && this.currentPage === page && activePageEl && activePageEl.classList.contains('active')) {

@@ -9,6 +9,7 @@ const Companies = {
     sortDir: 'asc',
     viewMode: 'table', // 'table' or 'cards'
     myPortfolioOnly: false,
+    statusFilter: null,
     selectedCompanies: new Set(),
     selectedSectors: new Set(),
     selectedCities: new Set(),
@@ -246,7 +247,8 @@ const Companies = {
             contactType ||
             fleetSize ||
             priority ||
-            assigned
+            assigned ||
+            Boolean(this.statusFilter)
         );
 
         if (!hasActiveFilters) {
@@ -321,6 +323,38 @@ const Companies = {
             `;
         }
 
+        // Assigned Employee Chip
+        if (assigned) {
+            let assignedLabel = 'المسند إليه';
+            if (assigned === 'my_leads') assignedLabel = '⭐ شركاتي أنا فقط';
+            else if (assigned === 'unassigned') assignedLabel = '⚪ غير مسندة لأحد';
+            else {
+                const u = window.AppStorage ? window.AppStorage.getUser(assigned) : null;
+                assignedLabel = u ? `👤 ${u.name}` : `👤 ${assigned}`;
+            }
+            chipsHtml += `
+                <span class="active-filter-chip" style="background:rgba(124, 58, 237, 0.18); border-color:rgba(124, 58, 237, 0.35); color:#c4b5fd;">
+                    <span>${assignedLabel}</span>
+                    <i class="fas fa-times chip-remove" title="إزالة" onclick="Companies.removeActiveFilter('assigned')"></i>
+                </span>
+            `;
+        }
+
+        // Status Filter Chip (e.g. from Dashboard employee goal cards)
+        if (this.statusFilter) {
+            const statusLabels = {
+                interested: '💚 انضمت / مهتمة',
+                unqualified: '🔴 غير مناسبة',
+                remaining: '⚪ متبقي للاتصال'
+            };
+            chipsHtml += `
+                <span class="active-filter-chip" style="background:rgba(16, 185, 129, 0.18); border-color:rgba(16, 185, 129, 0.35); color:#a7f3d0;">
+                    <span>${statusLabels[this.statusFilter] || this.statusFilter}</span>
+                    <i class="fas fa-times chip-remove" title="إزالة" onclick="Companies.removeActiveFilter('statusFilter')"></i>
+                </span>
+            `;
+        }
+
         // Search Chip
         if (search) {
             chipsHtml += `
@@ -352,6 +386,11 @@ const Companies = {
         } else if (type === 'priority') {
             const el = document.getElementById('filter-priority');
             if (el) el.value = '';
+        } else if (type === 'assigned') {
+            const el = document.getElementById('filter-assigned');
+            if (el) el.value = '';
+        } else if (type === 'statusFilter') {
+            this.statusFilter = null;
         } else if (type === 'search') {
             const el = document.getElementById('filter-search');
             if (el) el.value = '';
@@ -616,6 +655,7 @@ const Companies = {
         }
 
         this.currentPage = 1;
+        this.statusFilter = null;
         this.sortField = 'createdAt';
         this.sortDir = 'desc';
         this.render();
@@ -651,6 +691,19 @@ const Companies = {
             if (citySet && !citySet.has(c.city)) return false;
             if (priority && c.priority !== priority) return false;
             if (fleetType && c.fleetType !== fleetType) return false;
+
+            if (this.statusFilter) {
+                if (this.statusFilter === 'interested') {
+                    const isInterested = c.status === 'interested' || ['interested', 'meeting_scheduled', 'proposal_sent'].includes(c.lastCallResult);
+                    if (!isInterested) return false;
+                } else if (this.statusFilter === 'unqualified') {
+                    const isUnqualified = c.status === 'unqualified' || ['not_interested', 'wrong_number'].includes(c.lastCallResult);
+                    if (!isUnqualified) return false;
+                } else if (this.statusFilter === 'remaining') {
+                    const isContacted = Boolean(c.lastCallResult || c.status === 'interested' || c.status === 'contacted' || c.status === 'unqualified');
+                    if (isContacted) return false;
+                }
+            }
 
             if (contactType === 'has_phone' && !c.phone1 && !c.mobile && !c.phone2) return false;
             if (contactType === 'has_maps' && !((c.latitude && c.longitude) || (c.lat && c.lng))) return false;

@@ -493,17 +493,55 @@ const Dashboard = {
 
     filterCompaniesByEmployee(userId, filterType = '') {
         if (!userId) return;
-        App.navigate('companies');
-        setTimeout(() => {
-            const assignedFilter = document.getElementById('filter-assigned');
-            if (assignedFilter) {
-                assignedFilter.value = userId;
+
+        // Defensive Navigation
+        if (typeof App !== 'undefined') {
+            if (typeof App.navigateTo === 'function') {
+                App.navigateTo('companies');
+            } else if (typeof App.navigate === 'function') {
+                App.navigate('companies');
+            } else {
+                window.location.hash = '#companies';
             }
+        } else {
+            window.location.hash = '#companies';
+        }
+
+        setTimeout(() => {
             if (typeof Companies !== 'undefined') {
+                // Reset other filters so the user sees this employee's scope cleanly
+                ['filter-sector', 'filter-city', 'filter-contact-type', 'filter-priority', 'filter-fleet-type', 'filter-fleet-size', 'filter-added-date', 'filter-search'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = '';
+                });
+                if (Companies.selectedSectors) Companies.selectedSectors.clear();
+                if (Companies.selectedCities) Companies.selectedCities.clear();
+                if (typeof Companies._syncDropdownDOM === 'function') {
+                    Companies._syncDropdownDOM('sectors');
+                    Companies._syncDropdownDOM('cities');
+                }
+                if (typeof Companies.updateMultiSelectLabels === 'function') {
+                    Companies.updateMultiSelectLabels();
+                }
+                if (typeof Companies.renderSectorPills === 'function') {
+                    Companies.renderSectorPills();
+                }
+
+                // Ensure options in assigned dropdown are up-to-date
+                if (typeof Companies.refreshUserFilter === 'function') {
+                    Companies.refreshUserFilter();
+                }
+
+                const assignedFilter = document.getElementById('filter-assigned');
+                if (assignedFilter) {
+                    assignedFilter.value = userId;
+                }
+
+                Companies.statusFilter = filterType || null;
                 Companies.currentPage = 1;
                 Companies.render();
             }
-        }, 80);
+        }, 100);
     },
 
     _timeAgo(timestamp) {
