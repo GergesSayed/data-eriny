@@ -327,15 +327,25 @@ const Dashboard = {
         const grid = document.getElementById('dash-team-goals-grid');
         if (!grid) return;
 
-        const users = (window.AppStorage && window.AppStorage.getUsers) ? window.AppStorage.getUsers() : [];
+        const allUsers = (window.AppStorage && window.AppStorage.getUsers) ? window.AppStorage.getUsers() : [];
         const allCompanies = (window.AppStorage && window.AppStorage.getCompanies) ? window.AppStorage.getCompanies() : [];
         const allCalls = (window.AppStorage && window.AppStorage.getCalls) ? window.AppStorage.getCalls() : [];
 
+        // Exclude Admin accounts — the Admin directs the team and does not conduct sales calls
+        const users = allUsers.filter(u => {
+            if (!u) return false;
+            const role = String(u.role || '').toLowerCase();
+            const username = String(u.username || '').toLowerCase();
+            const id = String(u.id || '').toLowerCase();
+            return role !== 'admin' && username !== 'admin' && id !== 'admin';
+        });
+
         if (!users || users.length === 0) {
             grid.innerHTML = `
-                <div style="grid-column: 1/-1; text-align: center; padding: 24px; color: var(--text-muted);">
-                    <i class="fas fa-user-plus" style="font-size: 2rem; margin-bottom: 8px; display: block; color: #8b5cf6;"></i>
-                    لم يتم تسجيل موظفين في النظام بعد. يمكنك إضافة موظفين من شاشة "إدارة الموظفين".
+                <div style="grid-column: 1/-1; text-align: center; padding: 28px 16px; color: var(--text-muted); background: rgba(255,255,255,0.02); border-radius: 10px; border: 1px dashed var(--border-color);">
+                    <i class="fas fa-users" style="font-size: 2rem; margin-bottom: 8px; display: block; color: #8b5cf6;"></i>
+                    <h4 style="margin: 0 0 6px 0; color: var(--text-primary); font-size: 0.95rem;">لا يوجد موظفو مبيعات مسجلون حالياً</h4>
+                    <p style="margin: 0; font-size: 12px;">حساب المدير العام (Admin) مستثنى من بطاقات المبيعات لأنه موجه ومسؤول عن إدارة الفريق. يمكنك إضافة موظفي مبيعات من قسم إدارة الفريق.</p>
                 </div>`;
             return;
         }
