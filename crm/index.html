@@ -11,15 +11,15 @@
     <script>
         // Force purge any legacy service workers, disk caches, and old deals storage immediately
         (function() {
-            var CURRENT_VER = '247.0';
+            var CURRENT_VER = '248.0';
             try {
                 localStorage.removeItem('fleetcrm_deals');
                 localStorage.removeItem('fleetcrm_deals_count');
                 localStorage.removeItem('fleetcrm_user_wiped_deals');
                 localStorage.removeItem('fleetcrm_dynamic_companies');
                 var rawCount = localStorage.getItem('fleetcrm_company_count');
-                if (!rawCount || parseInt(String(rawCount).replace(/,/g, ''), 10) !== 30988) {
-                    localStorage.setItem('fleetcrm_company_count', '30988');
+                if (!rawCount || parseInt(String(rawCount).replace(/,/g, ''), 10) !== 30907) {
+                    localStorage.setItem('fleetcrm_company_count', '30907');
                 }
                 if (window.location.hash === '#pipeline') {
                     window.location.hash = '#companies';
@@ -27,7 +27,7 @@
                 var lastVer = localStorage.getItem('fleetcrm_app_version');
                 if (lastVer !== CURRENT_VER) {
                     localStorage.setItem('fleetcrm_app_version', CURRENT_VER);
-                    localStorage.setItem('fleetcrm_company_count', '30988');
+                    localStorage.setItem('fleetcrm_company_count', '30907');
                     try {
                         var req = indexedDB.open('FleetCRM_DB', 5);
                         req.onsuccess = function(e) {
@@ -1431,20 +1431,20 @@
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <script src="js/supabase-client.js?v=247.0"></script>
-    <script src="js/egypt_verified_titans.js?v=247.0"></script>
-    <script src="js/egypt_enterprises_pool.js?v=247.0"></script>
-    <script src="js/companies-worker.js?v=247.0"></script>
-    <script src="js/storage.js?v=247.0"></script>
-    <script src="js/excel-handler.js?v=247.0"></script>
-    <script src="js/dashboard.js?v=247.0"></script>
-    <script src="js/companies.js?v=247.0"></script>
-    <script src="js/calls.js?v=247.0"></script>
-    <script src="js/reports.js?v=247.0"></script>
-    <script src="js/scraper.js?v=247.0"></script>
-    <script src="js/team.js?v=247.0"></script>
-    <script src="js/settings.js?v=247.0"></script>
-    <script src="js/app.js?v=247.0"></script>
+    <script src="js/supabase-client.js?v=248.0"></script>
+    <script src="js/egypt_verified_titans.js?v=248.0"></script>
+    <script src="js/egypt_enterprises_pool.js?v=248.0"></script>
+    <script src="js/companies-worker.js?v=248.0"></script>
+    <script src="js/storage.js?v=248.0"></script>
+    <script src="js/excel-handler.js?v=248.0"></script>
+    <script src="js/dashboard.js?v=248.0"></script>
+    <script src="js/companies.js?v=248.0"></script>
+    <script src="js/calls.js?v=248.0"></script>
+    <script src="js/reports.js?v=248.0"></script>
+    <script src="js/scraper.js?v=248.0"></script>
+    <script src="js/team.js?v=248.0"></script>
+    <script src="js/settings.js?v=248.0"></script>
+    <script src="js/app.js?v=248.0"></script>
 
     <!-- Cleanup overlay on load - runs once only, does NOT override App.checkAuth -->
     <script>
