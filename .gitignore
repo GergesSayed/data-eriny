@@ -49,6 +49,7 @@ package-lock.json
 
 # Large Data Files
 crm/backups/
+backups/
 *.iso
 *.dmg
 *.exe
