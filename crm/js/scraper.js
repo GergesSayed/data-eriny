@@ -45,7 +45,7 @@ const ScraperPage = {
         const main = document.getElementById('scraper-content');
         if (!main) return;
         const totalComps = (window.AppStorage && window.AppStorage.getCompanies) ? window.AppStorage.getCompanies().length : 0;
-        const pool = Array.isArray(window.__EGYPT_ENTERPRISE_POOL) ? window.__EGYPT_ENTERPRISE_POOL : [];
+        const pool = (window.EGYPT_ENTERPRISES_POOL && Array.isArray(window.EGYPT_ENTERPRISES_POOL)) ? window.EGYPT_ENTERPRISES_POOL : (Array.isArray(window.__EGYPT_ENTERPRISE_POOL) ? window.__EGYPT_ENTERPRISE_POOL : []);
         const poolSize = pool.length > 0 ? pool.length : 5419;
 
         main.innerHTML = `
@@ -902,7 +902,7 @@ const ScraperPage = {
             allCurrentCompanies.map(c => this._normalizeArabicName(c.nameAr || c.name || c.nameEn || c.companyName))
         );
         
-        const pool = Array.isArray(window.__EGYPT_ENTERPRISE_POOL) ? window.__EGYPT_ENTERPRISE_POOL : [];
+        const pool = (window.EGYPT_ENTERPRISES_POOL && Array.isArray(window.EGYPT_ENTERPRISES_POOL)) ? window.EGYPT_ENTERPRISES_POOL : (Array.isArray(window.__EGYPT_ENTERPRISE_POOL) ? window.__EGYPT_ENTERPRISE_POOL : []);
         
         // 1. Filter pool by sector, city, and ONLY unimported companies
         const candidateCompanies = pool.filter(c => {
@@ -956,7 +956,7 @@ const ScraperPage = {
             allCurrentCompanies.map(c => this._normalizeArabicName(c.nameAr || c.name || c.nameEn || c.companyName))
         );
 
-        const pool = Array.isArray(window.__EGYPT_ENTERPRISE_POOL) ? window.__EGYPT_ENTERPRISE_POOL : [];
+        const pool = (window.EGYPT_ENTERPRISES_POOL && Array.isArray(window.EGYPT_ENTERPRISES_POOL)) ? window.EGYPT_ENTERPRISES_POOL : (Array.isArray(window.__EGYPT_ENTERPRISE_POOL) ? window.__EGYPT_ENTERPRISE_POOL : []);
         const unimported = pool.filter(c => {
             const norm = this._normalizeArabicName(c.nameAr || c.name);
             return !existingNames.has(norm);

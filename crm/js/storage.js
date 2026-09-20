@@ -2,7 +2,28 @@
    Fleet CRM — Local & IndexedDB Storage System
    ============================================ */
 
+// Normalize baseline global pool variables across aliases
+(function() {
+    if (typeof window !== 'undefined') {
+        const pool = window.EGYPT_ENTERPRISES_POOL || window.__EGYPT_ENTERPRISE_POOL || window.__EGYPT_ENTERPRISES_POOL || window.EGYPT_ENTERPRISE_POOL;
+        if (pool && Array.isArray(pool)) {
+            window.EGYPT_ENTERPRISES_POOL = pool;
+            window.__EGYPT_ENTERPRISE_POOL = pool;
+            window.__EGYPT_ENTERPRISES_POOL = pool;
+            window.EGYPT_ENTERPRISE_POOL = pool;
+        }
+    }
+})();
+
 const AppStorage = {
+    getBaselineEnterprisesPool() {
+        if (typeof window !== 'undefined') {
+            const p = window.EGYPT_ENTERPRISES_POOL || window.__EGYPT_ENTERPRISE_POOL || window.__EGYPT_ENTERPRISES_POOL || window.EGYPT_ENTERPRISE_POOL;
+            if (p && Array.isArray(p) && p.length > 0) return p;
+        }
+        return [];
+    },
+
     KEYS: {
         COMPANIES: 'fleetcrm_companies',
         CALLS: 'fleetcrm_calls',
@@ -759,7 +780,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=246.0');
+            this._worker = new Worker('js/companies-worker.js?v=247.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -1085,9 +1106,10 @@ const AppStorage = {
             return;
         }
 
-        let baseData = (window.__EGYPT_ENTERPRISE_POOL && Array.isArray(window.__EGYPT_ENTERPRISE_POOL) && window.__EGYPT_ENTERPRISE_POOL.length > 0)
-            ? window.__EGYPT_ENTERPRISE_POOL
-            : null;
+        let baseData = this.getBaselineEnterprisesPool();
+        if (!baseData || baseData.length === 0) {
+            baseData = null;
+        }
 
         if (!baseData) {
             const jsonPaths = ['./data/egypt_enterprises_pool.json', '/data/egypt_enterprises_pool.json', './data/companies.json', '/data/companies.json'];
@@ -1158,7 +1180,7 @@ const AppStorage = {
     _fallbackHydrateBaseline() {
         const syncMap = new Map();
         const deletedCompIds = this.getDeletedIds('companies');
-        const basePool = (window.__EGYPT_ENTERPRISE_POOL && Array.isArray(window.__EGYPT_ENTERPRISE_POOL)) ? window.__EGYPT_ENTERPRISE_POOL : [];
+        const basePool = this.getBaselineEnterprisesPool();
         basePool.forEach((c, idx) => {
             if (!c) return;
             const id = c.id || `comp_base_${idx}`;
@@ -1173,7 +1195,7 @@ const AppStorage = {
             }
         });
         this.companiesMemory = Array.from(syncMap.values());
-        localStorage.setItem('fleetcrm_company_count', this.companiesMemory.length);
+        localStorage.setItem('fleetcrm_company_count', String(this.companiesMemory.length));
         this.updateLiveCounters();
     },
 
@@ -1195,9 +1217,9 @@ const AppStorage = {
                     const idbData = event.target.result || [];
                     const deletedCompIds = this.getDeletedIds('companies');
 
-                    // 1. Immutable Master Map starting with all 18,419 Pool Companies
+                    // 1. Immutable Master Map starting with all 30,954 Pool Companies
                     const masterMap = new Map();
-                    const basePool = (window.__EGYPT_ENTERPRISE_POOL && Array.isArray(window.__EGYPT_ENTERPRISE_POOL)) ? window.__EGYPT_ENTERPRISE_POOL : [];
+                    const basePool = this.getBaselineEnterprisesPool();
                     basePool.forEach((c, idx) => {
                         if (!c) return;
                         const id = c.id || `comp_base_${idx}`;
@@ -1238,8 +1260,13 @@ const AppStorage = {
                     const merged = Array.from(masterMap.values());
                     this.companiesMemory = merged;
                     this.invalidateScopedCache();
-                    localStorage.setItem('fleetcrm_company_count', merged.length);
+                    localStorage.setItem('fleetcrm_company_count', String(merged.length));
                     this.updateLiveCounters();
+
+                    if (idbData.length < 100 && merged.length >= 100) {
+                        this.saveBatchToIDB(merged);
+                    }
+
                     resolve(merged);
                 };
                 
@@ -1349,7 +1376,7 @@ const AppStorage = {
                 const users = this.getUsers ? this.getUsers() : [];
                 const activities = this.getActivities ? this.getActivities() : [];
 
-                const basePool = (window.__EGYPT_ENTERPRISE_POOL && Array.isArray(window.__EGYPT_ENTERPRISE_POOL)) ? window.__EGYPT_ENTERPRISE_POOL : [];
+                const basePool = this.getBaselineEnterprisesPool();
                 const baseIds = new Set(basePool.map(c => String(c.id)));
                 const titanIds = new Set(((window.__EGYPT_VERIFIED_TITANS && Array.isArray(window.__EGYPT_VERIFIED_TITANS)) ? window.__EGYPT_VERIFIED_TITANS : []).map(t => String(t.id)));
 
@@ -1923,8 +1950,9 @@ const AppStorage = {
         if (!this.companiesMemory || !Array.isArray(this.companiesMemory) || this.companiesMemory.length === 0) {
             if (localStorage.getItem('fleetcrm_user_wiped_companies') !== 'true') {
                 const syncMap = new Map();
-                if (window.__EGYPT_ENTERPRISE_POOL && Array.isArray(window.__EGYPT_ENTERPRISE_POOL)) {
-                    window.__EGYPT_ENTERPRISE_POOL.forEach((c, idx) => {
+                const pool = this.getBaselineEnterprisesPool();
+                if (pool && pool.length > 0) {
+                    pool.forEach((c, idx) => {
                         if (c) syncMap.set(c.id || `comp_base_${idx}`, c);
                     });
                 }
@@ -3323,8 +3351,9 @@ var Storage = AppStorage;
 try {
     if (localStorage.getItem('fleetcrm_user_wiped_companies') !== 'true') {
         const syncMap = new Map();
-        if (window.__EGYPT_ENTERPRISE_POOL && Array.isArray(window.__EGYPT_ENTERPRISE_POOL)) {
-            window.__EGYPT_ENTERPRISE_POOL.forEach((c, idx) => {
+        const pool = AppStorage.getBaselineEnterprisesPool();
+        if (pool && pool.length > 0) {
+            pool.forEach((c, idx) => {
                 if (c) syncMap.set(c.id || `comp_base_${idx}`, c);
             });
         }
