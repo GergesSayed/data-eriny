@@ -1,0 +1,722 @@
+[
+  {
+    "id": "eg_b2b_fleet_26292",
+    "name": "Bernasos Stationery",
+    "sector": "manufacturing",
+    "address": "El Mehwar El Markazi"
+  },
+  {
+    "id": "eg_b2b_fleet_26533",
+    "name": "Bakier Stationery",
+    "sector": "manufacturing",
+    "address": "Mall of Arabia"
+  },
+  {
+    "id": "eg_b2b_fleet_26769",
+    "name": "Khodeir Stationery",
+    "sector": "manufacturing",
+    "address": "Dandy Mega Mall"
+  },
+  {
+    "id": "eg_b2b_fleet_26511",
+    "name": "Jewel Hub",
+    "sector": "manufacturing",
+    "address": "26th of July Corridor, 6th of October, Mall of Arabia, Gate 20"
+  },
+  {
+    "id": "eg_b2b_fleet_26692",
+    "name": "La baraque Clinique",
+    "sector": "chemicals_plastic",
+    "address": "Trivium business mall (A214"
+  },
+  {
+    "id": "eg_b2b_fleet_25201",
+    "name": "بتاع لصق",
+    "sector": "manufacturing",
+    "address": "مول داون تاون، الأردنية ، أمام سنترال"
+  },
+  {
+    "id": "eg_b2b_fleet_25280",
+    "name": "السوري لكمليات السيارات",
+    "sector": "manufacturing",
+    "address": "مدينة العاشر من رمضان"
+  },
+  {
+    "id": "eg_b2b_fleet_25287",
+    "name": "أوتو السخاوى للسيارات",
+    "sector": "manufacturing",
+    "address": "مجاره 10، مدينه العاشر من رمضان ،الشرقية،"
+  },
+  {
+    "id": "eg_b2b_fleet_25182",
+    "name": "أبو عيسى للسيارات",
+    "sector": "manufacturing",
+    "address": "العاشر من رمضان، مجاورة ٤٣، بجوار الصينية"
+  },
+  {
+    "id": "eg_b2b_fleet_25301",
+    "name": "المهندس لتكنولوجيا السيارات",
+    "sector": "manufacturing",
+    "address": "سيد الجمل المهندس لتكنولوجيا السيارات\\n‏‪0100 315 4670‬‏\\nhttps://maps.app.goo.gl/rE2gQ5CE3F7m31QT6"
+  },
+  {
+    "id": "eg_b2b_fleet_25344",
+    "name": "سوريا كار",
+    "sector": "manufacturing",
+    "address": "العاشر من رمضان - منطقة الأردنية - مول القدس - مقابل بريدجستون"
+  },
+  {
+    "id": "eg_b2b_fleet_25646",
+    "name": "Autofresh",
+    "sector": "manufacturing",
+    "address": "Arkan Mall, Garage ground floor. Sheikh Zayed city"
+  },
+  {
+    "id": "eg_b2b_fleet_25752",
+    "name": "Nour Auto",
+    "sector": "manufacturing",
+    "address": "Behind Tiba Grand Mall, 6 October , Central Axis, Vodafone Square"
+  },
+  {
+    "id": "eg_b2b_fleet_25882",
+    "name": "رينو الشرقاوي",
+    "sector": "manufacturing",
+    "address": "Street 6"
+  },
+  {
+    "id": "eg_b2b_fleet_25921",
+    "name": "اسلام زوايا",
+    "sector": "manufacturing",
+    "address": "El-Tahrir Rd"
+  },
+  {
+    "id": "eg_b2b_fleet_25994",
+    "name": "دلل سيارتك",
+    "sector": "manufacturing",
+    "address": "الخزان بناء 359، شارع"
+  },
+  {
+    "id": "eg_b2b_fleet_26188",
+    "name": "Bara Auto",
+    "sector": "manufacturing",
+    "address": "المحور المركزي,مدينة السادس من أكتوبر،قسم أول ٦ أكتوبر امام أولاد رجب عمارة 387"
+  },
+  {
+    "id": "eg_b2b_fleet_26190",
+    "name": "Master Car  ماستر كار",
+    "sector": "manufacturing",
+    "address": "شارع عمر بن الخطاب عماره 401"
+  },
+  {
+    "id": "eg_b2b_fleet_26328",
+    "name": "الفارسان لايجار السيارات",
+    "sector": "transport",
+    "address": "XWFW+X6MFirst 6th of OctoberGiza Governorate"
+  },
+  {
+    "id": "eg_b2b_fleet_26348",
+    "name": "الكبيسي للسيارات",
+    "sector": "manufacturing",
+    "address": "Ali El Din Towers City Mall - Tower A Infront Of 6th October University Office 29 شارع متفرع ،قسم أول, Al Mehwar Al Markazi"
+  },
+  {
+    "id": "eg_b2b_fleet_26392",
+    "name": "سيارات محمود حمد",
+    "sector": "manufacturing",
+    "address": "egypt"
+  },
+  {
+    "id": "eg_b2b_fleet_26433",
+    "name": "محمد كرم -Mauto",
+    "sector": "manufacturing",
+    "address": "Green Park Mall\\nTouristic Road, 6 October\\n26 July Corridor"
+  },
+  {
+    "id": "eg_b2b_fleet_26588",
+    "name": "المعز ليموزين",
+    "sector": "transport",
+    "address": "، المعز مول 3مبنى D1"
+  },
+  {
+    "id": "eg_b2b_fleet_26590",
+    "name": "Auto",
+    "sector": "manufacturing",
+    "address": "2A ELMoz Mall، store no"
+  },
+  {
+    "id": "eg_b2b_fleet_26679",
+    "name": "Bestune Egypt - بستيون مصر",
+    "sector": "manufacturing",
+    "address": "Safwa Mall"
+  },
+  {
+    "id": "eg_b2b_fleet_26684",
+    "name": "Guru Protection",
+    "sector": "manufacturing",
+    "address": "Majarrah Mall"
+  },
+  {
+    "id": "eg_b2b_fleet_26875",
+    "name": "أحمد الدمشقي للردتيرات",
+    "sector": "manufacturing",
+    "address": "سنتر الشباب"
+  },
+  {
+    "id": "eg_b2b_fleet_25073",
+    "name": "الأمير للسيارات",
+    "sector": "manufacturing",
+    "address": "الشرقيه _ العاشر من رمضان _ مجاوره ٢٩_ قطعه ٢٦_ امتداد المعهد التكنولوجي"
+  },
+  {
+    "id": "eg_b2b_fleet_25005",
+    "name": "ليزر ماجيك",
+    "sector": "manufacturing",
+    "address": "سنتر الشباب"
+  },
+  {
+    "id": "eg_b2b_fleet_25236",
+    "name": "أويل سيل الفارس",
+    "sector": "manufacturing",
+    "address": "2 طريق الاردنية"
+  },
+  {
+    "id": "eg_b2b_fleet_25292",
+    "name": "مخرطة أولاد البغدادي",
+    "sector": "manufacturing",
+    "address": "السيدة رقية"
+  },
+  {
+    "id": "eg_b2b_fleet_25691",
+    "name": "المثنى Al Mothana BKH",
+    "sector": "manufacturing",
+    "address": "المثنى لتجارة الرولمان بلى والسيور"
+  },
+  {
+    "id": "eg_b2b_fleet_25720",
+    "name": "رولمان بلي - شركة إنترناشونال بيرنج - Bearing",
+    "sector": "manufacturing",
+    "address": "داخل سنتر المجد - بجوار مجمع علي الدين - ميدان ليلة القدر - 6أكتوبر - الجيزة"
+  },
+  {
+    "id": "eg_b2b_fleet_25946",
+    "name": "ماهر جلهوم",
+    "sector": "manufacturing",
+    "address": "الحي السادس السوق القديم سنتر الشباب"
+  },
+  {
+    "id": "eg_b2b_fleet_25987",
+    "name": "القدس للادوات الصحية",
+    "sector": "manufacturing",
+    "address": "Al Mehwar Al Markazi"
+  },
+  {
+    "id": "eg_b2b_fleet_26522",
+    "name": "ZFA Weighing Solutions",
+    "sector": "manufacturing",
+    "address": "Building #114, 6th Touristic Zone Front of Mall of Arabia 6th of October"
+  },
+  {
+    "id": "eg_b2b_fleet_25026",
+    "name": "أسواق شهد",
+    "sector": "food",
+    "address": "مجاوره 68، الظهير الصحراوى العاشر من رمضان، محافظة القاهرةu202c"
+  },
+  {
+    "id": "eg_b2b_fleet_25053",
+    "name": "اسواق الحجاز",
+    "sector": "food",
+    "address": "، طريق مصر النور"
+  },
+  {
+    "id": "eg_b2b_fleet_25334",
+    "name": "Rivo-ريڤو",
+    "sector": "food",
+    "address": "چرش مول ٢ بجوار عصائر العباسى"
+  },
+  {
+    "id": "eg_b2b_fleet_25659",
+    "name": "خيرات بلدنا",
+    "sector": "manufacturing",
+    "address": "https://maps.app.goo.gl/GTsJht7wi8FuVZdc9"
+  },
+  {
+    "id": "eg_b2b_fleet_26004",
+    "name": "صنوبر للمواد الغذائية",
+    "sector": "food",
+    "address": "الحي الثاني أكتوبر"
+  },
+  {
+    "id": "eg_b2b_fleet_26343",
+    "name": "حصري أكتوبر",
+    "sector": "food",
+    "address": "٦أكتوبر"
+  },
+  {
+    "id": "eg_b2b_fleet_26705",
+    "name": "Gee",
+    "sector": "food",
+    "address": "Street 88 Mall - Palm Hills"
+  },
+  {
+    "id": "eg_b2b_fleet_25315",
+    "name": "AG marketing",
+    "sector": "manufacturing",
+    "address": "فيلا 77"
+  },
+  {
+    "id": "eg_b2b_fleet_25326",
+    "name": "مهندس معماري",
+    "sector": "manufacturing",
+    "address": "مدخل د، المصريه سنتر 1، العاشر من رمضان، الشرقيه، مصر"
+  },
+  {
+    "id": "eg_b2b_fleet_25804",
+    "name": "AbwabMisr",
+    "sector": "manufacturing",
+    "address": "الحى الثامن , عمارة 39,الدور الرابع,"
+  },
+  {
+    "id": "eg_b2b_fleet_25845",
+    "name": "قرميد بلاستيك تركي ابناء العربي",
+    "sector": "chemicals_plastic",
+    "address": "الحي الرابع - مجاورة ثانيه - على المحور المركزي مباشرة - مقابل قباني للأثاث - عمارة 309"
+  },
+  {
+    "id": "eg_b2b_fleet_25846",
+    "name": "Dyar Construction",
+    "sector": "manufacturing",
+    "address": "أكتوبر - المحور المركزي -مركز أكتوبر التجاري, عمارة 5 الدور الثالث مكتب 2, 6"
+  },
+  {
+    "id": "eg_b2b_fleet_25864",
+    "name": "Apex Constructions and Decoration",
+    "sector": "manufacturing",
+    "address": "الحي الحادي عشر- المجاوره الرابعه - المحور المركزي - عمارة 30 امام مدينة الثقافة والعلوم"
+  },
+  {
+    "id": "eg_b2b_fleet_25878",
+    "name": "Vertex innovation & interior design",
+    "sector": "manufacturing",
+    "address": "193, Side Al Markazy Axis"
+  },
+  {
+    "id": "eg_b2b_fleet_25995",
+    "name": "كيو جين Q Gen",
+    "sector": "manufacturing",
+    "address": "الحي الخامس - المجاورة الرابعة - عمارة 826"
+  },
+  {
+    "id": "eg_b2b_fleet_26014",
+    "name": "Al Mourad Real estate",
+    "sector": "building_materials",
+    "address": "عمارة 880 - شارع الخزان - الحي الرابع"
+  },
+  {
+    "id": "eg_b2b_fleet_26024",
+    "name": "Arco Contracting and Decoration",
+    "sector": "manufacturing",
+    "address": "عمارة 33 ، المحور المركزي ،"
+  },
+  {
+    "id": "eg_b2b_fleet_26057",
+    "name": "Click Pixel",
+    "sector": "manufacturing",
+    "address": "فيلا ١٨٨٠ الدورالاول ،, El Kafrawy, 9 Yasmine St., Villa 1880, First Floor, Central Axis, 6th of الكفراوى ، 9 ش ياسمين, October, Al Mehwar Al Markazi"
+  },
+  {
+    "id": "eg_b2b_fleet_26122",
+    "name": "ناجح ميديا - Nageh Media",
+    "sector": "manufacturing",
+    "address": "عمارة 1509 المجاورة السابعة الحي الرابع مدينة 6اكتوبر محافظة الجيزة"
+  },
+  {
+    "id": "eg_b2b_fleet_26205",
+    "name": "Egyptian European General Services",
+    "sector": "manufacturing",
+    "address": "10, القاهرة ألكبري مدينة 6أكتوبر – الحي الثامن – المرحلة الاولي – الدور الثالث – شقة رقم"
+  },
+  {
+    "id": "eg_b2b_fleet_26296",
+    "name": "انفيديا ميديا",
+    "sector": "manufacturing",
+    "address": "فيلا 8 - ش نادى 6 اكتوبر المجاورة الثالثة"
+  },
+  {
+    "id": "eg_b2b_fleet_26303",
+    "name": "في الخدمة",
+    "sector": "manufacturing",
+    "address": "السادس من اكتوبر"
+  },
+  {
+    "id": "eg_b2b_fleet_26439",
+    "name": "الزخرف لانشاء و ادارة المشاريع",
+    "sector": "manufacturing",
+    "address": "السادس من أكتوبر - الحي الأول - مجاورة 2- عمارة 266 - الدور 3 - مكتب 8"
+  },
+  {
+    "id": "eg_b2b_fleet_26470",
+    "name": "الابداع السورى",
+    "sector": "manufacturing",
+    "address": "الحى الأول شارع السنترال سنتر الامل التجارى امام مسجد التوبة"
+  },
+  {
+    "id": "eg_b2b_fleet_26491",
+    "name": "Arab Pyramid",
+    "sector": "manufacturing",
+    "address": "شارع احمد بهجت مجاورة 11 بلوك 13 على 15 فيلا 10"
+  },
+  {
+    "id": "eg_b2b_fleet_26496",
+    "name": "PLD Development",
+    "sector": "manufacturing",
+    "address": "فيلا 3 مجاوره 10 بلوك 15/2  غرب سوميد _ ٦ اكتوبر  الجيزه"
+  },
+  {
+    "id": "eg_b2b_fleet_26507",
+    "name": "Vertex",
+    "sector": "manufacturing",
+    "address": "غرب سوميد - شارع عمار بن ياسر - فيلا 7 ( بجوار مجمع البنوك)1"
+  },
+  {
+    "id": "eg_b2b_fleet_26562",
+    "name": "ICC Integrated Consultations Co.",
+    "sector": "manufacturing",
+    "address": "31 El Fawakih St."
+  },
+  {
+    "id": "eg_b2b_fleet_25652",
+    "name": "المصطفي لتوريد وتركيب جميع انواع الرخام والجرانيت",
+    "sector": "building_materials",
+    "address": "عمارة 62 - الاتحاد التعاوني"
+  },
+  {
+    "id": "eg_b2b_fleet_26600",
+    "name": "EGYPT PRO For Technology",
+    "sector": "manufacturing",
+    "address": "Villa 852"
+  },
+  {
+    "id": "eg_b2b_fleet_26610",
+    "name": "ArcCorner",
+    "sector": "manufacturing",
+    "address": "فيلا 230 الحي الخامس - مجاوره 2 - الشيخ زايد"
+  },
+  {
+    "id": "eg_b2b_fleet_26632",
+    "name": "Scope Innovation",
+    "sector": "manufacturing",
+    "address": "Villa 105, District 8, Sheikh Zayed"
+  },
+  {
+    "id": "eg_b2b_fleet_26634",
+    "name": "EMS Solutions",
+    "sector": "manufacturing",
+    "address": "Villa 8 Diplomatic District"
+  },
+  {
+    "id": "eg_b2b_fleet_26656",
+    "name": "Kingfisher Studio",
+    "sector": "manufacturing",
+    "address": "The Polygon Bldg 4, Suite 4-6D, Sodic West, Sheikh Zayed"
+  },
+  {
+    "id": "eg_b2b_fleet_26727",
+    "name": "Old Cairo Design",
+    "sector": "manufacturing",
+    "address": "Villa 99, 2nd District،, قسم الشيخ زايد، الجيزة،"
+  },
+  {
+    "id": "eg_b2b_fleet_25039",
+    "name": "Deal Every Day for Trading and Agency",
+    "sector": "manufacturing",
+    "address": "UNIT 6B4 METRO DEGLA MALL"
+  },
+  {
+    "id": "eg_b2b_fleet_25109",
+    "name": "Instec Automation projects",
+    "sector": "manufacturing",
+    "address": "Al Masa Mall, 1st floor, Office  No.13 El Ordonia"
+  },
+  {
+    "id": "eg_b2b_fleet_25124",
+    "name": "MELPR Modern Egypt Laboratories for Pharmaceutical Research",
+    "sector": "manufacturing",
+    "address": "Abu Elnaga maal, Plot 27 mc3, Flat 2&3, El Ordonia Rd"
+  },
+  {
+    "id": "eg_b2b_fleet_25131",
+    "name": "Modern Automation Technology",
+    "sector": "manufacturing",
+    "address": "flat 203A، Ordonia-Central street-Makka mall"
+  },
+  {
+    "id": "eg_b2b_fleet_25133",
+    "name": "مكين لحلول التغليف",
+    "sector": "manufacturing",
+    "address": "العاشر من رمضان - الاردنية -  شارع السنترال - سنتر سما الأردنية - عمارة رقم 2 - شقة رقم 14"
+  },
+  {
+    "id": "eg_b2b_fleet_25206",
+    "name": "ARC Electric",
+    "sector": "manufacturing",
+    "address": "الصفا مول 4- وحدة 111"
+  },
+  {
+    "id": "eg_b2b_fleet_25222",
+    "name": "Kemet Water Treatment Technology",
+    "sector": "manufacturing",
+    "address": "El batraa mall"
+  },
+  {
+    "id": "eg_b2b_fleet_25223",
+    "name": "Heliopolis for mining",
+    "sector": "petroleum",
+    "address": "Building 6, Al Batraa Mall, 10th of Ramadan City , Al Sharqia Gov"
+  },
+  {
+    "id": "eg_b2b_fleet_25226",
+    "name": "Master Point",
+    "sector": "manufacturing",
+    "address": "الاردنيه -البتراء مول عماره 3"
+  },
+  {
+    "id": "eg_b2b_fleet_25276",
+    "name": "شركه المجد للمقاولات العامه والتشطيبات",
+    "sector": "concrete",
+    "address": "جنب ماركت الصعيدي"
+  },
+  {
+    "id": "eg_b2b_fleet_25283",
+    "name": "Quiz",
+    "sector": "manufacturing",
+    "address": "Grash Mall, 10th of Rammadan First, Cairo Governorate 11837"
+  },
+  {
+    "id": "eg_b2b_fleet_25333",
+    "name": "MEGA Works For Import",
+    "sector": "manufacturing",
+    "address": "Gersh mall, El Ordonia"
+  },
+  {
+    "id": "eg_b2b_fleet_25349",
+    "name": "KEMT Warehouses Development",
+    "sector": "manufacturing",
+    "address": "Al Shams Mall"
+  },
+  {
+    "id": "eg_b2b_fleet_25354",
+    "name": "Green",
+    "sector": "manufacturing",
+    "address": "الجوهة مول للكمبيوتر، الدور الاول وحده رقم 216 Al Gawhara Mall, 1st Floor, Office 216"
+  },
+  {
+    "id": "eg_b2b_fleet_25359",
+    "name": "Golden Tech",
+    "sector": "manufacturing",
+    "address": "🌍Head Office: 10th of Ramadan, Ordonia, Abdelmaksoud Mall, above Vodafone, Second floor, Flat5/6 🌍Showroom : 10th of Ramadan, Ordonia, Elmasrya centre (3), shop No (23)"
+  },
+  {
+    "id": "eg_b2b_fleet_25361",
+    "name": "Islamco Construction and Development",
+    "sector": "concrete",
+    "address": "مولات عبدالمقصود- اعلي فينوس للموبايل الدور الثالث علوي, طريق الأردنية"
+  },
+  {
+    "id": "eg_b2b_fleet_25365",
+    "name": "Pyramix",
+    "sector": "manufacturing",
+    "address": "Shams Mall, Office32, 10th of RAMADAN City"
+  },
+  {
+    "id": "eg_b2b_fleet_25686",
+    "name": "Egypt For Engineering & Trading",
+    "sector": "manufacturing",
+    "address": "Laylat Al-Qadr, Al-Majd Mall, next to Ali Al-Din Complex Fourth floor, office 6"
+  },
+  {
+    "id": "eg_b2b_fleet_25740",
+    "name": "أبو عدي",
+    "sector": "manufacturing",
+    "address": "داخل طيبة جراند مول, القطعة 3, 65 Central Axis"
+  },
+  {
+    "id": "eg_b2b_fleet_25772",
+    "name": "Talent For Decoration",
+    "sector": "manufacturing",
+    "address": "Agyad castle mall 6 October city"
+  },
+  {
+    "id": "eg_b2b_fleet_25802",
+    "name": "High Quality Home",
+    "sector": "manufacturing",
+    "address": "6 October - west point mall"
+  },
+  {
+    "id": "eg_b2b_fleet_25805",
+    "name": "Middle East For Electrical Supplies - ABB Distributer",
+    "sector": "manufacturing",
+    "address": "39, Golden Mall, Elmehwar El Markazy, Vodafone square"
+  },
+  {
+    "id": "eg_b2b_fleet_25848",
+    "name": "QMS certification services",
+    "sector": "manufacturing",
+    "address": "Al Safwa Mall - 10th District"
+  },
+  {
+    "id": "eg_b2b_fleet_25854",
+    "name": "كرتون اون لاين",
+    "sector": "packaging_paper",
+    "address": "6 اكتوبر الحصري"
+  },
+  {
+    "id": "eg_b2b_fleet_25908",
+    "name": "Stampa",
+    "sector": "manufacturing",
+    "address": "6 October, Central Axis, , 2nd District ,Abazeya Mall, Office 23, 3rd floor"
+  },
+  {
+    "id": "eg_b2b_fleet_25952",
+    "name": "بانيوكس - BaÑOx",
+    "sector": "manufacturing",
+    "address": "Glory mall"
+  },
+  {
+    "id": "eg_b2b_fleet_26152",
+    "name": "شركة الاتحاد لتجارة مواتير و فلاتر المياه بسعر الجمله",
+    "sector": "manufacturing",
+    "address": "leilat elqadr square, aly eldeen mall"
+  },
+  {
+    "id": "eg_b2b_fleet_26162",
+    "name": "Afnan Catering",
+    "sector": "food",
+    "address": "31/1 El Tahrir Road El Yasmine Mall, Floor 1"
+  },
+  {
+    "id": "eg_b2b_fleet_26164",
+    "name": "الشركة المصرية الدولية للطاقة الشمسية",
+    "sector": "manufacturing",
+    "address": "El-Mounir Commercial Mall"
+  },
+  {
+    "id": "eg_b2b_fleet_26171",
+    "name": "ArchiCave",
+    "sector": "manufacturing",
+    "address": "2nd floor, Rana mall, Al Mehwar Al Markazi"
+  },
+  {
+    "id": "eg_b2b_fleet_26214",
+    "name": "Baba Saleh",
+    "sector": "manufacturing",
+    "address": "6 October - Section 8 - Partition 10 - Ground floor - La Cite Mall"
+  },
+  {
+    "id": "eg_b2b_fleet_26216",
+    "name": "New Era Investment",
+    "sector": "manufacturing",
+    "address": "Al Mehwar Al Markazi- District 2 - Royal Towers Mall 102"
+  },
+  {
+    "id": "eg_b2b_fleet_26230",
+    "name": "Kaza Kitch",
+    "sector": "manufacturing",
+    "address": "La Cite Mall – El Hosary Square"
+  },
+  {
+    "id": "eg_b2b_fleet_26255",
+    "name": "Homeart",
+    "sector": "manufacturing",
+    "address": "Blue star mall - office 49"
+  },
+  {
+    "id": "eg_b2b_fleet_26386",
+    "name": "Young Innovative",
+    "sector": "manufacturing",
+    "address": "Jordanian mall"
+  },
+  {
+    "id": "eg_b2b_fleet_26462",
+    "name": "Jablotron Egypt-Smart security",
+    "sector": "manufacturing",
+    "address": "Unit 2, First Floor,Dolphin Land Mall,Al Mehwar Al Markazi Al Nassr St  6th  of October City, Egypt."
+  },
+  {
+    "id": "eg_b2b_fleet_26465",
+    "name": "I and R Egypt Smart Homes",
+    "sector": "manufacturing",
+    "address": "Unit 2, 1st Floor, Dolphin Mall, Central Spin القسم الثاني - الدور الأول - دولفين مول, Al Mehwar Al Markazi Al Nassr St"
+  },
+  {
+    "id": "eg_b2b_fleet_26471",
+    "name": "Future Transport",
+    "sector": "transport",
+    "address": "El Amal Mall، الاماني"
+  },
+  {
+    "id": "eg_b2b_fleet_26503",
+    "name": "Safe Zone Co.",
+    "sector": "pharma",
+    "address": "A3 Kazan Mall, behind Mall of Arabia, 6 October \\n18 A Ashgar Darna, Maddi"
+  },
+  {
+    "id": "eg_b2b_fleet_26530",
+    "name": "Trade House for investment & general services",
+    "sector": "manufacturing",
+    "address": "MALL OF ARABIA"
+  },
+  {
+    "id": "eg_b2b_fleet_26531",
+    "name": "Arrows",
+    "sector": "manufacturing",
+    "address": "mall of arabia"
+  },
+  {
+    "id": "eg_b2b_fleet_26601",
+    "name": "WOODCRAFT Egypt",
+    "sector": "manufacturing",
+    "address": "Mazar Mall, district 16, El-Sheikh Zayed City"
+  },
+  {
+    "id": "eg_b2b_fleet_26606",
+    "name": "Khaiyalsolar",
+    "sector": "manufacturing",
+    "address": "A3 building - El shikh zaid - El moaz mall - rawda area -Giza- Egypt"
+  },
+  {
+    "id": "eg_b2b_fleet_26613",
+    "name": "Peacock Business Solutions",
+    "sector": "manufacturing",
+    "address": "71 Street Second Zayed Police Station - behind mall THE GATE - El Shekh Zayed - Giza"
+  },
+  {
+    "id": "eg_b2b_fleet_26618",
+    "name": "Tebmar",
+    "sector": "manufacturing",
+    "address": "Al Saraya Mall -- Al Sheikh Zayed - Next to Seoudi Market Sheikh Zayed الجيزة"
+  },
+  {
+    "id": "eg_b2b_fleet_26637",
+    "name": "Al Wahaibi For Construction",
+    "sector": "manufacturing",
+    "address": "Beverly Hills, 4mix Mall (B11- second floor)"
+  },
+  {
+    "id": "eg_b2b_fleet_26695",
+    "name": "Gears",
+    "sector": "manufacturing",
+    "address": "Park St. Mall, El-Bostan St., Sheikh Zayed City"
+  },
+  {
+    "id": "eg_b2b_fleet_26777",
+    "name": "Harmony Home by Aya",
+    "sector": "manufacturing",
+    "address": "Park Avenue Mall Showroom 280 Zone D, Cairo - Alexandria Desert Rd"
+  },
+  {
+    "id": "eg_b2b_fleet_25734",
+    "name": "ناصر احمد عمر",
+    "sector": "manufacturing",
+    "address": "40 Central Axis"
+  }
+]
