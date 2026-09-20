@@ -3,7 +3,7 @@ const path = require('path');
 const xlsx = require('xlsx');
 
 const rootDir = path.join(__dirname, '..');
-const backupDirName = `companies_backup_v252_2026-09-20`;
+const backupDirName = `companies_backup_v253_2026-09-20`;
 const backupDir = path.join(rootDir, 'backups', backupDirName);
 const latestDir = path.join(rootDir, 'backups', 'latest');
 
@@ -185,7 +185,7 @@ const metadata = `# وثيقة النسخة الاحتياطية المعتمد�
 
 - **تاريخ أخذ النسخة**: ${new Date().toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
 - **توقيت الإنشاء**: ${new Date().toLocaleTimeString('ar-EG')} (UTC+3)
-- **إصدار النظام وقت النسخ**: v252.0
+- **إصدار النظام وقت النسخ**: v253.0
 - **إجمالي الشركات والمصانع بالنسخة**: **${companies.length.toLocaleString()}** شركة ومصنع مسجل وموثق
 - **مجمع عمالقة الصناعة (Titans)**: **${titans.length}** شركة عملاقة
 - **مجمع الأساطيل الميدانية (Pool)**: **${pool.length.toLocaleString()}** شركة ومصنع
