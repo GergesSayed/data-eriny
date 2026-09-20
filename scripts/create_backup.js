@@ -1,9 +1,9 @@
 const fs = require('fs');
 const path = require('path');
+const xlsx = require('xlsx');
 
 const rootDir = path.join(__dirname, '..');
-const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-const backupDirName = `companies_backup_v249_2026-09-20`;
+const backupDirName = `companies_backup_v251_2026-09-20`;
 const backupDir = path.join(rootDir, 'backups', backupDirName);
 const latestDir = path.join(rootDir, 'backups', 'latest');
 
@@ -33,14 +33,15 @@ const titansJs = fs.readFileSync(titansJsPath, 'utf8');
 console.log(`Loaded: Companies (${companies.length}), Titans (${titans.length}), Pool (${pool.length})`);
 
 // 3. Save direct JSON and JS copies in backupDir and latestDir
-fs.writeFileSync(path.join(backupDir, 'companies_master_30690.json'), JSON.stringify(companies, null, 2), 'utf8');
-fs.writeFileSync(path.join(latestDir, 'companies_master_30690.json'), JSON.stringify(companies, null, 2), 'utf8');
+fs.writeFileSync(path.join(backupDir, `companies_master_${companies.length}.json`), JSON.stringify(companies, null, 2), 'utf8');
+fs.writeFileSync(path.join(latestDir, `companies_master_latest.json`), JSON.stringify(companies, null, 2), 'utf8');
+fs.writeFileSync(path.join(latestDir, `companies_master_${companies.length}.json`), JSON.stringify(companies, null, 2), 'utf8');
 
-fs.writeFileSync(path.join(backupDir, 'egypt_verified_titans_34.json'), JSON.stringify(titans, null, 2), 'utf8');
-fs.writeFileSync(path.join(latestDir, 'egypt_verified_titans_34.json'), JSON.stringify(titans, null, 2), 'utf8');
+fs.writeFileSync(path.join(backupDir, `egypt_verified_titans_${titans.length}.json`), JSON.stringify(titans, null, 2), 'utf8');
+fs.writeFileSync(path.join(latestDir, `egypt_verified_titans_${titans.length}.json`), JSON.stringify(titans, null, 2), 'utf8');
 
-fs.writeFileSync(path.join(backupDir, 'egypt_enterprises_pool_30656.json'), JSON.stringify(pool, null, 2), 'utf8');
-fs.writeFileSync(path.join(latestDir, 'egypt_enterprises_pool_30656.json'), JSON.stringify(pool, null, 2), 'utf8');
+fs.writeFileSync(path.join(backupDir, `egypt_enterprises_pool_${pool.length}.json`), JSON.stringify(pool, null, 2), 'utf8');
+fs.writeFileSync(path.join(latestDir, `egypt_enterprises_pool_${pool.length}.json`), JSON.stringify(pool, null, 2), 'utf8');
 
 fs.writeFileSync(path.join(backupDir, 'egypt_enterprises_pool.js'), poolJs, 'utf8');
 fs.writeFileSync(path.join(latestDir, 'egypt_enterprises_pool.js'), poolJs, 'utf8');
@@ -58,112 +59,121 @@ function cleanCsvValue(val) {
 }
 
 const csvHeaders = [
-    'كود المنشأة (ID)',
-    'اسم الشركة / المصنع (عربي)',
-    'Company Name (English)',
-    'القطاع الصناعي (Sector)',
-    'النشاط الفرعي / التخصص (Sub Sector)',
-    'المحافظة (Governorate)',
-    'المدينة / المنطقة الصناعية (City)',
-    'العنوان التفصيلي (Address)',
-    'التليفون الأرضي الرئيسي (Phone 1)',
-    'تليفون أرضي إضافي (Phone 2)',
-    'موبايل / مسؤول الحركة (Mobile)',
-    'الخط الساخن (Hotline)',
-    'أرقام تواصل أخرى (Other Phones)',
-    'البريد الإلكتروني (Email)',
-    'الموقع الإلكتروني (Website)',
-    'رابط خرائط جوجل (Google Maps URL)',
-    'خط العرض (Latitude)',
-    'خط الطول (Longitude)',
-    'حجم الأسطول التقديري (Fleet Size)',
-    'نوع الشاحنات والمركبات (Fleet Type)',
-    'مقاسات الإطارات المطلوبة (Fleet Tires)',
-    'الأولوية (Priority)',
-    'حالة التوثيق (Verified)',
-    'كيان عملاق (Is Titan)'
+    'المعرف (ID)',
+    'اسم الشركة / المصنع بالعربي',
+    'اسم المنشأة بالإنجليزي',
+    'القطاع الصناعي / التجاري',
+    'المدينة / المنطقة الصناعية',
+    'المحافظة',
+    'العنوان التفصيلي',
+    'الهاتف الرئيسي',
+    'هاتف إضافي',
+    'الموبايل',
+    'هواتف أخرى',
+    'الموقع الإلكتروني',
+    'رابط خرائط جوجل',
+    'خط العرض',
+    'خط الطول',
+    'حجم الأسطول التقديري (شاحنات وسيارات)',
+    'نوع الأسطول واستخداماته',
+    'الأولوية البيعية',
+    'درجة العميل المتوقع (Lead Score)',
+    'الحالة',
+    'المسؤول عن الحساب',
+    'اسم الشخص المسؤول للتواصل',
+    'المسمى الوظيفي للمسؤول',
+    'ملاحظات وتوثيق السجل',
+    'تاريخ التسجيل بالسيستم',
+    'آخر تحديث'
 ];
 
-const csvRows = [csvHeaders.map(cleanCsvValue).join(',')];
+const csvRows = [csvHeaders.join(',')];
 
 companies.forEach(c => {
     const row = [
-        c.id || '',
-        c.nameAr || c.name || '',
-        c.nameEn || '',
-        c.sector || '',
-        c.subSector || '',
-        c.governorate || '',
-        c.city || '',
-        c.address || '',
-        c.phone1 || c.phone || '',
-        c.phone2 || '',
-        c.mobile || '',
-        c.hotline || '',
-        c.otherPhones || '',
-        c.email || '',
-        c.website || '',
-        c.google_maps_url || '',
-        c.latitude || '',
-        c.longitude || '',
-        c.fleetSize || '',
-        c.fleetType || '',
-        c.fleetTires || '',
-        c.priority || '',
-        c.verified ? 'موثق' : 'مؤكد',
-        c.isTitan ? 'نعم (Titan)' : 'لا'
+        cleanCsvValue(c.id),
+        cleanCsvValue(c.nameAr || c.name),
+        cleanCsvValue(c.nameEn),
+        cleanCsvValue(c.sector),
+        cleanCsvValue(c.city),
+        cleanCsvValue(c.governorate),
+        cleanCsvValue(c.address),
+        cleanCsvValue(c.phone1),
+        cleanCsvValue(c.phone2),
+        cleanCsvValue(c.mobile),
+        cleanCsvValue(c.otherPhones),
+        cleanCsvValue(c.website),
+        cleanCsvValue(c.google_maps_url),
+        cleanCsvValue(c.latitude),
+        cleanCsvValue(c.longitude),
+        cleanCsvValue(c.fleetSize),
+        cleanCsvValue(c.fleetType),
+        cleanCsvValue(c.priority),
+        cleanCsvValue(c.leadScore),
+        cleanCsvValue(c.status),
+        cleanCsvValue(c.assignedTo),
+        cleanCsvValue(c.contactPerson),
+        cleanCsvValue(c.contactTitle),
+        cleanCsvValue(c.notes),
+        cleanCsvValue(c.createdAt),
+        cleanCsvValue(c.lastUpdated)
     ];
-    csvRows.push(row.map(cleanCsvValue).join(','));
+    csvRows.push(row.join(','));
 });
 
-// UTF-8 BOM: \uFEFF
+// Add UTF-8 BOM (\uFEFF)
 const csvContent = '\uFEFF' + csvRows.join('\r\n');
-fs.writeFileSync(path.join(backupDir, 'companies_master_30690.csv'), csvContent, 'utf8');
-fs.writeFileSync(path.join(latestDir, 'companies_master_30690.csv'), csvContent, 'utf8');
-console.log('CSV backup with UTF-8 BOM successfully generated.');
 
-// 5. Excel (.xlsx) generation if xlsx is available
-try {
-    const xlsx = require('xlsx');
-    console.log('Generating Excel (.xlsx) workbook...');
-    
-    // Map records to clean object for worksheet
-    const excelData = companies.map(c => ({
-        'كود المنشأة': c.id || '',
-        'اسم الشركة أو المصنع': c.nameAr || c.name || '',
-        'Company Name': c.nameEn || '',
-        'القطاع': c.sector || '',
-        'النشاط والتخصص': c.subSector || '',
-        'المحافظة': c.governorate || '',
-        'المدينة': c.city || '',
-        'العنوان': c.address || '',
-        'تليفون 1': c.phone1 || c.phone || '',
-        'تليفون 2': c.phone2 || '',
-        'الموبايل': c.mobile || '',
-        'الخط الساخن': c.hotline || '',
-        'أرقام أخرى': c.otherPhones || '',
-        'الإيميل': c.email || '',
-        'الموقع': c.website || '',
-        'خرائط جوجل': c.google_maps_url || '',
-        'حجم الأسطول': c.fleetSize || '',
-        'نوع الأسطول والشاحنات': c.fleetType || '',
-        'مقاسات الكاوتش': c.fleetTires || '',
-        'الأولوية': c.priority || '',
-        'كيان عملاق': c.isTitan ? 'نعم' : 'لا'
-    }));
+fs.writeFileSync(path.join(backupDir, `companies_master_${companies.length}.csv`), csvContent, 'utf8');
+fs.writeFileSync(path.join(latestDir, `companies_master_latest.csv`), csvContent, 'utf8');
+fs.writeFileSync(path.join(latestDir, `companies_master_${companies.length}.csv`), csvContent, 'utf8');
+console.log('CSV backup file with UTF-8 BOM generated successfully.');
 
-    const wb = xlsx.utils.book_new();
-    const ws = xlsx.utils.json_to_sheet(excelData);
-    xlsx.utils.book_append_sheet(wb, ws, 'الشركات والمصانع');
-    
-    xlsx.writeFile(wb, path.join(backupDir, 'companies_master_30690.xlsx'));
-    xlsx.writeFile(wb, path.join(latestDir, 'companies_master_30690.xlsx'));
-    console.log('Excel (.xlsx) workbook successfully generated.');
-} catch (e) {
-    console.log('xlsx library note:', e.message);
-}
+// 5. Generate Excel XLSX
+console.log('Generating XLSX spreadsheet (this might take a few moments)...');
+const xlsxData = companies.map(c => ({
+    'المعرف (ID)': c.id || '',
+    'اسم الشركة / المصنع بالعربي': c.nameAr || c.name || '',
+    'اسم المنشأة بالإنجليزي': c.nameEn || '',
+    'القطاع الصناعي / التجاري': c.sector || '',
+    'المدينة / المنطقة الصناعية': c.city || '',
+    'المحافظة': c.governorate || '',
+    'العنوان التفصيلي': c.address || '',
+    'الهاتف الرئيسي': c.phone1 || '',
+    'هاتف إضافي': c.phone2 || '',
+    'الموبايل': c.mobile || '',
+    'هواتف أخرى': c.otherPhones || '',
+    'الموقع الإلكتروني': c.website || '',
+    'رابط خرائط جوجل': c.google_maps_url || '',
+    'خط العرض': c.latitude || '',
+    'خط الطول': c.longitude || '',
+    'حجم الأسطول التقديري': c.fleetSize || 0,
+    'نوع الأسطول': c.fleetType || '',
+    'الأولوية البيعية': c.priority || '',
+    'درجة العميل المتوقع': c.leadScore || 0,
+    'الحالة': c.status || '',
+    'المسؤول عن الحساب': c.assignedTo || '',
+    'اسم الشخص المسؤول للتواصل': c.contactPerson || '',
+    'المسمى الوظيفي للمسؤول': c.contactTitle || '',
+    'ملاحظات وتوثيق السجل': c.notes || '',
+    'تاريخ التسجيل': c.createdAt || '',
+    'آخر تحديث': c.lastUpdated || ''
+}));
 
-// 6. Generate detailed BACKUP_METADATA.md
+const worksheet = xlsx.utils.json_to_sheet(xlsxData);
+const workbook = xlsx.utils.book_new();
+xlsx.utils.book_append_sheet(workbook, worksheet, 'الشركات والمصانع المعتمدة');
+
+const xlsxBackupPath = path.join(backupDir, `companies_master_${companies.length}.xlsx`);
+const xlsxLatestPath = path.join(latestDir, `companies_master_latest.xlsx`);
+const xlsxNamedLatestPath = path.join(latestDir, `companies_master_${companies.length}.xlsx`);
+
+xlsx.writeFile(workbook, xlsxBackupPath);
+xlsx.writeFile(workbook, xlsxLatestPath);
+xlsx.writeFile(workbook, xlsxNamedLatestPath);
+console.log('XLSX spreadsheet generated successfully.');
+
+// 6. Generate Metadata README
 const sectorsCount = {};
 const citiesCount = {};
 companies.forEach(c => {
@@ -175,7 +185,7 @@ const metadata = `# وثيقة النسخة الاحتياطية المعتمد�
 
 - **تاريخ أخذ النسخة**: ${new Date().toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
 - **توقيت الإنشاء**: ${new Date().toLocaleTimeString('ar-EG')} (UTC+3)
-- **إصدار النظام وقت النسخ**: v249.0
+- **إصدار النظام وقت النسخ**: v251.0
 - **إجمالي الشركات والمصانع بالنسخة**: **${companies.length.toLocaleString()}** شركة ومصنع مسجل وموثق
 - **مجمع عمالقة الصناعة (Titans)**: **${titans.length}** شركة عملاقة
 - **مجمع الأساطيل الميدانية (Pool)**: **${pool.length.toLocaleString()}** شركة ومصنع
@@ -184,11 +194,11 @@ const metadata = `# وثيقة النسخة الاحتياطية المعتمد�
 
 ## 📁 ملفات النسخة الاحتياطية المتوفرة في هذا المجلد:
 
-1. \`companies_master_30690.json\`: النسخة الكاملة لجميع الـ 30,690 شركة بصيغة JSON القياسية.
-2. \`companies_master_30690.csv\`: النسخة الكاملة بصيغة CSV مشفرة بنظام (UTF-8 with BOM) لفتحها مباشرة في مايكروسوفت إكسيل دون أي تشويه في الحروف العربية.
-3. \`companies_master_30690.xlsx\`: ملف إكسيل كامل جاهز للاستخدام المباشر.
-4. \`egypt_verified_titans_34.json\`: ملف الـ 34 شركة ومصنع عملاق.
-5. \`egypt_enterprises_pool_30656.json\`: ملف الـ 30,656 شركة ومصنع ميداني.
+1. \`companies_master_${companies.length}.json\`: النسخة الكاملة لجميع الـ ${companies.length.toLocaleString()} شركة بصيغة JSON القياسية.
+2. \`companies_master_${companies.length}.csv\`: النسخة الكاملة بصيغة CSV مشفرة بنظام (UTF-8 with BOM) لفتحها مباشرة في مايكروسوفت إكسيل دون أي تشويه في الحروف العربية.
+3. \`companies_master_${companies.length}.xlsx\`: ملف إكسيل كامل جاهز للاستخدام المباشر.
+4. \`egypt_verified_titans_${titans.length}.json\`: ملف الـ ${titans.length} شركة ومصنع عملاق.
+5. \`egypt_enterprises_pool_${pool.length}.json\`: ملف الـ ${pool.length.toLocaleString()} شركة ومصنع ميداني.
 6. \`egypt_enterprises_pool.js\`: كود الجافاسكريبت الجاهز للعمل المباشر في السيستم.
 7. \`egypt_verified_titans.js\`: كود الجافاسكريبت لعمالقة الصناعة في السيستم.
 
@@ -201,9 +211,9 @@ ${Object.entries(sectorsCount).sort((a,b) => b[1] - a[1]).map(([s, c]) => `- **$
 
 ## 🔄 كيفية استرجاع النسخة الاحتياطية في أي وقت:
 في حال الرغبة في استرجاع هذه النسخة بالكامل:
-1. نسخ \`companies_master_30690.json\` إلى \`crm/data/companies.json\`.
-2. نسخ \`egypt_enterprises_pool_30656.json\` إلى \`crm/data/egypt_enterprises_pool.json\`.
-3. نسخ \`egypt_verified_titans_34.json\` إلى \`crm/data/egypt_verified_titans.json\`.
+1. نسخ \`companies_master_${companies.length}.json\` إلى \`crm/data/companies.json\`.
+2. نسخ \`egypt_enterprises_pool_${pool.length}.json\` إلى \`crm/data/egypt_enterprises_pool.json\`.
+3. نسخ \`egypt_verified_titans_${titans.length}.json\` إلى \`crm/data/egypt_verified_titans.json\`.
 4. نسخ \`egypt_enterprises_pool.js\` إلى \`crm/js/egypt_enterprises_pool.js\`.
 5. نسخ \`egypt_verified_titans.js\` إلى \`crm/js/egypt_verified_titans.js\`.
 `;

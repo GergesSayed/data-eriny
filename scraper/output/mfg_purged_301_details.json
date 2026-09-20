@@ -1,0 +1,2251 @@
+{
+  "categoryStats": {
+    "fiberglass": {
+      "name": "ورش ومصنوعات فيبر جلاس وأكشاك وصناديق دليفري",
+      "count": 17,
+      "sample": [
+        "Fiber One Systems and Networks",
+        "El Tayep 4car's Fiber  repair",
+        "الشروق فيبركوم للفيبرجلاس الاول في مصر والشرق الاوسط",
+        "ابو حمزه فايبر",
+        "FRP Fiber Reinforced Polymers"
+      ]
+    },
+    "garages": {
+      "name": "جراجات وورش تعديل وتظبيط سيارات ملاكي وكماليات",
+      "count": 24,
+      "sample": [
+        "Madah7 Garage",
+        "Mopars Garage",
+        "Proton Garage",
+        "AutoTechnik Garage",
+        "Zero 7 Garage"
+      ]
+    },
+    "advertising_print": {
+      "name": "مطابع ومكاتب دعاية وإعلان وأختام وبانرات وتصوير مستندات",
+      "count": 92,
+      "sample": [
+        "الفهد لطباعة مواد الدعاية والاعلان",
+        "Zero for Advertising and Promotion",
+        "رؤية للإعلان",
+        "Vip Advertising",
+        "دريم للدعاية والإعلان"
+      ]
+    },
+    "engineering_consulting": {
+      "name": "مكاتب استشارات هندسية ومعمارية وتصميم ديكور",
+      "count": 46,
+      "sample": [
+        "Behalf Engineering Consultant",
+        "Sanad Consultancy",
+        "Ain Architecture & Decor Studio",
+        "Al Noor Engineering Design and Consultant",
+        "Ibrahim architect"
+      ]
+    },
+    "elevators": {
+      "name": "شركات ومكاتب تركيب وصيانة مصاعد وسلالم متحركة للعمارات",
+      "count": 39,
+      "sample": [
+        "Petrotel for Lifting Solutions",
+        "STAR LIFT",
+        "شركة ناسا للمصاعد NASA Elevator Company",
+        "إبهار للمصاعد-Ebhaar",
+        "Lift group"
+      ]
+    },
+    "ac": {
+      "name": "شركات ومراكز صيانة وتجارة تكييف منزلي",
+      "count": 14,
+      "sample": [
+        "شركة العمالقة للتكييف والتجارة",
+        "شركة إتقان للتكييف والمقاولات",
+        "شركة المحبة جروب للتكييف",
+        "شركة الحمد للتجارة والتكييف",
+        "شركة الماسة للتكييف والتجارة ELmasa CO. for AC and trade"
+      ]
+    },
+    "kitchens": {
+      "name": "معارض واستوديوهات مطابخ منزلية ودواليب خشب",
+      "count": 15,
+      "sample": [
+        "Z Kitchens Hub",
+        "Arkya Kitchens",
+        "Vision Kitchen ڤـيـجـن للـمطـابـخ",
+        "DEVORA Kitchens",
+        "Spectra Kitchen and More"
+      ]
+    },
+    "mattresses_foam": {
+      "name": "ورش ومصانع مراتب وفوم ومقاعد خشبية محلية",
+      "count": 18,
+      "sample": [
+        "مصنع مراتب تسلا البغدادي هوم",
+        "Cairo Foam Sales Khaled Mahmoud كايرو فوم  إدارة المبيعات  خالد محمود",
+        "مراتب ميلورا - Melora Mattresses",
+        "ريفييرا للمراتب- Riviera Mattress",
+        "مراتب يوجا - Yoga Mattress"
+      ]
+    },
+    "furniture": {
+      "name": "ورش ومحلات أثاث وموبيليا وستائر ومفروشات",
+      "count": 20,
+      "sample": [
+        "شركة M.S لصناعة اقمشة مفروشات و مدعربي و سدو",
+        "Gmb Plast لتصنيع إكسسوارات الموبيليا",
+        "مصنع ياسمين الشام للأثاث",
+        "مصنع أوسكار للأثاث",
+        "ستيل فورس طلاء Pvd تصنيع أثاث  تقطيع ليزر"
+      ]
+    },
+    "security": {
+      "name": "شركات أمن وحراسة أفراد وحراسات خاصة",
+      "count": 6,
+      "sample": [
+        "مصر العربية للأمن والحراسة  Eagle Group",
+        "شركة النمر للاكشاك الحراسة",
+        "شركة ألفا للأمن و الحراسة",
+        "الشركة الأفريقية للأمن والحراسة",
+        "وظائف شركة حراسات"
+      ]
+    },
+    "embroidery": {
+      "name": "ورش تطريز إلكتروني بالكمبيوتر",
+      "count": 4,
+      "sample": [
+        "مصنع تطريز بالكمبيوتر",
+        "تطريز كمبيوتر - مصنع بولا",
+        "مصنع المأمون للتطريز الإلكتروني",
+        "شركة المجد للتطريزوالطباعة واليونيفورم"
+      ]
+    },
+    "shoes": {
+      "name": "ورش تصنيع وتفصيل نعل أحذية محلية",
+      "count": 2,
+      "sample": [
+        "Crystal - مصنع كريستال للأحذية",
+        "زغلول لنعل الاحذية"
+      ]
+    },
+    "equipment_dealers": {
+      "name": "معارض تجارة وتأجير معدات ثقيلة ورافعات شوكية محلية",
+      "count": 4,
+      "sample": [
+        "شركة Boom Lift لتأجير المعدات الثقيلة",
+        "Power Lift - تأجير واستيراد المعدات الثقيلة",
+        "HC forklift رافعات شوكيه",
+        "معرض العادلي لتجارة المعدات الثقيله استيراد ومحلي"
+      ]
+    }
+  },
+  "purgedEntities": [
+    {
+      "id": "eg_b2b_fleet_24934",
+      "nameAr": "شركة M.S لصناعة اقمشة مفروشات و مدعربي و سدو",
+      "nameEn": "",
+      "address": "المنطقة الصناعية الثالثة",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_24983",
+      "nameAr": "Gmb Plast لتصنيع إكسسوارات الموبيليا",
+      "nameEn": "",
+      "address": "الظهير الصحراوى",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_25027",
+      "nameAr": "مصنع ياسمين الشام للأثاث",
+      "nameEn": "",
+      "address": "الظهير الصحراوى",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_25032",
+      "nameAr": "Fiber One Systems and Networks",
+      "nameEn": "",
+      "address": "615 megawrah 80",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_25080",
+      "nameAr": "Madah7 Garage",
+      "nameEn": "",
+      "address": "El Ordonia Rd",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_25112",
+      "nameAr": "مصر العربية للأمن والحراسة  Eagle Group",
+      "nameEn": "",
+      "address": "العاشر من رمضان الاردنيه ، المنال مول ، \\nعمارة 8 ، وحده 1",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_25114",
+      "nameAr": "مصنع مراتب تسلا البغدادي هوم",
+      "nameEn": "",
+      "address": "مدينة العاشر من رمضان",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_25115",
+      "nameAr": "الفهد لطباعة مواد الدعاية والاعلان",
+      "nameEn": "",
+      "address": "صيدناوي , المجاورة الرابعة , أمام معرض النساجون الشرقيون",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_25161",
+      "nameAr": "مصنع أوسكار للأثاث",
+      "nameEn": "",
+      "address": "العاشر من رمضان",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_25163",
+      "nameAr": "شركة العمالقة للتكييف والتجارة",
+      "nameEn": "",
+      "address": "54 شارع العاشر من رمضان",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_25189",
+      "nameAr": "Zero for Advertising and Promotion",
+      "nameEn": "",
+      "address": "امام الشبكات",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_25266",
+      "nameAr": "رؤية للإعلان",
+      "nameEn": "",
+      "address": "7PVR+R93,مكتب رؤية للاعلان",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_25346",
+      "nameAr": "Vip Advertising",
+      "nameEn": "",
+      "address": "Amr Nabeel Rd",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_25371",
+      "nameAr": "دريم للدعاية والإعلان",
+      "nameEn": "",
+      "address": "مول المركز العالمى ،الادنية. العاشر من رمضان، شارع السنترال امام بنك مصر،،",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_25510",
+      "nameAr": "Cairo Foam Sales Khaled Mahmoud كايرو فوم  إدارة المبيعات  خالد محمود",
+      "nameEn": "",
+      "address": "السادس من اكتوبر",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_25576",
+      "nameAr": "Cairo Foam Sales Ahmed El Morshedy",
+      "nameEn": "",
+      "address": "مدينة 6 اكتوبر - المنطقة الصناعيةامتداد المحور المركزي - قطعة 37/2",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_25595",
+      "nameAr": "ستيل فورس طلاء Pvd تصنيع أثاث  تقطيع ليزر",
+      "nameEn": "",
+      "address": "ستيل فورس للصناعة والتوريداتhttps://goo.gl/maps/FBKFFP1D5uLqKr8B9",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_25642",
+      "nameAr": "Petrotel for Lifting Solutions",
+      "nameEn": "",
+      "address": "City Center Mall, Gamal Abd Al Nassir Axis",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_25670",
+      "nameAr": "STAR LIFT",
+      "nameEn": "",
+      "address": "السادس من اكتوبر",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_25673",
+      "nameAr": "محترفون للدعاية والاعلان والتسويق الالكترونى",
+      "nameEn": "",
+      "address": "سنتر النخيل 2، الحى 11",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_25678",
+      "nameAr": "شركة Boom Lift لتأجير المعدات الثقيلة",
+      "nameEn": "",
+      "address": "بجوار مطعم الشرقاوي، الحي 12خلف، علي الدين",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_25682",
+      "nameAr": "مصنع العفاف للأخشاب و الموبيليا",
+      "nameEn": "",
+      "address": "مدينة 6 أكتوبر - المنطقة الصناعية الثالثة - قطعة رقم 159 تقاطع شارع 7 مع 8",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_25702",
+      "nameAr": "Print Master For Advertising",
+      "nameEn": "",
+      "address": "رقم 2، ثان 6 اكتوبر، الجيزة،",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_25753",
+      "nameAr": "El Tayep 4car's Fiber  repair",
+      "nameEn": "",
+      "address": "شارع الطيار سنتر الهداية",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_25808",
+      "nameAr": "Z Kitchens Hub",
+      "nameEn": "",
+      "address": "Amaken plaza,Talah Compound Mall , First 6th of October, Giza Governorate 3231026",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_25833",
+      "nameAr": "Arkya Kitchens",
+      "nameEn": "",
+      "address": "الحى الرابع مجاوره الثانيه عماره 297 امام قبانى للاثاث",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_25840",
+      "nameAr": "شركة ناسا للمصاعد NASA Elevator Company",
+      "nameEn": "",
+      "address": "عمارات بدرالدين",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_25850",
+      "nameAr": "Mopars Garage",
+      "nameEn": "",
+      "address": "امتداد المنطقه الصناعيه الثالثه",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_25866",
+      "nameAr": "Vision Kitchen ڤـيـجـن للـمطـابـخ",
+      "nameEn": "",
+      "address": "📍 6th of October – Central Axis – District 5 – Opposite Cairo Medical Center",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_25955",
+      "nameAr": "Behalf Engineering Consultant",
+      "nameEn": "",
+      "address": "6 OF OCTOBER CITY",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_25958",
+      "nameAr": "إبهار للمصاعد-Ebhaar",
+      "nameEn": "",
+      "address": "السادس من اكتوبر",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_25967",
+      "nameAr": "DEVORA Kitchens",
+      "nameEn": "",
+      "address": "أمام قباني للأثاث, Al Mehwar Al Markazi",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_25974",
+      "nameAr": "Proton Garage",
+      "nameEn": "",
+      "address": "أكتوبر - Citystar towers  عمارة ٧ تجاري  خلفي مستشفى كيلوباترا اكتوبر",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26003",
+      "nameAr": "Lift group",
+      "nameEn": "",
+      "address": "السادس من اكتوبر ، الحي الثاني عشر",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26006",
+      "nameAr": "Spectra Kitchen and More",
+      "nameEn": "",
+      "address": "22a Albatea-Moazi Limehwar, Al Mehwar Al Markazi",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26028",
+      "nameAr": "فنون للدعاية والاعلان",
+      "nameEn": "",
+      "address": "السادس من اكتوبر",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26030",
+      "nameAr": "Pixel Advertising Agency",
+      "nameEn": "",
+      "address": "المحور المركزى ـ الحى الرابع ـ عمارة 33",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26036",
+      "nameAr": "Sanad Consultancy",
+      "nameEn": "",
+      "address": "Gamal abd el nasr street",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26051",
+      "nameAr": "الزعيم أفضل مطبعة و شركة دعاية واعلان في 6 أكتوبر وكالة إعلانية طباعة مجات كروت بنر دفاتر أختام",
+      "nameEn": "",
+      "address": "ميدان النجدة ، المحور المركزي, أمام النيابة الإدارية مباشرة",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26067",
+      "nameAr": "المرجي للاثاث",
+      "nameEn": "",
+      "address": "1371 Mohmmed Imad Rageb - Al Tahrir St",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26068",
+      "nameAr": "Eltamany for Advertising",
+      "nameEn": "",
+      "address": "239 Al Mehwar Al Markazi",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26076",
+      "nameAr": "AutoTechnik Garage",
+      "nameEn": "",
+      "address": "6 Al Mehwar Al Markazi",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26077",
+      "nameAr": "Zero 7 Garage",
+      "nameEn": "",
+      "address": "Central Axis",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26078",
+      "nameAr": "Xtreme Garage",
+      "nameEn": "",
+      "address": "Al Mehwar Al Markazi",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26086",
+      "nameAr": "شركة إتقان للتكييف والمقاولات",
+      "nameEn": "",
+      "address": "247ا الحى الثالث المجاوره الثانيه المحور المركزي مباشر ميدان النجدة",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26098",
+      "nameAr": "First Masr For Publicity and Advertising",
+      "nameEn": "",
+      "address": "44 الحى 16 - الشيخ زايد",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26110",
+      "nameAr": "Ain Architecture & Decor Studio",
+      "nameEn": "",
+      "address": "اكتوبر المحور المركزي 22 الحي العاشر امام سيتى سكيب مول الدور الثالث",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26161",
+      "nameAr": "Power Lift - تأجير واستيراد المعدات الثقيلة",
+      "nameEn": "",
+      "address": "مدينة السادس من اكتوبر",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26168",
+      "nameAr": "Al Noor Engineering Design and Consultant",
+      "nameEn": "",
+      "address": "El-Tahrir Rd",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26179",
+      "nameAr": "MGarage Service Center",
+      "nameEn": "",
+      "address": "رقم 41، قسم أول 6 أكتوبر،",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26195",
+      "nameAr": "Zitchi for kitchen",
+      "nameEn": "",
+      "address": "مدينة 6 أكتوبر - الحي الثاني - المحور المركزي - أمام التوحيد والنور",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26198",
+      "nameAr": "Mafia Car Accessories",
+      "nameEn": "",
+      "address": "قبل مسجد عماد راغب وامام البنك الاهلي، اكتوبر، محور الكفراوي",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26206",
+      "nameAr": "La Garage",
+      "nameEn": "",
+      "address": "لاسيتيه بلازا , اسفل صيدلية العزبي, المحور الموازي للمركزي, Divided from Al Mehwar",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26221",
+      "nameAr": "Solo Sketch Kitchens",
+      "nameEn": "",
+      "address": "La Cité Plaza Mall, behind Al-Hosary Mosque",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26266",
+      "nameAr": "عثمان للطباعة",
+      "nameEn": "",
+      "address": "مدارس جيل 2000، قسم أول 6 أكتوبر، اول 6 أكتوبر، الجيزة،",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26268",
+      "nameAr": "ثرى ام للدعاية والاعلان",
+      "nameEn": "",
+      "address": "ابراج عزيز ميخائيل - المحور المركزى",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26282",
+      "nameAr": "The king Car Accessories",
+      "nameEn": "",
+      "address": "شارع Mecca El-Mokarrama",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26299",
+      "nameAr": "Ibrahim architect",
+      "nameEn": "",
+      "address": "el yasmeen، street",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26306",
+      "nameAr": "Evolution Advertising Agency",
+      "nameEn": "",
+      "address": "امام رايه - بجوار مكتبة برناسوس, المحور المركزي - الحصري - ع 53",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26322",
+      "nameAr": "الشروق فيبركوم للفيبرجلاس الاول في مصر والشرق الاوسط",
+      "nameEn": "",
+      "address": "الحصري اكتوبر",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26336",
+      "nameAr": "دريم للاعلان",
+      "nameEn": "",
+      "address": "السادس من اكتوبر",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26341",
+      "nameAr": "اعلانات",
+      "nameEn": "",
+      "address": "ميدان الحصري الحي الاول ٦اكتوبر قسم اول اكتوبر 6",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26349",
+      "nameAr": "Pro garage",
+      "nameEn": "",
+      "address": "بجوار مدرسه الروضه",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26363",
+      "nameAr": "اكستريم للأثاث",
+      "nameEn": "",
+      "address": "الحي الثاني المجاوره التالته عماره 854 خلف سنتر الاردنيه من ميدان الحصري",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26395",
+      "nameAr": "شركة باركرين السورية للمصاعد",
+      "nameEn": "",
+      "address": "742 رقم 6، الجيزة،",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26396",
+      "nameAr": "الشويمي لماكينات الطباعة وآلات التصوير",
+      "nameEn": "",
+      "address": "الحي الثاني, El-Yasmin",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26399",
+      "nameAr": "Top Gear October and Up Garage",
+      "nameEn": "",
+      "address": "امام سكوير اسفل جوميا، الحي الثانى بجوار مول الأردنية",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26405",
+      "nameAr": "Jood kitchen",
+      "nameEn": "",
+      "address": "Abd El-Salam Amin",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26409",
+      "nameAr": "V8 tuning garage",
+      "nameEn": "",
+      "address": "first mall district 3",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26418",
+      "nameAr": "مؤسسة الطباعة",
+      "nameEn": "",
+      "address": "السادس من اكتوبر",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26443",
+      "nameAr": "Le Garage 2",
+      "nameEn": "",
+      "address": "Al Maahad from Al Venteral",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26450",
+      "nameAr": "ابو حمزه فايبر",
+      "nameEn": "",
+      "address": "مول الجاز الحي الاول السادس من اكتوبر",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26458",
+      "nameAr": "Le Garage",
+      "nameEn": "",
+      "address": "مدينة 6 اكتوبر الحي الاول ش السنترال امام فاملي مول",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26464",
+      "nameAr": "IL D'ORO Kitchen & Dressing",
+      "nameEn": "",
+      "address": "Dolphin Mall",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26497",
+      "nameAr": "Crackle Garage",
+      "nameEn": "",
+      "address": "6th of october, la citè mall",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26506",
+      "nameAr": "The Engineering Association Mahfouz For Architecture & Construction",
+      "nameEn": "",
+      "address": "Soaad Kafafi St",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26543",
+      "nameAr": "X-garage",
+      "nameEn": "",
+      "address": "Waslet Dahshur Road",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26574",
+      "nameAr": "دار إبن إمام لطباعة ونشر كتب الأطفال",
+      "nameEn": "",
+      "address": "الشيخ زايد - الحي الثالث عشر - المجاورة الثانية - أمام المدرسة الثانوية بنين .",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26575",
+      "nameAr": "Creation Team Advertising Agency",
+      "nameEn": "",
+      "address": "The Courtyard Business park, Building H423,H424,E214, Sheikh Zayed,",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26585",
+      "nameAr": "Designscape",
+      "nameEn": "",
+      "address": "الشيخ زايد",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26587",
+      "nameAr": "Arcadia Designs",
+      "nameEn": "",
+      "address": "Elmoez Plaza Mall, Sheikh Zayed City",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26593",
+      "nameAr": "Gabbara for car alarm & remote جبارة لجهاز انذار وريموت السيارة",
+      "nameEn": "",
+      "address": "13 شارع الشباب",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26622",
+      "nameAr": "V8 Tuning Garage",
+      "nameEn": "",
+      "address": "Mall Exit, El Shabab Road, 14",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26635",
+      "nameAr": "Ramy's Garage",
+      "nameEn": "",
+      "address": "Villa14A-2nd district-Shiekh Zayed city",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26638",
+      "nameAr": "Tuning Garage Zayed",
+      "nameEn": "",
+      "address": "12 Mall of legend, Reedy Group Square, Sheikh Zayed",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26671",
+      "nameAr": "Papa's Garage",
+      "nameEn": "",
+      "address": "٤٠، محور ٢٦ يوليو، إمام جالريا",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26723",
+      "nameAr": "Ghanem Designs",
+      "nameEn": "",
+      "address": "Sheikh Zayed City",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26737",
+      "nameAr": "ECG - Engineering Consultants Group",
+      "nameEn": "",
+      "address": "Cairo - Alexandria Desert Rd",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26790",
+      "nameAr": "S Garage",
+      "nameEn": "",
+      "address": "الظهير الصحراوي",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26792",
+      "nameAr": "FRP Fiber Reinforced Polymers",
+      "nameEn": "",
+      "address": "مجمع مكة الصناعي, الكيلو ٢٦",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26868",
+      "nameAr": "El-Dar Factory For Lifts",
+      "nameEn": "",
+      "address": "3rd Ind. Zone Ext.",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_26886",
+      "nameAr": "الكينج \"للفيبر جلاس\"",
+      "nameEn": "",
+      "address": "طريق المحور _ مدخل المنصورية",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_27004",
+      "nameAr": "الأمير للفيبر جلاس",
+      "nameEn": "",
+      "address": "قليوب البلد",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_27029",
+      "nameAr": "Retal Kitchen",
+      "nameEn": "",
+      "address": "مدينه الامل،امبابه",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_27081",
+      "nameAr": "شركة النمر للاكشاك الحراسة",
+      "nameEn": "",
+      "address": "كفر أبو جمعة، قسم قليوب، محافظة القليوبية",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_27116",
+      "nameAr": "العدل للفيبر جلاس",
+      "nameEn": "",
+      "address": "شارع الجمعية ،قليوب",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_27130",
+      "nameAr": "آل.حافظ للفيبر جلاس",
+      "nameEn": "",
+      "address": "القاهرة اسكندرية الزراعى سنديون",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_27179",
+      "nameAr": "الألمانية للفيبر جلاس fiberglass",
+      "nameEn": "",
+      "address": "مركز قليوب",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_27180",
+      "nameAr": "المحمدي لاكشاك الحراسه والحمامات الجاهزه فايبر جلاس",
+      "nameEn": "",
+      "address": "كفر ابو جمعه",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_27240",
+      "nameAr": "الأخوين للأثاث المكتبي والمعدني",
+      "nameEn": "",
+      "address": "Cairo",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_27260",
+      "nameAr": "الوهاب فيبر جلاس",
+      "nameEn": "",
+      "address": "17 طريق القاهرة الإسكندرية الزراعى",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_27496",
+      "nameAr": "ESO Consultancy",
+      "nameEn": "",
+      "address": "6 Metwali El Shaarawy ST",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_27563",
+      "nameAr": "مراتب ميلورا - Melora Mattresses",
+      "nameEn": "",
+      "address": "الأميرية",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_27573",
+      "nameAr": "Crystal - مصنع كريستال للأحذية",
+      "nameEn": "",
+      "address": "24 شارع مصطفى عبد الرحيم",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_27589",
+      "nameAr": "To-BiM",
+      "nameEn": "",
+      "address": "القاهرة",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_27691",
+      "nameAr": "شركة المحبة جروب للتكييف",
+      "nameEn": "",
+      "address": "28 Al Maseeri",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_27784",
+      "nameAr": "مصنع تطريز بالكمبيوتر",
+      "nameEn": "",
+      "address": "12 مسجد التعاون، العزب،",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_27947",
+      "nameAr": "مؤسسة الشاويش للطباعة والدعاية والإعلان",
+      "nameEn": "",
+      "address": "ترعه الشابوري",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_27951",
+      "nameAr": "شركة اب سڤن للمصاعد",
+      "nameEn": "",
+      "address": "15 May",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_28037",
+      "nameAr": "مصممين عالناصية للطباعة الحديثة",
+      "nameEn": "",
+      "address": "Reda Ayoub",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_28052",
+      "nameAr": "شركة الحمد للتجارة والتكييف",
+      "nameEn": "",
+      "address": "منطقة, Al Seka Al Hadid",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_28056",
+      "nameAr": "Techno Lift",
+      "nameEn": "",
+      "address": "ش Nour El-Deen",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_28087",
+      "nameAr": "النور للطباعة والنشر",
+      "nameEn": "",
+      "address": "14 ش طارق بن زياد, بهتيم",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_28108",
+      "nameAr": "مطبعة احمد الحسينى للطباعة والاعلان",
+      "nameEn": "",
+      "address": "6 شارع جمال عبدالناصر من، التوفيقيه",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_28208",
+      "nameAr": "الهداية لجميع انواع الطباعة",
+      "nameEn": "",
+      "address": "24 شارع سعيد من شارع, Ahmed Esmat",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_28226",
+      "nameAr": "القيصر للطباعة",
+      "nameEn": "",
+      "address": "34 توفيق المحمدي، ناصية ش اسيوط, Gesr Al Suez",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_28276",
+      "nameAr": "الكينج للاثاث المعدني واحدث التصميمات العالميه",
+      "nameEn": "",
+      "address": "المصنع والمعرض في شارع مؤسسه الزكاه ظهر شركه البيبس فرع عين شمس 38 شارع امين الجندي متفرع من شارع العشرين عين شمس الشرقيه",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_28306",
+      "nameAr": "B2b advertising",
+      "nameEn": "",
+      "address": "4AudahSt. from Al-Fayrous St. Behind Al-Horeya School",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_28331",
+      "nameAr": "شركة الايمان للمصاعد",
+      "nameEn": "",
+      "address": "9 شارع وابور عصمت عزبة النخل الشرقية",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_28337",
+      "nameAr": "تطريز كمبيوتر - مصنع بولا",
+      "nameEn": "",
+      "address": "6 شارع الشيخ عبيد",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_28433",
+      "nameAr": "شركة الماسة للتكييف والتجارة ELmasa CO. for AC and trade",
+      "nameEn": "",
+      "address": "القاهرة / المرج / محور المرج الرئيسى / مؤسسة الزكاة / أمام قاعة الميريديان",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_28471",
+      "nameAr": "Elframawy الفرماوى للاعلان",
+      "nameEn": "",
+      "address": "6 شارع مؤسسة الزكاة",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_28502",
+      "nameAr": "مصنع المأمون للتطريز الإلكتروني",
+      "nameEn": "",
+      "address": "عزت النجار, Gesr Al Suez",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_28518",
+      "nameAr": "السورية للطباعة الفنية",
+      "nameEn": "",
+      "address": "105 ش 18, Gesr Al Suez",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_28587",
+      "nameAr": "السلام للطباعة والنشر",
+      "nameEn": "",
+      "address": "4 ش السلام، متفرع من ش جسر السويس, جسر السويس",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_28653",
+      "nameAr": "المؤسسة الهندسية للمصاعد والسلالم المتحركة",
+      "nameEn": "",
+      "address": "6 شارع عبد العزيز نصار",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_28662",
+      "nameAr": "Fiber Reinforcement Industries",
+      "nameEn": "",
+      "address": "114 Joseph Tito St",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_28831",
+      "nameAr": "MEP Dynamics - CFD Consultants",
+      "nameEn": "",
+      "address": "el nasr",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_28856",
+      "nameAr": "Solid BIM Engineering Services and Management Consultancy",
+      "nameEn": "",
+      "address": "1 Abo El Mahasen، Saleh",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_28883",
+      "nameAr": "BCG - Bahrawy Consultancy Group",
+      "nameEn": "",
+      "address": "16 Joseph Tito St., El Nozha",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_28997",
+      "nameAr": "شركة ستار للدعاية والإعلان",
+      "nameEn": "",
+      "address": "2 شارع الهادى سلامه من شارع محمد رشاد احمد عصمت",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_29016",
+      "nameAr": "Art Copy",
+      "nameEn": "",
+      "address": "27 شارع المعهد العالي الصناعي",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_29017",
+      "nameAr": "الشناوي للطباعة الحديثة",
+      "nameEn": "",
+      "address": "٩ Al Maahad Al Aali Al Senaai",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_29024",
+      "nameAr": "سنتر ماروسكا لخدمات الطباعة",
+      "nameEn": "",
+      "address": "Ahmed Gabr",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_29050",
+      "nameAr": "الشركة الهندسية لمعدات المغاسل والمطابخ",
+      "nameEn": "",
+      "address": "4A, Abd AL-Mohsem AL-Wesemy St.",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_29051",
+      "nameAr": "بونكس للمصاعد",
+      "nameEn": "",
+      "address": "جسر السويس  محطه هشام بركات شارع 27 أمام عيادات الكاروز النزهه 2",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_29079",
+      "nameAr": "ستار برس لإستيراد وتجارة خامات وماكينات الطباعة",
+      "nameEn": "",
+      "address": "15 شارع احمد بليغ",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_29129",
+      "nameAr": "Project Management Consultants",
+      "nameEn": "",
+      "address": "73 Abd El-Hameed Badawi",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_29159",
+      "nameAr": "شركة تكييف منصور جروب فور تريد اند سرفيس",
+      "nameEn": "",
+      "address": "11 Moaaz Ibn Gabal",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_29194",
+      "nameAr": "الاستشارى م.خالد حسنين - Consultant eng. Khaled Hassanien",
+      "nameEn": "",
+      "address": "163 شارع الحجاز",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_29211",
+      "nameAr": "Digital office supplies الآت تصوير و طباعة الرسومات الهندسية",
+      "nameEn": "",
+      "address": "36 شارع النزهة",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_29237",
+      "nameAr": "الشركة العربية للموبيليات",
+      "nameEn": "",
+      "address": "٧٦ شارع الوحدة العربية امن جسر السويس امام فندق السلام",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_29289",
+      "nameAr": "Reham Eltahawy Consultants - REC",
+      "nameEn": "",
+      "address": "36 شارع عبد العزيز الهراوي",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_29294",
+      "nameAr": "ريفييرا للمراتب- Riviera Mattress",
+      "nameEn": "",
+      "address": "58 شارع الحجاز",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_29351",
+      "nameAr": "تصوير اعلانات تليفزيونية  - TV Commercials Shooting",
+      "nameEn": "",
+      "address": "el sebaq street - new cairo - heliopolis",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_29358",
+      "nameAr": "شركة ألفا للأمن و الحراسة",
+      "nameEn": "",
+      "address": "35 شارع اباظة, ميدان المحكمة",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_29447",
+      "nameAr": "Attaby Consultancy",
+      "nameEn": "",
+      "address": "12 Khalid Ibn El Walid, Sheraton, Heliopolis, Cairo, Egypt",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_29629",
+      "nameAr": "مراتب يوجا - Yoga Mattress",
+      "nameEn": "",
+      "address": "المنطقة الصناعية طريق الإسماعيلية الزراعي",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_29679",
+      "nameAr": "مكتب الصفوة للطباعة والأدوات",
+      "nameEn": "",
+      "address": "مركز شبين القناطر",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_29821",
+      "nameAr": "الرواد للطباعة والتصميم",
+      "nameEn": "",
+      "address": "شارع الجمهورية - أمام مسجد أبو بكر الصديق",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_29839",
+      "nameAr": "HC forklift رافعات شوكيه",
+      "nameEn": "",
+      "address": "الطريق الدائري بين مؤسسه الزكاه والمرج بجوار بنزينه موبيل",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_29923",
+      "nameAr": "مصنع الفهد لصناعة الدكك او الدسكات وأثاث المدارس والح المعدنيه 01151544490",
+      "nameEn": "",
+      "address": "شارع محمود زيدان وإمام زيدان متفرع من المصرف البلبيسي بجوار مدرسه جلال سكول",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_30076",
+      "nameAr": "شركة المستقبل لخامات البوليستر و الفيبر جلاس - future company",
+      "nameEn": "",
+      "address": "النزهه الجديده - برج رقم ٤ ( أبراج لامار ) خلف جوزيف تيتو - الدور الاول",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_30218",
+      "nameAr": "Grace Team Printing & Advertising",
+      "nameEn": "",
+      "address": "Print House 1 : Block 2, Zone 13025, Industrial zone “A”, El Obour City, Cairo, Egypt. Print House 2 : St. 72, Block 64, Industrial zone “A”, El Obour",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_30238",
+      "nameAr": "CROWN Bed Mattresses-مراتب كراون بد",
+      "nameEn": "",
+      "address": "شارع ١٧٣، محافظة القاهرة،، القليوبية",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_30240",
+      "nameAr": "شركة النور الدولية لتصنيع مستلزمات الستائر",
+      "nameEn": "",
+      "address": "ش 900",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_30490",
+      "nameAr": "SR Garage",
+      "nameEn": "",
+      "address": "Mohammed El-Sheemy",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_30678",
+      "nameAr": "ِِِAL jazeera for Architecture",
+      "nameEn": "",
+      "address": "مدينة العبور  _ شارع  الثقافة",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_30698",
+      "nameAr": "شركة الفارس - للفوم والمواد العازله",
+      "nameEn": "",
+      "address": "مركز الخانكه - القليوبيه",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_30708",
+      "nameAr": "مصنع الألمانيه فوم لصناعه الأسفنج والمراتب ـGerman foam",
+      "nameEn": "",
+      "address": "طريق بلبيس العبور طريق المظلات",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_30814",
+      "nameAr": "Almaamoun Mattresses مراتب المأمون",
+      "nameEn": "",
+      "address": "10 شارع حافظ رمضان",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_30854",
+      "nameAr": "فارما للفوم و العزل الحرارى",
+      "nameEn": "",
+      "address": "العبور المنطقة الصناعية",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_30887",
+      "nameAr": "Moramatress-مراتب مورا",
+      "nameEn": "",
+      "address": "المنطقة الصناعية - انشاص",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_30903",
+      "nameAr": "مراتب ريموندا - مصطفى أبو النور",
+      "nameEn": "",
+      "address": "العنوان: الهرم طريق المريوطيه بجوار بالم كلوب للسياحه ومرور سقاره، البدراشين، الجيزة، طريق المريوطيه،",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_31030",
+      "nameAr": "Shaker Consultancy Group",
+      "nameEn": "",
+      "address": "مبنى 2078, Ring Rd",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_31036",
+      "nameAr": "تيميكو جروب - أبواب مصاعد Temeco Group",
+      "nameEn": "",
+      "address": "Badr industrial city",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_31043",
+      "nameAr": "شركة اعمار للمصاعد",
+      "nameEn": "",
+      "address": "القطعة 5351، 5351 Al Gamea Al Haditha St",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_31058",
+      "nameAr": "Iconic Engineering Consultancy",
+      "nameEn": "",
+      "address": "El-Nasr st. Maadi",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_31134",
+      "nameAr": "شركة دسر للمصاعد والسلالم المتحركة",
+      "nameEn": "",
+      "address": "قطعه ٨٣ المقطم امام, Ammar Ibn Yasser",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_31143",
+      "nameAr": "بصمة للتصميم والطباعة",
+      "nameEn": "",
+      "address": "شارع علي أمين، الحي السادس،",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_31184",
+      "nameAr": "GAC For Engineering Consultancy",
+      "nameEn": "",
+      "address": "53 شارع الخليفة الظافر",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_31209",
+      "nameAr": "Emaret Misr for Engineering Consultancy",
+      "nameEn": "",
+      "address": "Yasmin Building #7108 St. # 9, شارع المقطم",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_31221",
+      "nameAr": "شركة توب جير للمصاعد",
+      "nameEn": "",
+      "address": "امام كارفور، 81 الأدهم",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_31236",
+      "nameAr": "Projects Engineering Consultancy",
+      "nameEn": "",
+      "address": "مشروع برايت ستار, ١ Salah Eldeen Alayobi St",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_31399",
+      "nameAr": "OTIK Elevators and Electromechanical Systems",
+      "nameEn": "",
+      "address": "٧٤ شارع النزهه - ألماظه - مصر الجديده",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_31464",
+      "nameAr": "بكة للطباعة",
+      "nameEn": "",
+      "address": "5 ebn sendr st. Helioples",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_31472",
+      "nameAr": "Cibes Lifts Egypt",
+      "nameEn": "",
+      "address": "Elevator Engineering Enterprises \" EEE \"",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_31500",
+      "nameAr": "المصرية الدولية للطباعة",
+      "nameEn": "",
+      "address": "90A ابن سندر",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_31514",
+      "nameAr": "Eltayeb Trading - الطيب لتجارة المصاعد",
+      "nameEn": "",
+      "address": "11 شارع كمال",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_31524",
+      "nameAr": "اريج لماكينات الطباعة Areej",
+      "nameEn": "",
+      "address": "77 شارع جسر السويس",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_31539",
+      "nameAr": "Al Burj Engineering Consultants",
+      "nameEn": "",
+      "address": "77 Gesr Al Suez",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_31684",
+      "nameAr": "Cairo Fiber كايروفيبر",
+      "nameEn": "",
+      "address": "قطعة ٧٥٩ التوسعات الشمالية هليوبوليس الجديدة",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_31687",
+      "nameAr": "Center of Planning and Architectural Studies - CPAS",
+      "nameEn": "",
+      "address": "14 شارع السبكي",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_31719",
+      "nameAr": "Faster Elevators",
+      "nameEn": "",
+      "address": "3 ش التبريزي - من, El-Khalifa El-Maamoun",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_31721",
+      "nameAr": "Contrack Lift",
+      "nameEn": "",
+      "address": "44 شارع الخليفة المأمون",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_32046",
+      "nameAr": "High Rise Elevators & Escalators",
+      "nameEn": "",
+      "address": "البافاريه برج 6 الدور الثالث",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_32261",
+      "nameAr": "ماجنتا لخدمات للطباعة Magenta printing service",
+      "nameEn": "",
+      "address": "38 شارع 5",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_32273",
+      "nameAr": "شركة ألفا مصر للمصاعد و السلالم المتحركة",
+      "nameEn": "",
+      "address": "شارع 27",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_32287",
+      "nameAr": "Fuji HY Elevator Company",
+      "nameEn": "",
+      "address": "Street 27",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_32465",
+      "nameAr": "BIM Projects",
+      "nameEn": "",
+      "address": "16 Eskan Al Nqabat",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_32483",
+      "nameAr": "Al Amar Engineering for Consultancy",
+      "nameEn": "",
+      "address": "13 ش سعيد زكريا - حي السفارات",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_32542",
+      "nameAr": "شركه مصاعد هاي جيت",
+      "nameEn": "",
+      "address": "مدينة العبور",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_33003",
+      "nameAr": "إشراق لماكينات الطباعة الديجيتال",
+      "nameEn": "",
+      "address": "شارع نجاتي ثروت خلف السراج مول",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_33141",
+      "nameAr": "شركة رؤية للتجارة وتصنيع الاثاث المكتبى",
+      "nameEn": "",
+      "address": "21 شارع احمد الزمر",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_33161",
+      "nameAr": "EAHK engineering consultant",
+      "nameEn": "",
+      "address": "3 Dr Ismail Wahbi",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_33169",
+      "nameAr": "Star Lift - Elevators & Escalator",
+      "nameEn": "",
+      "address": "8 شارع ناجي عيسى الطحاوي",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_33173",
+      "nameAr": "Target Elevators Company",
+      "nameEn": "",
+      "address": "القاهرة",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_33191",
+      "nameAr": "الشركة التركية للأثاث الراقي",
+      "nameEn": "",
+      "address": "https://maps.app.goo.gl/5DBikF8gEqn8opYWA",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_33434",
+      "nameAr": "Petra Misr for Air Conditioning",
+      "nameEn": "",
+      "address": "City Center, Office 504, Al Zainy Tower",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_33671",
+      "nameAr": "ZS Engineering Consultancy",
+      "nameEn": "",
+      "address": "Villa 65 south 90 Road",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_33899",
+      "nameAr": "Mimar Egypt Engineering Consultants",
+      "nameEn": "",
+      "address": "Office BS01, Building B, waterway compond, Mohammed Nagib Axis",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_33907",
+      "nameAr": "aldar designs",
+      "nameEn": "",
+      "address": "القاهرة الجديدة",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_33926",
+      "nameAr": "City Architects",
+      "nameEn": "",
+      "address": "10 El bafseg",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_34210",
+      "nameAr": "Gama Consultant Office",
+      "nameEn": "",
+      "address": "16 Mahmoud Tawfik St",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_34255",
+      "nameAr": "Jawda Engineering Consultant",
+      "nameEn": "",
+      "address": "21 شارع محمد فهمي المحضر",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_34283",
+      "nameAr": "الشركة الأفريقية للأمن والحراسة",
+      "nameEn": "",
+      "address": "Near Sakaliya, Al Manteqah as Sadesah, Nasr City, Cairo Governorate 4450308 مدينة نصر",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_34303",
+      "nameAr": "تيم وود للاثاث المكتبي timwood",
+      "nameEn": "",
+      "address": "24 شارع الفريق محمد ابراهيم",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_34346",
+      "nameAr": "الصفوة لهندسة التكييف والتجارة",
+      "nameEn": "",
+      "address": "٣٩ ش حلمي حسن علي المنطقة الثامنة م نصر",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_34392",
+      "nameAr": "Promise for hotel kitchens equipment - بروميس لتجهيزات المطابخ الفندقية",
+      "nameEn": "",
+      "address": "7 شارع الفردوس",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_34669",
+      "nameAr": "Arkinob architects & interior design",
+      "nameEn": "",
+      "address": "M floor, Building 45 Abdel Razzaq Ilsanhouri",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_34928",
+      "nameAr": "EDGE  Engineering Consultant",
+      "nameEn": "",
+      "address": "151 شارع البنفسج",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_35023",
+      "nameAr": "Printshop Express",
+      "nameEn": "",
+      "address": "Rehab Eastern Souq الرحاب السوق الشرقي Shop B98",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_35130",
+      "nameAr": "IDENTITY Engineering Consultants",
+      "nameEn": "",
+      "address": "Tibah Mall, Office 405، Building C مبنى B Square, El-Nasr Rd",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_35176",
+      "nameAr": "فيرست سمارت   first smart لاعمال الفاير والتكييف",
+      "nameEn": "",
+      "address": "القاهرة",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_35273",
+      "nameAr": "برنتا لاستيراد ماكينات الطباعة",
+      "nameEn": "",
+      "address": "القاهرة",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_35330",
+      "nameAr": "شركة فان تك لأعمال التكييف والتهوية",
+      "nameEn": "",
+      "address": "12 Omarat Al Saudeya",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_35657",
+      "nameAr": "CENTROID Architects & Engineers",
+      "nameEn": "",
+      "address": "120 marghany",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_35738",
+      "nameAr": "GHE Engineering Consultancy",
+      "nameEn": "",
+      "address": "2 Shahid Ismail Fahmi, from Galal Eldeen Eldesoqui, 7 Emaraat Square",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_36027",
+      "nameAr": "Consolidated Consultants",
+      "nameEn": "",
+      "address": "38 Abou Bakr El-Sedeek",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_36435",
+      "nameAr": "نوفا ليفت للمصاعد",
+      "nameEn": "",
+      "address": "الجيزة",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_36470",
+      "nameAr": "الشروق للطباعة",
+      "nameEn": "",
+      "address": "شارع النصر امتداد الوحدة",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_36700",
+      "nameAr": "معرض العادلي لتجارة المعدات الثقيله استيراد ومحلي",
+      "nameEn": "",
+      "address": "العزيزيه - البدرشين",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_36808",
+      "nameAr": "مصنع جيرمان بيد للمراتب والمفروشات",
+      "nameEn": "",
+      "address": "اشمون سملاي شارع المصنع",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_36828",
+      "nameAr": "بيع ماكينات دعاية والاعلان",
+      "nameEn": "",
+      "address": "37 شارع إسماعيل الليثي",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_36867",
+      "nameAr": "المروة للطباعة الحديثة",
+      "nameEn": "",
+      "address": "33 شارع حسن، يوسف مطر",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_36898",
+      "nameAr": "الدولية للصيانة واستيراد معدات الطباعة",
+      "nameEn": "",
+      "address": "12 ش محمد عبد الكريم متفرع من ش الفيوم",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_36903",
+      "nameAr": "الاضواء للطباعة",
+      "nameEn": "",
+      "address": "37 ش الاتحاد, حدائق المعادى, المعادى",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_37089",
+      "nameAr": "EZONEdesigns",
+      "nameEn": "",
+      "address": "7 شارع عبد الحكيم الرافعي",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_37235",
+      "nameAr": "Archimid Architects",
+      "nameEn": "",
+      "address": "القاهرة",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_37282",
+      "nameAr": "Brothers print لخدمات الطباعة  و الإعلان",
+      "nameEn": "",
+      "address": "شارع الجزائر المعادى الجديده اعلى ابو برين",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_37519",
+      "nameAr": "شركة مصاعد باور جيت",
+      "nameEn": "",
+      "address": "عمارات الشرطه، عمارات امتداد الأمل، 15 شارع مدحت حسانين، اتوستوراد المعادي",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_37543",
+      "nameAr": "Mushor Engineering Consultancy",
+      "nameEn": "",
+      "address": "2 شارع احمد كامل",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_37705",
+      "nameAr": "Mann Elevators",
+      "nameEn": "",
+      "address": "امام نادي ايزي سبورت، المقطم, Second district",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_37780",
+      "nameAr": "ماكينات وخطوط انتاج مشروع اسفنجة وليفة المطبخ",
+      "nameEn": "",
+      "address": "Omar ben Abdelaziz St.",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_37787",
+      "nameAr": "ملوك الطباعة",
+      "nameEn": "",
+      "address": "حدايق حلوان",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_37975",
+      "nameAr": "أحمد بن فهمي للطباعة و الأختام - حلوان",
+      "nameEn": "",
+      "address": "شارع شريف  بجوار البنك الأهلى - أمام محكمة حلوان",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_37981",
+      "nameAr": "مطبعة الاندلس للطباعة والتجليد",
+      "nameEn": "",
+      "address": "محطة حلوان خلف سور مترو الانفاق مباشرة، داخل الممر التجاري خلف سور مترو الانفاق خلف بُن عبدالمعبود بحلوان, Mansour",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_38018",
+      "nameAr": "شركة وائل العمدة للأثاث المكتبي والفندقي",
+      "nameEn": "",
+      "address": "الهرم",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_38060",
+      "nameAr": "شركة بابل للمصاعد Babel Elevators Co",
+      "nameEn": "",
+      "address": "١٨٤ه‍  بوابة خفرع  _حدائق الأهرام",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_38073",
+      "nameAr": "بريندوو للطباعة والتصميم – BrindoO for Printing & Design",
+      "nameEn": "",
+      "address": "شارع جاردينيا",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_38137",
+      "nameAr": "ECO Kitchen Equipment and Coffee Machine",
+      "nameEn": "",
+      "address": "Al Haram",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_38208",
+      "nameAr": "الحاكم للمفروشات والمنسوجات",
+      "nameEn": "",
+      "address": "الهرم طريق المريوطية السياحي",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_38274",
+      "nameAr": "شركة ايجل للمصاعد الكهربائيه",
+      "nameEn": "",
+      "address": "3 شارع سعيد الفولي من شارع الدكتور لاشين المريوطيه فيصل",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_38308",
+      "nameAr": "تركي ستار- المراتب الاصلية",
+      "nameEn": "",
+      "address": "الهرم",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_38406",
+      "nameAr": "شركة مصر الدولية للمصاعد",
+      "nameEn": "",
+      "address": "المريوطية هرم - شارع الجامع الجديد",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_38560",
+      "nameAr": "هاي تك للمصاعد_ Hi tech elevators",
+      "nameEn": "",
+      "address": "21 شارع صلاح الخولي _المطبعة _ فيصل\\n",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_38638",
+      "nameAr": "الحرم للطباعة و الصناعة",
+      "nameEn": "",
+      "address": "13 شارع ضياء - الهرم",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_38641",
+      "nameAr": "دلتا فوم",
+      "nameEn": "",
+      "address": "الإدارة:13 شارع أسامة أبو عميرة بالقرب من بنك مصر،فيصل\\nمصنع اكتوبر: قطعة ١٢٤ امتداد المنطقة الصناعية السادسة بجوار الشرقية للدخان،٦ اكتوبر\\n\\n",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_38692",
+      "nameAr": "مصنع الاوائل للمراتب والمفروشات",
+      "nameEn": "",
+      "address": "هرم مريوطيه اول طريق سقاره السياحي بجوار الدائري ثاني برج شركه الاوائل للمراتب والمفروشات",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_38726",
+      "nameAr": "كوين للطباعة",
+      "nameEn": "",
+      "address": "300 عمارات الاتحادية - عمارة 8 - ش الهرم الدور 1 شقة 104",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_38748",
+      "nameAr": "المجموعة المتحدة للاستيراد وتوزيع مستلزمات الطباعة",
+      "nameEn": "",
+      "address": "1 ش مدكور",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_38837",
+      "nameAr": "مطبعة النيل لخدمات الطباعة المتكاملة",
+      "nameEn": "",
+      "address": "٨ شارع عبد الرحيم مطر _ الثلاثينى_ العمرانية _ الجيزة",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_38867",
+      "nameAr": "شركة العزيز لجميع خامات الفيبر جلاس والبوليستر",
+      "nameEn": "",
+      "address": "https://maps.app.goo.gl/wHkuotjUoXV4GN469",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_39044",
+      "nameAr": "دار المجد للطباعة",
+      "nameEn": "",
+      "address": "، شارع السنترال",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_39103",
+      "nameAr": "إبداع للطباعة",
+      "nameEn": "",
+      "address": "1اسامه عبدالله, King Faisal St",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_39275",
+      "nameAr": "DeltaFoam Company شركة دلتافوم",
+      "nameEn": "",
+      "address": "١٣ شارع أسامة أبو عميرة-محطة حسن محمد-فيصل",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_39378",
+      "nameAr": "Print Express - مطبعة برنت اكسبريس - أرخص سعر طباعة الوان",
+      "nameEn": "",
+      "address": "18 Ahmed El-Zayat",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_39380",
+      "nameAr": "إبداع لحلول الطباعة",
+      "nameEn": "",
+      "address": "2 شارع أحمد الزيات بين السرايات",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_39381",
+      "nameAr": "المتحدة للطباعة الديجيتال",
+      "nameEn": "",
+      "address": "Ahmed Zewail",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_39452",
+      "nameAr": "شركة المجد للتطريزوالطباعة واليونيفورم",
+      "nameEn": "",
+      "address": "Ard el lewa , Imbaba, Giza Governorate",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_39454",
+      "nameAr": "Prinza Digital print - برينزا للطباعة الديجيتال",
+      "nameEn": "",
+      "address": "198 شارع السودان",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_39573",
+      "nameAr": "T.H.E Architects, Planners & Civil Engineers",
+      "nameEn": "",
+      "address": "122 Mohi Al Din Abou Al Ezz",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_39575",
+      "nameAr": "Elkhalifaprint- الخليفة للطباعة",
+      "nameEn": "",
+      "address": "74 شارع جامعة الدول - المهندسين",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_39632",
+      "nameAr": "Dimensions Engineering Consultants",
+      "nameEn": "",
+      "address": "5 ش الزهور",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_39739",
+      "nameAr": "Concreative Consultancy",
+      "nameEn": "",
+      "address": "20إبن الوليد، الدقي، الدقى، الجيزة",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_39784",
+      "nameAr": "الديب للطباعة والتصوير",
+      "nameEn": "",
+      "address": "92 ش احمد الزيات, بين السرايات, الجيزة قريب من المركز القومى للبحوث",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_39811",
+      "nameAr": "الدرة لحلول الطباعة",
+      "nameEn": "",
+      "address": "80 ش احمد الزيات",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_40181",
+      "nameAr": "شركة طيبة لتكييف الهواء",
+      "nameEn": "",
+      "address": "شارع ابو ذره الغفاري المسمى بشارع 7:30 خلف شارع الاربعين متفرع من شارع جسر السويس الرئيسي خلف حديقه بدر بجوار محطه مترو النزهه",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_40182",
+      "nameAr": "الشركة الهندسية لخدمات تجهيزات وصيانة التكييف",
+      "nameEn": "",
+      "address": "كورنيش المعادي",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_40252",
+      "nameAr": "Dream Press - دريم برس للطباعة",
+      "nameEn": "",
+      "address": "شارع سامي البارودي، بجوار كوافير كرم، عابدين، القاهرة، مصر",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_40581",
+      "nameAr": "شركة ايكوتك للمصاعد - Ecotec Elevators Co",
+      "nameEn": "",
+      "address": "قطعة 9181 - جنوب س المقطم - الهضبة العليا - على الكورنيش مباشرا",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_40652",
+      "nameAr": "شركة تاون باور للمصاعد الكهربائية",
+      "nameEn": "",
+      "address": "42 شارع الشيخ الريحاني امام مدرسة الانوار الحديثة للغات- الطالبية فيصل - الجيزة",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_40676",
+      "nameAr": "دار القبس للطباعة وفصل الالوان",
+      "nameEn": "",
+      "address": "5 ش سرايا المنيل",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_40678",
+      "nameAr": "نور لحلول الطباعة",
+      "nameEn": "",
+      "address": "بجوار ماركت بيم، 15 Al Miqyas",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_40957",
+      "nameAr": "Interior architecture",
+      "nameEn": "",
+      "address": "10أ عمر طوسون- ميدان سفينكس -احمد عرابي - المهندسين, الجيزه",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_41172",
+      "nameAr": "Golden Eagle For Elevators",
+      "nameEn": "",
+      "address": "الزاوية الحمراء…موقف اتوبيس …المجمع الصناعي رقم2",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_41247",
+      "nameAr": "شركة زمزم لماكينات الطباعة والسلك اسكرين",
+      "nameEn": "",
+      "address": "شبرا الخيمة , الشارع الجديد محطة شارع الترعة او ترعة الشابورى",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_41365",
+      "nameAr": "المتحده جروب لصناديق الدليفري الفيبر جلاس",
+      "nameEn": "",
+      "address": "القاهرة",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_41393",
+      "nameAr": "Polyurea, Polyurethane, Foam Egypt  بولي يوريا، بولي يوريثان، فوم سائل مصر",
+      "nameEn": "",
+      "address": "١ شارع طه حسين - النزهة الجديدة",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_41397",
+      "nameAr": "Mpt ماكينات التصوير والطباعة",
+      "nameEn": "",
+      "address": "72 شارع مكة المكرمة",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_41628",
+      "nameAr": "المتحدة للطباعة والنشر وتكنولوجيا المعلومات",
+      "nameEn": "",
+      "address": "26 ب عمارة الاموبيليا - ش شريف",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_41755",
+      "nameAr": "دار شوشة للطباعة",
+      "nameEn": "",
+      "address": "3 ش السيد الببلاوى - ارض شريف",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_41833",
+      "nameAr": "وظائف شركة حراسات",
+      "nameEn": "",
+      "address": "٣٤ عبدالخالق ثروت - وسط البلد",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_41886",
+      "nameAr": "مصنع ولاد العم للأثاث المنزلى",
+      "nameEn": "",
+      "address": "٣ شارع عبد الباقى الحلمية الجديدة",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_41889",
+      "nameAr": "دار فيفا للطباعة",
+      "nameEn": "",
+      "address": "Dar Al Koteb",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_42042",
+      "nameAr": "شركة ديناميك للأمن والحراسات",
+      "nameEn": "",
+      "address": "1 شارع صلاح سالم",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_42075",
+      "nameAr": "MAS Engineering Consultancy",
+      "nameEn": "",
+      "address": "القاهرة : ٧٣٠٠ الحي السادس الهضبة الوسطي المقطم  \\nالمنصورة : ١٠ ش عمر المختار - تقسيم سامي الجمل",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_42101",
+      "nameAr": "RAY Consultants",
+      "nameEn": "",
+      "address": "القاهرة",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_42186",
+      "nameAr": "الشركة الفنية الهندسية للمصاعد",
+      "nameEn": "",
+      "address": "58 شارع المقطم",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_42312",
+      "nameAr": "Burhani For Refrigeration and Air Conditioning Supplies",
+      "nameEn": "",
+      "address": "2, 2B Erian Ln, Al Qebleyah, Al Azbakeyah, Cairo Governorate",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_42577",
+      "nameAr": "دارالصفا للطباعة",
+      "nameEn": "",
+      "address": "، شارع حاره اللامبابي متفرع من شارع بور سعيد قسم الظاهر",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_42650",
+      "nameAr": "مطبعة عرابي",
+      "nameEn": "",
+      "address": "24 شارع البنداقه",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_42703",
+      "nameAr": "مكتب المهندس جمال لتجهيزات الطباعة",
+      "nameEn": "",
+      "address": "٢٢ شارع سبيل الخازندار خلف مستشفى القوات الجوية",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_42716",
+      "nameAr": "مصنع الأهرام للدعاية والاعلام",
+      "nameEn": "",
+      "address": "اخر كوبرى أحمد سعيد العباسية أمام الكنيسه الكتدرائيه",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_42723",
+      "nameAr": "لوتس للطباعة - Louts Advertising and printi",
+      "nameEn": "",
+      "address": "27 شارع العباسية",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_42829",
+      "nameAr": "زغلول لنعل الاحذية",
+      "nameEn": "",
+      "address": "8 شارع بير حمص",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_43026",
+      "nameAr": "العالميه كنترول للتكييف",
+      "nameEn": "",
+      "address": "2أ Mahmoud Abd El-Wahab Ln",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_43204",
+      "nameAr": "شركة بست ديزاين للدعاية والإعلان",
+      "nameEn": "",
+      "address": "برج 258 ميدان الخلفاوى - اعلى صيدليات سيف - شبرا مصر القاهرة",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_43361",
+      "nameAr": "الشركة الأفريقية لصناعة الأثاث المكتبي والمعدني",
+      "nameEn": "",
+      "address": "Port Saeed",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_43394",
+      "nameAr": "Star Kitchen",
+      "nameEn": "",
+      "address": "47 شارع سكة الوايلي",
+      "sector": "manufacturing"
+    },
+    {
+      "id": "eg_b2b_fleet_43420",
+      "nameAr": "الشركة العالمية للمصاعد",
+      "nameEn": "",
+      "address": "٩ Khairy",
+      "sector": "manufacturing"
+    }
+  ]
+}
