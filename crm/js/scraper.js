@@ -1028,11 +1028,11 @@ const ScraperPage = {
         this._log(`👑 بدء استيراد وتوثيق كبرى قلاع الصناعة المصرية والأساطيل الثقيلة...`);
 
         if (window.App && window.App.showToast) {
-            window.App.showToast(`👑 جاري استيراد وتوثيق ${titans.length} قلعة صناعية معتمدة...`, 'info');
+            window.App.showToast(`👑 جاري استيراد وتوثيق ${titans.length} شركة كبرى VIP...`, 'info');
         }
 
         titans.forEach(t => {
-            this._log(`   ↳ [قلعة معتمدة 👑] ${t.nameAr} | 📞 ${t.hotline || t.phone1} | 🛞 ${t.fleetTires}`);
+            this._log(`   ↳ [VIP 👑] ${t.nameAr} | 📞 ${t.hotline || t.phone1} | 🛞 ${t.fleetTires}`);
         });
 
         if (window.AppStorage && window.AppStorage.addCompanies) {
@@ -1054,15 +1054,15 @@ const ScraperPage = {
         const totalNow = (window.AppStorage && window.AppStorage.getCompanies) ? window.AppStorage.getCompanies().length : 0;
 
         if (statusDot) { statusDot.style.background = '#10b981'; statusDot.style.animation = 'none'; }
-        if (statusText) statusText.textContent = `✅ تم بنجاح توثيق واستيراد كافة القلاع الصناعية المصرية (${titans.length} كيان)! الإجمالي: ${totalNow.toLocaleString()}`;
-        this._log(`✅ تم بنجاح استيراد وتوثيق كافة القلاع الصناعية والأساطيل الثقيلة بنسبة دقة 100%!`);
+        if (statusText) statusText.textContent = `✅ تم بنجاح توثيق واستيراد كافة الشركات الكبرى VIP (${titans.length} كيان)! الإجمالي: ${totalNow.toLocaleString()}`;
+        this._log(`✅ تم بنجاح استيراد وتوثيق كافة الشركات الكبرى والأساطيل الثقيلة VIP بنسبة دقة 100%!`);
 
         this.render();
         if (typeof Companies !== 'undefined') Companies.render();
         if (typeof Dashboard !== 'undefined') Dashboard.render();
 
         if (window.App && window.App.showToast) {
-            window.App.showToast(`🎉 تم استيراد وتوثيق ${titans.length} قلعة صناعية مصرية كبرى بنجاح 100%!`, 'success');
+            window.App.showToast(`🎉 تم استيراد وتوثيق ${titans.length} شركة كبرى VIP بنجاح 100%!`, 'success');
         }
     },
 

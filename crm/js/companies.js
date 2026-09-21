@@ -1016,7 +1016,7 @@ const Companies = {
             }
 
             const isTitan = Boolean(c.isTitan || (c.id && String(c.id).startsWith('eg_titan_')));
-            const titanBadge = isTitan ? `<span class="badge" style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#fff; font-size:10px; padding:2px 6px; border-radius:5px; font-weight:800; display:inline-flex; align-items:center; gap:3px;"><i class="fas fa-crown"></i> قلعة معتمدة</span>` : '';
+            const titanBadge = isTitan ? `<span class="badge" style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#fff; font-size:10px; padding:2px 7px; border-radius:5px; font-weight:900; letter-spacing:0.5px; display:inline-flex; align-items:center; gap:3px;" title="عميل كبار الشخصيات VIP"><i class="fas fa-crown"></i> VIP</span>` : '';
             const hotlineBadge = c.hotline ? `<span class="badge" style="background:rgba(59,130,246,0.15); color:#3b82f6; font-size:11px; padding:1px 6px; border-radius:4px; font-family:Inter; font-weight:800;" title="الخط الساخن"><i class="fas fa-headset"></i> ${esc(c.hotline)}</span>` : '';
 
             // Recency Warning Badge (Avoid double-calling)
@@ -1174,12 +1174,16 @@ const Companies = {
             const callResult = c.lastCallResult || (latestCall ? latestCall.result : null);
             const callDate = c.lastCallDate || (latestCall ? latestCall.date : null);
 
+            const isTitan = Boolean(c.isTitan || (c.id && String(c.id).startsWith('eg_titan_')));
+            const titanBadge = isTitan ? `<span class="badge" style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#fff; font-size:9px; padding:1px 6px; border-radius:4px; font-weight:900; letter-spacing:0.5px; display:inline-flex; align-items:center; gap:3px;" title="عميل كبار الشخصيات VIP"><i class="fas fa-crown"></i> VIP</span>` : '';
+
             return `
                 <div class="company-card" data-priority="${c.priority || 'B'}" onclick="Companies.showDetail('${c.id}')" style="cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: rgba(99, 102, 241, 0.2);">
                     <div class="company-card__header">
                         <div>
-                            <div class="company-card__name" style="display:flex; align-items:center;">
+                            <div class="company-card__name" style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
                                 <span>${nameAr}</span>
+                                ${titanBadge}
                                 ${linkedinIcon}
                                 ${facebookIcon}
                                 ${mapsIcon}
@@ -1742,8 +1746,12 @@ const Companies = {
         if (!company) return;
 
         const currentUser = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
-        const esc = (s) => window.AppStorage.escapeHtml(s || '');
-        document.getElementById('detail-company-name').textContent = company.nameAr || company.nameEn;
+        const isTitan = Boolean(company.isTitan || (company.id && String(company.id).startsWith('eg_titan_')));
+        const titanBadge = isTitan ? ` <span class="badge" style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#fff; font-size:11px; padding:2px 8px; border-radius:5px; font-weight:900; letter-spacing:0.5px; vertical-align:middle; display:inline-flex; align-items:center; gap:4px;" title="عميل كبار الشخصيات VIP"><i class="fas fa-crown"></i> VIP</span>` : '';
+        const nameEl = document.getElementById('detail-company-name');
+        if (nameEl) {
+            nameEl.innerHTML = esc(company.nameAr || company.nameEn) + titanBadge;
+        }
 
         const calls = window.AppStorage.getCallsForCompany(id);
 

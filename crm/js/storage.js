@@ -3,7 +3,7 @@
    ============================================ */
 
 // Normalize baseline global pool variables across aliases
-(function() {
+(function () {
     if (typeof window !== 'undefined') {
         const pool = window.EGYPT_ENTERPRISES_POOL || window.__EGYPT_ENTERPRISE_POOL || window.__EGYPT_ENTERPRISES_POOL || window.EGYPT_ENTERPRISE_POOL;
         if (pool && Array.isArray(pool)) {
@@ -44,13 +44,13 @@ const AppStorage = {
     },
 
     /* Crypto & Environment Helpers */
-    _h2b(e){return Array.from(new Uint8Array(e)).map(e=>e.toString(16).padStart(2,"0")).join("")},
-    async _sha(e){return this._h2b(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(e)))},
-    _gs(){var e=new Uint8Array(16);crypto.getRandomValues(e);return this._h2b(e)},
-    async hashPw(e){var t=this._gs();return t+":"+await this._sha(t+e)},
-    async checkPw(e,t){if(!t||!t.includes(":")||32!==t.split(":")[0].length)return e===t;var n=t.split(":");return await this._sha(n[0]+e)===n[1]},
-    isCloud(){var e=window.location.hostname;return e.includes("vercel.app")||e.includes("netlify.app")||e.includes("github.io")},
-    isMobile(){return window.__IS_MOBILE===true||/Android|iPhone|iPad|iPod|webOS/i.test(navigator.userAgent)||(window.innerWidth<1025&&'ontouchstart' in window)},
+    _h2b(e) { return Array.from(new Uint8Array(e)).map(e => e.toString(16).padStart(2, "0")).join("") },
+    async _sha(e) { return this._h2b(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(e))) },
+    _gs() { var e = new Uint8Array(16); crypto.getRandomValues(e); return this._h2b(e) },
+    async hashPw(e) { var t = this._gs(); return t + ":" + await this._sha(t + e) },
+    async checkPw(e, t) { if (!t || !t.includes(":") || 32 !== t.split(":")[0].length) return e === t; var n = t.split(":"); return await this._sha(n[0] + e) === n[1] },
+    isCloud() { var e = window.location.hostname; return e.includes("vercel.app") || e.includes("netlify.app") || e.includes("github.io") },
+    isMobile() { return window.__IS_MOBILE === true || /Android|iPhone|iPad|iPod|webOS/i.test(navigator.userAgent) || (window.innerWidth < 1025 && 'ontouchstart' in window) },
 
     DEFAULT_ADMIN_PW: 'Admin@2026!ChangeMe',
 
@@ -150,8 +150,8 @@ const AppStorage = {
             const idKey = u.id ? String(u.id).trim().toLowerCase() : '';
 
             // If already seen by email, username, id, or name -> merge & skip duplicate!
-            if ((emailKey && seenKeys.has(emailKey)) || 
-                (usernameKey && seenKeys.has(usernameKey)) || 
+            if ((emailKey && seenKeys.has(emailKey)) ||
+                (usernameKey && seenKeys.has(usernameKey)) ||
                 (idKey && seenKeys.has(idKey)) ||
                 (nameKey && nameKey !== 'admin' && seenKeys.has(nameKey))) {
                 return;
@@ -275,7 +275,7 @@ const AppStorage = {
     getUserByUsername(username) {
         if (!username) return null;
         const query = username.toLowerCase().trim();
-        return this.getUsers().find(u => 
+        return this.getUsers().find(u =>
             (u.email && u.email.toLowerCase().trim() === query) ||
             (u.username && u.username.toLowerCase().trim() === query)
         ) || null;
@@ -397,9 +397,9 @@ const AppStorage = {
                 const adminUser = this.getUser('admin') || this.DEFAULT_USERS[0];
                 let isMatch = validAdminPws.includes(password);
                 if (!isMatch && adminUser && adminUser.password) {
-                    try { isMatch = await this.checkPw(password, adminUser.password); } catch(e) { isMatch = false; }
+                    try { isMatch = await this.checkPw(password, adminUser.password); } catch (e) { isMatch = false; }
                 }
-                
+
                 if (!isMatch) {
                     return { success: false, message: 'كلمة المرور غير صحيحة!' };
                 }
@@ -415,7 +415,7 @@ const AppStorage = {
 
             let isMatch = password === user.password;
             if (!isMatch && user.password) {
-                try { isMatch = await this.checkPw(password, user.password); } catch(e) { isMatch = false; }
+                try { isMatch = await this.checkPw(password, user.password); } catch (e) { isMatch = false; }
             }
             if (!isMatch) return { success: false, message: 'كلمة المرور غير صحيحة' };
 
@@ -452,13 +452,13 @@ const AppStorage = {
 
     async addUser(userData) {
         const users = this.getUsers();
-        
+
         const firstName = (userData.firstName || '').trim();
         const lastName = (userData.lastName || '').trim();
         const email = (userData.email || '').trim().toLowerCase();
         const password = (userData.password || '').trim();
         const username = (userData.username || email.split('@')[0] || 'user').trim().toLowerCase();
-        
+
         if (!email) {
             return { success: false, message: 'يرجى إدخال البريد الإلكتروني (Email)' };
         }
@@ -561,7 +561,7 @@ const AppStorage = {
                 users: users,
                 calls: this.getCalls ? this.getCalls() : [],
                 activities: this.getActivities ? this.getActivities() : []
-            }).catch(() => {});
+            }).catch(() => { });
         }
     },
 
@@ -702,7 +702,7 @@ const AppStorage = {
         if (!this.companiesMemory || !Array.isArray(this.companiesMemory)) {
             this.companiesMemory = [];
         }
-        try { localStorage.removeItem(this.KEYS.COMPANIES); } catch(e) {}
+        try { localStorage.removeItem(this.KEYS.COMPANIES); } catch (e) { }
 
         return new Promise((resolve) => {
             if (typeof indexedDB === 'undefined') {
@@ -712,13 +712,13 @@ const AppStorage = {
             }
             try {
                 const request = indexedDB.open('FleetCRM_DB', 5);
-                
+
                 request.onerror = (event) => {
                     this.updateLiveCounters();
                     this.initWorker();
                     resolve();
                 };
-                
+
                 request.onsuccess = (event) => {
                     const db = event.target.result;
                     Promise.all([
@@ -731,7 +731,7 @@ const AppStorage = {
                         resolve();
                     });
                 };
-                
+
                 request.onupgradeneeded = (event) => {
                     const db = event.target.result;
                     let store;
@@ -740,7 +740,7 @@ const AppStorage = {
                     } else {
                         store = event.currentTarget.transaction.objectStore('companies');
                     }
-                    
+
                     if (!store.indexNames.contains('nameAr')) {
                         store.createIndex('nameAr', 'nameAr', { unique: false });
                     }
@@ -826,7 +826,7 @@ const AppStorage = {
             const currentUser = this.getCurrentUser();
             const isAdmin = this.canViewAll(currentUser);
             const currentUserId = currentUser ? (currentUser.id || currentUser.username) : '';
-            
+
             const matchedUser = currentUser ? (this.getUser(currentUser.id) || this.getUserByUsername(currentUser.username) || this.getUserByEmail(currentUser.email) || currentUser) : null;
             const userKeys = Array.from(new Set([
                 String(matchedUser ? matchedUser.id : '').trim().toLowerCase(),
@@ -1010,7 +1010,7 @@ const AppStorage = {
     async saveBatchToIDB(records, onProgress = null) {
         if (!Array.isArray(records) || records.length === 0) return;
         const total = records.length;
-        
+
         await new Promise((resolve) => {
             try {
                 const request = indexedDB.open('FleetCRM_DB', 5);
@@ -1025,7 +1025,7 @@ const AppStorage = {
                     tx.onabort = () => resolve();
                 };
                 request.onerror = () => resolve();
-            } catch(err) {
+            } catch (err) {
                 resolve();
             }
         });
@@ -1054,7 +1054,7 @@ const AppStorage = {
         if (!c) return c;
         const company = { ...c };
         if (!company.id) company.id = 'cloud_' + idx;
-        
+
         const rawName = company.nameAr || company.name || company.nameEn || company.companyName || '';
         company.nameAr = String(rawName).trim();
         company.nameEn = String(company.nameEn || company.nameAr || '').trim();
@@ -1062,7 +1062,7 @@ const AppStorage = {
         company.city = this.mapScraperCityToCRM(company.city || company.governorate || company.gov);
         company.governorate = String(company.governorate || company.gov || '').trim();
         company.address = String(company.address || company.addr || '').trim();
-        
+
         // Preserve phone numbers cleanly without synthetic phone generation
         const p1 = String(company.phone1 || company.phone || company.p1 || '').trim();
         const mob = String(company.mobile || company.mob || p1).trim();
@@ -1102,7 +1102,7 @@ const AppStorage = {
         this.companiesMemory = [];
         this._set(this.KEYS.COMPANIES, []);
         localStorage.setItem('fleetcrm_user_wiped_companies', 'true');
-        
+
         try {
             const request = indexedDB.open('FleetCRM_DB', 5);
             request.onsuccess = (event) => {
@@ -1112,7 +1112,7 @@ const AppStorage = {
                 const store = transaction.objectStore('companies');
                 store.clear();
             };
-        } catch (e) {}
+        } catch (e) { }
 
         if (window.SupabaseClient) {
             window.SupabaseClient.wipeDynamicCompanies();
@@ -1152,7 +1152,7 @@ const AppStorage = {
                             break;
                         }
                     }
-                } catch (e) {}
+                } catch (e) { }
             }
         }
 
@@ -1243,7 +1243,7 @@ const AppStorage = {
                 const transaction = db.transaction(['companies'], 'readonly');
                 const store = transaction.objectStore('companies');
                 const request = store.getAll();
-                
+
                 request.onsuccess = (event) => {
                     const idbData = event.target.result || [];
                     const deletedCompIds = this.getDeletedIds('companies');
@@ -1300,7 +1300,7 @@ const AppStorage = {
 
                     resolve(merged);
                 };
-                
+
                 request.onerror = () => {
                     this._fallbackHydrateBaseline();
                     resolve(this.companiesMemory);
@@ -1343,7 +1343,7 @@ const AppStorage = {
                 localStorage.setItem('fleetcrm_company_count', String(rawCount));
             }
             localStorage.removeItem('fleetcrm_deals_count');
-        } catch(e) {}
+        } catch (e) { }
 
         const formatted = count > 0 ? count.toLocaleString() : '0';
         const sideEl = document.getElementById('sidebar-total-companies');
@@ -1382,9 +1382,9 @@ const AppStorage = {
                 localStorage.setItem(key, JSON.stringify(list));
             }
             if (type === 'calls' && window.SupabaseClient && window.SupabaseClient.pushDeletedCall) {
-                window.SupabaseClient.pushDeletedCall(sId).catch(() => {});
+                window.SupabaseClient.pushDeletedCall(sId).catch(() => { });
             }
-        } catch (e) {}
+        } catch (e) { }
     },
 
     getDeletedIds(type) {
@@ -1432,7 +1432,7 @@ const AppStorage = {
 
                 // Immediately push assignments
                 if (Object.keys(assignmentsMap).length > 0 && window.SupabaseClient.pushAssignments) {
-                    window.SupabaseClient.pushAssignments(assignmentsMap).catch(() => {});
+                    window.SupabaseClient.pushAssignments(assignmentsMap).catch(() => { });
                 }
 
                 const quickHash = `${dynamicCompanies.length}_${Object.keys(assignmentsMap).length}_${calls.length}_${users.length}`;
@@ -1577,7 +1577,7 @@ const AppStorage = {
                                 list.push(sId);
                                 localStorage.setItem(key, JSON.stringify(list));
                             }
-                        } catch (e) {}
+                        } catch (e) { }
                     }
                 });
             }
@@ -1627,9 +1627,9 @@ const AppStorage = {
                     this.syncCallsToCompanies();
                     updated = true;
 
-                    try { if (typeof Calls !== 'undefined' && Calls.render) Calls.render(); } catch (e) {}
-                    try { if (typeof Dashboard !== 'undefined' && Dashboard.render) Dashboard.render(); } catch (e) {}
-                    try { if (typeof Companies !== 'undefined' && Companies.render) Companies.render(); } catch (e) {}
+                    try { if (typeof Calls !== 'undefined' && Calls.render) Calls.render(); } catch (e) { }
+                    try { if (typeof Dashboard !== 'undefined' && Dashboard.render) Dashboard.render(); } catch (e) { }
+                    try { if (typeof Companies !== 'undefined' && Companies.render) Companies.render(); } catch (e) { }
                     try {
                         if (typeof Companies !== 'undefined') {
                             const modal = document.getElementById('modal-company-detail');
@@ -1637,14 +1637,14 @@ const AppStorage = {
                                 Companies.showDetail(Companies.currentDetailId);
                             }
                         }
-                    } catch (e) {}
+                    } catch (e) { }
                 }
             } else if (deletedCallIds.size > 0 && localCalls.length !== localRawCalls.length) {
                 this._set(this.KEYS.CALLS, localCalls);
                 this.invalidateStatsCache();
                 updated = true;
-                try { if (typeof Calls !== 'undefined' && Calls.render) Calls.render(); } catch (e) {}
-                try { if (typeof Dashboard !== 'undefined' && Dashboard.render) Dashboard.render(); } catch (e) {}
+                try { if (typeof Calls !== 'undefined' && Calls.render) Calls.render(); } catch (e) { }
+                try { if (typeof Dashboard !== 'undefined' && Dashboard.render) Dashboard.render(); } catch (e) { }
             }
 
             if (data.activities && Array.isArray(data.activities)) {
@@ -1742,10 +1742,10 @@ const AppStorage = {
             // 1. Clean generic/fake/broken website URLs
             if (c.website) {
                 const ws = String(c.website).toLowerCase();
-                if (ws.includes('google.com') || 
-                    ws.includes('facebook.com') || 
-                    ws.includes('example.com') || 
-                    ws.includes('yellowpages.com') || 
+                if (ws.includes('google.com') ||
+                    ws.includes('facebook.com') ||
+                    ws.includes('example.com') ||
+                    ws.includes('yellowpages.com') ||
                     ws.includes('egypt-fleets.com') ||
                     ws.includes('fleetcobranch') ||
                     ws.includes('..') ||
@@ -1831,7 +1831,7 @@ const AppStorage = {
         try {
             const raw = localStorage.getItem('fleetcrm_assignments');
             return raw ? JSON.parse(raw) : {};
-        } catch(e) {
+        } catch (e) {
             return {};
         }
     },
@@ -1841,13 +1841,13 @@ const AppStorage = {
             if (map && typeof map === 'object') {
                 localStorage.setItem('fleetcrm_assignments', JSON.stringify(map));
             }
-        } catch(e) {}
+        } catch (e) { }
     },
 
     applyStoredAssignments(target) {
         const assignments = this.getStoredAssignments();
         if (!assignments || typeof assignments !== 'object' || Object.keys(assignments).length === 0) return;
-        
+
         if (target instanceof Map) {
             for (const [compId, assignData] of Object.entries(assignments)) {
                 if (!assignData) continue;
@@ -2020,7 +2020,7 @@ const AppStorage = {
         if (this._scopedCacheByUser.has(uKey)) {
             return this._scopedCacheByUser.get(uKey);
         }
-        
+
         // Match all user keys (id, username, email, name)
         const matchedUser = this.getUser(currentUser.id) || this.getUserByUsername(currentUser.username) || this.getUserByEmail(currentUser.email) || currentUser;
         const myKeys = new Set([
@@ -2143,7 +2143,7 @@ const AppStorage = {
     saveCompany(company) {
         if (!company) return null;
         const companies = this.companiesMemory || this.getCompanies();
-        
+
         // Ensure canonical mappings and priorities are computed
         company.sector = this.mapScraperSectorToCRM(company.sector);
         company.city = this.mapScraperCityToCRM(company.city);
@@ -2155,7 +2155,7 @@ const AppStorage = {
             if (index >= 0) {
                 company.lastUpdated = new Date().toISOString().split('T')[0];
                 companies[index] = { ...companies[index], ...company };
-                
+
                 // Keep the merged copy normalized
                 companies[index].sector = this.mapScraperSectorToCRM(companies[index].sector);
                 companies[index].city = this.mapScraperCityToCRM(companies[index].city);
@@ -2181,9 +2181,9 @@ const AppStorage = {
         }
 
         if (window.SupabaseClient && window.SupabaseClient.pushSingleCompany && (company.source === 'scraper' || company.isCustom || !String(company.id).startsWith('eg_b2b_fleet_'))) {
-            window.SupabaseClient.pushSingleCompany(updatedItem).catch(() => {});
+            window.SupabaseClient.pushSingleCompany(updatedItem).catch(() => { });
         }
-        
+
         this.addActivity('company', company.id, company.id ? 'تعديل شركة' : 'إضافة شركة', company.nameAr);
         return updatedItem;
     },
@@ -2221,7 +2221,7 @@ const AppStorage = {
                     tx.objectStore('companies').delete(sId);
                 }
             };
-        } catch(e) {}
+        } catch (e) { }
 
         // 3. Fast single-record deletion in Web Worker (0.1ms)
         if (this._worker) {
@@ -2231,7 +2231,7 @@ const AppStorage = {
         // 4. Cloud sync in background (non-blocking)
         setTimeout(() => {
             if (window.SupabaseClient && window.SupabaseClient.deleteDynamicCompany) {
-                window.SupabaseClient.deleteDynamicCompany(sId).catch(() => {});
+                window.SupabaseClient.deleteDynamicCompany(sId).catch(() => { });
             }
             if (this.autoSyncToCloud) {
                 this.autoSyncToCloud(this.companiesMemory, false);
@@ -2247,7 +2247,7 @@ const AppStorage = {
         company.assignedTo = userId || '';
         company.assignedAt = userId ? new Date().toISOString() : null;
         company.lastUpdated = new Date().toISOString().split('T')[0];
-        
+
         // Update local persistent assignments store
         const storedAssignments = this.getStoredAssignments();
         storedAssignments[String(companyId)] = {
@@ -2259,11 +2259,11 @@ const AppStorage = {
         this.invalidateStatsCache();
         this.invalidateScopedCache();
         this.saveBatchToIDB([company]);
-        
+
         if (this._worker) {
             this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: [company] });
         }
-        
+
         const assignmentsMap = {
             [String(companyId)]: {
                 assignedTo: userId || '',
@@ -2271,11 +2271,11 @@ const AppStorage = {
             }
         };
         if (window.SupabaseClient && window.SupabaseClient.pushAssignments) {
-            window.SupabaseClient.pushAssignments(assignmentsMap).catch(() => {});
+            window.SupabaseClient.pushAssignments(assignmentsMap).catch(() => { });
         }
-        
+
         this.updateLiveCounters();
-        
+
         const targetUser = userId ? this.getUser(userId) : null;
         const userName = targetUser ? targetUser.name : (userId || 'إلغاء التعيين');
         this.addActivity('company', company.id, 'إسناد وتخصيص', `تم إسناد شركة "${company.nameAr || company.nameEn}" إلى: ${userName}`);
@@ -2289,10 +2289,10 @@ const AppStorage = {
         const targetUser = userId ? this.getUser(userId) : null;
         const userName = targetUser ? targetUser.name : (userId || 'إلغاء التعيين');
         const idSet = new Set(companyIds.map(String));
-        
+
         const updatedBatch = [];
         const assignmentsMap = {};
-        
+
         this.getCompanies().forEach(c => {
             if (c && idSet.has(String(c.id))) {
                 c.assignedTo = userId || '';
@@ -2315,15 +2315,15 @@ const AppStorage = {
             this.invalidateStatsCache();
             this.invalidateScopedCache();
             this.saveBatchToIDB(updatedBatch);
-            
+
             if (this._worker) {
                 this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: updatedBatch });
             }
-            
+
             if (window.SupabaseClient && window.SupabaseClient.pushAssignments) {
-                window.SupabaseClient.pushAssignments(assignmentsMap).catch(() => {});
+                window.SupabaseClient.pushAssignments(assignmentsMap).catch(() => { });
             }
-            
+
             this.updateLiveCounters();
             this.addActivity('company', 'bulk', 'تخصيص جماعي', `تم إسناد وتخصيص ${updatedBatch.length} شركة إلى: ${userName}`);
         }
@@ -2618,9 +2618,9 @@ const AppStorage = {
         let calls = this._get(this.KEYS.CALLS);
         if (!calls || !Array.isArray(calls)) {
             calls = [];
-            try { this._set(this.KEYS.CALLS, calls); } catch(e){}
+            try { this._set(this.KEYS.CALLS, calls); } catch (e) { }
         }
-        
+
         // 0. Filter against deleted tombstones immediately
         const deletedCallIds = this.getDeletedIds ? this.getDeletedIds('calls') : new Set();
         let clean = calls.filter(c => c && c.id && !String(c.id).startsWith('call_seed_') && !deletedCallIds.has(String(c.id)));
@@ -2743,7 +2743,7 @@ const AppStorage = {
                 company.lastCallDate = call.date;
                 company.lastCallNotes = call.notes;
                 company.lastUpdated = new Date().toISOString().split('T')[0];
-                
+
                 // Map call result to company lead status
                 if (['interested', 'meeting_scheduled', 'proposal_sent'].includes(call.result)) {
                     company.status = 'interested';
@@ -2752,7 +2752,7 @@ const AppStorage = {
                 } else if (call.result === 'callback') {
                     company.status = 'contacted';
                 }
-                
+
                 this.saveBatchToIDB([company]);
                 if (this._worker) {
                     this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: [company] });
@@ -2766,7 +2766,7 @@ const AppStorage = {
 
         // Immediate cloud sync of calls
         if (window.SupabaseClient && window.SupabaseClient.pushMasterData) {
-            window.SupabaseClient.pushMasterData({ calls, activities: this.getActivities() }).catch(() => {});
+            window.SupabaseClient.pushMasterData({ calls, activities: this.getActivities() }).catch(() => { });
         }
 
         return call;
@@ -2821,7 +2821,7 @@ const AppStorage = {
                     calls,
                     deletedCalls: [sId],
                     activities: this.getActivities()
-                }).catch(() => {});
+                }).catch(() => { });
             }
         }, 30);
     },
@@ -2835,7 +2835,7 @@ const AppStorage = {
                 deletedIds.push(sId);
                 this.recordDeletedId('calls', sId);
                 if (window.SupabaseClient && window.SupabaseClient.pushDeletedCall) {
-                    window.SupabaseClient.pushDeletedCall(sId).catch(() => {});
+                    window.SupabaseClient.pushDeletedCall(sId).catch(() => { });
                 }
             }
         });
@@ -2846,7 +2846,7 @@ const AppStorage = {
                 calls: [],
                 deletedCalls: deletedIds,
                 activities: this.getActivities()
-            }).catch(() => {});
+            }).catch(() => { });
         }
         this.autoSyncToCloud(this.companiesMemory, true);
     },
@@ -2880,9 +2880,9 @@ const AppStorage = {
     getDeals() { return []; },
     getDeal(id) { return null; },
     saveDeal(deal) { return deal; },
-    deleteDeal(id) {},
-    clearAllDeals() {},
-    updateDealStage(dealId, newStage) {},
+    deleteDeal(id) { },
+    clearAllDeals() { },
+    updateDealStage(dealId, newStage) { },
     getOpenDeals() { return []; },
     getPipelineValue() { return 0; },
 
@@ -2909,7 +2909,7 @@ const AppStorage = {
                     resolve();
                 };
                 req.onerror = () => resolve();
-            } catch(e) {
+            } catch (e) {
                 resolve();
             }
         });
@@ -2926,7 +2926,7 @@ const AppStorage = {
                     tx.objectStore('activities').put(act);
                 }
             };
-        } catch(e) {}
+        } catch (e) { }
     },
 
     addActivity(type, refId, action, detail) {
@@ -2963,7 +2963,7 @@ const AppStorage = {
         let acts = this._get(this.KEYS.ACTIVITIES);
         if (!acts || !Array.isArray(acts)) {
             acts = [];
-            try { this._set(this.KEYS.ACTIVITIES, acts); } catch(e){}
+            try { this._set(this.KEYS.ACTIVITIES, acts); } catch (e) { }
         }
         // Purge any legacy fake seed activities
         const realActs = acts.filter(a => a && !String(a.id).startsWith('act_seed_'));
@@ -3102,7 +3102,7 @@ const AppStorage = {
     mapScraperSectorToCRM(sector) {
         if (!sector) return 'manufacturing';
         sector = sector.toLowerCase().trim();
-        
+
         // 1. Transport & Shipping (النقل والمواصلات)
         if (['trucking_transport', 'bus_passenger_transport', 'transport_freight', 'shipping', 'courier', 'bus_company', 'moving_company', 'refrigerated', 'tanker', 'transport', 'public_transport', 'bus_rental', 'passenger_transport'].includes(sector)) {
             return 'transport';
@@ -3163,14 +3163,14 @@ const AppStorage = {
         if (['industrial_factories', 'food_factories', 'beverage_bottling', 'manufacturing_packaging', 'textile_furniture_electrical', 'manufacturing', 'factory_plastic', 'factory_chemical', 'factory_textile', 'factory_paper', 'factory_furniture', 'factory_electrical', 'factory_general', 'iron_steel_depot', 'packaging_boxes'].includes(sector)) {
             return 'manufacturing';
         }
-        
+
         return 'manufacturing';
     },
 
     mapScraperCityToCRM(city) {
         if (!city) return 'cairo';
         city = city.toString().toLowerCase().trim();
-        
+
         if (city === 'cairo' || city.includes('قاهرة') || city.includes('قاهره')) return 'cairo';
         if (city === 'giza' || city.includes('جيزة') || city.includes('جيزه') || city.includes('زايد')) return 'giza';
         if (city === 'qalyubia' || city.includes('قليوبية') || city.includes('قليوبيه') || city.includes('شبرا الخيمة') || city.includes('بنها')) return 'qalyubia';
@@ -3184,7 +3184,7 @@ const AppStorage = {
         if (city === 'new_cairo' || city.includes('تجمع') || city.includes('التجمع') || city.includes('القاهرة الجديدة')) return 'new_cairo';
         if (city === 'badr' || city.includes('بدر')) return 'badr';
         if (city === 'sadat' || city.includes('سادات')) return 'sadat';
-        
+
         return 'cairo'; // default fallback
     },
 
@@ -3397,4 +3397,4 @@ try {
             AppStorage.updateLiveCounters(syncMap.size);
         }
     }
-} catch(e) {}
+} catch (e) { }
