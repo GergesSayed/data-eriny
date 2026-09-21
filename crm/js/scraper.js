@@ -1010,7 +1010,11 @@ const ScraperPage = {
     },
 
     async importVerifiedTitans() {
-        const titans = Array.isArray(window.__EGYPT_VERIFIED_TITANS) ? window.__EGYPT_VERIFIED_TITANS : [];
+        const titans = (window.AppStorage && window.AppStorage.getVerifiedTitans)
+            ? window.AppStorage.getVerifiedTitans()
+            : ((window.__EGYPT_VERIFIED_TITANS && Array.isArray(window.__EGYPT_VERIFIED_TITANS))
+                ? window.__EGYPT_VERIFIED_TITANS
+                : ((window.EGYPT_VERIFIED_TITANS && Array.isArray(window.EGYPT_VERIFIED_TITANS)) ? window.EGYPT_VERIFIED_TITANS : []));
         if (titans.length === 0) {
             if (window.App && window.App.showToast) window.App.showToast('لا توجد بيانات قلاع صناعية متاحة حالياً', 'warning');
             return;

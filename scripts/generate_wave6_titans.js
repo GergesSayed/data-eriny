@@ -63,7 +63,11 @@ function executeDeployment() {
  * Total Titans: 700
  */
 
-window.EGYPT_VERIFIED_TITANS = ${JSON.stringify(allTitans, null, 2)};
+window.__EGYPT_VERIFIED_TITANS = window.EGYPT_VERIFIED_TITANS = ${JSON.stringify(allTitans, null, 2)};
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = window.__EGYPT_VERIFIED_TITANS;
+}
 `;
   fs.writeFileSync(path.join(ROOT, 'crm', 'js', 'egypt_verified_titans.js'), jsContent, 'utf8');
   console.log('Wrote updated egypt_verified_titans.js');

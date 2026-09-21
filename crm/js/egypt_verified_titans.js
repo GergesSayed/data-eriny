@@ -4,7 +4,7 @@
  * Total Titans: 700
  */
 
-window.EGYPT_VERIFIED_TITANS = [
+window.__EGYPT_VERIFIED_TITANS = window.EGYPT_VERIFIED_TITANS = [
   {
     "id": "eg_titan_001",
     "nameAr": "مجموعة حديد عز للصلب (المصانع والمقر الرئيسي)",
@@ -19606,3 +19606,7 @@ window.EGYPT_VERIFIED_TITANS = [
     "google_maps_url": "https://www.google.com/maps?q=30.0712,31.3345"
   }
 ];
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = window.__EGYPT_VERIFIED_TITANS || window.EGYPT_VERIFIED_TITANS;
+}

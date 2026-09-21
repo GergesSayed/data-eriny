@@ -24,6 +24,14 @@ const AppStorage = {
         return [];
     },
 
+    getVerifiedTitans() {
+        if (typeof window !== 'undefined') {
+            const t = window.__EGYPT_VERIFIED_TITANS || window.EGYPT_VERIFIED_TITANS;
+            if (t && Array.isArray(t) && t.length > 0) return t;
+        }
+        return [];
+    },
+
     KEYS: {
         COMPANIES: 'fleetcrm_companies',
         CALLS: 'fleetcrm_calls',
@@ -780,7 +788,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=263.0');
+            this._worker = new Worker('js/companies-worker.js?v=263.1');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -1188,7 +1196,7 @@ const AppStorage = {
                 syncMap.set(id, this._normalizeCompanyData(c, idx));
             }
         });
-        const titans = (window.__EGYPT_VERIFIED_TITANS && Array.isArray(window.__EGYPT_VERIFIED_TITANS)) ? window.__EGYPT_VERIFIED_TITANS : [];
+        const titans = this.getVerifiedTitans();
         titans.forEach(t => {
             if (t && t.id && !deletedCompIds.has(String(t.id))) {
                 syncMap.set(t.id, t);
@@ -1228,8 +1236,8 @@ const AppStorage = {
                         }
                     });
 
-                    // 2. Add 34 Verified Titans
-                    const titans = (window.__EGYPT_VERIFIED_TITANS && Array.isArray(window.__EGYPT_VERIFIED_TITANS)) ? window.__EGYPT_VERIFIED_TITANS : [];
+                    // 2. Add 700 Verified Titans
+                    const titans = this.getVerifiedTitans();
                     titans.forEach(t => {
                         if (!t || !t.id) return;
                         if (!deletedCompIds.has(String(t.id))) {
@@ -1378,7 +1386,7 @@ const AppStorage = {
 
                 const basePool = this.getBaselineEnterprisesPool();
                 const baseIds = new Set(basePool.map(c => String(c.id)));
-                const titanIds = new Set(((window.__EGYPT_VERIFIED_TITANS && Array.isArray(window.__EGYPT_VERIFIED_TITANS)) ? window.__EGYPT_VERIFIED_TITANS : []).map(t => String(t.id)));
+                const titanIds = new Set(this.getVerifiedTitans().map(t => String(t.id)));
 
                 // Extract dynamic companies (custom / newly scraped or modified)
                 const dynamicCompanies = [];
@@ -1956,11 +1964,10 @@ const AppStorage = {
                         if (c) syncMap.set(c.id || `comp_base_${idx}`, c);
                     });
                 }
-                if (window.__EGYPT_VERIFIED_TITANS && Array.isArray(window.__EGYPT_VERIFIED_TITANS)) {
-                    window.__EGYPT_VERIFIED_TITANS.forEach(t => {
-                        if (t && t.id) syncMap.set(t.id, t);
-                    });
-                }
+                const titansPool = this.getVerifiedTitans();
+                titansPool.forEach(t => {
+                    if (t && t.id) syncMap.set(t.id, t);
+                });
                 this.applyStoredAssignments(syncMap);
                 if (syncMap.size > 0) {
                     this.companiesMemory = Array.from(syncMap.values());
@@ -3357,11 +3364,10 @@ try {
                 if (c) syncMap.set(c.id || `comp_base_${idx}`, c);
             });
         }
-        if (window.__EGYPT_VERIFIED_TITANS && Array.isArray(window.__EGYPT_VERIFIED_TITANS)) {
-            window.__EGYPT_VERIFIED_TITANS.forEach(t => {
-                if (t && t.id) syncMap.set(t.id, t);
-            });
-        }
+        const titansPool = AppStorage.getVerifiedTitans();
+        titansPool.forEach(t => {
+            if (t && t.id) syncMap.set(t.id, t);
+        });
         if (syncMap.size > 0) {
             AppStorage.companiesMemory = Array.from(syncMap.values());
             localStorage.setItem('fleetcrm_company_count', syncMap.size);
