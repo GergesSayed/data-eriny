@@ -788,7 +788,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=263.1');
+            this._worker = new Worker('js/companies-worker.js?v=263.2');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -965,17 +965,38 @@ const AppStorage = {
             return true;
         });
 
-        if (sortMode === 'oldest') {
-            filtered.sort((a, b) => (new Date(a.createdAt || 0)) - (new Date(b.createdAt || 0)));
-        } else if (sortMode === 'fleet_desc') {
-            filtered.sort((a, b) => (Number(b.fleetSize) || 0) - (Number(a.fleetSize) || 0));
-        } else if (sortMode === 'name_asc') {
-            filtered.sort((a, b) => (a.nameAr || '').localeCompare(b.nameAr || '', 'ar'));
-        } else if (sortMode === 'priority_desc') {
-            filtered.sort((a, b) => (a.priority || 'B').localeCompare(b.priority || 'B'));
-        } else {
-            filtered.sort((a, b) => (new Date(b.createdAt || 0)) - (new Date(a.createdAt || 0)));
-        }
+        // Sort — Titans ALWAYS pinned to the very top!
+        const priorityOrder = { 'A+': 1, 'A': 2, 'B': 3, 'C': 4 };
+        filtered.sort((a, b) => {
+            const titanA = (a.isTitan || (a.id && String(a.id).startsWith('eg_titan_'))) ? 1 : 0;
+            const titanB = (b.isTitan || (b.id && String(b.id).startsWith('eg_titan_'))) ? 1 : 0;
+            if (titanA !== titanB) {
+                return titanB - titanA; // 👑 Titans ALWAYS first!
+            }
+
+            if (sortMode === 'fleet_desc') {
+                return (Number(b.fleetSize) || 0) - (Number(a.fleetSize) || 0);
+            }
+            if (sortMode === 'fleet_asc') {
+                return (Number(a.fleetSize) || 0) - (Number(b.fleetSize) || 0);
+            }
+            if (sortMode === 'name_asc' || sortMode === 'name') {
+                return (a.nameAr || '').localeCompare(b.nameAr || '', 'ar');
+            }
+            if (sortMode === 'priority_desc' || sortMode === 'priority') {
+                return (priorityOrder[a.priority] || 3) - (priorityOrder[b.priority] || 3);
+            }
+            if (sortMode === 'oldest') {
+                return (new Date(a.createdAt || 0)) - (new Date(b.createdAt || 0));
+            }
+            // Default latest / priority_fleet
+            const pA = priorityOrder[a.priority] || 3;
+            const pB = priorityOrder[b.priority] || 3;
+            if (pA !== pB) return pA - pB;
+            const fDiff = (Number(b.fleetSize) || 0) - (Number(a.fleetSize) || 0);
+            if (fDiff !== 0) return fDiff;
+            return (new Date(b.createdAt || 0)) - (new Date(a.createdAt || 0));
+        });
 
         const total = filtered.length;
         const totalPages = Math.ceil(total / pageSize) || 1;
@@ -1188,18 +1209,20 @@ const AppStorage = {
     _fallbackHydrateBaseline() {
         const syncMap = new Map();
         const deletedCompIds = this.getDeletedIds('companies');
+        // 1. Add 700 Verified Titans FIRST so they reside at index 0-699 in memory
+        const titans = this.getVerifiedTitans();
+        titans.forEach(t => {
+            if (t && t.id && !deletedCompIds.has(String(t.id))) {
+                syncMap.set(t.id, t);
+            }
+        });
+        // 2. Add Baseline Pool
         const basePool = this.getBaselineEnterprisesPool();
         basePool.forEach((c, idx) => {
             if (!c) return;
             const id = c.id || `comp_base_${idx}`;
             if (!deletedCompIds.has(String(id))) {
                 syncMap.set(id, this._normalizeCompanyData(c, idx));
-            }
-        });
-        const titans = this.getVerifiedTitans();
-        titans.forEach(t => {
-            if (t && t.id && !deletedCompIds.has(String(t.id))) {
-                syncMap.set(t.id, t);
             }
         });
         this.companiesMemory = Array.from(syncMap.values());
@@ -1225,23 +1248,23 @@ const AppStorage = {
                     const idbData = event.target.result || [];
                     const deletedCompIds = this.getDeletedIds('companies');
 
-                    // 1. Immutable Master Map starting with all 30,954 Pool Companies
+                    // 1. Add 700 Verified Titans FIRST so they always head the master map
                     const masterMap = new Map();
+                    const titans = this.getVerifiedTitans();
+                    titans.forEach(t => {
+                        if (!t || !t.id) return;
+                        if (!deletedCompIds.has(String(t.id))) {
+                            masterMap.set(t.id, t);
+                        }
+                    });
+
+                    // 2. Add Baseline Pool Companies
                     const basePool = this.getBaselineEnterprisesPool();
                     basePool.forEach((c, idx) => {
                         if (!c) return;
                         const id = c.id || `comp_base_${idx}`;
                         if (!deletedCompIds.has(String(id))) {
                             masterMap.set(id, this._normalizeCompanyData(c, idx));
-                        }
-                    });
-
-                    // 2. Add 700 Verified Titans
-                    const titans = this.getVerifiedTitans();
-                    titans.forEach(t => {
-                        if (!t || !t.id) return;
-                        if (!deletedCompIds.has(String(t.id))) {
-                            masterMap.set(t.id, t);
                         }
                     });
 
@@ -1958,16 +1981,16 @@ const AppStorage = {
         if (!this.companiesMemory || !Array.isArray(this.companiesMemory) || this.companiesMemory.length === 0) {
             if (localStorage.getItem('fleetcrm_user_wiped_companies') !== 'true') {
                 const syncMap = new Map();
+                const titansPool = this.getVerifiedTitans();
+                titansPool.forEach(t => {
+                    if (t && t.id) syncMap.set(t.id, t);
+                });
                 const pool = this.getBaselineEnterprisesPool();
                 if (pool && pool.length > 0) {
                     pool.forEach((c, idx) => {
                         if (c) syncMap.set(c.id || `comp_base_${idx}`, c);
                     });
                 }
-                const titansPool = this.getVerifiedTitans();
-                titansPool.forEach(t => {
-                    if (t && t.id) syncMap.set(t.id, t);
-                });
                 this.applyStoredAssignments(syncMap);
                 if (syncMap.size > 0) {
                     this.companiesMemory = Array.from(syncMap.values());
@@ -3358,16 +3381,16 @@ var Storage = AppStorage;
 try {
     if (localStorage.getItem('fleetcrm_user_wiped_companies') !== 'true') {
         const syncMap = new Map();
+        const titansPool = AppStorage.getVerifiedTitans();
+        titansPool.forEach(t => {
+            if (t && t.id) syncMap.set(t.id, t);
+        });
         const pool = AppStorage.getBaselineEnterprisesPool();
         if (pool && pool.length > 0) {
             pool.forEach((c, idx) => {
                 if (c) syncMap.set(c.id || `comp_base_${idx}`, c);
             });
         }
-        const titansPool = AppStorage.getVerifiedTitans();
-        titansPool.forEach(t => {
-            if (t && t.id) syncMap.set(t.id, t);
-        });
         if (syncMap.size > 0) {
             AppStorage.companiesMemory = Array.from(syncMap.values());
             localStorage.setItem('fleetcrm_company_count', syncMap.size);

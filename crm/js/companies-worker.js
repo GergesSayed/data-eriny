@@ -75,6 +75,7 @@ self.onmessage = function(e) {
             const normContact = normalizeArabic(c.contactPerson || '');
             const id = c.id || ('comp_' + idx);
             
+            const isTitan = Boolean(c.isTitan || (c.id && String(c.id).startsWith('eg_titan_')));
             const indexed = {
                 id,
                 nameAr: c.nameAr || c.name || '',
@@ -90,6 +91,7 @@ self.onmessage = function(e) {
                 fleetType: c.fleetType || '',
                 assignedTo: c.assignedTo || '',
                 createdAt: c.createdAt || '',
+                isTitan,
                 raw: c
             };
             _companiesIndex[idx] = indexed;
@@ -112,6 +114,7 @@ self.onmessage = function(e) {
             const normPhone = (c.phone1 || c.mobile || c.phone2 || '').replace(/[^0-9+]/g, '');
             const normContact = normalizeArabic(c.contactPerson || '');
 
+            const isTitan = Boolean(c.isTitan || (c.id && String(c.id).startsWith('eg_titan_')));
             const indexed = {
                 id: c.id,
                 nameAr: c.nameAr || c.name || '',
@@ -127,6 +130,7 @@ self.onmessage = function(e) {
                 fleetType: c.fleetType || '',
                 assignedTo: c.assignedTo || '',
                 createdAt: c.createdAt || '',
+                isTitan,
                 raw: c
             };
 
@@ -314,19 +318,49 @@ self.onmessage = function(e) {
             filtered.push(c);
         }
 
-        // 3. Fast In-Place Sort
-        if (sortMode === 'oldest') {
-            filtered.sort((a, b) => (new Date(a.createdAt || 0)) - (new Date(b.createdAt || 0)));
-        } else if (sortMode === 'fleet_desc') {
-            filtered.sort((a, b) => b.fleetSize - a.fleetSize);
-        } else if (sortMode === 'name_asc') {
-            filtered.sort((a, b) => a.normNameAr.localeCompare(b.normNameAr, 'ar'));
-        } else if (sortMode === 'priority_desc') {
-            filtered.sort((a, b) => (a.priority || 'B').localeCompare(b.priority || 'B'));
-        } else {
-            // Default latest
-            filtered.sort((a, b) => (new Date(b.createdAt || 0)) - (new Date(a.createdAt || 0)));
-        }
+        // 3. Fast In-Place Sort — All 700 Titans ALWAYS at the very top!
+        const priorityOrder = { 'A+': 1, 'A': 2, 'B': 3, 'C': 4 };
+        filtered.sort((a, b) => {
+            const titanA = a.isTitan ? 1 : 0;
+            const titanB = b.isTitan ? 1 : 0;
+            if (titanA !== titanB) {
+                return titanB - titanA; // 👑 Titans ALWAYS first!
+            }
+
+            if (sortMode === 'priority_fleet') {
+                const pA = priorityOrder[a.priority] || 3;
+                const pB = priorityOrder[b.priority] || 3;
+                if (pA !== pB) return pA - pB;
+                if (b.fleetSize !== a.fleetSize) return b.fleetSize - a.fleetSize;
+                return (new Date(b.createdAt || 0)) - (new Date(a.createdAt || 0));
+            }
+            if (sortMode === 'fleet_desc') {
+                if (b.fleetSize !== a.fleetSize) return b.fleetSize - a.fleetSize;
+                return (new Date(b.createdAt || 0)) - (new Date(a.createdAt || 0));
+            }
+            if (sortMode === 'fleet_asc') {
+                if (a.fleetSize !== b.fleetSize) return a.fleetSize - b.fleetSize;
+                return (new Date(b.createdAt || 0)) - (new Date(a.createdAt || 0));
+            }
+            if (sortMode === 'name_asc' || sortMode === 'name') {
+                return a.normNameAr.localeCompare(b.normNameAr, 'ar');
+            }
+            if (sortMode === 'priority_desc' || sortMode === 'priority') {
+                const pA = priorityOrder[a.priority] || 3;
+                const pB = priorityOrder[b.priority] || 3;
+                if (pA !== pB) return pA - pB;
+                return b.fleetSize - a.fleetSize;
+            }
+            if (sortMode === 'oldest') {
+                return (new Date(a.createdAt || 0)) - (new Date(b.createdAt || 0));
+            }
+            // Default (latest / priority_fleet):
+            const pA = priorityOrder[a.priority] || 3;
+            const pB = priorityOrder[b.priority] || 3;
+            if (pA !== pB) return pA - pB;
+            if (b.fleetSize !== a.fleetSize) return b.fleetSize - a.fleetSize;
+            return (new Date(b.createdAt || 0)) - (new Date(a.createdAt || 0));
+        });
 
         // 4. Slice Page Items
         const total = filtered.length;

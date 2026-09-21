@@ -605,7 +605,7 @@ const Companies = {
         } else if (!presetKey) {
             if (fleetSel) fleetSel.value = '';
             if (dateSel) dateSel.value = '';
-            if (sortSel) sortSel.value = 'latest';
+            if (sortSel) sortSel.value = 'priority_fleet';
         }
 
         this.currentPage = 1;
@@ -633,7 +633,7 @@ const Companies = {
             if (el) el.value = '';
         });
         const sortSelect = document.getElementById('filter-sort');
-        if (sortSelect) sortSelect.value = 'latest';
+        if (sortSelect) sortSelect.value = 'priority_fleet';
 
         // Reset multi-select sets & UI
         this.selectedSectors.clear();
@@ -763,12 +763,18 @@ const Companies = {
             return true;
         });
 
-        // Fast Sort
+        // Fast Sort — Titans ALWAYS pinned to the very top!
+        const priorityOrder = { 'A+': 1, 'A': 2, 'B': 3, 'C': 4 };
         return companies.sort((a, b) => {
+            const titanA = (a.isTitan || (a.id && String(a.id).startsWith('eg_titan_'))) ? 1 : 0;
+            const titanB = (b.isTitan || (b.id && String(b.id).startsWith('eg_titan_'))) ? 1 : 0;
+            if (titanA !== titanB) {
+                return titanB - titanA; // 👑 Titans ALWAYS first!
+            }
+
             if (sortMode === 'priority_fleet') {
-                const order = { A: 1, B: 2, C: 3 };
-                const pA = order[a.priority] || 2;
-                const pB = order[b.priority] || 2;
+                const pA = priorityOrder[a.priority] || 3;
+                const pB = priorityOrder[b.priority] || 3;
                 if (pA !== pB) return pA - pB;
                 const fA = Number(a.fleetSize) || 0;
                 const fB = Number(b.fleetSize) || 0;
@@ -788,9 +794,8 @@ const Companies = {
                 return (Number(a.fleetSize) || 0) - (Number(b.fleetSize) || 0);
             }
             if (sortMode === 'priority') {
-                const order = { A: 1, B: 2, C: 3 };
-                const pA = order[a.priority] || 2;
-                const pB = order[b.priority] || 2;
+                const pA = priorityOrder[a.priority] || 3;
+                const pB = priorityOrder[b.priority] || 3;
                 return pA - pB;
             }
             if (sortMode === 'name' || sortMode === 'name_asc') {
@@ -847,7 +852,7 @@ const Companies = {
         const fleetType = document.getElementById('filter-fleet-type')?.value || '';
         const fleetSize = document.getElementById('filter-fleet-size')?.value || '';
         const addedDate = document.getElementById('filter-added-date')?.value || '';
-        const sortMode = document.getElementById('filter-sort')?.value || 'latest';
+        const sortMode = document.getElementById('filter-sort')?.value || 'priority_fleet';
         const assigned = document.getElementById('filter-assigned')?.value || '';
         const search = document.getElementById('filter-search')?.value?.trim() || '';
 
