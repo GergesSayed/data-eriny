@@ -1774,6 +1774,25 @@ const Companies = {
             nameEl.innerHTML = esc(company.nameAr || company.nameEn) + titanBadge;
         }
 
+        // Presence & Lead Collision Prevention Check
+        const warnEl = document.getElementById('detail-collision-warning');
+        const warnTxt = document.getElementById('detail-collision-text');
+        if (warnEl) warnEl.style.display = 'none';
+
+        if (window.SupabaseClient && typeof window.SupabaseClient.checkCompanyLock === 'function') {
+            const myId = currentUser ? String(currentUser.id || currentUser.username || 'user') : 'user';
+            const myName = currentUser ? (currentUser.name || currentUser.username || 'مندوب') : 'مندوب';
+
+            window.SupabaseClient.checkCompanyLock(id, myId).then(lockInfo => {
+                if (lockInfo && lockInfo.isLocked && warnEl && warnTxt) {
+                    warnTxt.innerHTML = `⚠️ <strong>تنبيه فوري لتفادي تكرار الاتصال:</strong> الزميل <strong>(${esc(lockInfo.user)})</strong> يراجع هذا العميل حالياً (منذ ${lockInfo.ageSeconds || 5} ثانية).`;
+                    warnEl.style.display = 'flex';
+                }
+            }).catch(() => {});
+
+            window.SupabaseClient.acquireCompanyLock(id, myName, myId);
+        }
+
         const calls = window.AppStorage.getCallsForCompany(id);
 
         // Tire lead logic
@@ -2046,6 +2065,15 @@ const Companies = {
         };
 
         App.openModal('modal-company-detail');
+    },
+
+    onCloseDetail() {
+        if (this.currentDetailId && window.SupabaseClient && typeof window.SupabaseClient.releaseCompanyLock === 'function') {
+            const currentUser = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
+            const myId = currentUser ? String(currentUser.id || currentUser.username || 'user') : 'user';
+            window.SupabaseClient.releaseCompanyLock(this.currentDetailId, myId);
+        }
+        this.currentDetailId = null;
     },
 
     _detailRow(label, value, isPhone = false) {

@@ -114,12 +114,22 @@ const App = {
             // Initialize routing
             this.initRouting();
 
-            // Unregister PWA Service Worker to prevent stale mobile cache
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.getRegistrations().then(regs => {
-                    for (let reg of regs) reg.unregister();
+            // PWA Service Worker Registration & Offline Support
+            if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+                navigator.serviceWorker.register('sw.js?v=265.0').then(reg => {
+                    reg.update().catch(() => {});
                 }).catch(() => {});
             }
+
+            // PWA Install Prompt Listener
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                window.__pwaDeferredPrompt = e;
+                const pwaBtnSide = document.getElementById('btn-pwa-install');
+                const pwaBtnTop = document.getElementById('btn-pwa-install-top');
+                if (pwaBtnSide) pwaBtnSide.style.display = 'inline-flex';
+                if (pwaBtnTop) pwaBtnTop.style.display = 'inline-flex';
+            });
 
             this.renderNotifications();
             this.bindEvents();
@@ -205,11 +215,11 @@ const App = {
                 icon.className = 'fas fa-sync fa-spin';
                 label.textContent = 'جاري المزامنة...';
             } else if (status === 'synced') {
-                pill.style.background = 'rgba(16, 185, 129, 0.12)';
-                pill.style.borderColor = 'rgba(16, 185, 129, 0.35)';
+                pill.style.background = 'rgba(16, 185, 129, 0.15)';
+                pill.style.borderColor = 'rgba(16, 185, 129, 0.45)';
                 pill.style.color = '#10b981';
-                icon.className = 'fas fa-check-circle';
-                label.textContent = 'متزامن سحابياً';
+                icon.className = (details && details.realTimeMode === 'SSE_LIVE') ? 'fas fa-bolt' : 'fas fa-check-circle';
+                label.textContent = (details && details.realTimeMode === 'SSE_LIVE') ? 'متزامن لحظياً ⚡' : 'متزامن سحابياً';
             } else if (status === 'offline') {
                 pill.style.background = 'rgba(148, 163, 184, 0.15)';
                 pill.style.borderColor = 'rgba(148, 163, 184, 0.3)';
@@ -1135,6 +1145,9 @@ const App = {
     },
 
     closeModal(modalId) {
+        if (modalId === 'modal-company-detail' && window.Companies && typeof window.Companies.onCloseDetail === 'function') {
+            window.Companies.onCloseDetail();
+        }
         const modal = document.getElementById(modalId);
         if (modal) {
             modal.classList.remove('show');
@@ -1262,6 +1275,23 @@ const App = {
 
         populateOptions();
         this.refreshUserSwitcher = populateOptions;
+    },
+
+    async installPWA() {
+        if (window.__pwaDeferredPrompt) {
+            window.__pwaDeferredPrompt.prompt();
+            const choiceResult = await window.__pwaDeferredPrompt.userChoice;
+            if (choiceResult && choiceResult.outcome === 'accepted') {
+                this.showToast('تم قبول تثبيت تطبيق Fleet CRM بنجاح 🎉', 'success');
+            }
+            window.__pwaDeferredPrompt = null;
+            const pwaBtnSide = document.getElementById('btn-pwa-install');
+            const pwaBtnTop = document.getElementById('btn-pwa-install-top');
+            if (pwaBtnSide) pwaBtnSide.style.display = 'none';
+            if (pwaBtnTop) pwaBtnTop.style.display = 'none';
+        } else {
+            this.showToast('لتثبيت التطبيق: افتح قائمة خيارات المتصفح (⋮) واختر "إضافة إلى الشاشة الرئيسية" أو "Install App"', 'info');
+        }
     }
 };
 

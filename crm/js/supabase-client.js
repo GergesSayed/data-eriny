@@ -295,22 +295,77 @@ window.SupabaseClient = (function() {
     let lastSyncTimestamp = 0;
 
     /**
-     * Real-time ultra-fast metadata-driven sync on Firebase
-     * Checks 50-byte metadata every 2.5 seconds with ZERO battery/data overhead!
+     * Presence & Lead Collision Prevention
+     */
+    async function acquireCompanyLock(companyId, userName, userId) {
+        if (!companyId || !navigator.onLine) return null;
+        try {
+            const payload = {
+                user: userName || 'مندوب مبيعات',
+                userId: String(userId || 'user'),
+                time: Date.now()
+            };
+            await fetch(`${FIREBASE_DB_URL}/presence/${companyId}.json`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            return payload;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    async function releaseCompanyLock(companyId, userId) {
+        if (!companyId || !navigator.onLine) return;
+        try {
+            await fetch(`${FIREBASE_DB_URL}/presence/${companyId}.json`, {
+                method: 'DELETE'
+            });
+        } catch (e) {}
+    }
+
+    async function checkCompanyLock(companyId, currentUserId) {
+        if (!companyId || !navigator.onLine) return { isLocked: false };
+        try {
+            const resp = await fetch(`${FIREBASE_DB_URL}/presence/${companyId}.json?t=${Date.now()}`);
+            if (!resp.ok) return { isLocked: false };
+            const data = await resp.json();
+            if (!data || !data.time) return { isLocked: false };
+            const ageMs = Date.now() - Number(data.time);
+            // Lock active for 2.5 minutes (150,000 ms)
+            if (ageMs < 150000) {
+                const isOtherUser = String(data.userId || '') !== String(currentUserId || '');
+                return {
+                    isLocked: isOtherUser,
+                    user: data.user || 'زميل آخر',
+                    userId: data.userId,
+                    ageSeconds: Math.round(ageMs / 1000)
+                };
+            }
+            return { isLocked: false };
+        } catch (e) {
+            return { isLocked: false };
+        }
+    }
+
+    /**
+     * Real-time ultra-fast SSE & metadata-driven sync on Firebase
+     * Connects persistent EventSource stream for sub-100ms push with smart polling fallback
      */
     function subscribeToChanges(onChangeCallback) {
         unsubscribe();
 
         let isFetchingUpdate = false;
 
-        async function checkMetadataDelta() {
+        async function checkMetadataDelta(forceTrigger = false) {
             if (isFetchingUpdate) return;
             try {
                 const resp = await fetch(`${FIREBASE_DB_URL}/metadata.json?t=${Date.now()}`);
                 if (resp.ok) {
                     const meta = await resp.json();
                     const metaTs = Number(meta && (meta.sync_timestamp || (meta.updated_at ? new Date(meta.updated_at).getTime() : 0))) || 0;
-                    if (metaTs > lastSyncTimestamp || (meta && meta.total_dynamic && lastSyncTimestamp === 0)) {
+                    if (forceTrigger || metaTs > lastSyncTimestamp || (meta && meta.total_dynamic && lastSyncTimestamp === 0)) {
                         lastSyncTimestamp = metaTs || Date.now();
                         isFetchingUpdate = true;
                         const data = await fetchMasterData();
@@ -328,20 +383,67 @@ window.SupabaseClient = (function() {
         // 1. Instant check immediately on subscribe
         checkMetadataDelta();
 
-        // 2. Smart visibility-aware polling (5s active, paused when tab hidden)
+        // 2. Connect native SSE Stream for sub-100ms real-time push!
+        try {
+            if (typeof EventSource !== 'undefined') {
+                sseSource = new EventSource(`${FIREBASE_DB_URL}/metadata.json`);
+
+                sseSource.addEventListener('put', (e) => {
+                    try {
+                        const parsed = JSON.parse(e.data || '{}');
+                        const data = (parsed && parsed.data !== undefined) ? parsed.data : parsed;
+                        const ts = Number(data && data.sync_timestamp) || 0;
+                        if (ts > lastSyncTimestamp) {
+                            checkMetadataDelta(true);
+                        }
+                    } catch(err) {}
+                });
+
+                sseSource.addEventListener('patch', (e) => {
+                    try {
+                        const parsed = JSON.parse(e.data || '{}');
+                        const data = (parsed && parsed.data !== undefined) ? parsed.data : parsed;
+                        const ts = Number(data && data.sync_timestamp) || 0;
+                        if (ts > lastSyncTimestamp) {
+                            checkMetadataDelta(true);
+                        }
+                    } catch(err) {}
+                });
+
+                sseSource.onopen = () => {
+                    setStatus('synced', { realTimeMode: 'SSE_LIVE' });
+                };
+
+                sseSource.onerror = () => {
+                    if (sseSource) {
+                        try { sseSource.close(); } catch(e) {}
+                        sseSource = null;
+                    }
+                };
+            }
+        } catch(e) {
+            console.warn('SSE stream init skipped, using smart polling fallback:', e);
+        }
+
+        // 3. Smart visibility-aware polling fallback (every 6s when active)
         const startPolling = () => {
             if (pollInterval) clearInterval(pollInterval);
             pollInterval = setInterval(() => {
-                if (typeof document !== 'undefined' && document.hidden) return; // Skip if tab in background
+                if (typeof document !== 'undefined' && document.hidden) return;
                 checkMetadataDelta();
-            }, 5000);
+            }, 6000);
         };
         startPolling();
 
-        // 3. Instant trigger on mobile tab focus or screen unlock
+        // 4. Instant trigger on mobile tab focus or screen unlock
         if (typeof document !== 'undefined' && typeof window !== 'undefined') {
             const handleMobileFocus = () => {
                 checkMetadataDelta();
+                if (!sseSource && typeof EventSource !== 'undefined') {
+                    try {
+                        sseSource = new EventSource(`${FIREBASE_DB_URL}/metadata.json`);
+                    } catch(e) {}
+                }
                 startPolling();
             };
             window.addEventListener('focus', handleMobileFocus);
@@ -524,6 +626,9 @@ window.SupabaseClient = (function() {
         deleteDynamicCompany,
         wipeDynamicCompanies,
         subscribeToChanges,
-        unsubscribe
+        unsubscribe,
+        acquireCompanyLock,
+        releaseCompanyLock,
+        checkCompanyLock
     };
 })();

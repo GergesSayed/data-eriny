@@ -1247,9 +1247,30 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     const idbData = event.target.result || [];
                     const deletedCompIds = this.getDeletedIds('companies');
-                    const isNewVersion = localStorage.getItem('fleetcrm_dataset_version') !== 'v264.2_pristine';
+                    const currentVersionTag = 'v264.5_pristine';
+                    const isNewVersion = localStorage.getItem('fleetcrm_dataset_version') !== currentVersionTag;
                     if (isNewVersion) {
-                        localStorage.setItem('fleetcrm_dataset_version', 'v264.2_pristine');
+                        localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
+                    }
+
+                    // Fast-path: If IndexedDB is already primed with full dataset (>25k items) and version is current,
+                    // hydrate directly in < 30ms without re-parsing raw baseline arrays!
+                    if (!isNewVersion && idbData.length >= 25000) {
+                        const masterMap = new Map();
+                        idbData.forEach(c => {
+                            if (c && c.id && !deletedCompIds.has(String(c.id))) {
+                                masterMap.set(c.id, c);
+                            }
+                        });
+                        this.applyStoredAssignments(masterMap);
+                        this.applyCallsToCompanies(masterMap);
+                        const merged = Array.from(masterMap.values());
+                        this.companiesMemory = merged;
+                        this.invalidateScopedCache();
+                        localStorage.setItem('fleetcrm_company_count', String(merged.length));
+                        this.updateLiveCounters();
+                        resolve(merged);
+                        return;
                     }
 
                     // 1. Add 1,000 Verified Titans FIRST so they always head the master map
