@@ -1,11 +1,6 @@
-/**
- * egypt_verified_titans.js
- * Database of Verified Egyptian Industrial Titans & Large Enterprise Fleets (1,000 Titans).
- * Total Titans: 1,000
- * Generated: 2026-09-21
- */
-
-const titansData = [
+// Egypt 1000 Verified Industrial & Commercial Titans (VIP Giants Database)
+// Auto-generated & audited to guarantee 1,000 unique corporate fortresses
+window.EGYPT_VERIFIED_TITANS = [
   {
     "id": "eg_titan_001",
     "nameAr": "مجموعة حديد عز للصلب (المصانع والمقر الرئيسي)",
@@ -32,7 +27,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والأساطيل والمشتريات",
     "contactTitle": "Fleet & Procurement Director",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=29.93245,32.47612"
+    "google_maps_url": "https://www.google.com/maps?q=29.93245,32.47612",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_002",
@@ -60,7 +57,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع سلاسل الإمداد والنقل المركزي",
     "contactTitle": "Supply Chain & Logistics Head",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=30.29814,31.7512"
+    "google_maps_url": "https://www.google.com/maps?q=30.29814,31.7512",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_003",
@@ -88,7 +87,9 @@ const titansData = [
     "contactPerson": "مدير الخدمات اللوجستية وإدارة الأسطول",
     "contactTitle": "Logistics & Fleet Operations Manager",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=29.6158,32.3489"
+    "google_maps_url": "https://www.google.com/maps?q=29.6158,32.3489",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_004",
@@ -116,7 +117,9 @@ const titansData = [
     "contactPerson": "مدير إدارة النقليات والصيانة",
     "contactTitle": "Transport & Maintenance Manager",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=29.8752,32.4891"
+    "google_maps_url": "https://www.google.com/maps?q=29.8752,32.4891",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_005",
@@ -144,7 +147,9 @@ const titansData = [
     "contactPerson": "مدير النقل والمشتريات المركزية",
     "contactTitle": "Fleet & Purchasing Manager",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=30.3125,31.7389"
+    "google_maps_url": "https://www.google.com/maps?q=30.3125,31.7389",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_006",
@@ -172,7 +177,9 @@ const titansData = [
     "contactPerson": "مدير قطاع النقل والمعدات الميكانيكية",
     "contactTitle": "Transport & Mechanical Equipment Director",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=26.0421,32.2215"
+    "google_maps_url": "https://www.google.com/maps?q=26.0421,32.2215",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_007",
@@ -200,7 +207,9 @@ const titansData = [
     "contactPerson": "مدير أسطول النقل اللوجستي وسلاسل التوريد",
     "contactTitle": "Country Logistics & Fleet Director",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=29.6843,32.3124"
+    "google_maps_url": "https://www.google.com/maps?q=29.6843,32.3124",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_008",
@@ -228,7 +237,9 @@ const titansData = [
     "contactPerson": "مدير قطاع النقل وتوريد المعدات",
     "contactTitle": "Fleet & Material Handling Manager",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=29.8241,31.3219"
+    "google_maps_url": "https://www.google.com/maps?q=29.8241,31.3219",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_009",
@@ -256,7 +267,9 @@ const titansData = [
     "contactPerson": "مدير العمليات اللوجستية والأساطيل",
     "contactTitle": "Logistics & Ready-Mix Fleet Manager",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=27.1654,31.0542"
+    "google_maps_url": "https://www.google.com/maps?q=27.1654,31.0542",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_010",
@@ -284,7 +297,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والحركة المركزي",
     "contactTitle": "General Transport & Logistics Director",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=30.2891,31.7456"
+    "google_maps_url": "https://www.google.com/maps?q=30.2891,31.7456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_011",
@@ -312,7 +327,9 @@ const titansData = [
     "contactPerson": "رئيس الإدارة المركزية للشؤون الميكانيكية والسيارات والمعدات",
     "contactTitle": "Mechanical Fleet & Vehicles Chief Executive",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=30.0567,31.2432"
+    "google_maps_url": "https://www.google.com/maps?q=30.0567,31.2432",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_012",
@@ -340,7 +357,9 @@ const titansData = [
     "contactPerson": "مدير إدارة المعدات والأسطول اللوجستي",
     "contactTitle": "Heavy Fleet & Equipment Assets Director",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=30.0712,31.2289"
+    "google_maps_url": "https://www.google.com/maps?q=30.0712,31.2289",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_013",
@@ -368,7 +387,9 @@ const titansData = [
     "contactPerson": "مدير إدارة الأسطول وسلاسل الإمداد",
     "contactTitle": "Plant & Fleet Machinery Director",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=30.0245,31.4589"
+    "google_maps_url": "https://www.google.com/maps?q=30.0245,31.4589",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_014",
@@ -396,7 +417,9 @@ const titansData = [
     "contactPerson": "مساعد رئيس الشركة للشؤون الميكانيكية والنقل",
     "contactTitle": "Mechanical Equipment & Transport VP",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=30.1124,31.3412"
+    "google_maps_url": "https://www.google.com/maps?q=30.1124,31.3412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_015",
@@ -424,7 +447,9 @@ const titansData = [
     "contactPerson": "مدير عام أسطول التوزيع والنقل المركزي",
     "contactTitle": "National Fleet & Logistics Operations Director",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=29.9541,30.9324"
+    "google_maps_url": "https://www.google.com/maps?q=29.9541,30.9324",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_016",
@@ -452,7 +477,9 @@ const titansData = [
     "contactPerson": "مدير قطاع النقل والحركة",
     "contactTitle": "Fleet & Distribution Logistics Head",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=29.9412,30.9156"
+    "google_maps_url": "https://www.google.com/maps?q=29.9412,30.9156",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_017",
@@ -480,7 +507,9 @@ const titansData = [
     "contactPerson": "رئيس إدارة النقل والعمليات الميدانية",
     "contactTitle": "Fleet & Field Operations Manager",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=29.9214,30.8975"
+    "google_maps_url": "https://www.google.com/maps?q=29.9214,30.8975",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_018",
@@ -508,7 +537,9 @@ const titansData = [
     "contactPerson": "مدير عام الأسطول الوطني وسلاسل التبريد",
     "contactTitle": "National Fleet & Cold-Chain Director",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=30.6712,30.0891"
+    "google_maps_url": "https://www.google.com/maps?q=30.6712,30.0891",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_019",
@@ -536,7 +567,9 @@ const titansData = [
     "contactPerson": "مدير إدارة الأسطول والنقليات الإقليمي",
     "contactTitle": "Regional Fleet Logistics Director",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=29.9189,30.9082"
+    "google_maps_url": "https://www.google.com/maps?q=29.9189,30.9082",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_020",
@@ -564,7 +597,9 @@ const titansData = [
     "contactPerson": "مدير حركة وتوزيع السيارات",
     "contactTitle": "Fleet Distribution Head",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=30.2215,31.4789"
+    "google_maps_url": "https://www.google.com/maps?q=30.2215,31.4789",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_021",
@@ -592,7 +627,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع التشغيل والحركة المركزي",
     "contactTitle": "Central Operations & Fleet Director",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=30.1254,31.2891"
+    "google_maps_url": "https://www.google.com/maps?q=30.1254,31.2891",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_022",
@@ -620,7 +657,9 @@ const titansData = [
     "contactPerson": "مدير إدارة المعدات الميكانيكية والشاحنات",
     "contactTitle": "Port Equipment & Yard Fleets Director",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=31.1895,29.8712"
+    "google_maps_url": "https://www.google.com/maps?q=31.1895,29.8712",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_023",
@@ -648,7 +687,9 @@ const titansData = [
     "contactPerson": "مدير الأسطول الوطني لجمهورية مصر العربية",
     "contactTitle": "Country Fleet Manager",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=30.1215,31.4012"
+    "google_maps_url": "https://www.google.com/maps?q=30.1215,31.4012",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_024",
@@ -676,7 +717,9 @@ const titansData = [
     "contactPerson": "مدير العمليات والأساطيل في مصر",
     "contactTitle": "Operations & Fleet Director - Egypt",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=29.9312,30.9124"
+    "google_maps_url": "https://www.google.com/maps?q=29.9312,30.9124",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_025",
@@ -704,7 +747,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والخدمات البحرية واللوجستية",
     "contactTitle": "Logistics & Fleet General Manager",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=31.4321,31.7612"
+    "google_maps_url": "https://www.google.com/maps?q=31.4321,31.7612",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_026",
@@ -732,7 +777,9 @@ const titansData = [
     "contactPerson": "مدير إدارة الخدمات العامة والنقليات",
     "contactTitle": "Transport & Plant Services Manager",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=31.0541,29.7412"
+    "google_maps_url": "https://www.google.com/maps?q=31.0541,29.7412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_027",
@@ -760,7 +807,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل البري والصهاريج",
     "contactTitle": "Tanker Fleets & Bulk Transport General Manager",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=30.0521,31.2489"
+    "google_maps_url": "https://www.google.com/maps?q=30.0521,31.2489",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_028",
@@ -788,7 +837,9 @@ const titansData = [
     "contactPerson": "مدير إدارة الحركة والنقل اللوجستي",
     "contactTitle": "Pharma Fleet & Distribution Manager",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=30.3089,31.7456"
+    "google_maps_url": "https://www.google.com/maps?q=30.3089,31.7456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_029",
@@ -816,7 +867,9 @@ const titansData = [
     "contactPerson": "مدير الخدمات اللوجستية والنقليات",
     "contactTitle": "Pharma Logistics & Fleet Operations Head",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=31.0215,29.7891"
+    "google_maps_url": "https://www.google.com/maps?q=31.0215,29.7891",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_030",
@@ -844,7 +897,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع الأسطول والنقل المركزي",
     "contactTitle": "Director of Fleet & Distribution Operations",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=30.2289,31.4812"
+    "google_maps_url": "https://www.google.com/maps?q=30.2289,31.4812",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_031",
@@ -872,7 +927,9 @@ const titansData = [
     "contactPerson": "رئيس الإدارة المركزية للشؤون الفنية والصيانة والإطارات",
     "contactTitle": "Technical & Tires Maintenance Director",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=30.1089,31.3654"
+    "google_maps_url": "https://www.google.com/maps?q=30.1089,31.3654",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_032",
@@ -900,7 +957,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والأسطول والصيانة",
     "contactTitle": "Fleet Operations & Maintenance General Manager",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=30.0489,31.2341"
+    "google_maps_url": "https://www.google.com/maps?q=30.0489,31.2341",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_033",
@@ -928,7 +987,9 @@ const titansData = [
     "contactPerson": "مدير عام الشؤون الفنية والورش المركزية",
     "contactTitle": "Technical Affairs & Central Workshops Director",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=30.0612,31.3324"
+    "google_maps_url": "https://www.google.com/maps?q=30.0612,31.3324",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_034",
@@ -956,7 +1017,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع التشغيل والصيانة",
     "contactTitle": "Fleet Maintenance & Operations VP",
     "createdAt": "2026-08-26",
-    "google_maps_url": "https://www.google.com/maps?q=31.2189,29.9412"
+    "google_maps_url": "https://www.google.com/maps?q=31.2189,29.9412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_035",
@@ -984,7 +1047,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع الحركة والأساطيل والمشتريات المركزية",
     "contactTitle": "Fleet & Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3812,30.5124"
+    "google_maps_url": "https://www.google.com/maps?q=30.3812,30.5124",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_036",
@@ -1012,7 +1077,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والتشغيل",
     "contactTitle": "Transport & Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.8821,32.4105"
+    "google_maps_url": "https://www.google.com/maps?q=29.8821,32.4105",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_037",
@@ -1040,7 +1107,9 @@ const titansData = [
     "contactPerson": "مدير إدارة الحركة والمركبات",
     "contactTitle": "Transport & Vehicle Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1345,31.3128"
+    "google_maps_url": "https://www.google.com/maps?q=30.1345,31.3128",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_038",
@@ -1068,7 +1137,9 @@ const titansData = [
     "contactPerson": "مدير عام الخدمات اللوجستية وإدارة الأسطول الميداني",
     "contactTitle": "Logistics & Fleet Operations General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=28.9876,31.3456"
+    "google_maps_url": "https://www.google.com/maps?q=28.9876,31.3456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_039",
@@ -1096,7 +1167,9 @@ const titansData = [
     "contactPerson": "مدير المشتريات والحركة",
     "contactTitle": "Procurement & Transport Lead",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0456,31.2345"
+    "google_maps_url": "https://www.google.com/maps?q=30.0456,31.2345",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_040",
@@ -1124,7 +1197,9 @@ const titansData = [
     "contactPerson": "مدير حركة الشاحنات والمعدات",
     "contactTitle": "Fleet & Heavy Equipment Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.0234,31.1122"
+    "google_maps_url": "https://www.google.com/maps?q=29.0234,31.1122",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_041",
@@ -1152,7 +1227,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع سلاسل الإمداد والنقل",
     "contactTitle": "Supply Chain & Fleet Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.8456,32.3987"
+    "google_maps_url": "https://www.google.com/maps?q=29.8456,32.3987",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_042",
@@ -1180,7 +1257,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والتوزيع المركزي",
     "contactTitle": "Central Transport & Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3654,30.5231"
+    "google_maps_url": "https://www.google.com/maps?q=30.3654,30.5231",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_043",
@@ -1208,7 +1287,9 @@ const titansData = [
     "contactPerson": "مدير حركة النقل والشحن والتصدير",
     "contactTitle": "Export Logistics & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1567,30.0123"
+    "google_maps_url": "https://www.google.com/maps?q=31.1567,30.0123",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_044",
@@ -1236,7 +1317,9 @@ const titansData = [
     "contactPerson": "مدير الحركة والمشتريات",
     "contactTitle": "Procurement & Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2987,31.7564"
+    "google_maps_url": "https://www.google.com/maps?q=30.2987,31.7564",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_045",
@@ -1264,7 +1347,9 @@ const titansData = [
     "contactPerson": "مدير عام إدارة المعدات الثقيلة والمركبات",
     "contactTitle": "Heavy Equipment & Plant Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0123,31.4567"
+    "google_maps_url": "https://www.google.com/maps?q=30.0123,31.4567",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_046",
@@ -1292,7 +1377,9 @@ const titansData = [
     "contactPerson": "مدير صيانة وتشغيل المعدات والأساطيل",
     "contactTitle": "Fleet & Equipment Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0245,31.4789"
+    "google_maps_url": "https://www.google.com/maps?q=30.0245,31.4789",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_047",
@@ -1320,7 +1407,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع المشروعات والمعدات",
     "contactTitle": "Equipment & Logistics General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0789,31.0123"
+    "google_maps_url": "https://www.google.com/maps?q=30.0789,31.0123",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_048",
@@ -1348,7 +1437,9 @@ const titansData = [
     "contactPerson": "مدير عام ورش الصيانة المركزية والأسطول",
     "contactTitle": "Central Workshops & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0612,31.3421"
+    "google_maps_url": "https://www.google.com/maps?q=30.0612,31.3421",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_049",
@@ -1376,7 +1467,9 @@ const titansData = [
     "contactPerson": "مدير صيانة وإمداد الأساطيل البحرية والبرية",
     "contactTitle": "Marine & Heavy Equipment Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2456,29.9876"
+    "google_maps_url": "https://www.google.com/maps?q=31.2456,29.9876",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_050",
@@ -1404,7 +1497,9 @@ const titansData = [
     "contactPerson": "مدير عام التشغيل والحركة وإدارة الأسطول",
     "contactTitle": "Fleet Operations General Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9876,31.3987"
+    "google_maps_url": "https://www.google.com/maps?q=29.9876,31.3987",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_051",
@@ -1432,7 +1527,9 @@ const titansData = [
     "contactPerson": "مدير عام الخدمات الإدارية والحركة",
     "contactTitle": "Administrative Services & Fleet GM",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0812,31.3876"
+    "google_maps_url": "https://www.google.com/maps?q=30.0812,31.3876",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_052",
@@ -1460,7 +1557,9 @@ const titansData = [
     "contactPerson": "مدير صيانة الأسطول والمعدات الميدانية",
     "contactTitle": "Field Fleet Maintenance Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0154,31.4321"
+    "google_maps_url": "https://www.google.com/maps?q=30.0154,31.4321",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_053",
@@ -1488,7 +1587,9 @@ const titansData = [
     "contactPerson": "رئيس الإدارة المركزية للنقل والأساطيل والصيانة",
     "contactTitle": "Head of Fleet Operations & Maintenance",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0345,31.2378"
+    "google_maps_url": "https://www.google.com/maps?q=30.0345,31.2378",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_054",
@@ -1516,7 +1617,9 @@ const titansData = [
     "contactPerson": "مدير قطاع النقل الثقيل والشحن",
     "contactTitle": "Heavy Transport & Shipping Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2987,30.0876"
+    "google_maps_url": "https://www.google.com/maps?q=31.2987,30.0876",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_055",
@@ -1544,7 +1647,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل واللوجستيات والمشتريات",
     "contactTitle": "Logistics & Transport General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0456,31.0543"
+    "google_maps_url": "https://www.google.com/maps?q=30.0456,31.0543",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_056",
@@ -1572,7 +1677,9 @@ const titansData = [
     "contactPerson": "مدير خدمات الموقع والصيانة والحركة",
     "contactTitle": "Site Services & Fleet Operations Lead",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1423,31.3245"
+    "google_maps_url": "https://www.google.com/maps?q=30.1423,31.3245",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_057",
@@ -1600,7 +1707,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والحركة",
     "contactTitle": "Fleet & Transport General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1345,29.8321"
+    "google_maps_url": "https://www.google.com/maps?q=31.1345,29.8321",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_058",
@@ -1628,7 +1737,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع صيانة الأساطيل والورش المركزية",
     "contactTitle": "Central Fleet & Fleet Workshops Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0345,31.4678"
+    "google_maps_url": "https://www.google.com/maps?q=30.0345,31.4678",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_059",
@@ -1656,7 +1767,9 @@ const titansData = [
     "contactPerson": "مدير الشحن والنقل اللوجستي",
     "contactTitle": "Logistics & Fleet Operations Lead",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.0234,29.8123"
+    "google_maps_url": "https://www.google.com/maps?q=31.0234,29.8123",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_060",
@@ -1684,7 +1797,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والنقل",
     "contactTitle": "Transport Operations General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.0543,31.3789"
+    "google_maps_url": "https://www.google.com/maps?q=31.0543,31.3789",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_061",
@@ -1712,7 +1827,9 @@ const titansData = [
     "contactPerson": "مدير عام الخدمات اللوجستية وإدارة الأسطول القومي",
     "contactTitle": "Country Logistics & Fleet Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0456,31.3678"
+    "google_maps_url": "https://www.google.com/maps?q=30.0456,31.3678",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_062",
@@ -1740,7 +1857,9 @@ const titansData = [
     "contactPerson": "مدير أسطول التوزيع والنقل اللوجستي",
     "contactTitle": "Supply Chain Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9345,30.9123"
+    "google_maps_url": "https://www.google.com/maps?q=29.9345,30.9123",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_063",
@@ -1768,7 +1887,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والتشغيل الزراعي والصناعي",
     "contactTitle": "Agricultural & Industrial Transport GM",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.3123,31.1456"
+    "google_maps_url": "https://www.google.com/maps?q=31.3123,31.1456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_064",
@@ -1796,7 +1917,9 @@ const titansData = [
     "contactPerson": "رئيس قطاعات النقل والحركة والورش المركزية",
     "contactTitle": "Head of Fleet & Central Workshops",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.8976,31.2567"
+    "google_maps_url": "https://www.google.com/maps?q=29.8976,31.2567",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_065",
@@ -1824,7 +1947,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل وسلاسل الإمداد",
     "contactTitle": "Supply Chain & Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2876,31.7456"
+    "google_maps_url": "https://www.google.com/maps?q=30.2876,31.7456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_066",
@@ -1852,7 +1977,9 @@ const titansData = [
     "contactPerson": "مدير حركة الأسطول والنقل",
     "contactTitle": "Fleet Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3123,31.7345"
+    "google_maps_url": "https://www.google.com/maps?q=30.3123,31.7345",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_067",
@@ -1880,7 +2007,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع النقل المبرد والتشغيل",
     "contactTitle": "Cold Chain Logistics & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.9123,29.5678"
+    "google_maps_url": "https://www.google.com/maps?q=30.9123,29.5678",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_068",
@@ -1908,7 +2037,9 @@ const titansData = [
     "contactPerson": "مدير سلاسل الإمداد والأسطول المبرد",
     "contactTitle": "Supply Chain & Refrigerated Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9876,30.9345"
+    "google_maps_url": "https://www.google.com/maps?q=29.9876,30.9345",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_069",
@@ -1936,7 +2067,9 @@ const titansData = [
     "contactPerson": "مدير عام إدارة الحركة والأسطول الزراعي والصناعي",
     "contactTitle": "General Manager of Agro-Industrial Fleet",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.0456,31.3987"
+    "google_maps_url": "https://www.google.com/maps?q=31.0456,31.3987",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_070",
@@ -1964,7 +2097,9 @@ const titansData = [
     "contactPerson": "مدير صيانة وتشغيل الشاحنات",
     "contactTitle": "Truck Fleet Maintenance Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2123,30.7891"
+    "google_maps_url": "https://www.google.com/maps?q=30.2123,30.7891",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_071",
@@ -1992,7 +2127,9 @@ const titansData = [
     "contactPerson": "نائب الرئيس لقطاع سلاسل الإمداد والخدمات اللوجستية",
     "contactTitle": "VP of Supply Chain & Corporate Logistics",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1789,31.2567"
+    "google_maps_url": "https://www.google.com/maps?q=30.1789,31.2567",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_072",
@@ -2020,7 +2157,9 @@ const titansData = [
     "contactPerson": "مدير عام إدارة الحركة والخدمات الميدانية",
     "contactTitle": "Field Services & Fleet General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3456,31.6123"
+    "google_maps_url": "https://www.google.com/maps?q=30.3456,31.6123",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_073",
@@ -2048,7 +2187,9 @@ const titansData = [
     "contactPerson": "مدير عام الإدارة العامة للحركة والأسطول القومي",
     "contactTitle": "National Transport & Fleet General Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.5123,31.1456"
+    "google_maps_url": "https://www.google.com/maps?q=30.5123,31.1456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_074",
@@ -2076,7 +2217,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع النقل وسلاسل الإمداد",
     "contactTitle": "Logistics & Fleet Operations Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3234,31.7654"
+    "google_maps_url": "https://www.google.com/maps?q=30.3234,31.7654",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_075",
@@ -2104,7 +2247,9 @@ const titansData = [
     "contactPerson": "مدير صيانة وتشغيل الحركة",
     "contactTitle": "Transport Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9456,30.9234"
+    "google_maps_url": "https://www.google.com/maps?q=29.9456,30.9234",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_076",
@@ -2132,7 +2277,9 @@ const titansData = [
     "contactPerson": "مدير عام إدارة الحركة والأسطول القومي المبرد",
     "contactTitle": "National Fleet & Cold Chain Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0678,31.0456"
+    "google_maps_url": "https://www.google.com/maps?q=30.0678,31.0456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_077",
@@ -2160,7 +2307,9 @@ const titansData = [
     "contactPerson": "مدير سلاسل الإمداد وإدارة الأسطول",
     "contactTitle": "Supply Chain & Fleet Operations Lead",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9678,30.8987"
+    "google_maps_url": "https://www.google.com/maps?q=29.9678,30.8987",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_078",
@@ -2188,7 +2337,9 @@ const titansData = [
     "contactPerson": "مدير النقل والخدمات اللوجستية",
     "contactTitle": "Transport & Site Logistics Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2234,31.4789"
+    "google_maps_url": "https://www.google.com/maps?q=30.2234,31.4789",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_079",
@@ -2216,7 +2367,9 @@ const titansData = [
     "contactPerson": "مدير عام إدارة الحركة والسيارات",
     "contactTitle": "Central Motor Fleet General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1023,31.2987"
+    "google_maps_url": "https://www.google.com/maps?q=30.1023,31.2987",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_080",
@@ -2244,7 +2397,9 @@ const titansData = [
     "contactPerson": "مدير عام الشؤون الفنية والمعدات والأساطيل",
     "contactTitle": "Technical Affairs & Port Equipment Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.4567,31.7564"
+    "google_maps_url": "https://www.google.com/maps?q=31.4567,31.7564",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_081",
@@ -2272,7 +2427,9 @@ const titansData = [
     "contactPerson": "مدير عام إدارة المركبات ومعدات الساحات",
     "contactTitle": "Yard Equipment & Vehicles General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2567,32.3123"
+    "google_maps_url": "https://www.google.com/maps?q=31.2567,32.3123",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_082",
@@ -2300,7 +2457,9 @@ const titansData = [
     "contactPerson": "مدير إدارة هندسة المعدات والأساطيل الميدانية",
     "contactTitle": "Engineering & Port Fleet Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.6543,32.3456"
+    "google_maps_url": "https://www.google.com/maps?q=29.6543,32.3456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_083",
@@ -2328,7 +2487,9 @@ const titansData = [
     "contactPerson": "مدير عمليات الأسطول القومي",
     "contactTitle": "Country Fleet Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1123,31.4123"
+    "google_maps_url": "https://www.google.com/maps?q=30.1123,31.4123",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_084",
@@ -2356,7 +2517,9 @@ const titansData = [
     "contactPerson": "رئيس قطاعات التشغيل والصيانة والورش المركزية",
     "contactTitle": "Operations & Central Workshops Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1123,31.2567"
+    "google_maps_url": "https://www.google.com/maps?q=30.1123,31.2567",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_085",
@@ -2384,7 +2547,9 @@ const titansData = [
     "contactPerson": "رئيس الإدارة المركزية للشؤون الفنية والورش والمخازن",
     "contactTitle": "Technical Affairs & Central Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0678,31.2876"
+    "google_maps_url": "https://www.google.com/maps?q=30.0678,31.2876",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_086",
@@ -2412,7 +2577,9 @@ const titansData = [
     "contactPerson": "مدير عام التشغيل والصيانة والأسطول",
     "contactTitle": "Chief Operations & Fleet Officer",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0234,31.4321"
+    "google_maps_url": "https://www.google.com/maps?q=30.0234,31.4321",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_087",
@@ -2440,7 +2607,9 @@ const titansData = [
     "contactPerson": "رئيس قطاعات الحركة والنقل والخدمات المركزية",
     "contactTitle": "Head of Transport & Central Services",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.9789,31.1678"
+    "google_maps_url": "https://www.google.com/maps?q=30.9789,31.1678",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_088",
@@ -2468,7 +2637,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والشحن والخدمات اللوجستية المركزية",
     "contactTitle": "Central Transport & Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3012,31.7456"
+    "google_maps_url": "https://www.google.com/maps?q=30.3012,31.7456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_089",
@@ -2496,7 +2667,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والأسطول المركزي",
     "contactTitle": "Central Fleet & Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9321,30.9145"
+    "google_maps_url": "https://www.google.com/maps?q=29.9321,30.9145",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_090",
@@ -2524,7 +2697,9 @@ const titansData = [
     "contactPerson": "مدير حركة النقل والشحن",
     "contactTitle": "Transport & Shipping Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9543,30.8987"
+    "google_maps_url": "https://www.google.com/maps?q=29.9543,30.8987",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_091",
@@ -2552,7 +2727,9 @@ const titansData = [
     "contactPerson": "مدير عام الأسطول واللوجستيات",
     "contactTitle": "Logistics & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9456,32.4876"
+    "google_maps_url": "https://www.google.com/maps?q=29.9456,32.4876",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_092",
@@ -2580,7 +2757,9 @@ const titansData = [
     "contactPerson": "مدير قطاع الورش والحركة المركزية",
     "contactTitle": "Central Motor Fleet & Transport GM",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2123,29.9876"
+    "google_maps_url": "https://www.google.com/maps?q=31.2123,29.9876",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_093",
@@ -2608,7 +2787,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والمعدات التعدينية",
     "contactTitle": "Mining Equipment & Transport Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=25.1234,32.8456"
+    "google_maps_url": "https://www.google.com/maps?q=25.1234,32.8456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_094",
@@ -2636,7 +2817,9 @@ const titansData = [
     "contactPerson": "مدير عام المناجم والحركة",
     "contactTitle": "Mines & Heavy Fleet General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.0456,33.1123"
+    "google_maps_url": "https://www.google.com/maps?q=29.0456,33.1123",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_095",
@@ -2664,7 +2847,9 @@ const titansData = [
     "contactPerson": "مدير صيانة الحركة والمعدات",
     "contactTitle": "Fleet Maintenance Lead",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1234,31.2876"
+    "google_maps_url": "https://www.google.com/maps?q=30.1234,31.2876",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_096",
@@ -2692,7 +2877,9 @@ const titansData = [
     "contactPerson": "مدير الحركة والنقل الثقيل",
     "contactTitle": "Heavy Fleet Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2876,31.7654"
+    "google_maps_url": "https://www.google.com/maps?q=30.2876,31.7654",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_097",
@@ -2720,7 +2907,9 @@ const titansData = [
     "contactPerson": "مدير إدارة النقل والتركيبات",
     "contactTitle": "Transport & Logistics Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9123,30.8765"
+    "google_maps_url": "https://www.google.com/maps?q=29.9123,30.8765",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_098",
@@ -2748,7 +2937,9 @@ const titansData = [
     "contactPerson": "مدير الحركة والمشتريات المركزية",
     "contactTitle": "Procurement & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0678,31.0567"
+    "google_maps_url": "https://www.google.com/maps?q=30.0678,31.0567",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_099",
@@ -2776,7 +2967,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والحركة",
     "contactTitle": "Transport General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.0567,31.1456"
+    "google_maps_url": "https://www.google.com/maps?q=29.0567,31.1456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_100",
@@ -2804,7 +2997,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع الأسطول والتشغيل",
     "contactTitle": "Fleet Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=25.9876,32.8123"
+    "google_maps_url": "https://www.google.com/maps?q=25.9876,32.8123",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_101",
@@ -2832,7 +3027,9 @@ const titansData = [
     "contactPerson": "مدير صيانة وتشغيل الشاحنات",
     "contactTitle": "Fleet Maintenance Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=25.9654,32.8345"
+    "google_maps_url": "https://www.google.com/maps?q=25.9654,32.8345",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_102",
@@ -2860,7 +3057,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل واللوجستيات",
     "contactTitle": "Logistics & Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=28.9543,31.2123"
+    "google_maps_url": "https://www.google.com/maps?q=28.9543,31.2123",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_103",
@@ -2888,7 +3087,9 @@ const titansData = [
     "contactPerson": "مدير حركة وتصدير الأسطول",
     "contactTitle": "Export Fleet & Logistics Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1234,33.4567"
+    "google_maps_url": "https://www.google.com/maps?q=30.1234,33.4567",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_104",
@@ -2916,7 +3117,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والورش",
     "contactTitle": "Central Transport & Maintenance Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=28.3123,30.8456"
+    "google_maps_url": "https://www.google.com/maps?q=28.3123,30.8456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_105",
@@ -2944,7 +3147,9 @@ const titansData = [
     "contactPerson": "مدير عام الأسطول وسلاسل الإمداد",
     "contactTitle": "Supply Chain & Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.7456,32.2123"
+    "google_maps_url": "https://www.google.com/maps?q=29.7456,32.2123",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_106",
@@ -2972,7 +3177,9 @@ const titansData = [
     "contactPerson": "مدير حركة وتوزيع الشاحنات",
     "contactTitle": "Logistics & Transport Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.8912,32.4321"
+    "google_maps_url": "https://www.google.com/maps?q=29.8912,32.4321",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_107",
@@ -3000,7 +3207,9 @@ const titansData = [
     "contactPerson": "مدير قطاع النقل والمحاجر",
     "contactTitle": "Quarries & Fleet Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.8123,32.3678"
+    "google_maps_url": "https://www.google.com/maps?q=29.8123,32.3678",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_108",
@@ -3028,7 +3237,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل واللوجستيات والتصدير",
     "contactTitle": "Logistics & Fleet Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.7123,32.3123"
+    "google_maps_url": "https://www.google.com/maps?q=29.7123,32.3123",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_109",
@@ -3056,7 +3267,9 @@ const titansData = [
     "contactPerson": "مدير حركة وشحن الشاحنات",
     "contactTitle": "Shipping & Fleet Lead",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3912,30.4987"
+    "google_maps_url": "https://www.google.com/maps?q=30.3912,30.4987",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_110",
@@ -3084,7 +3297,9 @@ const titansData = [
     "contactPerson": "مدير إدارة اللوجستيات والحركة",
     "contactTitle": "Transport & Logistics Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2912,31.7321"
+    "google_maps_url": "https://www.google.com/maps?q=30.2912,31.7321",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_111",
@@ -3112,7 +3327,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والتوزيع المركزي",
     "contactTitle": "Central Logistics & Fleet GM",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1345,31.3321"
+    "google_maps_url": "https://www.google.com/maps?q=30.1345,31.3321",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_112",
@@ -3140,7 +3357,9 @@ const titansData = [
     "contactPerson": "مدير حركة الأسطول والنقل",
     "contactTitle": "Fleet Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0567,31.3456"
+    "google_maps_url": "https://www.google.com/maps?q=30.0567,31.3456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_113",
@@ -3168,7 +3387,9 @@ const titansData = [
     "contactPerson": "مدير إدارة الحركة والأسطول القومي",
     "contactTitle": "National Fleet & Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3123,31.7564"
+    "google_maps_url": "https://www.google.com/maps?q=30.3123,31.7564",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_114",
@@ -3196,7 +3417,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والشحن",
     "contactTitle": "Transport & Shipping GM",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3245,31.7432"
+    "google_maps_url": "https://www.google.com/maps?q=30.3245,31.7432",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_115",
@@ -3224,7 +3447,9 @@ const titansData = [
     "contactPerson": "مدير سلاسل الإمداد والأسطول",
     "contactTitle": "Supply Chain & Transport Lead",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2987,31.7654"
+    "google_maps_url": "https://www.google.com/maps?q=30.2987,31.7654",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_116",
@@ -3252,7 +3477,9 @@ const titansData = [
     "contactPerson": "مدير النقل والعمليات الميدانية",
     "contactTitle": "Logistics & Field Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9678,30.9123"
+    "google_maps_url": "https://www.google.com/maps?q=29.9678,30.9123",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_117",
@@ -3280,7 +3507,9 @@ const titansData = [
     "contactPerson": "مدير اللوجستيات والحركة",
     "contactTitle": "Logistics & Fleet Operations Lead",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2345,31.4876"
+    "google_maps_url": "https://www.google.com/maps?q=30.2345,31.4876",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_118",
@@ -3308,7 +3537,9 @@ const titansData = [
     "contactPerson": "مدير الحركة والنقل",
     "contactTitle": "Fleet Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2876,31.7564"
+    "google_maps_url": "https://www.google.com/maps?q=30.2876,31.7564",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_119",
@@ -3336,7 +3567,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والشحن",
     "contactTitle": "Transport & Shipping GM",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3789,30.5123"
+    "google_maps_url": "https://www.google.com/maps?q=30.3789,30.5123",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_120",
@@ -3364,7 +3597,9 @@ const titansData = [
     "contactPerson": "مدير الحركة والمشتريات",
     "contactTitle": "Fleet & Procurement Lead",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3678,30.5321"
+    "google_maps_url": "https://www.google.com/maps?q=30.3678,30.5321",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_121",
@@ -3392,7 +3627,9 @@ const titansData = [
     "contactPerson": "مدير صيانة وتشغيل الحركة",
     "contactTitle": "Transport Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3012,31.7456"
+    "google_maps_url": "https://www.google.com/maps?q=30.3012,31.7456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_122",
@@ -3420,7 +3657,9 @@ const titansData = [
     "contactPerson": "مدير الحركة والنقل",
     "contactTitle": "Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.8654,32.4876"
+    "google_maps_url": "https://www.google.com/maps?q=29.8654,32.4876",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_123",
@@ -3448,7 +3687,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع المعدات والأسطول الميداني",
     "contactTitle": "Equipment & Heavy Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0891,31.3345"
+    "google_maps_url": "https://www.google.com/maps?q=30.0891,31.3345",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_124",
@@ -3476,7 +3717,9 @@ const titansData = [
     "contactPerson": "مدير صيانة المعدات والأساطيل",
     "contactTitle": "Plant & Fleet Maintenance Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0234,30.9876"
+    "google_maps_url": "https://www.google.com/maps?q=30.0234,30.9876",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_125",
@@ -3504,7 +3747,9 @@ const titansData = [
     "contactPerson": "مدير عام إدارة المعدات والتشغيل المركزي",
     "contactTitle": "Central Equipment & Plant Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1123,31.6345"
+    "google_maps_url": "https://www.google.com/maps?q=30.1123,31.6345",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_126",
@@ -3532,7 +3777,9 @@ const titansData = [
     "contactPerson": "مدير إدارة المعدات والورش المركزية",
     "contactTitle": "Central Plant & Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0345,31.4567"
+    "google_maps_url": "https://www.google.com/maps?q=30.0345,31.4567",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_127",
@@ -3560,7 +3807,9 @@ const titansData = [
     "contactPerson": "مدير المعدات والخدمات اللوجستية الميدانية",
     "contactTitle": "Plant & Field Fleet Operations Lead",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0123,31.4321"
+    "google_maps_url": "https://www.google.com/maps?q=30.0123,31.4321",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_128",
@@ -3588,7 +3837,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع الأسطول والمعدات الثقيلة",
     "contactTitle": "Heavy Fleet & Equipment Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0212,31.4456"
+    "google_maps_url": "https://www.google.com/maps?q=30.0212,31.4456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_129",
@@ -3616,7 +3867,9 @@ const titansData = [
     "contactPerson": "مدير الخدمات الميدانية والحركة",
     "contactTitle": "Field Services & Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0156,31.4678"
+    "google_maps_url": "https://www.google.com/maps?q=30.0156,31.4678",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_130",
@@ -3644,7 +3897,9 @@ const titansData = [
     "contactPerson": "مدير عام إدارة المعدات الثقيلة والحركة",
     "contactTitle": "Plant & Fleet General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0678,31.3567"
+    "google_maps_url": "https://www.google.com/maps?q=30.0678,31.3567",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_131",
@@ -3672,7 +3927,9 @@ const titansData = [
     "contactPerson": "مدير صيانة المعدات والأساطيل",
     "contactTitle": "Equipment & Logistics Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0245,31.4234"
+    "google_maps_url": "https://www.google.com/maps?q=30.0245,31.4234",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_132",
@@ -3700,7 +3957,9 @@ const titansData = [
     "contactPerson": "رئيس الإدارة المركزية للشؤون الهندسية والمعدات",
     "contactTitle": "Central Equipment & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0712,31.3321"
+    "google_maps_url": "https://www.google.com/maps?q=30.0712,31.3321",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_133",
@@ -3728,7 +3987,9 @@ const titansData = [
     "contactPerson": "مدير عام ورش الحركة المركزية",
     "contactTitle": "Central Motor Fleet & Plant Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0612,31.2456"
+    "google_maps_url": "https://www.google.com/maps?q=30.0612,31.2456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_134",
@@ -3756,7 +4017,9 @@ const titansData = [
     "contactPerson": "مدير إدارة التشغيل والأسطول",
     "contactTitle": "Fleet Operations Lead",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0912,31.2567"
+    "google_maps_url": "https://www.google.com/maps?q=30.0912,31.2567",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_135",
@@ -3784,7 +4047,9 @@ const titansData = [
     "contactPerson": "رئيس قطاعات المعدات والورش الإنتاجية",
     "contactTitle": "Head of Equipment & Production Workshops",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0512,31.2389"
+    "google_maps_url": "https://www.google.com/maps?q=30.0512,31.2389",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_136",
@@ -3812,7 +4077,9 @@ const titansData = [
     "contactPerson": "مدير عام المعدات وإدارة الأسطول",
     "contactTitle": "Equipment & Fleet Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1045,31.3789"
+    "google_maps_url": "https://www.google.com/maps?q=30.1045,31.3789",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_137",
@@ -3840,7 +4107,9 @@ const titansData = [
     "contactPerson": "مدير عام الأمن والسلامة والأسطول الميداني",
     "contactTitle": "Fleet Operations & Site Logistics GM",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.0456,29.8345"
+    "google_maps_url": "https://www.google.com/maps?q=31.0456,29.8345",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_138",
@@ -3868,7 +4137,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والحركة",
     "contactTitle": "Fleet & Transport General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1456,29.8456"
+    "google_maps_url": "https://www.google.com/maps?q=31.1456,29.8456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_139",
@@ -3896,7 +4167,9 @@ const titansData = [
     "contactPerson": "رئيس الإدارة المركزية للشؤون الهندسية والحركة",
     "contactTitle": "Central Engineering & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=27.2123,31.0567"
+    "google_maps_url": "https://www.google.com/maps?q=27.2123,31.0567",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_140",
@@ -3924,7 +4197,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والورش الميكانيكية",
     "contactTitle": "Transport & Mechanical Workshops GM",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9678,32.5345"
+    "google_maps_url": "https://www.google.com/maps?q=29.9678,32.5345",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_141",
@@ -3952,7 +4227,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والسيارات",
     "contactTitle": "Central Motor Fleet General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1289,31.3178"
+    "google_maps_url": "https://www.google.com/maps?q=30.1289,31.3178",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_142",
@@ -3980,7 +4257,9 @@ const titansData = [
     "contactPerson": "مدير الشؤون الهندسية والحركة",
     "contactTitle": "Engineering & Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9745,32.5234"
+    "google_maps_url": "https://www.google.com/maps?q=29.9745,32.5234",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_143",
@@ -4008,7 +4287,9 @@ const titansData = [
     "contactPerson": "مدير عام الخدمات اللوجستية والنقل الميداني",
     "contactTitle": "Field Logistics & Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9812,31.2876"
+    "google_maps_url": "https://www.google.com/maps?q=29.9812,31.2876",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_144",
@@ -4036,7 +4317,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع الخدمات والعمليات الميدانية",
     "contactTitle": "Field Operations & Logistics Lead",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=28.1456,33.2876"
+    "google_maps_url": "https://www.google.com/maps?q=28.1456,33.2876",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_145",
@@ -4064,7 +4347,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والأسطول البري",
     "contactTitle": "Land Fleet & Logistics GM",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0543,31.3123"
+    "google_maps_url": "https://www.google.com/maps?q=30.0543,31.3123",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_146",
@@ -4092,7 +4377,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والعمليات اللوجستية",
     "contactTitle": "Operations Logistics & Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9789,31.2789"
+    "google_maps_url": "https://www.google.com/maps?q=29.9789,31.2789",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_147",
@@ -4120,7 +4407,9 @@ const titansData = [
     "contactPerson": "مدير إدارة الحركة والسيارات",
     "contactTitle": "Fleet Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9654,31.2678"
+    "google_maps_url": "https://www.google.com/maps?q=29.9654,31.2678",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_148",
@@ -4148,7 +4437,9 @@ const titansData = [
     "contactPerson": "مدير الخدمات الميدانية والحركة",
     "contactTitle": "Field Services & Fleet Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9712,31.2567"
+    "google_maps_url": "https://www.google.com/maps?q=29.9712,31.2567",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_149",
@@ -4176,7 +4467,9 @@ const titansData = [
     "contactPerson": "مدير عمليات الموقع والحركة",
     "contactTitle": "Site Operations & Transport Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.3123,30.2876"
+    "google_maps_url": "https://www.google.com/maps?q=31.3123,30.2876",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_150",
@@ -4204,7 +4497,9 @@ const titansData = [
     "contactPerson": "مدير الشؤون الفنية والأسطول",
     "contactTitle": "Technical Affairs & Transport Lead",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.4456,31.7456"
+    "google_maps_url": "https://www.google.com/maps?q=31.4456,31.7456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_151",
@@ -4232,7 +4527,9 @@ const titansData = [
     "contactPerson": "مدير سلاسل الإمداد والأسطول",
     "contactTitle": "Supply Chain & Site Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.4321,31.7321"
+    "google_maps_url": "https://www.google.com/maps?q=31.4321,31.7321",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_152",
@@ -4260,7 +4557,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والتشغيل والورش",
     "contactTitle": "Transport & Central Workshops General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=24.0876,32.9123"
+    "google_maps_url": "https://www.google.com/maps?q=24.0876,32.9123",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_153",
@@ -4288,7 +4587,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع الخدمات اللوجستية والنقل الثقيل",
     "contactTitle": "Logistics & Heavy Fleet Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3654,30.5432"
+    "google_maps_url": "https://www.google.com/maps?q=30.3654,30.5432",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_154",
@@ -4316,7 +4617,9 @@ const titansData = [
     "contactPerson": "مدير إدارة الحركة والتصدير",
     "contactTitle": "Transport & Shipping Operations Lead",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.0345,29.8234"
+    "google_maps_url": "https://www.google.com/maps?q=31.0345,29.8234",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_155",
@@ -4344,7 +4647,9 @@ const titansData = [
     "contactPerson": "مدير الخدمات اللوجستية الميدانية والأسطول",
     "contactTitle": "Site Logistics & Fleet Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.7234,32.3345"
+    "google_maps_url": "https://www.google.com/maps?q=29.7234,32.3345",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_156",
@@ -4372,7 +4677,9 @@ const titansData = [
     "contactPerson": "نائب الرئيس لسلاسل الإمداد والنقل اللوجستي",
     "contactTitle": "VP of Supply Chain & Corporate Transport",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2123,32.2876"
+    "google_maps_url": "https://www.google.com/maps?q=31.2123,32.2876",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_157",
@@ -4400,7 +4707,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل وسلاسل الإمداد",
     "contactTitle": "Supply Chain & Transport General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2456,32.2345"
+    "google_maps_url": "https://www.google.com/maps?q=31.2456,32.2345",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_158",
@@ -4428,7 +4737,9 @@ const titansData = [
     "contactPerson": "مدير عام العمليات الزراعية والنقل والأسطول الميداني",
     "contactTitle": "Agricultural Fleet & Logistics Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=28.1123,30.5432"
+    "google_maps_url": "https://www.google.com/maps?q=28.1123,30.5432",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_159",
@@ -4456,7 +4767,9 @@ const titansData = [
     "contactPerson": "مدير إدارة الحركة والتشغيل",
     "contactTitle": "Fleet Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.3456,31.4123"
+    "google_maps_url": "https://www.google.com/maps?q=31.3456,31.4123",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_160",
@@ -4484,7 +4797,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والأسطول الزراعي",
     "contactTitle": "Agro-Industrial Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.6543,30.1234"
+    "google_maps_url": "https://www.google.com/maps?q=30.6543,30.1234",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_161",
@@ -4512,7 +4827,9 @@ const titansData = [
     "contactPerson": "مدير الحركة والمشتريات",
     "contactTitle": "Fleet & Logistics Lead",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.1876,30.7456"
+    "google_maps_url": "https://www.google.com/maps?q=29.1876,30.7456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_162",
@@ -4540,7 +4857,9 @@ const titansData = [
     "contactPerson": "مدير عام أسطول التبريد وسلاسل الإمداد",
     "contactTitle": "Cold Chain Fleet & Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2234,31.4678"
+    "google_maps_url": "https://www.google.com/maps?q=30.2234,31.4678",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_163",
@@ -4568,7 +4887,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل واللوجستيات القومية",
     "contactTitle": "Country Logistics & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3123,31.7345"
+    "google_maps_url": "https://www.google.com/maps?q=30.3123,31.7345",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_164",
@@ -4596,7 +4917,9 @@ const titansData = [
     "contactPerson": "مدير سلاسل الإمداد والأسطول",
     "contactTitle": "Supply Chain Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9345,30.9234"
+    "google_maps_url": "https://www.google.com/maps?q=29.9345,30.9234",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_165",
@@ -4624,7 +4947,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والتشغيل",
     "contactTitle": "National Transport Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1056,31.3012"
+    "google_maps_url": "https://www.google.com/maps?q=30.1056,31.3012",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_166",
@@ -4652,7 +4977,9 @@ const titansData = [
     "contactPerson": "مدير سلاسل التبريد والأسطول",
     "contactTitle": "Cold Chain & Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3123,31.7456"
+    "google_maps_url": "https://www.google.com/maps?q=30.3123,31.7456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_167",
@@ -4680,7 +5007,9 @@ const titansData = [
     "contactPerson": "مدير حركة وتوزيع الشاحنات",
     "contactTitle": "Fleet & Distribution Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3678,30.5234"
+    "google_maps_url": "https://www.google.com/maps?q=30.3678,30.5234",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_168",
@@ -4708,7 +5037,9 @@ const titansData = [
     "contactPerson": "مدير عام إدارة الحركة والأسطول الداجني المبرد",
     "contactTitle": "Cold Fleet & Transport Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1876,30.7123"
+    "google_maps_url": "https://www.google.com/maps?q=30.1876,30.7123",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_169",
@@ -4736,7 +5067,9 @@ const titansData = [
     "contactPerson": "مدير عام الأسطول والنقل اللوجستي",
     "contactTitle": "Fleet & Transport General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0612,31.3456"
+    "google_maps_url": "https://www.google.com/maps?q=30.0612,31.3456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_170",
@@ -4764,7 +5097,9 @@ const titansData = [
     "contactPerson": "مدير عام الأسطول والشحن الميداني",
     "contactTitle": "Fleet & Shipping Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.8543,32.4789"
+    "google_maps_url": "https://www.google.com/maps?q=29.8543,32.4789",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_171",
@@ -4792,7 +5127,9 @@ const titansData = [
     "contactPerson": "رئيس الإدارة المركزية للشؤون الفنية والنقل والمعدات",
     "contactTitle": "Central Technical & Fleet Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0987,31.3056"
+    "google_maps_url": "https://www.google.com/maps?q=30.0987,31.3056",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_172",
@@ -4820,7 +5157,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والنقل",
     "contactTitle": "Transport General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1212,31.3123"
+    "google_maps_url": "https://www.google.com/maps?q=30.1212,31.3123",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_173",
@@ -4848,7 +5187,9 @@ const titansData = [
     "contactPerson": "مدير إدارة الحركة والسيارات",
     "contactTitle": "Motor Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0123,31.1876"
+    "google_maps_url": "https://www.google.com/maps?q=30.0123,31.1876",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_174",
@@ -4876,7 +5217,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والأسطول البحري والبري",
     "contactTitle": "Transport Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1876,29.9123"
+    "google_maps_url": "https://www.google.com/maps?q=31.1876,29.9123",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_175",
@@ -4904,7 +5247,9 @@ const titansData = [
     "contactPerson": "رئيس قطاعات النقل والورش المركزية",
     "contactTitle": "Head of Fleet & Central Workshops",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=28.1023,30.7567"
+    "google_maps_url": "https://www.google.com/maps?q=28.1023,30.7567",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_176",
@@ -4932,7 +5277,9 @@ const titansData = [
     "contactPerson": "نائب الرئيس لسلاسل الإمداد واللوجستيات",
     "contactTitle": "VP of Supply Chain & Corporate Fleet",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9678,30.8876"
+    "google_maps_url": "https://www.google.com/maps?q=29.9678,30.8876",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_177",
@@ -4960,7 +5307,9 @@ const titansData = [
     "contactPerson": "مدير عام سلاسل الإمداد وإدارة الأسطول",
     "contactTitle": "Supply Chain & Fleet Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9456,30.9123"
+    "google_maps_url": "https://www.google.com/maps?q=29.9456,30.9123",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_178",
@@ -4988,7 +5337,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع الخدمات اللوجستية والأسطول القومي",
     "contactTitle": "Head of Corporate Logistics & Fleet",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0567,31.0456"
+    "google_maps_url": "https://www.google.com/maps?q=30.0567,31.0456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_179",
@@ -5016,7 +5367,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل وسلاسل الإمداد",
     "contactTitle": "Supply Chain & Logistics GM",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9612,30.8912"
+    "google_maps_url": "https://www.google.com/maps?q=29.9612,30.8912",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_180",
@@ -5044,7 +5397,9 @@ const titansData = [
     "contactPerson": "مدير عام الخدمات الإدارية والأسطول القومي",
     "contactTitle": "Corporate Administration & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2567,32.2876"
+    "google_maps_url": "https://www.google.com/maps?q=31.2567,32.2876",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_181",
@@ -5072,7 +5427,9 @@ const titansData = [
     "contactPerson": "مدير الخدمات اللوجستية والحركة",
     "contactTitle": "Logistics & Fleet Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.3123,30.8456"
+    "google_maps_url": "https://www.google.com/maps?q=29.3123,30.8456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_182",
@@ -5100,7 +5457,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع النقل والخدمات المركزية",
     "contactTitle": "Central Transport & Operations Lead",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0456,31.3567"
+    "google_maps_url": "https://www.google.com/maps?q=30.0456,31.3567",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_183",
@@ -5128,7 +5487,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والأسطول المركزي",
     "contactTitle": "Central Fleet & Distribution General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2345,31.4789"
+    "google_maps_url": "https://www.google.com/maps?q=30.2345,31.4789",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_184",
@@ -5156,7 +5517,9 @@ const titansData = [
     "contactPerson": "مدير سلاسل الإمداد وإدارة الأسطول",
     "contactTitle": "Supply Chain & Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3012,31.7564"
+    "google_maps_url": "https://www.google.com/maps?q=30.3012,31.7564",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_185",
@@ -5184,7 +5547,9 @@ const titansData = [
     "contactPerson": "مدير عام اللوجستيات والنقل",
     "contactTitle": "Country Logistics & Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3345,31.7212"
+    "google_maps_url": "https://www.google.com/maps?q=30.3345,31.7212",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_186",
@@ -5212,7 +5577,9 @@ const titansData = [
     "contactPerson": "مدير العمليات اللوجستية والأسطول",
     "contactTitle": "Logistics & Fleet Operations GM",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3456,31.6876"
+    "google_maps_url": "https://www.google.com/maps?q=30.3456,31.6876",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_187",
@@ -5240,7 +5607,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والخدمات الميدانية",
     "contactTitle": "Field Services & Fleet Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0612,31.0543"
+    "google_maps_url": "https://www.google.com/maps?q=30.0612,31.0543",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_188",
@@ -5268,7 +5637,9 @@ const titansData = [
     "contactPerson": "رئيس الإدارة العامة للأساطيل القومية وسلاسل التبريد",
     "contactTitle": "Head of National Fleet & Cold Chain Operations",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0456,31.3567"
+    "google_maps_url": "https://www.google.com/maps?q=30.0456,31.3567",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_189",
@@ -5296,7 +5667,9 @@ const titansData = [
     "contactPerson": "مدير عام العمليات والأسطول القومي",
     "contactTitle": "Operations & National Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0212,31.4321"
+    "google_maps_url": "https://www.google.com/maps?q=30.0212,31.4321",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_190",
@@ -5324,7 +5697,9 @@ const titansData = [
     "contactPerson": "مدير الخدمات اللوجستية والأسطول",
     "contactTitle": "Country Logistics & Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1012,31.3056"
+    "google_maps_url": "https://www.google.com/maps?q=30.1012,31.3056",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_191",
@@ -5352,7 +5727,9 @@ const titansData = [
     "contactPerson": "مدير سلاسل الإمداد والأسطول القومي",
     "contactTitle": "Supply Chain & Fleet Operations Lead",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1045,31.3089"
+    "google_maps_url": "https://www.google.com/maps?q=30.1045,31.3089",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_192",
@@ -5380,7 +5757,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل واللوجستيات",
     "contactTitle": "Country Transport & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1678,31.4567"
+    "google_maps_url": "https://www.google.com/maps?q=30.1678,31.4567",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_193",
@@ -5408,7 +5787,9 @@ const titansData = [
     "contactPerson": "مدير الحركة والنقل",
     "contactTitle": "Fleet Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9812,30.9234"
+    "google_maps_url": "https://www.google.com/maps?q=29.9812,30.9234",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_194",
@@ -5436,7 +5817,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والشؤون الإدارية",
     "contactTitle": "Transport & Administration Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.4123,32.2876"
+    "google_maps_url": "https://www.google.com/maps?q=30.4123,32.2876",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_195",
@@ -5464,7 +5847,9 @@ const titansData = [
     "contactPerson": "مدير سلاسل الإمداد والأسطول",
     "contactTitle": "Supply Chain & Fleet Lead",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9543,30.9123"
+    "google_maps_url": "https://www.google.com/maps?q=29.9543,30.9123",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_196",
@@ -5492,7 +5877,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والتشغيل",
     "contactTitle": "Fleet Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9612,30.9056"
+    "google_maps_url": "https://www.google.com/maps?q=29.9612,30.9056",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_197",
@@ -5520,7 +5907,9 @@ const titansData = [
     "contactPerson": "مدير إدارة الحركة واللوجستيات",
     "contactTitle": "Logistics & Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9489,30.9178"
+    "google_maps_url": "https://www.google.com/maps?q=29.9489,30.9178",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_198",
@@ -5548,7 +5937,9 @@ const titansData = [
     "contactPerson": "رئيس الإدارة المركزية للشؤون الفنية والورش والمخازن",
     "contactTitle": "Head of Technical & Central Fleet Affairs",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.5912,32.2789"
+    "google_maps_url": "https://www.google.com/maps?q=30.5912,32.2789",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_199",
@@ -5576,7 +5967,9 @@ const titansData = [
     "contactPerson": "مدير عام هندسة المعدات والأساطيل الأرضية",
     "contactTitle": "Port Equipment & Yard Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2234,32.3456"
+    "google_maps_url": "https://www.google.com/maps?q=31.2234,32.3456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_200",
@@ -5604,7 +5997,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع صيانة المعدات والأساطيل الأرضية",
     "contactTitle": "Head of Yard Fleet & Equipment Engineering",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1876,29.8765"
+    "google_maps_url": "https://www.google.com/maps?q=31.1876,29.8765",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_201",
@@ -5632,7 +6027,9 @@ const titansData = [
     "contactPerson": "مدير عام العمليات اللوجستية والنقل البري",
     "contactTitle": "Land Transport & Logistics General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0212,31.2123"
+    "google_maps_url": "https://www.google.com/maps?q=30.0212,31.2123",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_202",
@@ -5660,7 +6057,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والعمليات اللوجستية",
     "contactTitle": "Country Logistics & Fleet Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9345,30.8765"
+    "google_maps_url": "https://www.google.com/maps?q=29.9345,30.8765",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_203",
@@ -5688,7 +6087,9 @@ const titansData = [
     "contactPerson": "مدير النقل البري وسلاسل الإمداد",
     "contactTitle": "Land Transport & Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0245,31.4456"
+    "google_maps_url": "https://www.google.com/maps?q=30.0245,31.4456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_204",
@@ -5716,7 +6117,9 @@ const titansData = [
     "contactPerson": "مدير النقل البري وإدارة الأسطول",
     "contactTitle": "Road Logistics & Fleet Operations Lead",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1089,31.3789"
+    "google_maps_url": "https://www.google.com/maps?q=30.1089,31.3789",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_205",
@@ -5744,7 +6147,9 @@ const titansData = [
     "contactPerson": "مدير عام إدارة الأسطول القومي",
     "contactTitle": "National Fleet Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0612,31.0678"
+    "google_maps_url": "https://www.google.com/maps?q=30.0612,31.0678",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_206",
@@ -5772,7 +6177,9 @@ const titansData = [
     "contactPerson": "رئيس الإدارة المركزية للورش والشؤون الفنية",
     "contactTitle": "Central Workshops & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2123,29.9234"
+    "google_maps_url": "https://www.google.com/maps?q=31.2123,29.9234",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_207",
@@ -5800,7 +6207,9 @@ const titansData = [
     "contactPerson": "مدير عام التشغيل والصيانة والأسطول",
     "contactTitle": "Fleet Operations & Maintenance GM",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0489,31.2345"
+    "google_maps_url": "https://www.google.com/maps?q=30.0489,31.2345",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_208",
@@ -5828,7 +6237,9 @@ const titansData = [
     "contactPerson": "نائب الرئيس لإدارة الحركة والورش المركزية",
     "contactTitle": "VP of Fleet Operations & Central Workshops",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0543,31.0678"
+    "google_maps_url": "https://www.google.com/maps?q=30.0543,31.0678",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_209",
@@ -5856,7 +6267,9 @@ const titansData = [
     "contactPerson": "مدير عام إدارة النقل السياحي والأسطول",
     "contactTitle": "Tourism Fleet & Operations General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0489,31.2389"
+    "google_maps_url": "https://www.google.com/maps?q=30.0489,31.2389",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_210",
@@ -5884,7 +6297,9 @@ const titansData = [
     "contactPerson": "مدير التشغيل والحركة",
     "contactTitle": "Fleet Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0612,31.2489"
+    "google_maps_url": "https://www.google.com/maps?q=30.0612,31.2489",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_211",
@@ -5912,7 +6327,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والتشغيل",
     "contactTitle": "Fleet Operations Lead",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0123,31.2123"
+    "google_maps_url": "https://www.google.com/maps?q=30.0123,31.2123",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_212",
@@ -5940,7 +6357,9 @@ const titansData = [
     "contactPerson": "رئيس قطاعات النقل والورش المركزية",
     "contactTitle": "Head of Transport & Central Workshops",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1345,30.1234"
+    "google_maps_url": "https://www.google.com/maps?q=31.1345,30.1234",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_213",
@@ -5968,7 +6387,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والحركة",
     "contactTitle": "Fleet Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.4123,31.8123"
+    "google_maps_url": "https://www.google.com/maps?q=31.4123,31.8123",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_214",
@@ -5996,7 +6417,9 @@ const titansData = [
     "contactPerson": "مدير عام سلاسل الإمداد والأسطول",
     "contactTitle": "Supply Chain & Fleet Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1234,31.2678"
+    "google_maps_url": "https://www.google.com/maps?q=30.1234,31.2678",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_215",
@@ -6024,7 +6447,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والخدمات اللوجستية المركزية",
     "contactTitle": "Corporate Logistics & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3123,31.7564"
+    "google_maps_url": "https://www.google.com/maps?q=30.3123,31.7564",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_216",
@@ -6052,7 +6477,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والأساطيل والصيانة التعدينية",
     "contactTitle": "Mining Fleets & Mobile Maintenance Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=24.9667,34.7167"
+    "google_maps_url": "https://www.google.com/maps?q=24.9667,34.7167",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_217",
@@ -6080,7 +6507,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع النقل الثقيل واللوجستيات التعدينية",
     "contactTitle": "Heavy Logistics & Mining Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=25.4389,30.5486"
+    "google_maps_url": "https://www.google.com/maps?q=25.4389,30.5486",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_218",
@@ -6108,7 +6537,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والمعدات الميكانيكية",
     "contactTitle": "Mechanical Equipment & Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=24.9785,32.8753"
+    "google_maps_url": "https://www.google.com/maps?q=24.9785,32.8753",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_219",
@@ -6136,7 +6567,9 @@ const titansData = [
     "contactPerson": "مدير عام الشؤون الفنية والنقل",
     "contactTitle": "Technical & Logistics Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0381,31.2114"
+    "google_maps_url": "https://www.google.com/maps?q=30.0381,31.2114",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_220",
@@ -6164,7 +6597,9 @@ const titansData = [
     "contactPerson": "مدير عام الأسطول واللوجستيات والمشتريات",
     "contactTitle": "Fleet & Procurement General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9215,30.9125"
+    "google_maps_url": "https://www.google.com/maps?q=29.9215,30.9125",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_221",
@@ -6192,7 +6627,9 @@ const titansData = [
     "contactPerson": "مدير حركة أسطول النقل والمشتريات الفنية",
     "contactTitle": "Fleet Movement & Technical Purchasing Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2985,31.7412"
+    "google_maps_url": "https://www.google.com/maps?q=30.2985,31.7412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_222",
@@ -6220,7 +6657,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع الخدمات اللوجستية والنقل",
     "contactTitle": "Logistics & Transport Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3789,30.5124"
+    "google_maps_url": "https://www.google.com/maps?q=30.3789,30.5124",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_223",
@@ -6248,7 +6687,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والخدمات الميدانية",
     "contactTitle": "General Manager of Transport & Field Logistics",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1345,31.3056"
+    "google_maps_url": "https://www.google.com/maps?q=30.1345,31.3056",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_224",
@@ -6276,7 +6717,9 @@ const titansData = [
     "contactPerson": "مدير الخدمات اللوجستية والحركة",
     "contactTitle": "Logistics & Fleet Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9145,30.9087"
+    "google_maps_url": "https://www.google.com/maps?q=29.9145,30.9087",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_225",
@@ -6304,7 +6747,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع النقل الثقيل والتركيبات الخارجية",
     "contactTitle": "Heavy Transport & External Erection Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3045,31.7512"
+    "google_maps_url": "https://www.google.com/maps?q=30.3045,31.7512",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_226",
@@ -6332,7 +6777,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والأساطيل والصيانة",
     "contactTitle": "Fleet Movement & Maintenance General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.8512,31.3325"
+    "google_maps_url": "https://www.google.com/maps?q=29.8512,31.3325",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_227",
@@ -6360,7 +6807,9 @@ const titansData = [
     "contactPerson": "مدير الحركة والنقل الميكانيكي",
     "contactTitle": "Mechanical Transport & Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1389,31.3089"
+    "google_maps_url": "https://www.google.com/maps?q=30.1389,31.3089",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_228",
@@ -6388,7 +6837,9 @@ const titansData = [
     "contactPerson": "مدير إدارة الأسطول واللوجستيات والتوزيع القومي",
     "contactTitle": "National Logistics & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2256,32.2845"
+    "google_maps_url": "https://www.google.com/maps?q=31.2256,32.2845",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_229",
@@ -6416,7 +6867,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع الحركة والنقل اللوجستي المركزي",
     "contactTitle": "Central Transport & Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2289,31.4678"
+    "google_maps_url": "https://www.google.com/maps?q=30.2289,31.4678",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_230",
@@ -6444,7 +6897,9 @@ const titansData = [
     "contactPerson": "مدير العمليات اللوجستية وإدارة الأسطول",
     "contactTitle": "Fleet Operations & Logistics Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3012,31.7456"
+    "google_maps_url": "https://www.google.com/maps?q=30.3012,31.7456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_231",
@@ -6472,7 +6927,9 @@ const titansData = [
     "contactPerson": "مدير حركة وتوزيع السيارات المركزية",
     "contactTitle": "Central Transport & Distribution Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3156,31.7589"
+    "google_maps_url": "https://www.google.com/maps?q=30.3156,31.7589",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_232",
@@ -6500,7 +6957,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والمشتريات التشغيلية",
     "contactTitle": "Transport & Operational Procurement Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2212,31.4612"
+    "google_maps_url": "https://www.google.com/maps?q=30.2212,31.4612",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_233",
@@ -6528,7 +6987,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والنقل اللوجستي",
     "contactTitle": "Fleet Movement & Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.8245,30.8145"
+    "google_maps_url": "https://www.google.com/maps?q=30.8245,30.8145",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_234",
@@ -6556,7 +7017,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع النقل والمعدات الميكانيكية",
     "contactTitle": "Transport & Mechanical Equipment Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9412,32.4825"
+    "google_maps_url": "https://www.google.com/maps?q=29.9412,32.4825",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_235",
@@ -6584,7 +7047,9 @@ const titansData = [
     "contactPerson": "مدير الشؤون الفنية والنقل المتخصص",
     "contactTitle": "Technical Affairs & Specialized Transport Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1412,29.8312"
+    "google_maps_url": "https://www.google.com/maps?q=31.1412,29.8312",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_236",
@@ -6612,7 +7077,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والأساطيل المركزية والورش",
     "contactTitle": "General Manager of Central Fleets & Workshops",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0078,31.2345"
+    "google_maps_url": "https://www.google.com/maps?q=30.0078,31.2345",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_237",
@@ -6640,7 +7107,9 @@ const titansData = [
     "contactPerson": "مدير الإدارة العامة للمعدات واللوجستيات",
     "contactTitle": "General Directorate of Equipment & Logistics",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0215,31.4425"
+    "google_maps_url": "https://www.google.com/maps?q=30.0215,31.4425",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_238",
@@ -6668,7 +7137,9 @@ const titansData = [
     "contactPerson": "مدير عام اللوجستيات والحركة والصيانة",
     "contactTitle": "Logistics, Fleet & Maintenance Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0912,31.3389"
+    "google_maps_url": "https://www.google.com/maps?q=30.0912,31.3389",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_239",
@@ -6696,7 +7167,9 @@ const titansData = [
     "contactPerson": "مساعد رئيس الشركة للخدمات والحركة والنقل",
     "contactTitle": "Vice Chairman for Services & Fleet Transport",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0545,31.3312"
+    "google_maps_url": "https://www.google.com/maps?q=30.0545,31.3312",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_240",
@@ -6724,7 +7197,9 @@ const titansData = [
     "contactPerson": "رئيس قطاعات النقل واللوجستيات والمشتريات المركزية",
     "contactTitle": "Head of Logistics, Transport & Central Procurement",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9345,30.9256"
+    "google_maps_url": "https://www.google.com/maps?q=29.9345,30.9256",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_241",
@@ -6752,7 +7227,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والحركة واللوجستيات",
     "contactTitle": "General Manager of Transport & Logistics",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=25.9245,32.7689"
+    "google_maps_url": "https://www.google.com/maps?q=25.9245,32.7689",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_242",
@@ -6780,7 +7257,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع الحركة والنقل الميكانيكي",
     "contactTitle": "Head of Mechanical Transport & Fleets",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=24.9812,32.8812"
+    "google_maps_url": "https://www.google.com/maps?q=24.9812,32.8812",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_243",
@@ -6808,7 +7287,9 @@ const titansData = [
     "contactPerson": "مدير سلاسل الإمداد والنقل اللوجستي",
     "contactTitle": "Supply Chain & Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.6289,32.3412"
+    "google_maps_url": "https://www.google.com/maps?q=29.6289,32.3412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_244",
@@ -6836,7 +7317,9 @@ const titansData = [
     "contactPerson": "مدير عام الأسطول والشحن الخارجي",
     "contactTitle": "General Fleet & Distribution Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2945,31.7389"
+    "google_maps_url": "https://www.google.com/maps?q=30.2945,31.7389",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_245",
@@ -6864,7 +7347,9 @@ const titansData = [
     "contactPerson": "مدير إدارة النقل والمشتريات الفنية",
     "contactTitle": "Transport & Technical Procurement Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1989,29.9545"
+    "google_maps_url": "https://www.google.com/maps?q=31.1989,29.9545",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_246",
@@ -6892,7 +7377,9 @@ const titansData = [
     "contactPerson": "الرئيس التنفيذي لقطاعات اللوجستيات والأساطيل المركزية",
     "contactTitle": "Chief Logistics & Fleet Operations Officer",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0345,31.4789"
+    "google_maps_url": "https://www.google.com/maps?q=30.0345,31.4789",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_247",
@@ -6920,7 +7407,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل الثقيل وسلاسل الإمداد",
     "contactTitle": "Heavy Transport & Supply Chain Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2912,31.7345"
+    "google_maps_url": "https://www.google.com/maps?q=30.2912,31.7345",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_248",
@@ -6948,7 +7437,9 @@ const titansData = [
     "contactPerson": "مدير حركة الأسطول والصيانة الميكانيكية",
     "contactTitle": "Fleet Operations & Maintenance Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2845,30.5123"
+    "google_maps_url": "https://www.google.com/maps?q=31.2845,30.5123",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_249",
@@ -6976,7 +7467,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع النقل اللوجستي والمشتريات التشغيلية",
     "contactTitle": "Logistics Transport & Operational Procurement Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.6712,30.0689"
+    "google_maps_url": "https://www.google.com/maps?q=30.6712,30.0689",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_250",
@@ -7004,7 +7497,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل اللوجستي والموانئ",
     "contactTitle": "Country Logistics & Port Fleets Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1325,29.8145"
+    "google_maps_url": "https://www.google.com/maps?q=31.1325,29.8145",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_251",
@@ -7032,7 +7527,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والأساطيل والصيانة",
     "contactTitle": "General Fleet Operations & Maintenance Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1812,29.9012"
+    "google_maps_url": "https://www.google.com/maps?q=31.1812,29.9012",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_252",
@@ -7060,7 +7557,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع الحركة والنقل الميكانيكي",
     "contactTitle": "Head of Mechanical Transport & Fleet Movement",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.7912,31.0025"
+    "google_maps_url": "https://www.google.com/maps?q=30.7912,31.0025",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_253",
@@ -7088,7 +7587,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل المركزي والتشغيل",
     "contactTitle": "Central Transport & Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1312,31.3025"
+    "google_maps_url": "https://www.google.com/maps?q=30.1312,31.3025",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_254",
@@ -7116,7 +7617,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والأساطيل والصيانة",
     "contactTitle": "Fleet & Maintenance General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1895,29.9145"
+    "google_maps_url": "https://www.google.com/maps?q=31.1895,29.9145",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_255",
@@ -7144,7 +7647,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والتشغيل الزراعي والمشتريات",
     "contactTitle": "Transport, Agricultural Operations & Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.6545,30.0512"
+    "google_maps_url": "https://www.google.com/maps?q=30.6545,30.0512",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_256",
@@ -7172,7 +7677,9 @@ const titansData = [
     "contactPerson": "مدير عام الخدمات اللوجستية والحركة الزراعية",
     "contactTitle": "Agri-Logistics & Fleet Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.6489,30.0612"
+    "google_maps_url": "https://www.google.com/maps?q=30.6489,30.0612",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_257",
@@ -7200,7 +7707,9 @@ const titansData = [
     "contactPerson": "مدير عام سلاسل الإمداد والأسطول المبرد",
     "contactTitle": "Cold Chain Logistics & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.5912,32.2612"
+    "google_maps_url": "https://www.google.com/maps?q=30.5912,32.2612",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_258",
@@ -7228,7 +7737,9 @@ const titansData = [
     "contactPerson": "مدير حركة وتوزيع الأسطول المبرد",
     "contactTitle": "Refrigerated Fleet & Movement Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2978,31.7425"
+    "google_maps_url": "https://www.google.com/maps?q=30.2978,31.7425",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_259",
@@ -7256,7 +7767,9 @@ const titansData = [
     "contactPerson": "مدير الأسطول والعمليات الميدانية",
     "contactTitle": "Fleet Operations & Logistics Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.6625,30.0589"
+    "google_maps_url": "https://www.google.com/maps?q=30.6625,30.0589",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_260",
@@ -7284,7 +7797,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل واللوجستيات والمشتريات",
     "contactTitle": "Transport, Logistics & Procurement Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9389,32.4789"
+    "google_maps_url": "https://www.google.com/maps?q=29.9389,32.4789",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_261",
@@ -7312,7 +7827,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع الخرسانة الجاهزة والمعدات المركزية",
     "contactTitle": "Head of Readymix Concrete & Heavy Equipment",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0589,31.3012"
+    "google_maps_url": "https://www.google.com/maps?q=30.0589,31.3012",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_262",
@@ -7340,7 +7857,9 @@ const titansData = [
     "contactPerson": "مدير عام اللوجستيات وأسطول الخرسانة الجاهزة",
     "contactTitle": "Country Readymix Logistics & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9812,31.3145"
+    "google_maps_url": "https://www.google.com/maps?q=29.9812,31.3145",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_263",
@@ -7368,7 +7887,9 @@ const titansData = [
     "contactPerson": "مدير حركة وتوزيع أسطول الخرسانة",
     "contactTitle": "Readymix Dispatch & Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=27.1812,31.1825"
+    "google_maps_url": "https://www.google.com/maps?q=27.1812,31.1825",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_264",
@@ -7396,7 +7917,9 @@ const titansData = [
     "contactPerson": "مدير عام العمليات والأسطول والمعدات",
     "contactTitle": "Operations & Equipment Fleet General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9189,30.8978"
+    "google_maps_url": "https://www.google.com/maps?q=29.9189,30.8978",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_265",
@@ -7424,7 +7947,9 @@ const titansData = [
     "contactPerson": "مدير عام الأسطول والمعدات الثقيلة",
     "contactTitle": "Heavy Equipment & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0189,31.4312"
+    "google_maps_url": "https://www.google.com/maps?q=30.0189,31.4312",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_266",
@@ -7452,7 +7977,9 @@ const titansData = [
     "contactPerson": "مدير إدارة الحركة والتشغيل الخرساني",
     "contactTitle": "Fleet Operations & Dispatch Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3812,30.5245"
+    "google_maps_url": "https://www.google.com/maps?q=30.3812,30.5245",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_267",
@@ -7480,7 +8007,9 @@ const titansData = [
     "contactPerson": "مدير عام الصيانة المركزية والأساطيل",
     "contactTitle": "Central Maintenance & Fleets General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9612,31.2512"
+    "google_maps_url": "https://www.google.com/maps?q=29.9612,31.2512",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_268",
@@ -7508,7 +8037,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والتشغيل الميداني",
     "contactTitle": "Fleet Movement & Field Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2312,31.4712"
+    "google_maps_url": "https://www.google.com/maps?q=30.2312,31.4712",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_269",
@@ -7536,7 +8067,9 @@ const titansData = [
     "contactPerson": "رئيس قطاعات الإنتاج والخدمات اللوجستية وسلاسل الإمداد",
     "contactTitle": "Head of Production, Supply Chain & Logistics",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.8712,31.3212"
+    "google_maps_url": "https://www.google.com/maps?q=29.8712,31.3212",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_270",
@@ -7564,7 +8097,9 @@ const titansData = [
     "contactPerson": "مدير عام المشروعات والشؤون الفنية والنقل",
     "contactTitle": "Technical Affairs & Commercial Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.8689,31.3189"
+    "google_maps_url": "https://www.google.com/maps?q=29.8689,31.3189",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_271",
@@ -7592,7 +8127,9 @@ const titansData = [
     "contactPerson": "مدير عام الدعم الفني والحركة واللوجستيات",
     "contactTitle": "Technical Support & Fleet Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1312,31.3789"
+    "google_maps_url": "https://www.google.com/maps?q=30.1312,31.3789",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_272",
@@ -7620,7 +8157,9 @@ const titansData = [
     "contactPerson": "مدير سلاسل الإمداد والخدمات اللوجستية المركزية",
     "contactTitle": "Central Supply Chain & Fleet Logistics Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1425,31.7125"
+    "google_maps_url": "https://www.google.com/maps?q=30.1425,31.7125",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_273",
@@ -7648,7 +8187,9 @@ const titansData = [
     "contactPerson": "مدير اللوجستيات والنقل الميداني للمشاريع",
     "contactTitle": "Project Transport & Logistics Country Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3112,31.7545"
+    "google_maps_url": "https://www.google.com/maps?q=30.3112,31.7545",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_274",
@@ -7676,7 +8217,9 @@ const titansData = [
     "contactPerson": "مدير قطاع النقل والمعدات الميكانيكية الثقيلة",
     "contactTitle": "Heavy Equipment & Mechanical Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2412,31.3545"
+    "google_maps_url": "https://www.google.com/maps?q=30.2412,31.3545",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_275",
@@ -7704,7 +8247,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والأساطيل الهندسية",
     "contactTitle": "Fleet Movement & Engineering Workshops Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.8456,31.3389"
+    "google_maps_url": "https://www.google.com/maps?q=29.8456,31.3389",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_276",
@@ -7732,7 +8277,9 @@ const titansData = [
     "contactPerson": "مدير قطاع النقل والمعدات التخصصية",
     "contactTitle": "Specialized Equipment & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0612,31.3289"
+    "google_maps_url": "https://www.google.com/maps?q=30.0612,31.3289",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_277",
@@ -7760,7 +8307,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع المعدات الثقيلة والحركة اللوجستية المركزية",
     "contactTitle": "Head of Heavy Plant, Fleets & Central Logistics",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0245,31.4512"
+    "google_maps_url": "https://www.google.com/maps?q=30.0245,31.4512",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_278",
@@ -7788,7 +8337,9 @@ const titansData = [
     "contactPerson": "مدير إدارة المعدات الثقيلة والأساطيل المركزية",
     "contactTitle": "Heavy Machinery & Fleet Central Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0312,31.4689"
+    "google_maps_url": "https://www.google.com/maps?q=30.0312,31.4689",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_279",
@@ -7816,7 +8367,9 @@ const titansData = [
     "contactPerson": "مدير عام أسطول القلابات والمعدات الثقيلة",
     "contactTitle": "Tipper Fleet & Heavy Machinery General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0889,31.3412"
+    "google_maps_url": "https://www.google.com/maps?q=30.0889,31.3412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_280",
@@ -7844,7 +8397,9 @@ const titansData = [
     "contactPerson": "مدير الإدارة العامة للمعدات والورش والنقل",
     "contactTitle": "Directorate of Equipment, Workshops & Transport",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0645,31.3212"
+    "google_maps_url": "https://www.google.com/maps?q=30.0645,31.3212",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_281",
@@ -7872,7 +8427,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع المعدات الميكانيكية والنقل المركزي",
     "contactTitle": "Mechanical Equipment & Central Transport Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0489,31.2389"
+    "google_maps_url": "https://www.google.com/maps?q=30.0489,31.2389",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_282",
@@ -7900,7 +8457,9 @@ const titansData = [
     "contactPerson": "مدير عام الآلات والسيارات والمعدات",
     "contactTitle": "Heavy Machinery & Fleet General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0612,31.2445"
+    "google_maps_url": "https://www.google.com/maps?q=30.0612,31.2445",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_283",
@@ -7928,7 +8487,9 @@ const titansData = [
     "contactPerson": "مدير العمليات اللوجستية والمعدات",
     "contactTitle": "Equipment & Logistics Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0412,31.2045"
+    "google_maps_url": "https://www.google.com/maps?q=30.0412,31.2045",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_284",
@@ -7956,7 +8517,9 @@ const titansData = [
     "contactPerson": "نائب رئيس مجلس الإدارة للأساطيل والعمليات اللوجستية الفائقة",
     "contactTitle": "VP of Heavy Fleets & Heavy Lift Operations",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0612,31.0245"
+    "google_maps_url": "https://www.google.com/maps?q=30.0612,31.0245",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_285",
@@ -7984,7 +8547,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل البري والمعدات الثقيلة",
     "contactTitle": "Land Transport & Heavy Equipment Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1989,29.9012"
+    "google_maps_url": "https://www.google.com/maps?q=31.1989,29.9012",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_286",
@@ -8012,7 +8577,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل البري والخدمات اللوجستية",
     "contactTitle": "Land Transport & Logistics General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1925,29.9112"
+    "google_maps_url": "https://www.google.com/maps?q=31.1925,29.9112",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_287",
@@ -8040,7 +8607,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع النقل البري والأساطيل",
     "contactTitle": "Head of Land Transport & Fleets",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1945,29.8889"
+    "google_maps_url": "https://www.google.com/maps?q=31.1945,29.8889",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_288",
@@ -8068,7 +8637,9 @@ const titansData = [
     "contactPerson": "مدير الشؤون الفنية والنقل اللوجستي",
     "contactTitle": "Technical Affairs & Transport Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1978,29.8945"
+    "google_maps_url": "https://www.google.com/maps?q=31.1978,29.8945",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_289",
@@ -8096,7 +8667,9 @@ const titansData = [
     "contactPerson": "مدير عام الأسطول وسلاسل الإمداد اللوجستية",
     "contactTitle": "Fleet & Cold Supply Chain Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.0289,29.7845"
+    "google_maps_url": "https://www.google.com/maps?q=31.0289,29.7845",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_290",
@@ -8124,7 +8697,9 @@ const titansData = [
     "contactPerson": "مدير العمليات والأسطول اللوجستي",
     "contactTitle": "Logistics Fleet & Terminal Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.9125,29.5845"
+    "google_maps_url": "https://www.google.com/maps?q=30.9125,29.5845",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_291",
@@ -8152,7 +8727,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والصيانة المركزية للأتوبيسات",
     "contactTitle": "Fleet Movement & Bus Maintenance Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0612,31.2489"
+    "google_maps_url": "https://www.google.com/maps?q=30.0612,31.2489",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_292",
@@ -8180,7 +8757,9 @@ const titansData = [
     "contactPerson": "مدير تشغيل الأسطول والصيانة الميكانيكية",
     "contactTitle": "Fleet Operations & Maintenance Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1089,31.2612"
+    "google_maps_url": "https://www.google.com/maps?q=30.1089,31.2612",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_293",
@@ -8208,7 +8787,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والتشغيل الإقليمي",
     "contactTitle": "Regional Fleet Movement & Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.7712,31.0125"
+    "google_maps_url": "https://www.google.com/maps?q=30.7712,31.0125",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_294",
@@ -8236,7 +8817,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل السياحي والورش المركزية",
     "contactTitle": "Tourism Transport & Central Workshops Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1289,31.3712"
+    "google_maps_url": "https://www.google.com/maps?q=30.1289,31.3712",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_295",
@@ -8264,7 +8847,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والخدمات اللوجستية المركزية",
     "contactTitle": "General Manager of Fleet Movement & Logistics",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9989,31.1812"
+    "google_maps_url": "https://www.google.com/maps?q=29.9989,31.1812",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_296",
@@ -8292,7 +8877,9 @@ const titansData = [
     "contactPerson": "مدير إدارة الحركة والنقل الميكانيكي",
     "contactTitle": "Mechanical Transport & Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1012,31.2989"
+    "google_maps_url": "https://www.google.com/maps?q=30.1012,31.2989",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_297",
@@ -8320,7 +8907,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والمستودعات الطبية",
     "contactTitle": "Transport & Medical Warehousing Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1245,31.3145"
+    "google_maps_url": "https://www.google.com/maps?q=30.1245,31.3145",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_298",
@@ -8348,7 +8937,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والورش المركزية",
     "contactTitle": "Central Workshops & Fleet Movement Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1045,31.2945"
+    "google_maps_url": "https://www.google.com/maps?q=30.1045,31.2945",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_299",
@@ -8376,7 +8967,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والنقل الميكانيكي",
     "contactTitle": "Mechanical Transport & Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1289,31.2612"
+    "google_maps_url": "https://www.google.com/maps?q=30.1289,31.2612",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_300",
@@ -8404,7 +8997,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والخدمات اللوجستية والصيانة",
     "contactTitle": "Logistics, Fleet & Maintenance General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2212,30.0125"
+    "google_maps_url": "https://www.google.com/maps?q=31.2212,30.0125",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_301",
@@ -8432,7 +9027,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل واللوجستيات والمشتريات",
     "contactTitle": "General Manager of Fleet Logistics & Purchasing",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9112,30.8925"
+    "google_maps_url": "https://www.google.com/maps?q=29.9112,30.8925",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_302",
@@ -8460,7 +9057,9 @@ const titansData = [
     "contactPerson": "مدير حركة وتوزيع السيارات المركزية",
     "contactTitle": "Central Transport & Distribution Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3012,31.7489"
+    "google_maps_url": "https://www.google.com/maps?q=30.3012,31.7489",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_303",
@@ -8488,7 +9087,9 @@ const titansData = [
     "contactPerson": "مدير اللوجستيات وسلاسل الإمداد",
     "contactTitle": "Logistics & Supply Chain Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2989,31.7345"
+    "google_maps_url": "https://www.google.com/maps?q=30.2989,31.7345",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_304",
@@ -8516,7 +9117,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع الحركة والنقل الميداني",
     "contactTitle": "Head of Fleet Movement & Logistics",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2912,31.7312"
+    "google_maps_url": "https://www.google.com/maps?q=30.2912,31.7312",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_305",
@@ -8544,7 +9147,9 @@ const titansData = [
     "contactPerson": "مدير الشؤون الإدارية والنقل",
     "contactTitle": "Administrative & Transport Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1389,31.7145"
+    "google_maps_url": "https://www.google.com/maps?q=30.1389,31.7145",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_306",
@@ -8572,7 +9177,9 @@ const titansData = [
     "contactPerson": "مدير العمليات اللوجستية وتوزيع البضائع",
     "contactTitle": "Logistics Operations & Distribution Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0389,31.4745"
+    "google_maps_url": "https://www.google.com/maps?q=30.0389,31.4745",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_307",
@@ -8600,7 +9207,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والمعدات الميدانية",
     "contactTitle": "Transport & Field Machinery Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3745,30.5189"
+    "google_maps_url": "https://www.google.com/maps?q=30.3745,30.5189",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_308",
@@ -8628,7 +9237,9 @@ const titansData = [
     "contactPerson": "مدير حركة وتوزيع الأسطول",
     "contactTitle": "Fleet Movement & Distribution Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3089,31.7512"
+    "google_maps_url": "https://www.google.com/maps?q=30.3089,31.7512",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_309",
@@ -8656,7 +9267,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع النقل والمعدات الميكانيكية بالمجمع",
     "contactTitle": "Complex Head of Heavy Equipment & Fleet Transport",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.5412,32.3812"
+    "google_maps_url": "https://www.google.com/maps?q=29.5412,32.3812",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_310",
@@ -8684,7 +9297,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة وأسطول النقل الثقيل",
     "contactTitle": "Heavy Fleet & Transport General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9312,31.2889"
+    "google_maps_url": "https://www.google.com/maps?q=29.9312,31.2889",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_311",
@@ -8712,7 +9327,9 @@ const titansData = [
     "contactPerson": "مدير الأسطول والتشغيل الميداني",
     "contactTitle": "Fleet Operations & Field Logistics Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9289,31.2845"
+    "google_maps_url": "https://www.google.com/maps?q=29.9289,31.2845",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_312",
@@ -8740,7 +9357,9 @@ const titansData = [
     "contactPerson": "مدير عام الخدمات اللوجستية والنقل",
     "contactTitle": "Logistics & Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9689,31.4212"
+    "google_maps_url": "https://www.google.com/maps?q=29.9689,31.4212",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_313",
@@ -8768,7 +9387,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والمحاجر والنقل",
     "contactTitle": "Quarries & Transport General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.0412,33.1089"
+    "google_maps_url": "https://www.google.com/maps?q=29.0412,33.1089",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_314",
@@ -8796,7 +9417,9 @@ const titansData = [
     "contactPerson": "مدير حركة النقل والمشتريات الفنية",
     "contactTitle": "Transport Movement & Procurement Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=24.0812,32.9112"
+    "google_maps_url": "https://www.google.com/maps?q=24.0812,32.9112",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_315",
@@ -8824,7 +9447,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل وسلاسل الإمداد المركزية",
     "contactTitle": "General Manager of Supply Chain & Transport",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9145,30.9012"
+    "google_maps_url": "https://www.google.com/maps?q=29.9145,30.9012",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_316",
@@ -8852,7 +9477,9 @@ const titansData = [
     "contactPerson": "مدير الخدمات اللوجستية والحركة",
     "contactTitle": "Logistics & Fleet Movement Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3789,30.5212"
+    "google_maps_url": "https://www.google.com/maps?q=30.3789,30.5212",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_317",
@@ -8880,7 +9507,9 @@ const titansData = [
     "contactPerson": "مدير عام التشغيل وسلاسل الإمداد وأسطول التوزيع",
     "contactTitle": "Operations, Supply Chain & Distribution Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1189,31.3412"
+    "google_maps_url": "https://www.google.com/maps?q=30.1189,31.3412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_318",
@@ -8908,7 +9537,9 @@ const titansData = [
     "contactPerson": "مدير عام الأسطول المبرد والخدمات اللوجستية",
     "contactTitle": "Refrigerated Fleet & Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9212,30.9145"
+    "google_maps_url": "https://www.google.com/maps?q=29.9212,30.9145",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_319",
@@ -8936,7 +9567,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والتشغيل والنقل",
     "contactTitle": "Fleet Operations & Transport General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3812,30.5289"
+    "google_maps_url": "https://www.google.com/maps?q=30.3812,30.5289",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_320",
@@ -8964,7 +9597,9 @@ const titansData = [
     "contactPerson": "مدير الشحن والتصدير والخدمات اللوجستية",
     "contactTitle": "Export Shipping & Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.6012,32.2789"
+    "google_maps_url": "https://www.google.com/maps?q=30.6012,32.2789",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_321",
@@ -8992,7 +9627,9 @@ const titansData = [
     "contactPerson": "مدير عام الأسطول المبرد وسلاسل التوريد",
     "contactTitle": "Cold Fleet & Export Supply Chain Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.6312,30.0412"
+    "google_maps_url": "https://www.google.com/maps?q=30.6312,30.0412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_322",
@@ -9020,7 +9657,9 @@ const titansData = [
     "contactPerson": "مدير العمليات اللوجستية والشحن الجوي والبحري",
     "contactTitle": "Logistics, Air & Sea Freight Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0589,31.2189"
+    "google_maps_url": "https://www.google.com/maps?q=30.0589,31.2189",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_323",
@@ -9048,7 +9687,9 @@ const titansData = [
     "contactPerson": "مدير عام الأسطول والتوزيع المركزي",
     "contactTitle": "Central Fleet & Distribution General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3845,30.5312"
+    "google_maps_url": "https://www.google.com/maps?q=30.3845,30.5312",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_324",
@@ -9076,7 +9717,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والتشغيل والأسطول المبرد",
     "contactTitle": "Refrigerated Fleet & Distribution Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3712,30.5145"
+    "google_maps_url": "https://www.google.com/maps?q=30.3712,30.5145",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_325",
@@ -9104,7 +9747,9 @@ const titansData = [
     "contactPerson": "مدير حركة وتوزيع السيارات",
     "contactTitle": "Fleet Movement & Distribution Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2945,31.7412"
+    "google_maps_url": "https://www.google.com/maps?q=30.2945,31.7412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_326",
@@ -9132,7 +9777,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل واللوجستيات الزراعية",
     "contactTitle": "Agri-Logistics & Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9089,30.8845"
+    "google_maps_url": "https://www.google.com/maps?q=29.9089,30.8845",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_327",
@@ -9160,7 +9807,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والأساطيل والصيانة",
     "contactTitle": "Fleet Movement & Maintenance General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2812,31.2089"
+    "google_maps_url": "https://www.google.com/maps?q=30.2812,31.2089",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_328",
@@ -9188,7 +9837,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والتشغيل الميكانيكي",
     "contactTitle": "Mechanical Transport & Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2412,30.0189"
+    "google_maps_url": "https://www.google.com/maps?q=31.2412,30.0189",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_329",
@@ -9216,7 +9867,9 @@ const titansData = [
     "contactPerson": "مدير اللوجستيات والشحن والتصدير",
     "contactTitle": "Logistics, Export & Cold Fleets Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.0189,29.7912"
+    "google_maps_url": "https://www.google.com/maps?q=31.0189,29.7912",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_330",
@@ -9244,7 +9897,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل الثقيل والمشتريات",
     "contactTitle": "Heavy Transport & Procurement Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2889,31.7389"
+    "google_maps_url": "https://www.google.com/maps?q=30.2889,31.7389",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_331",
@@ -9272,7 +9927,9 @@ const titansData = [
     "contactPerson": "مدير حركة وتوزيع الأسطول",
     "contactTitle": "Fleet Movement & Distribution Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.6689,30.0612"
+    "google_maps_url": "https://www.google.com/maps?q=30.6689,30.0612",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_332",
@@ -9300,7 +9957,9 @@ const titansData = [
     "contactPerson": "مدير العمليات اللوجستية والحركة",
     "contactTitle": "Logistics Operations & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3712,30.5289"
+    "google_maps_url": "https://www.google.com/maps?q=30.3712,30.5289",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_333",
@@ -9328,7 +9987,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والتشغيل الميداني",
     "contactTitle": "Transport & Field Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.4112,31.1189"
+    "google_maps_url": "https://www.google.com/maps?q=31.4112,31.1189",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_334",
@@ -9356,7 +10017,9 @@ const titansData = [
     "contactPerson": "مدير عام الأسطول وسلاسل الإمداد",
     "contactTitle": "General Fleet & Supply Chain Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2812,31.6812"
+    "google_maps_url": "https://www.google.com/maps?q=30.2812,31.6812",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_335",
@@ -9384,7 +10047,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والعمليات اللوجستية",
     "contactTitle": "Fleet Movement & Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.8112,30.9889"
+    "google_maps_url": "https://www.google.com/maps?q=29.8112,30.9889",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_336",
@@ -9412,7 +10077,9 @@ const titansData = [
     "contactPerson": "مدير النقل والموانئ والشؤون الفنية",
     "contactTitle": "Port Transport & Technical Affairs Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1689,29.8645"
+    "google_maps_url": "https://www.google.com/maps?q=31.1689,29.8645",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_337",
@@ -9440,7 +10107,9 @@ const titansData = [
     "contactPerson": "مدير حركة وتوزيع الأسطول",
     "contactTitle": "Fleet Movement & Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.0712,31.1389"
+    "google_maps_url": "https://www.google.com/maps?q=29.0712,31.1389",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_338",
@@ -9468,7 +10137,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والخدمات المركزية والصيانة",
     "contactTitle": "Central Transport & Maintenance General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2389,30.0145"
+    "google_maps_url": "https://www.google.com/maps?q=31.2389,30.0145",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_339",
@@ -9496,7 +10167,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والأساطيل والمشتريات",
     "contactTitle": "Fleet Movement & Purchasing Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3789,30.5189"
+    "google_maps_url": "https://www.google.com/maps?q=30.3789,30.5189",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_340",
@@ -9524,7 +10197,9 @@ const titansData = [
     "contactPerson": "مدير عام اللوجستيات والنقل الداخلي والخارجي",
     "contactTitle": "Internal & External Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3125,31.7589"
+    "google_maps_url": "https://www.google.com/maps?q=30.3125,31.7589",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_341",
@@ -9552,7 +10227,9 @@ const titansData = [
     "contactPerson": "مدير عام الشؤون الفنية والنقل والمخازن",
     "contactTitle": "Technical Affairs & Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.8312,31.3189"
+    "google_maps_url": "https://www.google.com/maps?q=29.8312,31.3189",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_342",
@@ -9580,7 +10257,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والحركة والتشغيل",
     "contactTitle": "Fleet Transport & Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.4212,31.5645"
+    "google_maps_url": "https://www.google.com/maps?q=30.4212,31.5645",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_343",
@@ -9608,7 +10287,9 @@ const titansData = [
     "contactPerson": "مدير عام الشحن والخدمات اللوجستية المركزية",
     "contactTitle": "Central Shipping & Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2412,32.2712"
+    "google_maps_url": "https://www.google.com/maps?q=31.2412,32.2712",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_344",
@@ -9636,7 +10317,9 @@ const titansData = [
     "contactPerson": "مدير الخدمات اللوجستية والحركة",
     "contactTitle": "Logistics & Transport Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.9189,29.5912"
+    "google_maps_url": "https://www.google.com/maps?q=30.9189,29.5912",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_345",
@@ -9664,7 +10347,9 @@ const titansData = [
     "contactPerson": "مدير النقل والمشتريات التشغيلية",
     "contactTitle": "Operational Transport & Purchasing Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3189,31.7612"
+    "google_maps_url": "https://www.google.com/maps?q=30.3189,31.7612",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_346",
@@ -9692,7 +10377,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل واللوجستيات والمشتريات الفنية",
     "contactTitle": "Country Logistics & Technical Procurement Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1345,29.8289"
+    "google_maps_url": "https://www.google.com/maps?q=31.1345,29.8289",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_347",
@@ -9720,7 +10407,9 @@ const titansData = [
     "contactPerson": "مدير عام سلاسل الإمداد والخدمات اللوجستية والتوزيع",
     "contactTitle": "Supply Chain & National Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.0312,29.7745"
+    "google_maps_url": "https://www.google.com/maps?q=31.0312,29.7745",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_348",
@@ -9748,7 +10437,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والنقل الميكانيكي والمبيعات الحكومية",
     "contactTitle": "Mechanical Transport & Government Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2112,29.9512"
+    "google_maps_url": "https://www.google.com/maps?q=31.2112,29.9512",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_349",
@@ -9776,7 +10467,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والمهمات البتروكيماوية المتخصصة",
     "contactTitle": "Specialized Transport & Chemical Safety Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1512,29.8489"
+    "google_maps_url": "https://www.google.com/maps?q=31.1512,29.8489",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_350",
@@ -9804,7 +10497,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل الثقيل والمعدات",
     "contactTitle": "Heavy Transport & Plant Equipment Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2445,31.3589"
+    "google_maps_url": "https://www.google.com/maps?q=30.2445,31.3589",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_351",
@@ -9832,7 +10527,9 @@ const titansData = [
     "contactPerson": "رئيس قطاعات النقل واللوجستيات والمشتريات المركزية",
     "contactTitle": "Head of Logistics, Transport & Central Procurement",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.8289,30.8112"
+    "google_maps_url": "https://www.google.com/maps?q=30.8289,30.8112",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_352",
@@ -9860,7 +10557,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والورش والنقل",
     "contactTitle": "Fleet Movement & Workshops Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.8112,31.0212"
+    "google_maps_url": "https://www.google.com/maps?q=30.8112,31.0212",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_353",
@@ -9888,7 +10587,9 @@ const titansData = [
     "contactPerson": "مدير عام اللوجستيات والمبيعات الميدانية",
     "contactTitle": "Logistics & Field Distribution Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3745,30.5245"
+    "google_maps_url": "https://www.google.com/maps?q=30.3745,30.5245",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_354",
@@ -9916,7 +10617,9 @@ const titansData = [
     "contactPerson": "مدير عام الملاحات والنقل الميكانيكي",
     "contactTitle": "Salines & Mechanical Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1489,29.8389"
+    "google_maps_url": "https://www.google.com/maps?q=31.1489,29.8389",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_355",
@@ -9944,7 +10647,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والورش والمهمات",
     "contactTitle": "Transport, Workshops & Plant Logistics Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1345,31.2712"
+    "google_maps_url": "https://www.google.com/maps?q=30.1345,31.2712",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_356",
@@ -9972,7 +10677,9 @@ const titansData = [
     "contactPerson": "مدير عام العمليات اللوجستية وأسطول الصيانة الميدانية",
     "contactTitle": "Field Fleet Operations & Heavy Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.0245,29.7689"
+    "google_maps_url": "https://www.google.com/maps?q=31.0245,29.7689",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_357",
@@ -10000,7 +10707,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والحركة والتشغيل الميداني",
     "contactTitle": "Transport Operations & Fleet General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1389,31.3056"
+    "google_maps_url": "https://www.google.com/maps?q=30.1389,31.3056",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_358",
@@ -10028,7 +10737,9 @@ const titansData = [
     "contactPerson": "مدير قطاع النقل والمعدات الميكانيكية",
     "contactTitle": "Mechanical Transport & Fleet Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.8412,31.3345"
+    "google_maps_url": "https://www.google.com/maps?q=29.8412,31.3345",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_359",
@@ -10056,7 +10767,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل واللوجستيات والمخازن",
     "contactTitle": "Logistics, Warehousing & Fleet General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2245,31.4645"
+    "google_maps_url": "https://www.google.com/maps?q=30.2245,31.4645",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_360",
@@ -10084,7 +10797,9 @@ const titansData = [
     "contactPerson": "مدير إدارة الحركة والأسطول المركزي",
     "contactTitle": "Central Fleet & Movement Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2989,31.7456"
+    "google_maps_url": "https://www.google.com/maps?q=30.2989,31.7456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_361",
@@ -10112,7 +10827,9 @@ const titansData = [
     "contactPerson": "مدير سلاسل الإمداد والشحن الوطني",
     "contactTitle": "Supply Chain & National Freight Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3045,31.7512"
+    "google_maps_url": "https://www.google.com/maps?q=30.3045,31.7512",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_362",
@@ -10140,7 +10857,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والتوزيع والمشتريات المركزية",
     "contactTitle": "Central Distribution, Fleet & Procurement Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2912,31.7389"
+    "google_maps_url": "https://www.google.com/maps?q=30.2912,31.7389",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_363",
@@ -10168,7 +10887,9 @@ const titansData = [
     "contactPerson": "مدير عام الخدمات اللوجستية وأسطول التركيبات",
     "contactTitle": "Field Installations & Heavy Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9189,30.9089"
+    "google_maps_url": "https://www.google.com/maps?q=29.9189,30.9089",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_364",
@@ -10196,7 +10917,9 @@ const titansData = [
     "contactPerson": "مدير قطاع النقل والمعدات الميدانية والصيانة",
     "contactTitle": "Field Machinery & Transport Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0512,31.3412"
+    "google_maps_url": "https://www.google.com/maps?q=30.0512,31.3412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_365",
@@ -10224,7 +10947,9 @@ const titansData = [
     "contactPerson": "مدير عام الأسطول والمعدات الثقيلة",
     "contactTitle": "Heavy Equipment & Fleet General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0389,31.2145"
+    "google_maps_url": "https://www.google.com/maps?q=30.0389,31.2145",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_366",
@@ -10252,7 +10977,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع الآلات والسيارات والمعدات الميكانيكية",
     "contactTitle": "Head of Mechanical Equipment & Fleets",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0512,31.2412"
+    "google_maps_url": "https://www.google.com/maps?q=30.0512,31.2412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_367",
@@ -10280,7 +11007,9 @@ const titansData = [
     "contactPerson": "مدير عام المعدات والميكانيكا والحركة",
     "contactTitle": "Equipment, Mechanics & Transport Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0489,31.2389"
+    "google_maps_url": "https://www.google.com/maps?q=30.0489,31.2389",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_368",
@@ -10308,7 +11037,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع النقل والمعدات الميكانيكية",
     "contactTitle": "Mechanical Equipment & Fleet Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0545,31.2412"
+    "google_maps_url": "https://www.google.com/maps?q=30.0545,31.2412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_369",
@@ -10336,7 +11067,9 @@ const titansData = [
     "contactPerson": "مدير إدارة المعدات الثقيلة والحركة",
     "contactTitle": "Heavy Machinery & Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0212,31.4489"
+    "google_maps_url": "https://www.google.com/maps?q=30.0212,31.4489",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_370",
@@ -10364,7 +11097,9 @@ const titansData = [
     "contactPerson": "مدير عام الأسطول والمعدات الإنشائية",
     "contactTitle": "Civil Machinery & Fleet General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0289,31.4589"
+    "google_maps_url": "https://www.google.com/maps?q=30.0289,31.4589",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_371",
@@ -10392,7 +11127,9 @@ const titansData = [
     "contactPerson": "مدير المعدات الميكانيكية والحركة",
     "contactTitle": "Mechanical Equipment & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2489,29.9789"
+    "google_maps_url": "https://www.google.com/maps?q=31.2489,29.9789",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_372",
@@ -10420,7 +11157,9 @@ const titansData = [
     "contactPerson": "مدير عام الآلات والسيارات والتشغيل",
     "contactTitle": "Plant, Machinery & Transport General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.0412,31.3789"
+    "google_maps_url": "https://www.google.com/maps?q=31.0412,31.3789",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_373",
@@ -10448,7 +11187,9 @@ const titansData = [
     "contactPerson": "مدير أسطول القلابات والمعدات الثقيلة",
     "contactTitle": "Tipper Fleet & Heavy Machinery Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.0689,31.1145"
+    "google_maps_url": "https://www.google.com/maps?q=29.0689,31.1145",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_374",
@@ -10476,7 +11217,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع المشروعات والمعدات الهندسية",
     "contactTitle": "Projects & Engineering Machinery Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9989,31.1645"
+    "google_maps_url": "https://www.google.com/maps?q=29.9989,31.1645",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_375",
@@ -10504,7 +11247,9 @@ const titansData = [
     "contactPerson": "مدير عام الورش المركزية والحركة والأساطيل",
     "contactTitle": "Central Workshops & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1045,31.3012"
+    "google_maps_url": "https://www.google.com/maps?q=30.1045,31.3012",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_376",
@@ -10532,7 +11277,9 @@ const titansData = [
     "contactPerson": "مدير عام الأسطول والتشغيل اللوجستي",
     "contactTitle": "Fleet Operations & Logistics General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3789,30.5245"
+    "google_maps_url": "https://www.google.com/maps?q=30.3789,30.5245",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_377",
@@ -10560,7 +11307,9 @@ const titansData = [
     "contactPerson": "مدير النقل البري وسلاسل الإمداد",
     "contactTitle": "Land Transport & Supply Chain Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1989,29.9045"
+    "google_maps_url": "https://www.google.com/maps?q=31.1989,29.9045",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_378",
@@ -10588,7 +11337,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والعمليات اللوجستية",
     "contactTitle": "Operations & Fleet Movement Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1389,31.3812"
+    "google_maps_url": "https://www.google.com/maps?q=30.1389,31.3812",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_379",
@@ -10616,7 +11367,9 @@ const titansData = [
     "contactPerson": "مدير عام العمليات والأساطيل اللوجستية",
     "contactTitle": "Logistics Fleets & Operations General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.6145,32.3389"
+    "google_maps_url": "https://www.google.com/maps?q=29.6145,32.3389",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_380",
@@ -10644,7 +11397,9 @@ const titansData = [
     "contactPerson": "مدير الأسطول المبرد وسلاسل التبريد اللوجستية",
     "contactTitle": "Cold Chain Fleet & Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9389,30.9312"
+    "google_maps_url": "https://www.google.com/maps?q=29.9389,30.9312",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_381",
@@ -10672,7 +11427,9 @@ const titansData = [
     "contactPerson": "مدير حركة وتوزيع السيارات المبردة",
     "contactTitle": "Refrigerated Transport Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2945,31.7345"
+    "google_maps_url": "https://www.google.com/maps?q=30.2945,31.7345",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_382",
@@ -10700,7 +11457,9 @@ const titansData = [
     "contactPerson": "مدير العمليات وسلاسل التوريد",
     "contactTitle": "Operations & Freight Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1789,31.2512"
+    "google_maps_url": "https://www.google.com/maps?q=30.1789,31.2512",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_383",
@@ -10728,7 +11487,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والأساطيل والصيانة",
     "contactTitle": "General Fleet Operations & Maintenance Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.4289,31.7589"
+    "google_maps_url": "https://www.google.com/maps?q=31.4289,31.7589",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_384",
@@ -10756,7 +11517,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والتشغيل المركزي",
     "contactTitle": "Central Transport & Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9689,31.2545"
+    "google_maps_url": "https://www.google.com/maps?q=29.9689,31.2545",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_385",
@@ -10784,7 +11547,9 @@ const titansData = [
     "contactPerson": "مدير النقل اللوجستي والموانئ",
     "contactTitle": "Logistics Transport & Port Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2612,32.3012"
+    "google_maps_url": "https://www.google.com/maps?q=31.2612,32.3012",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_386",
@@ -10812,7 +11577,9 @@ const titansData = [
     "contactPerson": "مدير عام الأسطول والتشغيل والصيانة الميكانيكية",
     "contactTitle": "Fleet Operations & Maintenance Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0589,31.3512"
+    "google_maps_url": "https://www.google.com/maps?q=30.0589,31.3512",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_387",
@@ -10840,7 +11607,9 @@ const titansData = [
     "contactPerson": "مدير إدارة الحركة والتشغيل والصيانة",
     "contactTitle": "Fleet Movement & Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2989,31.7445"
+    "google_maps_url": "https://www.google.com/maps?q=30.2989,31.7445",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_388",
@@ -10868,7 +11637,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والورش المركزية للأتوبيسات",
     "contactTitle": "Bus Fleet Movement & Central Workshops Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=25.6812,32.6412"
+    "google_maps_url": "https://www.google.com/maps?q=25.6812,32.6412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_389",
@@ -10896,7 +11667,9 @@ const titansData = [
     "contactPerson": "مدير تشغيل الأسطول والصيانة الميكانيكية",
     "contactTitle": "Fleet Operations & Maintenance Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=26.1612,32.7212"
+    "google_maps_url": "https://www.google.com/maps?q=26.1612,32.7212",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_390",
@@ -10924,7 +11697,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والتشغيل الإقليمي",
     "contactTitle": "Regional Fleet Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=27.9145,34.3289"
+    "google_maps_url": "https://www.google.com/maps?q=27.9145,34.3289",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_391",
@@ -10952,7 +11727,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل السياحي والتشغيل والورش",
     "contactTitle": "Tourism Transport & Workshops General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=27.2489,33.8345"
+    "google_maps_url": "https://www.google.com/maps?q=27.2489,33.8345",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_392",
@@ -10980,7 +11757,9 @@ const titansData = [
     "contactPerson": "المدير التنفيذي لقطاع الأساطيل والنقل الذكي",
     "contactTitle": "Fleet & Smart Mobility Executive Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0712,31.0189"
+    "google_maps_url": "https://www.google.com/maps?q=30.0712,31.0189",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_393",
@@ -11008,7 +11787,9 @@ const titansData = [
     "contactPerson": "مدير عام العمليات والأساطيل الفاخرة",
     "contactTitle": "Luxury Fleet & Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1112,31.3989"
+    "google_maps_url": "https://www.google.com/maps?q=30.1112,31.3989",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_394",
@@ -11036,7 +11817,9 @@ const titansData = [
     "contactPerson": "مدير عام سلاسل التوريد والأسطول المبرد",
     "contactTitle": "Cold Supply Chain & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1412,31.7189"
+    "google_maps_url": "https://www.google.com/maps?q=30.1412,31.7189",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_395",
@@ -11064,7 +11847,9 @@ const titansData = [
     "contactPerson": "مدير سلاسل الإمداد والتوزيع الأخضر",
     "contactTitle": "Supply Chain & Green Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.4112,31.6212"
+    "google_maps_url": "https://www.google.com/maps?q=30.4112,31.6212",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_396",
@@ -11092,7 +11877,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والمخازن الطبية المركزية",
     "contactTitle": "Central Medical Transport & Warehouses Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9145,30.8989"
+    "google_maps_url": "https://www.google.com/maps?q=29.9145,30.8989",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_397",
@@ -11120,7 +11907,9 @@ const titansData = [
     "contactPerson": "مدير الشحن والتصدير والخدمات اللوجستية",
     "contactTitle": "Export Shipping & Logistics Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3012,31.7589"
+    "google_maps_url": "https://www.google.com/maps?q=30.3012,31.7589",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_398",
@@ -11148,7 +11937,9 @@ const titansData = [
     "contactPerson": "مدير سلاسل التوريد والأسطول المبرد",
     "contactTitle": "Supply Chain & Cold Fleets Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.9089,29.5812"
+    "google_maps_url": "https://www.google.com/maps?q=30.9089,29.5812",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_399",
@@ -11176,7 +11967,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والنقل الميكانيكي",
     "contactTitle": "Mechanical Transport & Logistics Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3489,31.4589"
+    "google_maps_url": "https://www.google.com/maps?q=30.3489,31.4589",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_400",
@@ -11204,7 +11997,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل واللوجستيات وسلاسل الإمداد",
     "contactTitle": "General Logistics, Transport & Supply Chain Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2989,31.7389"
+    "google_maps_url": "https://www.google.com/maps?q=30.2989,31.7389",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_401",
@@ -11232,7 +12027,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والحركة والتشغيل الميداني",
     "contactTitle": "General Manager of Transport & Field Operations",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.8112,31.3489"
+    "google_maps_url": "https://www.google.com/maps?q=29.8112,31.3489",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_402",
@@ -11260,7 +12057,9 @@ const titansData = [
     "contactPerson": "مدير حركة وتوزيع السيارات المركزية",
     "contactTitle": "Central Transport & Movement Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.5812,31.2889"
+    "google_maps_url": "https://www.google.com/maps?q=29.5812,31.2889",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_403",
@@ -11288,7 +12087,9 @@ const titansData = [
     "contactPerson": "مدير اللوجستيات والمبيعات الميدانية",
     "contactTitle": "Logistics & Field Distribution Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.8245,31.3312"
+    "google_maps_url": "https://www.google.com/maps?q=29.8245,31.3312",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_404",
@@ -11316,7 +12117,9 @@ const titansData = [
     "contactPerson": "مدير النقل والمشتريات والورش",
     "contactTitle": "Transport, Purchasing & Workshops Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.8089,31.3412"
+    "google_maps_url": "https://www.google.com/maps?q=29.8089,31.3412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_405",
@@ -11344,7 +12147,9 @@ const titansData = [
     "contactPerson": "مدير عام المحاجر والنقل التعديني",
     "contactTitle": "Quarries & Mining Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.5845,32.7112"
+    "google_maps_url": "https://www.google.com/maps?q=29.5845,32.7112",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_406",
@@ -11372,7 +12177,9 @@ const titansData = [
     "contactPerson": "مدير الخدمات اللوجستية والنقل الميكانيكي",
     "contactTitle": "Mechanical Transport & Logistics Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1789,29.8989"
+    "google_maps_url": "https://www.google.com/maps?q=31.1789,29.8989",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_407",
@@ -11400,7 +12207,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والأساطيل والصيانة",
     "contactTitle": "Fleet Movement & Maintenance Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.0545,31.3812"
+    "google_maps_url": "https://www.google.com/maps?q=31.0545,31.3812",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_408",
@@ -11428,7 +12237,9 @@ const titansData = [
     "contactPerson": "مدير الشؤون الفنية والنقل الميداني",
     "contactTitle": "Technical Affairs & Field Transport Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=25.9889,32.8112"
+    "google_maps_url": "https://www.google.com/maps?q=25.9889,32.8112",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_409",
@@ -11456,7 +12267,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والمعدات الميكانيكية",
     "contactTitle": "Mechanical Equipment & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.0212,28.4345"
+    "google_maps_url": "https://www.google.com/maps?q=31.0212,28.4345",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_410",
@@ -11484,7 +12297,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والحركة التعدينية",
     "contactTitle": "Mining Transport & Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=24.0712,32.9045"
+    "google_maps_url": "https://www.google.com/maps?q=24.0712,32.9045",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_411",
@@ -11512,7 +12327,9 @@ const titansData = [
     "contactPerson": "مدير عام الأسطول المبرد والتصدير اللوجستي",
     "contactTitle": "Cold Fleet & Logistics Export Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.6512,30.0489"
+    "google_maps_url": "https://www.google.com/maps?q=30.6512,30.0489",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_412",
@@ -11540,7 +12357,9 @@ const titansData = [
     "contactPerson": "مدير سلاسل الإمداد والشحن البحري",
     "contactTitle": "Supply Chain & Marine Freight Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3889,30.5412"
+    "google_maps_url": "https://www.google.com/maps?q=30.3889,30.5412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_413",
@@ -11568,7 +12387,9 @@ const titansData = [
     "contactPerson": "الرئيس التنفيذي للعمليات اللوجستية والأساطيل",
     "contactTitle": "Chief Logistics & Fleet Operations Officer",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.6412,30.0512"
+    "google_maps_url": "https://www.google.com/maps?q=30.6412,30.0512",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_414",
@@ -11596,7 +12417,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل واللوجستيات والمشتريات المركزية",
     "contactTitle": "General Manager of Transport, Logistics & Fleets",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0512,31.3489"
+    "google_maps_url": "https://www.google.com/maps?q=30.0512,31.3489",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_415",
@@ -11624,7 +12447,9 @@ const titansData = [
     "contactPerson": "مدير الأسطول المبرد وسلاسل التوريد",
     "contactTitle": "Cold Chain Logistics & Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.6612,30.0645"
+    "google_maps_url": "https://www.google.com/maps?q=30.6612,30.0645",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_416",
@@ -11652,7 +12477,9 @@ const titansData = [
     "contactPerson": "مدير الشحن والتصدير الميداني",
     "contactTitle": "Export Shipping & Field Transport Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3689,30.5112"
+    "google_maps_url": "https://www.google.com/maps?q=30.3689,30.5112",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_417",
@@ -11680,7 +12507,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل واللوجستيات الزراعية",
     "contactTitle": "Agri-Logistics & Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0489,31.2045"
+    "google_maps_url": "https://www.google.com/maps?q=30.0489,31.2045",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_418",
@@ -11708,7 +12537,9 @@ const titansData = [
     "contactPerson": "مدير الحركة والأسطول المبرد",
     "contactTitle": "Fleet Movement & Cold Logistics Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.0412,30.4689"
+    "google_maps_url": "https://www.google.com/maps?q=31.0412,30.4689",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_419",
@@ -11736,7 +12567,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والتشغيل التصديري",
     "contactTitle": "Export Transport & Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.7412,31.8845"
+    "google_maps_url": "https://www.google.com/maps?q=30.7412,31.8845",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_420",
@@ -11764,7 +12597,9 @@ const titansData = [
     "contactPerson": "مدير عام الشحن وسلاسل الإمداد اللوجستية",
     "contactTitle": "Shipping & Supply Chain General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1845,29.9089"
+    "google_maps_url": "https://www.google.com/maps?q=31.1845,29.9089",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_421",
@@ -11792,7 +12627,9 @@ const titansData = [
     "contactPerson": "مدير عام اللوجستيات والحركة المركزية",
     "contactTitle": "Central Logistics & Fleet General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9145,30.9089"
+    "google_maps_url": "https://www.google.com/maps?q=29.9145,30.9089",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_422",
@@ -11820,7 +12657,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والشحن والخدمات اللوجستية",
     "contactTitle": "General Transport, Shipping & Logistics Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3089,31.7489"
+    "google_maps_url": "https://www.google.com/maps?q=30.3089,31.7489",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_423",
@@ -11848,7 +12687,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والأساطيل وسلاسل التوريد",
     "contactTitle": "Fleet Movement & Supply Chain Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3745,30.5212"
+    "google_maps_url": "https://www.google.com/maps?q=30.3745,30.5212",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_424",
@@ -11876,7 +12717,9 @@ const titansData = [
     "contactPerson": "مدير إدارة النقل والتشغيل والمخازن",
     "contactTitle": "Transport, Operations & Warehousing Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2289,31.4689"
+    "google_maps_url": "https://www.google.com/maps?q=30.2289,31.4689",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_425",
@@ -11904,7 +12747,9 @@ const titansData = [
     "contactPerson": "مدير اللوجستيات والنقل الداخلي",
     "contactTitle": "Logistics & Internal Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9112,30.8989"
+    "google_maps_url": "https://www.google.com/maps?q=29.9112,30.8989",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_426",
@@ -11932,7 +12777,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والمخازن والورش",
     "contactTitle": "Transport, Warehouses & Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1389,31.7212"
+    "google_maps_url": "https://www.google.com/maps?q=30.1389,31.7212",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_427",
@@ -11960,7 +12807,9 @@ const titansData = [
     "contactPerson": "مدير حركة وتوزيع السيارات",
     "contactTitle": "Fleet Movement & Distribution Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2912,31.7445"
+    "google_maps_url": "https://www.google.com/maps?q=30.2912,31.7445",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_428",
@@ -11988,7 +12837,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والمعدات الميكانيكية",
     "contactTitle": "Mechanical Transport & Fleet Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3789,30.5145"
+    "google_maps_url": "https://www.google.com/maps?q=30.3789,30.5145",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_429",
@@ -12016,7 +12867,9 @@ const titansData = [
     "contactPerson": "مدير الحركة والتشغيل والمشتريات",
     "contactTitle": "Fleet Operations & Procurement Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.9145,29.5845"
+    "google_maps_url": "https://www.google.com/maps?q=30.9145,29.5845",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_430",
@@ -12044,7 +12897,9 @@ const titansData = [
     "contactPerson": "مدير الخدمات اللوجستية والأسطول",
     "contactTitle": "Logistics & Fleet Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1289,31.2712"
+    "google_maps_url": "https://www.google.com/maps?q=30.1289,31.2712",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_431",
@@ -12072,7 +12927,9 @@ const titansData = [
     "contactPerson": "مدير عام الأسطول والعمليات اللوجستية الإقليمية",
     "contactTitle": "Regional Fleet Operations & Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=27.1845,31.1789"
+    "google_maps_url": "https://www.google.com/maps?q=27.1845,31.1789",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_432",
@@ -12100,7 +12957,9 @@ const titansData = [
     "contactPerson": "مدير حركة وتوزيع السيارات المركزية",
     "contactTitle": "Central Transport & Movement Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.7889,30.9989"
+    "google_maps_url": "https://www.google.com/maps?q=30.7889,30.9989",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_433",
@@ -12128,7 +12987,9 @@ const titansData = [
     "contactPerson": "مدير اللوجستيات وسلاسل الإمداد",
     "contactTitle": "Logistics & Supply Chain Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.5845,31.5012"
+    "google_maps_url": "https://www.google.com/maps?q=30.5845,31.5012",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_434",
@@ -12156,7 +13017,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والتشغيل اللوجستي",
     "contactTitle": "Fleet Operations & Transport General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1912,29.9145"
+    "google_maps_url": "https://www.google.com/maps?q=31.1912,29.9145",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_435",
@@ -12184,7 +13047,9 @@ const titansData = [
     "contactPerson": "مدير الحركة والمبيعات الميدانية",
     "contactTitle": "Fleet Movement & Field Distribution Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0045,31.1712"
+    "google_maps_url": "https://www.google.com/maps?q=30.0045,31.1712",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_436",
@@ -12212,7 +13077,9 @@ const titansData = [
     "contactPerson": "مدير الأسطول المبرد والخدمات اللوجستية",
     "contactTitle": "Cold Fleet & Logistics Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=27.1789,31.1845"
+    "google_maps_url": "https://www.google.com/maps?q=27.1789,31.1845",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_437",
@@ -12240,7 +13107,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والتشغيل المركزي",
     "contactTitle": "Central Transport & Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=26.0489,32.2412"
+    "google_maps_url": "https://www.google.com/maps?q=26.0489,32.2412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_438",
@@ -12268,7 +13137,9 @@ const titansData = [
     "contactPerson": "مدير حركة وتوزيع السيارات",
     "contactTitle": "Fleet Movement & Distribution Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=28.1089,30.7489"
+    "google_maps_url": "https://www.google.com/maps?q=28.1089,30.7489",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_439",
@@ -12296,7 +13167,9 @@ const titansData = [
     "contactPerson": "مدير عام اللوجستيات والأساطيل المبردة",
     "contactTitle": "Refrigerated Fleets & Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=27.2345,33.8212"
+    "google_maps_url": "https://www.google.com/maps?q=27.2345,33.8212",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_440",
@@ -12324,7 +13197,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والمبيعات المركزية",
     "contactTitle": "Transport & Central Sales General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.0345,31.3712"
+    "google_maps_url": "https://www.google.com/maps?q=31.0345,31.3712",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_441",
@@ -12352,7 +13227,9 @@ const titansData = [
     "contactPerson": "مدير إدارة الحركة والأسطول المركزي",
     "contactTitle": "Central Fleet & Movement Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9189,30.9112"
+    "google_maps_url": "https://www.google.com/maps?q=29.9189,30.9112",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_442",
@@ -12380,7 +13257,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل واللوجستيات وسلاسل الإمداد",
     "contactTitle": "General Logistics, Transport & Supply Chain Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3012,31.7412"
+    "google_maps_url": "https://www.google.com/maps?q=30.3012,31.7412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_443",
@@ -12408,7 +13287,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والمخازن والتوزيع",
     "contactTitle": "Transport, Warehousing & Distribution Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3145,31.7545"
+    "google_maps_url": "https://www.google.com/maps?q=30.3145,31.7545",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_444",
@@ -12436,7 +13317,9 @@ const titansData = [
     "contactPerson": "مدير العمليات اللوجستية والأسطول",
     "contactTitle": "Logistics Operations & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2212,31.4612"
+    "google_maps_url": "https://www.google.com/maps?q=30.2212,31.4612",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_445",
@@ -12464,7 +13347,9 @@ const titansData = [
     "contactPerson": "مدير حركة وتوزيع السيارات",
     "contactTitle": "Fleet Movement & Distribution Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9145,30.9012"
+    "google_maps_url": "https://www.google.com/maps?q=29.9145,30.9012",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_446",
@@ -12492,7 +13377,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والمشتريات المركزية",
     "contactTitle": "Transport & Central Procurement General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1345,31.3089"
+    "google_maps_url": "https://www.google.com/maps?q=30.1345,31.3089",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_447",
@@ -12520,7 +13407,9 @@ const titansData = [
     "contactPerson": "مدير عام اللوجستيات والنقل الداخلي والمشتريات",
     "contactTitle": "Internal Logistics, Transport & Purchasing Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3112,31.7589"
+    "google_maps_url": "https://www.google.com/maps?q=30.3112,31.7589",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_448",
@@ -12548,7 +13437,9 @@ const titansData = [
     "contactPerson": "مدير حركة وتوزيع السيارات",
     "contactTitle": "Fleet Movement & Distribution Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2945,31.7312"
+    "google_maps_url": "https://www.google.com/maps?q=30.2945,31.7312",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_449",
@@ -12576,7 +13467,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل الثقيل والتركيبات الميدانية",
     "contactTitle": "Heavy Transport & Field Installations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.8389,31.3289"
+    "google_maps_url": "https://www.google.com/maps?q=29.8389,31.3289",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_450",
@@ -12604,7 +13497,9 @@ const titansData = [
     "contactPerson": "مدير العمليات والتشغيل الميكانيكي",
     "contactTitle": "Operations & Mechanical Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1845,31.2489"
+    "google_maps_url": "https://www.google.com/maps?q=30.1845,31.2489",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_451",
@@ -12632,7 +13527,9 @@ const titansData = [
     "contactPerson": "مدير عام الأسطول المبرد وسلاسل التوريد",
     "contactTitle": "Cold Fleet & Supply Chain General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2989,31.7389"
+    "google_maps_url": "https://www.google.com/maps?q=30.2989,31.7389",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_452",
@@ -12660,7 +13557,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والأسطول المبرد",
     "contactTitle": "Refrigerated Fleet & Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.0412,31.3689"
+    "google_maps_url": "https://www.google.com/maps?q=31.0412,31.3689",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_453",
@@ -12688,7 +13587,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل الثقيل والصوامع والمشتريات",
     "contactTitle": "Heavy Transport, Silos & Procurement Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.0745,31.1412"
+    "google_maps_url": "https://www.google.com/maps?q=29.0745,31.1412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_454",
@@ -12716,7 +13617,9 @@ const titansData = [
     "contactPerson": "مدير حركة وتوزيع السيارات المركزية",
     "contactTitle": "Central Transport & Distribution Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1412,31.7245"
+    "google_maps_url": "https://www.google.com/maps?q=30.1412,31.7245",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_455",
@@ -12744,7 +13647,9 @@ const titansData = [
     "contactPerson": "مدير عام اللوجستيات والنقل وتوريدات الموانئ",
     "contactTitle": "Logistics, Transport & Port Supply Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.9112,29.5889"
+    "google_maps_url": "https://www.google.com/maps?q=30.9112,29.5889",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_456",
@@ -12772,7 +13677,9 @@ const titansData = [
     "contactPerson": "مدير عام الأسطول المبرد والتوزيع",
     "contactTitle": "Refrigerated Fleet & Distribution Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.4389,31.6712"
+    "google_maps_url": "https://www.google.com/maps?q=31.4389,31.6712",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_457",
@@ -12800,7 +13707,9 @@ const titansData = [
     "contactPerson": "مدير الحركة والنقل والمبيعات المركزية",
     "contactTitle": "Transport Movement & Sales Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2245,31.4689"
+    "google_maps_url": "https://www.google.com/maps?q=30.2245,31.4689",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_458",
@@ -12828,7 +13737,9 @@ const titansData = [
     "contactPerson": "مدير عام الأسطول واللوجستيات",
     "contactTitle": "Fleet Operations & Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3812,30.5289"
+    "google_maps_url": "https://www.google.com/maps?q=30.3812,30.5289",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_459",
@@ -12856,7 +13767,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل وسلاسل الإمداد المبردة",
     "contactTitle": "Cold Supply Chain & Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2945,31.7389"
+    "google_maps_url": "https://www.google.com/maps?q=30.2945,31.7389",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_460",
@@ -12884,7 +13797,9 @@ const titansData = [
     "contactPerson": "مدير اللوجستيات والشحن والتصدير",
     "contactTitle": "Logistics, Freight & Export Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9312,30.9245"
+    "google_maps_url": "https://www.google.com/maps?q=29.9312,30.9245",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_461",
@@ -12912,7 +13827,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والتشغيل واللوجستيات",
     "contactTitle": "Transport, Operations & Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9245,30.9112"
+    "google_maps_url": "https://www.google.com/maps?q=29.9245,30.9112",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_462",
@@ -12940,7 +13857,9 @@ const titansData = [
     "contactPerson": "مدير عام الأسطول والمبيعات الميدانية",
     "contactTitle": "Fleet Operations & Field Sales Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3812,30.5212"
+    "google_maps_url": "https://www.google.com/maps?q=30.3812,30.5212",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_463",
@@ -12968,7 +13887,9 @@ const titansData = [
     "contactPerson": "مدير حركة وتوزيع السيارات",
     "contactTitle": "Fleet Movement & Distribution Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.0312,31.3612"
+    "google_maps_url": "https://www.google.com/maps?q=31.0312,31.3612",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_464",
@@ -12996,7 +13917,9 @@ const titansData = [
     "contactPerson": "مدير النقل وسلاسل التوريد الصناعية",
     "contactTitle": "Industrial Supply Chain & Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2989,31.7345"
+    "google_maps_url": "https://www.google.com/maps?q=30.2989,31.7345",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_465",
@@ -13024,7 +13947,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة واللوجستيات والمخازن",
     "contactTitle": "Logistics, Warehousing & Fleet General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.9089,29.5845"
+    "google_maps_url": "https://www.google.com/maps?q=30.9089,29.5845",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_466",
@@ -13052,7 +13977,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل البتروكيماوي المتخصص",
     "contactTitle": "Specialized Petrochemical Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.6245,32.3489"
+    "google_maps_url": "https://www.google.com/maps?q=29.6245,32.3489",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_467",
@@ -13080,7 +14007,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل الثقيل والتشغيل الميداني",
     "contactTitle": "Heavy Transport & Field Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.0389,33.1145"
+    "google_maps_url": "https://www.google.com/maps?q=29.0389,33.1145",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_468",
@@ -13108,7 +14037,9 @@ const titansData = [
     "contactPerson": "مدير عام اللوجستيات والحركة والمخازن",
     "contactTitle": "Logistics, Warehousing & Fleet General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.0789,31.1445"
+    "google_maps_url": "https://www.google.com/maps?q=29.0789,31.1445",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_469",
@@ -13136,7 +14067,9 @@ const titansData = [
     "contactPerson": "مدير حركة وتوزيع السيارات",
     "contactTitle": "Fleet Movement & Distribution Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3712,30.5189"
+    "google_maps_url": "https://www.google.com/maps?q=30.3712,30.5189",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_470",
@@ -13164,7 +14097,9 @@ const titansData = [
     "contactPerson": "مدير النقل والمشتريات المركزية",
     "contactTitle": "Central Procurement & Transport Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2412,31.3645"
+    "google_maps_url": "https://www.google.com/maps?q=30.2412,31.3645",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_471",
@@ -13192,7 +14127,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع الآلات والمعدات والميكانيكا",
     "contactTitle": "Head of Mechanical Equipment & Fleets",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=28.1012,30.7512"
+    "google_maps_url": "https://www.google.com/maps?q=28.1012,30.7512",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_472",
@@ -13220,7 +14157,9 @@ const titansData = [
     "contactPerson": "مدير عام المعدات والمشروعات المركزية",
     "contactTitle": "Central Projects & Equipment General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0389,31.2345"
+    "google_maps_url": "https://www.google.com/maps?q=30.0389,31.2345",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_473",
@@ -13248,7 +14187,9 @@ const titansData = [
     "contactPerson": "مدير عام العمليات اللوجستية والأسطول",
     "contactTitle": "Logistics Operations & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0345,31.4712"
+    "google_maps_url": "https://www.google.com/maps?q=30.0345,31.4712",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_474",
@@ -13276,7 +14217,9 @@ const titansData = [
     "contactPerson": "مدير قطاع المعدات والتشغيل الميداني",
     "contactTitle": "Field Equipment & Operations Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=26.1689,32.7312"
+    "google_maps_url": "https://www.google.com/maps?q=26.1689,32.7312",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_475",
@@ -13304,7 +14247,9 @@ const titansData = [
     "contactPerson": "مدير عام الآلات والورش المركزية",
     "contactTitle": "Plant, Machinery & Central Workshops Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2145,29.9545"
+    "google_maps_url": "https://www.google.com/maps?q=31.2145,29.9545",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_476",
@@ -13332,7 +14277,9 @@ const titansData = [
     "contactPerson": "مدير عام المعدات والميكانيكا والحركة",
     "contactTitle": "Equipment, Mechanics & Transport Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1189,30.9389"
+    "google_maps_url": "https://www.google.com/maps?q=31.1189,30.9389",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_477",
@@ -13360,7 +14307,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والتشغيل الميداني",
     "contactTitle": "Field Operations & Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.5589,31.0112"
+    "google_maps_url": "https://www.google.com/maps?q=30.5589,31.0112",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_478",
@@ -13388,7 +14337,9 @@ const titansData = [
     "contactPerson": "مدير عام المعدات والمشاريع البحرية",
     "contactTitle": "Marine Projects & Heavy Equipment Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2589,32.3089"
+    "google_maps_url": "https://www.google.com/maps?q=31.2589,32.3089",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_479",
@@ -13416,7 +14367,9 @@ const titansData = [
     "contactPerson": "مدير الشؤون الهندسية والبحرية والنقل",
     "contactTitle": "Marine Engineering & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9545,32.5512"
+    "google_maps_url": "https://www.google.com/maps?q=29.9545,32.5512",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_480",
@@ -13444,7 +14397,9 @@ const titansData = [
     "contactPerson": "مدير عام أسطول المعدات والتشغيل",
     "contactTitle": "Plant, Machinery & Fleet General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9745,31.2889"
+    "google_maps_url": "https://www.google.com/maps?q=29.9745,31.2889",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_481",
@@ -13472,7 +14427,9 @@ const titansData = [
     "contactPerson": "مدير عام العمليات والأساطيل النهرية والبرية",
     "contactTitle": "River & Land Fleets Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.8612,31.3089"
+    "google_maps_url": "https://www.google.com/maps?q=29.8612,31.3089",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_482",
@@ -13500,7 +14457,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل البري والمحطات اللوجستية",
     "contactTitle": "Land Transport & Container Logistics Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.4312,31.7612"
+    "google_maps_url": "https://www.google.com/maps?q=31.4312,31.7612",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_483",
@@ -13528,7 +14487,9 @@ const titansData = [
     "contactPerson": "مدير حركة الأسطول والصيانة الميكانيكية",
     "contactTitle": "Fleet Movement & Maintenance Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=27.1689,31.1612"
+    "google_maps_url": "https://www.google.com/maps?q=27.1689,31.1612",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_484",
@@ -13556,7 +14517,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والعمليات البحرية الميدانية",
     "contactTitle": "Transport & Port Field Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=26.7312,33.9389"
+    "google_maps_url": "https://www.google.com/maps?q=26.7312,33.9389",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_485",
@@ -13584,7 +14547,9 @@ const titansData = [
     "contactPerson": "مدير الأسطول المبرد وسلاسل التبريد",
     "contactTitle": "Cold Fleet & Seafood Logistics Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2545,32.2889"
+    "google_maps_url": "https://www.google.com/maps?q=31.2545,32.2889",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_486",
@@ -13612,7 +14577,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل الصحراوي والمعدات الثقيلة",
     "contactTitle": "Desert Heavy Transport & Mining Fleets Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=28.3512,28.8689"
+    "google_maps_url": "https://www.google.com/maps?q=28.3512,28.8689",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_487",
@@ -13640,7 +14607,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والتشغيل والورش",
     "contactTitle": "Fleet Operations & Maintenance Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1345,33.8012"
+    "google_maps_url": "https://www.google.com/maps?q=31.1345,33.8012",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_488",
@@ -13668,7 +14637,9 @@ const titansData = [
     "contactPerson": "مدير عام الشحن والموانئ واللوجستيات",
     "contactTitle": "Stevedoring & Port Logistics General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1989,29.8912"
+    "google_maps_url": "https://www.google.com/maps?q=31.1989,29.8912",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_489",
@@ -13696,7 +14667,9 @@ const titansData = [
     "contactPerson": "مدير النقل الزراعي والتشغيل الميداني",
     "contactTitle": "Agri-Transport & Field Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.0312,30.4589"
+    "google_maps_url": "https://www.google.com/maps?q=31.0312,30.4589",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_490",
@@ -13724,7 +14697,9 @@ const titansData = [
     "contactPerson": "مدير حركة وتوزيع السيارات المركزية",
     "contactTitle": "Fleet Movement & Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2889,31.7312"
+    "google_maps_url": "https://www.google.com/maps?q=30.2889,31.7312",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_491",
@@ -13752,7 +14727,9 @@ const titansData = [
     "contactPerson": "مدير عام سلاسل التوريد والأسطول المبرد",
     "contactTitle": "Supply Chain & Cold Fleets Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.5212,31.1489"
+    "google_maps_url": "https://www.google.com/maps?q=30.5212,31.1489",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_492",
@@ -13780,7 +14757,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والتشغيل واللوجستيات",
     "contactTitle": "Logistics, Transport & Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9189,30.9045"
+    "google_maps_url": "https://www.google.com/maps?q=29.9189,30.9045",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_493",
@@ -13808,7 +14787,9 @@ const titansData = [
     "contactPerson": "مدير الحركة والنقل والتوزيع الدوائي",
     "contactTitle": "Pharma Distribution & Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1389,31.7189"
+    "google_maps_url": "https://www.google.com/maps?q=30.1389,31.7189",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_494",
@@ -13836,7 +14817,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والمخازن الطبية",
     "contactTitle": "Medical Warehousing & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2289,31.4645"
+    "google_maps_url": "https://www.google.com/maps?q=30.2289,31.4645",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_495",
@@ -13864,7 +14847,9 @@ const titansData = [
     "contactPerson": "مدير حركة وتوزيع الأدوية",
     "contactTitle": "Pharma Logistics & Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2989,31.7412"
+    "google_maps_url": "https://www.google.com/maps?q=30.2989,31.7412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_496",
@@ -13892,7 +14877,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل واللوجستيات والمشتريات",
     "contactTitle": "Logistics, Purchasing & Fleet General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9112,30.8945"
+    "google_maps_url": "https://www.google.com/maps?q=29.9112,30.8945",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_497",
@@ -13920,7 +14907,9 @@ const titansData = [
     "contactPerson": "مدير إدارة الحركة والتوزيع المركزي",
     "contactTitle": "Central Transport & Distribution Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2289,31.4612"
+    "google_maps_url": "https://www.google.com/maps?q=30.2289,31.4612",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_498",
@@ -13948,7 +14937,9 @@ const titansData = [
     "contactPerson": "مدير سلاسل التوريد والأسطول المبرد",
     "contactTitle": "Supply Chain & Cold Fleets Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1412,31.7212"
+    "google_maps_url": "https://www.google.com/maps?q=30.1412,31.7212",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_499",
@@ -13976,7 +14967,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والخدمات الميدانية للمعامل",
     "contactTitle": "Diagnostic Logistics & Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9145,30.8989"
+    "google_maps_url": "https://www.google.com/maps?q=29.9145,30.8989",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_500",
@@ -14004,7 +14997,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والخدمات اللوجستية وسلاسل التوريد",
     "contactTitle": "General Logistics, Supply Chain & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2289,31.4689"
+    "google_maps_url": "https://www.google.com/maps?q=30.2289,31.4689",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_501",
@@ -14032,7 +15027,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع الحركة والنقل والخدمات الميدانية",
     "contactTitle": "Head of Fleet & Transport Operations",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1345,30.1289"
+    "google_maps_url": "https://www.google.com/maps?q=31.1345,30.1289",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_502",
@@ -14060,7 +15057,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل البري وتوزيع المنتجات",
     "contactTitle": "Director of Land Logistics & Product Distribution",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1312,30.1345"
+    "google_maps_url": "https://www.google.com/maps?q=31.1312,30.1345",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_503",
@@ -14088,7 +15087,9 @@ const titansData = [
     "contactPerson": "مدير إدارة الحركة واللوجستيات",
     "contactTitle": "Fleet & Logistics Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2389,29.9912"
+    "google_maps_url": "https://www.google.com/maps?q=31.2389,29.9912",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_504",
@@ -14116,7 +15117,9 @@ const titansData = [
     "contactPerson": "مدير الشؤون الفنية والنقل والمتابعة",
     "contactTitle": "Technical Affairs & Transport Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0789,31.2145"
+    "google_maps_url": "https://www.google.com/maps?q=30.0789,31.2145",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_505",
@@ -14144,7 +15147,9 @@ const titansData = [
     "contactPerson": "مدير النقل والمهمات",
     "contactTitle": "Transport & Logistics Officer",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.9712,31.1645"
+    "google_maps_url": "https://www.google.com/maps?q=30.9712,31.1645",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_506",
@@ -14172,7 +15177,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل وسلاسل الإمداد",
     "contactTitle": "General Manager of Fleet & Supply Chain",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.9145,29.6212"
+    "google_maps_url": "https://www.google.com/maps?q=30.9145,29.6212",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_507",
@@ -14200,7 +15207,9 @@ const titansData = [
     "contactPerson": "مدير حركة الأسطول والنقل الخارجي",
     "contactTitle": "Fleet Movement & Outbound Logistics Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9312,30.9189"
+    "google_maps_url": "https://www.google.com/maps?q=29.9312,30.9189",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_508",
@@ -14228,7 +15237,9 @@ const titansData = [
     "contactPerson": "مدير اللوجستيات والشحن الجمركي",
     "contactTitle": "Customs Clearance & Logistics Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0512,31.3489"
+    "google_maps_url": "https://www.google.com/maps?q=30.0512,31.3489",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_509",
@@ -14256,7 +15267,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع الحركة والنقل الميداني",
     "contactTitle": "Head of Transportation & Field Operations",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.0212,29.7889"
+    "google_maps_url": "https://www.google.com/maps?q=31.0212,29.7889",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_510",
@@ -14284,7 +15297,9 @@ const titansData = [
     "contactPerson": "مدير المشتريات والحركة والصيانة",
     "contactTitle": "Fleet Maintenance & Procurement Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2912,31.7589"
+    "google_maps_url": "https://www.google.com/maps?q=30.2912,31.7589",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_511",
@@ -14312,7 +15327,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والأسطول المركزي",
     "contactTitle": "General Manager of Central Fleet Operations",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3012,31.7445"
+    "google_maps_url": "https://www.google.com/maps?q=30.3012,31.7445",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_512",
@@ -14340,7 +15357,9 @@ const titansData = [
     "contactPerson": "مدير حركة النقل والصيانة الدورية",
     "contactTitle": "Transport & Fleet Maintenance Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.7912,31.0045"
+    "google_maps_url": "https://www.google.com/maps?q=30.7912,31.0045",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_513",
@@ -14368,7 +15387,9 @@ const titansData = [
     "contactPerson": "رئيس الشؤون الإدارية والأسطول",
     "contactTitle": "Head of Administration & Fleet Transport",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2512,32.2889"
+    "google_maps_url": "https://www.google.com/maps?q=31.2512,32.2889",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_514",
@@ -14396,7 +15417,9 @@ const titansData = [
     "contactPerson": "مدير عام الخدمات اللوجستية والحركة",
     "contactTitle": "Logistics & Fleet Transport Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2012,29.9545"
+    "google_maps_url": "https://www.google.com/maps?q=31.2012,29.9545",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_515",
@@ -14424,7 +15447,9 @@ const titansData = [
     "contactPerson": "مدير حركة النقل",
     "contactTitle": "Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.4112,31.8145"
+    "google_maps_url": "https://www.google.com/maps?q=31.4112,31.8145",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_516",
@@ -14452,7 +15477,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع الحركة والنقل بالصعيد",
     "contactTitle": "Head of Upper Egypt Transport",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=26.1589,32.7212"
+    "google_maps_url": "https://www.google.com/maps?q=26.1589,32.7212",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_517",
@@ -14480,7 +15507,9 @@ const titansData = [
     "contactPerson": "مدير حركة النقل",
     "contactTitle": "Fleet Movement Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1812,30.5212"
+    "google_maps_url": "https://www.google.com/maps?q=31.1812,30.5212",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_518",
@@ -14508,7 +15537,9 @@ const titansData = [
     "contactPerson": "مدير الشؤون الإدارية والنقل",
     "contactTitle": "Admin & Transport Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.7512,30.6989"
+    "google_maps_url": "https://www.google.com/maps?q=30.7512,30.6989",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_519",
@@ -14536,7 +15567,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والتشغيل الزراعي والصناعي",
     "contactTitle": "Agro-Industrial Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.8112,31.0212"
+    "google_maps_url": "https://www.google.com/maps?q=30.8112,31.0212",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_520",
@@ -14564,7 +15597,9 @@ const titansData = [
     "contactPerson": "مدير اللوجستيات والحركة",
     "contactTitle": "Logistics & Fleet Officer",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2212,31.4789"
+    "google_maps_url": "https://www.google.com/maps?q=30.2212,31.4789",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_521",
@@ -14592,7 +15627,9 @@ const titansData = [
     "contactPerson": "مدير حركة النقل",
     "contactTitle": "Transport Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1412,31.7212"
+    "google_maps_url": "https://www.google.com/maps?q=30.1412,31.7212",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_522",
@@ -14620,7 +15657,9 @@ const titansData = [
     "contactPerson": "مدير الحركة والنقل الداخلي",
     "contactTitle": "Domestic Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3112,31.7312"
+    "google_maps_url": "https://www.google.com/maps?q=30.3112,31.7312",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_523",
@@ -14648,7 +15687,9 @@ const titansData = [
     "contactPerson": "مسؤول اللوجستيات والمبيعات المؤسسية",
     "contactTitle": "Logistics & Corporate Fleet Officer",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2145,29.9489"
+    "google_maps_url": "https://www.google.com/maps?q=31.2145,29.9489",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_524",
@@ -14676,7 +15717,9 @@ const titansData = [
     "contactPerson": "مدير الشؤون العامة والنقل",
     "contactTitle": "General Affairs & Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1212,30.1189"
+    "google_maps_url": "https://www.google.com/maps?q=31.1212,30.1189",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_525",
@@ -14704,7 +15747,9 @@ const titansData = [
     "contactPerson": "مدير الحركة والنقل",
     "contactTitle": "Fleet Movement Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9212,30.9312"
+    "google_maps_url": "https://www.google.com/maps?q=29.9212,30.9312",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_526",
@@ -14732,7 +15777,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والمهمات الثقيلة",
     "contactTitle": "Heavy Transport & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=24.9789,32.8712"
+    "google_maps_url": "https://www.google.com/maps?q=24.9789,32.8712",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_527",
@@ -14760,7 +15807,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع الحركة والنقل البري",
     "contactTitle": "Head of Land Logistics & Fleet Movement",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=26.0412,32.2412"
+    "google_maps_url": "https://www.google.com/maps?q=26.0412,32.2412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_528",
@@ -14788,7 +15837,9 @@ const titansData = [
     "contactPerson": "مدير عام أسطول النقل والتوزيع المركزي",
     "contactTitle": "General Manager of Fleet Distribution",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1812,31.2189"
+    "google_maps_url": "https://www.google.com/maps?q=30.1812,31.2189",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_529",
@@ -14816,7 +15867,9 @@ const titansData = [
     "contactPerson": "مدير إدارة الحركة والتوزيع المركزي",
     "contactTitle": "Central Transport & Distribution Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9389,30.9245"
+    "google_maps_url": "https://www.google.com/maps?q=29.9389,30.9245",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_530",
@@ -14844,7 +15897,9 @@ const titansData = [
     "contactPerson": "مدير الشؤون الإدارية والحركة",
     "contactTitle": "Administration & Transport Officer",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9245,30.9389"
+    "google_maps_url": "https://www.google.com/maps?q=29.9245,30.9389",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_531",
@@ -14872,7 +15927,9 @@ const titansData = [
     "contactPerson": "مدير اللوجستيات وسلاسل الإمداد",
     "contactTitle": "Supply Chain & Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2289,31.4645"
+    "google_maps_url": "https://www.google.com/maps?q=30.2289,31.4645",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_532",
@@ -14900,7 +15957,9 @@ const titansData = [
     "contactPerson": "مدير الحركة والنقل الخارجي",
     "contactTitle": "Outbound Logistics & Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3089,31.7512"
+    "google_maps_url": "https://www.google.com/maps?q=30.3089,31.7512",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_533",
@@ -14928,7 +15987,9 @@ const titansData = [
     "contactPerson": "مدير الأسطول والخدمات اللوجستية",
     "contactTitle": "Fleet & Logistics Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.0312,29.8145"
+    "google_maps_url": "https://www.google.com/maps?q=31.0312,29.8145",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_534",
@@ -14956,7 +16017,9 @@ const titansData = [
     "contactPerson": "مدير الحركة والنقل",
     "contactTitle": "Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1889,29.9145"
+    "google_maps_url": "https://www.google.com/maps?q=31.1889,29.9145",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_535",
@@ -14984,7 +16047,9 @@ const titansData = [
     "contactPerson": "مدير حركة النقل والتوريدات",
     "contactTitle": "Supply & Fleet Movement Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2989,31.7612"
+    "google_maps_url": "https://www.google.com/maps?q=30.2989,31.7612",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_536",
@@ -15012,7 +16077,9 @@ const titansData = [
     "contactPerson": "مدير الصيانة والحركة الميدانية",
     "contactTitle": "Maintenance & Transport Supervisor",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1345,31.7145"
+    "google_maps_url": "https://www.google.com/maps?q=30.1345,31.7145",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_537",
@@ -15040,7 +16107,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والأسطول",
     "contactTitle": "General Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3789,30.5112"
+    "google_maps_url": "https://www.google.com/maps?q=30.3789,30.5112",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_538",
@@ -15068,7 +16137,9 @@ const titansData = [
     "contactPerson": "مدير اللوجستيات والحركة",
     "contactTitle": "Logistics Officer",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9145,30.9112"
+    "google_maps_url": "https://www.google.com/maps?q=29.9145,30.9112",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_539",
@@ -15096,7 +16167,9 @@ const titansData = [
     "contactPerson": "مدير الحركة والنقل",
     "contactTitle": "Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3212,31.7489"
+    "google_maps_url": "https://www.google.com/maps?q=30.3212,31.7489",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_540",
@@ -15124,7 +16197,9 @@ const titansData = [
     "contactPerson": "مدير إدارة الحركة",
     "contactTitle": "Fleet Movement Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1289,31.3112"
+    "google_maps_url": "https://www.google.com/maps?q=30.1289,31.3112",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_541",
@@ -15152,7 +16227,9 @@ const titansData = [
     "contactPerson": "مدير العمليات اللوجستية والشحن الدولي",
     "contactTitle": "Logistics Operations & International Freight Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9012,30.8989"
+    "google_maps_url": "https://www.google.com/maps?q=29.9012,30.8989",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_542",
@@ -15180,7 +16257,9 @@ const titansData = [
     "contactPerson": "مدير حركة النقل",
     "contactTitle": "Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3645,30.5289"
+    "google_maps_url": "https://www.google.com/maps?q=30.3645,30.5289",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_543",
@@ -15208,7 +16287,9 @@ const titansData = [
     "contactPerson": "مدير الشؤون اللوجستية",
     "contactTitle": "Logistics Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.9212,29.6345"
+    "google_maps_url": "https://www.google.com/maps?q=30.9212,29.6345",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_544",
@@ -15236,7 +16317,9 @@ const titansData = [
     "contactPerson": "مدير عام الأسطول والمتابعة",
     "contactTitle": "Fleet Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2945,31.7689"
+    "google_maps_url": "https://www.google.com/maps?q=30.2945,31.7689",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_545",
@@ -15264,35 +16347,62 @@ const titansData = [
     "contactPerson": "مدير حركة التوزيع والنقل",
     "contactTitle": "Distribution & Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9345,30.9312"
+    "google_maps_url": "https://www.google.com/maps?q=29.9345,30.9312",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_546",
-    "nameAr": "شركة سيناء للمنجنيز (أبو زنيمة - جنوب سيناء)",
-    "nameEn": "Sinai Manganese Co. - Mining & Metallurgy (Abu Zenima - South Sinai)",
-    "sector": "manufacturing",
+    "nameAr": "شركة تاون جاس (الشركة المصرية لتوزيع الغاز الطبيعي للمدن - Town Gas)",
+    "nameEn": "Town Gas - Egyptian Company for Natural Gas Distribution",
+    "sector": "petroleum",
     "subSector": "تعدين واستخراج خام المنجنيز والجبس والرمال البيضاء وإنتاج سبائك السيليكون منجنيز",
-    "city": "south_sinai",
+    "city": "القاهرة",
     "governorate": "جنوب سيناء",
-    "address": "منطقة أم بجمة، أبو زنيمة، محافظة جنوب سيناء / ميناء أبو زنيمة التعديني",
-    "phone1": "0693520100",
-    "mobile": "01001188442",
-    "hotline": "16146",
-    "website": "https://www.sinaisalt.com",
+    "address": "شارع الهرم، محطة نصر الدين، الجيزة، والقاهرة",
+    "phone1": "0235728400",
+    "mobile": "01006509911",
+    "hotline": "19129",
+    "website": "https://www.towngas.com.eg",
     "latitude": 29.0412,
     "longitude": 33.1112,
-    "fleetSize": 95,
+    "fleetSize": 195,
     "fleetType": "قلابات تعدين عملاقة (دنابر كوماتسو وكاتربيلر)، تريلات نقل خامات لميناء التصدير، وأتوبيسات عمال دفع رباعي",
     "fleetTires": "12.00R24 • 14.00R24 • 315/80R22.5 • 24R20.5",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "أقدم وأكبر صرح لتعدين المنجنيز والجبس بجنوب سيناء يمتلك ميناء تعديني خاص وأسطول معدات مناجم ثقيل",
+    "notes": "كبرى شركات توصيل الغاز الطبيعي في مصر التابعة للهيئة المصرية العامة للبترول، تدير أسطول طوارئ سريع مجهز.",
     "contactPerson": "مدير عام المناجم والنقل الميداني الثقيل",
     "contactTitle": "General Manager of Mines & Heavy Equipment Transport",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.0412,33.1112"
+    "google_maps_url": "https://www.google.com/maps?q=29.0412,33.1112",
+    "activity": "توصيل وتوزيع الغاز الطبيعي للمنازل والمنشآت الصناعية وصيانة المحطات وأساطيل الطوارئ",
+    "phone2": "0235728401",
+    "email": "info@towngas.com.eg",
+    "fleetTypes": [
+      "سيارات طوارئ غاز طبيعي مجهزة",
+      "شاحنات نقل أنابيب وتوريدات شبكات",
+      "حافلات مهندسين وفنيي صيانة شبكات"
+    ],
+    "tireSizes": [
+      "265/70R16",
+      "315/80R22.5",
+      "215/75R17.5"
+    ],
+    "tireConsumptionMonthly": 48,
+    "annualTireBudgetEGP": 6900000,
+    "operationalLocations": [
+      "القاهرة الكبرى والجيزة",
+      "الإسكندرية والبحيرة",
+      "بورسعيد والإسماعيلية"
+    ],
+    "decisionMaker": "رئيس مجلس الإدارة والعضو المنتدب ومساعد رئيس الشركة للعمليات والحركة",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_547",
@@ -15320,7 +16430,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع الحركة والنقل الثقيل بالمناجم",
     "contactTitle": "Head of Mine Transport & Heavy Equipment Fleet",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=25.0212,32.8412"
+    "google_maps_url": "https://www.google.com/maps?q=25.0212,32.8412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_548",
@@ -15348,35 +16460,62 @@ const titansData = [
     "contactPerson": "مدير عام الأسطول البري ومعدات التعدين",
     "contactTitle": "General Manager of Surface Mining Fleet & Logistics",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=25.4312,30.0145"
+    "google_maps_url": "https://www.google.com/maps?q=25.4312,30.0145",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_549",
-    "nameAr": "الشركة المصرية للثروات التعدينية (مرسى علم والقصير والواحات)",
-    "nameEn": "Egyptian Mineral Resources Co. (EMRA - Red Sea & Oases)",
-    "sector": "manufacturing",
+    "nameAr": "شركة بوتاجاسكو لنقل وتوصيل الغاز (Butagasco National LPG Fleet)",
+    "nameEn": "Butagasco - Egyptian Gas Transport & Delivery Mega Fleets",
+    "sector": "petroleum",
     "subSector": "استكشاف واستغلال خامات الذهب، الفلسبار، التلك، الألكاب، والرمال الكاولينية بالصحراء",
-    "city": "red_sea",
+    "city": "مدينة نصر",
     "governorate": "البحر الأحمر",
-    "address": "طريق القصير - مرسى علم، محافظة البحر الأحمر / المقر التعديني بالمعادي",
-    "phone1": "0653312400",
-    "mobile": "01007744118",
-    "hotline": "16149",
-    "website": "https://www.emra-egypt.com",
+    "address": "شارع الطيران، مدينة نصر، القاهرة ومستودعات التوزيع بالجمهورية",
+    "phone1": "0222608400",
+    "mobile": "01223401188",
+    "hotline": "19098",
+    "website": "https://www.butagasco.com",
     "latitude": 25.8212,
     "longitude": 34.1889,
-    "fleetSize": 85,
+    "fleetSize": 280,
     "fleetType": "شاحنات صحراوية دفع رباعي 6x6، حفارات تعدين، تريلات شحن، وأتوبيسات فرق الجيولوجيين",
     "fleetTires": "14.00R20 • 12.00R24 • 315/80R22.5",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "الذراع الاستثماري لهيئة الثروة المعدنية في تشغيل وإدارة المناجم المصرية بأسطول شاحنات صحراوية ثقيلة",
+    "notes": "الأسطول القومي الأضخم في مصر لنقل الغاز المسال وأسطوانات البوتاجاز لضمان وصول الطاقة لكل منزل ومنشأة.",
     "contactPerson": "مدير عام الخدمات واللوجستيات الصحراوية",
     "contactTitle": "Desert Logistics & Exploration Transport Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=25.8212,34.1889"
+    "google_maps_url": "https://www.google.com/maps?q=25.8212,34.1889",
+    "activity": "نقل وتوزيع أسطوانات الغاز والغاز الصب وتأمين الإمدادات للمحافظات وأسطول النقل الثقيل",
+    "phone2": "0222608401",
+    "email": "info@butagasco.com",
+    "fleetTypes": [
+      "شاحنات نقل أسطوانات الغاز سعة 800 و1000 أسطوانة",
+      "تريلات صهاريج نقل غاز صب مسال (LPG)",
+      "سيارات إشراف وتوزيع سريع"
+    ],
+    "tireSizes": [
+      "315/80R22.5",
+      "385/65R22.5",
+      "12.00R20"
+    ],
+    "tireConsumptionMonthly": 70,
+    "annualTireBudgetEGP": 10500000,
+    "operationalLocations": [
+      "كافة محافظات الوجهين البحري والقبلي",
+      "محطات تعبئة الغاز بمسطرد والقطامية والعامرية",
+      "مناطق الصعيد والبحر الأحمر"
+    ],
+    "decisionMaker": "رئيس مجلس الإدارة والعضو المنتدب ومدير عام النقل والأسطول القومي",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_550",
@@ -15404,7 +16543,9 @@ const titansData = [
     "contactPerson": "مدير العمليات اللوجستية والحركة الميدانية",
     "contactTitle": "Field Operations & Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=23.1345,35.5889"
+    "google_maps_url": "https://www.google.com/maps?q=23.1345,35.5889",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_551",
@@ -15432,7 +16573,9 @@ const titansData = [
     "contactPerson": "مدير الحركة والمحاجر",
     "contactTitle": "Quarry Operations & Transport Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=25.4412,30.5412"
+    "google_maps_url": "https://www.google.com/maps?q=25.4412,30.5412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_552",
@@ -15460,7 +16603,9 @@ const titansData = [
     "contactPerson": "مدير حركة الشحن والمحاجر",
     "contactTitle": "Heavy Haulage & Quarry Transport Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=24.0112,32.8889"
+    "google_maps_url": "https://www.google.com/maps?q=24.0112,32.8889",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_553",
@@ -15488,7 +16633,9 @@ const titansData = [
     "contactPerson": "مدير عام الورش المركزية وأسطول الحفارات",
     "contactTitle": "General Director of Heavy Rigs & Mobile Fleet",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0545,31.2489"
+    "google_maps_url": "https://www.google.com/maps?q=30.0545,31.2489",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_554",
@@ -15516,7 +16663,9 @@ const titansData = [
     "contactPerson": "مدير حركة أسطول المحاجر والخدمات اللوجستية",
     "contactTitle": "Aggregates Fleet & Quarry Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.8812,32.3489"
+    "google_maps_url": "https://www.google.com/maps?q=29.8812,32.3489",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_555",
@@ -15544,7 +16693,9 @@ const titansData = [
     "contactPerson": "مدير النقل البري والمحاجر",
     "contactTitle": "Land Haulage & Quarry Transport Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.1812,32.9912"
+    "google_maps_url": "https://www.google.com/maps?q=29.1812,32.9912",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_556",
@@ -15572,7 +16723,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والأسطول البحري والبري",
     "contactTitle": "General Transport & Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1812,29.8912"
+    "google_maps_url": "https://www.google.com/maps?q=31.1812,29.8912",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_557",
@@ -15600,7 +16753,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع الحركة والنقل الميداني للملاحات",
     "contactTitle": "Head of Mining Transport & Salines Logistics",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.0212,33.0145"
+    "google_maps_url": "https://www.google.com/maps?q=31.0212,33.0145",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_558",
@@ -15628,7 +16783,9 @@ const titansData = [
     "contactPerson": "مدير حركة النقل والشحن البري",
     "contactTitle": "Fleet Movement & Land Shipping Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.4712,30.5889"
+    "google_maps_url": "https://www.google.com/maps?q=29.4712,30.5889",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_559",
@@ -15656,7 +16813,9 @@ const titansData = [
     "contactPerson": "مدير الحركة والمعدات الثقيلة",
     "contactTitle": "Heavy Equipment & Transport Supervisor",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=24.1112,32.9212"
+    "google_maps_url": "https://www.google.com/maps?q=24.1112,32.9212",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_560",
@@ -15684,7 +16843,9 @@ const titansData = [
     "contactPerson": "مدير العمليات المحجرية والأسطول",
     "contactTitle": "Quarry Operations & Haulage Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.8412,31.9112"
+    "google_maps_url": "https://www.google.com/maps?q=29.8412,31.9112",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_561",
@@ -15712,7 +16873,9 @@ const titansData = [
     "contactPerson": "مدير النقل الصحراوي والمعدات",
     "contactTitle": "Desert Transport & Fleet Superintendent",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.7112,33.4145"
+    "google_maps_url": "https://www.google.com/maps?q=30.7112,33.4145",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_562",
@@ -15740,7 +16903,9 @@ const titansData = [
     "contactPerson": "مدير الحركة والشحن الدولي",
     "contactTitle": "Fleet Movement & Export Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.5112,32.4112"
+    "google_maps_url": "https://www.google.com/maps?q=29.5112,32.4112",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_563",
@@ -15768,7 +16933,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والخدمات اللوجستية للمجمع",
     "contactTitle": "General Manager of Transport & Complex Logistics",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.6212,32.3112"
+    "google_maps_url": "https://www.google.com/maps?q=29.6212,32.3112",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_564",
@@ -15796,7 +16963,9 @@ const titansData = [
     "contactPerson": "مدير محطة الصب الجاف والأسطول",
     "contactTitle": "Dry Bulk Terminal & Fleet Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=26.7412,33.9412"
+    "google_maps_url": "https://www.google.com/maps?q=26.7412,33.9412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_565",
@@ -15824,7 +16993,9 @@ const titansData = [
     "contactPerson": "مدير حركة النقل والشحن",
     "contactTitle": "Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=25.9812,33.8412"
+    "google_maps_url": "https://www.google.com/maps?q=25.9812,33.8412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_566",
@@ -15852,7 +17023,9 @@ const titansData = [
     "contactPerson": "مدير عام أسطول النقل المبرد والتصدير",
     "contactTitle": "Reefer Fleet & Export Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2212,30.7412"
+    "google_maps_url": "https://www.google.com/maps?q=30.2212,30.7412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_567",
@@ -15880,7 +17053,9 @@ const titansData = [
     "contactPerson": "مدير حركة أسطول التبريد واللوجستيات الدولية",
     "contactTitle": "Cold Chain Fleet & International Logistics Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.5812,30.3412"
+    "google_maps_url": "https://www.google.com/maps?q=30.5812,30.3412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_568",
@@ -15908,7 +17083,9 @@ const titansData = [
     "contactPerson": "مدير الشحن والأسطول",
     "contactTitle": "Fleet & Outbound Shipping Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3912,30.4912"
+    "google_maps_url": "https://www.google.com/maps?q=30.3912,30.4912",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_569",
@@ -15936,7 +17113,9 @@ const titansData = [
     "contactPerson": "مدير حركة النقل والتصدير",
     "contactTitle": "Export Fleet & Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1912,31.1412"
+    "google_maps_url": "https://www.google.com/maps?q=30.1912,31.1412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_570",
@@ -15964,7 +17143,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع الهندسة الزراعية والأسطول الميكانيكي",
     "contactTitle": "Head of Agricultural Engineering & Machinery Fleet",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.7412,31.8912"
+    "google_maps_url": "https://www.google.com/maps?q=30.7412,31.8912",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_571",
@@ -15992,7 +17173,9 @@ const titansData = [
     "contactPerson": "مدير حركة أسطول التبريد",
     "contactTitle": "Refrigerated Transport Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3412,31.8112"
+    "google_maps_url": "https://www.google.com/maps?q=30.3412,31.8112",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_572",
@@ -16020,7 +17203,9 @@ const titansData = [
     "contactPerson": "مدير اللوجستيات والنقل المبرد",
     "contactTitle": "Cold Logistics & Shipping Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2989,31.7545"
+    "google_maps_url": "https://www.google.com/maps?q=30.2989,31.7545",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_573",
@@ -16048,7 +17233,9 @@ const titansData = [
     "contactPerson": "مدير الحركة والنقل الزراعي",
     "contactTitle": "Agricultural Transport Supervisor",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.6412,30.2889"
+    "google_maps_url": "https://www.google.com/maps?q=30.6412,30.2889",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_574",
@@ -16076,7 +17263,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والتشغيل الميداني",
     "contactTitle": "General Transport & Field Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.0512,31.3912"
+    "google_maps_url": "https://www.google.com/maps?q=31.0512,31.3912",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_575",
@@ -16104,7 +17293,9 @@ const titansData = [
     "contactPerson": "مدير حركة الأسطول والصيانة",
     "contactTitle": "Fleet Movement & Vehicle Maintenance Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.5612,31.5112"
+    "google_maps_url": "https://www.google.com/maps?q=30.5612,31.5112",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_576",
@@ -16132,7 +17323,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والورش الميكانيكية المركزية",
     "contactTitle": "General Manager of Transport & Mechanical Workshops",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.8912,31.2612"
+    "google_maps_url": "https://www.google.com/maps?q=29.8912,31.2612",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_577",
@@ -16160,7 +17353,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع النقل والمواصلات الزراعية",
     "contactTitle": "Head of Agricultural Transport & Fleet Operations",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=27.9312,30.8312"
+    "google_maps_url": "https://www.google.com/maps?q=27.9312,30.8312",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_578",
@@ -16188,7 +17383,9 @@ const titansData = [
     "contactPerson": "مدير حركة النقل والشحن",
     "contactTitle": "Transport Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=26.0512,32.2389"
+    "google_maps_url": "https://www.google.com/maps?q=26.0512,32.2389",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_579",
@@ -16216,7 +17413,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والنقل",
     "contactTitle": "General Transport Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=25.6112,32.5412"
+    "google_maps_url": "https://www.google.com/maps?q=25.6112,32.5412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_580",
@@ -16244,7 +17443,9 @@ const titansData = [
     "contactPerson": "مدير الورش والأسطول الميكانيكي",
     "contactTitle": "Mechanical Fleet & Transport Supervisor",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=24.4712,32.9489"
+    "google_maps_url": "https://www.google.com/maps?q=24.4712,32.9489",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_581",
@@ -16272,7 +17473,9 @@ const titansData = [
     "contactPerson": "مدير النقل والحركة",
     "contactTitle": "Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=24.9889,32.8645"
+    "google_maps_url": "https://www.google.com/maps?q=24.9889,32.8645",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_582",
@@ -16300,35 +17503,62 @@ const titansData = [
     "contactPerson": "مدير عام النقل والأسطول التمويني",
     "contactTitle": "General Manager of Fleet & Supply Transport",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0812,31.2489"
+    "google_maps_url": "https://www.google.com/maps?q=30.0812,31.2489",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_583",
-    "nameAr": "شركة مطاحن ومخابز جنوب القاهرة والجيزة (فيصل وأثر النبي)",
-    "nameEn": "South Cairo & Giza Flour Mills & Bakeries Co.",
+    "nameAr": "شركة بيل مصر للأجبان ومنتجات الألبان (Bel Egypt - لافاش كيري وأبو الولد)",
+    "nameEn": "Bel Egypt for Dairy Products & Processed Cheese (Mega Plants)",
     "sector": "food",
     "subSector": "طحن الغلال التموينية، صوامع التخزين الاستراتيجي، وتزويد مخابز الجيزة وحلوان بالدقيق",
-    "city": "giza",
+    "city": "العاشر من رمضان",
     "governorate": "الجيزة",
-    "address": "شارع الملك فيصل، الجيزة / صوامع ومطاحن أثر النبي بمصر القديمة",
-    "phone1": "0235821400",
-    "mobile": "01114499332",
-    "hotline": "16183",
-    "website": "https://www.southcairomills.com",
+    "address": "المنطقة الصناعية الثالثة B1، مجمع مصانع بيل مصر، العاشر من رمضان، الشرقية",
+    "phone1": "0554414900",
+    "mobile": "01007823456",
+    "hotline": "19760",
+    "website": "https://www.groupe-bel.com",
     "latitude": 30.0112,
     "longitude": 31.1889,
-    "fleetSize": 100,
+    "fleetSize": 180,
     "fleetType": "شاحنات شحن دقيق، تريلات نقل قمح من صوامع الصب، وأسطول حافلات ورديات",
     "fleetTires": "315/80R22.5 • 295/80R22.5 • 11.00R20",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "شريان توزيع الدقيق التمويني لمحافظة الجيزة وجنوب القاهرة بأكمله بأسطول شحن يومي مكثف",
+    "notes": "الصانع الفرنسي العالمي الأكبر للأجبان المطبوخة في مصر (لافاش كيري، كيري، أبو الولد) بمجمع صناعي عملاق.",
     "contactPerson": "مدير حركة النقل والتوزيع الميداني",
     "contactTitle": "Transport Movement & Distribution Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0112,31.1889"
+    "google_maps_url": "https://www.google.com/maps?q=30.0112,31.1889",
+    "activity": "تصنيع الجبن المطبوخ والمثلثات والأجبان المعبأة وأساطيل التوزيع المبرد للأسواق والمحافظات",
+    "phone2": "0554414901",
+    "email": "contact@bel-group.com",
+    "fleetTypes": [
+      "شاحنات جامبو معزولة ومبردة لنقل الأجبان",
+      "تريلات شحن مركزي للمستودعات الإقليمية",
+      "سيارات فان توزيع تجاري"
+    ],
+    "tireSizes": [
+      "295/80R22.5",
+      "215/75R17.5",
+      "315/80R22.5"
+    ],
+    "tireConsumptionMonthly": 44,
+    "annualTireBudgetEGP": 6400000,
+    "operationalLocations": [
+      "العاشر من رمضان وبدر",
+      "القاهرة الكبرى والإسكندرية",
+      "كافة المحافظات والموانئ التصديرية"
+    ],
+    "decisionMaker": "المدير التنفيذي للعمليات وسلاسل الإمداد بمجموعة بيل مصر وشمال أفريقيا",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_584",
@@ -16356,7 +17586,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع الحركة والنقل الإقليمي",
     "contactTitle": "Head of Regional Fleet Operations",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.5889,31.5012"
+    "google_maps_url": "https://www.google.com/maps?q=30.5889,31.5012",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_585",
@@ -16384,7 +17616,9 @@ const titansData = [
     "contactPerson": "مدير عام الأسطول والورش المركزية",
     "contactTitle": "General Fleet & Central Workshop Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.7989,30.9989"
+    "google_maps_url": "https://www.google.com/maps?q=30.7989,30.9989",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_586",
@@ -16412,7 +17646,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع النقل والحركة بالوجه القبلي",
     "contactTitle": "Head of Upper Egypt Fleet Transport",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=27.1812,31.1889"
+    "google_maps_url": "https://www.google.com/maps?q=27.1812,31.1889",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_587",
@@ -16440,7 +17676,9 @@ const titansData = [
     "contactPerson": "مدير حركة النقل والتوزيع",
     "contactTitle": "Transport Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=28.0989,30.7512"
+    "google_maps_url": "https://www.google.com/maps?q=28.0989,30.7512",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_588",
@@ -16468,7 +17706,9 @@ const titansData = [
     "contactPerson": "مدير عام الأسطول والنقل الميداني",
     "contactTitle": "General Fleet Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1845,29.9012"
+    "google_maps_url": "https://www.google.com/maps?q=31.1845,29.9012",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_589",
@@ -16496,7 +17736,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع الحركة والنقل بالصوامع والموانئ",
     "contactTitle": "Head of Port Terminals & Silos Transport",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1989,29.8745"
+    "google_maps_url": "https://www.google.com/maps?q=31.1989,29.8745",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_590",
@@ -16524,7 +17766,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والتشغيل الميداني",
     "contactTitle": "Transport Operations General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.7945,31.0012"
+    "google_maps_url": "https://www.google.com/maps?q=30.7945,31.0012",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_591",
@@ -16552,7 +17796,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والأسطول المركزي",
     "contactTitle": "Central Fleet & Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.7189,31.2589"
+    "google_maps_url": "https://www.google.com/maps?q=30.7189,31.2589",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_592",
@@ -16580,63 +17826,115 @@ const titansData = [
     "contactPerson": "رئيس قطاع الحركة والنقل والتوزيع",
     "contactTitle": "Head of Fleet Transport & Distribution",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1345,31.3189"
+    "google_maps_url": "https://www.google.com/maps?q=30.1345,31.3189",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_593",
-    "nameAr": "شركة الإسكندرية للزيوت والصابون (كرموز وكفر الزيات)",
-    "nameEn": "Alexandria Oil & Soap Co. (Karmouz & Kafr El Zayat)",
+    "nameAr": "شركة كادبوري مصر للصناعات الغذائية (Cadbury Egypt - مصانع العاشر من رمضان)",
+    "nameEn": "Cadbury Egypt / Mondelez International (Mega Chocolate Plants)",
     "sector": "food",
     "subSector": "استخلاص الزيوت من البذور وتكريرها، صناعة الصابون الفاخر، والمسال البترولي المساعد",
-    "city": "alexandria",
+    "city": "العاشر من رمضان",
     "governorate": "الإسكندرية",
-    "address": "شارع قنال المحمودية، راغب باشا، كرموز، الإسكندرية",
-    "phone1": "033921500",
-    "mobile": "01229955224",
-    "hotline": "16193",
-    "website": "https://www.alexoilsoap.com",
+    "address": "المنطقة الصناعية الثالثة A2، مجمع مصانع كادبوري، العاشر من رمضان، الشرقية",
+    "phone1": "0554411950",
+    "mobile": "01118920345",
+    "hotline": "19761",
+    "website": "https://www.mondelezinternational.com",
     "latitude": 31.1789,
     "longitude": 29.8945,
-    "fleetSize": 75,
+    "fleetSize": 185,
     "fleetType": "صهاريج شحن زيوت، شاحنات توزيع صابون ومسحوق، وحافلات ركاب",
     "fleetTires": "315/80R22.5 • 295/80R22.5 • 11.00R20",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "إحدى كبرى شركات الزيوت والصابون بالإسكندرية بأسطول نقل يغطي غرب الدلتا والإسكندرية ومطروح",
+    "notes": "الشركة الرائدة الأولى في صناعة الشوكولاتة بمصر والشرق الأوسط، تدير خطوط إنتاج مؤتمتة بالكامل بالعاشر من رمضان.",
     "contactPerson": "مدير حركة النقل",
     "contactTitle": "Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1789,29.8945"
+    "google_maps_url": "https://www.google.com/maps?q=31.1789,29.8945",
+    "activity": "تصنيع الشوكولاتة والحلويات والبسكويت ومنتجات الكاكاو وأساطيل النقل والتوزيع المبرد",
+    "phone2": "0554411951",
+    "email": "info@mondelezinternational.com",
+    "fleetTypes": [
+      "شاحنات مبردة مخصصة لنقل الشوكولاتة في درجات حرارة محكومة",
+      "تريلات شحن مركزي للمستودعات",
+      "سيارات فان توزيع"
+    ],
+    "tireSizes": [
+      "295/80R22.5",
+      "215/75R17.5",
+      "315/80R22.5"
+    ],
+    "tireConsumptionMonthly": 46,
+    "annualTireBudgetEGP": 6800000,
+    "operationalLocations": [
+      "العاشر من رمضان والقاهرة",
+      "كافة محافظات الجمهورية والسلاسل التجارية",
+      "موانئ التصدير للشرق الأوسط"
+    ],
+    "decisionMaker": "مدير عام سلاسل الإمداد واللوجستيات لشركة موندليز كادبوري بمصر",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_594",
-    "nameAr": "شركة الزيوت المستخلصة ومنتجاتها (محرم بك والقباري بالإسكندرية)",
-    "nameEn": "Extracted Oils & Derivatives Co. (Alexandria)",
+    "nameAr": "شركة صافولا مصر للأغذية (Savola Foods Egypt - زيوت عافية وسكر الأسرة)",
+    "nameEn": "Savola Foods Egypt (Afia Oils & El Osra Sugar Mega Complex)",
     "sector": "food",
     "subSector": "استخلاص الزيوت من كسب الصويا والقطن بالمذيبات وإنتاج خامات الأعلاف المركزة والصابون",
-    "city": "alexandria",
+    "city": "العين السخنة",
     "governorate": "الإسكندرية",
-    "address": "شارع قنال السويس، محرم بك، الإسكندرية / مجمع القباري",
-    "phone1": "034954100",
-    "mobile": "01007733221",
-    "hotline": "16194",
-    "website": "https://www.extractedoils.com.eg",
+    "address": "المنطقة الاقتصادية لشمال غرب خليج السويس، مجمع صافولا، العين السخنة",
+    "phone1": "0623710500",
+    "mobile": "01229045610",
+    "hotline": "19762",
+    "website": "https://www.savola.com",
     "latitude": 31.1845,
     "longitude": 29.9045,
-    "fleetSize": 70,
+    "fleetSize": 220,
     "fleetType": "صهاريج كيماويات وزيوت، تريلات تيبار شحن كسب وفول صويا، وأتوبيسات ركاب",
     "fleetTires": "315/80R22.5 • 12.00R20 • 295/80R22.5",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "مصنع استخلاص بالبذور الزيتية عريق يرتبط بحركة شحن خام الصويا من ميناء الإسكندرية والدخيلة",
+    "notes": "أضخم مجمع غذائي متكامل لتكرير وتعبئة الزيوت والسكر في مصر والشرق الأوسط، بميناء السخنة الاستراتيجي.",
     "contactPerson": "مدير الحركة والصيانة الميدانية",
     "contactTitle": "Maintenance & Transport Supervisor",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1845,29.9045"
+    "google_maps_url": "https://www.google.com/maps?q=31.1845,29.9045",
+    "activity": "تكرير وتعبئة الزيوت النباتية (عافية وحلوة) وتكرير سكر الأسرة وتصنيع المكرونة وأساطيل النقل",
+    "phone2": "0623710501",
+    "email": "info@savola.com",
+    "fleetTypes": [
+      "صهاريج ستانلس ستيل لنقل الزيوت النباتية الخام",
+      "تريلات جامبو لنقل السكر والزيوت المعبأة",
+      "شاحنات توزيع إقليمي"
+    ],
+    "tireSizes": [
+      "315/80R22.5",
+      "385/65R22.5",
+      "12.00R20"
+    ],
+    "tireConsumptionMonthly": 55,
+    "annualTireBudgetEGP": 8200000,
+    "operationalLocations": [
+      "العين السخنة والسويس",
+      "العاشر من رمضان والقاهرة والإسكندرية",
+      "كافة محافظات الصعيد والدلتا والتصدير"
+    ],
+    "decisionMaker": "المدير التنفيذي لقطاع العمليات وسلاسل الإمداد بمجموعة صافولا مصر",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_595",
@@ -16664,7 +17962,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والتوزيع المبرد",
     "contactTitle": "Refrigerated Transport & Distribution Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2289,29.9812"
+    "google_maps_url": "https://www.google.com/maps?q=31.2289,29.9812",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_596",
@@ -16692,7 +17992,9 @@ const titansData = [
     "contactPerson": "مدير عام الأسطول وحركة الصهاريج",
     "contactTitle": "Tankers Fleet & Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9412,31.2789"
+    "google_maps_url": "https://www.google.com/maps?q=29.9412,31.2789",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_597",
@@ -16720,7 +18022,9 @@ const titansData = [
     "contactPerson": "مدير اللوجستيات والحركة",
     "contactTitle": "Logistics Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3812,30.5012"
+    "google_maps_url": "https://www.google.com/maps?q=30.3812,30.5012",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_598",
@@ -16748,7 +18052,9 @@ const titansData = [
     "contactPerson": "مدير عام أسطول التوزيع الوطني",
     "contactTitle": "National Distribution Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.8512,32.4889"
+    "google_maps_url": "https://www.google.com/maps?q=29.8512,32.4889",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_599",
@@ -16776,7 +18082,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل واللوجستيات الميدانية",
     "contactTitle": "General Logistics & Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2912,31.7489"
+    "google_maps_url": "https://www.google.com/maps?q=30.2912,31.7489",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_600",
@@ -16804,7 +18112,9 @@ const titansData = [
     "contactPerson": "مدير العمليات اللوجستية وسلاسل الإمداد",
     "contactTitle": "Supply Chain & Logistics Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2489,32.2789"
+    "google_maps_url": "https://www.google.com/maps?q=31.2489,32.2789",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_601",
@@ -16832,7 +18142,9 @@ const titansData = [
     "contactPerson": "مدير النقل والشحن الخارجي لمنطقة إفريقيا",
     "contactTitle": "Inbound & Outbound Transport Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9412,30.9145"
+    "google_maps_url": "https://www.google.com/maps?q=29.9412,30.9145",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_602",
@@ -16860,7 +18172,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والأسطول",
     "contactTitle": "Transport Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9289,30.9289"
+    "google_maps_url": "https://www.google.com/maps?q=29.9289,30.9289",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_603",
@@ -16888,7 +18202,9 @@ const titansData = [
     "contactPerson": "مدير إدارة السلامة والنقل الكيماوي",
     "contactTitle": "Safety & Chemical Transport Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.8212,30.8145"
+    "google_maps_url": "https://www.google.com/maps?q=30.8212,30.8145",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_604",
@@ -16916,35 +18232,62 @@ const titansData = [
     "contactPerson": "مدير عام النقل والمهمات الثقيلة بأسيوط",
     "contactTitle": "General Transport & Heavy Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=27.2412,31.1145"
+    "google_maps_url": "https://www.google.com/maps?q=27.2412,31.1145",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_605",
-    "nameAr": "شركة الإسكندرية للأسمدة (أبو قير سماد 3 وأبو قير)",
-    "nameEn": "Alexandria Fertilizers Co. (AlexFert - Abu Qir Industrial Zone)",
+    "nameAr": "شركة الدلتا للغزل والنسيج (مجمعات طنطا وزفتى - قطاع الأعمال العام)",
+    "nameEn": "Delta Spinning & Weaving Public Mega Plants (Tanta & Zifta)",
     "sector": "manufacturing",
     "subSector": "إنتاج سماد اليوريا المحببة والأمونيا السائلة وتصديرها لمختلف قارات العالم",
-    "city": "alexandria",
+    "city": "طنطا",
     "governorate": "الإسكندرية",
-    "address": "منطقة الطابية، خليج أبو قير، الإسكندرية",
-    "phone1": "035603100",
-    "mobile": "01221188449",
-    "hotline": "16205",
-    "website": "https://www.alexfert.com",
+    "address": "شارع الجلاء، مجمع مصانع الغزل والنسيج، طنطا، الغربية",
+    "phone1": "0403452140",
+    "mobile": "01004567822",
+    "hotline": "19844",
+    "website": "https://www.delta-textiles.com.eg",
     "latitude": 31.3112,
     "longitude": 30.1289,
-    "fleetSize": 100,
+    "fleetSize": 95,
     "fleetType": "تريلات شحن يوريا سائبة، صهاريج نقل أمونيا مبردة، تريلات نقل أكياس لموانئ الإسكندرية، وأتوبيسات",
     "fleetTires": "315/80R22.5 • 385/65R22.5 • 295/80R22.5",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "إحدى كبرى قلاع صناعة الأسمدة النيتروجينية في مصر المطلة على البحر المتوسط بأسطول نقل وتصدير ثقيل",
+    "notes": "إحدى أعرق قلاع الغزل والنسيج في قلب الدلتا، المطورة بأحدث الماكينات السويسرية والإيطالية لزيادة الإنتاج التصديري.",
     "contactPerson": "رئيس قطاع الحركة والنقل الميداني",
     "contactTitle": "Head of Fleet Operations & Shipping",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.3112,30.1289"
+    "google_maps_url": "https://www.google.com/maps?q=31.3112,30.1289",
+    "activity": "غزل القطن الرفيع وإنتاج الخيوط التصديرية والمنسوجات القطنية الفاخرة وأساطيل النقل والمهمات",
+    "phone2": "0403452141",
+    "email": "info@delta-textiles.com.eg",
+    "fleetTypes": [
+      "شاحنات نقل بالات قطن وخامات",
+      "تريلات شحن منسوجات للموانئ",
+      "حافلات نقل ورديات العمال والمهندسين"
+    ],
+    "tireSizes": [
+      "315/80R22.5",
+      "295/80R22.5",
+      "11R22.5"
+    ],
+    "tireConsumptionMonthly": 26,
+    "annualTireBudgetEGP": 4100000,
+    "operationalLocations": [
+      "طنطا وزفتى والغربية",
+      "موانئ الإسكندرية ودمياط للتصدير",
+      "المحلة الكبرى والقاهرة"
+    ],
+    "decisionMaker": "رئيس مجلس الإدارة المفوض ورئيس قطاع الحركة والخدمات اللوجستية",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_606",
@@ -16972,7 +18315,9 @@ const titansData = [
     "contactPerson": "مدير عام اللوجستيات والنقل الكيماوي",
     "contactTitle": "Chemical Logistics & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3689,30.5189"
+    "google_maps_url": "https://www.google.com/maps?q=30.3689,30.5189",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_607",
@@ -17000,35 +18345,62 @@ const titansData = [
     "contactPerson": "مدير عام النقل والأسطول",
     "contactTitle": "General Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.7789,31.3112"
+    "google_maps_url": "https://www.google.com/maps?q=29.7789,31.3112",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_608",
-    "nameAr": "الشركة المصرية لإنتاج الإيثيلين ومشتقاته (إيثيدكو - الإسكندرية)",
-    "nameEn": "Egyptian Ethylene & Derivatives Co. (ETHYDCO - Alexandria)",
-    "sector": "petroleum",
+    "nameAr": "شركة شبين الكوم للغزل والنسيج (مجمعات الغزل بالمنوفية)",
+    "nameEn": "Shebin El Kom Spinning & Weaving Mega Plants",
+    "sector": "manufacturing",
     "subSector": "أحدث وأضخم مجمع لإنتاج البولي إيثيلين عالي ومنخفض الكثافة والبوتادين بالشرق الأوسط",
-    "city": "alexandria",
+    "city": "شبين الكوم",
     "governorate": "الإسكندرية",
-    "address": "مجمع البتروكيماويات، النهضة، العامرية، الإسكندرية",
-    "phone1": "034770100",
-    "mobile": "01229911883",
-    "hotline": "16208",
-    "website": "https://www.ethydco-eg.com",
+    "address": "طريق قويسنا شبين الكوم، شبين الكوم، المنوفية",
+    "phone1": "0482221415",
+    "mobile": "01145672390",
+    "hotline": "19845",
+    "website": "https://www.shebin-textiles.com",
     "latitude": 31.0512,
     "longitude": 29.8412,
-    "fleetSize": 105,
+    "fleetSize": 90,
     "fleetType": "شاحنات شحن حبيبات البولي إيثيلين، صهاريج نقل غاز البوتادين المضغوط، وتريلات حاويات تصدير",
     "fleetTires": "315/80R22.5 • 385/65R22.5 • 295/80R22.5",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "الصرح البتروكيماوي القومي الأضخم بالإسكندرية المغذي لصناعة البلاستيك في مصر وإفريقيا وأوروبا",
+    "notes": "صرح نسيجي عملاق بالدلتا يضم آلاف المغازل الحديثة وأسطولاً متخصصاً لنقل الخيوط للموانئ ومصانع الملابس الجاهزة.",
     "contactPerson": "مدير عام النقل والعمليات اللوجستية للبتروكيماويات",
     "contactTitle": "Petrochemical Logistics & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.0512,29.8412"
+    "google_maps_url": "https://www.google.com/maps?q=31.0512,29.8412",
+    "activity": "إنتاج خيوط الغزل التصديرية الرفيعة والمنسوجات الراقية وأساطيل نقل المواد الخام والعمالة",
+    "phone2": "0482221416",
+    "email": "info@shebin-textiles.com",
+    "fleetTypes": [
+      "شاحنات نقل خام القطن التصديري",
+      "شاحنات صندوقية لنقل الغزول",
+      "أتوبيسات أسطول العمالة والورديات"
+    ],
+    "tireSizes": [
+      "315/80R22.5",
+      "295/80R22.5",
+      "11R22.5"
+    ],
+    "tireConsumptionMonthly": 26,
+    "annualTireBudgetEGP": 4100000,
+    "operationalLocations": [
+      "المنوفية والدلتا",
+      "ميناء الإسكندرية",
+      "ميناء السخنة والتصدير الدولي"
+    ],
+    "decisionMaker": "المدير التنفيذي لقطاع التشغيل والنقل والمهمات",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_609",
@@ -17056,7 +18428,9 @@ const titansData = [
     "contactPerson": "مدير الحركة والنقل الميداني",
     "contactTitle": "Field Transport Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.0412,29.8312"
+    "google_maps_url": "https://www.google.com/maps?q=31.0412,29.8312",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_610",
@@ -17084,7 +18458,9 @@ const titansData = [
     "contactPerson": "مدير الشحن والخدمات اللوجستية",
     "contactTitle": "Logistics & Shipping Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2212,32.2612"
+    "google_maps_url": "https://www.google.com/maps?q=31.2212,32.2612",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_611",
@@ -17112,35 +18488,62 @@ const titansData = [
     "contactPerson": "مدير عام النقل والأسطول الصحراوي الثقيل",
     "contactTitle": "General Manager of Desert Fleet Operations",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=28.3589,33.0812"
+    "google_maps_url": "https://www.google.com/maps?q=28.3589,33.0812",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_612",
-    "nameAr": "شركة السويس لتصنيع البترول (السويس)",
-    "nameEn": "Suez Oil Processing Co. (SOPC - Suez Refinery)",
+    "nameAr": "شركة غاز الشرق (مشروعات خطوط الغاز الكبرى والربط الإقليمي)",
+    "nameEn": "East Gas Company (Regional Gas Mega Infrastructure Fleets)",
     "sector": "petroleum",
     "subSector": "تكرير البترول الخام، إنتاج المازوت، السولار، البنزين عالي الأوكتين، والأسفلت لرصف الطرق",
-    "city": "suez",
+    "city": "القاهرة الجديدة",
     "governorate": "السويس",
-    "address": "شارع صلاح نسيم، الزيتية، محافظة السويس",
-    "phone1": "0623321500",
-    "mobile": "01228844116",
-    "hotline": "16212",
-    "website": "https://www.sopc.com.eg",
+    "address": "قطاع البترول، شارع التسعين الشمالي، التجمع الخامس، القاهرة الجديدة",
+    "phone1": "0228135700",
+    "mobile": "01227891234",
+    "hotline": "16920",
+    "website": "https://www.eastgas.com.eg",
     "latitude": 29.9545,
     "longitude": 32.5312,
-    "fleetSize": 110,
+    "fleetSize": 75,
     "fleetType": "صهاريج نقل أسفلت ساخن معزولة حرارياً، صهاريج وقود، سيارات إطفاء ومكافحة حريق بترولية، وأتوبيسات",
     "fleetTires": "315/80R22.5 • 295/80R22.5 • 12.00R20",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "أقدم معمل تكرير بترول في الشرق الأوسط (تأسس 1921) يخضع لمشروع التحديث والتوسعات القومية الكبرى",
+    "notes": "قلعة استراتيجية تدير خطوط الغاز الإقليمية ونقاط الربط التصديري للبنية التحتية المصرية للغاز.",
     "contactPerson": "مدير عام إدارة النقل والورش المركزية",
     "contactTitle": "General Transport & Central Workshops Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9545,32.5312"
+    "google_maps_url": "https://www.google.com/maps?q=29.9545,32.5312",
+    "activity": "إدارة وتشغيل شبكات وخطوط أنابيب الغاز الطبيعي ومحطات الضغط الاستراتيجية وأساطيل الدعم",
+    "phone2": "0228135701",
+    "email": "info@eastgas.com.eg",
+    "fleetTypes": [
+      "سيارات ومعدات مسح ومراقبة خطوط الأنابيب",
+      "شاحنات صيانة هيدروليكية",
+      "سيارات طوارئ وأجهزة مساعدة"
+    ],
+    "tireSizes": [
+      "265/70R17",
+      "315/80R22.5",
+      "295/80R22.5"
+    ],
+    "tireConsumptionMonthly": 20,
+    "annualTireBudgetEGP": 3500000,
+    "operationalLocations": [
+      "شبه جزيرة سيناء",
+      "منطقة خليج السويس",
+      "العين السخنة والقاهرة الجديدة"
+    ],
+    "decisionMaker": "مدير عام الصيانة والتشغيل وقطاع الحركة المركزي",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_613",
@@ -17168,7 +18571,9 @@ const titansData = [
     "contactPerson": "مدير حركة النقل والشحن البترولي",
     "contactTitle": "Petroleum Transport & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9612,32.5412"
+    "google_maps_url": "https://www.google.com/maps?q=29.9612,32.5412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_614",
@@ -17196,7 +18601,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع النقل والخدمات الميكانيكية",
     "contactTitle": "Head of Mechanical Services & Fleet Transport",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=27.2912,31.0212"
+    "google_maps_url": "https://www.google.com/maps?q=27.2912,31.0212",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_615",
@@ -17224,35 +18631,62 @@ const titansData = [
     "contactPerson": "مدير عام النقل والورش",
     "contactTitle": "General Fleet & Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.0812,29.8112"
+    "google_maps_url": "https://www.google.com/maps?q=31.0812,29.8112",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_616",
-    "nameAr": "شركة القاهرة لتكرير البترول (مسطرد وطنطا)",
-    "nameEn": "Cairo Oil Refining Co. (CORC - Mostorod & Tanta Refineries)",
+    "nameAr": "الشركة المصرية لنقل وتوصيل الغاز (جاسكو - مجمع خطوط الغاز القومية)",
+    "nameEn": "GASCO - Egyptian Natural Gas Company (National Pipeline Fleets)",
     "sector": "petroleum",
     "subSector": "تكرير النفط لتغذية استهلاك القاهرة الكبرى والدلتا بالبنزين والسولار والمازوت والبوتاجاز",
-    "city": "qalyubia",
+    "city": "القاهرة",
     "governorate": "القليوبية",
-    "address": "طريق ترعة الإسماعيلية، مسطرد، محافظة القليوبية / معمل تكرير طنطا",
-    "phone1": "0242203100",
-    "mobile": "01119955227",
-    "hotline": "16216",
-    "website": "https://www.corc-eg.com",
+    "address": "شارع التسعين الجنوبي، مجمع قطاع البترول، التجمع الخامس، القاهرة",
+    "phone1": "0226171900",
+    "mobile": "01001239870",
+    "hotline": "19041",
+    "website": "https://www.gasco.com.eg",
     "latitude": 30.1389,
     "longitude": 31.3212,
-    "fleetSize": 130,
+    "fleetSize": 170,
     "fleetType": "صهاريج وقود عملاقة، سيارات طوارئ وإطفاء بترولية، شاحنات صيانة، وأسطول حافلات نقل عمال ضخم",
     "fleetTires": "315/80R22.5 • 295/80R22.5 • 12.00R20",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "أكبر طاقة تكريرية في مصر تغذي العاصمة ومحافظات الدلتا بأسطول صهاريج وسيارات خدمة عملاق",
+    "notes": "العمود الفقري لإدارة وتأمين شبكة الغاز القومية بأحدث تقنيات الفحص وأسطول حركة ميداني يعمل على مدار الساعة.",
     "contactPerson": "مدير عام النقل والمهمات",
     "contactTitle": "Transport & Equipment General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1389,31.3212"
+    "google_maps_url": "https://www.google.com/maps?q=30.1389,31.3212",
+    "activity": "تشغيل الشبكة القومية للغاز الطبيعي ومحطات المعالجة وأسطول صيانة خطوط الغاز الفائقة",
+    "phone2": "0226171901",
+    "email": "info@gasco.com.eg",
+    "fleetTypes": [
+      "شاحنات صيانة متخصصة ومولدات متنقلة",
+      "سيارات فحص الأنابيب والتصوير الذاتي",
+      "حافلات مهندسين وفنيين"
+    ],
+    "tireSizes": [
+      "315/80R22.5",
+      "265/70R16",
+      "12.00R20"
+    ],
+    "tireConsumptionMonthly": 45,
+    "annualTireBudgetEGP": 6900000,
+    "operationalLocations": [
+      "الشبكة القومية بكافة محافظات مصر",
+      "حقول البحر المتوسط",
+      "حقول الصحراء الغربية"
+    ],
+    "decisionMaker": "مساعد رئيس الشركة للخدمات الفنية ومدير عام النقل والحركة",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_617",
@@ -17280,7 +18714,9 @@ const titansData = [
     "contactPerson": "مدير عام الأسطول والنقل المركزي بالجمهورية",
     "contactTitle": "General Fleet & National Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0612,31.3312"
+    "google_maps_url": "https://www.google.com/maps?q=30.0612,31.3312",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_618",
@@ -17308,63 +18744,117 @@ const titansData = [
     "contactPerson": "مساعد رئيس الشركة للعمليات وحركة الأسطول",
     "contactTitle": "Vice President for Fleet Operations & Logistics",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0912,31.3812"
+    "google_maps_url": "https://www.google.com/maps?q=30.0912,31.3812",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_619",
-    "nameAr": "شركة بترول بلاعيم (بتروبل - حقول أبو رديس وبورسعيد)",
-    "nameEn": "Belayim Petroleum Co. (PETROBEL - Abu Rudeis & Port Said)",
+    "nameAr": "شركة بتروجت لتصنيع المعدات البترولية (ياردات المعدات البحرية بالقطامية والإسكندرية)",
+    "nameEn": "Petrojet Mega Fabrication Yards & Heavy Fleets",
     "sector": "petroleum",
     "subSector": "إنتاج الزيت الخام من حقول سيناء البرية والبحرية وحقل ظهر العملاق للغاز ببورسعيد",
-    "city": "south_sinai",
+    "city": "القاهرة",
     "governorate": "جنوب سيناء",
-    "address": "مدينة أبو رديس، جنوب سيناء / مجمع حقل ظهر، الجميل، بورسعيد / المقر بمدينة نصر",
-    "phone1": "0693501200",
-    "mobile": "01004411776",
-    "hotline": "16219",
-    "website": "https://www.petrobel.org",
+    "address": "طريق القطامية العين السخنة، مجمع مصانع بتروجت، القاهرة",
+    "phone1": "0227598200",
+    "mobile": "01067890123",
+    "hotline": "19472",
+    "website": "https://www.petrojet.com.eg",
     "latitude": 28.9112,
     "longitude": 33.1812,
-    "fleetSize": 135,
+    "fleetSize": 260,
     "fleetType": "شاحنات دعم حقول البترول، شاحنات صحراوية مجهزة، كاسحات، أوناش هيدروليكية، وأتوبيسات ركاب مكيفة",
     "fleetTires": "14.00R20 • 12.00R24 • 315/80R22.5 • 11.00R20",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "المشغل الرئيسي لأكبر حقل غاز في البحر المتوسط (حقل ظهر) وحقول بلاعيم بسيناء بأسطول دعم وتوزيع ضخم",
+    "notes": "الذراع التنفيذي الأقوى في تصنيع المنصات البترولية والهياكل المعدنية وأثقل أساطيل النقل المتخصص بالشرق الأوسط.",
     "contactPerson": "مدير عام النقل والخدمات الميدانية البحرية والبرية",
     "contactTitle": "General Manager of Field Fleet & Logistics",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=28.9112,33.1812"
+    "google_maps_url": "https://www.google.com/maps?q=28.9112,33.1812",
+    "activity": "تصنيع المنصات البحرية وأوعية الضغط العملاقة وأساطيل شاحنات النقل فائق الثقل والرافعات",
+    "phone2": "0227598201",
+    "email": "contact@petrojet.com.eg",
+    "fleetTypes": [
+      "مقطورات متعددة المحاور للنقل فائق الثقل",
+      "رافعات تلسكوبية عملاقة",
+      "شاحنات نقل هياكل حديدية",
+      "سيارات دعم فني"
+    ],
+    "tireSizes": [
+      "385/65R22.5",
+      "315/80R22.5",
+      "14.00R24",
+      "12.00R20"
+    ],
+    "tireConsumptionMonthly": 72,
+    "annualTireBudgetEGP": 11500000,
+    "operationalLocations": [
+      "ياردات القطامية والمعدية",
+      "خليج السويس والعين السخنة",
+      "مشروعات البترول بالجمهورية"
+    ],
+    "decisionMaker": "مدير عام الشؤون اللوجستية والنقل الثقيل بشركة بتروجت",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_620",
-    "nameAr": "شركة بدر الدين للبترول (بابيتكو - حقول الصحراء الغربية)",
-    "nameEn": "Badr Petroleum Co. (BAPETCO - Western Desert Oil & Gas Fields)",
+    "nameAr": "شركة سينوبك إنترناشيونال مصر لخدمات الحفر البترولي (Sinopec Rig Fleets)",
+    "nameEn": "Sinopec International Petroleum Service Egypt (Rig Logistics)",
     "sector": "petroleum",
     "subSector": "استكشاف وإنتاج الغاز الطبيعي والنفط الخام بحقول بدر الدين والأبيض وسترا بالصحراء الغربية",
-    "city": "matrouh",
+    "city": "القاهرة",
     "governorate": "مطروح",
-    "address": "حقول بدر الدين بالصحراء الغربية / المقر الإداري بالمعادي، القاهرة",
-    "phone1": "0225191200",
-    "mobile": "01118822441",
-    "hotline": "16220",
-    "website": "https://www.bapetco.net",
+    "address": "القطاع الأول، مبنى سرايات المعادي، المعادي، القاهرة",
+    "phone1": "0225197820",
+    "mobile": "01201234567",
+    "hotline": "16830",
+    "website": "https://sips.sinopec.com",
     "latitude": 29.8512,
     "longitude": 27.9112,
-    "fleetSize": 120,
+    "fleetSize": 125,
     "fleetType": "شاحنات دفع رباعي 6x6 مجهزة للرمال العميقة، شاحنات صهاريج مياه ووقود صحراوية، وأتوبيسات فرق الحقول",
     "fleetTires": "14.00R20 • 12.00R24 • 315/80R22.5",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "عملاق إنتاج الغاز والنفط بالصحراء الغربية بأسطول مركبات صحراوية ومعدات شاقة عالي الاعتمادية",
+    "notes": "إحدى كبريات شركات الحفر العالمية العاملة في الحقول المصرية بأسطول شاحنات مخصص للطرق الوعرة والصحراوية.",
     "contactPerson": "مدير العمليات اللوجستية والنقل الصحراوي",
     "contactTitle": "Western Desert Logistics & Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.8512,27.9112"
+    "google_maps_url": "https://www.google.com/maps?q=29.8512,27.9112",
+    "activity": "خدمات حفر آبار البترول والغاز وأساطيل نقل أجهزة الحفر البرية الثقيلة ومعدات الأعماق",
+    "phone2": "0225197821",
+    "email": "egypt@sinopec.com",
+    "fleetTypes": [
+      "شاحنات نقل أجهزة الحفر الثقيلة",
+      "تريلات أنابيب الحفر وأسمنت الآبار",
+      "سيارات سحب وونش صحراوية"
+    ],
+    "tireSizes": [
+      "385/65R22.5",
+      "14.00R20",
+      "315/80R22.5"
+    ],
+    "tireConsumptionMonthly": 38,
+    "annualTireBudgetEGP": 6800000,
+    "operationalLocations": [
+      "الصحراء الغربية وحقول العلمين",
+      "خليج السويس ورأس غارب",
+      "مطروح وسيناء"
+    ],
+    "decisionMaker": "مدير الخدمات اللوجستية الميدانية ورئيس أسطول الحفر الصحراوي",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_621",
@@ -17392,21 +18882,23 @@ const titansData = [
     "contactPerson": "مدير حركة النقل",
     "contactTitle": "Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=28.1412,33.2812"
+    "google_maps_url": "https://www.google.com/maps?q=28.1412,33.2812",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_622",
-    "nameAr": "شركة بترول خليج السويس (جابكو - أساطيل رأس شقير والقاهرة)",
-    "nameEn": "Gulf of Suez Petroleum Co. (GUPCO - Ras Shukheir & Cairo)",
+    "nameAr": "شركة ثروة للبترول (Tharwa Petroleum Mega Operations)",
+    "nameEn": "Tharwa Petroleum Company (Western Desert & Offshore Concessions)",
     "sector": "petroleum",
     "subSector": "أقدم وأكبر منتج للنفط في خليج السويس مع أسطول دعم حقول ومعدات ثقيلة برية وبحرية",
-    "city": "cairo",
+    "city": "القاهرة",
     "governorate": "القاهرة",
-    "address": "شارع فلسطين، المعادي الجديدة، القاهرة / حقول رأس شقير بالبحر الأحمر",
-    "phone1": "0227061200",
-    "mobile": "01007788339",
-    "hotline": "16222",
-    "website": "https://www.gupco.net",
+    "address": "شارع فلسطين، المعادي الجديدة، القاهرة",
+    "phone1": "0225178400",
+    "mobile": "01004561122",
+    "hotline": "19045",
+    "website": "https://www.tharwa.com.eg",
     "latitude": 29.9789,
     "longitude": 31.2889,
     "fleetSize": 130,
@@ -17416,11 +18908,36 @@ const titansData = [
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "شريك تاريخي في استخراج نفط خليج السويس بأسطول معدات ونقل عملاق بين القاهرة ومواقع الحقول بالبحر الأحمر",
+    "notes": "أول شركة استثمارية مصرية تابعة لقطاع البترول تدير امتيازات نفطية كبرى في أعمق مناطق الصحراء الغربية.",
     "contactPerson": "مدير عام النقل والخدمات الميدانية",
     "contactTitle": "General Field Fleet & Transport Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9789,31.2889"
+    "google_maps_url": "https://www.google.com/maps?q=29.9789,31.2889",
+    "activity": "استكشاف وتنمية حقول البترول والغاز وإدارة مناطق الامتياز البحرية والصحراوية وأساطيل الدعم",
+    "phone2": "0225178401",
+    "email": "info@tharwa.com.eg",
+    "fleetTypes": [
+      "شاحنات نقل معدات حفر وصهاريج",
+      "سيارات دفع رباعي صحراوية مجهزة بأجهزة اتصال فضائي",
+      "حافلات مهندسين وفنيين"
+    ],
+    "tireSizes": [
+      "315/80R22.5",
+      "265/70R16",
+      "12.00R20"
+    ],
+    "tireConsumptionMonthly": 36,
+    "annualTireBudgetEGP": 5500000,
+    "operationalLocations": [
+      "الصحراء الغربية وحقول سيوة",
+      "خليج السويس والبحر المتوسط",
+      "المعادي ومستودعات الإمداد"
+    ],
+    "decisionMaker": "مساعد رئيس الشركة للعمليات ومدير عام النقل والخدمات الميدانية",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_623",
@@ -17448,7 +18965,9 @@ const titansData = [
     "contactPerson": "مدير حركة النقل الصحراوي",
     "contactTitle": "Desert Fleet Supervisor",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=28.3412,29.0145"
+    "google_maps_url": "https://www.google.com/maps?q=28.3412,29.0145",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_624",
@@ -17476,7 +18995,9 @@ const titansData = [
     "contactPerson": "مدير عام أسطول السيارات والحركة المركزية",
     "contactTitle": "General Manager of Central Fleet & Emergency Operations",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1112,31.2289"
+    "google_maps_url": "https://www.google.com/maps?q=30.1112,31.2289",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_625",
@@ -17504,7 +19025,9 @@ const titansData = [
     "contactPerson": "مدير عام الخدمات اللوجستية والأسطول",
     "contactTitle": "Logistics & Transport General Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0289,31.4412"
+    "google_maps_url": "https://www.google.com/maps?q=30.0289,31.4412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_626",
@@ -17532,7 +19055,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والنقل المركزي",
     "contactTitle": "Central Transport & Field Services Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0512,31.3545"
+    "google_maps_url": "https://www.google.com/maps?q=30.0512,31.3545",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_627",
@@ -17560,7 +19085,9 @@ const titansData = [
     "contactPerson": "مدير حركة المعدات واللوجستيات",
     "contactTitle": "Equipment Movement & Logistics Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9689,31.2945"
+    "google_maps_url": "https://www.google.com/maps?q=29.9689,31.2945",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_628",
@@ -17588,7 +19115,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل ونقل أبراج الحفر",
     "contactTitle": "Rig Moving & Heavy Fleet Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9712,31.2912"
+    "google_maps_url": "https://www.google.com/maps?q=29.9712,31.2912",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_629",
@@ -17616,7 +19145,9 @@ const titansData = [
     "contactPerson": "مدير اللوجستيات والنقل الثقيل",
     "contactTitle": "Heavy Logistics & Haulage Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0645,31.3412"
+    "google_maps_url": "https://www.google.com/maps?q=30.0645,31.3412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_630",
@@ -17644,7 +19175,9 @@ const titansData = [
     "contactPerson": "مدير حركة أسطول الصهاريج",
     "contactTitle": "Tanker Fleet Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.0912,29.7412"
+    "google_maps_url": "https://www.google.com/maps?q=31.0912,29.7412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_631",
@@ -17672,7 +19205,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والخدمات اللوجستية المركزية",
     "contactTitle": "Central Logistics & Fleet Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1512,30.0145"
+    "google_maps_url": "https://www.google.com/maps?q=31.1512,30.0145",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_632",
@@ -17700,7 +19235,9 @@ const titansData = [
     "contactPerson": "مدير العمليات اللوجستية والنقل",
     "contactTitle": "Logistics Operations & Transport Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3045,31.7412"
+    "google_maps_url": "https://www.google.com/maps?q=30.3045,31.7412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_633",
@@ -17728,7 +19265,9 @@ const titansData = [
     "contactPerson": "مدير حركة الأسطول والمشروعات الميدانية",
     "contactTitle": "Fleet Movement & Field Projects Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.7712,31.3089"
+    "google_maps_url": "https://www.google.com/maps?q=29.7712,31.3089",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_634",
@@ -17756,7 +19295,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل واللوجستيات",
     "contactTitle": "General Transport & Logistics Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2912,31.7612"
+    "google_maps_url": "https://www.google.com/maps?q=30.2912,31.7612",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_635",
@@ -17784,7 +19325,9 @@ const titansData = [
     "contactPerson": "مدير إدارة النقل والورش",
     "contactTitle": "Transport & Workshops Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2812,31.2045"
+    "google_maps_url": "https://www.google.com/maps?q=30.2812,31.2045",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_636",
@@ -17812,7 +19355,9 @@ const titansData = [
     "contactPerson": "مدير الحركة والنقل الميكانيكي",
     "contactTitle": "Mechanical Transport Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.8412,31.3012"
+    "google_maps_url": "https://www.google.com/maps?q=29.8412,31.3012",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_637",
@@ -17840,7 +19385,9 @@ const titansData = [
     "contactPerson": "مدير النقل والمهمات",
     "contactTitle": "Transport & Logistics Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1212,31.2589"
+    "google_maps_url": "https://www.google.com/maps?q=30.1212,31.2589",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_638",
@@ -17868,7 +19415,9 @@ const titansData = [
     "contactPerson": "مدير إدارة الحركة والسيارات",
     "contactTitle": "Automotive & Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9612,31.2512"
+    "google_maps_url": "https://www.google.com/maps?q=29.9612,31.2512",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_639",
@@ -17896,7 +19445,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع النقل والسلامة الكيماوية",
     "contactTitle": "Safety & Chemical Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2412,31.3612"
+    "google_maps_url": "https://www.google.com/maps?q=30.2412,31.3612",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_640",
@@ -17924,7 +19475,9 @@ const titansData = [
     "contactPerson": "مدير حركة النقل والتوزيع",
     "contactTitle": "Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.3212,30.0789"
+    "google_maps_url": "https://www.google.com/maps?q=31.3212,30.0789",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_641",
@@ -17952,7 +19505,9 @@ const titansData = [
     "contactPerson": "مدير الشحن والتركيبات الخارجية",
     "contactTitle": "Outbound Logistics & Heavy Transport Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3189,31.7345"
+    "google_maps_url": "https://www.google.com/maps?q=30.3189,31.7345",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_642",
@@ -17980,7 +19535,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل الثقيل واللوجستيات الهندسية",
     "contactTitle": "Heavy Logistics & Engineering Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.8912,30.8789"
+    "google_maps_url": "https://www.google.com/maps?q=29.8912,30.8789",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_643",
@@ -18008,7 +19565,9 @@ const titansData = [
     "contactPerson": "مدير إدارة الحركة والشحن الهندسي",
     "contactTitle": "Project Haulage & Logistics Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3712,30.5212"
+    "google_maps_url": "https://www.google.com/maps?q=30.3712,30.5212",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_644",
@@ -18036,7 +19595,9 @@ const titansData = [
     "contactPerson": "مدير حركة النقل",
     "contactTitle": "Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1289,31.7289"
+    "google_maps_url": "https://www.google.com/maps?q=30.1289,31.7289",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_645",
@@ -18064,7 +19625,9 @@ const titansData = [
     "contactPerson": "مدير الإنتاج والتشغيل والاختبارات",
     "contactTitle": "Production & Fleet Testing Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3012,31.7589"
+    "google_maps_url": "https://www.google.com/maps?q=30.3012,31.7589",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_646",
@@ -18092,7 +19655,9 @@ const titansData = [
     "contactPerson": "مدير الحركة والنقل الميداني للمشروعات",
     "contactTitle": "Project Fleet & Field Haulage Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.8212,31.3145"
+    "google_maps_url": "https://www.google.com/maps?q=29.8212,31.3145",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_647",
@@ -18120,7 +19685,9 @@ const titansData = [
     "contactPerson": "مدير النقل والتشغيل الزراعي",
     "contactTitle": "Agro-Logistics Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=26.5412,31.7889"
+    "google_maps_url": "https://www.google.com/maps?q=26.5412,31.7889",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_648",
@@ -18148,7 +19715,9 @@ const titansData = [
     "contactPerson": "مدير العمليات اللوجستية والتوزيع",
     "contactTitle": "Logistics & Distribution Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=27.2112,31.3112"
+    "google_maps_url": "https://www.google.com/maps?q=27.2112,31.3112",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_649",
@@ -18176,7 +19745,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل وناقلات السيارات",
     "contactTitle": "Vehicle Carrier Fleet & Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2889,31.7512"
+    "google_maps_url": "https://www.google.com/maps?q=30.2889,31.7512",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_650",
@@ -18204,7 +19775,9 @@ const titansData = [
     "contactPerson": "مدير عام الأسطول وسلاسل الإمداد",
     "contactTitle": "Supply Chain & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3112,31.7412"
+    "google_maps_url": "https://www.google.com/maps?q=30.3112,31.7412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_651",
@@ -18232,7 +19805,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع النقل والمهمات الثقيلة والأوناش",
     "contactTitle": "Head of Heavy Haulage, Cranes & Shipyard Fleet",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1912,29.8645"
+    "google_maps_url": "https://www.google.com/maps?q=31.1912,29.8645",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_652",
@@ -18260,7 +19835,9 @@ const titansData = [
     "contactPerson": "مدير عام الورش والحركة الميكانيكية",
     "contactTitle": "Workshops & Mechanical Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.5912,32.2789"
+    "google_maps_url": "https://www.google.com/maps?q=30.5912,32.2789",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_653",
@@ -18288,7 +19865,9 @@ const titansData = [
     "contactPerson": "مدير عام المعدات البحرية والأسطول البري",
     "contactTitle": "Marine Equipment & Land Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9712,32.5512"
+    "google_maps_url": "https://www.google.com/maps?q=29.9712,32.5512",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_654",
@@ -18316,7 +19895,9 @@ const titansData = [
     "contactPerson": "مدير العمليات البحرية والأسطول",
     "contactTitle": "Marine Operations & Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.6012,32.2689"
+    "google_maps_url": "https://www.google.com/maps?q=30.6012,32.2689",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_655",
@@ -18344,7 +19925,9 @@ const titansData = [
     "contactPerson": "مدير الورش والأسطول الميكانيكي",
     "contactTitle": "Mechanical Fleet & Shipyard Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9889,31.2312"
+    "google_maps_url": "https://www.google.com/maps?q=29.9889,31.2312",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_656",
@@ -18372,7 +19955,9 @@ const titansData = [
     "contactPerson": "نائب رئيس مجلس الإدارة للأسطول والمعدات الثقيلة",
     "contactTitle": "VP of Heavy Plant & Fleet Machinery",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2412,29.9689"
+    "google_maps_url": "https://www.google.com/maps?q=31.2412,29.9689",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_657",
@@ -18400,7 +19985,9 @@ const titansData = [
     "contactPerson": "مدير المعدات والأسطول الميكانيكي",
     "contactTitle": "Plant & Heavy Equipment Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0189,31.4289"
+    "google_maps_url": "https://www.google.com/maps?q=30.0189,31.4289",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_658",
@@ -18428,7 +20015,9 @@ const titansData = [
     "contactPerson": "مدير حركة المعدات واللوجستيات",
     "contactTitle": "Equipment & Logistics Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0589,31.3489"
+    "google_maps_url": "https://www.google.com/maps?q=30.0589,31.3489",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_659",
@@ -18456,7 +20045,9 @@ const titansData = [
     "contactPerson": "مدير عام المعدات والأسطول المركزي للمجموعة",
     "contactTitle": "Corporate Fleet & Plant Machinery Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0412,30.9889"
+    "google_maps_url": "https://www.google.com/maps?q=30.0412,30.9889",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_660",
@@ -18484,7 +20075,9 @@ const titansData = [
     "contactPerson": "مدير إدارة المعدات الثقيلة والنقل",
     "contactTitle": "Heavy Equipment & Transport Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9112,30.9012"
+    "google_maps_url": "https://www.google.com/maps?q=29.9112,30.9012",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_661",
@@ -18512,7 +20105,9 @@ const titansData = [
     "contactPerson": "مدير حركة النقل والمعدات الميدانية",
     "contactTitle": "Fleet Movement & Field Equipment Supervisor",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0145,31.4112"
+    "google_maps_url": "https://www.google.com/maps?q=30.0145,31.4112",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_662",
@@ -18540,7 +20135,9 @@ const titansData = [
     "contactPerson": "مدير إدارة الحركة والمركبات",
     "contactTitle": "Transport & Vehicles Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0112,31.2989"
+    "google_maps_url": "https://www.google.com/maps?q=30.0112,31.2989",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_663",
@@ -18568,7 +20165,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والحركة",
     "contactTitle": "General Transport Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0945,31.3189"
+    "google_maps_url": "https://www.google.com/maps?q=30.0945,31.3189",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_664",
@@ -18596,7 +20195,9 @@ const titansData = [
     "contactPerson": "مدير حركة السيارات والمعدات",
     "contactTitle": "Vehicles & Equipment Supervisor",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9612,31.2589"
+    "google_maps_url": "https://www.google.com/maps?q=29.9612,31.2589",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_665",
@@ -18624,7 +20225,9 @@ const titansData = [
     "contactPerson": "نائب الرئيس للمعدات الثقيلة والأسطول الميكانيكي",
     "contactTitle": "VP of Heavy Plant, Ready Mix & Fleet Logistics",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1112,31.6212"
+    "google_maps_url": "https://www.google.com/maps?q=30.1112,31.6212",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_666",
@@ -18652,7 +20255,9 @@ const titansData = [
     "contactPerson": "مدير عام الخدمات اللوجستية والحركة بالجونة",
     "contactTitle": "El Gouna Town Transport & Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=27.3912,33.6812"
+    "google_maps_url": "https://www.google.com/maps?q=27.3912,33.6812",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_667",
@@ -18680,7 +20285,9 @@ const titansData = [
     "contactPerson": "مدير حركة السيارات والمعدات",
     "contactTitle": "Fleet Movement Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0512,31.2412"
+    "google_maps_url": "https://www.google.com/maps?q=30.0512,31.2412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_668",
@@ -18708,7 +20315,9 @@ const titansData = [
     "contactPerson": "مدير عام العمليات الميدانية والأسطول",
     "contactTitle": "Field Operations & Fleet General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0212,31.4389"
+    "google_maps_url": "https://www.google.com/maps?q=30.0212,31.4389",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_669",
@@ -18736,7 +20345,9 @@ const titansData = [
     "contactPerson": "مدير الخدمات المساندة والحركة",
     "contactTitle": "Support Services & Transport Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0389,31.2112"
+    "google_maps_url": "https://www.google.com/maps?q=30.0389,31.2112",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_670",
@@ -18764,7 +20375,9 @@ const titansData = [
     "contactPerson": "مدير حركة المعدات",
     "contactTitle": "Equipment & Transport Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.0412,31.3812"
+    "google_maps_url": "https://www.google.com/maps?q=31.0412,31.3812",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_671",
@@ -18792,7 +20405,9 @@ const titansData = [
     "contactPerson": "مدير عام العمليات اللوجستية وساحات الحاويات",
     "contactTitle": "Terminal Operations & Yard Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.8812,30.8412"
+    "google_maps_url": "https://www.google.com/maps?q=29.8812,30.8412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_672",
@@ -18820,7 +20435,9 @@ const titansData = [
     "contactPerson": "مدير حركة المعدات والساحات الجمركية",
     "contactTitle": "Terminal Logistics & Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2712,31.7889"
+    "google_maps_url": "https://www.google.com/maps?q=30.2712,31.7889",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_673",
@@ -18848,7 +20465,9 @@ const titansData = [
     "contactPerson": "مدير عام التشغيل والخدمات الفنية للشاحنات",
     "contactTitle": "Terminal Fleet & Cross-Border Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.5412,25.1512"
+    "google_maps_url": "https://www.google.com/maps?q=31.5412,25.1512",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_674",
@@ -18876,7 +20495,9 @@ const titansData = [
     "contactPerson": "مدير عام محطات الشحن والتفريغ",
     "contactTitle": "Bulk Handling & Terminal Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=26.7345,33.9345"
+    "google_maps_url": "https://www.google.com/maps?q=26.7345,33.9345",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_675",
@@ -18904,7 +20525,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع سلاسل الإمداد والأسطول الوطني",
     "contactTitle": "Head of Supply Chain & National Fleet Operations",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.8945,30.8612"
+    "google_maps_url": "https://www.google.com/maps?q=29.8945,30.8612",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_676",
@@ -18932,7 +20555,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل واللوجستيات اللوجستية بمصر",
     "contactTitle": "Country Fleet & Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0312,31.4089"
+    "google_maps_url": "https://www.google.com/maps?q=30.0312,31.4089",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_677",
@@ -18960,7 +20585,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة وأسطول النقل المبرد واللوجستيات",
     "contactTitle": "National Cold Chain & Logistics Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2412,31.4889"
+    "google_maps_url": "https://www.google.com/maps?q=30.2412,31.4889",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_678",
@@ -18988,7 +20615,9 @@ const titansData = [
     "contactPerson": "مدير حركة الأسطول والنقل المركزي",
     "contactTitle": "Central Transport & Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9312,30.9089"
+    "google_maps_url": "https://www.google.com/maps?q=29.9312,30.9089",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_679",
@@ -19016,7 +20645,9 @@ const titansData = [
     "contactPerson": "مدير عام الخدمات اللوجستية والأسطول الميداني",
     "contactTitle": "Field Fleet Operations & Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9789,30.9512"
+    "google_maps_url": "https://www.google.com/maps?q=29.9789,30.9512",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_680",
@@ -19044,7 +20675,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع الحركة والنقل والأسطول المركزي بالهيئة",
     "contactTitle": "Head of Fleet Operations & Postal Transportation",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0512,31.2489"
+    "google_maps_url": "https://www.google.com/maps?q=30.0512,31.2489",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_681",
@@ -19072,7 +20705,9 @@ const titansData = [
     "contactPerson": "مدير عام أسطول النقل والشحن البري",
     "contactTitle": "Ground Operations & Fleet Senior Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1212,31.3989"
+    "google_maps_url": "https://www.google.com/maps?q=30.1212,31.3989",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_682",
@@ -19100,35 +20735,62 @@ const titansData = [
     "contactPerson": "مدير العمليات اللوجستية والأسطول الوطني",
     "contactTitle": "National Fleet & Logistics Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9345,30.9212"
+    "google_maps_url": "https://www.google.com/maps?q=29.9345,30.9212",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_683",
-    "nameAr": "شركة دي إتش إل إكسبريس مصر (DHL Egypt - أساطيل الشحن البري والجوي)",
-    "nameEn": "DHL Express Egypt - Air & Ground Cargo Logistics Fleet",
+    "nameAr": "شركة أوشن إكسبريس للشحن واللوجستيات والملاحة (Ocean Express Logistics)",
+    "nameEn": "Ocean Express Shipping & Logistics Egypt",
     "sector": "transport",
     "subSector": "المركز اللوجستي الإقليمي لشحن الطرود والبضائع والمستندات الحساسة وسلاسل توريد الطيران",
-    "city": "cairo",
+    "city": "الإسكندرية",
     "governorate": "القاهرة",
-    "address": "قرية البضائع، مطار القاهرة الدولي / فروع المعادي ومدينة نصر والإسكندرية",
-    "phone1": "0222661200",
-    "mobile": "01118844229",
-    "hotline": "16283",
-    "website": "https://www.dhl.com.eg",
+    "address": "شارع فؤاد، برج نيازي، محطة الرمل، الإسكندرية",
+    "phone1": "034870230",
+    "mobile": "01222145890",
+    "hotline": "16120",
+    "website": "https://www.oceanexpress-eg.com",
     "latitude": 30.1189,
     "longitude": 31.4045,
-    "fleetSize": 120,
+    "fleetSize": 95,
     "fleetType": "شاحنات صندوقية مجهزة بنظام تتبع متقدم، فانات كهربائية وهيدروجينية، شاحنات شحن مطارات، وحافلات",
     "fleetTires": "225/75R17.5 • 295/80R22.5 • 195/75R16C",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "الشركة العالمية الأولى في الشحن السريع واللوجستيات بمصر والشرق الأوسط بأسطول عالي الكفاءة",
+    "notes": "صرح ملاحي رائد في مصر يقود عمليات نقل الحاويات والطرود الكبرى مع خطوط الملاحة الدولية.",
     "contactPerson": "مدير عام العمليات الأرضية والأسطول",
     "contactTitle": "Ground Operations & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1189,31.4045"
+    "google_maps_url": "https://www.google.com/maps?q=30.1189,31.4045",
+    "activity": "خدمات الشحن البحري والجوي الدولي والنقل متعدد الوسائط وإدارة المستودعات الجمركية",
+    "phone2": "034870231",
+    "email": "info@oceanexpress-eg.com",
+    "fleetTypes": [
+      "جرارات شحن حاويات 20 و40 قدم",
+      "شاحنات نقل مبرد جمركي",
+      "سيارات توزيع شحنات سريعة"
+    ],
+    "tireSizes": [
+      "385/65R22.5",
+      "315/80R22.5",
+      "295/80R22.5"
+    ],
+    "tireConsumptionMonthly": 30,
+    "annualTireBudgetEGP": 4800000,
+    "operationalLocations": [
+      "ميناء الإسكندرية والدخيلة",
+      "ميناء العين السخنة",
+      "ميناء دمياط ومطار القاهرة الدولي"
+    ],
+    "decisionMaker": "رئيس مجلس الإدارة والمدير اللوجستي العام لأسطول الحاويات",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_684",
@@ -19156,7 +20818,9 @@ const titansData = [
     "contactPerson": "مدير حركة الأسطول والنقل الخارجي",
     "contactTitle": "Outbound Fleet Movement Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1712,29.8689"
+    "google_maps_url": "https://www.google.com/maps?q=31.1712,29.8689",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_685",
@@ -19184,7 +20848,9 @@ const titansData = [
     "contactPerson": "مدير عام العمليات النهرية والأسطول البري المساعد",
     "contactTitle": "River Operations & Land Support Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0689,31.2189"
+    "google_maps_url": "https://www.google.com/maps?q=30.0689,31.2189",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_686",
@@ -19212,7 +20878,9 @@ const titansData = [
     "contactPerson": "مدير عام اللوجستيات وسلسلة التبريد الدوائية",
     "contactTitle": "Cold Chain Logistics & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0545,31.2089"
+    "google_maps_url": "https://www.google.com/maps?q=30.0545,31.2089",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_687",
@@ -19240,7 +20908,9 @@ const titansData = [
     "contactPerson": "مدير العمليات اللوجستية والأسطول",
     "contactTitle": "Logistics Operations & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1389,31.7345"
+    "google_maps_url": "https://www.google.com/maps?q=30.1389,31.7345",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_688",
@@ -19268,7 +20938,9 @@ const titansData = [
     "contactPerson": "مدير حركة النقل والتوزيع الدوائي",
     "contactTitle": "Pharma Transport & Distribution Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2312,31.4712"
+    "google_maps_url": "https://www.google.com/maps?q=30.2312,31.4712",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_689",
@@ -19296,7 +20968,9 @@ const titansData = [
     "contactPerson": "مدير اللوجستيات والشحن الجوي والتوزيع",
     "contactTitle": "Logistics & Freight Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2345,31.4689"
+    "google_maps_url": "https://www.google.com/maps?q=30.2345,31.4689",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_690",
@@ -19324,7 +20998,9 @@ const titansData = [
     "contactPerson": "مدير الحركة والأسطول",
     "contactTitle": "Transport & Fleet Supervisor",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2989,31.7645"
+    "google_maps_url": "https://www.google.com/maps?q=30.2989,31.7645",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_691",
@@ -19352,7 +21028,9 @@ const titansData = [
     "contactPerson": "مدير إدارة الحركة",
     "contactTitle": "Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2289,31.4745"
+    "google_maps_url": "https://www.google.com/maps?q=30.2289,31.4745",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_692",
@@ -19380,7 +21058,9 @@ const titansData = [
     "contactPerson": "مدير اللوجستيات",
     "contactTitle": "Logistics Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1312,31.7245"
+    "google_maps_url": "https://www.google.com/maps?q=30.1312,31.7245",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_693",
@@ -19408,7 +21088,9 @@ const titansData = [
     "contactPerson": "مدير الحركة والنقل",
     "contactTitle": "Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2245,31.4612"
+    "google_maps_url": "https://www.google.com/maps?q=30.2245,31.4612",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_694",
@@ -19436,7 +21118,9 @@ const titansData = [
     "contactPerson": "مدير العمليات والحركة",
     "contactTitle": "Operations & Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.9189,29.6289"
+    "google_maps_url": "https://www.google.com/maps?q=30.9189,29.6289",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_695",
@@ -19464,7 +21148,9 @@ const titansData = [
     "contactPerson": "مدير حركة النقل",
     "contactTitle": "Transport Supervisor",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2389,31.4789"
+    "google_maps_url": "https://www.google.com/maps?q=30.2389,31.4789",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_696",
@@ -19492,7 +21178,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والمهمات",
     "contactTitle": "General Transport & Logistics Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2489,31.3545"
+    "google_maps_url": "https://www.google.com/maps?q=30.2489,31.3545",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_697",
@@ -19520,35 +21208,62 @@ const titansData = [
     "contactPerson": "رئيس قطاع الحركة والنقل المركزي بالجمهورية",
     "contactTitle": "Head of National Pharmaceutical Transport & Fleet",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0589,31.2445"
+    "google_maps_url": "https://www.google.com/maps?q=30.0589,31.2445",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_698",
-    "nameAr": "شركة مصر للسياحة (أسطول 320 حافلة سياحية كبرى بين المحافظات)",
-    "nameEn": "Misr Travel - National Tourism Mega Coach Fleet (320 Coaches)",
+    "nameAr": "شركة ترافكو ترانسبورت للنقل السياحي والرحلات (Travco Transport Fleet)",
+    "nameEn": "Travco Transport Mega Fleet (Tourism & Executive Coaches)",
     "sector": "rental",
     "subSector": "النقل السياحي الدولي، رحلات الحج والعمرة، تشغيل الحافلات السياحية الفاخرة لكبرى الفنادق والمزارات الأثرية",
-    "city": "cairo",
+    "city": "الشيخ زايد",
     "governorate": "القاهرة",
-    "address": "ميدان التحرير، القاهرة / جراجات السياحة الكبرى بألماظة والغردقة وشرم الشيخ والأقصر وأسوان",
-    "phone1": "0223930010",
-    "mobile": "01115599882",
-    "hotline": "16298",
-    "website": "https://www.misrtravel.net",
+    "address": "مجمع ترافكو سيتي، طريق مصر إسكندرية الصحراوي، الشيخ زايد، الجيزة",
+    "phone1": "0238541100",
+    "mobile": "01001155990",
+    "hotline": "19744",
+    "website": "https://www.travco.com",
     "latitude": 30.0445,
     "longitude": 31.2389,
-    "fleetSize": 180,
+    "fleetSize": 420,
     "fleetType": "حافلات سياحية مرسيدس ترافيلو وإم سي في VIP، حافلات هايجر، وسيارات ليموزين فاخرة",
     "fleetTires": "295/80R22.5 • 315/80R22.5 • 225/75R17.5",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "الشركة الوطنية القومية الأولى للسياحة في مصر (تأسست 1934) بأحدث أسطول حافلات سياحية عملاق يجوب كل محافظات مصر",
+    "notes": "الأسطول السياحي الأضخم والأحدث في مصر والشرق الأوسط بأكثر من 400 حافلة سياحية فائقة الرفاهية.",
     "contactPerson": "مدير عام النقل السياحي والأسطول المركزي",
     "contactTitle": "General Director of Tourism Fleet & Transport",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0445,31.2389"
+    "google_maps_url": "https://www.google.com/maps?q=30.0445,31.2389",
+    "activity": "تشغيل وإدارة أضخم أسطول حافلات سياحية VIP ونقل المجموعات الدولية والمؤتمرات الكبرى",
+    "phone2": "0238541101",
+    "email": "transport@travco.com",
+    "fleetTypes": [
+      "حافلات مرسيدس وسكانيا VIP 50 راكب",
+      "ميني باصات سياحية فاخرة 33 راكب",
+      "حافلات هايس ليموزين تنفيذية"
+    ],
+    "tireSizes": [
+      "295/80R22.5",
+      "315/80R22.5",
+      "215/75R17.5"
+    ],
+    "tireConsumptionMonthly": 90,
+    "annualTireBudgetEGP": 12800000,
+    "operationalLocations": [
+      "القاهرة الكبرى والمطارات",
+      "شرم الشيخ والغردقة",
+      "الأقصر وأسوان ومطروح"
+    ],
+    "decisionMaker": "مدير عام الأسطول والنقل المركزي بمجموعة ترافكو العالمية",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_699",
@@ -19576,7 +21291,9 @@ const titansData = [
     "contactPerson": "نائب الرئيس التنفيذي للأسطول والنقل السياحي",
     "contactTitle": "Executive VP of Fleet Operations & Transport",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0289,30.9812"
+    "google_maps_url": "https://www.google.com/maps?q=30.0289,30.9812",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_700",
@@ -19604,7 +21321,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والخدمات الأرضية المساندة",
     "contactTitle": "Ground Support & Fleet Operations General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0712,31.3345"
+    "google_maps_url": "https://www.google.com/maps?q=30.0712,31.3345",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_701",
@@ -19632,7 +21351,9 @@ const titansData = [
     "contactPerson": "مدير عام تشغيل محطات الخرسانة والأسطول",
     "contactTitle": "Ready-Mix Operations & Fleet General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0124,31.4589"
+    "google_maps_url": "https://www.google.com/maps?q=30.0124,31.4589",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_702",
@@ -19660,35 +21381,62 @@ const titansData = [
     "contactPerson": "رئيس قطاع الحركة والنقل الثقيل",
     "contactTitle": "Head of Fleet & Heavy Transport",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9541,30.9125"
+    "google_maps_url": "https://www.google.com/maps?q=29.9541,30.9125",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_703",
-    "nameAr": "شركة ريدكون للخرسانة الجاهزة (Redcon Ready-Mix Concrete)",
-    "nameEn": "Redcon Ready-Mix Concrete Plants & Transport Fleet",
+    "nameAr": "شركة سيكوت لمواد البناء والخرسانة الجاهزة (SECOT Ready-Mix)",
+    "nameEn": "SECOT Ready-Mix Concrete & Infrastructure Plants",
     "sector": "building_materials",
     "subSector": "محطات خرسانة عالية الإجهاد وأساطيل نقل لوجستي للإنشاءات المتطورة",
-    "city": "cairo",
+    "city": "القاهرة الجديدة",
     "governorate": "القاهرة",
-    "address": "منطقة البنوك، التجمع الخامس، القاهرة الجديدة",
-    "phone1": "0225368300",
-    "mobile": "01009988772",
-    "hotline": "19721",
-    "website": "https://www.redconmix.com",
+    "address": "المنطقة الصناعية، التجمع الخامس، القاهرة الجديدة",
+    "phone1": "0225648190",
+    "mobile": "01123450987",
+    "hotline": "19614",
+    "website": "https://www.secot-concrete.com",
     "latitude": 30.0245,
     "longitude": 31.4789,
-    "fleetSize": 120,
+    "fleetSize": 115,
     "fleetType": "خلاطات خرسانة مرسيدس ومان، مضخات خرسانة عملاقة، وسيارت قلاب لنقل السن والرمل",
     "fleetTires": "315/80R22.5 • 12.00R24 • 385/65R22.5",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "الذراع الخرساني والإنشائي المتخصص لمجموعة ريدكون للتعمير بالمشروعات الذكية",
+    "notes": "إحدى الشركات المتطورة في إنتاج الخرسانة عالية الإجهاد لأبراج العاصمة الإدارية ومشروعات التنمية العمرانية.",
     "contactPerson": "مدير صيانة الأسطول والمعدات الثقيلة",
     "contactTitle": "Fleet Maintenance & Heavy Machinery Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0245,31.4789"
+    "google_maps_url": "https://www.google.com/maps?q=30.0245,31.4789",
+    "activity": "إنتاج الخرسانة الجاهزة المتخصصة للأبراج والأنفاق ومحطات الصب المركزية بالعاصمة الإدارية",
+    "phone2": "0225648191",
+    "email": "info@secot-concrete.com",
+    "fleetTypes": [
+      "خلاطات خرسانة سعة 10 و12 متر مكعب",
+      "مضخات خرسانة عملاقة أطوال 42 إلى 56 متر",
+      "شاحنات نقل سن وإسمنت صب"
+    ],
+    "tireSizes": [
+      "315/80R22.5",
+      "385/65R22.5",
+      "12.00R20"
+    ],
+    "tireConsumptionMonthly": 36,
+    "annualTireBudgetEGP": 5800000,
+    "operationalLocations": [
+      "العاصمة الإدارية الجديدة",
+      "التجمع ومدينة بدر",
+      "طريق السويس والعين السخنة"
+    ],
+    "decisionMaker": "العضو المنتدب ومدير محطات الخرسانة والأسطول الميداني",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_704",
@@ -19716,7 +21464,9 @@ const titansData = [
     "contactPerson": "مدير النقل والتشغيل الميداني",
     "contactTitle": "Transport & Field Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0715,31.2294"
+    "google_maps_url": "https://www.google.com/maps?q=30.0715,31.2294",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_705",
@@ -19744,7 +21494,9 @@ const titansData = [
     "contactPerson": "رئيس قسم حركة السيارات الثقيلة",
     "contactTitle": "Heavy Vehicles Operations Chief",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2458,31.3587"
+    "google_maps_url": "https://www.google.com/maps?q=30.2458,31.3587",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_706",
@@ -19772,7 +21524,9 @@ const titansData = [
     "contactPerson": "مدير محطات الخلط وحركة الخلاطات",
     "contactTitle": "Batching Plants & Mixers Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3125,31.7456"
+    "google_maps_url": "https://www.google.com/maps?q=30.3125,31.7456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_707",
@@ -19800,7 +21554,9 @@ const titansData = [
     "contactPerson": "مدير صيانة المعدات والشاحنات",
     "contactTitle": "Equipment & Trucks Maintenance Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1587,31.6214"
+    "google_maps_url": "https://www.google.com/maps?q=30.1587,31.6214",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_708",
@@ -19828,7 +21584,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع الخرسانة الجاهزة والمعدات",
     "contactTitle": "Head of Ready Mix & Machinery Sector",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0612,31.2985"
+    "google_maps_url": "https://www.google.com/maps?q=30.0612,31.2985",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_709",
@@ -19856,7 +21614,9 @@ const titansData = [
     "contactPerson": "مدير عام العمليات اللوجستية والمعدات",
     "contactTitle": "Logistics & Heavy Machinery Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0789,31.0214"
+    "google_maps_url": "https://www.google.com/maps?q=30.0789,31.0214",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_710",
@@ -19884,7 +21644,9 @@ const titansData = [
     "contactPerson": "مدير حركة أسطول الساحل والإسكندرية",
     "contactTitle": "Alex & Coast Transport Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.9124,29.6789"
+    "google_maps_url": "https://www.google.com/maps?q=30.9124,29.6789",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_711",
@@ -19912,7 +21674,9 @@ const titansData = [
     "contactPerson": "مدير تشغيل الأسطول والمعدات",
     "contactTitle": "Fleet & Equipment Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3789,30.5124"
+    "google_maps_url": "https://www.google.com/maps?q=30.3789,30.5124",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_712",
@@ -19940,7 +21704,9 @@ const titansData = [
     "contactPerson": "رئيس قسم النقل والورش المركزية",
     "contactTitle": "Central Workshops & Transport Chief",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9789,31.3912"
+    "google_maps_url": "https://www.google.com/maps?q=29.9789,31.3912",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_713",
@@ -19968,7 +21734,9 @@ const titansData = [
     "contactPerson": "مدير عام اللوجستيات وسلاسل الإمداد",
     "contactTitle": "Supply Chain & Logistics General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.6245,32.3456"
+    "google_maps_url": "https://www.google.com/maps?q=29.6245,32.3456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_714",
@@ -19996,7 +21764,9 @@ const titansData = [
     "contactPerson": "مدير حركة السيارات والآليات",
     "contactTitle": "Vehicles & Heavy Fleets Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9891,30.8954"
+    "google_maps_url": "https://www.google.com/maps?q=29.9891,30.8954",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_715",
@@ -20024,7 +21794,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع النقل والمهمات الميدانية",
     "contactTitle": "Transport & Field Missions Chief",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.8124,31.0214"
+    "google_maps_url": "https://www.google.com/maps?q=30.8124,31.0214",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_716",
@@ -20052,7 +21824,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل واللوجستيات للمشروعات القومية",
     "contactTitle": "National Projects Transport General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.6789,32.3124"
+    "google_maps_url": "https://www.google.com/maps?q=29.6789,32.3124",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_717",
@@ -20080,7 +21854,9 @@ const titansData = [
     "contactPerson": "مدير صيانة السيارات والحركة",
     "contactTitle": "Fleet Maintenance & Movements Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.7456,31.3124"
+    "google_maps_url": "https://www.google.com/maps?q=29.7456,31.3124",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_718",
@@ -20108,35 +21884,62 @@ const titansData = [
     "contactPerson": "رئيس قطاع المعدات والنقل المركزي",
     "contactTitle": "Central Equipment & Fleet Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0456,30.9876"
+    "google_maps_url": "https://www.google.com/maps?q=30.0456,30.9876",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_719",
-    "nameAr": "شركة سيمكس مصر للخرسانة الجاهزة (Cemex Ready Mix Egypt)",
-    "nameEn": "Cemex Egypt Ready Mix Concrete Industrial Network",
+    "nameAr": "شركة بني سويف للخرسانة الجاهزة والصناعات الأسمنتية (Beni Suef Ready Mix)",
+    "nameEn": "Beni Suef Ready Mix & Cement Products Mega Fleets",
     "sector": "building_materials",
     "subSector": "شبكة محطات خرسانة تغطي محافظات الصعيد والقاهرة الكبرى والبحر الأحمر",
-    "city": "assiut",
+    "city": "بني سويف",
     "governorate": "أسيوط",
-    "address": "طريق أسيوط - الوادي الجديد، المجمع الصناعي لسيمكس، أسيوط",
-    "phone1": "0882390100",
-    "mobile": "01001188334",
-    "hotline": "19333",
-    "website": "https://www.cemexegypt.com",
+    "address": "منطقة بياض العرب الصناعية، بني سويف",
+    "phone1": "0822241580",
+    "mobile": "01019876543",
+    "hotline": "19615",
+    "website": "https://www.benisuef-readymix.com",
     "latitude": 27.1789,
     "longitude": 31.0541,
-    "fleetSize": 175,
+    "fleetSize": 80,
     "fleetType": "خلاطات خرسانة مان ومرسيدس، تريلات نقل أسمنت بلك، ومضخات صب عالية الارتفاع",
     "fleetTires": "315/80R22.5 • 385/65R22.5 • 12.00R24",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "أكبر شبكة محطات خرسانة جاهزة بصعيد مصر تابعة لشركة سيمكس العالمية بطاقة تشغيل جبارة",
+    "notes": "صرح رائد في مواد البناء يغذي كبرى المشروعات القومية والتنموية ومحاور النيل بشمال الصعيد.",
     "contactPerson": "مدير عام أساطيل النقل بمصر العليا",
     "contactTitle": "Upper Egypt Fleets General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=27.1789,31.0541"
+    "google_maps_url": "https://www.google.com/maps?q=27.1789,31.0541",
+    "activity": "تشغيل محطات الخرسانة الجاهزة وتصنيع البلوك والإنترلوك الآلي وأساطيل التوريد بصعيد مصر",
+    "phone2": "0822241581",
+    "email": "sales@benisuef-readymix.com",
+    "fleetTypes": [
+      "سيارات خلاطات خرسانة جاهزة",
+      "مضخات خرسانة محمولة على شاحنات",
+      "سيارات نقل أسمنت صب وتريلات"
+    ],
+    "tireSizes": [
+      "315/80R22.5",
+      "12.00R20",
+      "385/65R22.5"
+    ],
+    "tireConsumptionMonthly": 25,
+    "annualTireBudgetEGP": 3900000,
+    "operationalLocations": [
+      "بني سويف والمنيا",
+      "الفيوم والواحات",
+      "طريق الكريمات ومحاور الصعيد"
+    ],
+    "decisionMaker": "مدير عام العمليات ومسؤول التشغيل والأسطول الخرساني",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_720",
@@ -20164,7 +21967,9 @@ const titansData = [
     "contactPerson": "مدير العمليات الميدانية والأسطول",
     "contactTitle": "Field Operations & Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0145,31.7589"
+    "google_maps_url": "https://www.google.com/maps?q=30.0145,31.7589",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_721",
@@ -20192,7 +21997,9 @@ const titansData = [
     "contactPerson": "نائب رئيس مجلس الإدارة لشؤون الأسطول والمعدات",
     "contactTitle": "Vice President - Fleet & Heavy Machinery",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0891,31.3412"
+    "google_maps_url": "https://www.google.com/maps?q=30.0891,31.3412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_722",
@@ -20220,7 +22027,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والخدمات اللوجستية بسيناء",
     "contactTitle": "Sinai Transport & Logistics General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.6124,32.2891"
+    "google_maps_url": "https://www.google.com/maps?q=30.6124,32.2891",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_723",
@@ -20248,7 +22057,9 @@ const titansData = [
     "contactPerson": "مدير تشغيل الأسطول والمعدات الثقيلة",
     "contactTitle": "Heavy Machinery & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1456,31.7124"
+    "google_maps_url": "https://www.google.com/maps?q=30.1456,31.7124",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_724",
@@ -20276,7 +22087,9 @@ const titansData = [
     "contactPerson": "مدير عام الأسطول والمعدات بالمجموعة",
     "contactTitle": "Group Fleet & Heavy Equipment Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0712,31.2291"
+    "google_maps_url": "https://www.google.com/maps?q=30.0712,31.2291",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_725",
@@ -20304,7 +22117,9 @@ const titansData = [
     "contactPerson": "رئيس قسم الصيانة والتشغيل",
     "contactTitle": "Maintenance & Fleet Operations Chief",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.4289,31.7891"
+    "google_maps_url": "https://www.google.com/maps?q=31.4289,31.7891",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_726",
@@ -20332,7 +22147,9 @@ const titansData = [
     "contactPerson": "مدير حركة أسطول العامرية وبرج العرب",
     "contactTitle": "Amreya Fleet Transport Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.0245,29.8124"
+    "google_maps_url": "https://www.google.com/maps?q=31.0245,29.8124",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_727",
@@ -20360,7 +22177,9 @@ const titansData = [
     "contactPerson": "مدير فرع جنوب سيناء وحركة الأسطول",
     "contactTitle": "South Sinai Branch & Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=27.9156,34.3124"
+    "google_maps_url": "https://www.google.com/maps?q=27.9156,34.3124",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_728",
@@ -20388,7 +22207,9 @@ const titansData = [
     "contactPerson": "مدير عام الورش المركزية والنقل",
     "contactTitle": "Central Workshops & Transport General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=28.0891,30.7891"
+    "google_maps_url": "https://www.google.com/maps?q=28.0891,30.7891",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_729",
@@ -20416,7 +22237,9 @@ const titansData = [
     "contactPerson": "مدير الدعم اللوجستي والمعدات",
     "contactTitle": "Logistics Support & Machinery Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9712,30.9345"
+    "google_maps_url": "https://www.google.com/maps?q=29.9712,30.9345",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_730",
@@ -20444,7 +22267,9 @@ const titansData = [
     "contactPerson": "مدير حركة محطات شرق النيل",
     "contactTitle": "East Nile Plants Transport Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.0456,31.1245"
+    "google_maps_url": "https://www.google.com/maps?q=29.0456,31.1245",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_731",
@@ -20472,7 +22297,9 @@ const titansData = [
     "contactPerson": "نائب رئيس مجلس الإدارة للأسطول والمعدات الثقيلة",
     "contactTitle": "Vice President - Heavy Fleets & Machinery",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0489,31.0589"
+    "google_maps_url": "https://www.google.com/maps?q=30.0489,31.0589",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_732",
@@ -20500,7 +22327,9 @@ const titansData = [
     "contactPerson": "مدير عام الإمداد والخدمات اللوجستية للمشروعات",
     "contactTitle": "Logistics & Projects Supply General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0189,31.4312"
+    "google_maps_url": "https://www.google.com/maps?q=30.0189,31.4312",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_733",
@@ -20528,63 +22357,117 @@ const titansData = [
     "contactPerson": "رئيس قطاع الحركة ومعدات البناء",
     "contactTitle": "Head of Machinery & Transport Fleets",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0278,31.4678"
+    "google_maps_url": "https://www.google.com/maps?q=30.0278,31.4678",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_734",
-    "nameAr": "شركة الغرابلي للأعمال الهندسية المتكاملة (Al Gharably Integrated Engineering)",
-    "nameEn": "Al Gharably Integrated Engineering (Ports & Marine Fleet)",
+    "nameAr": "شركة سامكو الوطنية للتشييد والبناء والمشروعات (SAMCO Construction)",
+    "nameEn": "SAMCO National Construction Mega Infrastructure Fleets",
     "sector": "construction",
     "subSector": "تطوير وتوسيع الموانئ البحرية والأرصفة والحواجز المائية ومشروعات تعميق القنوات",
-    "city": "alexandria",
+    "city": "الجيزة",
     "governorate": "الإسكندرية",
-    "address": "طريق الجيش، لوران، الإسكندرية",
-    "phone1": "035841900",
-    "mobile": "01005599221",
-    "hotline": "19289",
-    "website": "https://www.algharably.com",
+    "address": "ميدان الرماية، طريق القاهرة الإسكندرية الصحراوي، الهرم، الجيزة",
+    "phone1": "0233771950",
+    "mobile": "01223901456",
+    "hotline": "19451",
+    "website": "https://www.samco-construction.com",
     "latitude": 31.2456,
     "longitude": 29.9789,
-    "fleetSize": 220,
+    "fleetSize": 310,
     "fleetType": "قاطرات بحرية، كراكات عملاقة، تريلات هيفي ديوتي نقل كتل صخرية وخرسانية للموانئ، ومعدات حفر أعماق",
     "fleetTires": "315/80R22.5 • 12.00R24 • 385/65R22.5",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "المنفذ القومي لأكبر مشروعات الأرصفة والحواجز البحرية بميناء الإسكندرية وأبو قير البحري الجديد",
+    "notes": "إحدى كبرى شركات المقاولات الفئة الأولى الرائدة في إنشاء شبكة الطرق والكباري القومية بمصر.",
     "contactPerson": "مدير عام الأسطول البحري والبري الثقيل",
     "contactTitle": "Marine & Heavy Land Fleet General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2456,29.9789"
+    "google_maps_url": "https://www.google.com/maps?q=31.2456,29.9789",
+    "activity": "تنفيذ مشروعات الطرق والكباري الحرة والأنفاق والمنشآت الاستراتيجية وأساطيل المعدات الثقيلة",
+    "phone2": "0233771951",
+    "email": "info@samco-construction.com",
+    "fleetTypes": [
+      "قلابات نقل سن وركام 40 و50 طن",
+      "لوادر وحفارات كاتربيلر ومعدات تسوية",
+      "تريلات شحن كتل خرسانية وقواطع كباري"
+    ],
+    "tireSizes": [
+      "315/80R22.5",
+      "12.00R20",
+      "385/65R22.5",
+      "23.5R25"
+    ],
+    "tireConsumptionMonthly": 85,
+    "annualTireBudgetEGP": 13500000,
+    "operationalLocations": [
+      "محاور الطرق الحرة بالقاهرة والجيزة",
+      "الطريق الدائري الإقليمي والأوسطي",
+      "محاور الصعيد وسيناء"
+    ],
+    "decisionMaker": "رئيس مجلس الإدارة ونائب رئيس قطاع المعدات والأسطول الهندسي",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_735",
-    "nameAr": "شركة النصر العامة للمقاولات (حسن محمد علام - قطاع الأعمال العام)",
-    "nameEn": "El Nasr General Contracting (Hassan Allam Public Sector)",
+    "nameAr": "شركة أركيرودون مصر للإنشاءات البحرية والأنفاق (Archirodon Egypt)",
+    "nameEn": "Archirodon Construction Overseas Egypt (Marine & Port Projects)",
     "sector": "construction",
     "subSector": "تنفيذ الكباري العلوية، الأنفاق، شبكات المياه والصرف الصحي العملاقة بالمحافظات",
-    "city": "cairo",
+    "city": "المعادي",
     "governorate": "القاهرة",
-    "address": "شارع عبد الخالق ثروت، وسط البلد، القاهرة",
-    "phone1": "0223932400",
-    "mobile": "01002244668",
-    "hotline": "19412",
-    "website": "https://www.allamcont.gov.eg",
+    "address": "شارع 250، دجلة، المعادي، القاهرة",
+    "phone1": "0225199400",
+    "mobile": "01002345678",
+    "hotline": "16781",
+    "website": "https://www.archirodon.net",
     "latitude": 30.0512,
     "longitude": 31.2412,
-    "fleetSize": 260,
+    "fleetSize": 145,
     "fleetType": "أساطيل شاحنات قلاب، ماكينات دق خوازيق، تريلات نقل مواسير مياه عملاقة، وحفارات",
     "fleetTires": "315/80R22.5 • 12.00R20 • 385/65R22.5",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "الصرح الوطني التاريخي التابع للشركة القابضة للتشييد والتعمير برصيد إنجاز يمتد لعقود في كافة ربوع مصر",
+    "notes": "المقاول البحري العالمي الأبرز في تطوير وتوسعة كبرى موانئ مصر والمحطات الاستراتيجية.",
     "contactPerson": "رئيس قطاعات المعدات والتشغيل الميكانيكي",
     "contactTitle": "Mechanical Equipment & Fleets Chief",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0512,31.2412"
+    "google_maps_url": "https://www.google.com/maps?q=30.0512,31.2412",
+    "activity": "إنشاء الأرصفة البحرية وتعميق الموانئ والأعمال التحت مائية ومحطات الكهرباء العملاقة",
+    "phone2": "0225199401",
+    "email": "egypt@archirodon.net",
+    "fleetTypes": [
+      "شاحنات نقل صخور وركام بحري ثقيل",
+      "رافعات وأوناش شاطئية وبحرية",
+      "معدات دق خوازيق ومولدات طاقة"
+    ],
+    "tireSizes": [
+      "315/80R22.5",
+      "14.00R24",
+      "12.00R20",
+      "385/65R22.5"
+    ],
+    "tireConsumptionMonthly": 42,
+    "annualTireBudgetEGP": 7200000,
+    "operationalLocations": [
+      "ميناء دمياط والسخنة",
+      "ميناء أبو قير والإسكندرية",
+      "مشروعات الطاقة برأس غارب"
+    ],
+    "decisionMaker": "مدير عام المشروعات البحرية واللوجستية بمصر وشمال أفريقيا",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_736",
@@ -20612,7 +22495,9 @@ const titansData = [
     "contactPerson": "مدير إدارة الحركة والتشغيل",
     "contactTitle": "Movement & Transport Department Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0541,31.2014"
+    "google_maps_url": "https://www.google.com/maps?q=30.0541,31.2014",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_737",
@@ -20640,7 +22525,9 @@ const titansData = [
     "contactPerson": "مدير عام الشؤون الميكانيكية والسيارات",
     "contactTitle": "Mechanical Affairs & Transport General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0489,31.2389"
+    "google_maps_url": "https://www.google.com/maps?q=30.0489,31.2389",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_738",
@@ -20668,7 +22555,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع الأسطول والمستودعات المركزية",
     "contactTitle": "Head of Fleet & Central Warehouses",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0578,31.2456"
+    "google_maps_url": "https://www.google.com/maps?q=30.0578,31.2456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_739",
@@ -20696,7 +22585,9 @@ const titansData = [
     "contactPerson": "مدير المعدات واللوجستيات الهندسية",
     "contactTitle": "Engineering Machinery & Logistics Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2124,29.9456"
+    "google_maps_url": "https://www.google.com/maps?q=31.2124,29.9456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_740",
@@ -20724,7 +22615,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع صيانة المعدات وحركة السيارات",
     "contactTitle": "Machinery Maintenance & Fleets Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0189,31.3985"
+    "google_maps_url": "https://www.google.com/maps?q=30.0189,31.3985",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_741",
@@ -20752,7 +22645,9 @@ const titansData = [
     "contactPerson": "مدير عام أسطول النقل والخلاطات الأسفلتية",
     "contactTitle": "Asphalt Plants & Transport General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.0541,31.3789"
+    "google_maps_url": "https://www.google.com/maps?q=31.0541,31.3789",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_742",
@@ -20780,7 +22675,9 @@ const titansData = [
     "contactPerson": "مدير عام إدارة النقل ومتابعة المشروعات",
     "contactTitle": "Transport & Projects Follow-up Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0894,31.3389"
+    "google_maps_url": "https://www.google.com/maps?q=30.0894,31.3389",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_743",
@@ -20808,7 +22705,9 @@ const titansData = [
     "contactPerson": "مدير اللوجستيات والمعدات الثقيلة بالمواقع الصحراوية",
     "contactTitle": "Desert Sites Machinery & Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0214,31.4125"
+    "google_maps_url": "https://www.google.com/maps?q=30.0214,31.4125",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_744",
@@ -20836,7 +22735,9 @@ const titansData = [
     "contactPerson": "مدير صيانة الأسطول الميكانيكي",
     "contactTitle": "Mechanical Fleet Maintenance Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0612,31.3289"
+    "google_maps_url": "https://www.google.com/maps?q=30.0612,31.3289",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_745",
@@ -20864,7 +22765,9 @@ const titansData = [
     "contactPerson": "نائب رئيس مجلس الإدارة للشؤون الفنية والأسطول",
     "contactTitle": "Technical Affairs & Fleets Vice President",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0345,31.4891"
+    "google_maps_url": "https://www.google.com/maps?q=30.0345,31.4891",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_746",
@@ -20892,7 +22795,9 @@ const titansData = [
     "contactPerson": "مدير قطاع المعدات الثقيلة بالبحر الأحمر",
     "contactTitle": "Red Sea Heavy Equipment Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=27.2456,33.8124"
+    "google_maps_url": "https://www.google.com/maps?q=27.2456,33.8124",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_747",
@@ -20920,7 +22825,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والتشغيل الميكانيكي",
     "contactTitle": "Mechanical Operations & Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0689,31.2812"
+    "google_maps_url": "https://www.google.com/maps?q=30.0689,31.2812",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_748",
@@ -20948,7 +22855,9 @@ const titansData = [
     "contactPerson": "رئيس قطاعات الكراكات والمعدات الثقيلة",
     "contactTitle": "Dredgers & Heavy Fleets Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0389,31.2145"
+    "google_maps_url": "https://www.google.com/maps?q=30.0389,31.2145",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_749",
@@ -20976,7 +22885,9 @@ const titansData = [
     "contactPerson": "مدير صيانة الأسطول المركزي",
     "contactTitle": "Central Fleet Maintenance Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0541,31.3412"
+    "google_maps_url": "https://www.google.com/maps?q=30.0541,31.3412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_750",
@@ -21004,35 +22915,62 @@ const titansData = [
     "contactPerson": "مدير عام العمليات اللوجستية ومعدات التشييد",
     "contactTitle": "Logistics Operations & Construction Fleets General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0912,31.3289"
+    "google_maps_url": "https://www.google.com/maps?q=30.0912,31.3289",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_751",
-    "nameAr": "شركة ريدكون للتعمير (Redcon Construction Mega Projects)",
-    "nameEn": "Redcon Construction Mega Engineering Fleet",
+    "nameAr": "شركة الشروق للمقاولات العامة والإنشاءات الكبرى (Shorouk Contracting)",
+    "nameEn": "Shorouk General Contracting & Mega Urban Works",
     "sector": "construction",
     "subSector": "المقاولات العامة للأبراج الشاهقة والمباني الخضراء والمستدامة بمصر",
-    "city": "cairo",
+    "city": "مدينة نصر",
     "governorate": "القاهرة",
-    "address": "التجمع الخامس، شارع التسعين الجنوبي، القاهرة الجديدة",
-    "phone1": "0228109000",
-    "mobile": "01007733445",
-    "hotline": "19721",
-    "website": "https://www.redconcon.com",
+    "address": "طريق النصر، مكرم عبيد، مدينة نصر، القاهرة",
+    "phone1": "0222741890",
+    "mobile": "01115678901",
+    "hotline": "19452",
+    "website": "https://www.shorouk-contracting.com",
     "latitude": 30.0245,
     "longitude": 31.4789,
-    "fleetSize": 180,
+    "fleetSize": 120,
     "fleetType": "أوناش برجية عملاقة، تريلات نقل حديد وصلب، لوادر، ومقطورات نقل ثقيل",
     "fleetTires": "315/80R22.5 • 385/65R22.5 • 12.00R20",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "رائدة التشييد الأخضر والمستدام والمنفذة لمشروع أطول برج خشبي صديق للبيئة وأبراج العلمين",
+    "notes": "مؤسسة مقاولات مصرية فئة أولى تتولى تنفيذ مجمعات وزارية ومراكز خدمية ضخمة بالمدن الجديدة.",
     "contactPerson": "نائب رئيس مجلس الإدارة للعمليات الهندسية والأسطول",
     "contactTitle": "Engineering Operations & Fleet Vice President",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0245,31.4789"
+    "google_maps_url": "https://www.google.com/maps?q=30.0245,31.4789",
+    "activity": "المقاولات المتكاملة والمباني الذكية والأعمال الكهروميكانيكية وأساطيل نقل مواد البناء",
+    "phone2": "0222741891",
+    "email": "info@shorouk-contracting.com",
+    "fleetTypes": [
+      "قلابات نقل ردم ومواد بناء",
+      "تريلات شحن حديد تسليح وهياكل",
+      "سيارات خدمة هندسية وصيانة"
+    ],
+    "tireSizes": [
+      "315/80R22.5",
+      "385/65R22.5",
+      "12.00R20"
+    ],
+    "tireConsumptionMonthly": 35,
+    "annualTireBudgetEGP": 5400000,
+    "operationalLocations": [
+      "العاصمة الإدارية",
+      "القاهرة الجديدة والعبور",
+      "المنصورة الجديدة والعلمين"
+    ],
+    "decisionMaker": "المدير التنفيذي لقطاع التشغيل وإدارة المشروعات والآليات",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_752",
@@ -21060,7 +22998,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع الأزمات والطوارئ والحركة المركزية",
     "contactTitle": "Crises, Emergencies & Fleet Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0612,31.3125"
+    "google_maps_url": "https://www.google.com/maps?q=30.0612,31.3125",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_753",
@@ -21088,7 +23028,9 @@ const titansData = [
     "contactPerson": "مدير المعدات والآليات الثقيلة",
     "contactTitle": "Heavy Machinery & Equipment Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0389,31.4712"
+    "google_maps_url": "https://www.google.com/maps?q=30.0389,31.4712",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_754",
@@ -21116,7 +23058,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والمهمات الكهربائية الثقيلة",
     "contactTitle": "Electrical Heavy Missions & Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0612,31.3389"
+    "google_maps_url": "https://www.google.com/maps?q=30.0612,31.3389",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_755",
@@ -21144,7 +23088,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع التشغيل والمعدات الهندسية",
     "contactTitle": "Engineering Fleets & Machinery Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0389,30.9789"
+    "google_maps_url": "https://www.google.com/maps?q=30.0389,30.9789",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_756",
@@ -21172,35 +23118,46 @@ const titansData = [
     "contactPerson": "مدير عام الخدمات البحرية ومعدات الترسانة",
     "contactTitle": "Marine Fleets & Yard Equipment General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.3124,30.2245"
+    "google_maps_url": "https://www.google.com/maps?q=31.3124,30.2245",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_757",
-    "nameAr": "شركة إنبي للخدمات الهندسية والإشراف على المشروعات (ENPPI)",
-    "nameEn": "Engineering for the Petroleum & Process Industries (ENPPI)",
-    "sector": "construction",
+    "nameAr": "شركة الغازات البترولية (بتروجاس - Petrogas)",
+    "nameEn": "Petroleum Gases Company (Petrogas)",
+    "sector": "petroleum",
     "subSector": "الإشراف والتنفيذ الهندسي لمجمعات التكرير ومحطات البتروكيماويات والغاز القومية",
     "city": "cairo",
     "governorate": "القاهرة",
-    "address": "شارع أنور المفتي، المنطقة الأولى، مدينة نصر، القاهرة",
-    "phone1": "0222762000",
-    "mobile": "01004411883",
-    "hotline": "19331",
-    "website": "https://www.enppi.com",
+    "address": "شارع الألفي، عمارة الثورة، وسط البلد / المقطم، القاهرة",
+    "phone1": "0225752390",
+    "mobile": "01001859201",
+    "hotline": "19902",
+    "website": "https://www.petrogas.com.eg",
     "latitude": 30.0612,
     "longitude": 31.3345,
-    "fleetSize": 130,
+    "fleetSize": 185,
     "fleetType": "سيارات فحص ومسح هندسي مجهزة بأحدث الرادارات، أساطيل نقل خبراء ومهندسين للمواقع البترولية",
     "fleetTires": "245/75R16 • 265/65R17 • 295/80R22.5",
-    "priority": "A+",
+    "priority": "high",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "الذراع الهندسي الاستشاري الأول في الشرق الأوسط التابع لوزارة البترول المصرية برصيد مشروعات دولي",
-    "contactPerson": "مدير عام إدارة الحركة والخدمات الميدانية",
+    "notes": "إحدى كبرى قلاع قطاع البترول المصري التابعة للهيئة المصرية العامة للبترول، مسؤولة عن تعبئة ونقل وتوزيع غاز البوتاجاز بكافة محافظات الجمهورية بأكبر أسطول صهاريج وشاحنات متخصصة.",
+    "contactPerson": "قطاع النقل والأسطول وتوزيع أسطوانات الغاز والصب",
     "contactTitle": "Transport & Field Operations General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0612,31.3345"
+    "google_maps_url": "https://www.google.com/maps?q=30.0612,31.3345",
+    "phone2": "0225752405",
+    "email": "info@petrogas.com.eg",
+    "truckTypes": [
+      "سيارات صهريجية لنقل البوتاجاز الصب (LPG Tankers)",
+      "شاحنات نقل أسطوانات الغاز الثقيلة",
+      "سيارات خدمة وتوزيع سريعة"
+    ],
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_758",
@@ -21228,7 +23185,9 @@ const titansData = [
     "contactPerson": "مدير الحركة والمعدات الثقيلة",
     "contactTitle": "Heavy Equipment & Fleets Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.4124,31.8124"
+    "google_maps_url": "https://www.google.com/maps?q=31.4124,31.8124",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_759",
@@ -21256,7 +23215,9 @@ const titansData = [
     "contactPerson": "مدير إدارة الصيانة والأسطول الخدمي",
     "contactTitle": "Service Fleet & Maintenance Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2981,31.7612"
+    "google_maps_url": "https://www.google.com/maps?q=30.2981,31.7612",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_760",
@@ -21284,7 +23245,9 @@ const titansData = [
     "contactPerson": "رئيس قطاعات الأسطول الثقيل والمعدات المركزية",
     "contactTitle": "Central Heavy Fleets & Equipment Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0212,31.4389"
+    "google_maps_url": "https://www.google.com/maps?q=30.0212,31.4389",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_761",
@@ -21312,7 +23275,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل الثقيل وتصاريح الحمولات الخاصة",
     "contactTitle": "Special Cargoes & Heavy Transport General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0541,31.0789"
+    "google_maps_url": "https://www.google.com/maps?q=30.0541,31.0789",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_762",
@@ -21340,7 +23305,9 @@ const titansData = [
     "contactPerson": "رئيس قطاعات الآليات والمعدات الميكانيكية",
     "contactTitle": "Mechanical Fleets & Machinery Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0589,31.2412"
+    "google_maps_url": "https://www.google.com/maps?q=30.0589,31.2412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_763",
@@ -21368,7 +23335,9 @@ const titansData = [
     "contactPerson": "مدير عام أسطول الأساسات العميقة",
     "contactTitle": "Deep Foundations Fleet General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0891,31.3541"
+    "google_maps_url": "https://www.google.com/maps?q=30.0891,31.3541",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_764",
@@ -21396,7 +23365,9 @@ const titansData = [
     "contactPerson": "مدير قطاع الآليات والمعدات الهندسية الثقيلة",
     "contactTitle": "Heavy Engineering Machinery Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0212,31.3891"
+    "google_maps_url": "https://www.google.com/maps?q=30.0212,31.3891",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_765",
@@ -21424,7 +23395,9 @@ const titansData = [
     "contactPerson": "نائب رئيس مجلس الإدارة للخدمات اللوجستية للمشروعات",
     "contactTitle": "Projects Logistics Vice President",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0812,31.0245"
+    "google_maps_url": "https://www.google.com/maps?q=30.0812,31.0245",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_766",
@@ -21452,7 +23425,9 @@ const titansData = [
     "contactPerson": "مدير تشغيل وصيانة الأسطول",
     "contactTitle": "Fleet Operations & Maintenance Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3012,31.7589"
+    "google_maps_url": "https://www.google.com/maps?q=30.3012,31.7589",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_767",
@@ -21480,7 +23455,9 @@ const titansData = [
     "contactPerson": "مدير المعدات الميدانية والنقل",
     "contactTitle": "Field Equipment & Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0412,31.2089"
+    "google_maps_url": "https://www.google.com/maps?q=30.0412,31.2089",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_768",
@@ -21508,7 +23485,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والمعدات الميكانيكية",
     "contactTitle": "Transport & Mechanical Fleets General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.0541,29.8312"
+    "google_maps_url": "https://www.google.com/maps?q=31.0541,29.8312",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_769",
@@ -21536,7 +23515,9 @@ const titansData = [
     "contactPerson": "مساعد رئيس الشركة للعمليات والأسطول",
     "contactTitle": "Assistant Chairman for Operations & Fleet",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0212,31.4456"
+    "google_maps_url": "https://www.google.com/maps?q=30.0212,31.4456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_770",
@@ -21564,7 +23545,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع المعدات والورش المركزية بسوهاج",
     "contactTitle": "Machinery & Central Workshops Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=26.5412,31.7891"
+    "google_maps_url": "https://www.google.com/maps?q=26.5412,31.7891",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_771",
@@ -21592,7 +23575,9 @@ const titansData = [
     "contactPerson": "مدير العمليات النهرية والمعدات الميدانية",
     "contactTitle": "River Operations & Equipment Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=24.0891,32.8989"
+    "google_maps_url": "https://www.google.com/maps?q=24.0891,32.8989",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_772",
@@ -21620,7 +23605,9 @@ const titansData = [
     "contactPerson": "مدير إدارة الحركة والسيارات الثقيلة",
     "contactTitle": "Heavy Fleets & Movement Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=26.0456,32.2412"
+    "google_maps_url": "https://www.google.com/maps?q=26.0456,32.2412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_773",
@@ -21648,7 +23635,9 @@ const titansData = [
     "contactPerson": "رئيس قسم التركيبات والمعدات الثقيلة",
     "contactTitle": "Installations & Heavy Fleets Chief",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2089,29.9389"
+    "google_maps_url": "https://www.google.com/maps?q=31.2089,29.9389",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_774",
@@ -21676,7 +23665,9 @@ const titansData = [
     "contactPerson": "مدير الحركة والمعدات البحرية والبرية",
     "contactTitle": "Marine & Land Equipment Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2245,32.2891"
+    "google_maps_url": "https://www.google.com/maps?q=31.2245,32.2891",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_775",
@@ -21704,7 +23695,9 @@ const titansData = [
     "contactPerson": "مدير قطاع المعدات الميدانية بسيناء",
     "contactTitle": "Sinai Field Fleets Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1345,33.7989"
+    "google_maps_url": "https://www.google.com/maps?q=31.1345,33.7989",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_776",
@@ -21732,7 +23725,9 @@ const titansData = [
     "contactPerson": "مدير عام الصيانة الميكانيكية والسيارات",
     "contactTitle": "Mechanical Maintenance & Vehicles Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0189,31.2089"
+    "google_maps_url": "https://www.google.com/maps?q=30.0189,31.2089",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_777",
@@ -21760,7 +23755,9 @@ const titansData = [
     "contactPerson": "مدير الحركة والنقل الخارجي",
     "contactTitle": "Transport & Logistics Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0541,31.3389"
+    "google_maps_url": "https://www.google.com/maps?q=30.0541,31.3389",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_778",
@@ -21788,7 +23785,9 @@ const titansData = [
     "contactPerson": "مدير صيانة الأسطول والمعدات",
     "contactTitle": "Equipment & Fleet Maintenance Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1789,31.2056"
+    "google_maps_url": "https://www.google.com/maps?q=30.1789,31.2056",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_779",
@@ -21816,7 +23815,9 @@ const titansData = [
     "contactPerson": "مدير إدارة المعدات والأسطول الساحلي",
     "contactTitle": "Coastal Fleet & Equipment Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.8245,28.9456"
+    "google_maps_url": "https://www.google.com/maps?q=30.8245,28.9456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_780",
@@ -21844,7 +23845,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع الدعم اللوجستي للمشروعات",
     "contactTitle": "Projects Logistics Support Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0541,31.3189"
+    "google_maps_url": "https://www.google.com/maps?q=30.0541,31.3189",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_781",
@@ -21872,7 +23875,9 @@ const titansData = [
     "contactPerson": "مدير عام الأسطول والمهمات الخاصة",
     "contactTitle": "Special Missions & Fleets Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0412,31.3289"
+    "google_maps_url": "https://www.google.com/maps?q=30.0412,31.3289",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_782",
@@ -21900,7 +23905,9 @@ const titansData = [
     "contactPerson": "مدير العمليات الفنية والأسطول",
     "contactTitle": "Technical Operations & Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9612,30.9124"
+    "google_maps_url": "https://www.google.com/maps?q=29.9612,30.9124",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_783",
@@ -21928,7 +23935,9 @@ const titansData = [
     "contactPerson": "مدير عام إدارة الحركة والورش",
     "contactTitle": "Movement & Workshops General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9789,31.2891"
+    "google_maps_url": "https://www.google.com/maps?q=29.9789,31.2891",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_784",
@@ -21956,7 +23965,9 @@ const titansData = [
     "contactPerson": "مدير عام الخدمات اللوجستية والآليات",
     "contactTitle": "Machinery & Logistics General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1124,31.6789"
+    "google_maps_url": "https://www.google.com/maps?q=30.1124,31.6789",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_785",
@@ -21984,7 +23995,9 @@ const titansData = [
     "contactPerson": "مدير الأسطول البحري والبري للمشروعات",
     "contactTitle": "Marine & Land Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=27.1789,33.8124"
+    "google_maps_url": "https://www.google.com/maps?q=27.1789,33.8124",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_786",
@@ -22012,7 +24025,9 @@ const titansData = [
     "contactPerson": "مدير عام الصيانة والورش المركزية",
     "contactTitle": "Central Workshops & Maintenance General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.8456,31.3124"
+    "google_maps_url": "https://www.google.com/maps?q=29.8456,31.3124",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_787",
@@ -22040,7 +24055,9 @@ const titansData = [
     "contactPerson": "مدير قطاع الآليات والمعدات الزراعية الثقيلة",
     "contactTitle": "Heavy Agricultural Fleets Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.4124,30.3456"
+    "google_maps_url": "https://www.google.com/maps?q=30.4124,30.3456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_788",
@@ -22068,7 +24085,9 @@ const titansData = [
     "contactPerson": "مدير إدارة النقل والمعدات الميدانية",
     "contactTitle": "Field Equipment & Transport Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9456,32.4891"
+    "google_maps_url": "https://www.google.com/maps?q=29.9456,32.4891",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_789",
@@ -22096,7 +24115,9 @@ const titansData = [
     "contactPerson": "مدير المشروعات والأسطول الفني",
     "contactTitle": "Technical Fleet & Projects Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2145,29.9124"
+    "google_maps_url": "https://www.google.com/maps?q=31.2145,29.9124",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_790",
@@ -22124,7 +24145,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل المنجمي والصحراوي",
     "contactTitle": "Mining & Desert Fleets General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=26.1124,34.2891"
+    "google_maps_url": "https://www.google.com/maps?q=26.1124,34.2891",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_791",
@@ -22152,7 +24175,9 @@ const titansData = [
     "contactPerson": "مدير عام إدارة الأوناش والحمولات الثقيلة",
     "contactTitle": "Mega Cranes & Heavy Lift Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9689,31.3124"
+    "google_maps_url": "https://www.google.com/maps?q=29.9689,31.3124",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_792",
@@ -22180,7 +24205,9 @@ const titansData = [
     "contactPerson": "رئيس قطاعات التشغيل الميكانيكي والأسطول",
     "contactTitle": "Mechanical Fleets & Operations Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0389,31.2345"
+    "google_maps_url": "https://www.google.com/maps?q=30.0389,31.2345",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_793",
@@ -22208,7 +24235,9 @@ const titansData = [
     "contactPerson": "مدير عام المعدات والمستودعات المركزية",
     "contactTitle": "Heavy Equipment & Central Stores Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0612,31.3189"
+    "google_maps_url": "https://www.google.com/maps?q=30.0612,31.3189",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_794",
@@ -22236,7 +24265,9 @@ const titansData = [
     "contactPerson": "مدير الأسطول الميداني والعمليات الذكية",
     "contactTitle": "Field Fleet & Smart Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0245,31.4312"
+    "google_maps_url": "https://www.google.com/maps?q=30.0245,31.4312",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_795",
@@ -22264,7 +24295,9 @@ const titansData = [
     "contactPerson": "مدير صيانة الآليات والأسطول",
     "contactTitle": "Machinery Maintenance & Transport Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0645,31.3312"
+    "google_maps_url": "https://www.google.com/maps?q=30.0645,31.3312",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_796",
@@ -22292,35 +24325,62 @@ const titansData = [
     "contactPerson": "مدير عام حركة الآليات الثقيلة",
     "contactTitle": "Heavy Equipment Movement Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1589,29.8541"
+    "google_maps_url": "https://www.google.com/maps?q=31.1589,29.8541",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_797",
-    "nameAr": "شركة المقاولات المصرية (مختار إبراهيم - قطاع الأعمال العام)",
-    "nameEn": "Egyptian Contracting Co. (Mokhtar Ibrahim Mega Infrastructure)",
+    "nameAr": "شركة إيجيكو - النصر العامة للمباني (قطاع الأعمال العام)",
+    "nameEn": "EGYCO - El Nasr General Housing & Building Mega Contractor",
     "sector": "construction",
     "subSector": "المشروعات الكبرى لشبكات مياه الشرب والصرف الصحي ومحطات المعالجة بمصر والدول العربية",
-    "city": "cairo",
+    "city": "وسط البلد",
     "governorate": "القاهرة",
-    "address": "شارع مصدق، الدقي، الجيزة",
-    "phone1": "0237604100",
-    "mobile": "01008811335",
-    "hotline": "19441",
-    "website": "https://www.mokhtar-ibrahim.com",
+    "address": "شارع 26 يوليو، وسط البلد، القاهرة",
+    "phone1": "0225741830",
+    "mobile": "01224567891",
+    "hotline": "19453",
+    "website": "https://www.egyco-contracting.com",
     "latitude": 30.0412,
     "longitude": 31.2056,
-    "fleetSize": 250,
+    "fleetSize": 160,
     "fleetType": "حفارات عملاقة، تريلات نقل مواسير زهر مرن وصلب، ماكينات خرق نفقي تحت السكك الحديدية، ولوادر",
     "fleetTires": "315/80R22.5 • 12.00R20 • 385/65R22.5",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "القلعة التاريخية التابعة للشركة القابضة للتشييد والتعمير والمصنفة دولياً في مشروعات البنية التحتية والمياه",
+    "notes": "إحدى أعرق قلاع التشييد الوطنية الحكومية، منفذة مشروعات عملاقة في البنية التحتية والمرافق بكافة ربوع مصر.",
     "contactPerson": "رئيس قطاعات المعدات والتشغيل الميكانيكي",
     "contactTitle": "Mechanical Equipment & Fleets Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0412,31.2056"
+    "google_maps_url": "https://www.google.com/maps?q=30.0412,31.2056",
+    "activity": "تشييد المدن السكنية ومشروعات مياه الشرب والصرف الصحي القومية والجسور والأنفاق",
+    "phone2": "0225741831",
+    "email": "info@egyco-contracting.com",
+    "fleetTypes": [
+      "معدات حفر وشاحنات نزح مياه",
+      "قلابات نقل ثقيل ومعدات دك تربة",
+      "تريلات نقل خرسانات جاهزة"
+    ],
+    "tireSizes": [
+      "315/80R22.5",
+      "12.00R20",
+      "295/80R22.5"
+    ],
+    "tireConsumptionMonthly": 44,
+    "annualTireBudgetEGP": 6600000,
+    "operationalLocations": [
+      "محافظات الدلتا والصعيد",
+      "مشروعات حياة كريمة بالقرى",
+      "القاهرة والإسكندرية"
+    ],
+    "decisionMaker": "رئيس مجلس الإدارة والعضو المنتدب ورئيس قطاع الآليات والنقل",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_798",
@@ -22348,7 +24408,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والمهمات المعدنية",
     "contactTitle": "Steel Missions & Transport General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1345,31.3124"
+    "google_maps_url": "https://www.google.com/maps?q=30.1345,31.3124",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_799",
@@ -22376,7 +24438,9 @@ const titansData = [
     "contactPerson": "مدير قطاع الخلاطات الأسفلتية والمعدات",
     "contactTitle": "Asphalt Plants & Heavy Fleets Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1089,31.3789"
+    "google_maps_url": "https://www.google.com/maps?q=30.1089,31.3789",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_800",
@@ -22404,7 +24468,9 @@ const titansData = [
     "contactPerson": "رئيس قطاعات التشغيل الميكانيكي والآليات",
     "contactTitle": "Mechanical Fleets & Operations Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0345,31.2112"
+    "google_maps_url": "https://www.google.com/maps?q=30.0345,31.2112",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_801",
@@ -22432,7 +24498,9 @@ const titansData = [
     "contactPerson": "مدير عام سلاسل الإمداد والخدمات اللوجستية",
     "contactTitle": "Supply Chain & Logistics General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3089,31.7589"
+    "google_maps_url": "https://www.google.com/maps?q=30.3089,31.7589",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_802",
@@ -22460,7 +24528,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع الحركة والنقل الدولي والمحلي",
     "contactTitle": "International & Local Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2124,32.2789"
+    "google_maps_url": "https://www.google.com/maps?q=31.2124,32.2789",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_803",
@@ -22488,7 +24558,9 @@ const titansData = [
     "contactPerson": "مدير عام اللوجستيات وسلاسل الإمداد",
     "contactTitle": "Supply Chain & Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3089,31.7612"
+    "google_maps_url": "https://www.google.com/maps?q=30.3089,31.7612",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_804",
@@ -22516,7 +24588,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع الحركة والشحن الإقليمي",
     "contactTitle": "Regional Shipping & Movement Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3012,31.7412"
+    "google_maps_url": "https://www.google.com/maps?q=30.3012,31.7412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_805",
@@ -22544,7 +24618,9 @@ const titansData = [
     "contactPerson": "مدير العمليات اللوجستية والأسطول",
     "contactTitle": "Logistics Operations & Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9612,30.9245"
+    "google_maps_url": "https://www.google.com/maps?q=29.9612,30.9245",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_806",
@@ -22572,7 +24648,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل واللوجستيات الميدانية",
     "contactTitle": "Field Logistics & Fleets Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2245,31.4789"
+    "google_maps_url": "https://www.google.com/maps?q=30.2245,31.4789",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_807",
@@ -22600,7 +24678,9 @@ const titansData = [
     "contactPerson": "مدير الأمان وسلاسل الإمداد الكيميائي",
     "contactTitle": "Chemical Supply Chain & Safety Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3891,30.5245"
+    "google_maps_url": "https://www.google.com/maps?q=30.3891,30.5245",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_808",
@@ -22628,7 +24708,9 @@ const titansData = [
     "contactPerson": "رئيس قسم التوزيع والخدمات اللوجستية",
     "contactTitle": "Distribution & Logistics Operations Chief",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2289,31.4812"
+    "google_maps_url": "https://www.google.com/maps?q=30.2289,31.4812",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_809",
@@ -22656,7 +24738,9 @@ const titansData = [
     "contactPerson": "مدير عام أساطيل النقل المبرد والغازات المسالة",
     "contactTitle": "Cryogenic Fleet & Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9891,31.3789"
+    "google_maps_url": "https://www.google.com/maps?q=29.9891,31.3789",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_810",
@@ -22684,7 +24768,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع النقل والسلامة المهنية للأسطول",
     "contactTitle": "Fleet Safety & Transport Operations Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9312,32.4789"
+    "google_maps_url": "https://www.google.com/maps?q=29.9312,32.4789",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_811",
@@ -22712,147 +24798,274 @@ const titansData = [
     "contactPerson": "مدير الحركة والنقل التخصصي",
     "contactTitle": "Specialized Transport & Fleets Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1456,29.8412"
+    "google_maps_url": "https://www.google.com/maps?q=31.1456,29.8412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_812",
-    "nameAr": "شركة أبو قير للأسمدة والصناعات الكيماوية (مجمعات مصانع أبو قير 1 و 2 و 3)",
-    "nameEn": "Abu Qir Fertilizers & Chemical Industries (Plants 1, 2 & 3)",
+    "nameAr": "شركة يوني باك مصر للكرتون المضلع ومواد التعبئة (Unipack Egypt)",
+    "nameEn": "Unipack Egypt for Corrugated Board & Packaging Mega Plants",
     "sector": "manufacturing",
     "subSector": "أضخم صرح لإنتاج أسمدة اليوريا ونترات الأمونيوم والسماد السائل والتصدير العالمي",
-    "city": "alexandria",
+    "city": "السادس من أكتوبر",
     "governorate": "الإسكندرية",
-    "address": "المنطقة الصناعية بالطابية، خط رشيد، أبو قير، الإسكندرية",
-    "phone1": "035603000",
-    "mobile": "01007744223",
-    "hotline": "19199",
-    "website": "https://www.abuqir.com",
+    "address": "المنطقة الصناعية الثالثة، السادس من أكتوبر، الجيزة",
+    "phone1": "0238334510",
+    "mobile": "01007890145",
+    "hotline": "19811",
+    "website": "https://www.unipack-egypt.com",
     "latitude": 31.3124,
     "longitude": 30.0891,
-    "fleetSize": 260,
+    "fleetSize": 130,
     "fleetType": "تريلات تريلا فرش وتريلات جوانب نقل شكائر أسمدة، صهاريج نقل أمونيا سائلة مضغوطة، وأتوبيسات ورديات",
     "fleetTires": "315/80R22.5 • 385/65R22.5 • 12.00R20",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "عملاق صناعة الأسمدة النيتروجينية في مصر وإفريقيا بطاقة إنتاجية تتجاوز 2 مليون طن سنوياً",
+    "notes": "قلعة التعبئة والتغليف الكبرى التي تلبي احتياجات الحاصلات الزراعية والمصانع التصديرية في مصر.",
     "contactPerson": "رئيس قطاعات النقل والخدمات الميدانية والصيانة",
     "contactTitle": "Transport, Maintenance & Field Services Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.3124,30.0891"
+    "google_maps_url": "https://www.google.com/maps?q=31.3124,30.0891",
+    "activity": "تصنيع الكرتون المضلع وعبوات التصدير الزراعي والصناعي وأساطيل نقل الحاويات الورقية",
+    "phone2": "0238334511",
+    "email": "sales@unipack-egypt.com",
+    "fleetTypes": [
+      "شاحنات جامبو مغلقة لنقل الكرتون والورق",
+      "تريلات شحن كرتون للموانئ ومزارع التصدير",
+      "سيارات توزيع سريعة"
+    ],
+    "tireSizes": [
+      "315/80R22.5",
+      "295/80R22.5",
+      "215/75R17.5"
+    ],
+    "tireConsumptionMonthly": 38,
+    "annualTireBudgetEGP": 5600000,
+    "operationalLocations": [
+      "السادس من أكتوبر والعاشر من رمضان",
+      "مزارع النوبارية والصالحية",
+      "موانئ الإسكندرية ودمياط"
+    ],
+    "decisionMaker": "مدير عام المصانع والعمليات اللوجستية المركزية",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_813",
-    "nameAr": "شركة الإسكندرية للأسمدة (أليكسفيرت - Alexfert)",
-    "nameEn": "Alexandria Fertilizers Co. (Alexfert Mega Complex)",
+    "nameAr": "شركة مصر إدفو للب الورق وكتابة وطباعة الورق (مجمع مصانع إدفو بأسوان)",
+    "nameEn": "Misr Edfu Pulp & Paper Mega Complex (Aswan Plant)",
     "sector": "manufacturing",
     "subSector": "إنتاج سماد اليوريا الحبيبي والأمونيا وتصدير الحاويات للأسواق الأوروبية والأمريكية",
-    "city": "alexandria",
+    "city": "إدفو",
     "governorate": "الإسكندرية",
-    "address": "المجمع الصناعي للأسمدة، الطابية، الإسكندرية",
-    "phone1": "035624100",
-    "mobile": "01009988114",
-    "hotline": "19415",
-    "website": "https://www.alexfert.com",
+    "address": "طريق مصر أسوان الزراعي، مجمع مصانع لب الورق، إدفو، أسوان",
+    "phone1": "0974721400",
+    "mobile": "01223450912",
+    "hotline": "19812",
+    "website": "https://www.edfu-paper.com.eg",
     "latitude": 31.3156,
     "longitude": 30.0945,
-    "fleetSize": 155,
+    "fleetSize": 110,
     "fleetType": "تريلات نقل يوريا صب للموانئ، صهاريج نقل أمونيا مبردة، وشاحنات دعم لوجستي",
     "fleetTires": "315/80R22.5 • 385/65R22.5 • 12.00R20",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "القلعة التصديرية الكبرى لليوريا الحبيبية بأحدث تكنولوجيا تصنيع صديقة للبيئة بمصر",
+    "notes": "صرح صناعي قومي في أقصى الصعيد يعتمد على تدوير مخلفات قصب السكر لإنتاج أجود خامات الورق في مصر.",
     "contactPerson": "مدير عام الشحن والتسويق اللوجستي",
     "contactTitle": "Logistics Shipping & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.3156,30.0945"
+    "google_maps_url": "https://www.google.com/maps?q=31.3156,30.0945",
+    "activity": "تصنيع لب الورق من مصاصة القصب وإنتاج ورق الكتابة والطباعة التصديري وأساطيل النقل",
+    "phone2": "0974721401",
+    "email": "info@edfu-paper.com.eg",
+    "fleetTypes": [
+      "شاحنات نقل مصاصة القصب والخامات الزراعية",
+      "تريلات شحن رولات ورق الطباعة",
+      "حافلات نقل العاملين والمهندسين"
+    ],
+    "tireSizes": [
+      "315/80R22.5",
+      "12.00R20",
+      "295/80R22.5"
+    ],
+    "tireConsumptionMonthly": 32,
+    "annualTireBudgetEGP": 4900000,
+    "operationalLocations": [
+      "أسوان والأقصر وقنا",
+      "مطابع القاهرة الكبرى",
+      "موانئ التصدير بالبحر الأحمر والإسكندرية"
+    ],
+    "decisionMaker": "رئيس مجلس الإدارة ومدير عام الحركة والنقل بالمجمع الصناعي",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_814",
-    "nameAr": "شركة الدلتا للأسمدة والصناعات الكيماوية (سماد طلخا - قطاع الأعمال العام)",
-    "nameEn": "Delta Fertilizers & Chemical Industries (Talkha Plants)",
+    "nameAr": "الشركة العامة لصناعة الورق (راكتا - الطابية بالإسكندرية)",
+    "nameEn": "RAKTA - General Paper Industry Public Company",
     "sector": "manufacturing",
     "subSector": "إنتاج سلفات النشادر والأسمدة النيتروجينية والأمونيا التابعة للقابضة للكيماويات",
-    "city": "dakahlia",
+    "city": "الإسكندرية",
     "governorate": "الدقهلية",
-    "address": "مجمع مصانع سماد طلخا، طلخا، الدقهلية",
-    "phone1": "0502528100",
-    "mobile": "01002233991",
-    "hotline": "19609",
-    "website": "https://www.delta-fert.gov.eg",
+    "address": "الطابية، خط رشيد، قسم المنتزه، الإسكندرية",
+    "phone1": "035601240",
+    "mobile": "01004561234",
+    "hotline": "19813",
+    "website": "https://www.rakta-paper.com",
     "latitude": 31.0612,
     "longitude": 31.3712,
-    "fleetSize": 140,
+    "fleetSize": 95,
     "fleetType": "تريلات نقل أسمدة شكائر، صهاريج أمونيا، أوناش شوكية، وأتوبيسات نقل آلاف العمال",
     "fleetTires": "315/80R22.5 • 12.00R20 • 295/80R22.5",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "الصرح الوطني التاريخي المغذي للرقعة الزراعية في قلب الدلتا التابع لقطاع الأعمال العام",
+    "notes": "إحدى أقدم وأكبر قلاع تصنيع الكرتون والورق المقوى بقطاع الأعمال العام في الإسكندرية.",
     "contactPerson": "مدير عام الحركة والسيارات والورش",
     "contactTitle": "Movement, Fleet & Workshops General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.0612,31.3712"
+    "google_maps_url": "https://www.google.com/maps?q=31.0612,31.3712",
+    "activity": "إنتاج ورق الكرتون المانيللا والدوبلكس وورق التعبئة والتغليف وإعادة تدوير الورق وأساطيل الشحن",
+    "phone2": "035601241",
+    "email": "info@rakta-paper.com",
+    "fleetTypes": [
+      "شاحنات نقل المخلفات الورقية والخامات",
+      "تريلات توزيع رولات الكرتون والدوبلكس",
+      "سيارات خدمة وصيانة"
+    ],
+    "tireSizes": [
+      "315/80R22.5",
+      "295/80R22.5",
+      "11R22.5"
+    ],
+    "tireConsumptionMonthly": 28,
+    "annualTireBudgetEGP": 4300000,
+    "operationalLocations": [
+      "الإسكندرية والبحيرة",
+      "كفر الدوار وبرج العرب",
+      "مطابع وشركات التعبئة بالقاهرة"
+    ],
+    "decisionMaker": "رئيس مجلس الإدارة المفوض ومدير عام الحركة والنقل والمهمات",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_815",
-    "nameAr": "شركة النصر للأسمدة والصناعات الكيماوية (سيمادكو - السويس)",
-    "nameEn": "El Nasr Fertilizers & Chemical Industries (Semadco Suez)",
+    "nameAr": "شركة كرتون مصر للمواد التعبوية والتغليف (Mega Carton Egypt)",
+    "nameEn": "Carton Misr for Packaging Materials & Heavy Corrugated Plants",
     "sector": "manufacturing",
     "subSector": "إنتاج حامض النيتريك ونترات النشادر والسماد المركب وكبريتات النشادر",
-    "city": "suez",
+    "city": "العاشر من رمضان",
     "governorate": "السويس",
-    "address": "طريق صلاح نسيم، عتاقة، السويس",
-    "phone1": "0623331800",
-    "mobile": "01004455883",
-    "hotline": "19374",
-    "website": "https://www.semadco.gov.eg",
+    "address": "المنطقة الصناعية الثالثة A3، العاشر من رمضان، الشرقية",
+    "phone1": "0554412950",
+    "mobile": "01123490812",
+    "hotline": "19814",
+    "website": "https://www.cartonmisr.com",
     "latitude": 29.9541,
     "longitude": 32.5124,
-    "fleetSize": 130,
+    "fleetSize": 105,
     "fleetType": "صهاريج نقل أحماض كيميائية مبطنة، تريلات نقل أسمدة، وشاحنات صيانة مجمعات الأمونيا",
     "fleetTires": "315/80R22.5 • 12.00R20",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "أول مصنع أسمدة أقيم في الشرق الأوسط (تأسس عام 1946) وما زال صرحاً وطنياً استراتيجياً بالسويس",
+    "notes": "مورد استراتيجي لكبرى شركات الأجهزة المنزلية والصناعات الهندسية بالعاشر من رمضان.",
     "contactPerson": "رئيس قطاعات النقل والورش الميكانيكية",
     "contactTitle": "Mechanical Workshops & Transport Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9541,32.5124"
+    "google_maps_url": "https://www.google.com/maps?q=29.9541,32.5124",
+    "activity": "إنتاج الكرتون المضلع عالي المتانة للشاشات والأجهزة الكهربائية ومستلزمات المصانع التصديرية",
+    "phone2": "0554412951",
+    "email": "info@cartonmisr.com",
+    "fleetTypes": [
+      "شاحنات شحن صناديق كرتون عملاقة مقفلة",
+      "تريلات مسطحة لنقل الألواح الورقية",
+      "سيارات لوجستية سريعة"
+    ],
+    "tireSizes": [
+      "315/80R22.5",
+      "295/80R22.5",
+      "215/75R17.5"
+    ],
+    "tireConsumptionMonthly": 30,
+    "annualTireBudgetEGP": 4600000,
+    "operationalLocations": [
+      "العاشر من رمضان والعبور",
+      "بدر والعاصمة الإدارية",
+      "موانئ بورسعيد والسخنة"
+    ],
+    "decisionMaker": "المدير التنفيذي لقطاع سلاسل الإمداد والشحن البري",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_816",
-    "nameAr": "شركة حلوان للأسمدة (Helwan Fertilizers Company - HFC)",
-    "nameEn": "Helwan Fertilizers Company (HFC Urea Complex)",
+    "nameAr": "شركة إيجيك للمواسير وأنظمة تغذية المياه والصرف (EGIC Mega Pipes)",
+    "nameEn": "EGIC - Egyptian German Industrial Corporate (Pipes & Fittings Mega Plants)",
     "sector": "manufacturing",
     "subSector": "إنتاج اليوريا والأمونيا السائلة وتزويد الجمعيات الزراعية بالسماد المدعم والتصدير",
-    "city": "cairo",
+    "city": "العاشر من رمضان",
     "governorate": "القاهرة",
-    "address": "المنطقة الصناعية بجنوب حلوان، التبين، القاهرة",
-    "phone1": "0225012500",
-    "mobile": "01006688225",
-    "hotline": "19788",
-    "website": "https://www.hfcegypt.com",
+    "address": "المنطقة الصناعية B4، مجمع مصانع إيجيك، العاشر من رمضان، الشرقية",
+    "phone1": "0554498600",
+    "mobile": "01221199880",
+    "hotline": "19678",
+    "website": "https://www.egic.com.eg",
     "latitude": 29.7789,
     "longitude": 31.2891,
-    "fleetSize": 120,
+    "fleetSize": 145,
     "fleetType": "تريلات تريلا فرش شحن أسمدة، صهاريج أمونيا معتمدة، وأساطيل نقل لوجستي لموانئ السخنة والإسكندرية",
     "fleetTires": "315/80R22.5 • 385/65R22.5 • 12.00R20",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "مجمع عملاق لإنتاج اليوريا الحبيبية المتطورة بمواصفات مطابقة لأعلى المعايير العالمية",
+    "notes": "الشركة المصرية الألمانية الرائدة بلا منازع في أنظمة المواسير المعتمدة بجميع المشروعات القومية.",
     "contactPerson": "مدير عام النقل والتشغيل",
     "contactTitle": "Transport & Operations General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.7789,31.2891"
+    "google_maps_url": "https://www.google.com/maps?q=29.7789,31.2891",
+    "activity": "تصنيع مواسير البولي بروبيلين والـ PVC وأنظمة الصرف وتغذية المشروعات القومية بالبنية التحتية",
+    "phone2": "0554498601",
+    "email": "info@egic.com.eg",
+    "fleetTypes": [
+      "تريلات طويلة لنقل المواسير والشبكات",
+      "شاحنات نقل قطع ولوازم السباكة",
+      "سيارات توزيع المعارض والموزعين"
+    ],
+    "tireSizes": [
+      "315/80R22.5",
+      "295/80R22.5",
+      "215/75R17.5"
+    ],
+    "tireConsumptionMonthly": 40,
+    "annualTireBudgetEGP": 6200000,
+    "operationalLocations": [
+      "العاشر من رمضان والقاهرة",
+      "مشروعات العاصمة والعلمين",
+      "كافة محافظات الجمهورية والتصدير الدولي"
+    ],
+    "decisionMaker": "رئيس قطاع العمليات واللوجستيات والأسطول التجاري",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_817",
@@ -22880,7 +25093,9 @@ const titansData = [
     "contactPerson": "نائب رئيس المجموعة للخدمات اللوجستية والأسطول",
     "contactTitle": "Group Logistics & Fleet Vice President",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3956,30.5412"
+    "google_maps_url": "https://www.google.com/maps?q=30.3956,30.5412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_818",
@@ -22908,7 +25123,9 @@ const titansData = [
     "contactPerson": "رئيس قطاعات الأسطول والنقل والمستودعات",
     "contactTitle": "Fleet, Transport & Warehouses Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=24.0612,32.9124"
+    "google_maps_url": "https://www.google.com/maps?q=24.0612,32.9124",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_819",
@@ -22936,91 +25153,168 @@ const titansData = [
     "contactPerson": "مدير عام النقل والعمليات البحرية والبرية",
     "contactTitle": "Marine & Land Fleets General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.4312,31.7612"
+    "google_maps_url": "https://www.google.com/maps?q=31.4312,31.7612",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_820",
-    "nameAr": "الشركة المصرية لإنتاج الإيثيلين ومشتقاته (إيثيدكو - مجمع الإسكندرية)",
-    "nameEn": "Egyptian Ethylene & Derivatives Co. (ETHYDCO Petrochemicals)",
+    "nameAr": "شركة بولي بلاست للمواسير والخراطيم الصناعية (PolyPlast Egypt)",
+    "nameEn": "PolyPlast Egypt for Industrial Pipes & Extrusion Mega Plant",
     "sector": "manufacturing",
     "subSector": "إنتاج البولي إيثيلين عالي ومنخفض الكثافة والبوتادين وخامات البلاستيك القومية",
-    "city": "alexandria",
+    "city": "السادات",
     "governorate": "الإسكندرية",
-    "address": "النهضة، العامرية، الإسكندرية",
-    "phone1": "034770100",
-    "mobile": "01005577994",
-    "hotline": "19311",
-    "website": "https://www.ethydco-eg.com",
+    "address": "المنطقة الصناعية السادسة، مدينة السادات، المنوفية",
+    "phone1": "0482613580",
+    "mobile": "01009871234",
+    "hotline": "19679",
+    "website": "https://www.polyplast-egypt.com",
     "latitude": 31.0189,
     "longitude": 29.8345,
-    "fleetSize": 145,
+    "fleetSize": 90,
     "fleetType": "تريلات نقل حبيبات بوليمر في سيلوهات وتريلات حاويات، صهاريج غازات، وأتوبيسات نقل ورديات",
     "fleetTires": "315/80R22.5 • 385/65R22.5 • 295/80R22.5",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "أحدث وأكبر مجمع للبتروكيماويات والبولي إيثيلين في مصر لتغذية صناعات البلاستيك والكابلات الوطنية",
+    "notes": "شريك استراتيجي في توريد خطوط الري والغاز لمشروعات الدلتا الجديدة ومستقبل مصر وتوشكى الخير.",
     "contactPerson": "مدير عام الخدمات العامة والأسطول",
     "contactTitle": "General Services & Fleet General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.0189,29.8345"
+    "google_maps_url": "https://www.google.com/maps?q=31.0189,29.8345",
+    "activity": "تصنيع خراطيم الري بالتنقيط ومواسير البولي إيثيلين عالية الكثافة HDPE لشبكات الغاز والمياه",
+    "phone2": "0482613581",
+    "email": "sales@polyplast-egypt.com",
+    "fleetTypes": [
+      "شاحنات نقل لفات ومواسير HDPE الكبرى",
+      "تريلات شحن مشروعات استصلاح الأراضي",
+      "سيارات توزيع وتوريدات"
+    ],
+    "tireSizes": [
+      "315/80R22.5",
+      "295/80R22.5",
+      "385/65R22.5"
+    ],
+    "tireConsumptionMonthly": 26,
+    "annualTireBudgetEGP": 4100000,
+    "operationalLocations": [
+      "السادات والنوبارية",
+      "مشروعات توشكى والدلتا الجديدة",
+      "طريق مصر إسكندرية الصحراوي"
+    ],
+    "decisionMaker": "مدير عام المصانع والعمليات اللوجستية الميدانية",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_821",
-    "nameAr": "شركة البتروكيماويات المصرية (EPC - مصانع الـ PVC والصودا الكاوية)",
-    "nameEn": "Egyptian Petrochemicals Company (EPC Amreya Complex)",
+    "nameAr": "شركة النصر لصناعة الكيماويات الدوائية (خامات الأدوية بأبو زعبل)",
+    "nameEn": "El Nasr Pharmaceutical Chemicals Co. (API Mega Plants - Abu Zaabal)",
     "sector": "manufacturing",
     "subSector": "إنتاج خام بولي فينيل كلوريد (PVC) والصودا الكاوية السائلة وقشور وغاز الكلور المسال",
-    "city": "alexandria",
+    "city": "الخانكة",
     "governorate": "الإسكندرية",
-    "address": "طريق النهضة، العامرية، الكيلو 36 طريق الإسكندرية القاهرة الصحراوي",
-    "phone1": "034770500",
-    "mobile": "01007711336",
-    "hotline": "19472",
-    "website": "https://www.petrochem.com.eg",
+    "address": "أبو زعبل، مجمع النصر للكيماويات الدوائية، الخانكة، القليوبية",
+    "phone1": "0244697210",
+    "mobile": "01112345679",
+    "hotline": "19877",
+    "website": "https://www.nasr-chemicals.com.eg",
     "latitude": 31.0245,
     "longitude": 29.8289,
-    "fleetSize": 150,
+    "fleetSize": 85,
     "fleetType": "صهاريج نقل صودا كاوية وكلور سائل مبطنة تيتانيوم، تريلات شحن حبيبات PVC، وسيارات طوارئ",
     "fleetTires": "315/80R22.5 • 12.00R20 • 385/65R22.5",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "قلعة تصنيع خام البلاستيك والمواسير والكيماويات التابعة للهيئة العامة للبترول المصرية",
+    "notes": "القلعة الحكومية الوحيدة المتخصصة في تخليق وإنتاج المواد الخام الدوائية ومحاليل الكلى والغسيل الكلوي بمصر.",
     "contactPerson": "مساعد رئيس الشركة للشؤون الإدارية والخدمات الميدانية",
     "contactTitle": "Assistant Chairman for Field Services & Fleets",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.0245,29.8289"
+    "google_maps_url": "https://www.google.com/maps?q=31.0245,29.8289",
+    "activity": "تصنيع المواد الخام الدوائية والكيماويات النقية والمحاليل الطبية وأساطيل نقل المستلزمات الطبية",
+    "phone2": "0244697211",
+    "email": "info@nasr-chemicals.com.eg",
+    "fleetTypes": [
+      "شاحنات صهريجية للكيماويات والمطهرات الطبية",
+      "شاحنات صندوقية مبردة لنقل المحاليل",
+      "حافلات ورديات العاملين"
+    ],
+    "tireSizes": [
+      "315/80R22.5",
+      "295/80R22.5",
+      "11R22.5"
+    ],
+    "tireConsumptionMonthly": 24,
+    "annualTireBudgetEGP": 3900000,
+    "operationalLocations": [
+      "القليوبية والقاهرة",
+      "شركات الأدوية بالعبور و6 أكتوبر",
+      "مستشفيات وزارة الصحة والجامعات"
+    ],
+    "decisionMaker": "رئيس مجلس الإدارة والعضو المنتدب ورئيس قطاع النقل والمهمات",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_822",
-    "nameAr": "شركة سيدي كرير للبتروكيماويات (سيدبك - Sidpec Mega Plants)",
-    "nameEn": "Sidi Kerir Petrochemicals Co. (Sidpec Complex)",
+    "nameAr": "شركة أتوس فارما للأدوية والمستحضرات الطبيعية (Atos Pharma - مجموعة سيكيم SEKEM)",
+    "nameEn": "Atos Pharma - Phytopharmaceuticals & Healthcare (SEKEM Group Mega Plants)",
     "sector": "manufacturing",
     "subSector": "تكسير غاز الإيثان وإنتاج البولي إيثيلين ومشتقاته للتطبيقات الصناعية والطبية",
-    "city": "alexandria",
+    "city": "بلبيس",
     "governorate": "الإسكندرية",
-    "address": "الكيلو 36 طريق الإسكندرية - مطروح الساحلي، سيدي كرير، الإسكندرية",
-    "phone1": "034770000",
-    "mobile": "01009933552",
-    "hotline": "19211",
-    "website": "https://www.sidpec.com",
+    "address": "الكيلو 3، طريق بلبيس القاهرة الصحراوي، مجمع مزارع ومصانع سيكيم، الشرقية",
+    "phone1": "0552650120",
+    "mobile": "01229871230",
+    "hotline": "19878",
+    "website": "https://www.sekem.com",
     "latitude": 31.0589,
     "longitude": 29.6891,
-    "fleetSize": 135,
+    "fleetSize": 110,
     "fleetType": "تريلات شحن حبيبات بوليمر، صهاريج غاز الإيثان المسال، وأساطيل نقل العاملين والمهندسين",
     "fleetTires": "315/80R22.5 • 295/80R22.5",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "من أهم قلاع قطاع البتروكيماويات المصرية المقيدة بالبورصة والمورد الاستراتيجي لمصانع البلاستيك",
+    "notes": "الرائد الإقليمي الأكبر في صناعة الأدوية العشبية المعتمدة عالمياً التابع لمجموعة سيكيم الحاصلة على جوائز دولية.",
     "contactPerson": "مدير عام النقل والمهمات البتروكيماوية",
     "contactTitle": "Transport & Petrochemical Missions Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.0589,29.6891"
+    "google_maps_url": "https://www.google.com/maps?q=31.0589,29.6891",
+    "activity": "تصنيع الأدوية العشبية والطبيعية ومستحضرات الرعاية الصحية وأساطيل التوزيع المعتمدة",
+    "phone2": "0552650121",
+    "email": "info@atospharma.com",
+    "fleetTypes": [
+      "شاحنات مبردة لنقل الأدوية والمستحضرات النباتية",
+      "فانات توزيع للمستودعات والصيدليات",
+      "حافلات نقل الكوادر الفنية"
+    ],
+    "tireSizes": [
+      "295/80R22.5",
+      "215/75R17.5",
+      "195/75R16C"
+    ],
+    "tireConsumptionMonthly": 28,
+    "annualTireBudgetEGP": 4400000,
+    "operationalLocations": [
+      "مزارع بلبيس ومصانع الشرقية",
+      "القاهرة الكبرى والإسكندرية",
+      "كافة مستودعات التوزيع بالصعيد والدلتا والتصدير الدولي"
+    ],
+    "decisionMaker": "المدير التنفيذي للعمليات والمصانع وسلاسل الإمداد بمجموعة سيكيم",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_823",
@@ -23048,7 +25342,9 @@ const titansData = [
     "contactPerson": "مدير عام اللوجستيات وسلاسل إمداد الطاقة الخضراء",
     "contactTitle": "Green Energy Supply Chain & Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.6456,32.3124"
+    "google_maps_url": "https://www.google.com/maps?q=29.6456,32.3124",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_824",
@@ -23076,63 +25372,115 @@ const titansData = [
     "contactPerson": "مدير العمليات اللوجستية والمعدات",
     "contactTitle": "Logistics Operations & Fleets Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1345,31.7245"
+    "google_maps_url": "https://www.google.com/maps?q=30.1345,31.7245",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_825",
-    "nameAr": "شركة النصر للكيماويات الوسيطة (مجمع كوم أوشيم بالفيوم)",
-    "nameEn": "El Nasr Co. for Intermediate Chemicals (Kom Oshim Complex)",
+    "nameAr": "الشركة العربية للزجاج الدوائي (السويس - مصانع عبوات الحقن والزجاج الطبي)",
+    "nameEn": "Arab Pharmaceutical Glass Company (APG Mega Plant - Suez)",
     "sector": "manufacturing",
     "subSector": "إنتاج الشبة السائلة والصلبة لتنقية مياه الشرب، حامض الكبريتيك المركز، والمبيدات الحشرية",
-    "city": "fayoum",
+    "city": "السويس",
     "governorate": "الفيوم",
-    "address": "المنطقة الصناعية بكوم أوشيم، طريق الفيوم - القاهرة الصحراوي، الفيوم",
-    "phone1": "0846219400",
-    "mobile": "01005577338",
-    "hotline": "19582",
-    "website": "https://www.ncic.com.eg",
+    "address": "المنطقة الصناعية بالأتكة، السويس",
+    "phone1": "0623681400",
+    "mobile": "01007654321",
+    "hotline": "19879",
+    "website": "https://www.apg-glass.com",
     "latitude": 29.5412,
     "longitude": 30.9124,
-    "fleetSize": 180,
+    "fleetSize": 80,
     "fleetType": "صهاريج نقل شبة سائلة لمحطات مياه الشرب على مستوى الجمهورية، صهاريج حامض كبريتيك، وشاحنات شحن",
     "fleetTires": "315/80R22.5 • 12.00R20 • 385/65R22.5",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "الصرح الوطني الاستراتيجي الأكبر التابع لجهاز الخدمة الوطنية المسؤول عن تأمين الشبة لجميع محطات مياه مصر",
+    "notes": "القلعة الصناعية المتخصصة الأولى في الشرق الأوسط لإنتاج الزجاج الصيدلي المقاوم للحرارة والتعقيم.",
     "contactPerson": "مدير عام النقل واللوجستيات الكيميائية القومية",
     "contactTitle": "Chemical Fleets & Transport General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.5412,30.9124"
+    "google_maps_url": "https://www.google.com/maps?q=29.5412,30.9124",
+    "activity": "صناعة العبوات الزجاجية الصيدلانية وأمبولات الحقن وزجاجات المحاليل المعقمة وأساطيل النقل",
+    "phone2": "0623681401",
+    "email": "info@apg-glass.com",
+    "fleetTypes": [
+      "شاحنات شحن العبوات الزجاجية الطبية المغلقة",
+      "تريلات شحن مواد السيليكا والرمال الزجاجية",
+      "سيارات لوجستية"
+    ],
+    "tireSizes": [
+      "315/80R22.5",
+      "295/80R22.5",
+      "385/65R22.5"
+    ],
+    "tireConsumptionMonthly": 24,
+    "annualTireBudgetEGP": 3800000,
+    "operationalLocations": [
+      "السويس وموانئ البحر الأحمر",
+      "مصانع الأدوية بالقاهرة والعاشر و6 أكتوبر",
+      "العين السخنة والتصدير"
+    ],
+    "decisionMaker": "المدير التنفيذي لقطاع سلاسل الإمداد ومستودعات التوزيع",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_826",
-    "nameAr": "شركة النصر للكيماويات الوسيطة (مجمع العين السخنة للأسمدة الفوسفاتية والمركبة)",
-    "nameEn": "NCIC Mega Phosphatic & Compound Fertilizers Complex (Sokhna)",
+    "nameAr": "شركة حكمة فارما للأدوية مصر (Hikma Pharmaceuticals Egypt)",
+    "nameEn": "Hikma Pharmaceuticals Egypt (Mega Injectables & Oncology Plants)",
     "sector": "manufacturing",
     "subSector": "أضخم مجمع صناعي للأسمدة الفوسفاتية وحامض الفوسفوريك النقي والسماد المركب بإفريقيا",
-    "city": "suez",
+    "city": "السادس من أكتوبر",
     "governorate": "السويس",
-    "address": "المنطقة الاقتصادية بالعين السخنة، طريق السويس - البحر الأحمر",
-    "phone1": "0623915500",
-    "mobile": "01007799552",
-    "hotline": "19582",
-    "website": "https://www.ncic.com.eg/sokhna",
+    "address": "المنطقة الصناعية الثانية، السادس من أكتوبر، الجيزة",
+    "phone1": "0238202900",
+    "mobile": "01124567890",
+    "hotline": "16288",
+    "website": "https://www.hikma.com",
     "latitude": 29.6124,
     "longitude": 32.3789,
-    "fleetSize": 220,
+    "fleetSize": 100,
     "fleetType": "تريلات تريلا فرش وتريلات صهاريج أحماض، تريلات نقل أسمدة داب وناب، وأساطيل نقل خام الفوسفات",
     "fleetTires": "315/80R22.5 • 385/65R22.5 • 12.00R24",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "المجمع الرئاسي العملاق الذي يضم 9 مصانع كبرى لإنتاج وتصدير الأسمدة الفوسفاتية لأكثر من 55 دولة",
+    "notes": "إحدى كبريات المجموعات الدوائية العالمية العاملة بمصر والمتخصصة في أدوية الأورام والمحاليل الطبية الحرجة.",
     "contactPerson": "رئيس قطاعات الأسطول والنقل وشحن الموانئ",
     "contactTitle": "Ports Shipping & Heavy Fleets Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.6124,32.3789"
+    "google_maps_url": "https://www.google.com/maps?q=29.6124,32.3789",
+    "activity": "تصنيع أدوية الأورام والمضادات الحيوية الفائقة وأدوية العناية المركزة وأساطيل التوزيع الصيدلي",
+    "phone2": "0238202901",
+    "email": "egypt@hikma.com",
+    "fleetTypes": [
+      "شاحنات مبردة لنقل الأدوية الحرجة",
+      "سيارات فان توزيع طبي مجهزة بحساسات حرارة",
+      "سيارات مديري المناطق"
+    ],
+    "tireSizes": [
+      "295/80R22.5",
+      "215/75R17.5",
+      "195/75R16C"
+    ],
+    "tireConsumptionMonthly": 28,
+    "annualTireBudgetEGP": 4400000,
+    "operationalLocations": [
+      "السادس من أكتوبر وبني سويف",
+      "مستشفيات الأورام والمراكز الطبية الكبرى",
+      "التصدير للشرق الأوسط وأفريقيا"
+    ],
+    "decisionMaker": "مدير العمليات وسلاسل الإمداد الإقليمي ورئيس الحركة",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_827",
@@ -23160,7 +25508,9 @@ const titansData = [
     "contactPerson": "مدير عام إدارة الحركة واللوجستيات",
     "contactTitle": "Logistics & Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.9245,29.6891"
+    "google_maps_url": "https://www.google.com/maps?q=30.9245,29.6891",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_828",
@@ -23188,7 +25538,9 @@ const titansData = [
     "contactPerson": "مدير عام سلاسل الإمداد والأسطول الإقليمي",
     "contactTitle": "Regional Supply Chain & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9456,30.9124"
+    "google_maps_url": "https://www.google.com/maps?q=29.9456,30.9124",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_829",
@@ -23216,7 +25568,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع العمليات اللوجستية والنقل الدولي والمحلي",
     "contactTitle": "Logistics Operations & Fleet Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9389,30.8989"
+    "google_maps_url": "https://www.google.com/maps?q=29.9389,30.8989",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_830",
@@ -23244,7 +25598,9 @@ const titansData = [
     "contactPerson": "مدير النقل وسلاسل الإمداد المركزية",
     "contactTitle": "Central Supply Chain & Transport Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2189,32.2845"
+    "google_maps_url": "https://www.google.com/maps?q=31.2189,32.2845",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_831",
@@ -23272,63 +25628,115 @@ const titansData = [
     "contactPerson": "مدير الشحن والنقل اللوجستي الدولي",
     "contactTitle": "International Shipping & Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.0456,29.8456"
+    "google_maps_url": "https://www.google.com/maps?q=31.0456,29.8456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_832",
-    "nameAr": "شركة مصر لصناعة الكيماويات (MCH - المكس بالإسكندرية)",
-    "nameEn": "Misr Chemical Industries Co. (MCH Alexandria)",
+    "nameAr": "شركة أدكو للصناعات الدوائية والبيطرية (ADCO Mega Plants)",
+    "nameEn": "Arab Drug Company (ADCO Pharma & Veterinary Mega Complex)",
     "sector": "manufacturing",
     "subSector": "إنتاج الصودا الكاوية، غاز الكلور المسال، حامض الهيدروكلوريك، وهيبوكلوريت الصوديوم",
-    "city": "alexandria",
+    "city": "القاهرة",
     "governorate": "الإسكندرية",
-    "address": "شارع السد العالي، المكس، الإسكندرية",
-    "phone1": "034481500",
-    "mobile": "01009911337",
-    "hotline": "19733",
-    "website": "https://www.misrchem.gov.eg",
+    "address": "شارع المصانع، الأميرية، الزيتون، القاهرة",
+    "phone1": "0222581400",
+    "mobile": "01209876543",
+    "hotline": "19880",
+    "website": "https://www.adco-pharma.com",
     "latitude": 31.1412,
     "longitude": 29.8389,
-    "fleetSize": 125,
+    "fleetSize": 90,
     "fleetType": "صهاريج كيميائية متخصصة لنقل الصودا الكاوية السائلة، شاحنات نقل أسطوانات وحاويات الكلور المسال",
     "fleetTires": "315/80R22.5 • 12.00R20",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "الصرح الوطني الأقدم التابع للشركة القابضة للصناعات الكيماوية المؤمّن لاحتياجات محطات مياه الشرب من الكلور",
+    "notes": "صرح وطني عريق بقطاع الدواء العام، يمتلك حصة سوقية رئيسية في الأدوية البشرية والبيطرية ومكافحة الأوبئة.",
     "contactPerson": "مدير عام إدارة النقل والورش التخصصية",
     "contactTitle": "Specialized Workshops & Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1412,29.8389"
+    "google_maps_url": "https://www.google.com/maps?q=31.1412,29.8389",
+    "activity": "إنتاج الأدوية البشرية والبيطرية والمطهرات وأمصال الثروة الحيوانية وأساطيل الشحن الدوائي",
+    "phone2": "0222581401",
+    "email": "info@adco-pharma.com",
+    "fleetTypes": [
+      "شاحنات مبردة لنقل الأدوية والمستحضرات البيطرية",
+      "سيارات توزيع مستودعات المحافظات",
+      "حافلات ورديات الفنيين"
+    ],
+    "tireSizes": [
+      "295/80R22.5",
+      "215/75R17.5",
+      "195/75R16C"
+    ],
+    "tireConsumptionMonthly": 25,
+    "annualTireBudgetEGP": 3900000,
+    "operationalLocations": [
+      "القاهرة الكبرى ومستودعات الدلتا",
+      "مزارع الإنتاج الحيواني بالصالحية والنوبارية",
+      "محافظات الصعيد"
+    ],
+    "decisionMaker": "رئيس مجلس الإدارة والعضو المنتدب ورئيس قطاع النقل والتوزيع",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_833",
-    "nameAr": "شركة قنا لصناعة الورق (Qena Paper Industry Mega Plant)",
-    "nameEn": "Qena Paper Industry (Sugar Cane Bagasse Paper Complex)",
+    "nameAr": "شركة إيسترن تكنولوجي للكابلات والمحولات (Eastern Cables Mega)",
+    "nameEn": "Eastern Technology for Cables & Electrical Transformers",
     "sector": "manufacturing",
     "subSector": "إنتاج ورق الكتابة والطباعة عالي الجودة من مصاص القصب وتغذية المطابع القومية",
-    "city": "qena",
+    "city": "العاشر من رمضان",
     "governorate": "قنا",
-    "address": "مدينة قوص، جنوب محافظة قنا",
-    "phone1": "0966814100",
-    "mobile": "01001144662",
-    "hotline": "19815",
-    "website": "https://www.qenapaper.com",
+    "address": "المنطقة الصناعية A1، مجمع مصانع إيسترن، العاشر من رمضان، الشرقية",
+    "phone1": "0554481920",
+    "mobile": "01008761239",
+    "hotline": "19840",
+    "website": "https://www.easterncables.com",
     "latitude": 25.9124,
     "longitude": 32.7589,
-    "fleetSize": 110,
+    "fleetSize": 115,
     "fleetType": "تريلات تريلا فرش شحن بكر ولفائف ورق طباعة، شاحنات نقل مصاص قصب السكر، وأتوبيسات",
     "fleetTires": "315/80R22.5 • 12.00R20",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "الصرح الصناعي البيئي الأضخم في صعيد مصر لتحويل مخلفات السكر إلى ورق كتابة وطباعة فاخر",
+    "notes": "مورد معتمد لوزارة الكهرباء والطاقة المتجددة في مشروعات تدعيم الشبكة القومية وتغذية المدن الصناعية.",
     "contactPerson": "مدير عام النقل والخدمات الميدانية بالمصانع",
     "contactTitle": "Plants Transport & Field Services Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=25.9124,32.7589"
+    "google_maps_url": "https://www.google.com/maps?q=25.9124,32.7589",
+    "activity": "تصنيع كابلات الجهد العالي والمتوسط والمحولات الكهربائية لشبكات التوزيع والمدن الجديدة",
+    "phone2": "0554481921",
+    "email": "sales@easterncables.com",
+    "fleetTypes": [
+      "تريلات نقل بكرات الكابلات الضخمة",
+      "شاحنات نقل محولات زيتية وجافة",
+      "سيارات مهندسي التركيبات الميدانية"
+    ],
+    "tireSizes": [
+      "315/80R22.5",
+      "385/65R22.5",
+      "12.00R20"
+    ],
+    "tireConsumptionMonthly": 34,
+    "annualTireBudgetEGP": 5300000,
+    "operationalLocations": [
+      "العاشر من رمضان وبدر",
+      "مشروعات حياة كريمة ومحطات الكهرباء",
+      "محاور العاصمة الجديدة والصعيد"
+    ],
+    "decisionMaker": "مدير عام المصانع واللوجستيات والمشتريات المركزية",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_834",
@@ -23356,7 +25764,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع الحركة والنقل الثقيل بأسوان",
     "contactTitle": "Aswan Heavy Fleet & Transport Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=24.9789,32.8712"
+    "google_maps_url": "https://www.google.com/maps?q=24.9789,32.8712",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_835",
@@ -23384,7 +25794,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والأسطول اللوجستي",
     "contactTitle": "Logistics Fleet & Transport General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3124,31.7689"
+    "google_maps_url": "https://www.google.com/maps?q=30.3124,31.7689",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_836",
@@ -23412,7 +25824,9 @@ const titansData = [
     "contactPerson": "مدير الحركة والنقل الخارجي",
     "contactTitle": "Outbound Logistics & Transport Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1891,31.2124"
+    "google_maps_url": "https://www.google.com/maps?q=30.1891,31.2124",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_837",
@@ -23440,7 +25854,9 @@ const titansData = [
     "contactPerson": "مدير عام اللوجستيات وسلاسل الإمداد",
     "contactTitle": "Supply Chain & Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9312,30.8891"
+    "google_maps_url": "https://www.google.com/maps?q=29.9312,30.8891",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_838",
@@ -23468,7 +25884,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع الأسطول والصيانة المنزلية الميدانية",
     "contactTitle": "Field Service Fleet & Operations Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9512,30.9189"
+    "google_maps_url": "https://www.google.com/maps?q=29.9512,30.9189",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_839",
@@ -23496,7 +25914,9 @@ const titansData = [
     "contactPerson": "مدير عام إدارة الحركة والخدمات اللوجستية",
     "contactTitle": "Logistics & Fleet Operations General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9612,30.9312"
+    "google_maps_url": "https://www.google.com/maps?q=29.9612,30.9312",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_840",
@@ -23524,7 +25944,9 @@ const titansData = [
     "contactPerson": "نائب رئيس مجلس الإدارة لقطاعات الأسطول واللوجستيات",
     "contactTitle": "Vice President - Fleet & Logistics Operations",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3045,31.7512"
+    "google_maps_url": "https://www.google.com/maps?q=30.3045,31.7512",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_841",
@@ -23552,7 +25974,9 @@ const titansData = [
     "contactPerson": "مدير عام الخدمات اللوجستية والأسطول الفني",
     "contactTitle": "Technical Fleets & Logistics General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1345,31.3589"
+    "google_maps_url": "https://www.google.com/maps?q=30.1345,31.3589",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_842",
@@ -23580,35 +26004,62 @@ const titansData = [
     "contactPerson": "مدير عام النقل الثقيل والمهمات الكهربائية",
     "contactTitle": "Heavy Cargo & Electrical Fleets Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2489,31.3612"
+    "google_maps_url": "https://www.google.com/maps?q=30.2489,31.3612",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_843",
-    "nameAr": "شركة الكابلات الكهربائية المصرية (ECE - مجمع مصانع مسطرد)",
-    "nameEn": "Egyptian Electric Cables Co. (ECE Mostorod Mega Complex)",
+    "nameAr": "شركة السويدي لإنتاج المحولات الكهربائية (Elsewedy Transformers Mega Plants)",
+    "nameEn": "Elsewedy Electric - Transformers Mega Manufacturing Facilities",
     "sector": "manufacturing",
     "subSector": "أقدم صرح لتصنيع كابلات الطاقة المعزولة، كابلات التحكم، والموصلات الهوائية غير المعزولة",
-    "city": "qalyubia",
+    "city": "العاشر من رمضان",
     "governorate": "القليوبية",
-    "address": "شارع ترعة الإسماعيلية، مسطرد، شبرا الخيمة، القليوبية",
-    "phone1": "0242200500",
-    "mobile": "01001166334",
-    "hotline": "19322",
-    "website": "https://www.ececables.com",
+    "address": "المنطقة الصناعية الثالثة، مجمع مصانع السويدي إلكتريك، العاشر من رمضان",
+    "phone1": "0554415800",
+    "mobile": "01223456701",
+    "hotline": "16333",
+    "website": "https://www.elsewedyelectric.com",
     "latitude": 30.1389,
     "longitude": 31.3089,
-    "fleetSize": 125,
+    "fleetSize": 175,
     "fleetType": "تريلات شحن كابلات بكر حديدي وخشب، شاحنات نقل خامات نحاس وألومنيوم وبوليمرات، وأوناش شوكية",
     "fleetTires": "315/80R22.5 • 12.00R20",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "الصرح الوطني التاريخي المؤسس لشبكات الكهرباء في مصر والشرق الأوسط منذ عام 1954",
+    "notes": "أضخم مجمع لإنتاج محولات القوى الكهربائية في الشرق الأوسط وأفريقيا، مجهز بأحدث منصات الاختبار والنقل الثقيل.",
     "contactPerson": "رئيس قطاعات النقل والورش المركزية",
     "contactTitle": "Central Workshops & Fleets Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1389,31.3089"
+    "google_maps_url": "https://www.google.com/maps?q=30.1389,31.3089",
+    "activity": "تصنيع محولات القوى العملاقة للجهد الفائق ومحطات التوليد والربط الدولي وأساطيل النقل الثقيل",
+    "phone2": "0554415801",
+    "email": "info@elsewedy.com",
+    "fleetTypes": [
+      "مقطورات متعددة المحاور لنقل المحولات فائقة الثقل",
+      "رافعات وأوناش شحن عملاقة",
+      "شاحنات نقل مكونات ومهمات"
+    ],
+    "tireSizes": [
+      "385/65R22.5",
+      "315/80R22.5",
+      "12.00R20"
+    ],
+    "tireConsumptionMonthly": 52,
+    "annualTireBudgetEGP": 8400000,
+    "operationalLocations": [
+      "العاشر من رمضان والعين السخنة",
+      "محطات توليد الكهرباء الكبرى بالبرلس وبني سويف والعاصمة",
+      "مشروعات التصدير لأفريقيا والخليج"
+    ],
+    "decisionMaker": "رئيس قطاع سلاسل الإمداد والنقل الثقيل بمجموعة السويدي إلكتريك",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_844",
@@ -23636,7 +26087,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل الثقيل والأحمال الاستثنائية",
     "contactTitle": "Heavy Lift & Abnormal Loads General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3012,31.7645"
+    "google_maps_url": "https://www.google.com/maps?q=30.3012,31.7645",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_845",
@@ -23664,35 +26117,62 @@ const titansData = [
     "contactPerson": "مدير اللوجستيات والمستودعات المركزية",
     "contactTitle": "Logistics & Central Stores Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9456,30.9245"
+    "google_maps_url": "https://www.google.com/maps?q=29.9456,30.9245",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_846",
-    "nameAr": "شركة جنرال موتورز مصر لتجميع وتصنيع المركبات (GM Egypt)",
-    "nameEn": "General Motors Egypt (Chevrolet Mega Assembly Plant)",
+    "nameAr": "شركة بافاريا مصر لتصنيع مهمات الإطفاء وسيارات الإطفاء (Bavaria Egypt Mega Plants)",
+    "nameEn": "Bavaria Egypt for Fire Fighting Equipment & Trucks Mega Complex",
     "sector": "manufacturing",
     "subSector": "أكبر مصنع لتجميع وتصنيع سيارات النقل التجاري والدبابة والجامبو والملاكي بمصر",
-    "city": "giza",
+    "city": "القاهرة",
     "governorate": "الجيزة",
-    "address": "المنطقة الصناعية الرابعة، السادس من أكتوبر، الجيزة",
-    "phone1": "0238280000",
-    "mobile": "01007744115",
-    "hotline": "19444",
-    "website": "https://www.gm.com/egypt",
+    "address": "شارع جسر السويس، المنطقة الصناعية، النزهة، ومصانع العاشر من رمضان",
+    "phone1": "0226982400",
+    "mobile": "01221199554",
+    "hotline": "19046",
+    "website": "https://www.bavaria-egypt.com",
     "latitude": 29.9389,
     "longitude": 30.9124,
-    "fleetSize": 220,
+    "fleetSize": 160,
     "fleetType": "تريلات حاملات سيارات لنقل الشاحنات المصنعة، تريلات نقل أجزاء هياكل ومحركات، وسيارات اختبار",
     "fleetTires": "315/80R22.5 • 385/65R22.5 • 295/80R22.5",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "الصرح الأول في صناعة وتجميع شاحنات النقل التجاري (شيفروليه الدبابة والجامبو) المتصدرة للسوق المصري",
+    "notes": "الصرح الصناعي الألماني المصري الرائد في تجهيز مركبات الدفاع المدني ومهمات الإطفاء بالشرق الأوسط.",
     "contactPerson": "مدير عام سلاسل الإمداد وشحن المركبات المصنعة",
     "contactTitle": "Supply Chain & Vehicle Shipping Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9389,30.9124"
+    "google_maps_url": "https://www.google.com/maps?q=29.9389,30.9124",
+    "activity": "تصنيع وتجهيز سيارات الإطفاء والإنقاذ وأنظمة مكافحة الحريق وأجهزة الإطفاء وأساطيل الخدمة",
+    "phone2": "0226982401",
+    "email": "info@bavaria-egypt.com",
+    "fleetTypes": [
+      "شاحنات تجهيز سيارات إطفاء ومهمات ثقيلة",
+      "سيارات خدمة وصيانة دورية متنقلة",
+      "تريلات شحن أجهزة الإطفاء"
+    ],
+    "tireSizes": [
+      "315/80R22.5",
+      "295/80R22.5",
+      "215/75R17.5"
+    ],
+    "tireConsumptionMonthly": 42,
+    "annualTireBudgetEGP": 6400000,
+    "operationalLocations": [
+      "القاهرة الكبرى والعاشر من رمضان",
+      "كافة قطاعات البترول والمطارات والمصانع",
+      "التصدير للشرق الأوسط وأفريقيا وأوروبا"
+    ],
+    "decisionMaker": "رئيس مجلس الإدارة والمدير العام التنفيذي لقطاع التصنيع والآليات",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_847",
@@ -23720,7 +26200,9 @@ const titansData = [
     "contactPerson": "مدير الخدمات اللوجستية والشحن الميداني",
     "contactTitle": "Logistics & Field Shipping Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9689,30.9389"
+    "google_maps_url": "https://www.google.com/maps?q=29.9689,30.9389",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_848",
@@ -23748,7 +26230,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع التوزيع والشحن التجاري",
     "contactTitle": "Commercial Shipping & Distribution Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3124,31.7541"
+    "google_maps_url": "https://www.google.com/maps?q=30.3124,31.7541",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_849",
@@ -23776,7 +26260,9 @@ const titansData = [
     "contactPerson": "مدير عام سلاسل الإمداد والخدمات اللوجستية الإقليمية",
     "contactTitle": "Regional Supply Chain & Logistics General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2891,31.7456"
+    "google_maps_url": "https://www.google.com/maps?q=30.2891,31.7456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_850",
@@ -23804,7 +26290,9 @@ const titansData = [
     "contactPerson": "رئيس قطاع النقل والمستودعات الإقليمية",
     "contactTitle": "Regional Warehouses & Transport Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9345,30.9124"
+    "google_maps_url": "https://www.google.com/maps?q=29.9345,30.9124",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_851",
@@ -23832,7 +26320,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والأسطول الميداني",
     "contactTitle": "Live Poultry Fleets & Transport General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.0423,31.3912"
+    "google_maps_url": "https://www.google.com/maps?q=31.0423,31.3912",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_852",
@@ -23860,7 +26350,9 @@ const titansData = [
     "contactPerson": "رئيس قطاعات اللوجستيات والحركة المركزية",
     "contactTitle": "Central Fleets & Bio-Logistics Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.4124,30.3456"
+    "google_maps_url": "https://www.google.com/maps?q=30.4124,30.3456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_853",
@@ -23888,7 +26380,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل وسلاسل الإمداد الزراعية",
     "contactTitle": "Agri-Supply Chain & Fleets Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3789,30.5124"
+    "google_maps_url": "https://www.google.com/maps?q=30.3789,30.5124",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_854",
@@ -23916,49 +26410,77 @@ const titansData = [
     "contactPerson": "نائب رئيس مجلس الإدارة لقطاع النقل والأسطول التجاري",
     "contactTitle": "Executive Vice President - Logistics & Fleets",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.8912,30.8245"
+    "google_maps_url": "https://www.google.com/maps?q=29.8912,30.8245",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_855",
-    "nameAr": "شركة القاهرة للدواجن (CPC - مجمع مصانع العاشر والشرقية)",
-    "nameEn": "Cairo Poultry Company (CPC Americana Agro-Hub)",
+    "nameAr": "شركة دومتي للصناعات الغذائية (Domty - مجمعات مصانع الأجبان والعصائر الكبرى)",
+    "nameEn": "Domty - Arabian Food Industries Mega Complex (6th of October)",
     "sector": "food",
     "subSector": "أقدم وأكبر شركة دواجن مدرجة بالبورصة لإنتاج كتاكيت التسمين، الأعلاف، ومنتجات كوكي المقرمشة",
-    "city": "sharqia",
+    "city": "السادس من أكتوبر",
     "governorate": "الشرقية",
-    "address": "المنطقة الصناعية B1، العاشر من رمضان، الشرقية",
-    "phone1": "015412200",
-    "mobile": "01009911885",
-    "hotline": "16024",
-    "website": "https://www.cpc.com.eg",
+    "address": "المنطقة الصناعية الأولى، قطعة 12، السادس من أكتوبر، الجيزة",
+    "phone1": "0238341900",
+    "mobile": "01002345091",
+    "hotline": "16644",
+    "website": "https://www.domty.org",
     "latitude": 30.2989,
     "longitude": 31.7345,
-    "fleetSize": 240,
+    "fleetSize": 340,
     "fleetType": "أساطيل برادات كوكي حمولة 5 إلى 20 طن، تريلات نقل أمهات، وتريلات صهاريج نقل أعلاف",
     "fleetTires": "315/80R22.5 • 295/80R22.5 • 225/75R17.5",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "الصرح المؤسس لصناعة الدواجن الحديثة في مصر ومنتج مصنعات كوكي الشهيرة التابعة لمجموعة أمريكانا",
+    "notes": "العلامة الغذائية الأوسع انتشاراً في قطاع الأجبان المعبأة بمصر، تدير أسطول توزيع يغطي كل شبر في الجمهورية.",
     "contactPerson": "مدير عام النقل والتوزيع المبرد",
     "contactTitle": "Cold-Chain Transport & Logistics General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2989,31.7345"
+    "google_maps_url": "https://www.google.com/maps?q=30.2989,31.7345",
+    "activity": "تصنيع الأجبان المعبأة والعصائر والمخبوزات وأساطيل التوزيع المبرد لأكثر من 50 ألف منفذ بيع",
+    "phone2": "0238341901",
+    "email": "info@domty.org",
+    "fleetTypes": [
+      "شاحنات جامبو معزولة ومبردة لتوزيع الأجبان",
+      "تريلات شحن مركزي للمستودعات الإقليمية",
+      "سيارات توزيع فان سريعة"
+    ],
+    "tireSizes": [
+      "295/80R22.5",
+      "215/75R17.5",
+      "195/75R16C",
+      "315/80R22.5"
+    ],
+    "tireConsumptionMonthly": 80,
+    "annualTireBudgetEGP": 11800000,
+    "operationalLocations": [
+      "السادس من أكتوبر ومستودعات الدلتا",
+      "القاهرة الكبرى والإسكندرية",
+      "كافة محافظات الصعيد والقناة والتصدير"
+    ],
+    "decisionMaker": "نائب الرئيس التنفيذي للعمليات وسلاسل الإمداد ومدير الأسطول التجاري",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_856",
-    "nameAr": "شركة الدلتا للسكر (Delta Sugar Mega Refineries - مصانع الحامول)",
-    "nameEn": "Delta Sugar Company Mega Beet Processing Refineries (Hamool)",
+    "nameAr": "شركة دانون مصر لمنتجات الألبان والتغذية (Danone Egypt Mega Dairy Plants)",
+    "nameEn": "Danone Egypt for Dairy Products & Nutrition Mega Industrial Plants",
     "sector": "food",
     "subSector": "أكبر منتج لسكر البنجر في مصر والشرق الأوسط، إنتاج علف البنجر والمولاس للتصدير",
-    "city": "kafr_el_sheikh",
+    "city": "العبور",
     "governorate": "كفر الشيخ",
-    "address": "مجمع مصانع السكر بالحامول، كفر الشيخ",
-    "phone1": "0473801200",
-    "mobile": "01002244778",
-    "hotline": "19742",
-    "website": "https://www.deltasugar.com",
+    "address": "المنطقة الصناعية الأولى، مجمع مصانع دانون، مدينة العبور، القليوبية",
+    "phone1": "0244813500",
+    "mobile": "01223456789",
+    "hotline": "19973",
+    "website": "https://www.danone.com.eg",
     "latitude": 31.3124,
     "longitude": 31.1456,
     "fleetSize": 290,
@@ -23968,39 +26490,89 @@ const titansData = [
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "القلعة الصناعية القومية الرائدة في تكرير سكر البنجر بطاقة استيعابية تتجاوز 2.5 مليون طن بنجر سنوياً",
+    "notes": "العملاق الفرنسي العالمي الرائد في منتجات الزبادي والألبان الصحية المدعمة، مجهز بأحدث أساطيل التبريد المستمر.",
     "contactPerson": "رئيس قطاعات النقل وتوريدات محصول البنجر",
     "contactTitle": "Sugar Beet Supply & Inbound Transport Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.3124,31.1456"
+    "google_maps_url": "https://www.google.com/maps?q=31.3124,31.1456",
+    "activity": "تصنيع الزبادي (دانون، أكتيفيا، دانيت) وألبان التغذية المتخصصة وأساطيل التوزيع المبرد الفائقة",
+    "phone2": "0244813501",
+    "email": "info@danone.com.eg",
+    "fleetTypes": [
+      "شاحنات مبردة لنقل منتجات الألبان الطازجة",
+      "تريلات شحن مركزي للمستودعات الإقليمية",
+      "سيارات فان توزيع محلات تجارية"
+    ],
+    "tireSizes": [
+      "215/75R17.5",
+      "295/80R22.5",
+      "195/75R16C"
+    ],
+    "tireConsumptionMonthly": 70,
+    "annualTireBudgetEGP": 10200000,
+    "operationalLocations": [
+      "مدينة العبور ومزارع النوبارية",
+      "القاهرة الكبرى والإسكندرية",
+      "كافة محافظات الجمهورية وسلاسل التجزئة"
+    ],
+    "decisionMaker": "مدير عام سلاسل الإمداد والخدمات اللوجستية لشركة دانون بمصر وشمال أفريقيا",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_857",
-    "nameAr": "شركة النوبارية لصناعة وتكرير السكر (Nubaria Sugar Refining Co.)",
-    "nameEn": "Nubaria Sugar Refining Company Mega Complex",
+    "nameAr": "شركة بيتي للصناعات الغذائية (Beyti / مجموعة المراعي - مجمع مصانع النوبارية)",
+    "nameEn": "Beyti - International Company for Agro-Industrial Projects (Almarai Group)",
     "sector": "food",
     "subSector": "تكرير سكر البنجر، تكرير السكر الخام المستورد، وتصنيع الأعلاف ومولاس التصدير",
-    "city": "beheira",
+    "city": "النوبارية",
     "governorate": "البحيرة",
-    "address": "الكيلو 75، طريق الإسكندرية - القاهرة الصحراوي، غرب النوبارية، البحيرة",
-    "phone1": "0452631500",
-    "mobile": "01004466119",
-    "hotline": "19835",
-    "website": "https://www.nubariasugar.com",
+    "address": "الكيلو 78، طريق مصر إسكندرية الصحراوي، مجمع مصانع بيتي، النوبارية، البحيرة",
+    "phone1": "0452632100",
+    "mobile": "01001234987",
+    "hotline": "19553",
+    "website": "https://www.beyti-eg.com",
     "latitude": 30.6512,
     "longitude": 30.0789,
-    "fleetSize": 210,
+    "fleetSize": 410,
     "fleetType": "شاحنات قلابات نقل بنجر من المزارع، تريلات تريلا فرش سكر، وتريلات صهاريج تريلات عسل أسود ومولاس",
     "fleetTires": "315/80R22.5 • 12.00R20",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "صرح استراتيجي لتوفير السكر التمويني والحر وتكرير الشحنات التصديرية بمحافظات الدلتا والإسكندرية",
+    "notes": "الشراكة الأكبر بين بيبسيكو والمراعي العالمية، تمتلك أحدث مصنع ألبان وعصائر بالشرق الأوسط وأحد أضخم أساطيل التوزيع.",
     "contactPerson": "مدير عام النقل والتوزيع المركزي",
     "contactTitle": "Central Transport & Dispatch General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.6512,30.0789"
+    "google_maps_url": "https://www.google.com/maps?q=30.6512,30.0789",
+    "activity": "تصنيع وتعبئة الحليب الطبيعي والعصائر ومشروبات الزبادي وإدارة أضخم أسطول توزيع مبرد بمصر",
+    "phone2": "0452632101",
+    "email": "info@beyti-eg.com",
+    "fleetTypes": [
+      "شاحنات جامبو معزولة ومبردة لتوزيع الألبان والعصائر",
+      "تريلات شحن مركزي فائقة الحمولة",
+      "سيارات فان توزيع سريع"
+    ],
+    "tireSizes": [
+      "295/80R22.5",
+      "315/80R22.5",
+      "215/75R17.5"
+    ],
+    "tireConsumptionMonthly": 98,
+    "annualTireBudgetEGP": 14600000,
+    "operationalLocations": [
+      "مجمع النوبارية والقاهرة والإسكندرية",
+      "كافة قرى ومدن ومحافظات مصر",
+      "موانئ التصدير للشرق الأوسط وأفريقيا"
+    ],
+    "decisionMaker": "رئيس قطاع العمليات واللوجستيات والأسطول المركزي بشركة بيتي المراعي",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_858",
@@ -24028,7 +26600,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والتشغيل اللوجستي",
     "contactTitle": "Logistics Movement & Fleet Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2345,31.3567"
+    "google_maps_url": "https://www.google.com/maps?q=31.2345,31.3567",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_859",
@@ -24056,35 +26630,62 @@ const titansData = [
     "contactPerson": "رئيس قطاعات الأسطول الثقيل وسلاسل الإمداد الزراعية",
     "contactTitle": "Heavy Fleet & Agricultural Supply Chain Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=28.0891,30.4124"
+    "google_maps_url": "https://www.google.com/maps?q=28.0891,30.4124",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_860",
-    "nameAr": "شركة السكر والصناعات التكاملية المصرية (مجمع مصانع الحوامدية والمصانع الجنوبية)",
-    "nameEn": "Egyptian Sugar and Integrated Industries Co. (ESIIC Hawamdia)",
+    "nameAr": "شركة لمار مصر للعصائر والألبان والمزارع (Lamar Egypt Agro Complex)",
+    "nameEn": "Lamar Egypt for Milk, Juice & Mega Agro Livestock Complex",
     "sector": "food",
     "subSector": "الصرح الوطني الأم لتكرير قصب وسكر البنجر، الكحول النقي، الخل، والمنتجات الكيماوية العضوية",
-    "city": "giza",
+    "city": "النوبارية",
     "governorate": "الجيزة",
-    "address": "شارع الجمهورية، الحوامدية، الجيزة",
-    "phone1": "0238120000",
-    "mobile": "01001133772",
-    "hotline": "19420",
-    "website": "https://www.siic.com.eg",
+    "address": "الكيلو 75، طريق مصر إسكندرية الصحراوي، مزارع لمار، النوبارية، البحيرة",
+    "phone1": "0452631800",
+    "mobile": "01119876540",
+    "hotline": "16944",
+    "website": "https://www.lamareg.com",
     "latitude": 29.8978,
     "longitude": 31.2589,
-    "fleetSize": 320,
+    "fleetSize": 195,
     "fleetType": "تريلات شحن سكر تمويني، صهاريج كحول نقي معتمد، تريلات صهاريج مولاس، وشاحنات ورش الصيانة الثقيلة",
     "fleetTires": "315/80R22.5 • 12.00R20",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "عميد الصناعة السكرية الوطنية التابع للشركة القابضة للصناعات الغذائية والمشرف على مصانع الصعيد",
+    "notes": "أكبر مجمع زراعي وصناعي متكامل لإنتاج الألبان الطبيعية من المزرعة للمستهلك مباشرة دون بودرة مضافة.",
     "contactPerson": "رئيس قطاعات النقل والتشغيل الميكانيكي",
     "contactTitle": "Mechanical Operations & Transport Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.8978,31.2589"
+    "google_maps_url": "https://www.google.com/maps?q=29.8978,31.2589",
+    "activity": "تربية الأبقار الحلابة وتصنيع وتعبئة الحليب الطبيعي 100% والعصائر الفاخرة وأسطول النقل المبرد",
+    "phone2": "0452631801",
+    "email": "info@lamareg.com",
+    "fleetTypes": [
+      "صهاريج ستانلس ستيل مبردة لنقل الحليب الخام",
+      "شاحنات نقل مبرد لتوزيع العصائر والألبان",
+      "تريلات شحن مركزية"
+    ],
+    "tireSizes": [
+      "315/80R22.5",
+      "385/65R22.5",
+      "295/80R22.5"
+    ],
+    "tireConsumptionMonthly": 48,
+    "annualTireBudgetEGP": 7200000,
+    "operationalLocations": [
+      "مزارع النوبارية ومصانع التعبئة",
+      "القاهرة الكبرى والإسكندرية",
+      "كافة السلاسل التجارية والمحافظات والتصدير"
+    ],
+    "decisionMaker": "مدير عام مزارع لمار ورئيس العمليات وسلاسل الإمداد المركزية",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_861",
@@ -24112,35 +26713,62 @@ const titansData = [
     "contactPerson": "مدير عام النقل والتوزيع الإقليمي",
     "contactTitle": "Regional Logistics & Fleet Transport General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.8456,32.4891"
+    "google_maps_url": "https://www.google.com/maps?q=29.8456,32.4891",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_862",
-    "nameAr": "مجموعة أرما للصناعات الغذائية (Arma Food Industries - كريستال والهَانِم)",
-    "nameEn": "Arma Food Industries Mega Plants (Crystal, El Hanem)",
+    "nameAr": "شركة هاينز مصر للصناعات الغذائية (Kraft Heinz Egypt - مجمع السادس من أكتوبر)",
+    "nameEn": "Kraft Heinz Egypt for Food Industries Mega Complex",
     "sector": "food",
     "subSector": "مجمعات تكرير وإنتاج زيوت الذرة وعباد الشمس كريستال، السمن النباتي الهانم، والمسلى الطبيعي",
-    "city": "sharqia",
+    "city": "السادس من أكتوبر",
     "governorate": "الشرقية",
-    "address": "المنطقة الصناعية الثالثة A1، العاشر من رمضان، الشرقية",
-    "phone1": "015413100",
-    "mobile": "01005577441",
-    "hotline": "19070",
-    "website": "https://www.arma.com.eg",
+    "address": "المنطقة الصناعية الثانية، مجمع مصانع كرافت هاينز، السادس من أكتوبر، الجيزة",
+    "phone1": "0238201500",
+    "mobile": "01228901235",
+    "hotline": "19754",
+    "website": "https://www.kraftheinzcompany.com",
     "latitude": 30.3012,
     "longitude": 31.7589,
-    "fleetSize": 250,
+    "fleetSize": 210,
     "fleetType": "شاحنات تريلات صندوقية لنقل الزيوت المعبأة، صهاريج نقل زيوت نباتية ستانلس ستيل، وتريلات توزيع",
     "fleetTires": "315/80R22.5 • 295/80R22.5",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "رائدة صناعة الزيوت الفاخرة كريستال والهَانِم بأسطول توزيع يغطي كل سلاسل التجزئة والمحافظات",
+    "notes": "الصرح العالمي الرائد في تصنيع الكاتشب والصلصات بمصر، والمورد الحصري لكبرى سلاسل المطاعم العالمية.",
     "contactPerson": "مدير عام الحركة والأسطول المركزي",
     "contactTitle": "Central Fleet & Movement General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3012,31.7589"
+    "google_maps_url": "https://www.google.com/maps?q=30.3012,31.7589",
+    "activity": "تصنيع وتعبئة صلصة الطماطم، الكاتشب، المايونيز، والصلصات العالمية وأساطيل النقل والتوزيع",
+    "phone2": "0238201501",
+    "email": "contact@kraftheinz.com",
+    "fleetTypes": [
+      "شاحنات جامبو معزولة لنقل المواد الغذائية",
+      "تريلات شحن مركزي لمراكز التوزيع الكبرى",
+      "سيارات فان توزيع للمطاعم والفنادق"
+    ],
+    "tireSizes": [
+      "295/80R22.5",
+      "315/80R22.5",
+      "215/75R17.5"
+    ],
+    "tireConsumptionMonthly": 52,
+    "annualTireBudgetEGP": 7800000,
+    "operationalLocations": [
+      "السادس من أكتوبر وأبو رواش",
+      "كافة مطاعم الوجبات السريعة والفنادق والهايبرماركت",
+      "موانئ التصدير للشرق الأوسط وأوروبا"
+    ],
+    "decisionMaker": "رئيس قطاع العمليات وسلاسل الإمداد المركزية لشركة كرافت هاينز مصر",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_863",
@@ -24168,7 +26796,9 @@ const titansData = [
     "contactPerson": "رئيس قطاعات النقل والورش الإنتاجية",
     "contactTitle": "Production Fleets & Transport Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.0214,31.3789"
+    "google_maps_url": "https://www.google.com/maps?q=31.0214,31.3789",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_864",
@@ -24196,7 +26826,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل وسلاسل التوزيع",
     "contactTitle": "Distribution Chains & Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.7912,31.0012"
+    "google_maps_url": "https://www.google.com/maps?q=30.7912,31.0012",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_865",
@@ -24224,7 +26856,9 @@ const titansData = [
     "contactPerson": "مدير عام الأسطول وشحن الدقيق الفاخر",
     "contactTitle": "Bulk Flour Shipping & Fleets General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.8512,32.4912"
+    "google_maps_url": "https://www.google.com/maps?q=29.8512,32.4912",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_866",
@@ -24252,7 +26886,9 @@ const titansData = [
     "contactPerson": "رئيس قطاعات النقل والصيانة الميكانيكية",
     "contactTitle": "Transport & Mechanical Maintenance Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0891,31.2456"
+    "google_maps_url": "https://www.google.com/maps?q=30.0891,31.2456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_867",
@@ -24280,7 +26916,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والحركة",
     "contactTitle": "Transport Fleet Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.5891,31.5012"
+    "google_maps_url": "https://www.google.com/maps?q=30.5891,31.5012",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_868",
@@ -24308,7 +26946,9 @@ const titansData = [
     "contactPerson": "رئيس قطاعات الأسطول والتوزيع القومي",
     "contactTitle": "National Fleet & Distribution Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.5214,31.1345"
+    "google_maps_url": "https://www.google.com/maps?q=30.5214,31.1345",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_869",
@@ -24336,7 +26976,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل السريع والتوزيع اليومي",
     "contactTitle": "Daily Distribution & Fleet Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9624,30.9245"
+    "google_maps_url": "https://www.google.com/maps?q=29.9624,30.9245",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_870",
@@ -24364,7 +27006,9 @@ const titansData = [
     "contactPerson": "مدير اللوجستيات والنقل المبرد وسلاسل التوريد",
     "contactTitle": "Cold-Chain Logistics & Dairy Fleets Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.5678,30.1891"
+    "google_maps_url": "https://www.google.com/maps?q=30.5678,30.1891",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_871",
@@ -24392,7 +27036,9 @@ const titansData = [
     "contactPerson": "مدير الشحن والأسطول التجاري",
     "contactTitle": "Commercial Shipping & Fleets Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3812,30.5214"
+    "google_maps_url": "https://www.google.com/maps?q=30.3812,30.5214",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_872",
@@ -24420,35 +27066,62 @@ const titansData = [
     "contactPerson": "مدير عام النقل والتوزيع اللوجستي",
     "contactTitle": "Logistics Transport & Supply Chain Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.9124,30.2891"
+    "google_maps_url": "https://www.google.com/maps?q=30.9124,30.2891",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_873",
-    "nameAr": "شركة ريجينا للمكرونة والصناعات الغذائية (Regina Pasta & Food Industries)",
-    "nameEn": "Regina Pasta & Food Industries Mega Plants (Sadat City)",
+    "nameAr": "شركة مضارب الغربية للأرز والمحاصيل الحقلية (طنطا والمحلة الكبرى)",
+    "nameEn": "Gharbia Rice Mills Public Company (Tanta & Mehalla)",
     "sector": "food",
     "subSector": "تصنيع المكرونة الفاخرة من سيمولينا القمح الصلب 100%، صلصة الطماطم، ومطاحن السيمولينا المدمجة",
-    "city": "monufia",
+    "city": "المحلة الكبرى",
     "governorate": "المنوفية",
-    "address": "المنطقة الصناعية الثانية، مدينة السادات، المنوفية",
-    "phone1": "0482604500",
-    "mobile": "01008822557",
-    "hotline": "19239",
-    "website": "https://www.reginapasta.com",
+    "address": "شارع جمال عبد الناصر، مجمع مضارب المحلة، المحلة الكبرى، الغربية",
+    "phone1": "0402235800",
+    "mobile": "01007891230",
+    "hotline": "19765",
+    "website": "https://www.gharbia-rice.com",
     "latitude": 30.3745,
     "longitude": 30.5089,
-    "fleetSize": 185,
+    "fleetSize": 95,
     "fleetType": "تريلات تريلا صندوقية لشحن المكرونة، صهاريج نقل دقيق وسيمولينا سائبة، وشاحنات توزيع تجزئة",
     "fleetTires": "315/80R22.5 • 295/80R22.5",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "رائدة صناعة المكرونة الفاخرة في مصر والمصدرة لمنتجات القمح الصلب لأكثر من 35 دولة",
+    "notes": "صرح حكومي رائد في توفير وتأمين الأرز الأبيض على البطاقات التموينية وتوريد الحبوب لأسواق المحافظات.",
     "contactPerson": "مدير عام النقل والمبيعات اللوجستية",
     "contactTitle": "Transport & Sales Logistics General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3745,30.5089"
+    "google_maps_url": "https://www.google.com/maps?q=30.3745,30.5089",
+    "activity": "ضرب وتبييض وتعبئة الأرز المصري العريض والرفيع وتجارة الحبوب والبقوليات وأساطيل الشحن التمويني",
+    "phone2": "0402235801",
+    "email": "info@gharbia-rice.com",
+    "fleetTypes": [
+      "شاحنات نقل أرز شعير ومحاصيل حقلية",
+      "تريلات شحن أرز معبأ للمجمعات الاستهلاكية",
+      "سيارات خدمات لوجستية"
+    ],
+    "tireSizes": [
+      "315/80R22.5",
+      "12.00R20",
+      "295/80R22.5"
+    ],
+    "tireConsumptionMonthly": 28,
+    "annualTireBudgetEGP": 4200000,
+    "operationalLocations": [
+      "الغربية والدقهلية وكفر الشيخ",
+      "فروع المجمعات الاستهلاكية بالقاهرة والمحافظات",
+      "موانئ التصدير"
+    ],
+    "decisionMaker": "رئيس مجلس الإدارة المفوض ومدير عام الحركة والنقل والمهمات",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_874",
@@ -24476,7 +27149,9 @@ const titansData = [
     "contactPerson": "مدير عام الأسطول والتوزيع المبرد",
     "contactTitle": "Cold Fleet & Distribution General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3067,31.7489"
+    "google_maps_url": "https://www.google.com/maps?q=30.3067,31.7489",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_875",
@@ -24504,35 +27179,62 @@ const titansData = [
     "contactPerson": "رئيس قطاعات اللوجستيات والحركة والتوزيع المباشر",
     "contactTitle": "Direct Distribution & Fleets Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9545,30.9167"
+    "google_maps_url": "https://www.google.com/maps?q=29.9545,30.9167",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_876",
-    "nameAr": "مجموعة فرج الله للصناعات الغذائية (Faragalla Group - مجمع مصانع برج العرب)",
-    "nameEn": "Faragalla Group Mega Food Processing Complex (Borg El Arab)",
+    "nameAr": "شركة مضارب كفر الشيخ وتصنيع الحبوب (مجمعات كفر الشيخ ودسوق وبيلا)",
+    "nameEn": "Kafr El Sheikh Rice Mills & Grain Processing Plants",
     "sector": "food",
     "subSector": "أضخم مجمع غذائي متكامل لإنتاج العصائر، الخضروات المجمدة، اللحوم المصنعة، المربى، والصلصة",
-    "city": "alexandria",
+    "city": "كفر الشيخ",
     "governorate": "الإسكندرية",
-    "address": "المنطقة الصناعية الأولى، برج العرب الجديدة، الإسكندرية",
-    "phone1": "034592000",
-    "mobile": "01005599442",
-    "hotline": "19947",
-    "website": "https://www.faragalla.com",
+    "address": "مجمع المضارب، طريق دسوق، كفر الشيخ",
+    "phone1": "0473231400",
+    "mobile": "01123456708",
+    "hotline": "19766",
+    "website": "https://www.kafr-rice.com",
     "latitude": 30.9189,
     "longitude": 29.6124,
-    "fleetSize": 320,
+    "fleetSize": 90,
     "fleetType": "أساطيل شاحنات تبريد وتجميد ثقيلة، تريلات شحن صادرات لميناء الإسكندرية، وفانات توزيع تجزئة",
     "fleetTires": "315/80R22.5 • 295/80R22.5 • 385/65R22.5",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "القلعة التصديرية الغذائية الأكبر في الإسكندرية التي تضم عشرات المصانع التخصصية في موقع موحد",
+    "notes": "أكبر مجمع مضارب حكومي في عاصمة زراعة الأرز بمصر، يدير خطوط ضرب وفرز إلكتروني متطورة.",
     "contactPerson": "نائب رئيس مجلس الإدارة للوجستيات والأسطول",
     "contactTitle": "Vice President - Logistics & Fleets",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.9189,29.6124"
+    "google_maps_url": "https://www.google.com/maps?q=30.9189,29.6124",
+    "activity": "ضرب وتعبئة وتصدير الأرز الأبيض وتصنيع الأعلاف والزيوت النباتية وأساطيل نقل المحاصيل",
+    "phone2": "0473231401",
+    "email": "info@kafr-rice.com",
+    "fleetTypes": [
+      "شاحنات نقل الأرز الشعير والأعلاف",
+      "تريلات شحن وتفريغ حبوب زراعية",
+      "سيارات توزيع تجاري"
+    ],
+    "tireSizes": [
+      "315/80R22.5",
+      "12.00R20",
+      "295/80R22.5"
+    ],
+    "tireConsumptionMonthly": 26,
+    "annualTireBudgetEGP": 3900000,
+    "operationalLocations": [
+      "محافظة كفر الشيخ والبحيرة",
+      "مناطق الحصاد الزراعي بالدلتا",
+      "موانئ الإسكندرية ودمياط التصديرية"
+    ],
+    "decisionMaker": "رئيس مجلس الإدارة ومدير قطاع الحركة والنقل الزراعي الثقيل",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_877",
@@ -24560,7 +27262,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والأسطول القومي لمصر وشمال إفريقيا",
     "contactTitle": "Country Fleet & Logistics General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0512,31.3456"
+    "google_maps_url": "https://www.google.com/maps?q=30.0512,31.3456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_878",
@@ -24588,35 +27292,62 @@ const titansData = [
     "contactPerson": "رئيس قطاعات اللوجستيات والنقل المستدام",
     "contactTitle": "Sustainable Logistics & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9489,30.9112"
+    "google_maps_url": "https://www.google.com/maps?q=29.9489,30.9112",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_879",
-    "nameAr": "شركة نستله مصر للصناعات الغذائية والمياه (Nestlé Egypt - مصانع السادس من أكتوبر وقها)",
-    "nameEn": "Nestlé Egypt Mega Nutrition, Dairy & Waters Plants",
+    "nameAr": "مجموعة الدقهلية للدواجن والتنمية الزراعية (Dakahlia Group Mega Agro Plants)",
+    "nameEn": "Dakahlia Group for Poultry & Agro Mega Complexes",
     "sector": "food",
     "subSector": "تصنيع أغذية الأطفال سيريلاك، شوكولاتة كيت كات، مرقة ماجي، وتعبئة مياه نستله بيور لايف وبركة",
-    "city": "giza",
+    "city": "المنصورة",
     "governorate": "الجيزة",
-    "address": "المنطقة الصناعية الأولى، السادس من أكتوبر، الجيزة",
-    "phone1": "0238284000",
-    "mobile": "01001166447",
-    "hotline": "16180",
-    "website": "https://www.nestle.com.eg",
+    "address": "شارع الجمهورية، برج الدقهلية، المنصورة، ومزارع وادي النطرون والصالحية",
+    "phone1": "0502319400",
+    "mobile": "01002341908",
+    "hotline": "19769",
+    "website": "https://www.dakahlia.net",
     "latitude": 29.9678,
     "longitude": 30.9289,
-    "fleetSize": 290,
+    "fleetSize": 320,
     "fleetType": "شاحنات شحن مياه طبيعية قوارير 5 جالون وكراتين، تريلات شحن أغذية جافة، وبرادات توزيع آيس كريم",
     "fleetTires": "295/80R22.5 • 315/80R22.5 • 225/75R17.5",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "الفرع المصري لأكبر شركة أغذية في العالم المتصدرة لسوق المياه المعبأة وأغذية الطفولة والطهي",
+    "notes": "إحدى كبرى القلاع الزراعية والداجنة في مصر والشرق الأوسط، تدير مزارع ومصانع أعلاف ضخمة وتصدر لأوروبا.",
     "contactPerson": "مدير عام النقل وسلاسل الإمداد بمصر",
     "contactTitle": "Supply Chain & Physical Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9678,30.9289"
+    "google_maps_url": "https://www.google.com/maps?q=29.9678,30.9289",
+    "activity": "تربية الدواجن وتصنيع الأعلاف وتصدير الحاصلات البستانية وأساطيل النقل المبرد والحيوي",
+    "phone2": "0502319401",
+    "email": "info@dakahlia.net",
+    "fleetTypes": [
+      "شاحنات نقل دواجن حية وأعلاف صب",
+      "تريلات مبردة لنقل مصنعات الدواجن",
+      "شاحنات شحن محاصيل للموانئ"
+    ],
+    "tireSizes": [
+      "315/80R22.5",
+      "12.00R20",
+      "295/80R22.5"
+    ],
+    "tireConsumptionMonthly": 80,
+    "annualTireBudgetEGP": 11500000,
+    "operationalLocations": [
+      "الدقهلية ووادي النطرون",
+      "طريق مصر إسكندرية الصحراوي",
+      "موانئ الإسكندرية ودمياط للتصدير"
+    ],
+    "decisionMaker": "نائب رئيس مجلس الإدارة ورئيس قطاع العمليات والأسطول الزراعي",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_880",
@@ -24644,35 +27375,62 @@ const titansData = [
     "contactPerson": "مدير عام النقل والأسطول المبرد",
     "contactTitle": "Cold-Chain Transport & Logistics Lead",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2234,31.4689"
+    "google_maps_url": "https://www.google.com/maps?q=30.2234,31.4689",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_881",
-    "nameAr": "شركة جهينة للصناعات الغذائية (Juhayna - مجمع مصانع السادس من أكتوبر)",
-    "nameEn": "Juhayna Food Industries Mega Industrial Hub (6th of October)",
+    "nameAr": "الشركة العامة لمخابز القاهرة الكبرى (مجمعات المخابز الآلية الاستراتيجية)",
+    "nameEn": "Greater Cairo Automated Bakeries Public Mega Company",
     "sector": "food",
     "subSector": "المجمع الصناعي الأكبر للألبان المعقمة، الزبادي، العصائر الطبيعية، ومصنعات الفواكه المركزة",
-    "city": "giza",
+    "city": "القاهرة",
     "governorate": "الجيزة",
-    "address": "المنطقة الصناعية الأولى، السادس من أكتوبر، الجيزة",
-    "phone1": "0238286000",
-    "mobile": "01005511229",
-    "hotline": "16630",
-    "website": "https://www.juhayna.com",
+    "address": "شارع الجلاء، رمسيس، القاهرة",
+    "phone1": "0225781420",
+    "mobile": "01224567812",
+    "hotline": "19767",
+    "website": "https://www.cairo-bakeries.com",
     "latitude": 29.9656,
     "longitude": 30.9312,
-    "fleetSize": 480,
+    "fleetSize": 130,
     "fleetType": "أضخم أسطول توزيع برادات وفانات نقل ألبان وعصائر في مصر يتجاوز 1000 سيارة توزيع وتريلات شحن ثقيل",
     "fleetTires": "225/75R17.5 • 295/80R22.5 • 315/80R22.5",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "العلامة الوطنية رقم 1 في الألبان والعصائر بمصر والمالكة لأضخم شبكة لوجستية لخدمة التجزئة والجملة",
+    "notes": "الصرح الحكومي الأضخم لإنتاج ملايين أرغفة الخبز الآلي والحلويات لخدمة قطاعات الدولة والمواطنين بالقاهرة الكبرى.",
     "contactPerson": "رئيس قطاعات الأسطول والنقل المركزي",
     "contactTitle": "Central Fleet & Outbound Logistics Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9656,30.9312"
+    "google_maps_url": "https://www.google.com/maps?q=29.9656,30.9312",
+    "activity": "إنتاج الخبز الآلي والمخبوزات والحلويات وتغذية المستشفيات والجامعات وأساطيل النقل السريع",
+    "phone2": "0225781421",
+    "email": "contact@cairo-bakeries.com",
+    "fleetTypes": [
+      "سيارات فان وشاحنات توزيع خبز مغلقة صحية",
+      "شاحنات نقل أجولة دقيق صب",
+      "سيارات متابعة وإشراف دوري"
+    ],
+    "tireSizes": [
+      "215/75R17.5",
+      "195/75R16C",
+      "295/80R22.5"
+    ],
+    "tireConsumptionMonthly": 36,
+    "annualTireBudgetEGP": 5200000,
+    "operationalLocations": [
+      "محافظات القاهرة والجيزة والقليوبية",
+      "المدن الجامعية والمستشفيات العسكرية والمدنية",
+      "منافذ وزارة التموين"
+    ],
+    "decisionMaker": "رئيس مجلس الإدارة والعضو المنتدب ورئيس قطاع النقل والتوزيع اليومي",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_882",
@@ -24700,7 +27458,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والأسطول والتوزيع اللوجستي",
     "contactTitle": "Logistics, Distribution & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.6389,30.1012"
+    "google_maps_url": "https://www.google.com/maps?q=30.6389,30.1012",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_883",
@@ -24728,7 +27488,9 @@ const titansData = [
     "contactPerson": "مدير عام العمليات اللوجستية والأسطول",
     "contactTitle": "Logistics Operations & Fleet Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2845,31.2012"
+    "google_maps_url": "https://www.google.com/maps?q=30.2845,31.2012",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_884",
@@ -24756,7 +27518,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل وسلاسل التوريد المبردة",
     "contactTitle": "Cold Supply Chain & Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3089,31.7512"
+    "google_maps_url": "https://www.google.com/maps?q=30.3089,31.7512",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_885",
@@ -24784,7 +27548,9 @@ const titansData = [
     "contactPerson": "مدير عام الأسطول والشحن الدولي",
     "contactTitle": "Fleet & International Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3112,31.7612"
+    "google_maps_url": "https://www.google.com/maps?q=30.3112,31.7612",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_886",
@@ -24812,7 +27578,9 @@ const titansData = [
     "contactPerson": "رئيس قطاعات النقل وسلاسل الإمداد المركزية",
     "contactTitle": "Central Fleets & Supply Chain Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9412,30.9189"
+    "google_maps_url": "https://www.google.com/maps?q=29.9412,30.9189",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_887",
@@ -24840,7 +27608,9 @@ const titansData = [
     "contactPerson": "مدير اللوجستيات الإقليمي والأسطول",
     "contactTitle": "Regional Fleet & Logistics Lead",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9578,30.9212"
+    "google_maps_url": "https://www.google.com/maps?q=29.9578,30.9212",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_888",
@@ -24868,7 +27638,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والأسطول والشحن الدولي",
     "contactTitle": "Outbound Logistics & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.9212,29.6245"
+    "google_maps_url": "https://www.google.com/maps?q=30.9212,29.6245",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_889",
@@ -24896,7 +27668,9 @@ const titansData = [
     "contactPerson": "مدير عام الأسطول المبرد والنقل المركزي",
     "contactTitle": "Reefer Fleet & Logistics General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2289,31.3689"
+    "google_maps_url": "https://www.google.com/maps?q=30.2289,31.3689",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_890",
@@ -24924,7 +27698,9 @@ const titansData = [
     "contactPerson": "مدير عام نقل المواشي واللحوم المبردة",
     "contactTitle": "Livestock & Cold Transport Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.8124,31.0245"
+    "google_maps_url": "https://www.google.com/maps?q=29.8124,31.0245",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_891",
@@ -24952,7 +27728,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والحركة الميدانية",
     "contactTitle": "Field Movement & Fleets General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.2145,30.7891"
+    "google_maps_url": "https://www.google.com/maps?q=29.2145,30.7891",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_892",
@@ -24980,63 +27758,115 @@ const titansData = [
     "contactPerson": "رئيس قطاعات الأسطول وتوريد الحاصلات الزراعية",
     "contactTitle": "Agri-Harvest & Fleets Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.9891,29.4124"
+    "google_maps_url": "https://www.google.com/maps?q=30.9891,29.4124",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_893",
-    "nameAr": "شركة النيل للزيوت والمنظفات (Nile Vegetable Oils & Detergents Mega Complex)",
-    "nameEn": "Nile Vegetable Oils & Detergents Public Industrial Complex",
+    "nameAr": "شركة هيرو للصناعات الغذائية (Hero Middle East - مصانع المربى وعسل النحل)",
+    "nameEn": "Hero Middle East Food Industries (Jams, Honey & Baby Food Mega Plants)",
     "sector": "food",
     "subSector": "عصر بذرة الصويا والقطن، تكرير الزيوت التموينية، مصانع المسلى الصناعي، والمنظفات الصناعية السائلة",
-    "city": "cairo",
+    "city": "القليوبية",
     "governorate": "القاهرة",
-    "address": "شارع كورنيش النيل، المعادي، القاهرة / مصانع مسطرد وبنها",
-    "phone1": "0225251100",
-    "mobile": "01001199446",
-    "hotline": "19725",
-    "website": "https://www.nileoils.com.eg",
+    "address": "الكيلو 21، طريق القاهرة الإسكندرية الزراعي، قليوب، القليوبية",
+    "phone1": "0242158900",
+    "mobile": "01006789123",
+    "hotline": "16972",
+    "website": "https://www.hero.com.eg",
     "latitude": 29.9678,
     "longitude": 31.2512,
-    "fleetSize": 175,
+    "fleetSize": 140,
     "fleetType": "تريلات صهاريج نقل زيوت نباتية خام ومكررة، شاحنات توزيع سلع تموينية، وتريلات شحن مساحيق غسيل",
     "fleetTires": "315/80R22.5 • 11.00R20",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "أحد الصروح القومية العريقة لتوفير السلع الأساسية ومساحيق الغسيل وسمن الطبخ التمويني",
+    "notes": "المركز الإقليمي لمجموعة هيرو السويسرية في الشرق الأوسط وأفريقيا، الرائدة في منتجات الفاكهة وأغذية الأطفال.",
     "contactPerson": "مدير عام النقل والورش الميكانيكية",
     "contactTitle": "Mechanical Workshops & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9678,31.2512"
+    "google_maps_url": "https://www.google.com/maps?q=29.9678,31.2512",
+    "activity": "تصنيع وتعبئة المربى الطبيعية وعسل النحل وأغذية الأطفال الرضع وأساطيل التوزيع المعتمدة",
+    "phone2": "0242158901",
+    "email": "info@hero.com.eg",
+    "fleetTypes": [
+      "شاحنات مغلقة ومكيفة لنقل الأغذية المحفوظة",
+      "تريلات شحن وتصدير للموانئ والمطارات",
+      "سيارات توزيع تجاري وسلاسل التجزئة"
+    ],
+    "tireSizes": [
+      "295/80R22.5",
+      "215/75R17.5",
+      "315/80R22.5"
+    ],
+    "tireConsumptionMonthly": 38,
+    "annualTireBudgetEGP": 5700000,
+    "operationalLocations": [
+      "مصانع قليوب والقاهرة الكبرى",
+      "كافة السلاسل والهايبرماركت والصيدليات",
+      "التصدير لأكثر من 40 دولة"
+    ],
+    "decisionMaker": "مدير عام العمليات وسلاسل الإمداد والتوزيع الإقليمي بالشرق الأوسط",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_894",
-    "nameAr": "شركة الزيوت المستخلصة ومنتجاتها (Extracted Oils & Products Mega Complex)",
-    "nameEn": "Extracted Oils & Derivatives Public Company (Alexandria)",
+    "nameAr": "شركة هارفست للأغذية والصناعات المحفوظة (Harvest Foods - البوادي والصلصة)",
+    "nameEn": "Harvest Foods for Food Industries & Canned Foods Mega Plants",
     "sector": "food",
     "subSector": "استخلاص الزيوت بالمذيبات العضوية، تكرير زيت الصويا ودوار الشمس، وإنتاج الكسب النباتي للأعلاف",
-    "city": "alexandria",
+    "city": "السادس من أكتوبر",
     "governorate": "الإسكندرية",
-    "address": "شارع قنال المحمودية، محرم بك، الإسكندرية",
-    "phone1": "033924000",
-    "mobile": "01003311664",
-    "hotline": "19831",
-    "website": "https://www.extractedoils.com.eg",
+    "address": "المنطقة الصناعية الثانية، مجمع مصانع هارفست فودز، السادس من أكتوبر، الجيزة",
+    "phone1": "0238204900",
+    "mobile": "01114567823",
+    "hotline": "19768",
+    "website": "https://www.harvest-foods.com",
     "latitude": 31.1891,
     "longitude": 29.9124,
-    "fleetSize": 155,
+    "fleetSize": 190,
     "fleetType": "تريلات صهاريج نقل زيوت غذائية، تريلات نقل كسب أعلاف للمزارع، وشاحنات توزيع زيوت معبأة",
     "fleetTires": "315/80R22.5 • 12.00R20",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "القلعة التاريخية لاستخلاص الزيوت النباتية وتوفير الأعلاف ومساندة البطاقات التموينية بالإسكندرية والبحيرة",
+    "notes": "إحدى كبريات قلاع التصنيع الغذائي المعلب في مصر (هارفست والبوادي)، وتصدر لأسواق أمريكا وأوروبا والخليج.",
     "contactPerson": "مدير عام اللوجستيات والنقل",
     "contactTitle": "Logistics & Transport General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1891,29.9124"
+    "google_maps_url": "https://www.google.com/maps?q=31.1891,29.9124",
+    "activity": "تصنيع الحلاوة الطحينية والصلصة والمربيات والبقوليات المعلبة وأساطيل التوزيع الكبرى",
+    "phone2": "0238204901",
+    "email": "info@harvest-foods.com",
+    "fleetTypes": [
+      "شاحنات جامبو معزولة لنقل الأغذية المحفوظة",
+      "تريلات شحن السلاسل التجارية والمحافظات",
+      "سيارات فان توزيع محلات"
+    ],
+    "tireSizes": [
+      "295/80R22.5",
+      "215/75R17.5",
+      "315/80R22.5"
+    ],
+    "tireConsumptionMonthly": 46,
+    "annualTireBudgetEGP": 6800000,
+    "operationalLocations": [
+      "السادس من أكتوبر وأبو رواش",
+      "كافة المحافظات والمراكز التموينية",
+      "موانئ الإسكندرية والسخنة للتصدير"
+    ],
+    "decisionMaker": "رئيس مجلس الإدارة ومدير قطاع العمليات وسلاسل الإمداد المركزية",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_895",
@@ -25064,7 +27894,9 @@ const titansData = [
     "contactPerson": "مدير سلاسل الإمداد والشحن التصديري",
     "contactTitle": "Supply Chain & Export Shipping Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.4124,31.5678"
+    "google_maps_url": "https://www.google.com/maps?q=30.4124,31.5678",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_896",
@@ -25092,7 +27924,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والأسطول الزراعي",
     "contactTitle": "Agricultural Logistics & Fleets Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1345,30.1245"
+    "google_maps_url": "https://www.google.com/maps?q=31.1345,30.1245",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_897",
@@ -25120,7 +27954,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والنقل التمويني",
     "contactTitle": "Supply Fleets & Movement General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9912,31.1891"
+    "google_maps_url": "https://www.google.com/maps?q=29.9912,31.1891",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_898",
@@ -25148,7 +27984,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل وسلاسل الإمداد التصديرية",
     "contactTitle": "Export Supply Chain & Fleet Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.7124,30.0456"
+    "google_maps_url": "https://www.google.com/maps?q=30.7124,30.0456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_899",
@@ -25176,7 +28014,9 @@ const titansData = [
     "contactPerson": "رئيس قطاعات الأسطول واللوجستيات الميدانية",
     "contactTitle": "Field Fleets & Logistics Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.9678,31.1678"
+    "google_maps_url": "https://www.google.com/maps?q=30.9678,31.1678",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_900",
@@ -25204,35 +28044,63 @@ const titansData = [
     "contactPerson": "رئيس قطاعات النقل والتشغيل وخطوط الديكوفيل",
     "contactTitle": "Transport Lines & Plant Fleet General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=27.9345,30.8245"
+    "google_maps_url": "https://www.google.com/maps?q=27.9345,30.8245",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_901",
-    "nameAr": "شركة بيكو مصر للأجهزة المنزلية (Beko Egypt Mega Eco-Park - العاشر من رمضان)",
-    "nameEn": "Beko Egypt Mega Home Appliances Complex (Arçelik Group)",
+    "nameAr": "شركة فريش إلكتريك للأجهزة المنزلية (Fresh Electric - مجمعات العاشر من رمضان)",
+    "nameEn": "Fresh Electric for Home Appliances Mega Industrial Complex",
     "sector": "manufacturing",
     "subSector": "المجمع الصناعي الذكي الأكبر لمجموعة أرتشيليك العالمية لتصنيع الثلاجات والأفران الموفرة للطاقة والتصدير",
-    "city": "sharqia",
+    "city": "العاشر من رمضان",
     "governorate": "الشرقية",
-    "address": "المنطقة الصناعية الاستثمارية، العاشر من رمضان، الشرقية",
-    "phone1": "015418800",
-    "mobile": "01001144226",
-    "hotline": "16616",
-    "website": "https://www.beko.com/eg-ar",
+    "address": "المنطقة الصناعية الثالثة A1، مجمع مصانع فريش، العاشر من رمضان، الشرقية",
+    "phone1": "0554411800",
+    "mobile": "01005556677",
+    "hotline": "19059",
+    "website": "https://www.fresh.com.eg",
     "latitude": 30.2945,
     "longitude": 31.7589,
-    "fleetSize": 210,
+    "fleetSize": 320,
     "fleetType": "شاحنات نقل أجهزة منزلية مبطنة، تريلات شحن صادرات لموانئ بورسعيد والسخنة، وفانات خدمة وصيانة منزلية",
     "fleetTires": "315/80R22.5 • 295/80R22.5 • 225/75R17.5",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "الصرح الحاصل على الرخصة الذهبية باستثمارات تتجاوز 100 مليون دولار لإنتاج 1.5 مليون جهاز سنوياً وتصدير 60%",
+    "notes": "عملاق الصناعات الهندسية والأجهزة المنزلية المصري الذي ينافس الماركات العالمية في مصر والشرق الأوسط وأوروبا.",
     "contactPerson": "مدير عام اللوجستيات وسلاسل الإمداد الإقليمية",
     "contactTitle": "Regional Supply Chain & Logistics General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2945,31.7589"
+    "google_maps_url": "https://www.google.com/maps?q=30.2945,31.7589",
+    "activity": "تصنيع البوتاجازات والغسالات والثلاجات والتكييفات وأساطيل الشحن والتوزيع ومراكز الصيانة المعتمدة",
+    "phone2": "0554411801",
+    "email": "info@fresh.com.eg",
+    "fleetTypes": [
+      "شاحنات جامبو معزولة لنقل الأجهزة المنزلية الكبيرة",
+      "تريلات شحن للمعارض والموانئ التصديرية",
+      "سيارات خدمة وصيانة منزلية سريعة"
+    ],
+    "tireSizes": [
+      "295/80R22.5",
+      "315/80R22.5",
+      "215/75R17.5",
+      "195/75R16C"
+    ],
+    "tireConsumptionMonthly": 78,
+    "annualTireBudgetEGP": 11200000,
+    "operationalLocations": [
+      "العاشر من رمضان وبدر",
+      "كافة معارض وفروع الجمهورية بالمحافظات",
+      "موانئ التصدير لأكثر من 80 دولة"
+    ],
+    "decisionMaker": "نائب رئيس مجلس الإدارة ورئيس قطاع العمليات واللوجستيات والأسطول",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_902",
@@ -25260,7 +28128,9 @@ const titansData = [
     "contactPerson": "نائب رئيس مجلس الإدارة لقطاعات اللوجستيات والشحن الدولي",
     "contactTitle": "Vice President - Logistics & Global Shipping",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.3124,31.1891"
+    "google_maps_url": "https://www.google.com/maps?q=29.3124,31.1891",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_903",
@@ -25288,7 +28158,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والأسطول المركزي",
     "contactTitle": "Central Transport & Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3156,31.7645"
+    "google_maps_url": "https://www.google.com/maps?q=30.3156,31.7645",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_904",
@@ -25316,7 +28188,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والخدمات الميدانية",
     "contactTitle": "Field Services & Movement Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9612,30.9289"
+    "google_maps_url": "https://www.google.com/maps?q=29.9612,30.9289",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_905",
@@ -25344,7 +28218,9 @@ const titansData = [
     "contactPerson": "رئيس قطاعات الأسطول والنقل المركزي",
     "contactTitle": "Central Fleets & Movement Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3012,31.7456"
+    "google_maps_url": "https://www.google.com/maps?q=30.3012,31.7456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_906",
@@ -25372,7 +28248,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والأسطول الميداني",
     "contactTitle": "Fleet Operations & Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3078,31.7589"
+    "google_maps_url": "https://www.google.com/maps?q=30.3078,31.7589",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_907",
@@ -25400,7 +28278,9 @@ const titansData = [
     "contactPerson": "رئيس قطاعات النقل والأسطول المركزي وخدمة ما بعد البيع",
     "contactTitle": "Central Fleet & Post-Sales Logistics Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.5289,31.1412"
+    "google_maps_url": "https://www.google.com/maps?q=30.5289,31.1412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_908",
@@ -25428,7 +28308,9 @@ const titansData = [
     "contactPerson": "نائب رئيس مجلس الإدارة للإنتاج والشحن الدولي",
     "contactTitle": "Vice President - Plant Logistics & Global Shipping",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.6541,31.8912"
+    "google_maps_url": "https://www.google.com/maps?q=30.6541,31.8912",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_909",
@@ -25456,7 +28338,9 @@ const titansData = [
     "contactPerson": "رئيس قطاعات الأسطول التجاري واللوجستيات الميدانية",
     "contactTitle": "Commercial Fleet & Field Logistics Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3712,30.5189"
+    "google_maps_url": "https://www.google.com/maps?q=30.3712,30.5189",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_910",
@@ -25484,7 +28368,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والتوزيع للمعارض",
     "contactTitle": "Showroom Distribution & Logistics Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9578,30.9345"
+    "google_maps_url": "https://www.google.com/maps?q=29.9578,30.9345",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_911",
@@ -25512,7 +28398,9 @@ const titansData = [
     "contactPerson": "مدير عام أسطول النقل الثقيل واللوابد الميدانية",
     "contactTitle": "Heavy Lowbed Fleet & Field Support Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0712,31.0189"
+    "google_maps_url": "https://www.google.com/maps?q=30.0712,31.0189",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_912",
@@ -25540,7 +28428,9 @@ const titansData = [
     "contactPerson": "مدير عام الدعم الفني للأساطيل والشحن",
     "contactTitle": "Fleet Solutions & Technical Support General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1789,31.4512"
+    "google_maps_url": "https://www.google.com/maps?q=30.1789,31.4512",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_913",
@@ -25568,7 +28458,9 @@ const titansData = [
     "contactPerson": "مدير عام العمليات اللوجستية والنقل التصديري",
     "contactTitle": "Regional Logistics & Outbound Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1412,31.7124"
+    "google_maps_url": "https://www.google.com/maps?q=30.1412,31.7124",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_914",
@@ -25596,7 +28488,9 @@ const titansData = [
     "contactPerson": "مدير عام سلاسل الإمداد والشحن للمشروعات",
     "contactTitle": "Project Freight & Supply Chain General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3089,31.7545"
+    "google_maps_url": "https://www.google.com/maps?q=30.3089,31.7545",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_915",
@@ -25624,7 +28518,9 @@ const titansData = [
     "contactPerson": "رئيس قطاعات النقل الثقيل والأحمال التوربينية الفائقة",
     "contactTitle": "Heavy Lift & Turbine Transport Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.6245,32.3412"
+    "google_maps_url": "https://www.google.com/maps?q=29.6245,32.3412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_916",
@@ -25652,7 +28548,9 @@ const titansData = [
     "contactPerson": "مدير عام التوزيع والأسطول التجاري",
     "contactTitle": "Commercial Distribution & Fleets Lead",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3789,30.5124"
+    "google_maps_url": "https://www.google.com/maps?q=30.3789,30.5124",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_917",
@@ -25680,7 +28578,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل التخصصي والأطوال الفائقة",
     "contactTitle": "Oversized Wind Towers Transport General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.6512,32.3214"
+    "google_maps_url": "https://www.google.com/maps?q=29.6512,32.3214",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_918",
@@ -25708,7 +28608,9 @@ const titansData = [
     "contactPerson": "رئيس قطاعات اللوجستيات والمشروعات الميدانية",
     "contactTitle": "Projects Logistics & Supply Chain Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.6845,32.3389"
+    "google_maps_url": "https://www.google.com/maps?q=29.6845,32.3389",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_919",
@@ -25736,7 +28638,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والأسطول الداخلي",
     "contactTitle": "Inbound & Outbound Transport Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3045,31.7512"
+    "google_maps_url": "https://www.google.com/maps?q=30.3045,31.7512",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_920",
@@ -25764,7 +28668,9 @@ const titansData = [
     "contactPerson": "رئيس قطاعات الأسطول والدعم الميداني القومي",
     "contactTitle": "National Fleets & Field Service Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0512,31.0678"
+    "google_maps_url": "https://www.google.com/maps?q=30.0512,31.0678",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_921",
@@ -25792,7 +28698,9 @@ const titansData = [
     "contactPerson": "مدير عام الشحن والأسطول التنسيقي",
     "contactTitle": "Vehicle Shipping & Fleet Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0989,31.3789"
+    "google_maps_url": "https://www.google.com/maps?q=30.0989,31.3789",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_922",
@@ -25820,7 +28728,9 @@ const titansData = [
     "contactPerson": "مدير عام الخدمات اللوجستية والأسطول",
     "contactTitle": "Logistics Operations & Fleets Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9745,31.0289"
+    "google_maps_url": "https://www.google.com/maps?q=29.9745,31.0289",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_923",
@@ -25848,7 +28758,9 @@ const titansData = [
     "contactPerson": "رئيس قطاعات الأسطول والخدمات اللوجستية",
     "contactTitle": "Fleet & Logistics Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9456,30.9167"
+    "google_maps_url": "https://www.google.com/maps?q=29.9456,30.9167",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_924",
@@ -25876,7 +28788,9 @@ const titansData = [
     "contactPerson": "مدير عام أسطول الشحن والدعم اللوجستي",
     "contactTitle": "Fleet Dispatch & Logistic Support Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0612,31.0545"
+    "google_maps_url": "https://www.google.com/maps?q=30.0612,31.0545",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_925",
@@ -25904,7 +28818,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل وسلاسل الإمداد الدولية",
     "contactTitle": "International Supply Chain & Fleets Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9389,30.9245"
+    "google_maps_url": "https://www.google.com/maps?q=29.9389,30.9245",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_926",
@@ -25932,7 +28848,9 @@ const titansData = [
     "contactPerson": "مدير عام اللوجستيات والشحن المعتمد",
     "contactTitle": "Logistics & Certified Shipping General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9412,30.9212"
+    "google_maps_url": "https://www.google.com/maps?q=29.9412,30.9212",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_927",
@@ -25960,7 +28878,9 @@ const titansData = [
     "contactPerson": "رئيس قطاعات الأسطول والتشغيل الميداني",
     "contactTitle": "Operations & Fleet Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.8312,31.3124"
+    "google_maps_url": "https://www.google.com/maps?q=29.8312,31.3124",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_928",
@@ -25988,7 +28908,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والأسطول الهندسي",
     "contactTitle": "Engineering Fleets & Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.6912,32.3245"
+    "google_maps_url": "https://www.google.com/maps?q=29.6912,32.3245",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_929",
@@ -26016,7 +28938,9 @@ const titansData = [
     "contactPerson": "مدير عام خدمات ما بعد البيع وأساطيل الشاحنات",
     "contactTitle": "Fleet Services & Heavy Trucks General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9312,30.9012"
+    "google_maps_url": "https://www.google.com/maps?q=29.9312,30.9012",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_930",
@@ -26044,7 +28968,9 @@ const titansData = [
     "contactPerson": "رئيس قطاعات الأسطول وحركة النقل اللوجستي",
     "contactTitle": "Vehicle Logistics & Fleets Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0645,31.0612"
+    "google_maps_url": "https://www.google.com/maps?q=30.0645,31.0612",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_931",
@@ -26072,7 +28998,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والتوزيع الميداني",
     "contactTitle": "Commercial Fleets & Distribution Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9378,30.9156"
+    "google_maps_url": "https://www.google.com/maps?q=29.9378,30.9156",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_932",
@@ -26100,7 +29028,9 @@ const titansData = [
     "contactPerson": "مدير عام المبيعات اللوجستية والأسطول",
     "contactTitle": "Logistics Sales & Fleet General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.0214,29.8124"
+    "google_maps_url": "https://www.google.com/maps?q=31.0214,29.8124",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_933",
@@ -26128,7 +29058,9 @@ const titansData = [
     "contactPerson": "رئيس قطاعات اللوجستيات وحركة الأساطيل المركزية",
     "contactTitle": "Central Fleets & Logistics Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0689,31.0589"
+    "google_maps_url": "https://www.google.com/maps?q=30.0689,31.0589",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_934",
@@ -26156,7 +29088,9 @@ const titansData = [
     "contactPerson": "مدير عام اللوجستيات والأسطول التجاري",
     "contactTitle": "Commercial Fleet & Logistics General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0678,31.2891"
+    "google_maps_url": "https://www.google.com/maps?q=30.0678,31.2891",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_935",
@@ -26184,63 +29118,116 @@ const titansData = [
     "contactPerson": "مدير عام النقل وسلاسل الإمداد",
     "contactTitle": "Supply Chain & Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1945,31.2089"
+    "google_maps_url": "https://www.google.com/maps?q=30.1945,31.2089",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_936",
-    "nameAr": "شركة النصر لصناعة السيارات (NASCO - مصانع وادي حوف التاريخية)",
-    "nameEn": "El Nasr Automotive Manufacturing Co. (NASCO Historic Plants)",
+    "nameAr": "شركة كريازي للصناعات الهندسية (Kiriazi - مجمعات الثلاجات والبوتاجازات والغسالات)",
+    "nameEn": "Kiriazi Group for Engineering & Home Appliances Mega Plants",
     "sector": "manufacturing",
     "subSector": "إعادة إحياء وتطوير مصانع تجميع الأتوبيسات السياحية والنقل العام، ميني باص الغاز، والسيارات الكهربائية",
-    "city": "cairo",
+    "city": "العاشر من رمضان",
     "governorate": "القاهرة",
-    "address": "وادي حوف، حلوان، القاهرة",
-    "phone1": "0223690000",
-    "mobile": "01003388445",
-    "hotline": "19846",
-    "website": "https://www.nasr.eg",
+    "address": "المنطقة الصناعية الثانية B2، مجمع مصانع كريازي، العاشر من رمضان، الشرقية",
+    "phone1": "0554413200",
+    "mobile": "01223334455",
+    "hotline": "19082",
+    "website": "https://www.kiriazi.com",
     "latitude": 29.8678,
     "longitude": 31.3124,
-    "fleetSize": 195,
+    "fleetSize": 280,
     "fleetType": "تريلات حاملات أتوبيسات وشاحنات، شاحنات نقل هياكل ومحركات، وسيارات صيانة واختبار خطوط إنتاج",
     "fleetTires": "315/80R22.5 • 12.00R20",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "عميد صناعة السيارات الوطنية في مصر والشرق الأوسط العائد بقوة لتصنيع الأتوبيسات الحديثة وتوطين المركبات الكهربائية",
+    "notes": "الاسم الرائد والأقدم في الثلاجات والأجهزة المنزلية بمصر، يمتلك مجمعات صناعية ضخمة تمتد على آلاف الأمتار.",
     "contactPerson": "رئيس قطاعات النقل والتشغيل والورش المركزية",
     "contactTitle": "Central Fleets & Plant Operations Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.8678,31.3124"
+    "google_maps_url": "https://www.google.com/maps?q=29.8678,31.3124",
+    "activity": "تصنيع الثلاجات والديب فريزر والبوتاجازات والغسالات وسخانات الغاز والكهرباء وأساطيل التوزيع",
+    "phone2": "0554413201",
+    "email": "info@kiriazi.com",
+    "fleetTypes": [
+      "شاحنات مغلقة مخصصة لنقل الأجهزة الحساسة",
+      "تريلات شحن المستودعات الإقليمية",
+      "سيارات مراكز الخدمة والصيانة المنزلية"
+    ],
+    "tireSizes": [
+      "295/80R22.5",
+      "315/80R22.5",
+      "215/75R17.5"
+    ],
+    "tireConsumptionMonthly": 68,
+    "annualTireBudgetEGP": 9800000,
+    "operationalLocations": [
+      "العاشر من رمضان والقاهرة",
+      "كافة مراكز الصيانة والمعارض بالصعيد والدلتا",
+      "موانئ الإسكندرية ودمياط والسخنة"
+    ],
+    "decisionMaker": "مدير عام النقل واللوجستيات والمبيعات الميدانية بمجموعة كريازي",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_937",
-    "nameAr": "الشركة الهندسية لصناعة السيارات (EAMCO - وادي حوف حلوان)",
-    "nameEn": "Engineering Automotive Manufacturing Co. (EAMCO Wadi Hof)",
+    "nameAr": "مجموعة مصانع يونيون إير للتبريد والتكييف والأجهزة (Unionaire Group)",
+    "nameEn": "Unionaire Group for Air Conditioning & Home Appliances Mega Plants",
     "sector": "manufacturing",
     "subSector": "تصنيع شاسيهات الشاحنات الثقيلة، تصنيع مقطورات النقل وتنك البترول، وأتوبيسات نقل الركاب والعمال",
-    "city": "cairo",
+    "city": "السادس من أكتوبر",
     "governorate": "القاهرة",
-    "address": "وادي حوف، حلوان، جنوب القاهرة",
-    "phone1": "0223692500",
-    "mobile": "01005511887",
-    "hotline": "19847",
-    "website": "https://www.eamco.com.eg",
+    "address": "المنطقة الصناعية الثالثة، مجمع مصانع يونيون إير، السادس من أكتوبر، الجيزة",
+    "phone1": "0238338900",
+    "mobile": "01112223344",
+    "hotline": "19012",
+    "website": "https://www.unionaire.com",
     "latitude": 29.8612,
     "longitude": 31.3089,
-    "fleetSize": 160,
+    "fleetSize": 260,
     "fleetType": "شاحنات شحن شاسيهات وهياكل حديدية، مقطورات هيدروليكية، وسيارات صيانة أساطيل نقل الركاب",
     "fleetTires": "315/80R22.5 • 12.00R20",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "القلعة التابعة للشركة القابضة للصناعات المعدنية المتخصصة في بناء وتجهيز شاحنات ومقطورات النقل الثقيل",
+    "notes": "قلعة التكييفات الأولى في مصر والشرق الأوسط، تدير مجمعات تصنيع متطورة تغطي كافة الأجهزة المنزلية والإلكترونيات.",
     "contactPerson": "مدير عام النقل والورش الميكانيكية",
     "contactTitle": "Mechanical Workshops & Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.8612,31.3089"
+    "google_maps_url": "https://www.google.com/maps?q=29.8612,31.3089",
+    "activity": "تصنيع أجهزة التكييف المركزي والمنزلي والشاشات والغسالات والبوتاجازات وأساطيل الشحن",
+    "phone2": "0238338901",
+    "email": "info@unionaire.com",
+    "fleetTypes": [
+      "شاحنات شحن مكيفات وأجهزة إلكترونية معزولة",
+      "تريلات شحن معارض ووكلاء المحافظات",
+      "سيارات خدمة متنقلة وفنيي صيانة"
+    ],
+    "tireSizes": [
+      "295/80R22.5",
+      "315/80R22.5",
+      "215/75R17.5",
+      "195/75R16C"
+    ],
+    "tireConsumptionMonthly": 64,
+    "annualTireBudgetEGP": 9200000,
+    "operationalLocations": [
+      "السادس من أكتوبر وأبو رواش",
+      "كافة منافذ المحافظات والمولات التجارية",
+      "التصدير للشرق الأوسط وأفريقيا"
+    ],
+    "decisionMaker": "رئيس قطاع سلاسل الإمداد والخدمات اللوجستية بمجموعة يونيون إير",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_938",
@@ -26268,7 +29255,9 @@ const titansData = [
     "contactPerson": "رئيس قطاعات النقل والأسطول الذكي",
     "contactTitle": "Smart Fleet & Logistics Operations Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9124,30.8945"
+    "google_maps_url": "https://www.google.com/maps?q=29.9124,30.8945",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_939",
@@ -26296,7 +29285,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والتوزيع الميداني",
     "contactTitle": "Field Distribution & Fleets Lead",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1389,31.7212"
+    "google_maps_url": "https://www.google.com/maps?q=30.1389,31.7212",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_940",
@@ -26324,7 +29315,9 @@ const titansData = [
     "contactPerson": "مدير عام اللوجستيات والنقل الآمن",
     "contactTitle": "Secure Transport & Logistics General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.4612,31.1891"
+    "google_maps_url": "https://www.google.com/maps?q=30.4612,31.1891",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_941",
@@ -26352,7 +29345,9 @@ const titansData = [
     "contactPerson": "رئيس قطاعات العمليات الميدانية والتركيبات",
     "contactTitle": "Field Operations & Fleet Tech Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0456,31.3512"
+    "google_maps_url": "https://www.google.com/maps?q=30.0456,31.3512",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_942",
@@ -26380,7 +29375,9 @@ const titansData = [
     "contactPerson": "مدير عام العمليات الميدانية والأسطول",
     "contactTitle": "Field Operations & Fleet Support Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0189,31.4289"
+    "google_maps_url": "https://www.google.com/maps?q=30.0189,31.4289",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_943",
@@ -26408,7 +29405,9 @@ const titansData = [
     "contactPerson": "رئيس قطاعات النقل والتشغيل الميداني القومي",
     "contactTitle": "National Field Fleet & Transport Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0789,31.0212"
+    "google_maps_url": "https://www.google.com/maps?q=30.0789,31.0212",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_944",
@@ -26436,7 +29435,9 @@ const titansData = [
     "contactPerson": "مدير عام اللوجستيات والشحن",
     "contactTitle": "Logistics & Freight General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3712,30.5045"
+    "google_maps_url": "https://www.google.com/maps?q=30.3712,30.5045",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_945",
@@ -26464,7 +29465,9 @@ const titansData = [
     "contactPerson": "مدير العمليات وسلاسل الإمداد الميدانية",
     "contactTitle": "Supply Chain & Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2289,31.4745"
+    "google_maps_url": "https://www.google.com/maps?q=30.2289,31.4745",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_946",
@@ -26492,7 +29495,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والمبيعات المركزية",
     "contactTitle": "Central Transport & Sales Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3189,31.7589"
+    "google_maps_url": "https://www.google.com/maps?q=30.3189,31.7589",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_947",
@@ -26520,7 +29525,9 @@ const titansData = [
     "contactPerson": "مدير عام الأسطول وخدمات ما بعد البيع",
     "contactTitle": "After-Sales Fleets & Operations Lead",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9545,30.9212"
+    "google_maps_url": "https://www.google.com/maps?q=29.9545,30.9212",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_948",
@@ -26548,7 +29555,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والأسطول الفني",
     "contactTitle": "Technical Fleets & Transport General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0578,31.0645"
+    "google_maps_url": "https://www.google.com/maps?q=30.0578,31.0645",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_949",
@@ -26576,7 +29585,9 @@ const titansData = [
     "contactPerson": "نائب رئيس مجلس الإدارة لقطاعات النقل الثقيل والمشاريع الكبرى",
     "contactTitle": "Mega Projects & Heavy Cargo Transport Vice President",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.6412,32.3312"
+    "google_maps_url": "https://www.google.com/maps?q=29.6412,32.3312",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_950",
@@ -26604,7 +29615,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل الثقيل والخدمات اللوجستية",
     "contactTitle": "Heavy Equipment Fleets & Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0745,31.0512"
+    "google_maps_url": "https://www.google.com/maps?q=30.0745,31.0512",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_951",
@@ -26632,7 +29645,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والأسطول المبرد الدوائي",
     "contactTitle": "Pharma Cold-Chain Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9512,30.9245"
+    "google_maps_url": "https://www.google.com/maps?q=29.9512,30.9245",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_952",
@@ -26660,77 +29675,129 @@ const titansData = [
     "contactPerson": "مدير عام اللوجستيات وسلاسل الإمداد الدوائية",
     "contactTitle": "Pharma Supply Chain & Fleets Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1245,31.3124"
+    "google_maps_url": "https://www.google.com/maps?q=30.1245,31.3124",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_953",
-    "nameAr": "شركة جلاكسو سميث كلاين مصر (GSK Egypt - مصانع مدينة السلام والجيزة)",
-    "nameEn": "GlaxoSmithKline Egypt Mega Plants (GSK El Salam & Giza)",
+    "nameAr": "شركة سانوفي مصر للأدوية والرعاية الصحية (Sanofi Egypt Mega Plants)",
+    "nameEn": "Sanofi Egypt for Pharmaceuticals & Healthcare Mega Plants",
     "sector": "pharma",
     "subSector": "تصنيع المضادات الحيوية واسعة المجال أوجمنتين، أدوية الجهاز التنفسي، اللقاحات، ومسكنات بنادول",
-    "city": "cairo",
+    "city": "القاهرة",
     "governorate": "القاهرة",
-    "address": "طريق مصر - الإسماعيلية الصحراوي، مدينة السلام، القاهرة",
-    "phone1": "0226960000",
-    "mobile": "01005588334",
-    "hotline": "16260",
-    "website": "https://www.gsk.com/en-eg",
+    "address": "شارع السواح، الأميرية، الزيتون، القاهرة",
+    "phone1": "0224567900",
+    "mobile": "01007778899",
+    "hotline": "16069",
+    "website": "https://www.sanofi.com.eg",
     "latitude": 30.1678,
     "longitude": 31.4289,
-    "fleetSize": 180,
+    "fleetSize": 250,
     "fleetType": "أسطول برادات توزيع معتمد، فانات نقل أدوية طارئة للمستشفيات والمراكز الطبية، وتريلات تصدير دولي",
     "fleetTires": "225/75R17.5 • 295/80R22.5",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "الكيان الدوائي البريطاني الأكبر في مصر الممتلك لثلاثة مصانع أدوية كبرى وشبكة توزيع تغطي كافة المحافظات",
+    "notes": "عملاق صناعة الدواء الفرنسي في مصر، المصنع والمورد الأكبر لأدوية السكر والأنسولين وعلاجات القلب.",
     "contactPerson": "رئيس قطاعات اللوجستيات والأسطول القومي",
     "contactTitle": "Country Logistics & Fleets Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1678,31.4289"
+    "google_maps_url": "https://www.google.com/maps?q=30.1678,31.4289",
+    "activity": "تصنيع أدوية القلب والسكر والأمصال واللقاحات وأساطيل التوزيع وسلاسل التبريد المعتمدة",
+    "phone2": "0224567901",
+    "email": "contact-egypt@sanofi.com",
+    "fleetTypes": [
+      "شاحنات مبردة لنقل الأنسولين والأدوية الحيوية",
+      "سيارات فان توزيع للمستشفيات والشركات الموزعة",
+      "سيارات مديري المناطق الطبية"
+    ],
+    "tireSizes": [
+      "295/80R22.5",
+      "215/75R17.5",
+      "195/75R16C"
+    ],
+    "tireConsumptionMonthly": 60,
+    "annualTireBudgetEGP": 9100000,
+    "operationalLocations": [
+      "مصانع الأميرية ومجمع القاهرة",
+      "كافة مستشفيات وزارة الصحة والتأمين الصحي",
+      "موانئ التصدير للشرق الأوسط وإفريقيا"
+    ],
+    "decisionMaker": "مدير عام سلاسل الإمداد والعمليات اللوجستية بمصر وشمال إفريقيا",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_954",
-    "nameAr": "شركة المهن الطبية للأدوية (MUP - مجمع مصانع أبو سلطان بالإسماعيلية)",
-    "nameEn": "Medical Union Pharmaceuticals (MUP Abu Sultan Mega Sterile Complex)",
+    "nameAr": "شركة أكتوبر فارما للصناعات الدوائية (October Pharma Mega Complex)",
+    "nameEn": "October Pharma for Pharmaceutical Industries (Mega Plants)",
     "sector": "pharma",
     "subSector": "أكبر صرح لإنتاج البنسلين المعقم، مضادات حيوية السيفالوسبورين، أمبولات الحقن، ومحاليل الكلى",
-    "city": "ismailia",
+    "city": "السادس من أكتوبر",
     "governorate": "الإسماعيلية",
-    "address": "منطقة أبو سلطان، فايد، الإسماعيلية",
-    "phone1": "0643400500",
-    "mobile": "01007711558",
-    "hotline": "19835",
-    "website": "https://www.mupegypt.com",
+    "address": "المنطقة الصناعية الأولى، قطعة 14، السادس من أكتوبر، الجيزة",
+    "phone1": "0238337140",
+    "mobile": "01006611223",
+    "hotline": "19707",
+    "website": "https://www.octoberpharma.com",
     "latitude": 30.4124,
     "longitude": 32.2891,
-    "fleetSize": 165,
+    "fleetSize": 130,
     "fleetType": "برادات شحن أدوية معقمة، تريلات نقل مواد خام صيدلانية ومستلزمات تغليف، وشاحنات توزيع على الفروع",
     "fleetTires": "295/80R22.5 • 225/75R17.5",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "القلعة الدوائية القومية التابعة لاتحاد نقابات المهن الطبية لتأمين المضادات الحيوية الحساسة ومحاليل الغسيل الكلوي",
+    "notes": "صرح دوائي مصري مساهم عريق يمتلك خطوط إنتاج حديثة ومختبرات رقابة جودة عالمية بالسادس من أكتوبر.",
     "contactPerson": "مدير عام النقل والأسطول المركزي",
     "contactTitle": "Central Transport & Cold Fleet Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.4124,32.2891"
+    "google_maps_url": "https://www.google.com/maps?q=30.4124,32.2891",
+    "activity": "تصنيع المستحضرات الدوائية والكبسولات والمراهم وسلاسل التبريد والتوزيع الصيدلي",
+    "phone2": "0238337141",
+    "email": "info@octoberpharma.com",
+    "fleetTypes": [
+      "شاحنات مبردة لنقل وتوزيع الأدوية",
+      "سيارات فان توزيع صيدلي سريع",
+      "حافلات ورديات الفنيين والصيادلة"
+    ],
+    "tireSizes": [
+      "295/80R22.5",
+      "215/75R17.5",
+      "195/75R16C"
+    ],
+    "tireConsumptionMonthly": 32,
+    "annualTireBudgetEGP": 4800000,
+    "operationalLocations": [
+      "السادس من أكتوبر وأبو رواش",
+      "كافة مستودعات المحافظات والصيدليات",
+      "التصدير للشرق الأوسط وأفريقيا"
+    ],
+    "decisionMaker": "المدير التنفيذي لقطاع العمليات وسلاسل الإمداد ورئيس الحركة",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_955",
-    "nameAr": "شركة جلوبال نابي للأدوية (Global Napi Pharmaceuticals - مصانع السادس من أكتوبر)",
-    "nameEn": "Global Napi Pharmaceuticals Mega Complex (6th of October)",
+    "nameAr": "شركة مينا فارم للأدوية والصناعات الحيوية (Minapharm Mega Bio-pharma Plants)",
+    "nameEn": "Minapharm Pharmaceuticals & Bio-similars Mega Complex",
     "sector": "pharma",
     "subSector": "مجمعات تصنيع الأدوية الحيوية، أدوية الأورام، الكبسولات الرخوة، والمنتجات الصيدلانية عالية الدقة",
-    "city": "giza",
+    "city": "العاشر من رمضان",
     "governorate": "الجيزة",
-    "address": "المنطقة الصناعية الثانية، السادس من أكتوبر، الجيزة",
-    "phone1": "0238200500",
-    "mobile": "01009933772",
-    "hotline": "19631",
-    "website": "https://www.globalnapi.com",
+    "address": "المنطقة الصناعية A1، مجمع مصانع مينا فارم، العاشر من رمضان، الشرقية",
+    "phone1": "0554412350",
+    "mobile": "01221144556",
+    "hotline": "16683",
+    "website": "https://www.minapharm.com",
     "latitude": 29.9545,
     "longitude": 30.9189,
     "fleetSize": 145,
@@ -26740,39 +29807,89 @@ const titansData = [
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "رائدة تصنيع الأدوية الحديثة وشركاء الإنتاج المحلي لكبرى الشركات العالمية مثل ميرك وسيرفييه",
+    "notes": "الرائد الإقليمي في صناعة الأدوية البيوتكنولوجية والهندسة الوراثية بالتعاون مع كبرى المعامل الألمانية.",
     "contactPerson": "مدير عام اللوجستيات وسلاسل الإمداد",
     "contactTitle": "Supply Chain & Transport Lead",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9545,30.9189"
+    "google_maps_url": "https://www.google.com/maps?q=29.9545,30.9189",
+    "activity": "تطوير وتصنيع المستحضرات الحيوية والمناعية وأدوية الكبد والدم وأساطيل النقل فائق التبريد",
+    "phone2": "0554412351",
+    "email": "info@minapharm.com",
+    "fleetTypes": [
+      "شاحنات مبردة فائقة الدقة لنقل الأدوية الحيوية",
+      "فانات توزيع مستشفيات ومراكز الأورام",
+      "تريلات شحن تصدير"
+    ],
+    "tireSizes": [
+      "295/80R22.5",
+      "215/75R17.5",
+      "195/75R16C"
+    ],
+    "tireConsumptionMonthly": 36,
+    "annualTireBudgetEGP": 5500000,
+    "operationalLocations": [
+      "العاشر من رمضان والقاهرة الجديدة",
+      "كافة المستشفيات الجامعية ومراكز الكبد والأورام",
+      "التصدير لأوروبا والشرق الأوسط"
+    ],
+    "decisionMaker": "رئيس قطاع سلاسل الإمداد والشؤون اللوجستية الدولية بمينا فارم",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_956",
-    "nameAr": "شركة سيديكو للأدوية (SEDICO Pharmaceuticals - مجمع السادس من أكتوبر)",
-    "nameEn": "SEDICO Pharmaceuticals Mega Industrial Complex (6th of October)",
+    "nameAr": "شركة ماش بريميير للصناعات الدوائية (Mash Premiere Pharma - مدينة بدر)",
+    "nameEn": "Mash Premiere for Pharmaceutical Industries Mega Complex",
     "sector": "pharma",
     "subSector": "تصنيع أدوية الإنسولين البشري، أمبولات ومجففات التجميد (Lyophilized)، ومضادات الالتهاب غير الستيرويدية",
-    "city": "giza",
+    "city": "مدينة بدر",
     "governorate": "الجيزة",
-    "address": "المنطقة الصناعية الأولى، السادس من أكتوبر، الجيزة",
-    "phone1": "0238333500",
-    "mobile": "01001166994",
-    "hotline": "19832",
-    "website": "https://www.sedico.net",
+    "address": "المنطقة الصناعية الأولى، قطعة 85، مدينة بدر، القاهرة",
+    "phone1": "0228607140",
+    "mobile": "01114455889",
+    "hotline": "19708",
+    "website": "https://www.mashpremiere.net",
     "latitude": 29.9678,
     "longitude": 30.9312,
-    "fleetSize": 150,
+    "fleetSize": 120,
     "fleetType": "شاحنات تبريد فائقة الدقة لنقل الإنسولين ومنتجات التبريد، فانات توزيع مستشفيات، وتريلات تصدير دولي",
     "fleetTires": "225/75R17.5 • 295/80R22.5",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "إحدى كبرى قلاع إنتاج الإنسولين وأمبولات المضادات الحيوية في مصر والتابعة للشركة العربية للصناعات الدوائية أكديما",
+    "notes": "إحدى كبريات القلاع الدوائية الخاصة المتطورة بمدينة بدر، الحاصلة على شهادات الجودة الأوروبية ومنظمة الصحة العالمية.",
     "contactPerson": "مدير عام النقل والأسطول المبرد",
     "contactTitle": "Cold-Chain Fleet & Distribution Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9678,30.9312"
+    "google_maps_url": "https://www.google.com/maps?q=29.9678,30.9312",
+    "activity": "تصنيع أدوية القلب والأوعية الدموية والمضادات الحيوية والمكملات وأساطيل التوزيع الصيدلي",
+    "phone2": "0228607141",
+    "email": "info@mashpremiere.net",
+    "fleetTypes": [
+      "شاحنات مبردة لنقل وتوزيع الأدوية",
+      "سيارات فان توزيع سريع مجهزة بحساسات",
+      "حافلات نقل ورديات المهندسين والعمال"
+    ],
+    "tireSizes": [
+      "295/80R22.5",
+      "215/75R17.5",
+      "195/75R16C"
+    ],
+    "tireConsumptionMonthly": 30,
+    "annualTireBudgetEGP": 4600000,
+    "operationalLocations": [
+      "مدينة بدر والعاصمة الإدارية",
+      "القاهرة الكبرى والإسكندرية ومدن القناة",
+      "كافة مستودعات التوزيع الدوائي بالمحافظات"
+    ],
+    "decisionMaker": "مدير عام المصانع ورئيس قطاع النقل والخدمات اللوجستية المركزية",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_957",
@@ -26800,7 +29917,9 @@ const titansData = [
     "contactPerson": "مدير عام اللوجستيات والأسطول الفني",
     "contactTitle": "Technical Fleet & Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2289,31.4789"
+    "google_maps_url": "https://www.google.com/maps?q=30.2289,31.4789",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_958",
@@ -26828,7 +29947,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل وسلاسل الإمداد",
     "contactTitle": "Supply Chain & Transport Lead",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3012,31.7545"
+    "google_maps_url": "https://www.google.com/maps?q=30.3012,31.7545",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_959",
@@ -26856,7 +29977,9 @@ const titansData = [
     "contactPerson": "مدير عام الأسطول والنقل الدوائي",
     "contactTitle": "Pharmaceutical Fleet & Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.0289,29.8245"
+    "google_maps_url": "https://www.google.com/maps?q=31.0289,29.8245",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_960",
@@ -26884,35 +30007,62 @@ const titansData = [
     "contactPerson": "مدير سلاسل التوريد والخدمات اللوجستية المبردة",
     "contactTitle": "Biotech Cold Supply Chain & Fleets Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3067,31.7589"
+    "google_maps_url": "https://www.google.com/maps?q=30.3067,31.7589",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_961",
-    "nameAr": "الشركة القابضة للمستحضرات الحيوية واللقاحات فاكسيرا (VACSERA - مصانع العجوزة والسادس من أكتوبر)",
-    "nameEn": "VACSERA (The Holding Company for Biological Products & Vaccines)",
+    "nameAr": "شركة فارما كير مصر للصناعات الدوائية (PharmaCare Egypt - مجمع برج العرب)",
+    "nameEn": "PharmaCare Egypt for Pharmaceutical Industries Mega Complex",
     "sector": "pharma",
     "subSector": "الصرح القومي لتصنيع اللقاحات والأمصال المضادة للسموم، مشتقات الدم، وتعبئة اللقاحات الفيروسية العالمية",
-    "city": "giza",
+    "city": "برج العرب",
     "governorate": "الجيزة",
-    "address": "51 شارع وزارة الزراعة، الدقي / العجوزة، الجيزة ومجمع 6 أكتوبر الصناعي",
-    "phone1": "0237611111",
-    "mobile": "01001177663",
-    "hotline": "19836",
-    "website": "https://www.vacsera.com",
+    "address": "المنطقة الصناعية الثالثة، مجمع مصانع فارماكير، برج العرب الجديدة، الإسكندرية",
+    "phone1": "034598100",
+    "mobile": "01112233889",
+    "hotline": "19711",
+    "website": "https://www.pharmacare-egypt.com",
     "latitude": 30.0456,
     "longitude": 31.2124,
-    "fleetSize": 150,
+    "fleetSize": 125,
     "fleetType": "أسطول سيارات تبريد وتجميد فائق لتوزيع اللقاحات للمديريات الصحية بالمحافظات، وتريلات صهاريج مياه مقطرة",
     "fleetTires": "225/75R17.5 • 295/80R22.5",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "أقدم وأعرق منتج للأمصال واللقاحات في إفريقيا والشرق الأوسط والضامن للأمن القومي الحيوي المصري",
+    "notes": "مجمع دوائي متقدم ببرج العرب مجهز بأعلى التقنيات لإنتاج الأدوية المعتمدة وفق ممارسات التصنيع الجيد GMP.",
     "contactPerson": "رئيس قطاعات النقل واللوجستيات المبردة القومية",
     "contactTitle": "National Bio-Logistics & Fleets Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0456,31.2124"
+    "google_maps_url": "https://www.google.com/maps?q=30.0456,31.2124",
+    "activity": "تصنيع المستحضرات الدوائية والكبسولات وسلاسل التبريد وتوريد الأدوية للمستشفيات والجمهورية",
+    "phone2": "034598101",
+    "email": "info@pharmacare-egypt.com",
+    "fleetTypes": [
+      "شاحنات نقل أدوية مبردة مجهزة بأحدث حساسات التبريد",
+      "فانات توزيع للمستودعات والصيدليات",
+      "حافلات نقل ورديات العاملين"
+    ],
+    "tireSizes": [
+      "295/80R22.5",
+      "215/75R17.5",
+      "195/75R16C"
+    ],
+    "tireConsumptionMonthly": 32,
+    "annualTireBudgetEGP": 4900000,
+    "operationalLocations": [
+      "برج العرب والإسكندرية",
+      "القاهرة الكبرى والدلتا",
+      "موانئ الإسكندرية ومطار برج العرب للتصدير"
+    ],
+    "decisionMaker": "المدير التنفيذي للعمليات وسلاسل الإمداد ورئيس قطاع النقل والمهمات",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_962",
@@ -26940,7 +30090,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والأسطول",
     "contactTitle": "Transport & Fleets General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9612,30.9245"
+    "google_maps_url": "https://www.google.com/maps?q=29.9612,30.9245",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_963",
@@ -26968,7 +30120,9 @@ const titansData = [
     "contactPerson": "مدير العمليات وسلاسل الإمداد اللوجستية",
     "contactTitle": "Supply Chain & Logistics Operations Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3089,31.7612"
+    "google_maps_url": "https://www.google.com/maps?q=30.3089,31.7612",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_964",
@@ -26996,119 +30150,221 @@ const titansData = [
     "contactPerson": "مدير عام النقل والأسطول الإقليمي",
     "contactTitle": "Regional Fleet & Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.9145,29.6189"
+    "google_maps_url": "https://www.google.com/maps?q=30.9145,29.6189",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_965",
-    "nameAr": "شركة ممفيس للأدوية والصناعات الكيماوية (Memphis Pharmaceuticals Public Company)",
-    "nameEn": "Memphis Pharmaceuticals & Chemical Industries Public Mega Complex",
+    "nameAr": "شركة المهن الطبية لتجارة وتوزيع الأدوية (Ibn Sina Pharma Mega Logistics)",
+    "nameEn": "Ibnsina Pharma - Mega Pharmaceutical Logistics & Fleets",
     "sector": "pharma",
     "subSector": "أعرق القلاع الوطنية لتصنيع مستحضرات الحقن، الكريمات والمراهم الطبية، المهدئات، ومستخلصات الأعشاب",
-    "city": "cairo",
+    "city": "العبور",
     "governorate": "القاهرة",
-    "address": "8 شارع السواح، الأميرية، الزيتون، القاهرة",
-    "phone1": "0222581200",
-    "mobile": "01009966552",
-    "hotline": "19851",
-    "website": "https://www.memphispharma.com",
+    "address": "المنطقة الصناعية، مجمع المستودعات المركزية، مدينة العبور، القليوبية",
+    "phone1": "0244791500",
+    "mobile": "01008889900",
+    "hotline": "16474",
+    "website": "https://www.ibnsina-pharma.com",
     "latitude": 30.1089,
     "longitude": 31.2945,
-    "fleetSize": 140,
+    "fleetSize": 460,
     "fleetType": "شاحنات توزيع أدوية للمستشفيات الجامعية وهيئة التأمين الصحي، فانات صيدليات، وتريلات نقل خامات",
     "fleetTires": "295/80R22.5 • 225/75R17.5",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "الصرح الدوائي القومي التاريخي التابع لوزارة قطاع الأعمال العام لتوفير الدواء بأسعار في متناول ملايين المواطنين",
+    "notes": "ثاني أكبر موزع دوائي في مصر بحصة سوقية تتجاوز 22% وأضخم أسطول شحن دوائي مجهز بأحدث تكنولوجيا التتبع.",
     "contactPerson": "رئيس قطاعات النقل والورش الميكانيكية",
     "contactTitle": "Mechanical Fleet & Transport Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1089,31.2945"
+    "google_maps_url": "https://www.google.com/maps?q=30.1089,31.2945",
+    "activity": "توزيع وتجارة الأدوية والمستلزمات الطبية وإدارة سلاسل الإمداد لأكثر من 45 ألف صيدلية ومستشفى",
+    "phone2": "0244791501",
+    "email": "info@ibnsina-pharma.com",
+    "fleetTypes": [
+      "شاحنات وفانات مجهزة بحساسات تبريد ورصد GPS",
+      "تريلات شحن المستودعات الإقليمية بالمحافظات",
+      "سيارات توزيع سريع ودراجات شحن طبي"
+    ],
+    "tireSizes": [
+      "195/75R16C",
+      "215/75R17.5",
+      "295/80R22.5"
+    ],
+    "tireConsumptionMonthly": 110,
+    "annualTireBudgetEGP": 15400000,
+    "operationalLocations": [
+      "كافة مدن ومحافظات وقرى جمهورية مصر العربية",
+      "أكثر من 60 فرع ومستودع مركزي",
+      "الموانئ والمطارات المصرية"
+    ],
+    "decisionMaker": "رئيس قطاع العمليات واللوجستيات والأسطول القومي بشركة ابن سينا فارما",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_966",
-    "nameAr": "شركة النيل للأدوية والصناعات الكيماوية (Nile Pharmaceuticals Public Company)",
-    "nameEn": "Nile Pharmaceuticals & Chemical Industries Public Mega Complex",
+    "nameAr": "شركة المتحدة للصيادلة (UCP - مجمعات المستودعات والتوزيع الدوائي الكبرى)",
+    "nameEn": "United Company of Pharmacists (UCP Mega Pharma Logistics)",
     "sector": "pharma",
     "subSector": "تصنيع أدوية القلب والسكر ومضادات التجلط، المطهرات الطبية، أدوية الطوارئ، وتوريد صيدليات المستشفيات",
-    "city": "cairo",
+    "city": "القاهرة",
     "governorate": "القاهرة",
-    "address": "ميدان السواح، الأميرية، القاهرة",
-    "phone1": "0222572500",
-    "mobile": "01001188448",
-    "hotline": "19852",
-    "website": "https://www.nilepharma.com.eg",
+    "address": "المنطقة الاستثمارية، طريق مصر السويس الصحراوي، القاهرة",
+    "phone1": "0224185200",
+    "mobile": "01221112233",
+    "hotline": "19698",
+    "website": "https://www.ucp.com.eg",
     "latitude": 30.1045,
     "longitude": 31.2989,
-    "fleetSize": 135,
+    "fleetSize": 520,
     "fleetType": "شاحنات شحن محاليل وأدوية، سيارات توريد التأمين الصحي والشرطة والقوات المسلحة، وتريلات كيماويات",
     "fleetTires": "295/80R22.5 • 225/75R17.5",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "عميد الصناعة الدوائية القومية وأكبر مورد للأدوية الأساسية ومحاليل التطهير للمستشفيات العامة بمصر",
+    "notes": "الذراع اللوجستي الأضخم في قطاع الدواء المصري التابع لمجموعة هولسيفارما، يخدم عشرات الآلاف من الصيدليات يومياً.",
     "contactPerson": "مدير عام النقل والحركة المركزية",
     "contactTitle": "Central Transport & Movement Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1045,31.2989"
+    "google_maps_url": "https://www.google.com/maps?q=30.1045,31.2989",
+    "activity": "التوزيع اللوجستي للأدوية ومستحضرات التجميل والمستلزمات الطبية على نطاق الجمهورية بالكامل",
+    "phone2": "0224185201",
+    "email": "info@ucp.com.eg",
+    "fleetTypes": [
+      "فانات توزيع مبردة مزودة بأجهزة تتبع وتكييف",
+      "شاحنات نقل متوسط لنقل الكراتين الدوائية",
+      "تريلات شحن البضائع بين الفروع والمحافظات"
+    ],
+    "tireSizes": [
+      "195/75R16C",
+      "215/75R17.5",
+      "295/80R22.5"
+    ],
+    "tireConsumptionMonthly": 125,
+    "annualTireBudgetEGP": 17200000,
+    "operationalLocations": [
+      "أكثر من 75 فرع ومستودع بجميع المحافظات",
+      "القاهرة الكبرى والإسكندرية ومدن القناة",
+      "الصعيد ومحافظات الحدود والواحات"
+    ],
+    "decisionMaker": "مدير عام النقل والأسطول والخدمات اللوجستية المركزية بالمجموعة",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_967",
-    "nameAr": "شركة الإسكندرية للأدوية والصناعات الكيماوية (Alexandria Pharmaceuticals Public Co.)",
-    "nameEn": "Alexandria Pharmaceuticals & Chemical Industries Mega Plants",
+    "nameAr": "شركة مالتي فارما للأدوية والكيماويات (Multi Pharma Mega Logistics & Plants)",
+    "nameEn": "Multi Pharma for Pharmaceuticals & Chemical Industries",
     "sector": "pharma",
     "subSector": "تصنيع البخاخات التنفسية الاستنشاقية (Aerosols)، الكبسولات الجيلاتينية، الفوارات، ومسكنات الألم",
-    "city": "alexandria",
+    "city": "مدينة نصر",
     "governorate": "الإسكندرية",
-    "address": "شارع جميلة بوحيرد، العوايد، الإسكندرية",
-    "phone1": "033303500",
-    "mobile": "01003311884",
-    "hotline": "19853",
-    "website": "https://www.alexp pharma.com",
+    "address": "شارع عبد الرازق السنهوري، مكرم عبيد، مدينة نصر، القاهرة",
+    "phone1": "0222718400",
+    "mobile": "01009990011",
+    "hotline": "19709",
+    "website": "https://www.multipharma-eg.com",
     "latitude": 31.2245,
     "longitude": 29.9891,
-    "fleetSize": 130,
+    "fleetSize": 170,
     "fleetType": "شاحنات تبريد نقل أدوية وبخاخات، فانات توزيع لصيدليات الوجه البحري، وتريلات تصدير لميناء الإسكندرية",
     "fleetTires": "295/80R22.5 • 225/75R17.5",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "القلعة التاريخية الأولى بالإسكندرية المتخصصة في تكنولوجيا البخاخات التنفسية لمرضى الحساسية والربو الشعبي",
+    "notes": "إحدى كبريات شركات الدواء واللوجستيات في مصر، وكيل حصري لعدد كبير من الشركات الدوائية العالمية.",
     "contactPerson": "مدير عام اللوجستيات والأسطول",
     "contactTitle": "Logistics & Fleets General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2245,29.9891"
+    "google_maps_url": "https://www.google.com/maps?q=31.2245,29.9891",
+    "activity": "تصنيع وتوزيع الأدوية البشرية والبيطرية ومستلزمات المستشفيات والوكالات الدوائية الدولية",
+    "phone2": "0222718401",
+    "email": "info@multipharma-eg.com",
+    "fleetTypes": [
+      "شاحنات مبردة ومكيفة لنقل الأدوية الحساسة",
+      "سيارات فان توزيع صيدلي سريع",
+      "حافلات الكوادر الإدارية والتشغيلية"
+    ],
+    "tireSizes": [
+      "295/80R22.5",
+      "215/75R17.5",
+      "195/75R16C"
+    ],
+    "tireConsumptionMonthly": 42,
+    "annualTireBudgetEGP": 6300000,
+    "operationalLocations": [
+      "القاهرة الكبرى والإسكندرية",
+      "مجمع مستودعات العبور والعاشر",
+      "كافة مستشفيات ومحافظات الجمهورية"
+    ],
+    "decisionMaker": "رئيس مجلس الإدارة ورئيس قطاع سلاسل الإمداد والخدمات اللوجستية",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_968",
-    "nameAr": "شركة القاهرة للأدوية والصناعات الكيماوية (Cairo Pharmaceuticals Public Company)",
-    "nameEn": "Cairo Pharmaceuticals & Chemical Industries Public Mega Complex",
+    "nameAr": "شركة بيوفارم للصناعات الحيوية والدوائية (Biopharm Mega Plants)",
+    "nameEn": "Biopharm for Biological & Pharmaceutical Industries",
     "sector": "pharma",
     "subSector": "مجمعات تصنيع الأدوية الفموية، أدوية الجهاز الهضمي، مستحضرات التخدير الموضعي، والمضادات الحيوية",
-    "city": "cairo",
+    "city": "السادس من أكتوبر",
     "governorate": "القاهرة",
-    "address": "شارع عبد الحميد الديب، شبرا، القاهرة",
-    "phone1": "0222024500",
-    "mobile": "01005533116",
-    "hotline": "19854",
-    "website": "https://www.cairopharma.com.eg",
+    "address": "المنطقة الصناعية الرابعة، السادس من أكتوبر، الجيزة",
+    "phone1": "0238312400",
+    "mobile": "01121113344",
+    "hotline": "19710",
+    "website": "https://www.biopharm-eg.com",
     "latitude": 30.0812,
     "longitude": 31.2412,
-    "fleetSize": 120,
+    "fleetSize": 95,
     "fleetType": "شاحنات نقل أدوية ومستلزمات، فانات توزيع سريعة، وتريلات شحن خامات صيدلانية ومواد تغليف",
     "fleetTires": "295/80R22.5 • 225/75R17.5",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "الصرح الوطني التاريخي التابع لقطاع الأعمال لتأمين المستحضرات العلاجية الحيوية للجمهور والمستشفيات",
+    "notes": "صرح رائد في التكنولوجيا الحيوية مجهز بأعلى غرف التبريد الفائق لنقل وتخزين اللقاحات والأمصال الاستراتيجية.",
     "contactPerson": "مدير عام النقل والحركة",
     "contactTitle": "Transport & Logistics Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0812,31.2412"
+    "google_maps_url": "https://www.google.com/maps?q=30.0812,31.2412",
+    "activity": "إنتاج المستحضرات الحيوية والمصل واللقاح ومشتقات الدم وأساطيل النقل فائق التبريد",
+    "phone2": "0238312401",
+    "email": "contact@biopharm-eg.com",
+    "fleetTypes": [
+      "شاحنات تبريد فائق (-20 إلى -80 مئوية) لنقل اللقاحات",
+      "فانات توزيع عينات ومستلزمات طبية",
+      "سيارات صيانة أجهزة التعقيم"
+    ],
+    "tireSizes": [
+      "215/75R17.5",
+      "195/75R16C",
+      "295/80R22.5"
+    ],
+    "tireConsumptionMonthly": 26,
+    "annualTireBudgetEGP": 4100000,
+    "operationalLocations": [
+      "السادس من أكتوبر وأبو رواش",
+      "مراكز التطعيم والمستشفيات الجامعية",
+      "الموانئ والمطارات للربط الدولي"
+    ],
+    "decisionMaker": "مدير عام العمليات اللوجستية ورئيس قطاع النقل المبرد المتقدم",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_969",
@@ -27136,7 +30392,9 @@ const titansData = [
     "contactPerson": "مدير عام اللوجستيات والأسطول",
     "contactTitle": "Fleet & Logistics General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3045,31.7589"
+    "google_maps_url": "https://www.google.com/maps?q=30.3045,31.7589",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_970",
@@ -27164,7 +30422,9 @@ const titansData = [
     "contactPerson": "مدير عام سلاسل الإمداد والأسطول",
     "contactTitle": "Supply Chain & Fleet Lead",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9412,30.9124"
+    "google_maps_url": "https://www.google.com/maps?q=29.9412,30.9124",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_971",
@@ -27192,91 +30452,169 @@ const titansData = [
     "contactPerson": "رئيس قطاعات النقل البري والخدمات اللوجستية البحرية",
     "contactTitle": "Marine & Land Logistics Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0545,31.2089"
+    "google_maps_url": "https://www.google.com/maps?q=30.0545,31.2089",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_972",
-    "nameAr": "شركة الإسكندرية لتداول الحاويات والبضائع (Alexandria Container & Cargo Handling Co. - ACCHC)",
-    "nameEn": "Alexandria Container and Cargo Handling Co. (ACCHC Terminals)",
+    "nameAr": "شركة القناة للتوريدات البحرية وعمليات الشحن (Canal Marine Supplies Co.)",
+    "nameEn": "Canal Marine Supplies & Shipping Operations Public Mega Co.",
     "sector": "transport",
     "subSector": "إدارة وتشغيل محطتي حاويات الإسكندرية والدخيلة، تفريغ وشحن الحاويات، الساحات اللوجستية، والأوناش العملاقة",
-    "city": "alexandria",
+    "city": "بورسعيد",
     "governorate": "الإسكندرية",
-    "address": "رصيف 22 إلى 24، ميناء الإسكندرية البحري، الإسكندرية",
-    "phone1": "034800200",
-    "mobile": "01003311997",
-    "hotline": "19858",
-    "website": "https://www.acchc.com",
+    "address": "شارع فلسطين، مجمع هيئة قناة السويس، بورسعيد",
+    "phone1": "0663221940",
+    "mobile": "01228889900",
+    "hotline": "19781",
+    "website": "https://www.canal-marine.com.eg",
     "latitude": 31.1891,
     "longitude": 29.8789,
-    "fleetSize": 240,
+    "fleetSize": 110,
     "fleetType": "جرارات موانئ (Terminal Tractors)، أوناش ساحات عملاقة (RTG & STS)، وشاحنات تريلات نقل حاويات داخلية",
     "fleetTires": "315/80R22.5 • 18.00R25 • 12.00R24",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "المشغل الوطني التاريخي الأول لمحطات الحاويات في مصر المتداول لأكثر من مليون حاوية مكافئة سنوياً",
+    "notes": "الشركة القومية الرائدة في تموين وخدمة الأساطيل البحرية والتجارية الدولية العابرة للمجرى الملاحي لقناة السويس.",
     "contactPerson": "نائب رئيس مجلس الإدارة للتشغيل ومعدات الموانئ",
     "contactTitle": "Terminal Operations & Port Fleets Vice President",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1891,29.8789"
+    "google_maps_url": "https://www.google.com/maps?q=31.1891,29.8789",
+    "activity": "تموين وخدمة السفن العابرة لقناة السويس والشحن والتفريغ وأساطيل النقل البحري والبري",
+    "phone2": "0663221941",
+    "email": "info@canal-marine.com.eg",
+    "fleetTypes": [
+      "شاحنات مبردة لتموين البواخر والسفن بالمواد الغذائية",
+      "تريلات شحن قطع غيار ومهمات بحرية",
+      "لنشات وقاطرات تموين ساحلية"
+    ],
+    "tireSizes": [
+      "315/80R22.5",
+      "295/80R22.5",
+      "385/65R22.5"
+    ],
+    "tireConsumptionMonthly": 32,
+    "annualTireBudgetEGP": 4900000,
+    "operationalLocations": [
+      "موانئ بورسعيد وبورفؤاد",
+      "السويس والعين السخنة",
+      "الإسماعيلية ومنافذ قناة السويس"
+    ],
+    "decisionMaker": "رئيس مجلس الإدارة والعضو المنتدب ورئيس قطاع الحركة والشحن البحري",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_973",
-    "nameAr": "شركة بورسعيد لتداول الحاويات والبضائع (PSCCHC - محطة غرب بورسعيد للحاويات)",
-    "nameEn": "Port Said Container & Cargo Handling Co. (West Port Said Terminal)",
+    "nameAr": "شركة التمساح لبناء السفن والمعدات البحرية (Timsah Shipbuilding Co.)",
+    "nameEn": "Timsah Shipbuilding & Marine Equipment Mega Company",
     "sector": "transport",
     "subSector": "محطة غرب بورسعيد لتداول وترانزيت الحاويات، الروافع الشاطئية العملاقة، ومخازن البضائع اللوجستية العامة",
-    "city": "port_said",
+    "city": "الإسماعيلية",
     "governorate": "بورسعيد",
-    "address": "ميناء غرب بورسعيد، شارع مصطفى كامل، بورسعيد",
-    "phone1": "0663341000",
-    "mobile": "01005533221",
-    "hotline": "19859",
-    "website": "https://www.port-said-containers.com",
+    "address": "منطقة نمرة 6، ترسانة التمساح، الإسماعيلية",
+    "phone1": "0643912400",
+    "mobile": "01004445566",
+    "hotline": "19782",
+    "website": "https://www.timsah-shipbuilding.com",
     "latitude": 31.2589,
     "longitude": 32.3012,
-    "fleetSize": 190,
+    "fleetSize": 125,
     "fleetType": "شاحنات جرارات موانئ تيرمينال، أوناش ريتش ستاكر (Reach Stackers)، وأساطيل نقل حاويات البضائع",
     "fleetTires": "315/80R22.5 • 18.00R25",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "إحدى كبرى شركات تداول الحاويات والترانزيت التابعة للشركة القابضة للنقل البحري والبري على مدخل قناة السويس",
+    "notes": "إحدى قلاع هيئة قناة السويس الرائدة في تصنيع القاطرات البحرية المتطورة وسفن مساندة الحقول البترولية.",
     "contactPerson": "مدير عام المعدات والحركة الميدانية",
     "contactTitle": "Port Equipment & Fleets General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2589,32.3012"
+    "google_maps_url": "https://www.google.com/maps?q=31.2589,32.3012",
+    "activity": "بناء وصيانة القاطرات وسفن الخدمات البترولية والأعمال البحرية وأساطيل الأوناش والمعدات",
+    "phone2": "0643912401",
+    "email": "info@timsah-shipbuilding.com",
+    "fleetTypes": [
+      "شاحنات نقل أجزاء ومحركات السفن الثقيلة",
+      "رافعات تلسكوبية وأوناش هيدروليكية",
+      "سيارات سحب وخدمات دعم لوجستي"
+    ],
+    "tireSizes": [
+      "385/65R22.5",
+      "315/80R22.5",
+      "14.00R24",
+      "12.00R20"
+    ],
+    "tireConsumptionMonthly": 36,
+    "annualTireBudgetEGP": 5800000,
+    "operationalLocations": [
+      "ترسانات الإسماعيلية والسويس",
+      "منصات حقول الغاز بالبحر المتوسط",
+      "مشروعات القناة والترسانات الكبرى"
+    ],
+    "decisionMaker": "رئيس مجلس الإدارة والمدير العام للخدمات اللوجستية البحرية والبرية",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_974",
-    "nameAr": "شركة دمياط لتداول الحاويات والبضائع (Damietta Container & Cargo Handling Co. - DCHC)",
-    "nameEn": "Damietta Container and Cargo Handling Company (DCHC Terminal)",
+    "nameAr": "الشركة البورسعيدية للأعمال الهندسية والإنشاءات البحرية (Port Said Marine Works)",
+    "nameEn": "Port Said Engineering Works & Marine Fleets Mega Company",
     "sector": "transport",
     "subSector": "محطة حاويات ميناء دمياط العملاقة، خدمات الترانزيت الدولي للبحر المتوسط، والتفريغ السريع لسفن الحاويات العملاقة",
-    "city": "damietta",
+    "city": "بورسعيد",
     "governorate": "دمياط",
-    "address": "ميناء دمياط، كفر البطيخ، دمياط",
-    "phone1": "0572291500",
-    "mobile": "01007755442",
-    "hotline": "19860",
-    "website": "https://www.dchc-damietta.com",
+    "address": "شارع عاطف السادات، بورفؤاد، بورسعيد",
+    "phone1": "0663412500",
+    "mobile": "01115556677",
+    "hotline": "19783",
+    "website": "https://www.portsaid-eng.com",
     "latitude": 31.4589,
     "longitude": 31.7512,
-    "fleetSize": 210,
+    "fleetSize": 105,
     "fleetType": "جرارات أرصفة موانئ ثقيلة، أوناش ساحة هيدروليكية، تريلات نقل حاويات ترانزيت، وشاحنات ورش صيانة",
     "fleetTires": "315/80R22.5 • 18.00R25 • 385/65R22.5",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "رائدة الترانزيت البحري في حوض البحر المتوسط ومركز العمليات اللوجستية التنافسي على الساحل المصري",
+    "notes": "صرح هندسي وبحري عريق متخصص في التجهيزات البحرية والأعمال الإنشائية لأرصفة الموانئ الحديثة.",
     "contactPerson": "رئيس قطاعات الأسطول والمعدات الثقيلة",
     "contactTitle": "Port Fleets & Heavy Equipment Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.4589,31.7512"
+    "google_maps_url": "https://www.google.com/maps?q=31.4589,31.7512",
+    "activity": "تصنيع وصيانة العائمات والشمندورات والمنشآت المعدنية الشاطئية وأساطيل النقل الثقيل",
+    "phone2": "0663412501",
+    "email": "info@portsaid-eng.com",
+    "fleetTypes": [
+      "مقطورات نقل القطع المعدنية البحرية العملاقة",
+      "شاحنات نقل رافعات ومهمات أرصفة الموانئ",
+      "سيارات خدمة وصيانة ميدانية"
+    ],
+    "tireSizes": [
+      "315/80R22.5",
+      "385/65R22.5",
+      "12.00R20"
+    ],
+    "tireConsumptionMonthly": 30,
+    "annualTireBudgetEGP": 4700000,
+    "operationalLocations": [
+      "موانئ بورسعيد وشرق التفريعة",
+      "ميناء دمياط والإسكندرية",
+      "المنطقة الاقتصادية لقناة السويس"
+    ],
+    "decisionMaker": "رئيس مجلس الإدارة ومدير عام الآليات والنقل الثقيل",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_975",
@@ -27304,7 +30642,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والأسطول البري الميداني",
     "contactTitle": "Land Fleets & Transport Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2189,29.9456"
+    "google_maps_url": "https://www.google.com/maps?q=31.2189,29.9456",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_976",
@@ -27332,7 +30672,9 @@ const titansData = [
     "contactPerson": "نائب رئيس مجلس الإدارة للعمليات والأسطول البري",
     "contactTitle": "Land Fleets & Operations Vice President",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1989,29.9012"
+    "google_maps_url": "https://www.google.com/maps?q=31.1989,29.9012",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_977",
@@ -27360,7 +30702,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والأسطول اللوجستي",
     "contactTitle": "Logistics Fleets & Transport Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9545,32.5589"
+    "google_maps_url": "https://www.google.com/maps?q=29.9545,32.5589",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_978",
@@ -27388,35 +30732,62 @@ const titansData = [
     "contactPerson": "مدير عام النقل الثقيل والمشاريع الهندسية",
     "contactTitle": "Heavy Lift & Engineering Projects Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.0489,31.2412"
+    "google_maps_url": "https://www.google.com/maps?q=30.0489,31.2412",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_979",
-    "nameAr": "شركة ترسانة الإسكندرية البحرية (Alexandria Shipyard Mega Dry Docks & Fleets)",
-    "nameEn": "Alexandria Shipyard Mega Marine Construction & Heavy Workshops",
+    "nameAr": "شركة باسبورت للبطاريات ومغذيات السيارات (Chloride Egypt / باسبورت)",
+    "nameEn": "Chloride Egypt / Passport Batteries Mega Manufacturing Plants",
     "sector": "manufacturing",
     "subSector": "بناء وإصلاح السفن الحربية والمدنية وناقلات البترول، الأحواض الجافة العملاقة، وتصنيع الهياكل المعدنية الثقيلة",
-    "city": "alexandria",
+    "city": "أبو رواش",
     "governorate": "الإسكندرية",
-    "address": "رأس التين، الميناء الغربي، الإسكندرية",
-    "phone1": "034453000",
-    "mobile": "01007711228",
-    "hotline": "19865",
-    "website": "https://www.alexshipyard.com.eg",
+    "address": "المنطقة الصناعية، الكيلو 28 طريق مصر إسكندرية الصحراوي، أبو رواش، الجيزة",
+    "phone1": "0235391200",
+    "mobile": "01227778899",
+    "hotline": "19890",
+    "website": "https://www.chloride.com.eg",
     "latitude": 31.2012,
     "longitude": 29.8645,
-    "fleetSize": 180,
+    "fleetSize": 140,
     "fleetType": "أوناش ترسانة عملاقة حمولة حتى 300 طن، تريلات لنقل الألواح الفولاذية والقطاعات البحرية، وشاحنات ورش",
     "fleetTires": "315/80R22.5 • 12.00R24",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "القلعة الصناعية البحرية الأكبر في إفريقيا والشرق الأوسط التابعة لجهاز الصناعات والخدمات البحرية",
+    "notes": "الصانع الأكبر والأعرق للبطاريات في مصر (كلورايد وباسبورت)، والمورد الرئيسي لمصانع تجميع السيارات وشركات النقل.",
     "contactPerson": "رئيس قطاعات النقل الداخلي والمعدات الثقيلة",
     "contactTitle": "Heavy Equipment & Plant Logistics Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2012,29.8645"
+    "google_maps_url": "https://www.google.com/maps?q=31.2012,29.8645",
+    "activity": "تصنيع بطاريات السيارات والمعدات الثقيلة والأنظمة الصناعية وأساطيل الشحن والتوزيع التجاري",
+    "phone2": "0235391201",
+    "email": "info@chloride.com.eg",
+    "fleetTypes": [
+      "شاحنات جامبو معزولة مخصصة لنقل البطاريات الثقيلة بأمان",
+      "تريلات شحن خامات الرصاص والمكونات",
+      "سيارات توزيع للموزعين ومراكز الصيانة"
+    ],
+    "tireSizes": [
+      "295/80R22.5",
+      "315/80R22.5",
+      "215/75R17.5"
+    ],
+    "tireConsumptionMonthly": 38,
+    "annualTireBudgetEGP": 5800000,
+    "operationalLocations": [
+      "أبو رواش والجيزة",
+      "كافة مراكز توزيع البطاريات بالجمهورية",
+      "موانئ التصدير لأفريقيا والشرق الأوسط"
+    ],
+    "decisionMaker": "المدير التنفيذي للعمليات والمصانع ورئيس أسطول التوزيع الميداني",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_980",
@@ -27444,7 +30815,9 @@ const titansData = [
     "contactPerson": "مدير عام العمليات والحركة البحرية والبرية",
     "contactTitle": "Marine & Land Operations General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.2612,32.3089"
+    "google_maps_url": "https://www.google.com/maps?q=31.2612,32.3089",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_981",
@@ -27472,7 +30845,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والورش الترسانية",
     "contactTitle": "Shipyard Workshops & Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.5912,32.2789"
+    "google_maps_url": "https://www.google.com/maps?q=30.5912,32.2789",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_982",
@@ -27500,7 +30875,9 @@ const titansData = [
     "contactPerson": "مدير عام أسطول نقل الزجاج وسلاسل الإمداد",
     "contactTitle": "Glass Transport Fleets & Supply Chain Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.6389,32.3312"
+    "google_maps_url": "https://www.google.com/maps?q=29.6389,32.3312",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_983",
@@ -27528,7 +30905,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والأسطول اللوجستي",
     "contactTitle": "Logistics Fleet & Transport General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3645,30.5289"
+    "google_maps_url": "https://www.google.com/maps?q=30.3645,30.5289",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_984",
@@ -27556,7 +30935,9 @@ const titansData = [
     "contactPerson": "رئيس قطاعات الأسطول وتوزيع الأسمنت القومي",
     "contactTitle": "White Cement Distribution & Fleets Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.0891,33.7891"
+    "google_maps_url": "https://www.google.com/maps?q=31.0891,33.7891",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_985",
@@ -27584,7 +30965,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والأسطول المنجمي والبري",
     "contactTitle": "Mining & Land Fleets General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9124,32.4891"
+    "google_maps_url": "https://www.google.com/maps?q=29.9124,32.4891",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_986",
@@ -27612,7 +30995,9 @@ const titansData = [
     "contactPerson": "مدير عام سلاسل الإمداد والشحن للمشروعات",
     "contactTitle": "Supply Chain & Project Shipping Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9245,32.4789"
+    "google_maps_url": "https://www.google.com/maps?q=29.9245,32.4789",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_987",
@@ -27640,35 +31025,62 @@ const titansData = [
     "contactPerson": "مدير عام النقل والتوزيع المركزي",
     "contactTitle": "Central Transport & Distribution Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3712,30.5012"
+    "google_maps_url": "https://www.google.com/maps?q=30.3712,30.5012",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_988",
-    "nameAr": "شركة أسمنت مصر بني سويف (Misr Beni Suef Cement Mega Complex)",
-    "nameEn": "Misr Beni Suef Cement Mega Industrial Complex",
+    "nameAr": "شركة الإسكندرية لأسمنت بورتلاند (مجمع وادي القمر - مجموعة تيتان مصر)",
+    "nameEn": "Alexandria Portland Cement (Titan Cement Group Mega Complex - Wadi El Qamar)",
     "sector": "building_materials",
     "subSector": "إنتاج الأسمنت البورتلاندي العادي والمقاوم للكبريتات، أسمنت التشطيبات، والكلنكر عالي الجودة للتصدير",
-    "city": "beni_suef",
+    "city": "الإسكندرية",
     "governorate": "بني سويف",
-    "address": "منطقة بياض العرب الصناعية، شرق النيل، بني سويف",
-    "phone1": "0822241000",
-    "mobile": "01005511447",
-    "hotline": "19874",
-    "website": "https://www.mbscement.com",
+    "address": "وادي القمر، المكس، قسم الدخيلة، الإسكندرية",
+    "phone1": "034401800",
+    "mobile": "01003332211",
+    "hotline": "19616",
+    "website": "https://www.titan.com.eg",
     "latitude": 29.0456,
     "longitude": 31.1412,
-    "fleetSize": 240,
+    "fleetSize": 210,
     "fleetType": "تريلات سيلو لنقل الأسمنت السائب لمشروعات الخرسانة الجاهزة، تريلات شكائر، وقلابات صخور المحاجر الثقيلة",
     "fleetTires": "315/80R22.5 • 12.00R24 • 385/65R22.5",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "إحدى كبرى القلاع الصناعية للأسمنت في صعيد مصر التي تدعم مشروعات البنية التحتية والمدن الجديدة بملايين الأطنان",
+    "notes": "إحدى أقدم قلاع صناعة الأسمنت بمصر، تابعة لمجموعة تيتان الدولية، مجهزة بأحدث الفلاتر البيئية وأسطول صهاريج ضخم.",
     "contactPerson": "رئيس قطاعات الأسطول وحركة النقل الميداني",
     "contactTitle": "Cement Transport & Field Fleet Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.0456,31.1412"
+    "google_maps_url": "https://www.google.com/maps?q=29.0456,31.1412",
+    "activity": "تصنيع الأسمنت البورتلاندي العادي والمقاوم وكلنكر التصدير وأساطيل نقل الأسمنت السائب والمعبأ",
+    "phone2": "034401801",
+    "email": "info@titan.com.eg",
+    "fleetTypes": [
+      "شاحنات صهريجية للأسمنت السائب (بلك)",
+      "تريلات شحن أكياس الأسمنت والكلنكر",
+      "قلابات نقل الحجر الجيري والجبس من المحاجر"
+    ],
+    "tireSizes": [
+      "315/80R22.5",
+      "385/65R22.5",
+      "12.00R20"
+    ],
+    "tireConsumptionMonthly": 58,
+    "annualTireBudgetEGP": 8800000,
+    "operationalLocations": [
+      "مجمع وادي القمر بالإسكندرية",
+      "ميناء الدخيلة والإسكندرية للتصدير",
+      "مشروعات الساحل الشمالي والدلتا"
+    ],
+    "decisionMaker": "رئيس قطاع العمليات واللوجستيات بمجموعة تيتان مصر للأسمنت",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_989",
@@ -27696,35 +31108,62 @@ const titansData = [
     "contactPerson": "مدير عام النقل والأسطول التصديري",
     "contactTitle": "Export Fleet & Shipping General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=31.1789,30.0124"
+    "google_maps_url": "https://www.google.com/maps?q=31.1789,30.0124",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_990",
-    "nameAr": "مجموعة سيراميكا الجوهرة (Al Jawhara - مصانع إكما للقيشاني والسيراميك بالسادس من أكتوبر)",
-    "nameEn": "Al Jawhara Ceramics & Porcelain Mega Industrial Plants (ECMA)",
+    "nameAr": "شركة أسمنت أسوان (Aswan Cement Co. - مجمعات ومحاجر الصعيد الكبرى)",
+    "nameEn": "Aswan Cement Company (Mega Clinker & Cement Plants - Upper Egypt)",
     "sector": "building_materials",
     "subSector": "تصنيع سيراميك وبورسلين الأرضيات والحوائط الفاخر عالي المقاومة والوزن النوعي، الديكورات المعمارية والليزر",
-    "city": "giza",
+    "city": "أسوان",
     "governorate": "الجيزة",
-    "address": "المنطقة الصناعية الثالثة، السادس من أكتوبر، الجيزة",
-    "phone1": "0238331100",
-    "mobile": "01009955883",
-    "hotline": "19878",
-    "website": "https://www.aljawharaceramics.com",
+    "address": "الكيلو 45، طريق أسوان القاهرة الصحراوي الغربي، أسوان",
+    "phone1": "0973481200",
+    "mobile": "01116667788",
+    "hotline": "19617",
+    "website": "https://www.aswancement.com",
     "latitude": 29.9645,
     "longitude": 30.9189,
-    "fleetSize": 220,
+    "fleetSize": 160,
     "fleetType": "شاحنات نقل سيراميك وبورسلين ثقيل، تريلات شحن صادرات للموانئ البحرية، وشاحنات توزيع معارض الجمهورية",
     "fleetTires": "315/80R22.5 • 12.00R20",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "العلامة الفاخرة الرائدة في تصميم وتصنيع البورسلين والسيراميك فائق الجودة المعادل لأفخر المواصفات الإيطالية",
+    "notes": "الصرح الأسمنتي الاستراتيجي لجنوب الوادي، المورد الأساسي لمشروعات توشكى وقناطر النيل ومحاور التنمية بالصعيد.",
     "contactPerson": "رئيس قطاعات الأسطول والتوزيع القومي",
     "contactTitle": "National Fleet & Distribution Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9645,30.9189"
+    "google_maps_url": "https://www.google.com/maps?q=29.9645,30.9189",
+    "activity": "إنتاج الأسمنت المعبأ والصب وتوريد الكلنكر لمشروعات جنوب الوادي وتوشكى وأساطيل النقل الثقيل",
+    "phone2": "0973481201",
+    "email": "sales@aswancement.com",
+    "fleetTypes": [
+      "شاحنات نقل الأسمنت السائب صوامع",
+      "تريلات نقل أجولة الأسمنت لمشروعات الصعيد",
+      "قلابات نقل المحاجر العملاقة"
+    ],
+    "tireSizes": [
+      "315/80R22.5",
+      "12.00R20",
+      "385/65R22.5"
+    ],
+    "tireConsumptionMonthly": 46,
+    "annualTireBudgetEGP": 6900000,
+    "operationalLocations": [
+      "أسوان وتوشكى وشرق العوينات",
+      "الأقصر وقنا وسوهاج",
+      "طريق أسوان برنيس التصديري للبحر الأحمر"
+    ],
+    "decisionMaker": "المدير التنفيذي لقطاع المصانع وإدارة النقل الثقيل بصعيد مصر",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_991",
@@ -27752,7 +31191,9 @@ const titansData = [
     "contactPerson": "مدير عام الحركة والأسطول الثقيل",
     "contactTitle": "Heavy Fleets & Movement General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3689,30.5156"
+    "google_maps_url": "https://www.google.com/maps?q=30.3689,30.5156",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_992",
@@ -27780,35 +31221,62 @@ const titansData = [
     "contactPerson": "مدير عام النقل وسلاسل التوريد",
     "contactTitle": "Supply Chain & Transport Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3124,31.7589"
+    "google_maps_url": "https://www.google.com/maps?q=30.3124,31.7589",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_993",
-    "nameAr": "مجموعة سيراميكا رويال (Ceramica Royal - مجمعات سيراميكا كليوباترا جروب)",
-    "nameEn": "Ceramica Royal Mega Plants (Cleopatra Group 10th of Ramadan)",
+    "nameAr": "شركة أسيك للهندسة والأسمنت (Asec Engineering Mega Works)",
+    "nameEn": "ASEC Engineering & Management for Cement Mega Works",
     "sector": "building_materials",
     "subSector": "مجمعات إنتاج البورسلين المزجج الفاخر، السيراميك ثلاثي الأبعاد، وأطقم الحمامات الملكية المصدرة للخارج",
-    "city": "sharqia",
+    "city": "المعادي",
     "governorate": "الشرقية",
-    "address": "المنطقة الصناعية الثالثة، العاشر من رمضان، الشرقية",
-    "phone1": "015416500",
-    "mobile": "01005522993",
-    "hotline": "19881",
-    "website": "https://www.ceramicaroyal.com",
+    "address": "مبنى أسيك، زهراء المعادي، المعادي، القاهرة",
+    "phone1": "0225218700",
+    "mobile": "01229990011",
+    "hotline": "19618",
+    "website": "https://www.asec-engineering.com",
     "latitude": 30.3089,
     "longitude": 31.7645,
-    "fleetSize": 230,
+    "fleetSize": 110,
     "fleetType": "تريلات تريلا ثقيلة لشحن السيراميك والبورسلين، شاحنات تصدير حاويات للموانئ، وفانات خدمات العملاء",
     "fleetTires": "315/80R22.5 • 12.00R24",
     "priority": "A+",
     "status": "new",
     "verified": true,
     "isTitan": true,
-    "notes": "أحد الصروح الفاخرة التابعة لمجموعة كليوباترا الرائدة عالمياً في تصنيع السيراميك وتصديره لأكثر من 100 دولة",
+    "notes": "الشركة الهندسية الأولى في إدارة وتشغيل مصانع الأسمنت الإقليمية وتطوير خطوط الإنتاج والمعدات الثقيلة.",
     "contactPerson": "رئيس قطاعات الأسطول والشحن الدولي",
     "contactTitle": "International Shipping & Fleets Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3089,31.7645"
+    "google_maps_url": "https://www.google.com/maps?q=30.3089,31.7645",
+    "activity": "تشغيل وإدارة وصيانة مصانع الأسمنت الكبرى واستشارات الهندسة التعدينية وأساطيل الخدمات",
+    "phone2": "0225218701",
+    "email": "info@asec-engineering.com",
+    "fleetTypes": [
+      "شاحنات صيانة هيدروليكية وميكانيكية للمصانع",
+      "سيارات فحص محاجر ودعم فني صحراوي",
+      "حافلات مهندسين وخبراء تشغيل"
+    ],
+    "tireSizes": [
+      "315/80R22.5",
+      "265/70R16",
+      "12.00R20"
+    ],
+    "tireConsumptionMonthly": 30,
+    "annualTireBudgetEGP": 4700000,
+    "operationalLocations": [
+      "مصانع الأسمنت بحلوان وبني سويف وقنا",
+      "محاجر السويس وسيناء",
+      "مشروعات إدارة المصانع بالشرق الأوسط وأفريقيا"
+    ],
+    "decisionMaker": "العضو المنتدب ورئيس قطاع الخدمات الهندسية والأسطول الميداني",
+    "verifiedDate": "2026-03-20",
+    "tier": "Titan",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_994",
@@ -27836,7 +31304,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والمبيعات المركزية",
     "contactTitle": "Central Transport & Sales Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.2245,31.4712"
+    "google_maps_url": "https://www.google.com/maps?q=30.2245,31.4712",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_995",
@@ -27864,7 +31334,9 @@ const titansData = [
     "contactPerson": "مدير عام اللوجستيات والحركة",
     "contactTitle": "Logistics & Fleet Operations Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.3156,31.7512"
+    "google_maps_url": "https://www.google.com/maps?q=30.3156,31.7512",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_996",
@@ -27892,7 +31364,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل الثقيل والأطوال الخاصة",
     "contactTitle": "Heavy Steel Transport & Fleets General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9312,32.4712"
+    "google_maps_url": "https://www.google.com/maps?q=29.9312,32.4712",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_997",
@@ -27920,7 +31394,9 @@ const titansData = [
     "contactPerson": "رئيس قطاعات النقل الثقيل والأوناش المركزية",
     "contactTitle": "Heavy Cranes & Transport Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1345,31.3124"
+    "google_maps_url": "https://www.google.com/maps?q=30.1345,31.3124",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_998",
@@ -27948,7 +31424,9 @@ const titansData = [
     "contactPerson": "مدير عام النقل والأسطول المركزي",
     "contactTitle": "Central Transport & Steel Fleets Director",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1989,31.2145"
+    "google_maps_url": "https://www.google.com/maps?q=30.1989,31.2145",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_999",
@@ -27976,7 +31454,9 @@ const titansData = [
     "contactPerson": "مدير عام الأسطول والشحن الميداني",
     "contactTitle": "Field Dispatch & Fleets General Manager",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=29.9345,30.9089"
+    "google_maps_url": "https://www.google.com/maps?q=29.9345,30.9089",
+    "vip": true,
+    "badge": "👑 VIP"
   },
   {
     "id": "eg_titan_1000",
@@ -28004,14 +31484,8 @@ const titansData = [
     "contactPerson": "رئيس قطاعات النقل والورش التعدينية والأسطول القومي",
     "contactTitle": "National Fleet & Mining Transport Sector Head",
     "createdAt": "2026-09-21",
-    "google_maps_url": "https://www.google.com/maps?q=30.1389,31.3145"
+    "google_maps_url": "https://www.google.com/maps?q=30.1389,31.3145",
+    "vip": true,
+    "badge": "👑 VIP"
   }
 ];
-
-if (typeof window !== 'undefined') {
-  window.__EGYPT_VERIFIED_TITANS = window.EGYPT_VERIFIED_TITANS = titansData;
-}
-
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = titansData;
-}

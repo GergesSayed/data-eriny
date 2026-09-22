@@ -1247,8 +1247,12 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     const idbData = event.target.result || [];
                     const deletedCompIds = this.getDeletedIds('companies');
+                    const isNewVersion = localStorage.getItem('fleetcrm_dataset_version') !== 'v264.2_pristine';
+                    if (isNewVersion) {
+                        localStorage.setItem('fleetcrm_dataset_version', 'v264.2_pristine');
+                    }
 
-                    // 1. Add 700 Verified Titans FIRST so they always head the master map
+                    // 1. Add 1,000 Verified Titans FIRST so they always head the master map
                     const masterMap = new Map();
                     const titans = this.getVerifiedTitans();
                     titans.forEach(t => {
@@ -1258,7 +1262,7 @@ const AppStorage = {
                         }
                     });
 
-                    // 2. Add Baseline Pool Companies
+                    // 2. Add Baseline Pool Companies (24,928)
                     const basePool = this.getBaselineEnterprisesPool();
                     basePool.forEach((c, idx) => {
                         if (!c) return;
@@ -1268,15 +1272,26 @@ const AppStorage = {
                         }
                     });
 
-                    // 3. Merge all IndexedDB records (user additions, dynamic scrapes, call modifications)
+                    // 3. Merge user runtime states from IndexedDB (preserve user calls & assignments only)
                     idbData.forEach(c => {
                         if (!c || !c.id) return;
                         if (!this.isStrictB2BEntity(c.nameAr || c.name || c.nameEn || '')) return;
                         if (!deletedCompIds.has(String(c.id))) {
                             const existing = masterMap.get(c.id);
                             if (existing) {
-                                masterMap.set(c.id, Object.assign({}, existing, c));
-                            } else if (c.isCustom || c.assignedTo || c.lastCallResult || !String(c.id).startsWith('eg_b2b_fleet_')) {
+                                // Authoritative profile from verified code ALWAYS takes precedence!
+                                // Only preserve operational user changes:
+                                const userState = {};
+                                if (c.assignedTo) userState.assignedTo = c.assignedTo;
+                                if (c.lastCallResult) userState.lastCallResult = c.lastCallResult;
+                                if (c.lastCallDate) userState.lastCallDate = c.lastCallDate;
+                                if (c.lastCallNotes) userState.lastCallNotes = c.lastCallNotes;
+                                if (c.rating) userState.rating = c.rating;
+                                if (c.status && c.status !== 'new') userState.status = c.status;
+                                if (c.userNotes) userState.userNotes = c.userNotes;
+                                masterMap.set(c.id, Object.assign({}, existing, userState));
+                            } else if (c.isCustom) {
+                                // Only genuine user additions created manually via "Add Company"
                                 masterMap.set(c.id, this._normalizeCompanyData(c));
                             }
                         }
@@ -1294,7 +1309,7 @@ const AppStorage = {
                     localStorage.setItem('fleetcrm_company_count', String(merged.length));
                     this.updateLiveCounters();
 
-                    if (idbData.length < 100 && merged.length >= 100) {
+                    if (isNewVersion || (idbData.length < 100 && merged.length >= 100)) {
                         this.saveBatchToIDB(merged);
                     }
 
@@ -2521,6 +2536,7 @@ const AppStorage = {
             missingSector: 0,
             missingCity: 0,
             duplicateGroups: [],
+            sharedSwitchboardGroups: [],
             totalDuplicates: 0,
             cleanDataCount: 0
         };
@@ -2547,6 +2563,29 @@ const AppStorage = {
             return cleaned;
         };
 
+        const genericStopWords = new Set(['شركه', 'مجموعه', 'الشركه', 'المجموعه', 'مصنع', 'المصنع', 'مصر', 'القاهره', 'group', 'co', 'ltd', 'inc', 'egypt', 'company', 'factory', 'global', 'international', 'trade', 'trading']);
+
+        const areNamesRelated = (c1, c2) => {
+            if (!c1 || !c2) return false;
+            const names1 = [c1.nameAr, c1.nameEn].filter(Boolean);
+            const names2 = [c2.nameAr, c2.nameEn].filter(Boolean);
+            for (const n1 of names1) {
+                for (const n2 of names2) {
+                    const s1 = normalizeStr(n1);
+                    const s2 = normalizeStr(n2);
+                    if (!s1 || !s2) continue;
+                    if (s1 === s2) return true;
+                    if (s1.length >= 4 && s2.length >= 4 && (s1.includes(s2) || s2.includes(s1))) return true;
+                    const w1 = s1.split(/\s+/).filter(w => w.length >= 4 && !genericStopWords.has(w));
+                    const w2 = s2.split(/\s+/).filter(w => w.length >= 4 && !genericStopWords.has(w));
+                    for (const word of w1) {
+                        if (w2.includes(word)) return true;
+                    }
+                }
+            }
+            return false;
+        };
+
         companies.forEach(c => {
             const nameArNorm = normalizeStr(c.nameAr);
             const nameEnNorm = normalizeStr(c.nameEn);
@@ -2559,7 +2598,6 @@ const AppStorage = {
             if (!c.sector || c.sector === 'unknown') report.missingSector++;
             if (!c.city || c.city === 'unknown') report.missingCity++;
 
-            const genericStopWords = new Set(['شركه', 'مجموعه', 'الشركه', 'المجموعه', 'مصنع', 'المصنع', 'مصر', 'القاهره', 'group', 'co', 'ltd', 'inc', 'egypt', 'company', 'factory', 'global', 'international', 'trade', 'trading']);
             // Check duplicate by name
             if (nameArNorm && nameArNorm.length >= 4 && !genericStopWords.has(nameArNorm)) {
                 if (!nameMap.has(nameArNorm)) nameMap.set(nameArNorm, []);
@@ -2606,8 +2644,47 @@ const AppStorage = {
         };
 
         processMap(nameMap, 'تطابق الاسم');
-        processMap(phoneMap, 'تطابق رقم الهاتف');
         processMap(emailMap, 'تطابق الإيميل');
+
+        // Smart phone processing: distinguish true duplicate records from shared industrial zone switchboards
+        phoneMap.forEach((list, key) => {
+            if (list.length > 1) {
+                const uniqueIds = Array.from(new Set(list.map(item => item.id)));
+                if (uniqueIds.length > 1) {
+                    const items = uniqueIds.map(id => companies.find(item => item.id === id)).filter(Boolean);
+                    let hasRelatedNames = false;
+                    for (let i = 0; i < items.length; i++) {
+                        for (let j = i + 1; j < items.length; j++) {
+                            if (areNamesRelated(items[i], items[j])) {
+                                hasRelatedNames = true;
+                                break;
+                            }
+                        }
+                        if (hasRelatedNames) break;
+                    }
+
+                    const groupKey = uniqueIds.sort().join('_');
+                    if (hasRelatedNames) {
+                        if (!seenGroupKeys.has(groupKey)) {
+                            seenGroupKeys.add(groupKey);
+                            report.duplicateGroups.push({
+                                reason: 'تطابق رقم الهاتف والاسم التجاري',
+                                key,
+                                items
+                            });
+                            report.totalDuplicates += (items.length - 1);
+                        }
+                    } else {
+                        // Shared industrial zone switchboard or holding exchange (verified safe entities)
+                        report.sharedSwitchboardGroups.push({
+                            reason: 'سنترال / بدالة مجمع صناعي مشتركة',
+                            key,
+                            items
+                        });
+                    }
+                }
+            }
+        });
 
         report.cleanDataCount = report.total - report.invalidCount - report.totalDuplicates;
         return report;

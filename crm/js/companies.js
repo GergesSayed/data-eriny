@@ -1442,6 +1442,20 @@ const Companies = {
                 </div>`;
         }
 
+        let switchboardsHtml = '';
+        if (report.sharedSwitchboardGroups && report.sharedSwitchboardGroups.length > 0) {
+            switchboardsHtml = `
+                <div style="margin-top:14px; background:rgba(99, 102, 241, 0.08); border:1px solid rgba(99, 102, 241, 0.25); border-radius:10px; padding:12px 14px; font-size:0.83rem; color:#cbd5e1; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-network-wired" style="color:#818cf8; font-size:16px;"></i>
+                        <span>خطوط بدالات وسنترالات مجمعات صناعية مشتركة (كيانات ومصانع مستقلة مؤكدة): <strong style="color:#818cf8;">${report.sharedSwitchboardGroups.length} بدالة مجمع</strong></span>
+                    </div>
+                    <span style="background:rgba(16, 185, 129, 0.15); color:#10b981; font-size:0.75rem; font-weight:700; padding:3px 8px; border-radius:6px; border:1px solid rgba(16, 185, 129, 0.3);">
+                        <i class="fas fa-shield-alt"></i> آمنة ومحمية من الحذف
+                    </span>
+                </div>`;
+        }
+
         body.innerHTML = `
             <!-- Stats Dashboard Grid -->
             <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap:12px; margin-bottom:16px;">
@@ -1476,6 +1490,7 @@ const Companies = {
             </div>
 
             ${duplicatesHtml}
+            ${switchboardsHtml}
         `;
 
         App.openModal('modal-data-audit');
@@ -1499,17 +1514,22 @@ const Companies = {
             return;
         }
         App.confirm(
-            '🔄 إعادة ضبط وهيكلة قاعدة البيانات بالكامل',
-            'سيتم تنظيف وحذف أي كيانات عشوائية أو شوارع أو مطالع أو نتائج سحب قديمة، وإعادة ضبط قاعدة البيانات بالكامل على مجمع الـ 6,500 شركة الصناعية والتجارية المعتمدة 100%. هل تريد المتابعة؟',
+            '🔄 إعادة ضبط وتطهير قاعدة البيانات بالكامل',
+            'سيتم تنظيف أي كاش قديم في المتصفح وإعادة شحن قاعدة البيانات النظيفة المحدثة بالكامل (1,000 شركة عملاقة VIP + 24,928 شركة فريدة بإجمالي 25,928 شركة معتمدة بنسبة 100%). هل تريد المتابعة؟',
             async () => {
-                App.showToast('⏳ جاري إعادة الهيكلة والتنظيف الشامل من الصفر...', 'info');
+                App.showToast('⏳ جاري إعادة التحديث والتطهير الشامل...', 'info');
                 localStorage.removeItem('fleetcrm_user_wiped_companies');
+                localStorage.removeItem('fleetcrm_dataset_version');
                 window.AppStorage.companiesMemory = [];
-                await window.AppStorage._seedInitialJsonData([]);
-                App.showToast('✨ تم بنجاح إعادة هيكلة قاعدة البيانات وتطهيرها بالكامل (6,500 شركة B2B معتمدة)!', 'success');
-                Companies.render();
+                window.AppStorage._fallbackHydrateBaseline();
+                if (window.AppStorage.saveBatchToIDB) {
+                    await window.AppStorage.saveBatchToIDB(window.AppStorage.companiesMemory);
+                }
+                localStorage.setItem('fleetcrm_dataset_version', 'v264.2_pristine');
+                App.showToast('✨ تم بنجاح تحديث وتطهير قاعدة البيانات بالكامل (25,928 شركة فريدة 100%)!', 'success');
+                this.openAuditModal();
+                this.render();
                 if (typeof Dashboard !== 'undefined') Dashboard.render();
-                if (document.getElementById('modal-data-audit')) App.closeModal('modal-data-audit');
             }
         );
     },
