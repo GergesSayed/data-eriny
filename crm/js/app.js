@@ -1458,6 +1458,13 @@ const App = {
             label.textContent = isLight ? 'الوضع النهاري' : 'الوضع الليلي';
         });
 
+        // Re-render dashboard or reports charts if visible to update chart text contrast
+        if (this.currentPage === 'dashboard' && window.Dashboard && typeof Dashboard.renderCharts === 'function') {
+            try { Dashboard.renderCharts(); } catch (e) {}
+        } else if (this.currentPage === 'reports' && window.Reports && typeof Reports.renderCharts === 'function') {
+            try { Reports.renderCharts(); } catch (e) {}
+        }
+
         if (showNotification) {
             this.showToast(isLight ? '☀️ تم التفعيل: الوضع النهاري (Light Mode)' : '🌙 تم التفعيل: الوضع الليلي (Dark Mode)', 'info');
         }

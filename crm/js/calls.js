@@ -83,9 +83,9 @@ const Calls = {
                 else if (this.activeFilter === 'followup') label = '🔔 المتابعات المستحقة';
                 else if (this.activeFilter === 'not_interested') label = '❌ غير مهتمين';
                 if (this.searchQuery) label += (label ? ' + ' : '') + `🔍 "${this.searchQuery}"`;
-                filterBadge.innerHTML = `<span style="background:rgba(124,58,237,0.15); color:#a78bfa; border:1px solid rgba(124,58,237,0.3); padding:4px 10px; border-radius:8px; font-size:12px; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+                filterBadge.innerHTML = `<span class="active-filter-chip chip-primary">
                     تصفية نشطة: ${label}
-                    <button onclick="Calls.clearFilter()" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:14px; padding:0 2px;" title="إلغاء التصفية">✕</button>
+                    <button onclick="Calls.clearFilter()" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:14px; padding:0 2px; font-weight:800;" title="إلغاء التصفية">✕</button>
                 </span>`;
                 filterBadge.style.display = 'inline-block';
             } else {
@@ -278,10 +278,10 @@ const Calls = {
                                         <div style="font-size: 12px;">
                                             <span style="color: var(--text-primary); font-weight: 700; font-family: Inter;">📅 ${call.date} ${call.time ? '⏰ ' + call.time : ''}</span>
                                             <div style="display:flex; gap:8px; align-items:center; margin-top:3px; flex-wrap:wrap;">
-                                                <span style="background:rgba(124, 58, 237, 0.15); color:#8b5cf6; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:700; border:1px solid rgba(124, 58, 237, 0.25);">
+                                                <span class="badge badge-primary">
                                                     👤 الموظف: ${agentName}
                                                 </span>
-                                                ${call.contactPerson ? `<span style="color: var(--text-muted); font-size: 11px;">(جهة الاتصال: ${call.contactPerson})</span>` : ''}
+                                                ${call.contactPerson ? `<span style="color: var(--text-muted); font-size: 11px; font-weight:600;">(جهة الاتصال: ${call.contactPerson})</span>` : ''}
                                             </div>
                                         </div>
                                     </div>
@@ -332,7 +332,7 @@ const Calls = {
                         <span style="cursor:pointer; font-weight:600; color:var(--primary-light);" onclick="Companies.showDetail('${call.companyId}')">${companyName}</span>
                     </td>
                     <td>
-                        <span style="background:rgba(124, 58, 237, 0.12); color:#8b5cf6; padding:3px 8px; border-radius:10px; font-size:11px; font-weight:700; border:1px solid rgba(124, 58, 237, 0.2);">👤 ${agentName}</span>
+                        <span class="badge badge-primary">👤 ${agentName}</span>
                     </td>
                     <td>${call.contactPerson || '—'}</td>
                     <td><span class="result-badge result-${call.result}">${resultLabel}</span></td>

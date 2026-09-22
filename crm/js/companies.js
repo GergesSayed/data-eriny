@@ -265,7 +265,7 @@ const Companies = {
         this.selectedSectors.forEach(k => {
             const s = sectors[k];
             chipsHtml += `
-                <span class="active-filter-chip">
+                <span class="active-filter-chip chip-primary">
                     <span>${s?.icon || '🏢'} ${s?.ar || k}</span>
                     <i class="fas fa-times chip-remove" title="إزالة" onclick="Companies.removeActiveFilter('sector', '${k}')"></i>
                 </span>
@@ -276,7 +276,7 @@ const Companies = {
         this.selectedCities.forEach(k => {
             const c = cities[k];
             chipsHtml += `
-                <span class="active-filter-chip" style="background:rgba(244, 63, 94, 0.18); border-color:rgba(244, 63, 94, 0.35); color:#fecdd3;">
+                <span class="active-filter-chip chip-danger">
                     <span>📍 ${c?.ar || k}</span>
                     <i class="fas fa-times chip-remove" title="إزالة" onclick="Companies.removeActiveFilter('city', '${k}')"></i>
                 </span>
@@ -291,7 +291,7 @@ const Companies = {
                 has_website: '🌐 موقع رسمي'
             };
             chipsHtml += `
-                <span class="active-filter-chip" style="background:rgba(6, 182, 212, 0.18); border-color:rgba(6, 182, 212, 0.35); color:#a5f3fc;">
+                <span class="active-filter-chip chip-accent">
                     <span>${labelMap[contactType] || contactType}</span>
                     <i class="fas fa-times chip-remove" title="إزالة" onclick="Companies.removeActiveFilter('contactType')"></i>
                 </span>
@@ -307,7 +307,7 @@ const Companies = {
                 small_fleet: '🚐 أساطيل صغيرة (< 15)'
             };
             chipsHtml += `
-                <span class="active-filter-chip" style="background:rgba(16, 185, 129, 0.18); border-color:rgba(16, 185, 129, 0.35); color:#a7f3d0;">
+                <span class="active-filter-chip chip-success">
                     <span>${labelMap[fleetSize] || fleetSize}</span>
                     <i class="fas fa-times chip-remove" title="إزالة" onclick="Companies.removeActiveFilter('fleetSize')"></i>
                 </span>
@@ -317,7 +317,7 @@ const Companies = {
         // Priority Chip
         if (priority) {
             chipsHtml += `
-                <span class="active-filter-chip" style="background:rgba(245, 158, 11, 0.18); border-color:rgba(245, 158, 11, 0.35); color:#fde68a;">
+                <span class="active-filter-chip chip-warning">
                     <span>🎯 أولوية ${priority}</span>
                     <i class="fas fa-times chip-remove" title="إزالة" onclick="Companies.removeActiveFilter('priority')"></i>
                 </span>
@@ -334,7 +334,7 @@ const Companies = {
                 assignedLabel = u ? `👤 ${u.name}` : `👤 ${assigned}`;
             }
             chipsHtml += `
-                <span class="active-filter-chip" style="background:rgba(124, 58, 237, 0.18); border-color:rgba(124, 58, 237, 0.35); color:#c4b5fd;">
+                <span class="active-filter-chip chip-primary">
                     <span>${assignedLabel}</span>
                     <i class="fas fa-times chip-remove" title="إزالة" onclick="Companies.removeActiveFilter('assigned')"></i>
                 </span>
@@ -349,7 +349,7 @@ const Companies = {
                 remaining: '⚪ متبقي للاتصال'
             };
             chipsHtml += `
-                <span class="active-filter-chip" style="background:rgba(16, 185, 129, 0.18); border-color:rgba(16, 185, 129, 0.35); color:#a7f3d0;">
+                <span class="active-filter-chip chip-success">
                     <span>${statusLabels[this.statusFilter] || this.statusFilter}</span>
                     <i class="fas fa-times chip-remove" title="إزالة" onclick="Companies.removeActiveFilter('statusFilter')"></i>
                 </span>
@@ -359,7 +359,7 @@ const Companies = {
         // Search Chip
         if (search) {
             chipsHtml += `
-                <span class="active-filter-chip" style="background:rgba(56, 189, 248, 0.18); border-color:rgba(56, 189, 248, 0.35); color:#bae6fd;">
+                <span class="active-filter-chip chip-accent">
                     <span>🔍 "${search}"</span>
                     <i class="fas fa-times chip-remove" title="إزالة" onclick="Companies.removeActiveFilter('search')"></i>
                 </span>
@@ -1927,27 +1927,27 @@ const Companies = {
             
             <!-- Lead Score & Data Confidence Gauge Widgets -->
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:20px;">
-                <div style="background:var(--bg-tertiary); border-radius:12px; padding:16px; display:flex; align-items:center; gap:16px; border:1px solid rgba(255,255,255,0.05);">
-                    <div style="position:relative; width:64px; height:64px; border-radius:50%; background:conic-gradient(${scoreColor} ${calculatedScore * 3.6}deg, var(--bg-primary) 0deg); display:flex; align-items:center; justify-content:center;">
-                        <div style="position:absolute; width:52px; height:52px; border-radius:50%; background:var(--bg-tertiary); display:flex; align-items:center; justify-content:center; font-family:Inter; font-weight:800; font-size:16px; color:#fff;">
+                <div style="background:var(--bg-secondary); border-radius:12px; padding:16px; display:flex; align-items:center; gap:16px; border:1px solid var(--border-color);">
+                    <div style="position:relative; width:64px; height:64px; border-radius:50%; background:conic-gradient(${scoreColor} ${calculatedScore * 3.6}deg, var(--border-color) 0deg); display:flex; align-items:center; justify-content:center;">
+                        <div style="position:absolute; width:52px; height:52px; border-radius:50%; background:var(--bg-surface); display:flex; align-items:center; justify-content:center; font-family:Inter; font-weight:800; font-size:16px; color:var(--text-primary);">
                             ${calculatedScore}%
                         </div>
                     </div>
                     <div>
-                        <h4 style="margin:0 0 4px 0; font-size:0.95rem; color:#fff;"><i class="fas fa-bullseye" style="color:${scoreColor};"></i> درجة العميل المتوقعة</h4>
-                        <p style="margin:0; font-size:0.75rem; color:var(--text-muted);">تقدير فرصة بيع الكاوتش وتوريد الأساطيل</p>
+                        <h4 style="margin:0 0 4px 0; font-size:0.95rem; color:var(--text-primary); font-weight:800;"><i class="fas fa-bullseye" style="color:${scoreColor};"></i> درجة العميل المتوقعة</h4>
+                        <p style="margin:0; font-size:0.75rem; color:var(--text-muted); font-weight:600;">تقدير فرصة بيع الكاوتش وتوريد الأساطيل</p>
                     </div>
                 </div>
                 
-                <div style="background:var(--bg-tertiary); border-radius:12px; padding:16px; display:flex; align-items:center; gap:16px; border:1px solid rgba(255,255,255,0.05);">
-                    <div style="position:relative; width:64px; height:64px; border-radius:50%; background:conic-gradient(${confColor} ${confidenceScore * 3.6}deg, var(--bg-primary) 0deg); display:flex; align-items:center; justify-content:center;">
-                        <div style="position:absolute; width:52px; height:52px; border-radius:50%; background:var(--bg-tertiary); display:flex; align-items:center; justify-content:center; font-family:Inter; font-weight:800; font-size:16px; color:#fff;">
+                <div style="background:var(--bg-secondary); border-radius:12px; padding:16px; display:flex; align-items:center; gap:16px; border:1px solid var(--border-color);">
+                    <div style="position:relative; width:64px; height:64px; border-radius:50%; background:conic-gradient(${confColor} ${confidenceScore * 3.6}deg, var(--border-color) 0deg); display:flex; align-items:center; justify-content:center;">
+                        <div style="position:absolute; width:52px; height:52px; border-radius:50%; background:var(--bg-surface); display:flex; align-items:center; justify-content:center; font-family:Inter; font-weight:800; font-size:16px; color:var(--text-primary);">
                             ${confidenceScore}%
                         </div>
                     </div>
                     <div>
-                        <h4 style="margin:0 0 4px 0; font-size:0.95rem; color:#fff;"><i class="fas fa-shield-alt" style="color:${confColor};"></i> ثقة واكتمال البيانات</h4>
-                        <p style="margin:0; font-size:0.75rem; color:var(--text-muted);">مدى اكتمال وتوثيق حقول الاتصال</p>
+                        <h4 style="margin:0 0 4px 0; font-size:0.95rem; color:var(--text-primary); font-weight:800;"><i class="fas fa-shield-alt" style="color:${confColor};"></i> ثقة واكتمال البيانات</h4>
+                        <p style="margin:0; font-size:0.75rem; color:var(--text-muted); font-weight:600;">مدى اكتمال وتوثيق حقول الاتصال</p>
                     </div>
                 </div>
             </div>
@@ -2018,9 +2018,9 @@ const Companies = {
                 <div style="position:relative; padding-right:20px; border-right:2px solid var(--border-color); margin-top:12px;">
                     ${timelineList.map(item => `
                         <div style="margin-bottom:16px; position:relative;">
-                            <div style="position:absolute; right:-26px; top:4px; width:10px; height:10px; border-radius:50%; background:#7c3aed; border:2px solid var(--bg-tertiary);"></div>
-                            <span style="font-family:Inter; font-size:11px; color:var(--text-muted); font-weight:600;">${item.date}</span>
-                            <p style="margin:2px 0 0 0; font-size:0.82rem; color:var(--text-secondary);">${item.event}</p>
+                            <div style="position:absolute; right:-26px; top:4px; width:10px; height:10px; border-radius:50%; background:var(--primary); border:2px solid var(--bg-surface);"></div>
+                            <span style="font-family:Inter; font-size:11px; color:var(--text-muted); font-weight:700;">${item.date}</span>
+                            <p style="margin:2px 0 0 0; font-size:0.82rem; color:var(--text-secondary); font-weight:600;">${item.event}</p>
                         </div>
                     `).join('')}
                 </div>

@@ -363,24 +363,24 @@ const Dashboard = {
                 const timeAgoText = secondsAgo < 60 ? `منذ ${secondsAgo} ثانية` : `منذ ${Math.round(secondsAgo/60)} دقيقة`;
 
                 return `
-                    <div class="active-presence-card" style="background:rgba(255,255,255,0.04); border:1px solid rgba(16, 185, 129, 0.35); border-radius:10px; padding:10px 14px; display:flex; align-items:center; justify-content:space-between; gap:14px; min-width:300px; flex:1; box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+                    <div class="active-presence-card" style="background:var(--bg-surface); border:1.5px solid var(--success); border-radius:10px; padding:10px 14px; display:flex; align-items:center; justify-content:space-between; gap:14px; min-width:300px; flex:1; box-shadow:0 2px 10px rgba(0,0,0,0.06);">
                         <div style="display:flex; align-items:center; gap:10px;">
-                            <span style="display:inline-flex; width:36px; height:36px; border-radius:50%; background:rgba(16,185,129,0.15); color:#10b981; border:1px solid rgba(16,185,129,0.4); align-items:center; justify-content:center; font-size:14px;">
+                            <span style="display:inline-flex; width:36px; height:36px; border-radius:50%; background:var(--success-bg); color:var(--success); border:1px solid var(--success); align-items:center; justify-content:center; font-size:14px;">
                                 <i class="fas fa-eye"></i>
                             </span>
                             <div>
-                                <div style="font-size:13px; font-weight:800; color:#f8fafc;">
-                                    <span style="color:#10b981;">🟢 ${esc(repName)}</span> يفتح الآن:
+                                <div style="font-size:13px; font-weight:800; color:var(--text-primary);">
+                                    <span style="color:var(--success);">🟢 ${esc(repName)}</span> يفتح الآن:
                                 </div>
-                                <div style="font-size:12.5px; font-weight:700; color:#22d3ee; margin-top:2px;">
+                                <div style="font-size:12.5px; font-weight:800; color:var(--primary); margin-top:2px;">
                                     ${esc(compName)}
                                 </div>
-                                <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">
-                                    ${esc(sector)} • ${esc(city)} • <span style="color:#f59e0b;">${timeAgoText}</span>
+                                <div style="font-size:11px; color:var(--text-muted); margin-top:2px; font-weight:600;">
+                                    ${esc(sector)} • ${esc(city)} • <span style="color:var(--warning); font-weight:700;">${timeAgoText}</span>
                                 </div>
                             </div>
                         </div>
-                        <button class="btn btn-sm" onclick="Companies.showDetail('${companyId}')" style="background:rgba(34,211,238,0.12); color:#22d3ee; border:1px solid rgba(34,211,238,0.35); padding:6px 12px; font-size:11.5px; font-weight:700; border-radius:6px; cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; gap:5px;" title="تفقد كارت الشركة مباشرة">
+                        <button class="btn btn-sm btn-outline" onclick="Companies.showDetail('${companyId}')" style="padding:6px 12px; font-size:11.5px; font-weight:800; border-radius:8px; cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; gap:5px; border-color:var(--border-color); color:var(--primary);" title="تفقد كارت الشركة مباشرة">
                             <i class="fas fa-external-link-alt"></i> تفقد الكارت
                         </button>
                     </div>`;
@@ -543,12 +543,12 @@ const Dashboard = {
                 const activeComp = window.AppStorage.getCompany(activeCardInfo.compId);
                 const activeName = activeComp ? (activeComp.nameAr || activeComp.nameEn) : 'شركة';
                 activeOpenCardHtml = `
-                    <div style="background:rgba(16, 185, 129, 0.12); border:1px solid rgba(16, 185, 129, 0.35); border-radius:8px; padding:6px 10px; font-size:11.5px; display:flex; align-items:center; justify-content:space-between; gap:8px;">
-                        <span style="color:#10b981; font-weight:700; display:inline-flex; align-items:center; gap:5px;">
-                            <span style="width:8px; height:8px; border-radius:50%; background:#10b981; display:inline-block;"></span>
-                            يفتح الآن: <strong style="color:#f8fafc; text-decoration:underline; cursor:pointer;" onclick="Companies.showDetail('${activeCardInfo.compId}')">${esc(activeName)}</strong>
+                    <div style="background:var(--success-bg); border:1px solid var(--success); border-radius:8px; padding:6px 10px; font-size:11.5px; display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                        <span style="color:var(--success); font-weight:800; display:inline-flex; align-items:center; gap:5px;">
+                            <span style="width:8px; height:8px; border-radius:50%; background:var(--success); display:inline-block;"></span>
+                            يفتح الآن: <strong style="color:var(--text-primary); text-decoration:underline; cursor:pointer;" onclick="Companies.showDetail('${activeCardInfo.compId}')">${esc(activeName)}</strong>
                         </span>
-                        <button onclick="Companies.showDetail('${activeCardInfo.compId}')" style="background:transparent; border:none; color:#38bdf8; font-size:11px; cursor:pointer; font-weight:700;">فحص 👁️</button>
+                        <button onclick="Companies.showDetail('${activeCardInfo.compId}')" style="background:transparent; border:none; color:var(--primary); font-size:11.5px; cursor:pointer; font-weight:800;">فحص 👁️</button>
                     </div>`;
             }
 
@@ -558,7 +558,7 @@ const Dashboard = {
             else if (pct >= 25) progressGradient = 'linear-gradient(90deg, #f59e0b, #d97706)';
 
             return `
-                <div class="employee-goal-card" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; transition: all 0.2s ease; position: relative;">
+                <div class="employee-goal-card" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; transition: all 0.2s ease; position: relative;">
                     <!-- Card Header -->
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; gap:8px;">
                         <div style="display: flex; align-items: center; gap: 10px;">
@@ -567,15 +567,15 @@ const Dashboard = {
                             </span>
                             <div>
                                 <div style="display:flex; align-items:center; gap:6px;">
-                                    <h4 style="margin: 0; font-size: 0.95rem; font-weight: 700; color: var(--text-primary);">${esc(uName)}</h4>
+                                    <h4 style="margin: 0; font-size: 0.95rem; font-weight: 800; color: var(--text-primary);">${esc(uName)}</h4>
                                     ${topBadgeHtml}
                                 </div>
-                                <span style="font-size: 11px; color: var(--text-muted); display: inline-flex; align-items: center; gap: 4px; margin-top: 2px;">
-                                    ${roleBadge} • 📞 إجمالي المكالمات: ${u.callsCount}
+                                <span style="font-size: 11px; color: var(--text-muted); display: inline-flex; align-items: center; gap: 4px; margin-top: 2px; font-weight: 600;">
+                                    ${roleBadge} • 📞 إجمالي المكالمات: <strong style="color:var(--text-secondary);">${u.callsCount}</strong>
                                 </span>
                             </div>
                         </div>
-                        <span style="font-size: 13px; font-weight: 800; color: ${pct >= 50 ? '#10b981' : '#f59e0b'}; background: ${pct >= 50 ? 'rgba(16, 185, 129, 0.12)' : 'rgba(245, 158, 11, 0.12)'}; padding: 3px 8px; border-radius: 6px;">
+                        <span style="font-size: 13px; font-weight: 800; color: ${pct >= 50 ? 'var(--success)' : 'var(--warning)'}; background: ${pct >= 50 ? 'var(--success-bg)' : 'var(--warning-bg)'}; padding: 3px 8px; border-radius: 6px;">
                             ${pct}% إنجاز
                         </span>
                     </div>
@@ -584,34 +584,34 @@ const Dashboard = {
                     ${activeOpenCardHtml}
 
                     <!-- Today's Call Breakdown & Inspection Banner -->
-                    <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 10px; padding: 10px 12px;">
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 10px; padding: 10px 12px;">
                         <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; margin-bottom:6px;">
-                            <span style="color:#a5b4fc; font-weight:800; display:inline-flex; align-items:center; gap:5px;">
-                                <i class="fas fa-calendar-day" style="color:#22d3ee;"></i> نشاط ومكالمات اليوم:
+                            <span style="color:var(--primary); font-weight:800; display:inline-flex; align-items:center; gap:5px;">
+                                <i class="fas fa-calendar-day" style="color:var(--accent);"></i> نشاط ومكالمات اليوم:
                             </span>
-                            <span style="background:${todayCalls > 0 ? '#10b981' : 'rgba(255,255,255,0.1)'}; color:#fff; padding:2px 8px; border-radius:10px; font-weight:800; font-size:11.5px;">
+                            <span style="background:${todayCalls > 0 ? 'var(--success)' : 'rgba(100,116,139,0.15)'}; color:${todayCalls > 0 ? '#fff' : 'var(--text-muted)'}; padding:2px 8px; border-radius:10px; font-weight:800; font-size:11.5px;">
                                 ${todayCalls} مكالمة (${todayComps} شركة)
                             </span>
                         </div>
-                        <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-secondary); padding:4px 0; border-top:1px dashed rgba(255,255,255,0.08);">
-                            <span>🟢 مهتم: <b style="color:#10b981;">${tStats.interestedCount || 0}</b></span>
-                            <span>📄 عروض: <b style="color:#38bdf8;">${tStats.proposalsCount || 0}</b></span>
-                            <span>🔴 لم يرد: <b style="color:#f87171;">${tStats.noAnswerCount || 0}</b></span>
+                        <div style="display:flex; justify-content:space-between; font-size:11.5px; color:var(--text-secondary); font-weight:700; padding:6px 0 2px 0; border-top:1px dashed var(--border-color);">
+                            <span>🟢 مهتم: <b style="color:var(--success); font-weight:800;">${tStats.interestedCount || 0}</b></span>
+                            <span>📄 عروض: <b style="color:var(--accent); font-weight:800;">${tStats.proposalsCount || 0}</b></span>
+                            <span>🔴 لم يرد: <b style="color:var(--danger); font-weight:800;">${tStats.noAnswerCount || 0}</b></span>
                         </div>
                     </div>
 
                     <!-- Button to Inspect Today's Calls -->
-                    <button class="btn btn-sm" onclick="Dashboard.openRepTodayModal('${u.id || u.username}')" style="width:100%; background:linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(99, 102, 241, 0.15)); border:1px solid rgba(6, 182, 212, 0.4); color:#22d3ee; font-size:12px; font-weight:800; padding:7px 12px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:6px;">
+                    <button class="btn btn-sm btn-outline" onclick="Dashboard.openRepTodayModal('${u.id || u.username}')" style="width:100%; border-color:var(--border-color); color:var(--primary); font-size:12px; font-weight:800; padding:7px 12px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:6px;">
                         <i class="fas fa-list-check"></i> <span>فحص شركات ومكالمات اليوم تفصيلياً (${todayCalls})</span>
                     </button>
 
                     <!-- Progress Bar & Companies Contacted -->
                     <div>
                         <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin-bottom: 5px;">
-                            <span style="color: var(--text-secondary); font-weight: 600;">الشركات المنجزة من المحفظة:</span>
-                            <span style="font-weight: 700; color: var(--text-primary);"><b style="color: #60a5fa;">${u.contactedCount}</b> من أصل <b>${u.assignedCount}</b> شركة</span>
+                            <span style="color: var(--text-secondary); font-weight: 700;">الشركات المنجزة من المحفظة:</span>
+                            <span style="font-weight: 700; color: var(--text-primary);"><b style="color: var(--primary); font-weight: 800;">${u.contactedCount}</b> من أصل <b>${u.assignedCount}</b> شركة</span>
                         </div>
-                        <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.06); border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);">
+                        <div style="width: 100%; height: 8px; background: var(--bg-secondary); border-radius: 10px; overflow: hidden; border: 1px solid var(--border-color);">
                             <div style="width: ${pct}%; height: 100%; background: ${progressGradient}; border-radius: 10px; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);"></div>
                         </div>
                     </div>
