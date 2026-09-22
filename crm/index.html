@@ -11,7 +11,7 @@
     <script>
         // Force purge any legacy service workers, disk caches, and old deals storage immediately
         (function() {
-            var CURRENT_VER = '265.7';
+            var CURRENT_VER = '265.8';
             try {
                 localStorage.removeItem('fleetcrm_deals');
                 localStorage.removeItem('fleetcrm_deals_count');
@@ -67,7 +67,7 @@
     <link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap"></noscript>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=265.7">
+    <link rel="stylesheet" href="css/style.css?v=265.8">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
         (function() {
@@ -619,9 +619,6 @@
                         <p class="page-subtitle">قاعدة بيانات الشركات والمصانع المستهدفة</p>
                     </div>
                     <div class="page-header-actions" style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
-                        <button class="btn btn-warning btn-sm" id="btn-remove-duplicates" onclick="Companies.removeDuplicatesNow()" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid #f59e0b;">
-                            <i class="fas fa-broom"></i> إزالة التكرارات فورياً
-                        </button>
                         <button class="btn btn-accent btn-sm" id="btn-audit-data" onclick="Companies.openAuditModal()">
                             <i class="fas fa-shield-alt"></i> فحص دقة وتكرار البيانات
                         </button>
@@ -633,9 +630,6 @@
                         </button>
                         <button class="btn btn-outline btn-sm" id="btn-export-excel" onclick="ExcelHandler.exportCompanies()">
                             <i class="fas fa-file-export"></i> تصدير Excel
-                        </button>
-                        <button class="btn btn-danger btn-sm" id="btn-wipe-all-companies" onclick="Companies.confirmWipeAllCompanies()">
-                            <i class="fas fa-trash-alt"></i> مسح جميع الشركات
                         </button>
                         <button class="btn btn-primary btn-sm" id="btn-add-company" onclick="Companies.openAddModal()">
                             <i class="fas fa-plus"></i> إضافة شركة
@@ -1594,20 +1588,20 @@
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <script src="js/supabase-client.js?v=265.7"></script>
-    <script src="js/egypt_verified_titans.js?v=265.7"></script>
-    <script src="js/egypt_enterprises_pool.js?v=265.7"></script>
-    <script src="js/companies-worker.js?v=265.7"></script>
-    <script src="js/storage.js?v=265.7"></script>
-    <script src="js/excel-handler.js?v=265.7"></script>
-    <script src="js/dashboard.js?v=265.7"></script>
-    <script src="js/companies.js?v=265.7"></script>
-    <script src="js/calls.js?v=265.7"></script>
-    <script src="js/reports.js?v=265.7"></script>
-    <script src="js/scraper.js?v=265.7"></script>
-    <script src="js/team.js?v=265.7"></script>
-    <script src="js/settings.js?v=265.7"></script>
-    <script src="js/app.js?v=265.7"></script>
+    <script src="js/supabase-client.js?v=265.8"></script>
+    <script src="js/egypt_verified_titans.js?v=265.8"></script>
+    <script src="js/egypt_enterprises_pool.js?v=265.8"></script>
+    <script src="js/companies-worker.js?v=265.8"></script>
+    <script src="js/storage.js?v=265.8"></script>
+    <script src="js/excel-handler.js?v=265.8"></script>
+    <script src="js/dashboard.js?v=265.8"></script>
+    <script src="js/companies.js?v=265.8"></script>
+    <script src="js/calls.js?v=265.8"></script>
+    <script src="js/reports.js?v=265.8"></script>
+    <script src="js/scraper.js?v=265.8"></script>
+    <script src="js/team.js?v=265.8"></script>
+    <script src="js/settings.js?v=265.8"></script>
+    <script src="js/app.js?v=265.8"></script>
 
     <!-- Cleanup overlay on load - runs once only, does NOT override App.checkAuth -->
     <script>
