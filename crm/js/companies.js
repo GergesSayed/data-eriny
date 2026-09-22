@@ -1765,6 +1765,7 @@ const Companies = {
         const company = window.AppStorage.getCompany(id);
         if (!company) return;
 
+        const esc = (s) => (window.AppStorage && window.AppStorage.escapeHtml) ? window.AppStorage.escapeHtml(s || '') : String(s || '');
         const currentUser = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
         const isTitan = Boolean(company.isTitan || (company.id && String(company.id).startsWith('eg_titan_')));
         const titanBadge = isTitan ? ` <span class="badge" style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#fff; font-size:11px; padding:2px 8px; border-radius:5px; font-weight:900; letter-spacing:0.5px; vertical-align:middle; display:inline-flex; align-items:center; gap:4px;" title="عميل كبار الشخصيات VIP"><i class="fas fa-crown"></i> VIP</span>` : '';

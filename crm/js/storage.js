@@ -3452,6 +3452,8 @@ const AppStorage = {
 };
 window.AppStorage = AppStorage;
 window.FleetStorage = AppStorage;
+window.escapeHtml = (s) => AppStorage.escapeHtml(s);
+window.esc = (s) => AppStorage.escapeHtml(s);
 var Storage = AppStorage;
 
 // Synchronous immediate memory hydration on script load — eliminates 0-count startup flash!
