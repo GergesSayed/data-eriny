@@ -550,6 +550,7 @@ const Calls = {
             try { this.render(); } catch (e) { console.warn('Calls.render skipped:', e); }
             try { if (typeof Dashboard !== 'undefined') Dashboard.render(); } catch (e) {}
             try { if (typeof Companies !== 'undefined') Companies.render(); } catch (e) {}
+            try { if (window.App && typeof window.App.updateNotificationBadge === 'function') window.App.updateNotificationBadge(); } catch (e) {}
         } catch (err) {
             console.error('Calls.save() error:', err);
             alert('خطأ في حفظ المكالمة: ' + err.message);
@@ -599,6 +600,7 @@ const Calls = {
                 window.AppStorage.deleteCall(id);
                 try { this.render(); } catch (e) {}
                 try { if (typeof Dashboard !== 'undefined') Dashboard.render(); } catch (e) {}
+                try { if (window.App && typeof window.App.updateNotificationBadge === 'function') window.App.updateNotificationBadge(); } catch (e) {}
             }, 10);
         };
         App.openModal('modal-confirm');

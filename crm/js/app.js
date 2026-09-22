@@ -601,6 +601,9 @@ const App = {
             const displayName = (current.role === 'admin') ? 'Admin' : (current.name || current.username || 'المستخدم');
             nameEl.textContent = displayName;
         }
+
+        // Refresh notification badge whenever user state or role changes
+        try { this.updateNotificationBadge(); } catch(e) {}
     },
 
     switchUser(userId) {
@@ -1030,11 +1033,24 @@ const App = {
             setTimeout(() => searchResults?.classList.remove('show'), 200);
         });
 
-        // ESC to close modals
+        // Close notifications dropdown on outside click
+        document.addEventListener('click', (e) => {
+            const wrapper = document.getElementById('topbar-notifications-wrapper');
+            const dropdown = document.getElementById('notifications-dropdown');
+            if (wrapper && dropdown && dropdown.classList.contains('show')) {
+                if (!wrapper.contains(e.target)) {
+                    dropdown.classList.remove('show');
+                }
+            }
+        });
+
+        // ESC to close modals and dropdowns
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 const openModal = document.querySelector('.modal.show');
                 if (openModal) this.closeModal(openModal.id);
+                const notifDropdown = document.getElementById('notifications-dropdown');
+                if (notifDropdown) notifDropdown.classList.remove('show');
             }
         });
 
@@ -1096,49 +1112,9 @@ const App = {
         }
     },
 
-    renderNotifications() {
-        const esc = (s) => window.AppStorage.escapeHtml(s || '');
-        const list = document.getElementById('notifications-list');
-        const badge = document.getElementById('notif-badge-count');
-        const headerCount = document.getElementById('notif-header-count');
-        if (!list) return;
+    notificationFilter: 'all',
 
-        const followUps = (window.AppStorage && window.AppStorage.getTodaysFollowUps) ? (window.AppStorage.getTodaysFollowUps() || []) : [];
-        const count = (followUps && followUps.length) ? followUps.length : 0;
-        if (badge) {
-            badge.style.display = count > 0 ? 'inline-block' : 'none';
-            badge.textContent = count;
-        }
-        if (headerCount) {
-            headerCount.textContent = `${count} اليوم`;
-        }
-
-        if (count === 0) {
-            list.innerHTML = `
-                <div style="padding:16px; text-align:center; color:#94a3b8; font-size:12px;">
-                    <i class="fas fa-check-circle" style="font-size:24px; color:#10b981; margin-bottom:6px; display:block;"></i>
-                    لا توجد أي متابعات مستحقة اليوم 🎉
-                </div>`;
-            return;
-        }
-
-        list.innerHTML = followUps.map(c => {
-            const company = window.AppStorage.getCompany(c.companyId);
-            const companyName = company ? esc(company.nameAr || company.nameEn) : 'شركة غير معروفة';
-            return `
-                <div class="search-dropdown-item" onclick="Companies.showDetail('${esc(c.companyId)}')" style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; border-bottom:1px solid rgba(255,255,255,0.06);">
-                    <div>
-                        <div style="font-weight:700; font-size:12px; color:#f8fafc;">${companyName}</div>
-                        <div style="font-size:10px; color:#a78bfa;">📞 ${esc(c.contactPerson || 'مسؤول الاتصال')} — ${window.AppStorage.getCallResultLabel(c.result)}</div>
-                    </div>
-                    <button class="btn btn-accent btn-sm" onclick="event.stopPropagation(); App.logCallForCompany('${esc(c.companyId)}')" style="font-size:10px; padding:3px 8px;">
-                        <i class="fas fa-phone"></i> اتصل
-                    </button>
-                </div>`;
-        }).join('');
-    },
-
-    toggleNotificationDropdown() {
+    toggleNotifications() {
         const dropdown = document.getElementById('notifications-dropdown');
         if (!dropdown) return;
         const isShown = dropdown.classList.contains('show');
@@ -1148,6 +1124,217 @@ const App = {
         } else {
             dropdown.classList.remove('show');
         }
+    },
+
+    toggleNotificationDropdown() {
+        this.toggleNotifications();
+    },
+
+    filterNotifications(category, btn) {
+        this.notificationFilter = category || 'all';
+        document.querySelectorAll('.notif-tab').forEach(t => t.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        this.renderNotificationsList();
+    },
+
+    getNotificationsData() {
+        const today = new Date().toISOString().split('T')[0];
+        const overdue = (window.AppStorage && window.AppStorage.getOverdueFollowUps) ? (window.AppStorage.getOverdueFollowUps() || []) : [];
+        const todayFollowUps = (window.AppStorage && window.AppStorage.getTodaysFollowUps) ? (window.AppStorage.getTodaysFollowUps() || []) : [];
+        
+        // Filter out overdue from today if any overlap
+        const overdueMap = new Set(overdue.map(c => c.id));
+        const purelyToday = todayFollowUps.filter(c => !overdueMap.has(c.id));
+
+        const currentUser = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
+        const isAdmin = currentUser && window.AppStorage.isAdmin(currentUser);
+
+        const adminAlerts = [];
+        if (isAdmin && window.AppStorage && window.AppStorage.getPendingUsers) {
+            const pending = window.AppStorage.getPendingUsers() || [];
+            pending.forEach(u => {
+                adminAlerts.push({
+                    type: 'pending_user',
+                    id: u.id,
+                    title: `طلب انضمام جديد: ${u.name || u.username}`,
+                    subtitle: `الدور المطلوب: ${u.role === 'admin' ? 'مدير' : 'مندوب مبيعات'} (${u.username})`,
+                    date: u.createdAt || today,
+                    action: 'team'
+                });
+            });
+        }
+
+        return {
+            overdue,
+            today: purelyToday,
+            admin: adminAlerts,
+            totalCount: overdue.length + purelyToday.length + adminAlerts.length,
+            isAdmin
+        };
+    },
+
+    updateNotificationBadge() {
+        const badge = document.getElementById('notif-badge-count');
+        const headerCount = document.getElementById('notif-header-count');
+        const tabAllCount = document.getElementById('notif-tab-all-count');
+        const tabOverdueCount = document.getElementById('notif-tab-overdue-count');
+        const tabTodayCount = document.getElementById('notif-tab-today-count');
+        const tabAdminCount = document.getElementById('notif-tab-admin-count');
+        const adminBtn = document.getElementById('notif-tab-admin-btn');
+
+        const data = this.getNotificationsData();
+
+        if (badge) {
+            badge.textContent = data.totalCount;
+            badge.style.display = data.totalCount > 0 ? 'inline-block' : 'none';
+            if (data.overdue.length > 0) {
+                badge.classList.add('pulse');
+            } else {
+                badge.classList.remove('pulse');
+            }
+        }
+
+        if (headerCount) {
+            headerCount.textContent = `${data.totalCount} تنبيه`;
+        }
+        if (tabAllCount) tabAllCount.textContent = data.totalCount;
+        if (tabOverdueCount) tabOverdueCount.textContent = data.overdue.length;
+        if (tabTodayCount) tabTodayCount.textContent = data.today.length;
+        if (tabAdminCount) tabAdminCount.textContent = data.admin.length;
+
+        if (adminBtn) {
+            adminBtn.style.display = (data.isAdmin && data.admin.length > 0) ? 'inline-block' : 'none';
+        }
+    },
+
+    renderNotifications() {
+        this.updateNotificationBadge();
+        this.renderNotificationsList();
+    },
+
+    renderNotificationsList() {
+        const list = document.getElementById('notifications-list');
+        if (!list) return;
+
+        const esc = (s) => window.AppStorage.escapeHtml(s || '');
+        const data = this.getNotificationsData();
+        const filter = this.notificationFilter || 'all';
+
+        let items = [];
+
+        if (filter === 'all' || filter === 'overdue') {
+            data.overdue.forEach(c => {
+                items.push({ kind: 'overdue', call: c });
+            });
+        }
+        if (filter === 'all' || filter === 'today') {
+            data.today.forEach(c => {
+                items.push({ kind: 'today', call: c });
+            });
+        }
+        if ((filter === 'all' || filter === 'admin') && data.isAdmin) {
+            data.admin.forEach(a => {
+                items.push({ kind: 'admin', alert: a });
+            });
+        }
+
+        if (items.length === 0) {
+            let emptyMsg = 'لا توجد أي متابعات مستحقة أو متأخرة حالياً 🎉';
+            if (filter === 'overdue') emptyMsg = 'ممتاز! لا توجد أي متابعات متأخرة 👏';
+            else if (filter === 'today') emptyMsg = 'تم استكمال جميع متابعات اليوم بنجاح 👍';
+            else if (filter === 'admin') emptyMsg = 'لا توجد طلبات معلقة من النظام ✨';
+
+            list.innerHTML = `
+                <div style="padding: 24px 16px; text-align: center; color: var(--text-muted); font-size: 12.5px;">
+                    <i class="fas fa-check-circle" style="font-size: 32px; color: #10b981; margin-bottom: 8px; display: block;"></i>
+                    <strong style="color: var(--text-primary); font-size: 13px; display: block; margin-bottom: 4px;">كل شيء مكتمل!</strong>
+                    ${emptyMsg}
+                </div>`;
+            return;
+        }
+
+        list.innerHTML = items.map(item => {
+            if (item.kind === 'admin') {
+                const a = item.alert;
+                return `
+                    <div class="notif-card card-admin" onclick="App.navigateTo('team'); document.getElementById('notifications-dropdown')?.classList.remove('show');">
+                        <div class="notif-card-header">
+                            <span class="notif-company-name"><i class="fas fa-user-plus" style="color:#f59e0b; margin-left:4px;"></i> ${esc(a.title)}</span>
+                            <span class="notif-date-badge admin">طلب جديد</span>
+                        </div>
+                        <div class="notif-card-body">
+                            <span>${esc(a.subtitle)}</span>
+                        </div>
+                        <div class="notif-card-actions">
+                            <button class="notif-btn-act btn-view" onclick="event.stopPropagation(); App.navigateTo('team'); document.getElementById('notifications-dropdown')?.classList.remove('show');">
+                                <i class="fas fa-arrow-left"></i> مراجعة الطلب
+                            </button>
+                        </div>
+                    </div>`;
+            }
+
+            const c = item.call;
+            const company = window.AppStorage.getCompany(c.companyId);
+            const companyName = company ? esc(company.nameAr || company.nameEn) : 'شركة غير معروفة';
+            const phone = company ? (company.mobile || company.phone1 || company.phone2 || '') : '';
+            const isOverdue = item.kind === 'overdue';
+            const dateBadgeLabel = isOverdue ? `🚨 متأخرة (${c.followUpDate || ''})` : `📅 اليوم (${c.time || 'طوال اليوم'})`;
+            const badgeClass = isOverdue ? 'overdue' : 'today';
+            const cardClass = isOverdue ? 'card-overdue' : 'card-today';
+
+            return `
+                <div class="notif-card ${cardClass}" onclick="Companies.showDetail('${esc(c.companyId)}'); document.getElementById('notifications-dropdown')?.classList.remove('show');">
+                    <div class="notif-card-header">
+                        <span class="notif-company-name">${companyName}</span>
+                        <span class="notif-date-badge ${badgeClass}">${dateBadgeLabel}</span>
+                    </div>
+                    <div class="notif-card-body">
+                        <span>👤 جهة الاتصال: <strong>${esc(c.contactPerson || 'المسؤول')}</strong></span>
+                        ${phone ? `<span style="font-family:Inter; font-weight:700; color:var(--text-primary);">📞 ${esc(phone)}</span>` : ''}
+                    </div>
+                    ${c.notes ? `<div class="notif-card-notes">📝 ${esc(c.notes)}</div>` : ''}
+                    <div class="notif-card-actions" onclick="event.stopPropagation()">
+                        <button class="notif-btn-act btn-call" onclick="App.logCallForCompany('${esc(c.companyId)}'); document.getElementById('notifications-dropdown')?.classList.remove('show');" title="تسجيل مكالمة للشركة">
+                            <i class="fas fa-phone-alt"></i> اتصل
+                        </button>
+                        ${phone ? `
+                            <button class="notif-btn-act btn-wa" onclick="App.openWhatsApp('${esc(phone)}', '${esc(companyName)}')" title="فتح محادثة واتساب">
+                                <i class="fab fa-whatsapp"></i> واتساب
+                            </button>
+                        ` : ''}
+                        <button class="notif-btn-act btn-view" onclick="Companies.showDetail('${esc(c.companyId)}'); document.getElementById('notifications-dropdown')?.classList.remove('show');" title="فتح بطاقة تفاصيل الشركة">
+                            <i class="fas fa-building"></i> التفاصيل
+                        </button>
+                    </div>
+                </div>`;
+        }).join('');
+    },
+
+    openWhatsApp(phone, companyName) {
+        if (!phone) {
+            this.showToast('لا يوجد رقم هاتف متاح للواتساب', 'warning');
+            return;
+        }
+        let clean = String(phone).replace(/[^\d+]/g, '');
+        if (clean.startsWith('01')) {
+            clean = '2' + clean;
+        } else if (clean.startsWith('+')) {
+            clean = clean.substring(1);
+        }
+        const message = encodeURIComponent(`السلام عليكم، بخصوص استفسارات ومبيعات إطارات الأسطول — ${companyName || ''}`);
+        const url = `https://wa.me/${clean}?text=${message}`;
+        window.open(url, '_blank');
+    },
+
+    openFullFollowupsView() {
+        const dropdown = document.getElementById('notifications-dropdown');
+        if (dropdown) dropdown.classList.remove('show');
+        window.location.hash = '#calls';
+        setTimeout(() => {
+            if (window.Calls && typeof Calls.filterBy === 'function') {
+                Calls.filterBy('followup');
+            }
+        }, 150);
     },
 
     searchSelect(companyId) {
