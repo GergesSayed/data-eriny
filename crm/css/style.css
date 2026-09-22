@@ -3714,6 +3714,10 @@ html.user-role-agent #cloud-sync-indicator {
     100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
 }
 
+.topbar-notifications {
+    position: relative;
+    overflow: visible !important;
+}
 .notifications-panel {
     display: none;
     position: absolute;
@@ -3725,13 +3729,13 @@ html.user-role-agent #cloud-sync-indicator {
     border: 1px solid rgba(124, 58, 237, 0.35);
     border-radius: 16px;
     box-shadow: 0 20px 45px rgba(0, 0, 0, 0.75);
-    z-index: 10005;
+    z-index: 99999 !important;
     overflow: hidden;
     animation: notifDropdownFade 0.2s ease-out;
 }
 .notifications-panel.show {
-    display: flex;
-    flex-direction: column;
+    display: flex !important;
+    flex-direction: column !important;
 }
 @keyframes notifDropdownFade {
     from { opacity: 0; transform: translateY(-8px); }

@@ -122,7 +122,7 @@ const App = {
 
             // PWA Service Worker Registration & Offline Support
             if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-                navigator.serviceWorker.register('sw.js?v=265.5').then(reg => {
+                navigator.serviceWorker.register('sw.js?v=266.0').then(reg => {
                     reg.update().catch(() => {});
                     // Detect when a new SW version is waiting — show update notification
                     reg.addEventListener('updatefound', () => {
@@ -1035,10 +1035,13 @@ const App = {
 
         // Close notifications dropdown on outside click
         document.addEventListener('click', (e) => {
-            const wrapper = document.getElementById('topbar-notifications-wrapper');
+            const btn = document.getElementById('btn-notifications');
             const dropdown = document.getElementById('notifications-dropdown');
-            if (wrapper && dropdown && dropdown.classList.contains('show')) {
-                if (!wrapper.contains(e.target)) {
+            if (dropdown && dropdown.classList.contains('show')) {
+                if (btn && (btn === e.target || btn.contains(e.target))) {
+                    return; // Handled by toggleNotifications directly
+                }
+                if (!dropdown.contains(e.target)) {
                     dropdown.classList.remove('show');
                 }
             }
@@ -1114,20 +1117,30 @@ const App = {
 
     notificationFilter: 'all',
 
-    toggleNotifications() {
+    toggleNotifications(e) {
+        if (e) {
+            try { e.preventDefault(); e.stopPropagation(); } catch(_) {}
+        }
         const dropdown = document.getElementById('notifications-dropdown');
-        if (!dropdown) return;
+        if (!dropdown) {
+            console.error('[Notifications] dropdown element not found');
+            return;
+        }
         const isShown = dropdown.classList.contains('show');
         if (!isShown) {
-            this.renderNotifications();
+            try {
+                this.renderNotifications();
+            } catch(err) {
+                console.error('[Notifications] render error:', err);
+            }
             dropdown.classList.add('show');
         } else {
             dropdown.classList.remove('show');
         }
     },
 
-    toggleNotificationDropdown() {
-        this.toggleNotifications();
+    toggleNotificationDropdown(e) {
+        this.toggleNotifications(e);
     },
 
     filterNotifications(category, btn) {

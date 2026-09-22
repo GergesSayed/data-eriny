@@ -11,7 +11,7 @@
     <script>
         // Force purge any legacy service workers, disk caches, and old deals storage immediately
         (function() {
-            var CURRENT_VER = '265.9';
+            var CURRENT_VER = '266.0';
             try {
                 localStorage.removeItem('fleetcrm_deals');
                 localStorage.removeItem('fleetcrm_deals_count');
@@ -67,7 +67,7 @@
     <link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap"></noscript>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=265.9">
+    <link rel="stylesheet" href="css/style.css?v=266.0">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
         (function() {
@@ -397,11 +397,11 @@
             <div class="topbar-left">
                 <!-- Notifications Dropdown -->
                 <div class="topbar-notifications" style="position:relative;" id="topbar-notifications-wrapper">
-                    <button class="btn-icon" id="btn-notifications" onclick="App.toggleNotifications()" title="مركز التنبيهات والمتابعات اليومية">
+                    <button class="btn-icon" id="btn-notifications" onclick="App.toggleNotifications(event)" title="مركز التنبيهات والمتابعات اليومية">
                         <i class="fas fa-bell"></i>
                         <span id="notif-badge-count" class="notif-badge" style="display:none;">0</span>
                     </button>
-                    <div id="notifications-dropdown" class="notifications-panel">
+                    <div id="notifications-dropdown" class="notifications-panel" onclick="event.stopPropagation()">
                         <div class="notif-header">
                             <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
                                 <div style="display: flex; align-items: center; gap: 8px;">
@@ -1605,20 +1605,20 @@
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <script src="js/supabase-client.js?v=265.9"></script>
-    <script src="js/egypt_verified_titans.js?v=265.9"></script>
-    <script src="js/egypt_enterprises_pool.js?v=265.9"></script>
-    <script src="js/companies-worker.js?v=265.9"></script>
-    <script src="js/storage.js?v=265.9"></script>
-    <script src="js/excel-handler.js?v=265.9"></script>
-    <script src="js/dashboard.js?v=265.9"></script>
-    <script src="js/companies.js?v=265.9"></script>
-    <script src="js/calls.js?v=265.9"></script>
-    <script src="js/reports.js?v=265.9"></script>
-    <script src="js/scraper.js?v=265.9"></script>
-    <script src="js/team.js?v=265.9"></script>
-    <script src="js/settings.js?v=265.9"></script>
-    <script src="js/app.js?v=265.9"></script>
+    <script src="js/supabase-client.js?v=266.0"></script>
+    <script src="js/egypt_verified_titans.js?v=266.0"></script>
+    <script src="js/egypt_enterprises_pool.js?v=266.0"></script>
+    <script src="js/companies-worker.js?v=266.0"></script>
+    <script src="js/storage.js?v=266.0"></script>
+    <script src="js/excel-handler.js?v=266.0"></script>
+    <script src="js/dashboard.js?v=266.0"></script>
+    <script src="js/companies.js?v=266.0"></script>
+    <script src="js/calls.js?v=266.0"></script>
+    <script src="js/reports.js?v=266.0"></script>
+    <script src="js/scraper.js?v=266.0"></script>
+    <script src="js/team.js?v=266.0"></script>
+    <script src="js/settings.js?v=266.0"></script>
+    <script src="js/app.js?v=266.0"></script>
 
     <!-- Cleanup overlay on load - runs once only, does NOT override App.checkAuth -->
     <script>
