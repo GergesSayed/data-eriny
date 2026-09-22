@@ -11,7 +11,7 @@
     <script>
         // Force purge any legacy service workers, disk caches, and old deals storage immediately
         (function() {
-            var CURRENT_VER = '265.5';
+            var CURRENT_VER = '265.6';
             try {
                 localStorage.removeItem('fleetcrm_deals');
                 localStorage.removeItem('fleetcrm_deals_count');
@@ -56,7 +56,7 @@
             } catch(e) {}
         })();
     </script>
-    <link rel="manifest" href="manifest.json?v=265.5">
+    <link rel="manifest" href="manifest.json?v=265.6">
     <meta name="theme-color" content="#7c3aed">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -322,7 +322,7 @@
             </div>
             <div class="brand-text">
                 <h2>Fleet CRM</h2>
-                <span>إدارة بيع الإطارات <small style="background:#7c3aed33; color:#a78bfa; padding:1px 6px; border-radius:6px; font-size:10px; font-weight:700;">v246.0</small></span>
+                <span>إدارة بيع الإطارات <small class="brand-ver-badge" style="background:#7c3aed33; color:#a78bfa; padding:1px 6px; border-radius:6px; font-size:10px; font-weight:700;">v265.6</small></span>
             </div>
         </div>
 
@@ -372,20 +372,7 @@
                     <span class="stat-label">شركة ومصنع مسجل</span>
                 </div>
             </div>
-
-            <!-- Visible Theme Switcher in Sidebar -->
-            <div class="sidebar-theme-row" onclick="App.toggleTheme()" style="display:flex; align-items:center; justify-content:space-between; margin:8px 14px; padding:9px 12px; background:rgba(124,58,237,0.14); border:1px solid rgba(124,58,237,0.35); border-radius:10px; cursor:pointer;" title="تبديل الوضع الليلي / النهاري">
-                <span style="font-size:12px; font-weight:700; color:var(--text-primary);"><i class="fas fa-moon theme-toggle-icon" style="color:#a78bfa; margin-left:6px;"></i> <span class="theme-toggle-label">الوضع الليلي</span></span>
-                <span style="font-size:11px; color:#22d3ee; font-weight:800; background:rgba(34,211,238,0.12); padding:2px 8px; border-radius:6px; border:1px solid rgba(34,211,238,0.3);">تبديل 🔄</span>
-            </div>
-
-            <!-- PWA & Offline status in sidebar -->
-            <div style="padding: 4px 14px; text-align: center;">
-                <button id="btn-pwa-offline-info" onclick="App.showOfflineStatusModal()" class="btn btn-outline btn-sm" style="width: 100%; border-color: rgba(34, 211, 238, 0.45); color: #22d3ee; background: rgba(34, 211, 238, 0.08); font-weight: 700; font-size: 11.5px; border-radius: 8px; justify-content: center; gap: 6px; align-items: center; cursor: pointer;">
-                    <i class="fas fa-bolt"></i> <span>وضع Offline جاهز 100% ⚡</span>
-                </button>
-            </div>
-            <div style="padding: 4px 14px 6px 14px; text-align: center;">
+            <div style="padding: 6px 14px 2px 14px; text-align: center;">
                 <button id="btn-pwa-install" onclick="App.installPWA()" class="btn btn-outline btn-sm" style="display: none; width: 100%; border-color: rgba(16, 185, 129, 0.45); color: #10b981; background: rgba(16, 185, 129, 0.1); font-weight: 700; font-size: 11.5px; border-radius: 8px; justify-content: center; gap: 6px; align-items: center; cursor: pointer;">
                     <i class="fas fa-mobile-screen-button"></i> <span>تثبيت التطبيق 📲</span>
                 </button>
@@ -471,9 +458,6 @@
                     <div class="page-header-actions" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                         <button class="btn btn-primary btn-sm" onclick="Reports.exportPDF()" title="تصدير تقرير شامل للوحة التحكم والأداء بصيغة PDF" style="gap:6px; font-weight:700; background:linear-gradient(135deg, #7c3aed, #4f46e5); box-shadow:0 4px 12px rgba(124,58,237,0.35);">
                             <i class="fas fa-file-pdf"></i> <span>تصدير تقرير PDF 📄</span>
-                        </button>
-                        <button class="btn btn-outline btn-sm" onclick="App.toggleTheme()" title="تبديل المظهر" style="gap:6px; font-weight:700;">
-                            <i class="fas fa-circle-half-stroke"></i> <span class="theme-toggle-label">الوضع الليلي</span>
                         </button>
                         <span class="date-display" id="current-date"></span>
                     </div>
@@ -1610,20 +1594,20 @@
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <script src="js/supabase-client.js?v=265.5"></script>
-    <script src="js/egypt_verified_titans.js?v=265.5"></script>
-    <script src="js/egypt_enterprises_pool.js?v=265.5"></script>
-    <script src="js/companies-worker.js?v=265.5"></script>
-    <script src="js/storage.js?v=265.5"></script>
-    <script src="js/excel-handler.js?v=265.5"></script>
-    <script src="js/dashboard.js?v=265.5"></script>
-    <script src="js/companies.js?v=265.5"></script>
-    <script src="js/calls.js?v=265.5"></script>
-    <script src="js/reports.js?v=265.5"></script>
-    <script src="js/scraper.js?v=265.5"></script>
-    <script src="js/team.js?v=265.5"></script>
-    <script src="js/settings.js?v=265.5"></script>
-    <script src="js/app.js?v=265.5"></script>
+    <script src="js/supabase-client.js?v=265.6"></script>
+    <script src="js/egypt_verified_titans.js?v=265.6"></script>
+    <script src="js/egypt_enterprises_pool.js?v=265.6"></script>
+    <script src="js/companies-worker.js?v=265.6"></script>
+    <script src="js/storage.js?v=265.6"></script>
+    <script src="js/excel-handler.js?v=265.6"></script>
+    <script src="js/dashboard.js?v=265.6"></script>
+    <script src="js/companies.js?v=265.6"></script>
+    <script src="js/calls.js?v=265.6"></script>
+    <script src="js/reports.js?v=265.6"></script>
+    <script src="js/scraper.js?v=265.6"></script>
+    <script src="js/team.js?v=265.6"></script>
+    <script src="js/settings.js?v=265.6"></script>
+    <script src="js/app.js?v=265.6"></script>
 
     <!-- Cleanup overlay on load - runs once only, does NOT override App.checkAuth -->
     <script>

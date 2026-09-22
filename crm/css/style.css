@@ -107,7 +107,7 @@
     --primary-dark: #3730a3;
     --primary-glow: rgba(99, 102, 241, 0.2);
 
-    --gradient-sidebar: linear-gradient(180deg, #1e1b4b 0%, #0f0c29 100%);
+    --gradient-sidebar: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
     --gradient-card: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(139, 92, 246, 0.02));
 
     --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -138,9 +138,65 @@ textarea {
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08) !important;
 }
 
-/* Light mode: sidebar stays dark for contrast */
+/* Light mode: Sidebar turns crisp clean white and matches light theme */
 [data-theme="light"] .sidebar {
-    background: var(--gradient-sidebar) !important;
+    background: #ffffff !important;
+    border-left: 1px solid rgba(99, 102, 241, 0.15) !important;
+    box-shadow: -4px 0 25px rgba(0, 0, 0, 0.04) !important;
+}
+[data-theme="light"] .sidebar-brand {
+    border-bottom: 1px solid rgba(99, 102, 241, 0.12) !important;
+    background: rgba(248, 250, 252, 0.9) !important;
+}
+[data-theme="light"] .sidebar-brand .brand-text h2 {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+}
+[data-theme="light"] .sidebar-brand .brand-text span {
+    color: #64748b !important;
+}
+[data-theme="light"] .brand-ver-badge {
+    background: rgba(99, 102, 241, 0.12) !important;
+    color: #4f46e5 !important;
+}
+[data-theme="light"] .sidebar-nav .nav-link {
+    color: #475569 !important;
+    font-weight: 600;
+}
+[data-theme="light"] .sidebar-nav .nav-link i {
+    color: #6366f1 !important;
+}
+[data-theme="light"] .sidebar-nav .nav-link small {
+    color: #94a3b8 !important;
+}
+[data-theme="light"] .sidebar-nav .nav-link:hover {
+    background: rgba(99, 102, 241, 0.08) !important;
+    color: #4f46e5 !important;
+}
+[data-theme="light"] .sidebar-nav .nav-link:hover i {
+    color: #4f46e5 !important;
+}
+[data-theme="light"] .sidebar-nav .nav-link.active {
+    background: linear-gradient(135deg, #6366f1, #4f46e5) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35) !important;
+}
+[data-theme="light"] .sidebar-nav .nav-link.active i {
+    color: #ffffff !important;
+}
+[data-theme="light"] .sidebar-nav .nav-link.active small {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+[data-theme="light"] .sidebar-footer {
+    border-top: 1px solid rgba(99, 102, 241, 0.12) !important;
+    background: rgba(248, 250, 252, 0.9) !important;
+}
+[data-theme="light"] .sidebar-stat .stat-num {
+    color: #4f46e5 !important;
+}
+[data-theme="light"] .sidebar-stat .stat-label {
+    color: #64748b !important;
 }
 
 /* Light mode: company card row backgrounds */
@@ -217,20 +273,6 @@ textarea {
 [data-theme="light"] .btn-theme-toggle:hover {
     background: rgba(245, 158, 11, 0.25);
     border-color: rgba(245, 158, 11, 0.5);
-}
-
-/* Sidebar Theme Toggle Row */
-.sidebar-theme-row {
-    transition: all 0.2s ease;
-}
-.sidebar-theme-row:hover {
-    background: rgba(124, 58, 237, 0.25) !important;
-    border-color: rgba(124, 58, 237, 0.6) !important;
-    transform: translateY(-1px);
-}
-[data-theme="light"] .sidebar-theme-row {
-    background: rgba(255, 255, 255, 0.1) !important;
-    border-color: rgba(255, 255, 255, 0.2) !important;
 }
 
 /* PWA Offline Status Pill */
