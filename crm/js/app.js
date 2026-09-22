@@ -1141,6 +1141,7 @@ const App = {
             modal.style.display = 'flex';
             modal.style.pointerEvents = 'auto';
             document.body.style.overflow = 'hidden';
+            document.body.classList.add('modal-open');
         }
     },
 
@@ -1158,6 +1159,7 @@ const App = {
         if (!anyModalOpen) {
             document.body.style.overflow = '';
             document.body.style.pointerEvents = 'auto';
+            document.body.classList.remove('modal-open');
         }
     },
 

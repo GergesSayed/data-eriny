@@ -723,7 +723,7 @@ const Dashboard = {
 
         bodyEl.innerHTML = `
             <!-- Top Summary Bar -->
-            <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; margin-bottom:18px;">
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:10px; margin-bottom:18px;">
                 <div style="background:rgba(99,102,241,0.1); border:1px solid rgba(99,102,241,0.3); border-radius:10px; padding:10px; text-align:center;">
                     <div style="font-size:1.3rem; font-weight:900; color:#818cf8;">${calls.length}</div>
                     <div style="font-size:11px; color:#a5b4fc; font-weight:700; margin-top:2px;">مكالمات اليوم</div>
@@ -742,8 +742,8 @@ const Dashboard = {
                 </div>
             </div>
 
-            <!-- Table -->
-            <div style="max-height:420px; overflow-y:auto; border:1px solid var(--border-color); border-radius:10px; background:rgba(0,0,0,0.2);">
+            <!-- Table Container -->
+            <div style="max-height:420px; overflow-y:auto; overflow-x:auto; -webkit-overflow-scrolling:touch; border:1px solid var(--border-color); border-radius:10px; background:rgba(0,0,0,0.2); width:100%; box-sizing:border-box;">
                 <table style="width:100%; border-collapse:collapse; text-align:right;">
                     <thead>
                         <tr style="background:rgba(255,255,255,0.04); border-bottom:1px solid var(--border-color); color:var(--text-muted); font-size:11.5px;">
