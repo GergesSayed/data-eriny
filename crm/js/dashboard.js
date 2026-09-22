@@ -15,6 +15,7 @@ const Dashboard = {
         try {
             const stats = window.AppStorage ? window.AppStorage.getStats() : {};
             this.updateStatCards(stats);
+            this.renderLivePresence();
             this.renderTeamGoals();
             this.renderFollowUps();
             this.renderActivities();
@@ -323,6 +324,77 @@ const Dashboard = {
         }
     },
 
+    activeLocksCache: {},
+
+    async renderLivePresence() {
+        const container = document.getElementById('dash-live-presence-list');
+        const icon = document.getElementById('dash-presence-reload-icon');
+        if (!container) return;
+        if (icon) icon.classList.add('fa-spin');
+
+        try {
+            if (!window.SupabaseClient || typeof window.SupabaseClient.getAllCompanyLocks !== 'function') {
+                container.innerHTML = `<div style="color:var(--text-muted); font-size:12.5px;"><i class="fas fa-info-circle"></i> ميزة المراقبة اللحظية غير متاحة بدون اتصال بالإنترنت.</div>`;
+                if (icon) icon.classList.remove('fa-spin');
+                return;
+            }
+
+            const locks = await window.SupabaseClient.getAllCompanyLocks();
+            this.activeLocksCache = locks || {};
+            const lockEntries = Object.entries(this.activeLocksCache);
+
+            if (lockEntries.length === 0) {
+                container.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:8px; color:var(--text-muted); font-size:13px; padding:4px 0;">
+                        <i class="fas fa-check-circle" style="color:#10b981; font-size:15px;"></i>
+                        <span>لا توجد كروت شركات مفتوحة حالياً في هذه اللحظة — جميع الموظفين في وضع الاستعداد أو إنهاء المكالمات.</span>
+                    </div>`;
+                if (icon) icon.classList.remove('fa-spin');
+                return;
+            }
+
+            const cardsHtml = lockEntries.map(([companyId, lock]) => {
+                const comp = (window.AppStorage && typeof window.AppStorage.getCompany === 'function') ? window.AppStorage.getCompany(companyId) : null;
+                const compName = (comp && (comp.nameAr || comp.nameEn)) ? (comp.nameAr || comp.nameEn) : `شركة (${companyId})`;
+                const sector = (comp && comp.sector) ? (window.AppStorage.SECTORS[comp.sector]?.ar || comp.sector) : '—';
+                const city = (comp && (comp.governorate || comp.city)) ? (comp.governorate || comp.city) : '—';
+                const repName = lock.user || 'مندوب مبيعات';
+                const secondsAgo = lock.ageSeconds !== undefined ? lock.ageSeconds : 10;
+                const timeAgoText = secondsAgo < 60 ? `منذ ${secondsAgo} ثانية` : `منذ ${Math.round(secondsAgo/60)} دقيقة`;
+
+                return `
+                    <div class="active-presence-card" style="background:rgba(255,255,255,0.04); border:1px solid rgba(16, 185, 129, 0.35); border-radius:10px; padding:10px 14px; display:flex; align-items:center; justify-content:space-between; gap:14px; min-width:300px; flex:1; box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <span style="display:inline-flex; width:36px; height:36px; border-radius:50%; background:rgba(16,185,129,0.15); color:#10b981; border:1px solid rgba(16,185,129,0.4); align-items:center; justify-content:center; font-size:14px;">
+                                <i class="fas fa-eye"></i>
+                            </span>
+                            <div>
+                                <div style="font-size:13px; font-weight:800; color:#f8fafc;">
+                                    <span style="color:#10b981;">🟢 ${esc(repName)}</span> يفتح الآن:
+                                </div>
+                                <div style="font-size:12.5px; font-weight:700; color:#22d3ee; margin-top:2px;">
+                                    ${esc(compName)}
+                                </div>
+                                <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">
+                                    ${esc(sector)} • ${esc(city)} • <span style="color:#f59e0b;">${timeAgoText}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-sm" onclick="Companies.showDetail('${companyId}')" style="background:rgba(34,211,238,0.12); color:#22d3ee; border:1px solid rgba(34,211,238,0.35); padding:6px 12px; font-size:11.5px; font-weight:700; border-radius:6px; cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; gap:5px;" title="تفقد كارت الشركة مباشرة">
+                            <i class="fas fa-external-link-alt"></i> تفقد الكارت
+                        </button>
+                    </div>`;
+            }).join('');
+
+            container.innerHTML = cardsHtml;
+        } catch(e) {
+            console.error('renderLivePresence error:', e);
+            container.innerHTML = `<div style="color:var(--text-muted); font-size:12.5px;"><i class="fas fa-exclamation-triangle"></i> تعذر جلب التواجد اللحظي.</div>`;
+        } finally {
+            if (icon) icon.classList.remove('fa-spin');
+        }
+    },
+
     renderTeamGoals() {
         const grid = document.getElementById('dash-team-goals-grid');
         if (!grid) return;
@@ -331,7 +403,7 @@ const Dashboard = {
         const allCompanies = (window.AppStorage && window.AppStorage.getCompanies) ? window.AppStorage.getCompanies() : [];
         const allCalls = (window.AppStorage && window.AppStorage.getCalls) ? window.AppStorage.getCalls() : [];
 
-        // Exclude Admin accounts — the Admin directs the team and does not conduct sales calls
+        // Exclude Admin accounts
         const users = allUsers.filter(u => {
             if (!u) return false;
             const role = String(u.role || '').toLowerCase();
@@ -345,12 +417,26 @@ const Dashboard = {
                 <div style="grid-column: 1/-1; text-align: center; padding: 28px 16px; color: var(--text-muted); background: rgba(255,255,255,0.02); border-radius: 10px; border: 1px dashed var(--border-color);">
                     <i class="fas fa-users" style="font-size: 2rem; margin-bottom: 8px; display: block; color: #8b5cf6;"></i>
                     <h4 style="margin: 0 0 6px 0; color: var(--text-primary); font-size: 0.95rem;">لا يوجد موظفو مبيعات مسجلون حالياً</h4>
-                    <p style="margin: 0; font-size: 12px;">حساب المدير العام (Admin) مستثنى من بطاقات المبيعات لأنه موجه ومسؤول عن إدارة الفريق. يمكنك إضافة موظفي مبيعات من قسم إدارة الفريق.</p>
+                    <p style="margin: 0; font-size: 12px;">حساب المدير العام (Admin) مستثنى من بطاقات المبيعات لأنه موجه ومسؤول عن إدارة الفريق.</p>
                 </div>`;
             return;
         }
 
-        // High speed single-pass performance aggregation
+        // Today's activity summary per rep
+        const todaysSummary = (window.AppStorage && typeof window.AppStorage.getTodaysRepActivitySummary === 'function')
+            ? window.AppStorage.getTodaysRepActivitySummary()
+            : [];
+        const todayMap = new Map();
+        todaysSummary.forEach(s => {
+            if (s && s.user && s.user.id) todayMap.set(String(s.user.id).trim().toLowerCase(), s);
+            if (s && s.user && s.user.username) todayMap.set(String(s.user.username).trim().toLowerCase(), s);
+        });
+
+        // Identify today's top caller
+        const maxCallsToday = todaysSummary.length > 0 ? todaysSummary[0].callsCountToday : 0;
+        const topUserId = (maxCallsToday > 0 && todaysSummary[0].user) ? String(todaysSummary[0].user.id || '') : '';
+
+        // High speed single-pass performance aggregation for overall portfolio
         const userIndexMap = new Map();
         const usersStats = users.map(user => {
             const s = {
@@ -369,7 +455,6 @@ const Dashboard = {
             return s;
         });
 
-        // 1. Assign companies to user buckets
         let totalAssignedAll = 0;
         let totalContactedAll = 0;
 
@@ -399,7 +484,7 @@ const Dashboard = {
             }
         }
 
-        // 2. Count calls made by each user
+        // Count all-time calls made by each user
         for (let i = 0; i < allCalls.length; i++) {
             const call = allCalls[i];
             if (!call) continue;
@@ -421,32 +506,72 @@ const Dashboard = {
         if (teamPercentEl) teamPercentEl.textContent = `${totalPct}%`;
         if (teamProgressEl) teamProgressEl.style.width = `${totalPct}%`;
 
-        // 3. Render employee goal cards
+        // Check if any rep currently holds an active open card
+        const activeLocks = this.activeLocksCache || {};
+        const userActiveCardMap = new Map();
+        for (const [compId, lock] of Object.entries(activeLocks)) {
+            if (lock && (lock.userId || lock.user)) {
+                userActiveCardMap.set(String(lock.userId || '').toLowerCase(), { compId, lock });
+                userActiveCardMap.set(String(lock.user || '').toLowerCase(), { compId, lock });
+            }
+        }
+
+        // 3. Render employee cards
         grid.innerHTML = usersStats.map(u => {
             const pct = u.assignedCount > 0 ? Math.round((u.contactedCount / u.assignedCount) * 100) : 0;
             const roleBadge = u.role === 'admin' ? '👑 مدير عام' : (u.role === 'supervisor' ? '⭐ مشرف' : '💼 مبيعات');
             const userColor = u.color || '#7c3aed';
             const avatar = u.avatar || '👤';
             const uName = u.name || u.username || 'موظف';
-            
-            // Color of progress based on completion
+            const uKey = String(u.id || u.username || '').trim().toLowerCase();
+
+            // Today's specific metrics for this user
+            const tStats = todayMap.get(uKey) || { callsCountToday: 0, companiesCountToday: 0, interestedCount: 0, proposalsCount: 0, noAnswerCount: 0 };
+            const todayCalls = tStats.callsCountToday || 0;
+            const todayComps = tStats.companiesCountToday || 0;
+
+            const isTopToday = String(u.id || '') === topUserId && todayCalls > 0;
+            const topBadgeHtml = isTopToday ? `
+                <span style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#fff; font-size:10px; font-weight:900; padding:2px 8px; border-radius:12px; box-shadow:0 2px 8px rgba(245,158,11,0.3); display:inline-flex; align-items:center; gap:4px;">
+                    <i class="fas fa-crown"></i> نجم مبيعات اليوم
+                </span>` : '';
+
+            // Check if user has an active open card right now
+            const activeCardInfo = userActiveCardMap.get(uKey);
+            let activeOpenCardHtml = '';
+            if (activeCardInfo) {
+                const activeComp = window.AppStorage.getCompany(activeCardInfo.compId);
+                const activeName = activeComp ? (activeComp.nameAr || activeComp.nameEn) : 'شركة';
+                activeOpenCardHtml = `
+                    <div style="background:rgba(16, 185, 129, 0.12); border:1px solid rgba(16, 185, 129, 0.35); border-radius:8px; padding:6px 10px; font-size:11.5px; display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                        <span style="color:#10b981; font-weight:700; display:inline-flex; align-items:center; gap:5px;">
+                            <span style="width:8px; height:8px; border-radius:50%; background:#10b981; display:inline-block;"></span>
+                            يفتح الآن: <strong style="color:#f8fafc; text-decoration:underline; cursor:pointer;" onclick="Companies.showDetail('${activeCardInfo.compId}')">${esc(activeName)}</strong>
+                        </span>
+                        <button onclick="Companies.showDetail('${activeCardInfo.compId}')" style="background:transparent; border:none; color:#38bdf8; font-size:11px; cursor:pointer; font-weight:700;">فحص 👁️</button>
+                    </div>`;
+            }
+
             let progressGradient = 'linear-gradient(90deg, #6366f1, #8b5cf6)';
             if (pct >= 80) progressGradient = 'linear-gradient(90deg, #10b981, #059669)';
             else if (pct >= 50) progressGradient = 'linear-gradient(90deg, #3b82f6, #06b6d4)';
             else if (pct >= 25) progressGradient = 'linear-gradient(90deg, #f59e0b, #d97706)';
 
             return `
-                <div class="employee-goal-card" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; transition: all 0.2s ease; position: relative;" onmouseover="this.style.borderColor='rgba(124, 58, 237, 0.4)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.borderColor='var(--border-color)'; this.style.transform='none';">
-                    <!-- Card Header: Employee info & Role -->
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="employee-goal-card" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; transition: all 0.2s ease; position: relative;">
+                    <!-- Card Header -->
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap:8px;">
                         <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: ${userColor}22; color: ${userColor}; border: 1px solid ${userColor}55; font-size: 1.2rem;">
+                            <span style="display: inline-flex; align-items: center; justify-content: center; width: 42px; height: 42px; border-radius: 50%; background: ${userColor}22; color: ${userColor}; border: 1px solid ${userColor}55; font-size: 1.25rem;">
                                 ${avatar}
                             </span>
                             <div>
-                                <h4 style="margin: 0; font-size: 0.95rem; font-weight: 700; color: var(--text-primary);">${uName}</h4>
+                                <div style="display:flex; align-items:center; gap:6px;">
+                                    <h4 style="margin: 0; font-size: 0.95rem; font-weight: 700; color: var(--text-primary);">${esc(uName)}</h4>
+                                    ${topBadgeHtml}
+                                </div>
                                 <span style="font-size: 11px; color: var(--text-muted); display: inline-flex; align-items: center; gap: 4px; margin-top: 2px;">
-                                    ${roleBadge} • 📞 ${u.callsCount} مكالمة
+                                    ${roleBadge} • 📞 إجمالي المكالمات: ${u.callsCount}
                                 </span>
                             </div>
                         </div>
@@ -455,10 +580,35 @@ const Dashboard = {
                         </span>
                     </div>
 
+                    <!-- Live Active Open Card (if rep has card open right now) -->
+                    ${activeOpenCardHtml}
+
+                    <!-- Today's Call Breakdown & Inspection Banner -->
+                    <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 10px; padding: 10px 12px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; margin-bottom:6px;">
+                            <span style="color:#a5b4fc; font-weight:800; display:inline-flex; align-items:center; gap:5px;">
+                                <i class="fas fa-calendar-day" style="color:#22d3ee;"></i> نشاط ومكالمات اليوم:
+                            </span>
+                            <span style="background:${todayCalls > 0 ? '#10b981' : 'rgba(255,255,255,0.1)'}; color:#fff; padding:2px 8px; border-radius:10px; font-weight:800; font-size:11.5px;">
+                                ${todayCalls} مكالمة (${todayComps} شركة)
+                            </span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-secondary); padding:4px 0; border-top:1px dashed rgba(255,255,255,0.08);">
+                            <span>🟢 مهتم: <b style="color:#10b981;">${tStats.interestedCount || 0}</b></span>
+                            <span>📄 عروض: <b style="color:#38bdf8;">${tStats.proposalsCount || 0}</b></span>
+                            <span>🔴 لم يرد: <b style="color:#f87171;">${tStats.noAnswerCount || 0}</b></span>
+                        </div>
+                    </div>
+
+                    <!-- Button to Inspect Today's Calls -->
+                    <button class="btn btn-sm" onclick="Dashboard.openRepTodayModal('${u.id || u.username}')" style="width:100%; background:linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(99, 102, 241, 0.15)); border:1px solid rgba(6, 182, 212, 0.4); color:#22d3ee; font-size:12px; font-weight:800; padding:7px 12px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:6px;">
+                        <i class="fas fa-list-check"></i> <span>فحص شركات ومكالمات اليوم تفصيلياً (${todayCalls})</span>
+                    </button>
+
                     <!-- Progress Bar & Companies Contacted -->
                     <div>
                         <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin-bottom: 5px;">
-                            <span style="color: var(--text-secondary); font-weight: 600;">الشركات المنجزة:</span>
+                            <span style="color: var(--text-secondary); font-weight: 600;">الشركات المنجزة من المحفظة:</span>
                             <span style="font-weight: 700; color: var(--text-primary);"><b style="color: #60a5fa;">${u.contactedCount}</b> من أصل <b>${u.assignedCount}</b> شركة</span>
                         </div>
                         <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.06); border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);">
@@ -468,37 +618,150 @@ const Dashboard = {
 
                     <!-- 3 Key Result Metrics: Interested / Unqualified / Remaining -->
                     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center;">
-                        <!-- Won / Interested -->
                         <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 8px; padding: 8px 4px; cursor: pointer;" onclick="Dashboard.filterCompaniesByEmployee('${u.id}', 'interested')" title="عرض الشركات المهتمة والمنضمة">
                             <div style="font-size: 1.1rem; font-weight: 800; color: #10b981;">${u.interestedCount}</div>
                             <div style="font-size: 10.5px; color: #34d399; font-weight: 600; margin-top: 2px;">💚 انضمت / مهتمة</div>
                         </div>
-
-                        <!-- Unqualified / Rejected -->
                         <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 8px; padding: 8px 4px; cursor: pointer;" onclick="Dashboard.filterCompaniesByEmployee('${u.id}', 'unqualified')" title="عرض الشركات المستبعدة وغير المهتمة">
                             <div style="font-size: 1.1rem; font-weight: 800; color: #ef4444;">${u.notInterestedCount}</div>
                             <div style="font-size: 10.5px; color: #f87171; font-weight: 600; margin-top: 2px;">🔴 غير مناسبة</div>
                         </div>
-
-                        <!-- Pending / Remaining -->
                         <div style="background: rgba(148, 163, 184, 0.08); border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 8px; padding: 8px 4px; cursor: pointer;" onclick="Dashboard.filterCompaniesByEmployee('${u.id}', 'remaining')" title="عرض الشركات المتبقية في انتظار التواصل">
                             <div style="font-size: 1.1rem; font-weight: 800; color: #94a3b8;">${u.remainingCount}</div>
                             <div style="font-size: 10.5px; color: #cbd5e1; font-weight: 600; margin-top: 2px;">⚪ متبقي للاتصال</div>
                         </div>
                     </div>
-
-                    <!-- Quick Action: Go to Employee's Companies in Companies Table -->
-                    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-light); padding-top: 10px; margin-top: 2px;">
-                        <span style="font-size: 11px; color: var(--text-muted);">
-                            ${u.assignedCount === 0 ? '⚪ لا توجد شركات مسندة' : (u.remainingCount === 0 ? '🎉 أنجز كل شركاته بالكامل!' : `متبقي ${u.remainingCount} شركة`)}
-                        </span>
-                        <button class="btn btn-sm" onclick="Dashboard.filterCompaniesByEmployee('${u.id}')" style="background: rgba(124, 58, 237, 0.12); color: #a78bfa; border: 1px solid rgba(124, 58, 237, 0.3); font-size: 11.5px; font-weight: 700; padding: 4px 10px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
-                            <i class="fas fa-search"></i> عرض الشركات
-                        </button>
-                    </div>
                 </div>
             `;
         }).join('');
+    },
+
+    openRepTodayModal(userId) {
+        if (!userId) return;
+        const summaryList = (window.AppStorage && typeof window.AppStorage.getTodaysRepActivitySummary === 'function')
+            ? window.AppStorage.getTodaysRepActivitySummary()
+            : [];
+
+        const targetSummary = summaryList.find(s => {
+            if (!s || !s.user) return false;
+            const uId = String(s.user.id || '').trim().toLowerCase();
+            const uUname = String(s.user.username || '').trim().toLowerCase();
+            const target = String(userId).trim().toLowerCase();
+            return uId === target || uUname === target;
+        });
+
+        const user = targetSummary ? targetSummary.user : (window.AppStorage ? window.AppStorage.getUser(userId) : null);
+        const userName = user ? (user.name || user.username || 'الموظف') : 'الموظف';
+        const calls = targetSummary ? (targetSummary.callsList || []) : [];
+
+        const titleEl = document.getElementById('rep-activity-modal-title');
+        const countEl = document.getElementById('rep-activity-modal-count');
+        const bodyEl = document.getElementById('rep-activity-modal-body');
+        if (titleEl) titleEl.textContent = `سجل مكالمات وشركات اليوم — ${userName}`;
+        if (countEl) countEl.textContent = `إجمالي شركات ومكالمات اليوم: ${calls.length} مكالمة`;
+
+        if (!bodyEl) return;
+
+        if (calls.length === 0) {
+            bodyEl.innerHTML = `
+                <div style="text-align:center; padding:40px 20px; color:var(--text-muted);">
+                    <i class="fas fa-phone-slash" style="font-size:2.5rem; color:#64748b; margin-bottom:12px; display:block;"></i>
+                    <h3 style="margin:0 0 6px 0; color:var(--text-primary); font-size:1.1rem;">لم يسجل هذا الموظف أي مكالمات اليوم حتى الآن</h3>
+                    <p style="margin:0; font-size:12.5px;">سيظهر هنا جدول فوري بكل شركة يتواصل معها المندوب ووقت المكالمة وملاحظاته فور إجرائها.</p>
+                </div>`;
+            App.openModal('modal-rep-today-activity');
+            return;
+        }
+
+        const interestedCount = targetSummary.interestedCount || 0;
+        const proposalsCount = targetSummary.proposalsCount || 0;
+        const noAnswerCount = targetSummary.noAnswerCount || 0;
+
+        let tableRows = calls.map((c) => {
+            let resultBadgeColor = '#64748b';
+            let resultBg = 'rgba(100,116,139,0.15)';
+            if (['interested', 'meeting_scheduled'].includes(c.result)) {
+                resultBadgeColor = '#10b981';
+                resultBg = 'rgba(16,185,129,0.15)';
+            } else if (c.result === 'proposal_sent') {
+                resultBadgeColor = '#38bdf8';
+                resultBg = 'rgba(56,189,248,0.15)';
+            } else if (['no_answer', 'busy'].includes(c.result)) {
+                resultBadgeColor = '#f87171';
+                resultBg = 'rgba(248,113,113,0.15)';
+            }
+
+            return `
+                <tr style="border-bottom:1px solid rgba(255,255,255,0.06); transition:background 0.15s ease;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
+                    <td style="padding:10px 12px; font-weight:700; color:var(--text-muted); font-size:12px; font-family:Inter; white-space:nowrap;">
+                        <i class="far fa-clock" style="margin-left:4px;"></i> ${esc(c.time)}
+                    </td>
+                    <td style="padding:10px 12px;">
+                        <a href="javascript:void(0)" onclick="App.closeModal('modal-rep-today-activity'); Companies.showDetail('${c.companyId}')" style="font-weight:800; color:#38bdf8; text-decoration:none; font-size:13px; display:inline-flex; align-items:center; gap:5px;">
+                            ${esc(c.companyName)} <i class="fas fa-external-link-alt" style="font-size:10px;"></i>
+                        </a>
+                        <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">${esc(c.sector)} • ${esc(c.governorate)}</div>
+                    </td>
+                    <td style="padding:10px 12px; font-family:Inter; direction:ltr; text-align:right; font-size:12px; color:var(--text-secondary); white-space:nowrap;">
+                        ${c.phone && c.phone !== '—' ? `<a href="tel:${esc(c.phone)}" style="color:#a78bfa; text-decoration:none;"><i class="fas fa-phone"></i> ${esc(c.phone)}</a>` : '—'}
+                    </td>
+                    <td style="padding:10px 12px; white-space:nowrap;">
+                        <span class="badge" style="background:${resultBg}; color:${resultBadgeColor}; border:1px solid ${resultBadgeColor}55; padding:3px 8px; border-radius:6px; font-size:11.5px; font-weight:700;">
+                            ${esc(c.resultLabel)}
+                        </span>
+                    </td>
+                    <td style="padding:10px 12px; font-size:12px; color:var(--text-secondary); max-width:260px; line-height:1.4;">
+                        ${esc(c.notes)}
+                    </td>
+                    <td style="padding:10px 12px; text-align:center; white-space:nowrap;">
+                        <button class="btn btn-sm" onclick="App.closeModal('modal-rep-today-activity'); Companies.showDetail('${c.companyId}')" style="background:rgba(124,58,237,0.15); color:#c4b5fd; border:1px solid rgba(124,58,237,0.3); padding:4px 10px; font-size:11px; border-radius:6px; cursor:pointer;" title="فتح تفاصيل الشركة">
+                            فحص الكارت
+                        </button>
+                    </td>
+                </tr>`;
+        }).join('');
+
+        bodyEl.innerHTML = `
+            <!-- Top Summary Bar -->
+            <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; margin-bottom:18px;">
+                <div style="background:rgba(99,102,241,0.1); border:1px solid rgba(99,102,241,0.3); border-radius:10px; padding:10px; text-align:center;">
+                    <div style="font-size:1.3rem; font-weight:900; color:#818cf8;">${calls.length}</div>
+                    <div style="font-size:11px; color:#a5b4fc; font-weight:700; margin-top:2px;">مكالمات اليوم</div>
+                </div>
+                <div style="background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); border-radius:10px; padding:10px; text-align:center;">
+                    <div style="font-size:1.3rem; font-weight:900; color:#10b981;">${interestedCount}</div>
+                    <div style="font-size:11px; color:#34d399; font-weight:700; margin-top:2px;">عملاء مهتمون</div>
+                </div>
+                <div style="background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.3); border-radius:10px; padding:10px; text-align:center;">
+                    <div style="font-size:1.3rem; font-weight:900; color:#38bdf8;">${proposalsCount}</div>
+                    <div style="font-size:11px; color:#7dd3fc; font-weight:700; margin-top:2px;">عروض أسعار</div>
+                </div>
+                <div style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); border-radius:10px; padding:10px; text-align:center;">
+                    <div style="font-size:1.3rem; font-weight:900; color:#ef4444;">${noAnswerCount}</div>
+                    <div style="font-size:11px; color:#fca5a5; font-weight:700; margin-top:2px;">لم يرد / مشغول</div>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div style="max-height:420px; overflow-y:auto; border:1px solid var(--border-color); border-radius:10px; background:rgba(0,0,0,0.2);">
+                <table style="width:100%; border-collapse:collapse; text-align:right;">
+                    <thead>
+                        <tr style="background:rgba(255,255,255,0.04); border-bottom:1px solid var(--border-color); color:var(--text-muted); font-size:11.5px;">
+                            <th style="padding:10px 12px;">الوقت</th>
+                            <th style="padding:10px 12px;">الشركة</th>
+                            <th style="padding:10px 12px;">الهاتف</th>
+                            <th style="padding:10px 12px;">النتيجة</th>
+                            <th style="padding:10px 12px;">الملاحظات</th>
+                            <th style="padding:10px 12px; text-align:center;">إجراء</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${tableRows}
+                    </tbody>
+                </table>
+            </div>`;
+
+        App.openModal('modal-rep-today-activity');
     },
 
     filterCompaniesByEmployee(userId, filterType = '') {

@@ -2974,6 +2974,89 @@ const AppStorage = {
         return (calls || []).filter(c => c && c.followUpDate && c.followUpDate < today && c.result === 'callback');
     },
 
+    getTodaysRepActivitySummary() {
+        const today = new Date().toISOString().split('T')[0];
+        const allUsers = this.getUsers() || [];
+        const allCalls = this.getCalls() || [];
+        const allCompanies = this.getCompanies() || [];
+
+        // Filter sales reps
+        const salesUsers = allUsers.filter(u => {
+            if (!u) return false;
+            const role = String(u.role || '').toLowerCase();
+            const uname = String(u.username || '').toLowerCase();
+            const uid = String(u.id || '').toLowerCase();
+            return role !== 'admin' && uname !== 'admin' && uid !== 'admin';
+        });
+
+        // Map company IDs to quick company info
+        const compMap = new Map();
+        for (let i = 0; i < allCompanies.length; i++) {
+            const c = allCompanies[i];
+            if (c && c.id) compMap.set(String(c.id), c);
+        }
+
+        // Today's calls filter
+        const todaysCalls = allCalls.filter(c => c && c.date === today);
+
+        const summary = salesUsers.map(user => {
+            const uId = String(user.id || '').trim().toLowerCase();
+            const uName = String(user.name || '').trim().toLowerCase();
+            const uUname = String(user.username || '').trim().toLowerCase();
+
+            const userCallsToday = todaysCalls.filter(c => {
+                const callUid = String(c.userId || '').trim().toLowerCase();
+                const callByName = String(c.createdByName || '').trim().toLowerCase();
+                return callUid === uId || callUid === uUname || callByName === uName || callByName === uUname;
+            });
+
+            const uniqueCompanyIds = new Set();
+            let interested = 0;
+            let proposals = 0;
+            let noAnswer = 0;
+            let other = 0;
+
+            const enrichedCalls = userCallsToday.map(c => {
+                if (c.companyId) uniqueCompanyIds.add(String(c.companyId));
+                const comp = compMap.get(String(c.companyId)) || {};
+
+                const res = String(c.result || '');
+                if (['interested', 'meeting_scheduled'].includes(res)) interested++;
+                else if (['proposal_sent'].includes(res)) proposals++;
+                else if (['no_answer', 'busy'].includes(res)) noAnswer++;
+                else other++;
+
+                return {
+                    id: c.id,
+                    time: c.time || (c.createdAt ? new Date(c.createdAt).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }) : '—'),
+                    companyId: c.companyId,
+                    companyName: c.companyName || comp.nameAr || comp.nameEn || 'شركة',
+                    sector: comp.sector || '—',
+                    governorate: comp.governorate || comp.city || '—',
+                    phone: c.phone || comp.phone1 || comp.mobile || '—',
+                    contactPerson: c.contactPerson || comp.contactPerson || '—',
+                    result: c.result || 'call',
+                    resultLabel: this.getCallResultLabel(c.result),
+                    notes: c.notes || 'لا توجد ملاحظات'
+                };
+            });
+
+            return {
+                user: user,
+                callsCountToday: userCallsToday.length,
+                companiesCountToday: uniqueCompanyIds.size,
+                callsList: enrichedCalls,
+                interestedCount: interested,
+                proposalsCount: proposals,
+                noAnswerCount: noAnswer,
+                otherCount: other
+            };
+        });
+
+        summary.sort((a, b) => b.callsCountToday - a.callsCountToday);
+        return summary;
+    },
+
     // ---- Deals ----
     getDeals() { return []; },
     getDeal(id) { return null; },

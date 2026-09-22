@@ -47,7 +47,7 @@
             } catch(e) {}
         })();
     </script>
-    <link rel="manifest" href="manifest.json?v=265.0">
+    <link rel="manifest" href="manifest.json?v=265.1">
     <meta name="theme-color" content="#7c3aed">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -451,6 +451,30 @@
                             <div style="width: 100%; height: 5px; background: rgba(255,255,255,0.08); border-radius: 8px; overflow: hidden; margin-top: 6px;">
                                 <div id="dash-team-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #10b981, #06b6d4); border-radius: 8px; transition: width 0.4s ease;"></div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Team Presence & Active Open Cards Inspector -->
+                <div class="card" id="dash-live-presence-card" style="margin-bottom: 24px; border: 1px solid rgba(16, 185, 129, 0.35); background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(6, 182, 212, 0.05)); border-radius: 14px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+                    <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; padding:14px 20px; border-bottom:1px solid rgba(16, 185, 129, 0.2);">
+                        <div>
+                            <h3 style="margin:0; display:flex; align-items:center; gap:8px; font-size:1.05rem; color:#10b981;">
+                                <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#10b981; box-shadow:0 0 10px #10b981;"></span>
+                                <span>المراقبة الحية: كروت الشركات المفتوحة الآن من قِبل الفريق</span>
+                                <small style="color:var(--text-muted); font-size:0.8rem; font-weight:normal;">Live Active Cards Inspector</small>
+                            </h3>
+                            <p style="margin:3px 0 0 0; font-size:12px; color:var(--text-secondary);">
+                                رصد فوري لأي موظف يفتح كارت عميل حالياً في هذه اللحظة، مع إمكانية فحص الكارت مباشرة
+                            </p>
+                        </div>
+                        <button class="btn btn-ghost btn-sm" onclick="Dashboard.renderLivePresence()" style="font-size:12px; font-weight:700; color:#10b981; border:1px solid rgba(16, 185, 129, 0.3); padding:4px 12px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                            <i class="fas fa-sync-alt" id="dash-presence-reload-icon"></i> تحديث الحضور
+                        </button>
+                    </div>
+                    <div class="card-body" style="padding:16px 20px;">
+                        <div id="dash-live-presence-list" style="display:flex; flex-wrap:wrap; gap:12px;">
+                            <div style="color:var(--text-muted); font-size:12.5px; padding:4px 0;"><i class="fas fa-spinner fa-spin"></i> جاري فحص بطاقات الشركات المفتوحة لحظياً...</div>
                         </div>
                     </div>
                 </div>
@@ -1405,6 +1429,24 @@
 
 
 
+    <!-- Rep Today Activity & Calls Inspector Modal -->
+    <div id="modal-rep-today-activity" class="modal">
+        <div class="modal-overlay" onclick="App.closeModal('modal-rep-today-activity')"></div>
+        <div class="modal-dialog modal-lg" style="max-width:920px;">
+            <div class="modal-header" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.25), rgba(6, 182, 212, 0.2)); border-bottom: 1px solid rgba(124, 58, 237, 0.35);">
+                <h2><i class="fas fa-user-check" style="color:#a78bfa;"></i> <span id="rep-activity-modal-title">سجل نشاط وشركات المندوب اليوم</span></h2>
+                <button class="modal-close" data-modal="modal-rep-today-activity" onclick="App.closeModal('modal-rep-today-activity')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" id="rep-activity-modal-body" style="padding:20px;">
+                <!-- Populated dynamically by Dashboard.openRepTodayModal() -->
+            </div>
+            <div class="modal-footer" style="justify-content: space-between;">
+                <span id="rep-activity-modal-count" style="font-size:12.5px; font-weight:700; color:var(--text-secondary);"></span>
+                <button class="btn btn-ghost" data-modal="modal-rep-today-activity" onclick="App.closeModal('modal-rep-today-activity')">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Container -->
     <div id="toast-container"></div>
 
@@ -1442,20 +1484,20 @@
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <script src="js/supabase-client.js?v=265.0"></script>
-    <script src="js/egypt_verified_titans.js?v=265.0"></script>
-    <script src="js/egypt_enterprises_pool.js?v=265.0"></script>
-    <script src="js/companies-worker.js?v=265.0"></script>
-    <script src="js/storage.js?v=265.0"></script>
-    <script src="js/excel-handler.js?v=265.0"></script>
-    <script src="js/dashboard.js?v=265.0"></script>
-    <script src="js/companies.js?v=265.0"></script>
-    <script src="js/calls.js?v=265.0"></script>
-    <script src="js/reports.js?v=265.0"></script>
-    <script src="js/scraper.js?v=265.0"></script>
-    <script src="js/team.js?v=265.0"></script>
-    <script src="js/settings.js?v=265.0"></script>
-    <script src="js/app.js?v=265.0"></script>
+    <script src="js/supabase-client.js?v=265.1"></script>
+    <script src="js/egypt_verified_titans.js?v=265.1"></script>
+    <script src="js/egypt_enterprises_pool.js?v=265.1"></script>
+    <script src="js/companies-worker.js?v=265.1"></script>
+    <script src="js/storage.js?v=265.1"></script>
+    <script src="js/excel-handler.js?v=265.1"></script>
+    <script src="js/dashboard.js?v=265.1"></script>
+    <script src="js/companies.js?v=265.1"></script>
+    <script src="js/calls.js?v=265.1"></script>
+    <script src="js/reports.js?v=265.1"></script>
+    <script src="js/scraper.js?v=265.1"></script>
+    <script src="js/team.js?v=265.1"></script>
+    <script src="js/settings.js?v=265.1"></script>
+    <script src="js/app.js?v=265.1"></script>
 
     <!-- Cleanup overlay on load - runs once only, does NOT override App.checkAuth -->
     <script>

@@ -349,6 +349,30 @@ window.SupabaseClient = (function() {
         }
     }
 
+    async function getAllCompanyLocks() {
+        if (!navigator.onLine) return {};
+        try {
+            const resp = await fetch(`${FIREBASE_DB_URL}/presence.json?t=${Date.now()}`);
+            if (!resp.ok) return {};
+            const raw = await resp.json();
+            if (!raw || typeof raw !== 'object') return {};
+            const now = Date.now();
+            const activeLocks = {};
+            for (const [compId, item] of Object.entries(raw)) {
+                if (item && item.time && (now - Number(item.time)) < 150000) {
+                    activeLocks[compId] = {
+                        ...item,
+                        companyId: compId,
+                        ageSeconds: Math.round((now - Number(item.time)) / 1000)
+                    };
+                }
+            }
+            return activeLocks;
+        } catch (e) {
+            return {};
+        }
+    }
+
     /**
      * Real-time ultra-fast SSE & metadata-driven sync on Firebase
      * Connects persistent EventSource stream for sub-100ms push with smart polling fallback
@@ -629,6 +653,7 @@ window.SupabaseClient = (function() {
         unsubscribe,
         acquireCompanyLock,
         releaseCompanyLock,
-        checkCompanyLock
+        checkCompanyLock,
+        getAllCompanyLocks
     };
 })();
