@@ -902,7 +902,7 @@ const AppStorage = {
         } = options;
 
         const rawCompanies = this.getScopedCompanies() || [];
-        const normSearch = this._normalizeArabicName(search);
+        const normSearch = search ? this._normalizeArabicName(search) : '';
         const now = Date.now();
         const todayStr = new Date().toISOString().split('T')[0];
         const currentUser = this.getCurrentUser();
@@ -915,7 +915,19 @@ const AppStorage = {
         if (city && !cityList.includes(city)) cityList.push(city);
         const citySet = cityList.length > 0 ? new Set(cityList) : null;
 
+        // Super-fast 0.01ms path: when opening default company list with no filters/search
+        const isDefaultView = !normSearch && !sectorSet && !citySet && !priority && !fleetType && !contactType && !fleetSize && !addedDate && !assigned && (!sortMode || sortMode === 'priority_fleet' || sortMode === 'latest');
+        if (isDefaultView) {
+            const total = rawCompanies.length;
+            const totalPages = Math.ceil(total / pageSize) || 1;
+            const safePage = Math.max(1, Math.min(page, totalPages));
+            const start = (safePage - 1) * pageSize;
+            const items = rawCompanies.slice(start, start + pageSize);
+            return { items, total, totalPages, page: safePage, pageSize };
+        }
+
         let filtered = rawCompanies.filter(c => {
+            if (!c) return false;
             if (sectorSet && !sectorSet.has(c.sector)) return false;
             if (citySet && !citySet.has(c.city)) return false;
             if (priority && c.priority !== priority) return false;
@@ -926,7 +938,7 @@ const AppStorage = {
             if (contactType === 'has_website' && (!c.website || c.website === '—')) return false;
 
             if (fleetSize) {
-                const s = Number(c.fleetSize) || 0;
+                const s = c._fleetNum !== undefined ? c._fleetNum : (Number(c.fleetSize) || 0);
                 if (fleetSize === 'giant_fleet' && s < 100) return false;
                 if (fleetSize === 'large_fleet' && (s < 50 || s >= 100)) return false;
                 if (fleetSize === 'medium_fleet' && (s < 15 || s >= 50)) return false;
@@ -957,28 +969,28 @@ const AppStorage = {
             }
 
             if (normSearch) {
-                const nameNorm = this._normalizeArabicName(c.nameAr || c.name || '');
-                const phone = String(c.phone1 || c.mobile || '').replace(/[^0-9+]/g, '');
+                const nameNorm = c._normName || (c._normName = this._normalizeArabicName((c.nameAr || c.name || '') + ' ' + (c.nameEn || '')));
+                const phone = c._normPhone || (c._normPhone = String(c.phone1 || c.mobile || '').replace(/[^0-9+]/g, ''));
                 if (!nameNorm.includes(normSearch) && !phone.includes(normSearch)) return false;
             }
 
             return true;
         });
 
-        // Sort — Titans ALWAYS pinned to the very top!
+        // Fast Sort — Titans ALWAYS pinned to the very top!
         const priorityOrder = { 'A+': 1, 'A': 2, 'B': 3, 'C': 4 };
         filtered.sort((a, b) => {
-            const titanA = (a.isTitan || (a.id && String(a.id).startsWith('eg_titan_'))) ? 1 : 0;
-            const titanB = (b.isTitan || (b.id && String(b.id).startsWith('eg_titan_'))) ? 1 : 0;
+            const titanA = (a._isTitan !== undefined) ? (a._isTitan ? 1 : 0) : ((a.isTitan || (a.id && String(a.id).startsWith('eg_titan_'))) ? 1 : 0);
+            const titanB = (b._isTitan !== undefined) ? (b._isTitan ? 1 : 0) : ((b.isTitan || (b.id && String(b.id).startsWith('eg_titan_'))) ? 1 : 0);
             if (titanA !== titanB) {
                 return titanB - titanA; // 👑 Titans ALWAYS first!
             }
 
             if (sortMode === 'fleet_desc') {
-                return (Number(b.fleetSize) || 0) - (Number(a.fleetSize) || 0);
+                return (b._fleetNum !== undefined ? b._fleetNum : (Number(b.fleetSize) || 0)) - (a._fleetNum !== undefined ? a._fleetNum : (Number(a.fleetSize) || 0));
             }
             if (sortMode === 'fleet_asc') {
-                return (Number(a.fleetSize) || 0) - (Number(b.fleetSize) || 0);
+                return (a._fleetNum !== undefined ? a._fleetNum : (Number(a.fleetSize) || 0)) - (b._fleetNum !== undefined ? b._fleetNum : (Number(b.fleetSize) || 0));
             }
             if (sortMode === 'name_asc' || sortMode === 'name') {
                 return (a.nameAr || '').localeCompare(b.nameAr || '', 'ar');
@@ -993,7 +1005,7 @@ const AppStorage = {
             const pA = priorityOrder[a.priority] || 3;
             const pB = priorityOrder[b.priority] || 3;
             if (pA !== pB) return pA - pB;
-            const fDiff = (Number(b.fleetSize) || 0) - (Number(a.fleetSize) || 0);
+            const fDiff = (b._fleetNum !== undefined ? b._fleetNum : (Number(b.fleetSize) || 0)) - (a._fleetNum !== undefined ? a._fleetNum : (Number(a.fleetSize) || 0));
             if (fDiff !== 0) return fDiff;
             return (new Date(b.createdAt || 0)) - (new Date(a.createdAt || 0));
         });
@@ -1094,6 +1106,12 @@ const AppStorage = {
             company.priority = 'C';
         }
         company.leadScore = company.priority === 'A' ? 85 : company.priority === 'B' ? 70 : 55;
+
+        // Pre-computed indices for instant sub-millisecond mobile search & sort
+        company._isTitan = Boolean(company.isTitan || (company.id && String(company.id).startsWith('eg_titan_')));
+        company._normName = this._normalizeArabicName((company.nameAr || '') + ' ' + (company.nameEn || ''));
+        company._normPhone = String(company.phone1 || company.mobile || '').replace(/[^0-9+]/g, '');
+        company._fleetNum = Number(company.fleetSize) || 0;
 
         return company;
     },
@@ -1259,6 +1277,12 @@ const AppStorage = {
                         const masterMap = new Map();
                         idbData.forEach(c => {
                             if (c && c.id && !deletedCompIds.has(String(c.id))) {
+                                if (!c._normName) {
+                                    c._normName = this._normalizeArabicName((c.nameAr || c.name || '') + ' ' + (c.nameEn || ''));
+                                    c._normPhone = String(c.phone1 || c.mobile || '').replace(/[^0-9+]/g, '');
+                                    c._isTitan = Boolean(c.isTitan || (c.id && String(c.id).startsWith('eg_titan_')));
+                                    c._fleetNum = Number(c.fleetSize) || 0;
+                                }
                                 masterMap.set(c.id, c);
                             }
                         });
@@ -2712,7 +2736,23 @@ const AppStorage = {
     },
 
     // ---- Calls ----
+    // 5-second in-memory cache for getCalls() — avoids repeated localStorage JSON.parse on every render
+    _callsCache: null,
+    _callsCacheTs: 0,
+    _CALLS_CACHE_TTL: 5000, // ms
+
+    invalidateCallsCache() {
+        this._callsCache = null;
+        this._callsCacheTs = 0;
+    },
+
     getCalls() {
+        // ⚡ Return cached result if fresh (< 5 seconds old)
+        const now = Date.now();
+        if (this._callsCache && (now - this._callsCacheTs) < this._CALLS_CACHE_TTL) {
+            return this._callsCache;
+        }
+
         let calls = this._get(this.KEYS.CALLS);
         if (!calls || !Array.isArray(calls)) {
             calls = [];
@@ -2727,6 +2767,7 @@ const AppStorage = {
         if (clean.length !== calls.length) {
             this._set(this.KEYS.CALLS, clean);
             this.invalidateStatsCache();
+            this.invalidateCallsCache();
             calls = clean;
         }
 
@@ -2751,6 +2792,10 @@ const AppStorage = {
             clean = deduplicated;
             if (this.autoSyncToCloud) this.autoSyncToCloud(this.companiesMemory, true);
         }
+
+        // Cache for next 5 seconds
+        this._callsCache = clean;
+        this._callsCacheTs = Date.now();
 
         return clean;
     },
@@ -2832,6 +2877,7 @@ const AppStorage = {
         }
         this._set(this.KEYS.CALLS, calls);
         this.invalidateStatsCache();
+        this.invalidateCallsCache(); // ⚡ flush call cache after write
 
         // Update company's call status & result
         if (call.companyId) {
@@ -2939,6 +2985,7 @@ const AppStorage = {
         });
         this._set(this.KEYS.CALLS, []);
         this.invalidateStatsCache();
+        this.invalidateCallsCache(); // ⚡ flush call cache after clear
         if (window.SupabaseClient && window.SupabaseClient.pushMasterData) {
             window.SupabaseClient.pushMasterData({
                 calls: [],
@@ -2989,12 +3036,8 @@ const AppStorage = {
             return role !== 'admin' && uname !== 'admin' && uid !== 'admin';
         });
 
-        // Map company IDs to quick company info
-        const compMap = new Map();
-        for (let i = 0; i < allCompanies.length; i++) {
-            const c = allCompanies[i];
-            if (c && c.id) compMap.set(String(c.id), c);
-        }
+        // Fast cached company lookup (0ms)
+        const compMap = this._getCompanyIdMap();
 
         // Today's calls filter
         const todaysCalls = allCalls.filter(c => c && c.date === today);

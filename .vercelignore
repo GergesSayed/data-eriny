@@ -1,0 +1,12 @@
+scraper/
+scripts/
+backups/
+output/
+scratch/
+node_modules/
+supabase/
+.git/
+*.py
+*.bat
+*.md
+*.lock

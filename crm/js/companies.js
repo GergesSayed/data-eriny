@@ -4,7 +4,7 @@
 
 const Companies = {
     currentPage: 1,
-    pageSize: 15,
+    pageSize: (window.innerWidth <= 768) ? 10 : 15, // ⚡ fewer cards on mobile for faster render
     sortField: 'priority',
     sortDir: 'asc',
     viewMode: 'table', // 'table' or 'cards'
@@ -40,6 +40,7 @@ const Companies = {
 
     init() {
         this.viewMode = (window.innerWidth <= 768) ? 'cards' : 'table';
+        this.pageSize = (window.innerWidth <= 768) ? 10 : 15; // ⚡ adaptive page size
         this.populateSectorSelects();
         this.bindEvents();
         this.refreshUserFilter();
@@ -533,7 +534,7 @@ const Companies = {
             this._searchDebounceTimer = setTimeout(() => {
                 this.currentPage = 1;
                 this.render();
-            }, 75);
+            }, 260);
         }
     },
 
@@ -883,10 +884,7 @@ const Companies = {
         // Update count & view mode toggle buttons
         const currentUser = window.AppStorage.getCurrentUser();
         const canViewAll = window.AppStorage.canViewAll(currentUser);
-        if (window.AppStorage && window.AppStorage.updateLiveCounters) {
-            window.AppStorage.updateLiveCounters();
-        }
-        const masterTotal = window.AppStorage.getCompanies().length;
+        const masterTotal = window.AppStorage.companiesMemory ? window.AppStorage.companiesMemory.length : total;
         const countDisplay = document.getElementById('companies-count-display');
         if (countDisplay) {
             if (this.myPortfolioOnly) {
@@ -947,21 +945,17 @@ const Companies = {
         }
         if (empty) empty.style.display = 'none';
 
+        const targetCompIds = new Set(companies.map(c => String(c.id)));
         const allCalls = (window.AppStorage && window.AppStorage.getCalls) ? window.AppStorage.getCalls() : [];
         const latestCallsMap = new Map();
         for (let i = 0; i < allCalls.length; i++) {
             const call = allCalls[i];
             if (!call || !call.companyId) continue;
             const cId = String(call.companyId).trim();
+            if (!targetCompIds.has(cId)) continue;
             const existing = latestCallsMap.get(cId);
-            if (!existing) {
+            if (!existing || (call.date || '') >= (existing.date || '')) {
                 latestCallsMap.set(cId, call);
-            } else {
-                const timeNew = new Date(call.createdAt || call.date || 0).getTime();
-                const timeExisting = new Date(existing.createdAt || existing.date || 0).getTime();
-                if (timeNew >= timeExisting) {
-                    latestCallsMap.set(cId, call);
-                }
             }
         }
 
@@ -1128,21 +1122,17 @@ const Companies = {
 
         const currentUser = (window.AppStorage && typeof window.AppStorage.getCurrentUser === 'function') ? window.AppStorage.getCurrentUser() : null;
 
+        const targetCompIds = new Set(companies.map(c => String(c.id)));
         const allCalls = (window.AppStorage && window.AppStorage.getCalls) ? window.AppStorage.getCalls() : [];
         const latestCallsMap = new Map();
         for (let i = 0; i < allCalls.length; i++) {
             const call = allCalls[i];
             if (!call || !call.companyId) continue;
             const cId = String(call.companyId).trim();
+            if (!targetCompIds.has(cId)) continue;
             const existing = latestCallsMap.get(cId);
-            if (!existing) {
+            if (!existing || (call.date || '') >= (existing.date || '')) {
                 latestCallsMap.set(cId, call);
-            } else {
-                const timeNew = new Date(call.createdAt || call.date || 0).getTime();
-                const timeExisting = new Date(existing.createdAt || existing.date || 0).getTime();
-                if (timeNew >= timeExisting) {
-                    latestCallsMap.set(cId, call);
-                }
             }
         }
 

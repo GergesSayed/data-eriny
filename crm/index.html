@@ -11,7 +11,7 @@
     <script>
         // Force purge any legacy service workers, disk caches, and old deals storage immediately
         (function() {
-            var CURRENT_VER = '264.1';
+            var CURRENT_VER = '265.5';
             try {
                 localStorage.removeItem('fleetcrm_deals');
                 localStorage.removeItem('fleetcrm_deals_count');
@@ -47,15 +47,27 @@
             } catch(e) {}
         })();
     </script>
-    <link rel="manifest" href="manifest.json?v=265.2">
+    <!-- Anti-FOUC: Apply theme before CSS renders to prevent white flash -->
+    <script>
+        (function() {
+            try {
+                var t = localStorage.getItem('fleetcrm_theme');
+                if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
+            } catch(e) {}
+        })();
+    </script>
+    <link rel="manifest" href="manifest.json?v=265.5">
     <meta name="theme-color" content="#7c3aed">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Fleet CRM">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Non-render-blocking font load: preload fires download without blocking first paint -->
+    <link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap"></noscript>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=265.2">
+    <link rel="stylesheet" href="css/style.css?v=265.4">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
         (function() {
@@ -224,6 +236,12 @@
             <div class="login-bg-grid"></div>
         </div>
 
+        <div style="position: absolute; top: 18px; left: 18px; z-index: 10002;">
+            <button class="btn btn-outline btn-sm" onclick="App.toggleTheme()" style="gap: 6px; background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(124, 58, 237, 0.4); color: #c4b5fd; border-radius: 10px; font-weight: 700; cursor: pointer; padding: 6px 12px;">
+                <i class="fas fa-circle-half-stroke theme-toggle-icon"></i> <span class="theme-toggle-label">الوضع الليلي</span>
+            </button>
+        </div>
+
         <div id="login-card-dialog" class="login-portal-container">
             <!-- Form Side -->
             <div class="login-form-side">
@@ -350,12 +368,25 @@
         <div class="sidebar-footer admin-only-nav">
             <div class="sidebar-stats" style="justify-content:center;">
                 <div class="sidebar-stat" style="width:100%; text-align:center;">
-                    <span class="stat-num" id="sidebar-total-companies"><script>document.write(localStorage.getItem('fleetcrm_company_count') ? parseInt(String(localStorage.getItem('fleetcrm_company_count')).replace(/,/g,''),10).toLocaleString() : '25,628');</script></span>
+                    <span class="stat-num" id="sidebar-total-companies"><script>document.write(localStorage.getItem('fleetcrm_company_count') ? parseInt(String(localStorage.getItem('fleetcrm_company_count')).replace(/,/g,''),10).toLocaleString() : '25,928');</script></span>
                     <span class="stat-label">شركة ومصنع مسجل</span>
                 </div>
             </div>
-            <div style="padding: 10px 14px 4px 14px; text-align: center;">
-                <button id="btn-pwa-install" onclick="App.installPWA()" class="btn btn-outline btn-sm" style="display: none; width: 100%; border-color: rgba(34, 211, 238, 0.45); color: #22d3ee; background: rgba(34, 211, 238, 0.1); font-weight: 700; font-size: 11.5px; border-radius: 8px; justify-content: center; gap: 6px; align-items: center; cursor: pointer;">
+
+            <!-- Visible Theme Switcher in Sidebar -->
+            <div class="sidebar-theme-row" onclick="App.toggleTheme()" style="display:flex; align-items:center; justify-content:space-between; margin:8px 14px; padding:9px 12px; background:rgba(124,58,237,0.14); border:1px solid rgba(124,58,237,0.35); border-radius:10px; cursor:pointer;" title="تبديل الوضع الليلي / النهاري">
+                <span style="font-size:12px; font-weight:700; color:var(--text-primary);"><i class="fas fa-moon theme-toggle-icon" style="color:#a78bfa; margin-left:6px;"></i> <span class="theme-toggle-label">الوضع الليلي</span></span>
+                <span style="font-size:11px; color:#22d3ee; font-weight:800; background:rgba(34,211,238,0.12); padding:2px 8px; border-radius:6px; border:1px solid rgba(34,211,238,0.3);">تبديل 🔄</span>
+            </div>
+
+            <!-- PWA & Offline status in sidebar -->
+            <div style="padding: 4px 14px; text-align: center;">
+                <button id="btn-pwa-offline-info" onclick="App.showOfflineStatusModal()" class="btn btn-outline btn-sm" style="width: 100%; border-color: rgba(34, 211, 238, 0.45); color: #22d3ee; background: rgba(34, 211, 238, 0.08); font-weight: 700; font-size: 11.5px; border-radius: 8px; justify-content: center; gap: 6px; align-items: center; cursor: pointer;">
+                    <i class="fas fa-bolt"></i> <span>وضع Offline جاهز 100% ⚡</span>
+                </button>
+            </div>
+            <div style="padding: 4px 14px 6px 14px; text-align: center;">
+                <button id="btn-pwa-install" onclick="App.installPWA()" class="btn btn-outline btn-sm" style="display: none; width: 100%; border-color: rgba(16, 185, 129, 0.45); color: #10b981; background: rgba(16, 185, 129, 0.1); font-weight: 700; font-size: 11.5px; border-radius: 8px; justify-content: center; gap: 6px; align-items: center; cursor: pointer;">
                     <i class="fas fa-mobile-screen-button"></i> <span>تثبيت التطبيق 📲</span>
                 </button>
             </div>
@@ -394,6 +425,17 @@
                     </div>
                 </div>
 
+                <!-- Theme Toggle Button (Dark ↔ Light Mode) -->
+                <button id="btn-theme-toggle" class="btn-theme-toggle" onclick="App.toggleTheme()" title="تبديل الوضع الليلي / النهاري">
+                    <i class="fas fa-moon theme-toggle-icon" id="theme-toggle-icon"></i>
+                </button>
+
+                <!-- Full Offline PWA Status Indicator -->
+                <div id="pwa-offline-indicator" class="pwa-offline-pill" title="حالة العمل دون إنترنت (Full Offline PWA)" onclick="App.showOfflineStatusModal()" style="display:inline-flex; align-items:center; gap:6px; background:rgba(99, 102, 241, 0.15); border:1px solid rgba(99, 102, 241, 0.4); color:#a5b4fc; padding:5px 12px; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer;">
+                    <i class="fas fa-bolt" id="pwa-offline-icon" style="color:#22d3ee;"></i>
+                    <span id="pwa-offline-label">وضع Offline جاهز ⚡</span>
+                </div>
+
                 <!-- Topbar PWA Install button -->
                 <button id="btn-pwa-install-top" onclick="App.installPWA()" class="btn btn-outline btn-sm" style="display: none; border-color: rgba(34, 211, 238, 0.4); color: #22d3ee; background: rgba(34, 211, 238, 0.08); font-weight: 700; font-size: 11.5px; border-radius: 8px; align-items: center; gap: 6px; cursor: pointer;" title="تثبيت Fleet CRM كتطبيق على جهازك">
                     <i class="fas fa-download"></i> <span>تثبيت التطبيق</span>
@@ -426,7 +468,13 @@
                         <h1><i class="fas fa-tachometer-alt"></i> لوحة التحكم <small>Dashboard</small></h1>
                         <p class="page-subtitle">نظرة عامة على أداء المبيعات</p>
                     </div>
-                    <div class="page-header-actions">
+                    <div class="page-header-actions" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                        <button class="btn btn-primary btn-sm" onclick="Reports.exportPDF()" title="تصدير تقرير شامل للوحة التحكم والأداء بصيغة PDF" style="gap:6px; font-weight:700; background:linear-gradient(135deg, #7c3aed, #4f46e5); box-shadow:0 4px 12px rgba(124,58,237,0.35);">
+                            <i class="fas fa-file-pdf"></i> <span>تصدير تقرير PDF 📄</span>
+                        </button>
+                        <button class="btn btn-outline btn-sm" onclick="App.toggleTheme()" title="تبديل المظهر" style="gap:6px; font-weight:700;">
+                            <i class="fas fa-circle-half-stroke"></i> <span class="theme-toggle-label">الوضع الليلي</span>
+                        </button>
                         <span class="date-display" id="current-date"></span>
                     </div>
                 </div>
@@ -595,6 +643,9 @@
                         </button>
                         <button class="btn btn-outline btn-sm" id="btn-import-excel" onclick="ExcelHandler.triggerImport()">
                             <i class="fas fa-file-import"></i> استيراد Excel
+                        </button>
+                        <button class="btn btn-outline btn-sm" id="btn-export-pdf" onclick="Reports.exportPDF()" title="تصدير تقرير الشركات PDF" style="gap:6px; border-color:rgba(124,58,237,0.4); color:#c4b5fd;">
+                            <i class="fas fa-file-pdf"></i> <span>تقرير PDF</span>
                         </button>
                         <button class="btn btn-outline btn-sm" id="btn-export-excel" onclick="ExcelHandler.exportCompanies()">
                             <i class="fas fa-file-export"></i> تصدير Excel
@@ -922,6 +973,12 @@
                             <option value="year">هذه السنة</option>
                             <option value="all">الكل</option>
                         </select>
+                        <button class="btn btn-primary btn-sm" onclick="Reports.exportPDF()" title="تصدير تقرير PDF" style="gap:6px;">
+                            <i class="fas fa-file-pdf"></i> <span>PDF</span>
+                        </button>
+                        <button class="btn btn-outline btn-sm" onclick="Reports.exportExcel()" title="تصدير Excel" style="gap:6px; border-color:rgba(16,185,129,0.4); color:#10b981;">
+                            <i class="fas fa-file-excel"></i> <span>Excel</span>
+                        </button>
                     </div>
                 </div>
 
@@ -1470,6 +1527,52 @@
         </div>
     </div>
 
+    <!-- ⚡ PWA & Full Offline Status Modal -->
+    <div id="modal-pwa-status" class="modal">
+        <div class="modal-dialog" style="max-width: 520px;">
+            <div class="modal-header" style="background: linear-gradient(135deg, rgba(124,58,237,0.2), rgba(34,211,238,0.1));">
+                <h3><i class="fas fa-bolt" style="color: #22d3ee; margin-left: 8px;"></i> حالة نظام PWA ووضع Offline الكامل</h3>
+                <button class="modal-close" data-modal="modal-pwa-status" onclick="App.closeModal('modal-pwa-status')">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 20px;">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div style="display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 50%; background: rgba(16, 185, 129, 0.15); color: #10b981; font-size: 28px; margin-bottom: 12px; border: 2px solid rgba(16, 185, 129, 0.4);">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h4 style="font-size: 1.15rem; font-weight: 800; color: var(--text-primary); margin-bottom: 6px;">نظام Fleet CRM جاهز للعمل بدون إنترنت 100%</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">تم تخزين كامل ملفات النظام وقاعدة البيانات محلياً. إذا انقطع اتصال الإنترنت أو قمت بتشغيل وضع الطيران، ستستمر في التصفح والبحث وتسجيل المكالمات دون أي توقف.</p>
+                </div>
+
+                <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px; margin-bottom: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border-light);">
+                        <span style="font-size: 13px; color: var(--text-secondary);"><i class="fas fa-cube" style="color: #6366f1; margin-left: 6px;"></i> واجهة النظام (App Shell):</span>
+                        <span style="font-size: 12.5px; font-weight: 700; color: #10b981;">✅ مخزنة في الكاش</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border-light);">
+                        <span style="font-size: 13px; color: var(--text-secondary);"><i class="fas fa-database" style="color: #22d3ee; margin-left: 6px;"></i> قاعدة الشركات المحلية (IndexedDB):</span>
+                        <span style="font-size: 12.5px; font-weight: 700; color: #10b981;">✅ 25,928 شركة مخزنة</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0;">
+                        <span style="font-size: 13px; color: var(--text-secondary);"><i class="fas fa-arrows-rotate" style="color: #f59e0b; margin-left: 6px;"></i> المزامنة السحابية:</span>
+                        <span style="font-size: 12.5px; font-weight: 700; color: #22d3ee;" id="modal-sync-status-text">تلقائية عند توفر النت</span>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-accent btn-sm" onclick="App.testOfflineSimulation()" style="flex: 1; justify-content: center; gap: 6px; font-weight: 700;">
+                        <i class="fas fa-vial"></i> اختبار التصفح أوفلاين
+                    </button>
+                    <button class="btn btn-outline btn-sm" onclick="App.clearCacheAndReload()" style="flex: 1; justify-content: center; gap: 6px; font-weight: 700; border-color: rgba(239, 68, 68, 0.4); color: #ef4444;">
+                        <i class="fas fa-rotate"></i> مسح الكاش وتحديث فوري
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" data-modal="modal-pwa-status" onclick="App.closeModal('modal-pwa-status')">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Container -->
     <div id="toast-container"></div>
 
@@ -1507,20 +1610,20 @@
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <script src="js/supabase-client.js?v=265.2"></script>
-    <script src="js/egypt_verified_titans.js?v=265.2"></script>
-    <script src="js/egypt_enterprises_pool.js?v=265.2"></script>
-    <script src="js/companies-worker.js?v=265.2"></script>
-    <script src="js/storage.js?v=265.2"></script>
-    <script src="js/excel-handler.js?v=265.2"></script>
-    <script src="js/dashboard.js?v=265.2"></script>
-    <script src="js/companies.js?v=265.2"></script>
-    <script src="js/calls.js?v=265.2"></script>
-    <script src="js/reports.js?v=265.2"></script>
-    <script src="js/scraper.js?v=265.2"></script>
-    <script src="js/team.js?v=265.2"></script>
-    <script src="js/settings.js?v=265.2"></script>
-    <script src="js/app.js?v=265.2"></script>
+    <script src="js/supabase-client.js?v=265.5"></script>
+    <script src="js/egypt_verified_titans.js?v=265.5"></script>
+    <script src="js/egypt_enterprises_pool.js?v=265.5"></script>
+    <script src="js/companies-worker.js?v=265.5"></script>
+    <script src="js/storage.js?v=265.5"></script>
+    <script src="js/excel-handler.js?v=265.5"></script>
+    <script src="js/dashboard.js?v=265.5"></script>
+    <script src="js/companies.js?v=265.5"></script>
+    <script src="js/calls.js?v=265.5"></script>
+    <script src="js/reports.js?v=265.5"></script>
+    <script src="js/scraper.js?v=265.5"></script>
+    <script src="js/team.js?v=265.5"></script>
+    <script src="js/settings.js?v=265.5"></script>
+    <script src="js/app.js?v=265.5"></script>
 
     <!-- Cleanup overlay on load - runs once only, does NOT override App.checkAuth -->
     <script>

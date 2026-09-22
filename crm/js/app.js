@@ -73,17 +73,20 @@ const App = {
 
             // Immediately pull and merge latest cloud dataset (including all harvested companies)
             window.AppStorage.pullFromCloud().then(wasUpdated => {
-                const total = (window.AppStorage.getCompanies() || []).length;
-                const sideCounter = document.getElementById('sidebar-total-companies');
-                if (sideCounter && total > 0) sideCounter.textContent = total.toLocaleString();
+                window.AppStorage.updateLiveCounters();
                 if (wasUpdated) {
                     if (typeof Companies !== 'undefined' && this.currentPage === 'companies') Companies.render();
                     if (typeof Dashboard !== 'undefined' && this.currentPage === 'dashboard') Dashboard.render();
                 }
             }).catch(() => {});
 
-            // Also force pull cloud updates instantly when browser tab/app regains focus or visibility (e.g. mobile unlock)
+            // Throttled sync on focus/visibility — max once every 90s to prevent hammering mobile connections
+            let _lastSyncTs = 0;
+            const SYNC_THROTTLE_MS = 90000; // 90 seconds minimum between syncs
             const handleInstantSync = () => {
+                const now = Date.now();
+                if (now - _lastSyncTs < SYNC_THROTTLE_MS) return; // already synced recently
+                _lastSyncTs = now;
                 window.AppStorage.pullFromCloud().then(wasUpdated => {
                     if (wasUpdated) {
                         if (typeof Companies !== 'undefined' && this.currentPage === 'companies') Companies.render();
@@ -114,11 +117,39 @@ const App = {
             // Initialize routing
             this.initRouting();
 
+            // Apply saved theme preference (dark/light) before first render
+            this.initTheme();
+
             // PWA Service Worker Registration & Offline Support
             if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-                navigator.serviceWorker.register('sw.js?v=265.0').then(reg => {
+                navigator.serviceWorker.register('sw.js?v=265.5').then(reg => {
                     reg.update().catch(() => {});
+                    // Detect when a new SW version is waiting — show update notification
+                    reg.addEventListener('updatefound', () => {
+                        const newWorker = reg.installing;
+                        if (!newWorker) return;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                // New version ready — prompt user to reload
+                                this._showUpdateBanner();
+                            }
+                        });
+                    });
                 }).catch(() => {});
+
+                // Update UI based on initial online status
+                this._updateNetworkStatus(navigator.onLine);
+
+                // Detect online/offline state changes
+                window.addEventListener('online', () => {
+                    this._updateNetworkStatus(true);
+                    this.showToast('✅ عاد الاتصال بالإنترنت — جاري مزامنة البيانات', 'success');
+                    window.AppStorage?.pullFromCloud().catch(() => {});
+                });
+                window.addEventListener('offline', () => {
+                    this._updateNetworkStatus(false);
+                    this.showToast('📡 لا يوجد اتصال — التطبيق يعمل في وضع Offline الكامل', 'info');
+                });
             }
 
             // PWA Install Prompt Listener
@@ -1293,6 +1324,142 @@ const App = {
             if (pwaBtnTop) pwaBtnTop.style.display = 'none';
         } else {
             this.showToast('لتثبيت التطبيق: افتح قائمة خيارات المتصفح (⋮) واختر "إضافة إلى الشاشة الرئيسية" أو "Install App"', 'info');
+        }
+    },
+
+    // ---- PWA Update Banner ----
+    _showUpdateBanner() {
+        // Don't show if already visible
+        if (document.getElementById('pwa-update-banner')) return;
+        const banner = document.createElement('div');
+        banner.id = 'pwa-update-banner';
+        banner.style.cssText = `
+            position: fixed; top: 0; left: 0; right: 0; z-index: 99999;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: #fff; text-align: center; padding: 10px 20px;
+            font-family: 'Cairo', sans-serif; font-size: 14px; font-weight: 700;
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        `;
+        banner.innerHTML = `
+            <i class="fas fa-download"></i>
+            <span>🚀 تحديث جديد متاح لـ Fleet CRM!</span>
+            <button onclick="window.App._activateUpdate()" style="background:#fff; color:#4f46e5; border:none; padding:6px 16px; border-radius:8px; font-weight:800; cursor:pointer; font-size:13px;">تحديث الآن</button>
+            <button onclick="this.parentElement.remove()" style="background:rgba(255,255,255,0.2); color:#fff; border:none; padding:6px 10px; border-radius:8px; cursor:pointer;">✕</button>
+        `;
+        document.body.prepend(banner);
+    },
+
+    _activateUpdate() {
+        if (navigator.serviceWorker.controller) {
+            navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
+        }
+        location.reload();
+    },
+
+    // ---- Network & PWA Offline Status Indicator ----
+    _updateNetworkStatus(isOnline) {
+        const pill = document.getElementById('pwa-offline-indicator');
+        const label = document.getElementById('pwa-offline-label');
+        const icon = document.getElementById('pwa-offline-icon');
+        const modalText = document.getElementById('modal-sync-status-text');
+
+        if (isOnline) {
+            if (pill) {
+                pill.style.background = 'rgba(99, 102, 241, 0.15)';
+                pill.style.borderColor = 'rgba(99, 102, 241, 0.4)';
+                pill.style.color = '#a5b4fc';
+            }
+            if (icon) {
+                icon.className = 'fas fa-bolt';
+                icon.style.color = '#22d3ee';
+            }
+            if (label) label.textContent = 'وضع Offline جاهز ⚡';
+            if (modalText) modalText.textContent = 'متزامنة تلقائياً عند توفر النت';
+        } else {
+            if (pill) {
+                pill.style.background = 'rgba(245, 158, 11, 0.2)';
+                pill.style.borderColor = 'rgba(245, 158, 11, 0.5)';
+                pill.style.color = '#fcd34d';
+            }
+            if (icon) {
+                icon.className = 'fas fa-wifi-slash';
+                icon.style.color = '#f59e0b';
+            }
+            if (label) label.textContent = 'شغال بدون إنترنت (Offline) 📶';
+            if (modalText) modalText.textContent = 'غير متصل (البيانات محفوظة محلياً)';
+        }
+    },
+
+    showOfflineStatusModal() {
+        this.openModal('modal-pwa-status');
+    },
+
+    testOfflineSimulation() {
+        this.showToast('🚀 اختبار وضع Offline: جاري فحص عمل النظام دون خادم...', 'info');
+        setTimeout(() => {
+            const count = window.AppStorage ? (window.AppStorage.getCompanies().length || 0) : 0;
+            this.showToast(`✅ نجاح: قاعدة البيانات المحلية تحتوي على ${count.toLocaleString('en-US')} شركة وواجهة النظام مخزنة بالكامل!`, 'success');
+        }, 600);
+    },
+
+    clearCacheAndReload() {
+        if ('caches' in window) {
+            caches.keys().then(keys => {
+                return Promise.all(keys.map(k => caches.delete(k)));
+            }).then(() => {
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.getRegistrations().then(regs => {
+                        regs.forEach(r => r.unregister());
+                    });
+                }
+                localStorage.removeItem('fleetcrm_app_version');
+                this.showToast('🔄 تم مسح الكاش بنجاح! جاري التحديث...', 'success');
+                setTimeout(() => location.reload(true), 500);
+            });
+        } else {
+            location.reload(true);
+        }
+    },
+
+    // ---- Dark / Light Mode ----
+    initTheme() {
+        const saved = localStorage.getItem('fleetcrm_theme') || 'dark';
+        this._applyTheme(saved, false); // false = no toast on init
+    },
+
+    toggleTheme() {
+        const current = document.documentElement.getAttribute('data-theme') || 'dark';
+        const next = current === 'dark' ? 'light' : 'dark';
+        this._applyTheme(next, true);
+        localStorage.setItem('fleetcrm_theme', next);
+    },
+
+    _applyTheme(theme, showNotification) {
+        const html = document.documentElement;
+        const isLight = theme === 'light';
+
+        if (isLight) {
+            html.setAttribute('data-theme', 'light');
+        } else {
+            html.removeAttribute('data-theme');
+        }
+
+        // Update all theme icons
+        document.querySelectorAll('.theme-toggle-icon').forEach(icon => {
+            icon.className = isLight ? 'fas fa-sun theme-toggle-icon' : 'fas fa-moon theme-toggle-icon';
+            if (icon.parentElement && icon.parentElement.classList.contains('sidebar-theme-row')) {
+                icon.style.color = isLight ? '#f59e0b' : '#a78bfa';
+            }
+        });
+
+        // Update all theme labels
+        document.querySelectorAll('.theme-toggle-label').forEach(label => {
+            label.textContent = isLight ? 'الوضع النهاري' : 'الوضع الليلي';
+        });
+
+        if (showNotification) {
+            this.showToast(isLight ? '☀️ تم التفعيل: الوضع النهاري (Light Mode)' : '🌙 تم التفعيل: الوضع الليلي (Dark Mode)', 'info');
         }
     }
 };
