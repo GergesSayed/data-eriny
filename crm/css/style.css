@@ -1586,9 +1586,9 @@ a:hover { color: var(--accent); }
         table-layout: auto;
     }
     #companies-table th {
-        padding: 9px 8px;
-        font-size: 0.78rem;
-        font-weight: 800;
+        padding: 13px 14px;
+        font-size: 0.82rem;
+        font-weight: 700;
         letter-spacing: 0.2px;
         white-space: nowrap;
         background: var(--bg-surface);
@@ -1597,28 +1597,37 @@ a:hover { color: var(--accent); }
         vertical-align: middle;
     }
     #companies-table td {
-        padding: 6px 8px;
+        padding: 12px 14px;
         box-sizing: border-box;
         vertical-align: middle;
-        font-size: 0.81rem;
+        font-size: 0.83rem;
+        line-height: 1.4;
         border-bottom: 1px solid var(--border-light);
     }
     .table-actions {
-        display: flex;
-        gap: 3px;
+        display: inline-flex;
+        gap: 5px;
         justify-content: center;
         align-items: center;
     }
     .table-actions .btn-icon {
-        width: 26px;
-        height: 26px;
-        min-width: 26px;
-        font-size: 0.72rem;
+        width: 29px;
+        height: 29px;
+        min-width: 29px;
+        font-size: 0.76rem;
         padding: 0;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        border-radius: var(--radius-sm);
+        border-radius: 7px;
+        border: 1px solid var(--border-color);
+        background: var(--bg-surface);
+        color: var(--text-secondary);
+        transition: all 0.15s ease;
+    }
+    .table-actions .btn-icon:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
     }
 }
 

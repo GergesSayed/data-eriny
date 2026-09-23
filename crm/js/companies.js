@@ -971,17 +971,17 @@ const Companies = {
             const contactTitle = esc(c.contactTitle || '');
             const linkedinRaw = typeof c.linkedinUrl === 'string' ? c.linkedinUrl : (typeof c.linkedin === 'string' ? c.linkedin : '');
             const linkedinLink = (linkedinRaw && linkedinRaw.includes('linkedin.com') && !linkedinRaw.includes('google.com')) ? esc(linkedinRaw) : '';
-            const linkedinIcon = linkedinLink ? ` <a href="${linkedinLink}" target="_blank" style="color: #0077b5; margin-right: 6px; font-size: 14px;" title="LinkedIn الشركة" onclick="event.stopPropagation();"><i class="fab fa-linkedin"></i></a>` : '';
+            const linkedinIcon = linkedinLink ? `<a href="${linkedinLink}" target="_blank" style="color:#0077b5; font-size:13px; display:inline-flex; align-items:center;" title="LinkedIn الشركة" onclick="event.stopPropagation();"><i class="fab fa-linkedin"></i></a>` : '';
 
             const facebookLink = esc(typeof c.facebook === 'string' ? c.facebook : '');
-            const facebookIcon = facebookLink ? ` <a href="${facebookLink}" target="_blank" style="color: #1877f2; margin-right: 6px; font-size: 14px;" title="Facebook الشركة" onclick="event.stopPropagation();"><i class="fab fa-facebook-f"></i></a>` : '';
+            const facebookIcon = facebookLink ? `<a href="${facebookLink}" target="_blank" style="color:#1877f2; font-size:13px; display:inline-flex; align-items:center;" title="Facebook الشركة" onclick="event.stopPropagation();"><i class="fab fa-facebook-f"></i></a>` : '';
             const rawMaps = window.AppStorage.getGoogleMapsUrl ? window.AppStorage.getGoogleMapsUrl(c) : (c.google_maps_url || '');
             const mapsLink = esc(rawMaps);
-            const mapsIcon = mapsLink ? ` <a href="${mapsLink}" target="_blank" style="color: #ea4335; margin-right: 6px; font-size: 14px;" title="موقع الشركة على خرائط جوجل" onclick="event.stopPropagation();"><i class="fas fa-map-marker-alt"></i></a>` : '';
+            const mapsIcon = mapsLink ? `<a href="${mapsLink}" target="_blank" style="color:#ea4335; font-size:13px; display:inline-flex; align-items:center;" title="موقع الشركة على خرائط جوجل" onclick="event.stopPropagation();"><i class="fas fa-map-marker-alt"></i></a>` : '';
 
             const contactLinkedinRaw = typeof c.linkedinContactUrl === 'string' ? c.linkedinContactUrl : (typeof c.contactLinkedin === 'string' ? c.contactLinkedin : '');
             const contactLinkedin = (contactLinkedinRaw && contactLinkedinRaw.includes('linkedin.com') && !contactLinkedinRaw.includes('google.com')) ? esc(contactLinkedinRaw) : '';
-            const contactLinkedinIcon = contactLinkedin ? ` <a href="${contactLinkedin}" target="_blank" style="color: #0077b5; margin-right: 6px; font-size: 12px;" title="LinkedIn المسؤول" onclick="event.stopPropagation();"><i class="fab fa-linkedin"></i></a>` : '';
+            const contactLinkedinIcon = contactLinkedin ? `<a href="${contactLinkedin}" target="_blank" style="color:#0077b5; font-size:12px; display:inline-flex; align-items:center; margin-inline-start:4px;" title="LinkedIn المسؤول" onclick="event.stopPropagation();"><i class="fab fa-linkedin"></i></a>` : '';
 
             const isChecked = this.selectedCompanies && this.selectedCompanies.has(c.id) ? 'checked' : '';
             const assignedBadge = this.buildAssignedWidget(c);
@@ -1001,19 +1001,19 @@ const Companies = {
             let callResultBadge = '';
             if (callResult) {
                 callResultBadge = `
-                    <div style="white-space:nowrap;">
-                        <span class="result-badge result-${callResult}" style="font-size:0.75rem;">${window.AppStorage.getCallResultLabel(callResult)}</span>
-                        ${callDate ? `<small style="display:block; font-size:10px; color:var(--text-muted); margin-top:2px;">${callDate}</small>` : ''}
+                    <div style="white-space:nowrap; display:flex; flex-direction:column; align-items:center; gap:2px;">
+                        <span class="result-badge result-${callResult}" style="font-size:0.76rem; padding:4px 10px; border-radius:8px;">${window.AppStorage.getCallResultLabel(callResult)}</span>
+                        ${callDate ? `<small style="font-size:10px; color:var(--text-muted); font-weight:600;">${callDate}</small>` : ''}
                     </div>`;
             } else if (c.status === 'interested') {
-                callResultBadge = `<span class="badge" style="background:#10b98122; color:#10b981; border:1px solid #10b981; font-size:0.75rem; white-space:nowrap;">💚 عميل مهتم</span>`;
+                callResultBadge = `<span class="badge" style="background:#10b98115; color:#10b981; border:1px solid rgba(16,185,129,0.3); font-size:0.76rem; padding:4px 10px; border-radius:8px; white-space:nowrap; font-weight:700;">💚 عميل مهتم</span>`;
             } else {
-                callResultBadge = `<span style="color:var(--text-muted); font-size:11px; white-space:nowrap;">⚪ لم يتواصل بعد</span>`;
+                callResultBadge = `<span class="badge" style="background:var(--bg-surface); color:var(--text-muted); border:1px solid var(--border-color); font-size:0.74rem; padding:4px 10px; border-radius:8px; white-space:nowrap; font-weight:600;">⚪ لم يتواصل بعد</span>`;
             }
 
             const isTitan = Boolean(c.isTitan || (c.id && String(c.id).startsWith('eg_titan_')));
             const titanBadge = isTitan ? `<span class="badge" style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#fff; font-size:10px; padding:2px 7px; border-radius:5px; font-weight:900; letter-spacing:0.5px; display:inline-flex; align-items:center; gap:3px;" title="عميل كبار الشخصيات VIP"><i class="fas fa-crown"></i> VIP</span>` : '';
-            const hotlineBadge = c.hotline ? `<span class="badge" style="background:rgba(59,130,246,0.15); color:#3b82f6; font-size:11px; padding:1px 6px; border-radius:4px; font-family:Inter; font-weight:800;" title="الخط الساخن"><i class="fas fa-headset"></i> ${esc(c.hotline)}</span>` : '';
+            const hotlineBadge = c.hotline ? `<span class="badge" style="background:rgba(59,130,246,0.12); color:#2563eb; border:1px solid rgba(59,130,246,0.25); font-size:11px; padding:2px 7px; border-radius:6px; font-family:Inter; font-weight:800; display:inline-flex; align-items:center; gap:4px;" title="الخط الساخن"><i class="fas fa-headset"></i> ${esc(c.hotline)}</span>` : '';
 
             // Recency Warning Badge (Avoid double-calling)
             let recencyBadge = '';
@@ -1037,41 +1037,41 @@ const Companies = {
                         </td>
                     ` : ''}
                     <td>
-                        <div class="company-name-cell" style="display:flex; flex-direction:column; justify-content:center; gap:2px;">
-                            <div class="company-title-row" style="display:flex; align-items:center; gap:6px; white-space:nowrap; overflow:hidden;">
-                                <span class="name-ar" style="font-weight:700; color:var(--text-primary); font-size:0.84rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:210px;" title="${mainName}">${mainName}</span>
+                        <div class="company-name-cell" style="display:flex; flex-direction:column; justify-content:center; gap:5px;">
+                            <div class="company-title-row" style="display:flex; align-items:center; gap:8px; white-space:nowrap; overflow:hidden;">
+                                <span class="name-ar" style="font-weight:700; color:var(--text-primary); font-size:0.87rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:260px;" title="${mainName}">${mainName}</span>
                                 ${titanBadge}
                                 ${recencyBadge}
                             </div>
-                            <div class="company-meta-row" style="display:flex; align-items:center; gap:6px; font-size:0.72rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:230px;">
+                            <div class="company-meta-row" style="display:flex; align-items:center; gap:8px; font-size:0.74rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:270px;">
                                 ${hotlineBadge}
+                                ${mapsIcon}
                                 ${linkedinIcon}
                                 ${facebookIcon}
-                                ${mapsIcon}
-                                ${subName ? `<span class="name-en" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:140px;" title="${subName}">${subName}</span>` : ''}
+                                ${subName ? `<span class="name-en" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:180px; opacity:0.85;">${subName}</span>` : ''}
                             </div>
                         </div>
                     </td>
-                    <td style="white-space:nowrap; text-align:center;"><span class="badge sector-badge" style="font-size:0.75rem; padding:3px 8px; border-radius:6px; font-weight:600;">${sectorLabel}</span></td>
-                    <td style="white-space:nowrap; text-align:center; font-weight:600; font-size:0.8rem; color:var(--text-secondary);">${cityLabel}</td>
+                    <td style="white-space:nowrap; text-align:center;"><span class="badge sector-badge" style="font-size:0.77rem; padding:4px 10px; border-radius:8px; font-weight:600;">${sectorLabel}</span></td>
+                    <td style="white-space:nowrap; text-align:center; font-weight:600; font-size:0.83rem; color:var(--text-secondary);">${cityLabel}</td>
                     <td style="white-space:nowrap; text-align:center;">
-                        <a href="tel:${phone}" onclick="event.stopPropagation();" style="display:inline-flex; align-items:center; gap:4px; font-family:Inter, monospace; font-weight:700; font-size:0.78rem; color:var(--text-primary); text-decoration:none; direction:ltr; unicode-bidi:embed;" title="اتصال">
-                            <i class="fas fa-phone-alt" style="font-size:0.68rem; color:var(--success);"></i>
+                        <a href="tel:${phone}" onclick="event.stopPropagation();" style="display:inline-flex; align-items:center; gap:6px; font-family:Inter, monospace; font-weight:700; font-size:0.81rem; color:var(--text-primary); text-decoration:none; direction:ltr; unicode-bidi:embed; padding:3px 8px; border-radius:6px; background:rgba(16, 185, 129, 0.05); border:1px solid rgba(16, 185, 129, 0.18);" title="اتصال">
+                            <i class="fas fa-phone-alt" style="font-size:0.7rem; color:var(--success);"></i>
                             <span>${phone}</span>
                         </a>
                     </td>
-                    <td style="white-space:nowrap; text-align:center;"><span class="fleet-badge" style="font-weight:800; font-size:0.82rem;">${fleet}</span></td>
+                    <td style="white-space:nowrap; text-align:center;"><span class="fleet-badge" style="font-weight:800; font-size:0.83rem; padding:3px 8px; border-radius:6px;">${fleet}</span></td>
                     <td style="white-space:nowrap; text-align:center;">${assignedBadge}</td>
                     <td style="white-space:nowrap; text-align:center;">${callResultBadge}</td>
-                    <td style="max-width: 160px;">
-                        <div style="font-size:0.8rem; font-weight:700; color:var(--text-primary); display:flex; align-items:center; gap:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${contact}">
+                    <td style="max-width: 175px;">
+                        <div style="font-size:0.82rem; font-weight:700; color:var(--text-primary); display:flex; align-items:center; gap:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${contact}">
                             <span style="overflow:hidden; text-overflow:ellipsis;">${contact}</span>
                             ${contactLinkedinIcon}
                         </div>
-                        ${contactTitle ? `<div style="font-size:0.68rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:150px; margin-top:2px;" title="${contactTitle}">${contactTitle}</div>` : ''}
+                        ${contactTitle ? `<div style="font-size:0.71rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:170px; margin-top:3px;" title="${contactTitle}">${contactTitle}</div>` : ''}
                     </td>
                     <td style="white-space:nowrap; text-align:center;">
-                        <div class="table-actions" onclick="event.stopPropagation();" style="display:inline-flex; gap:3px; justify-content:center; align-items:center;">
+                        <div class="table-actions" onclick="event.stopPropagation();">
                             <button class="btn-icon btn-view" onclick="event.stopPropagation(); Companies.showDetail('${c.id}')" title="تفاصيل">
                                 <i class="fas fa-eye"></i>
                             </button>
@@ -2092,19 +2092,19 @@ const Companies = {
             if (window.AppStorage.canModify()) {
                 return `
                     <div onclick="event.stopPropagation();" style="display:inline-flex; justify-content:center;">
-                        <select onchange="Companies.assignToUser('${c.id}', this.value)" style="padding:3px 6px; border-radius:6px; border:1px solid ${assignedUser.color || '#7c3aed'}66; background:${assignedUser.color || '#7c3aed'}15; color:${assignedUser.color || '#7c3aed'}; font-size:0.75rem; font-weight:700; width:125px; cursor:pointer; text-align:center; direction:ltr;" title="المسند إليه: ${userName} (تاريخ التعيين: ${c.assignedAt ? new Date(c.assignedAt).toLocaleDateString('ar-EG') : ''})">
+                        <select onchange="Companies.assignToUser('${c.id}', this.value)" style="padding:4px 8px; border-radius:7px; border:1px solid ${assignedUser.color || '#7c3aed'}66; background:${assignedUser.color || '#7c3aed'}15; color:${assignedUser.color || '#7c3aed'}; font-size:0.77rem; font-weight:700; width:130px; cursor:pointer; text-align:center; direction:ltr;" title="المسند إليه: ${userName} (تاريخ التعيين: ${c.assignedAt ? new Date(c.assignedAt).toLocaleDateString('ar-EG') : ''})">
                             <option value="${assignedUser.id}" selected>👤 ${userName}</option>
                             <option value="">⚪ إلغاء التعيين</option>
                             ${users.filter(u => u && u.id !== assignedUser.id).map(u => `<option value="${u.id}">👤 ${u.name || u.username || 'موظف'}</option>`).join('')}
                         </select>
                     </div>`;
             } else {
-                return `<span class="badge" style="background:${assignedUser.color || '#7c3aed'}22; color:${assignedUser.color || '#7c3aed'}; font-size:0.75rem; padding:3px 8px; border-radius:6px; font-weight:700; white-space:nowrap; display:inline-block;">👤 ${userName}</span>`;
+                return `<span class="badge" style="background:${assignedUser.color || '#7c3aed'}22; color:${assignedUser.color || '#7c3aed'}; font-size:0.77rem; padding:4px 10px; border-radius:7px; font-weight:700; white-space:nowrap; display:inline-block;">👤 ${userName}</span>`;
             }
         } else {
             return window.AppStorage.canModify() ? `
                 <div onclick="event.stopPropagation();" style="display:inline-flex; justify-content:center;">
-                    <select onchange="Companies.assignToUser('${c.id}', this.value)" style="padding:3px 6px; border-radius:6px; border:1px dashed #7c3aed; background:rgba(124, 58, 237, 0.08); color:#7c3aed; font-size:0.75rem; font-weight:700; width:110px; cursor:pointer; text-align:center;" title="اختر الموظف لإسناد هذه الشركة له">
+                    <select onchange="Companies.assignToUser('${c.id}', this.value)" style="padding:4px 8px; border-radius:7px; border:1px dashed #7c3aed; background:rgba(124, 58, 237, 0.08); color:#7c3aed; font-size:0.77rem; font-weight:700; width:115px; cursor:pointer; text-align:center;" title="اختر الموظف لإسناد هذه الشركة له">
                         <option value="" selected>➕ إسناد</option>
                         <option value="current_user">🙋‍♂️ أنا (${currentName})</option>
                         ${users.map(u => `<option value="${u.id}">👤 ${u.name || u.username || 'موظف'}</option>`).join('')}
