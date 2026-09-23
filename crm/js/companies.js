@@ -1037,18 +1037,18 @@ const Companies = {
                         </td>
                     ` : ''}
                     <td>
-                        <div class="company-name-cell">
-                            <div class="company-title-row" style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-                                <span class="name-ar" style="font-weight:700; color:var(--text-primary); font-size:0.86rem; line-height:1.35;" title="${mainName}">${mainName}</span>
+                        <div class="company-name-cell" style="display:flex; flex-direction:column; justify-content:center; gap:2px;">
+                            <div class="company-title-row" style="display:flex; align-items:center; gap:6px; white-space:nowrap; overflow:hidden;">
+                                <span class="name-ar" style="font-weight:700; color:var(--text-primary); font-size:0.84rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:210px;" title="${mainName}">${mainName}</span>
                                 ${titanBadge}
                                 ${recencyBadge}
                             </div>
-                            <div class="company-meta-row" style="display:flex; align-items:center; gap:6px; margin-top:3px; flex-wrap:wrap;">
-                                ${subName ? `<span class="name-en" style="font-size:0.72rem; color:var(--text-muted); font-family:Inter;" title="${subName}">${subName}</span>` : ''}
+                            <div class="company-meta-row" style="display:flex; align-items:center; gap:6px; font-size:0.72rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:230px;">
                                 ${hotlineBadge}
                                 ${linkedinIcon}
                                 ${facebookIcon}
                                 ${mapsIcon}
+                                ${subName ? `<span class="name-en" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:140px;" title="${subName}">${subName}</span>` : ''}
                             </div>
                         </div>
                     </td>
@@ -1064,12 +1064,12 @@ const Companies = {
                     <td style="white-space:nowrap; text-align:center;"><span class="badge priority-badge priority-${c.priority || 'B'}" style="font-weight:800; font-size:0.75rem; padding:2px 8px; border-radius:6px; min-width:28px; text-align:center; display:inline-block;">${c.priority || 'B'}</span></td>
                     <td style="white-space:nowrap; text-align:center;">${assignedBadge}</td>
                     <td style="white-space:nowrap; text-align:center;">${callResultBadge}</td>
-                    <td style="max-width: 140px;">
+                    <td style="max-width: 160px;">
                         <div style="font-size:0.8rem; font-weight:700; color:var(--text-primary); display:flex; align-items:center; gap:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${contact}">
                             <span style="overflow:hidden; text-overflow:ellipsis;">${contact}</span>
                             ${contactLinkedinIcon}
                         </div>
-                        ${contactTitle ? `<div style="font-size:0.68rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:130px; margin-top:2px;" title="${contactTitle}">${contactTitle}</div>` : ''}
+                        ${contactTitle ? `<div style="font-size:0.68rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:150px; margin-top:2px;" title="${contactTitle}">${contactTitle}</div>` : ''}
                     </td>
                     <td style="white-space:nowrap; text-align:center;">
                         <div class="table-actions" onclick="event.stopPropagation();" style="display:inline-flex; gap:3px; justify-content:center; align-items:center;">
@@ -2092,20 +2092,20 @@ const Companies = {
             const userName = assignedUser.name || assignedUser.username || 'موظف';
             if (window.AppStorage.canModify()) {
                 return `
-                    <div onclick="event.stopPropagation();" style="display:inline-block;">
-                        <select onchange="Companies.assignToUser('${c.id}', this.value)" style="padding:2px 6px; border-radius:6px; border:1px solid ${assignedUser.color || '#7c3aed'}66; background:${assignedUser.color || '#7c3aed'}15; color:${assignedUser.color || '#7c3aed'}; font-size:0.75rem; font-weight:700; max-width:112px; cursor:pointer;" title="المسند إليه: ${userName} (تاريخ التعيين: ${c.assignedAt ? new Date(c.assignedAt).toLocaleDateString('ar-EG') : ''})">
+                    <div onclick="event.stopPropagation();" style="display:inline-flex; justify-content:center;">
+                        <select onchange="Companies.assignToUser('${c.id}', this.value)" style="padding:3px 6px; border-radius:6px; border:1px solid ${assignedUser.color || '#7c3aed'}66; background:${assignedUser.color || '#7c3aed'}15; color:${assignedUser.color || '#7c3aed'}; font-size:0.75rem; font-weight:700; width:125px; cursor:pointer; text-align:center; direction:ltr;" title="المسند إليه: ${userName} (تاريخ التعيين: ${c.assignedAt ? new Date(c.assignedAt).toLocaleDateString('ar-EG') : ''})">
                             <option value="${assignedUser.id}" selected>👤 ${userName}</option>
                             <option value="">⚪ إلغاء التعيين</option>
                             ${users.filter(u => u && u.id !== assignedUser.id).map(u => `<option value="${u.id}">👤 ${u.name || u.username || 'موظف'}</option>`).join('')}
                         </select>
                     </div>`;
             } else {
-                return `<span class="badge" style="background:${assignedUser.color || '#7c3aed'}22; color:${assignedUser.color || '#7c3aed'}; font-size:0.75rem; padding:3px 7px; border-radius:6px; font-weight:700; white-space:nowrap;">👤 ${userName}</span>`;
+                return `<span class="badge" style="background:${assignedUser.color || '#7c3aed'}22; color:${assignedUser.color || '#7c3aed'}; font-size:0.75rem; padding:3px 8px; border-radius:6px; font-weight:700; white-space:nowrap; display:inline-block;">👤 ${userName}</span>`;
             }
         } else {
             return window.AppStorage.canModify() ? `
-                <div onclick="event.stopPropagation();" style="display:inline-block;">
-                    <select onchange="Companies.assignToUser('${c.id}', this.value)" style="padding:2px 6px; border-radius:6px; border:1px dashed #7c3aed; background:rgba(124, 58, 237, 0.08); color:#7c3aed; font-size:0.75rem; font-weight:700; max-width:105px; cursor:pointer;" title="اختر الموظف لإسناد هذه الشركة له">
+                <div onclick="event.stopPropagation();" style="display:inline-flex; justify-content:center;">
+                    <select onchange="Companies.assignToUser('${c.id}', this.value)" style="padding:3px 6px; border-radius:6px; border:1px dashed #7c3aed; background:rgba(124, 58, 237, 0.08); color:#7c3aed; font-size:0.75rem; font-weight:700; width:110px; cursor:pointer; text-align:center;" title="اختر الموظف لإسناد هذه الشركة له">
                         <option value="" selected>➕ إسناد</option>
                         <option value="current_user">🙋‍♂️ أنا (${currentName})</option>
                         ${users.map(u => `<option value="${u.id}">👤 ${u.name || u.username || 'موظف'}</option>`).join('')}

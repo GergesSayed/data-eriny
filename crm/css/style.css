@@ -1500,26 +1500,53 @@ a:hover { color: var(--accent); }
     font-size: 0.82rem;
 }
 .data-table tbody tr {
+    height: 48px;
     transition: background var(--transition-fast);
 }
-.data-table tbody tr:hover {
-    background: rgba(99, 102, 241, 0.04);
+.data-table tbody tr:hover td {
+    background: var(--bg-hover) !important;
+}
+.data-table th,
+.data-table td {
+    vertical-align: middle;
 }
 .data-table tbody tr:last-child td { border-bottom: none; }
 
 .company-name-cell {
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    justify-content: center;
+    gap: 2px;
     cursor: pointer;
-    min-width: 180px;
-    max-width: 300px;
+    min-width: 190px;
+    max-width: 260px;
 }
 .company-name-cell .name-ar {
     font-weight: 700;
     color: var(--text-primary);
-    line-height: 1.35;
-    word-break: break-word;
+    font-size: 0.84rem;
+    line-height: 1.25;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.company-name-cell:hover .name-ar { color: var(--primary); }
+.company-name-cell .company-title-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.company-name-cell .company-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .company-name-cell .name-en {
     font-size: 0.72rem;
@@ -1528,15 +1555,26 @@ a:hover { color: var(--accent); }
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 180px;
 }
-.company-name-cell:hover .name-ar { color: var(--primary-light); }
+.company-name-cell .company-meta-row a {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    transition: transform 0.15s ease;
+}
+.company-name-cell .company-meta-row a:hover {
+    transform: scale(1.2);
+}
 
 /* Zero Horizontal Scroll Desktop Fit for Companies Table (11 Columns Intact) */
 #companies-table-view {
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
+    overflow-x: auto;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
 }
 
 @media (min-width: 1024px) {
@@ -1547,52 +1585,34 @@ a:hover { color: var(--accent); }
         width: 100% !important;
         table-layout: auto;
     }
-    #companies-table th,
-    #companies-table td {
-        padding: 0.55rem 0.45rem;
-        box-sizing: border-box;
-        vertical-align: middle;
-    }
     #companies-table th {
-        font-size: 0.74rem;
+        padding: 9px 8px;
+        font-size: 0.78rem;
+        font-weight: 800;
         letter-spacing: 0.2px;
         white-space: nowrap;
         background: var(--bg-surface);
         border-bottom: 2px solid var(--border-color);
+        color: var(--text-primary);
+        vertical-align: middle;
     }
-    #companies-table th small {
-        font-size: 0.62rem;
-        color: var(--text-muted);
-        font-family: var(--font-en);
-        font-weight: 500;
-    }
-    .company-name-cell {
-        min-width: 180px;
-        max-width: 300px;
-    }
-    .company-name-cell .name-ar {
-        font-size: 0.85rem;
-        line-height: 1.35;
-        font-weight: 700;
-    }
-    .company-name-cell .company-meta-row a {
-        display: inline-flex;
-        align-items: center;
-        text-decoration: none;
-        transition: transform 0.15s ease;
-    }
-    .company-name-cell .company-meta-row a:hover {
-        transform: scale(1.15);
+    #companies-table td {
+        padding: 6px 8px;
+        box-sizing: border-box;
+        vertical-align: middle;
+        font-size: 0.81rem;
+        border-bottom: 1px solid var(--border-light);
     }
     .table-actions {
         display: flex;
         gap: 3px;
         justify-content: center;
+        align-items: center;
     }
     .table-actions .btn-icon {
-        width: 25px;
-        height: 25px;
-        min-width: 25px;
+        width: 26px;
+        height: 26px;
+        min-width: 26px;
         font-size: 0.72rem;
         padding: 0;
         display: inline-flex;
