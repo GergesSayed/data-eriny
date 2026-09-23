@@ -122,7 +122,7 @@ const App = {
 
             // PWA Service Worker Registration & Offline Support
             if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-                navigator.serviceWorker.register('sw.js?v=266.0').then(reg => {
+                navigator.serviceWorker.register('sw.js?v=266.1').then(reg => {
                     reg.update().catch(() => {});
                     // Detect when a new SW version is waiting — show update notification
                     reg.addEventListener('updatefound', () => {
@@ -1109,9 +1109,13 @@ const App = {
             }
         })();
 
-        // 3. Force cards view on mobile
+        // 3. Force cards view on mobile if no user preference saved
         if (window.innerWidth <= 768 && typeof Companies !== 'undefined') {
-            Companies.viewMode = 'cards';
+            try {
+                if (!localStorage.getItem('fleetcrm_view_mode')) {
+                    Companies.viewMode = 'cards';
+                }
+            } catch(e) {}
         }
     },
 

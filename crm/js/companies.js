@@ -39,7 +39,9 @@ const Companies = {
     },
 
     init() {
-        this.viewMode = (window.innerWidth <= 768) ? 'cards' : 'table';
+        let savedMode = null;
+        try { savedMode = localStorage.getItem('fleetcrm_view_mode'); } catch(e) {}
+        this.viewMode = savedMode || ((window.innerWidth <= 768) ? 'cards' : 'table');
         this.pageSize = (window.innerWidth <= 768) ? 10 : 15; // ⚡ adaptive page size
         this.populateSectorSelects();
         this.bindEvents();
@@ -1251,8 +1253,11 @@ const Companies = {
 
     setView(mode) {
         this.viewMode = mode;
-        document.getElementById('btn-view-table').classList.toggle('active', mode === 'table');
-        document.getElementById('btn-view-cards').classList.toggle('active', mode === 'cards');
+        try { localStorage.setItem('fleetcrm_view_mode', mode); } catch(e) {}
+        const btnTable = document.getElementById('btn-view-table');
+        const btnCards = document.getElementById('btn-view-cards');
+        if (btnTable) btnTable.classList.toggle('active', mode === 'table');
+        if (btnCards) btnCards.classList.toggle('active', mode === 'cards');
         this.render();
     },
 

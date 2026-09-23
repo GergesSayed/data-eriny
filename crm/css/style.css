@@ -1030,13 +1030,15 @@ a:hover { color: var(--accent); }
 /* ---- Page ---- */
 .page {
     display: none;
-    animation: fadeIn 0.3s ease;
 }
-.page.active { display: block; }
+.page.active {
+    display: block;
+    animation: pageFadeIn 0.15s ease-out;
+}
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
+@keyframes pageFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 .page-header {
@@ -1478,9 +1480,9 @@ a:hover { color: var(--accent); }
     z-index: 1;
 }
 .data-table th {
-    padding: 0.85rem 1rem;
+    padding: 0.65rem 0.85rem;
     text-align: right;
-    font-weight: 600;
+    font-weight: 700;
     font-size: var(--font-size-xs);
     color: var(--text-secondary);
     text-transform: uppercase;
@@ -1492,14 +1494,13 @@ a:hover { color: var(--accent); }
 .data-table th.sortable:hover { color: var(--primary-light); }
 
 .data-table td {
-    padding: 0.75rem 1rem;
+    padding: 0.55rem 0.85rem;
     border-bottom: 1px solid var(--border-light);
     vertical-align: middle;
+    font-size: 0.82rem;
 }
 .data-table tbody tr {
     transition: background var(--transition-fast);
-    content-visibility: auto;
-    contain-intrinsic-size: 56px;
 }
 .data-table tbody tr:hover {
     background: rgba(99, 102, 241, 0.04);
@@ -2736,9 +2737,6 @@ a:hover { color: var(--accent); }
     .company-card {
         content-visibility: auto;
         contain-intrinsic-size: 0 120px;
-    }
-    .data-table tbody tr {
-        contain: layout style;
     }
 }
 
