@@ -745,15 +745,7 @@ const App = {
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('sidebar-overlay');
         if (!sidebar) return;
-
-        // On desktop (width >= 1024px): toggle collapse
-        if (window.innerWidth >= 1024) {
-            document.body.classList.toggle('sidebar-collapsed');
-            const isCollapsed = document.body.classList.contains('sidebar-collapsed');
-            try { localStorage.setItem('fleetcrm_sidebar_collapsed', isCollapsed ? 'true' : 'false'); } catch(err){}
-            return;
-        }
-
+        
         const isCurrentlyOpen = sidebar.classList.contains('open');
         if (isCurrentlyOpen) {
             this.closeSidebar(e);

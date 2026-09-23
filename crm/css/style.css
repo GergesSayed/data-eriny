@@ -1472,7 +1472,6 @@ a:hover { color: var(--accent); }
     width: 100%;
     border-collapse: collapse;
     font-size: var(--font-size-sm);
-    table-layout: auto;
 }
 .data-table thead {
     background: var(--bg-surface);
@@ -1481,13 +1480,13 @@ a:hover { color: var(--accent); }
     z-index: 1;
 }
 .data-table th {
-    padding: 0.45rem 0.35rem;
+    padding: 0.65rem 0.85rem;
     text-align: right;
     font-weight: 700;
-    font-size: 0.7rem;
+    font-size: var(--font-size-xs);
     color: var(--text-secondary);
     text-transform: uppercase;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.5px;
     border-bottom: 1px solid var(--border-color);
     white-space: nowrap;
 }
@@ -1495,10 +1494,10 @@ a:hover { color: var(--accent); }
 .data-table th.sortable:hover { color: var(--primary-light); }
 
 .data-table td {
-    padding: 0.35rem 0.35rem;
+    padding: 0.55rem 0.85rem;
     border-bottom: 1px solid var(--border-light);
     vertical-align: middle;
-    font-size: 0.78rem;
+    font-size: 0.82rem;
 }
 .data-table tbody tr {
     transition: background var(--transition-fast);
@@ -1513,14 +1512,13 @@ a:hover { color: var(--accent); }
     flex-direction: column;
     gap: 2px;
     cursor: pointer;
-    min-width: 160px;
-    max-width: 250px;
+    min-width: 220px;
+    max-width: 340px;
 }
 .company-name-cell .name-ar {
     font-weight: 700;
     color: var(--text-primary);
-    line-height: 1.3;
-    font-size: 0.82rem;
+    line-height: 1.35;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
@@ -1528,403 +1526,15 @@ a:hover { color: var(--accent); }
     word-break: break-word;
 }
 .company-name-cell .name-en {
-    font-size: 0.68rem;
+    font-size: var(--font-size-xs);
     color: var(--text-muted);
     font-family: var(--font-en);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 220px;
+    max-width: 300px;
 }
 .company-name-cell:hover .name-ar { color: var(--primary-light); }
-
-/* Modern Executive Companies Table Layout */
-#companies-table-view {
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-}
-
-@media (min-width: 1100px) {
-    #companies-table-view {
-        overflow-x: hidden !important;
-    }
-    #companies-table {
-        table-layout: fixed !important;
-        width: 100% !important;
-    }
-}
-
-.data-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    font-size: 0.85rem;
-}
-
-.data-table thead th {
-    background: var(--bg-surface);
-    color: var(--text-secondary);
-    font-size: 0.74rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-    padding: 10px 10px;
-    border-bottom: 2px solid var(--border-color);
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    white-space: nowrap;
-}
-
-.data-table thead th small {
-    display: block;
-    font-size: 0.65rem;
-    color: var(--text-muted);
-    font-weight: 500;
-    font-family: Inter, sans-serif;
-    margin-top: 1px;
-}
-
-.data-table tbody tr {
-    background: var(--bg-surface);
-    border-bottom: 1px solid var(--border-color);
-    transition: all 0.18s ease-in-out;
-}
-
-.data-table tbody tr:hover {
-    background: rgba(99, 102, 241, 0.05);
-    box-shadow: inset 3px 0 0 var(--primary);
-}
-
-[data-theme="light"] .data-table tbody tr {
-    background: #ffffff;
-}
-
-[data-theme="light"] .data-table tbody tr:hover {
-    background: #f8fafc;
-    box-shadow: inset 3px 0 0 var(--primary);
-}
-
-.data-table tbody tr.row-selected {
-    background: rgba(99, 102, 241, 0.08) !important;
-}
-
-.data-table td {
-    padding: 10px 10px;
-    vertical-align: middle;
-    border-bottom: 1px solid var(--border-color);
-    box-sizing: border-box;
-}
-
-/* Company Cell */
-.company-cell-wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    min-width: 0;
-}
-
-.company-cell-top {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    flex-wrap: wrap;
-}
-
-.company-name-title {
-    font-weight: 700;
-    font-size: 0.92rem;
-    color: var(--text-primary);
-    line-height: 1.35;
-    transition: color 0.15s ease;
-}
-
-.data-table tbody tr:hover .company-name-title {
-    color: var(--primary-light);
-}
-
-.company-cell-sub {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.company-en-name {
-    font-size: 0.72rem;
-    color: var(--text-muted);
-    font-family: Inter, sans-serif;
-    font-weight: 500;
-}
-
-.company-quick-links {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.company-quick-links a {
-    transition: transform 0.15s ease;
-}
-.company-quick-links a:hover {
-    transform: scale(1.25);
-}
-
-/* Sector & Area */
-.sector-area-cell {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.sector-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 3px 8px;
-    border-radius: 6px;
-    font-size: 0.72rem;
-    font-weight: 700;
-    background: rgba(99, 102, 241, 0.1);
-    color: var(--primary);
-    border: 1px solid rgba(99, 102, 241, 0.2);
-    width: fit-content;
-    max-width: 125px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-[data-theme="light"] .sector-pill {
-    background: #eef2ff;
-    color: #4338ca;
-    border: 1px solid #c7d2fe;
-}
-
-.location-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 0.73rem;
-    color: var(--text-secondary);
-    font-weight: 500;
-}
-
-/* Fleet & Priority */
-.fleet-priority-cell {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.fleet-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    font-family: Inter, Cairo, sans-serif;
-}
-
-.fleet-pill i {
-    color: #0284c7;
-    font-size: 0.85rem;
-}
-
-.priority-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 2px 7px;
-    border-radius: 5px;
-    font-size: 0.68rem;
-    font-weight: 800;
-    width: fit-content;
-}
-
-.priority-pill.priority-A\+ {
-    background: rgba(16, 185, 129, 0.15);
-    color: #10b981;
-    border: 1px solid rgba(16, 185, 129, 0.35);
-}
-[data-theme="light"] .priority-pill.priority-A\+ {
-    background: #dcfce7;
-    color: #15803d;
-    border: 1px solid #86efac;
-}
-
-.priority-pill.priority-A {
-    background: rgba(59, 130, 246, 0.15);
-    color: #3b82f6;
-    border: 1px solid rgba(59, 130, 246, 0.35);
-}
-[data-theme="light"] .priority-pill.priority-A {
-    background: #e0f2fe;
-    color: #0284c7;
-    border: 1px solid #7dd3fc;
-}
-
-.priority-pill.priority-B {
-    background: rgba(245, 158, 11, 0.15);
-    color: #f59e0b;
-    border: 1px solid rgba(245, 158, 11, 0.35);
-}
-[data-theme="light"] .priority-pill.priority-B {
-    background: #fef3c7;
-    color: #b45309;
-    border: 1px solid #fde68a;
-}
-
-/* Phone & Communication */
-.phone-comm-cell {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.phone-action-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 3px 8px;
-    border-radius: 6px;
-    background: var(--bg-primary);
-    border: 1px solid var(--border-color);
-    color: var(--text-primary);
-    font-family: Inter, monospace;
-    font-size: 0.8rem;
-    font-weight: 700;
-    text-decoration: none;
-    width: fit-content;
-    transition: all 0.15s ease;
-}
-
-.phone-action-pill:hover {
-    background: #10b98115;
-    border-color: #10b981;
-    color: #10b981;
-    transform: translateY(-1px);
-}
-
-.phone-action-pill i {
-    color: #10b981;
-    font-size: 0.75rem;
-}
-
-.whatsapp-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 0.7rem;
-    font-weight: 600;
-    color: #25d366;
-    text-decoration: none;
-    transition: opacity 0.15s ease;
-}
-.whatsapp-pill:hover {
-    opacity: 0.8;
-}
-
-/* Contact Person */
-.contact-cell {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.contact-name-row {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.contact-title-row {
-    font-size: 0.68rem;
-    color: var(--text-muted);
-    font-weight: 500;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: 135px;
-}
-
-/* Assigned & Status */
-.assigned-status-cell {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-/* Modern Action Buttons */
-.table-actions-modern {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-}
-
-.btn-modern-action {
-    width: 28px;
-    height: 28px;
-    border-radius: 7px;
-    border: 1px solid var(--border-color);
-    background: var(--bg-primary);
-    color: var(--text-secondary);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.75rem;
-    cursor: pointer;
-    transition: all 0.15s ease;
-}
-
-.btn-modern-action:hover {
-    transform: translateY(-1px);
-}
-
-.btn-modern-action.btn-view:hover {
-    background: var(--primary);
-    color: white;
-    border-color: var(--primary);
-}
-
-.btn-modern-action.btn-call:hover {
-    background: #10b981;
-    color: white;
-    border-color: #10b981;
-}
-
-.btn-modern-action.btn-edit:hover {
-    background: #0284c7;
-    color: white;
-    border-color: #0284c7;
-}
-
-.btn-modern-action.btn-del:hover {
-    background: #ef4444;
-    color: white;
-    border-color: #ef4444;
-}
-
-/* Desktop Sidebar Collapse */
-body.sidebar-collapsed {
-    --sidebar-width: 0px !important;
-}
-body.sidebar-collapsed .sidebar {
-    transform: translateX(100%) !important;
-}
-body.sidebar-collapsed .main-wrapper {
-    margin-right: 0 !important;
-    max-width: 100vw !important;
-}
 
 /* ---- Badges ---- */
 .badge {
@@ -1981,19 +1591,13 @@ body.sidebar-collapsed .main-wrapper {
 /* ---- Action Buttons in Table ---- */
 .table-actions {
     display: flex;
-    gap: 2px;
-    align-items: center;
-    justify-content: center;
+    gap: 0.3rem;
 }
 .table-actions .btn-icon {
-    width: 22px;
-    height: 22px;
-    font-size: 0.68rem;
-    border-radius: 4px;
-    padding: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
+    border-radius: var(--radius-sm);
 }
 .table-actions .btn-icon:hover { background: var(--bg-surface-light); }
 .table-actions .btn-view:hover { color: var(--info); }
