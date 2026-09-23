@@ -1597,11 +1597,15 @@ a:hover { color: var(--accent); }
         vertical-align: middle;
     }
     #companies-table td {
-        padding: 6px 8px;
+        padding: 11px 8px;
         box-sizing: border-box;
         vertical-align: middle;
         font-size: 0.81rem;
-        border-bottom: 1px solid var(--border-light);
+        border-bottom: 1px solid var(--border-color);
+        transition: background 0.15s ease;
+    }
+    #companies-table tbody tr:hover td {
+        background: var(--bg-hover);
     }
     .table-actions {
         display: flex;
