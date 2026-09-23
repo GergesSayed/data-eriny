@@ -1061,7 +1061,6 @@ const Companies = {
                         </a>
                     </td>
                     <td style="white-space:nowrap; text-align:center;"><span class="fleet-badge" style="font-weight:800; font-size:0.82rem;">${fleet}</span></td>
-                    <td style="white-space:nowrap; text-align:center;"><span class="badge priority-badge priority-${c.priority || 'B'}" style="font-weight:800; font-size:0.75rem; padding:2px 8px; border-radius:6px; min-width:28px; text-align:center; display:inline-block;">${c.priority || 'B'}</span></td>
                     <td style="white-space:nowrap; text-align:center;">${assignedBadge}</td>
                     <td style="white-space:nowrap; text-align:center;">${callResultBadge}</td>
                     <td style="max-width: 160px;">
