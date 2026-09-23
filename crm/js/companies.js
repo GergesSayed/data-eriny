@@ -2085,26 +2085,25 @@ const Companies = {
 
         if (assignedUser) {
             const userName = assignedUser.name || assignedUser.username || 'موظف';
-            return `
-                <div style="display:inline-flex; align-items:center; gap:6px;" onclick="event.stopPropagation();">
-                    <span class="badge" style="background:${assignedUser.color || '#7c3aed'}22; color:${assignedUser.color || '#7c3aed'}; border:1px solid ${assignedUser.color || '#7c3aed'}66; padding:4px 8px; font-weight:700; font-size:0.75rem; border-radius:6px; display:inline-flex; align-items:center; gap:4px;" title="تاريخ التعيين: ${c.assignedAt ? new Date(c.assignedAt).toLocaleDateString('ar-EG') : ''}">
-                        ${assignedUser.avatar || '👤'} ${userName}
-                    </span>
-                    ${window.AppStorage.canModify() ? `
-                        <select onchange="Companies.assignToUser('${c.id}', this.value)" style="padding:2px 6px; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-muted); font-size:11px; cursor:pointer;" title="تغيير الموظف المسند إليه أو إلغاء التعيين">
-                            <option value="${assignedUser.id}" selected>✏️ تغيير</option>
+            if (window.AppStorage.canModify()) {
+                return `
+                    <div onclick="event.stopPropagation();" style="display:inline-block;">
+                        <select onchange="Companies.assignToUser('${c.id}', this.value)" style="padding:2px 6px; border-radius:6px; border:1px solid ${assignedUser.color || '#7c3aed'}66; background:${assignedUser.color || '#7c3aed'}15; color:${assignedUser.color || '#7c3aed'}; font-size:0.75rem; font-weight:700; max-width:112px; cursor:pointer;" title="المسند إليه: ${userName} (تاريخ التعيين: ${c.assignedAt ? new Date(c.assignedAt).toLocaleDateString('ar-EG') : ''})">
+                            <option value="${assignedUser.id}" selected>👤 ${userName}</option>
                             <option value="">⚪ إلغاء التعيين</option>
                             ${users.filter(u => u && u.id !== assignedUser.id).map(u => `<option value="${u.id}">👤 ${u.name || u.username || 'موظف'}</option>`).join('')}
                         </select>
-                    ` : ''}
-                </div>`;
+                    </div>`;
+            } else {
+                return `<span class="badge" style="background:${assignedUser.color || '#7c3aed'}22; color:${assignedUser.color || '#7c3aed'}; font-size:0.75rem; padding:3px 7px; border-radius:6px; font-weight:700; white-space:nowrap;">👤 ${userName}</span>`;
+            }
         } else {
             return window.AppStorage.canModify() ? `
                 <div onclick="event.stopPropagation();" style="display:inline-block;">
-                    <select onchange="Companies.assignToUser('${c.id}', this.value)" style="padding:4px 8px; border-radius:6px; border:1px dashed #7c3aed; background:rgba(124, 58, 237, 0.1); color:#7c3aed; font-size:0.75rem; font-weight:700; cursor:pointer;" title="اختر الموظف لإسناد هذه الشركة له">
-                        <option value="" selected>➕ إسناد لموظف...</option>
-                        <option value="current_user">🙋‍♂️ حجز لي (${currentName})</option>
-                        ${users.map(u => `<option value="${u.id}">👤 ${u.name || u.username || 'موظف'} (${u.role === 'admin' ? 'مدير' : u.role === 'supervisor' ? 'مشرف' : 'مبيعات'})</option>`).join('')}
+                    <select onchange="Companies.assignToUser('${c.id}', this.value)" style="padding:2px 6px; border-radius:6px; border:1px dashed #7c3aed; background:rgba(124, 58, 237, 0.08); color:#7c3aed; font-size:0.75rem; font-weight:700; max-width:105px; cursor:pointer;" title="اختر الموظف لإسناد هذه الشركة له">
+                        <option value="" selected>➕ إسناد</option>
+                        <option value="current_user">🙋‍♂️ أنا (${currentName})</option>
+                        ${users.map(u => `<option value="${u.id}">👤 ${u.name || u.username || 'موظف'}</option>`).join('')}
                     </select>
                 </div>` : `<span style="color:var(--text-muted); font-size:11px;">⚪ غير مسندة</span>`;
         }

@@ -1536,6 +1536,62 @@ a:hover { color: var(--accent); }
 }
 .company-name-cell:hover .name-ar { color: var(--primary-light); }
 
+/* Zero Horizontal Scroll Desktop Fit for Companies Table (11 Columns Intact) */
+#companies-table-view {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+@media (min-width: 1024px) {
+    #companies-table-view {
+        overflow-x: hidden !important;
+    }
+    #companies-table {
+        width: 100% !important;
+        table-layout: auto;
+    }
+    #companies-table th,
+    #companies-table td {
+        padding: 0.5rem 0.38rem;
+        box-sizing: border-box;
+    }
+    #companies-table th {
+        font-size: 0.72rem;
+        letter-spacing: 0.2px;
+        white-space: nowrap;
+    }
+    #companies-table th small {
+        display: block;
+        font-size: 0.64rem;
+        color: var(--text-muted);
+        font-family: var(--font-en);
+    }
+    .company-name-cell {
+        min-width: 160px;
+        max-width: 320px;
+    }
+    .company-name-cell .name-ar {
+        font-size: 0.84rem;
+        line-height: 1.35;
+    }
+    .table-actions {
+        display: flex;
+        gap: 3px;
+        justify-content: center;
+    }
+    .table-actions .btn-icon {
+        width: 25px;
+        height: 25px;
+        min-width: 25px;
+        font-size: 0.7rem;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
 /* ---- Badges ---- */
 .badge {
     display: inline-flex;
