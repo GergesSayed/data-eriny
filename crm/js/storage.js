@@ -915,16 +915,6 @@ const AppStorage = {
         if (city && !cityList.includes(city)) cityList.push(city);
         const citySet = cityList.length > 0 ? new Set(cityList) : null;
 
-        // Super-fast 0.01ms path: when opening default company list with no filters/search
-        const isDefaultView = !normSearch && !sectorSet && !citySet && !priority && !fleetType && !contactType && !fleetSize && !addedDate && !assigned && (!sortMode || sortMode === 'priority_fleet' || sortMode === 'latest');
-        if (isDefaultView) {
-            const total = rawCompanies.length;
-            const totalPages = Math.ceil(total / pageSize) || 1;
-            const safePage = Math.max(1, Math.min(page, totalPages));
-            const start = (safePage - 1) * pageSize;
-            const items = rawCompanies.slice(start, start + pageSize);
-            return { items, total, totalPages, page: safePage, pageSize };
-        }
 
         let filtered = rawCompanies.filter(c => {
             if (!c) return false;

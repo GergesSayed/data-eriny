@@ -1052,19 +1052,19 @@ const Companies = {
                             </div>
                         </div>
                     </td>
-                    <td><span class="badge sector-badge">${sectorLabel}</span></td>
-                    <td>${cityLabel}</td>
-                    <td style="direction:ltr; text-align:right; font-family:Inter; font-weight:600;">${phone}</td>
-                    <td><span class="fleet-badge">${fleet}</span></td>
-                    <td><span class="badge priority-badge priority-${c.priority || 'B'}">${c.priority || 'B'}</span></td>
+                    <td style="white-space:nowrap;"><span class="badge sector-badge">${sectorLabel}</span></td>
+                    <td style="white-space:nowrap;">${cityLabel}</td>
+                    <td style="direction:ltr; text-align:right; font-family:Inter; font-weight:600; white-space:nowrap;">${phone}</td>
+                    <td style="white-space:nowrap;"><span class="fleet-badge">${fleet}</span></td>
+                    <td style="white-space:nowrap;"><span class="badge priority-badge priority-${c.priority || 'B'}">${c.priority || 'B'}</span></td>
                     <td>${assignedBadge}</td>
                     <td>${callResultBadge}</td>
-                    <td>
-                        <div style="font-size:0.8rem; display:flex; align-items:center; gap: 2px;">
-                            <span>${contact}</span>
+                    <td style="max-width: 170px;">
+                        <div style="font-size:0.8rem; display:flex; align-items:center; gap: 4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${contact}">
+                            <span style="overflow:hidden; text-overflow:ellipsis;">${contact}</span>
                             ${contactLinkedinIcon}
                         </div>
-                        <div style="font-size:0.65rem; color:var(--text-muted);">${contactTitle}</div>
+                        ${contactTitle ? `<div style="font-size:0.68rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:160px;" title="${contactTitle}">${contactTitle}</div>` : ''}
                     </td>
                     <td>
                         <div class="table-actions" onclick="event.stopPropagation();">

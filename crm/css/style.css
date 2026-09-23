@@ -1510,11 +1510,30 @@ a:hover { color: var(--accent); }
 .company-name-cell {
     display: flex;
     flex-direction: column;
-    gap: 0.1rem;
+    gap: 2px;
     cursor: pointer;
+    min-width: 220px;
+    max-width: 340px;
 }
-.company-name-cell .name-ar { font-weight: 600; color: var(--text-primary); }
-.company-name-cell .name-en { font-size: var(--font-size-xs); color: var(--text-muted); font-family: var(--font-en); }
+.company-name-cell .name-ar {
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+}
+.company-name-cell .name-en {
+    font-size: var(--font-size-xs);
+    color: var(--text-muted);
+    font-family: var(--font-en);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 300px;
+}
 .company-name-cell:hover .name-ar { color: var(--primary-light); }
 
 /* ---- Badges ---- */

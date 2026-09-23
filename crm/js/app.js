@@ -122,7 +122,7 @@ const App = {
 
             // PWA Service Worker Registration & Offline Support
             if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-                navigator.serviceWorker.register('sw.js?v=266.1').then(reg => {
+                navigator.serviceWorker.register('sw.js?v=266.2').then(reg => {
                     reg.update().catch(() => {});
                     // Detect when a new SW version is waiting — show update notification
                     reg.addEventListener('updatefound', () => {
@@ -799,6 +799,15 @@ const App = {
         window.location.hash = '#' + page;
         try {
             sessionStorage.setItem('fleetcrm_active_page', page);
+        } catch(e) {}
+
+        // Reset scroll to top so page header & filters are always visible
+        try {
+            window.scrollTo(0, 0);
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+            const contentEl = document.querySelector('.content');
+            if (contentEl) contentEl.scrollTop = 0;
         } catch(e) {}
 
         // Update active page element
