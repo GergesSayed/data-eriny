@@ -1038,36 +1038,41 @@ const Companies = {
                     ` : ''}
                     <td>
                         <div class="company-name-cell">
-                            <div style="display:flex; align-items:center; gap: 6px; flex-wrap:wrap;">
-                                <span class="name-ar" style="font-weight:700;">${mainName}</span>
+                            <div class="company-title-row" style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                                <span class="name-ar" style="font-weight:700; color:var(--text-primary); font-size:0.86rem; line-height:1.35;" title="${mainName}">${mainName}</span>
                                 ${titanBadge}
                                 ${recencyBadge}
+                            </div>
+                            <div class="company-meta-row" style="display:flex; align-items:center; gap:6px; margin-top:3px; flex-wrap:wrap;">
+                                ${subName ? `<span class="name-en" style="font-size:0.72rem; color:var(--text-muted); font-family:Inter;" title="${subName}">${subName}</span>` : ''}
+                                ${hotlineBadge}
                                 ${linkedinIcon}
                                 ${facebookIcon}
                                 ${mapsIcon}
                             </div>
-                            <div style="display:flex; align-items:center; gap:8px; margin-top:2px;">
-                                ${subName ? `<span class="name-en" style="font-size:0.75rem; color:var(--text-muted);">${subName}</span>` : ''}
-                                ${hotlineBadge}
-                            </div>
                         </div>
                     </td>
-                    <td style="white-space:nowrap;"><span class="badge sector-badge">${sectorLabel}</span></td>
-                    <td style="white-space:nowrap;">${cityLabel}</td>
-                    <td style="direction:ltr; text-align:right; font-family:Inter; font-weight:600; white-space:nowrap;">${phone}</td>
-                    <td style="white-space:nowrap;"><span class="fleet-badge">${fleet}</span></td>
-                    <td style="white-space:nowrap;"><span class="badge priority-badge priority-${c.priority || 'B'}">${c.priority || 'B'}</span></td>
-                    <td>${assignedBadge}</td>
-                    <td>${callResultBadge}</td>
-                    <td style="max-width: 170px;">
-                        <div style="font-size:0.8rem; display:flex; align-items:center; gap: 4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${contact}">
+                    <td style="white-space:nowrap; text-align:center;"><span class="badge sector-badge" style="font-size:0.75rem; padding:3px 8px; border-radius:6px; font-weight:600;">${sectorLabel}</span></td>
+                    <td style="white-space:nowrap; text-align:center; font-weight:600; font-size:0.8rem; color:var(--text-secondary);">${cityLabel}</td>
+                    <td style="white-space:nowrap; text-align:center;">
+                        <a href="tel:${phone}" onclick="event.stopPropagation();" style="display:inline-flex; align-items:center; gap:4px; font-family:Inter, monospace; font-weight:700; font-size:0.78rem; color:var(--text-primary); text-decoration:none; direction:ltr; unicode-bidi:embed;" title="اتصال">
+                            <i class="fas fa-phone-alt" style="font-size:0.68rem; color:var(--success);"></i>
+                            <span>${phone}</span>
+                        </a>
+                    </td>
+                    <td style="white-space:nowrap; text-align:center;"><span class="fleet-badge" style="font-weight:800; font-size:0.82rem;">${fleet}</span></td>
+                    <td style="white-space:nowrap; text-align:center;"><span class="badge priority-badge priority-${c.priority || 'B'}" style="font-weight:800; font-size:0.75rem; padding:2px 8px; border-radius:6px; min-width:28px; text-align:center; display:inline-block;">${c.priority || 'B'}</span></td>
+                    <td style="white-space:nowrap; text-align:center;">${assignedBadge}</td>
+                    <td style="white-space:nowrap; text-align:center;">${callResultBadge}</td>
+                    <td style="max-width: 140px;">
+                        <div style="font-size:0.8rem; font-weight:700; color:var(--text-primary); display:flex; align-items:center; gap:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${contact}">
                             <span style="overflow:hidden; text-overflow:ellipsis;">${contact}</span>
                             ${contactLinkedinIcon}
                         </div>
-                        ${contactTitle ? `<div style="font-size:0.68rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:160px;" title="${contactTitle}">${contactTitle}</div>` : ''}
+                        ${contactTitle ? `<div style="font-size:0.68rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:130px; margin-top:2px;" title="${contactTitle}">${contactTitle}</div>` : ''}
                     </td>
-                    <td>
-                        <div class="table-actions" onclick="event.stopPropagation();">
+                    <td style="white-space:nowrap; text-align:center;">
+                        <div class="table-actions" onclick="event.stopPropagation();" style="display:inline-flex; gap:3px; justify-content:center; align-items:center;">
                             <button class="btn-icon btn-view" onclick="event.stopPropagation(); Companies.showDetail('${c.id}')" title="تفاصيل">
                                 <i class="fas fa-eye"></i>
                             </button>

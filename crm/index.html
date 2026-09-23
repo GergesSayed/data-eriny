@@ -11,7 +11,7 @@
     <script>
         // Force purge any legacy service workers, disk caches, and old deals storage immediately
         (function() {
-            var CURRENT_VER = '266.6';
+            var CURRENT_VER = '266.7';
             try {
                 localStorage.removeItem('fleetcrm_deals');
                 localStorage.removeItem('fleetcrm_deals_count');
@@ -67,7 +67,7 @@
     <link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap"></noscript>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=266.6">
+    <link rel="stylesheet" href="css/style.css?v=266.7">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
         (function() {
@@ -322,7 +322,7 @@
             </div>
             <div class="brand-text">
                 <h2>Fleet CRM</h2>
-                <span>إدارة بيع الإطارات <small class="brand-ver-badge" style="background:#7c3aed33; color:#a78bfa; padding:1px 6px; border-radius:6px; font-size:10px; font-weight:700;">v266.6</small></span>
+                <span>إدارة بيع الإطارات <small class="brand-ver-badge" style="background:#7c3aed33; color:#a78bfa; padding:1px 6px; border-radius:6px; font-size:10px; font-weight:700;">v266.7</small></span>
             </div>
         </div>
 
@@ -813,17 +813,17 @@
                     <table class="data-table" id="companies-table">
                         <thead>
                             <tr>
-                                <th id="th-select-all-companies" style="width:34px; text-align:center;"><input type="checkbox" id="select-all-companies" title="تحديد الكل"></th>
-                                <th class="sortable" data-sort="nameAr">الشركة <small>Company</small></th>
-                                <th class="sortable" data-sort="sector" style="width:115px;">القطاع <small>Sector</small></th>
-                                <th class="sortable" data-sort="city" style="width:78px;">المنطقة <small>Area</small></th>
-                                <th style="width:110px;">الهاتف <small>Phone</small></th>
-                                <th class="sortable" data-sort="fleetSize" style="width:68px; text-align:center;">الأسطول <small>Fleet</small></th>
-                                <th class="sortable" data-sort="priority" style="width:62px; text-align:center;">الأولوية <small>Priority</small></th>
-                                <th style="width:118px;">المسند إليه <small>Assigned</small></th>
-                                <th style="width:110px;">نتيجة المكالمة <small>Call Result</small></th>
-                                <th style="width:135px;">جهة الاتصال <small>Contact</small></th>
-                                <th style="width:96px; text-align:center;">إجراءات <small>Actions</small></th>
+                                <th id="th-select-all-companies" style="width:36px; text-align:center;"><input type="checkbox" id="select-all-companies" title="تحديد الكل"></th>
+                                <th class="sortable" data-sort="nameAr">الشركة <small style="display:inline-block; font-size:10px; color:var(--text-muted); margin-right:4px;">Company</small></th>
+                                <th class="sortable" data-sort="sector" style="width:110px; text-align:center;">القطاع <small style="display:inline-block; font-size:10px; color:var(--text-muted);">Sector</small></th>
+                                <th class="sortable" data-sort="city" style="width:85px; text-align:center;">المنطقة <small style="display:inline-block; font-size:10px; color:var(--text-muted);">Area</small></th>
+                                <th style="width:115px; text-align:center;">الهاتف <small style="display:inline-block; font-size:10px; color:var(--text-muted);">Phone</small></th>
+                                <th class="sortable" data-sort="fleetSize" style="width:75px; text-align:center;">الأسطول <small style="display:inline-block; font-size:10px; color:var(--text-muted);">Fleet</small></th>
+                                <th class="sortable" data-sort="priority" style="width:68px; text-align:center;">الأولوية <small style="display:inline-block; font-size:10px; color:var(--text-muted);">Priority</small></th>
+                                <th style="width:120px; text-align:center;">المسند إليه <small style="display:inline-block; font-size:10px; color:var(--text-muted);">Assigned</small></th>
+                                <th style="width:112px; text-align:center;">نتيجة المكالمة <small style="display:inline-block; font-size:10px; color:var(--text-muted);">Result</small></th>
+                                <th style="width:130px;">جهة الاتصال <small style="display:inline-block; font-size:10px; color:var(--text-muted); margin-right:4px;">Contact</small></th>
+                                <th style="width:105px; text-align:center;">إجراءات <small style="display:inline-block; font-size:10px; color:var(--text-muted);">Actions</small></th>
                             </tr>
                         </thead>
                         <tbody id="companies-tbody"></tbody>
@@ -1605,20 +1605,20 @@
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <script src="js/supabase-client.js?v=266.6"></script>
-    <script src="js/egypt_verified_titans.js?v=266.6"></script>
-    <script src="js/egypt_enterprises_pool.js?v=266.6"></script>
-    <script src="js/companies-worker.js?v=266.6"></script>
-    <script src="js/storage.js?v=266.6"></script>
-    <script src="js/excel-handler.js?v=266.6"></script>
-    <script src="js/dashboard.js?v=266.6"></script>
-    <script src="js/companies.js?v=266.6"></script>
-    <script src="js/calls.js?v=266.6"></script>
-    <script src="js/reports.js?v=266.6"></script>
-    <script src="js/scraper.js?v=266.6"></script>
-    <script src="js/team.js?v=266.6"></script>
-    <script src="js/settings.js?v=266.6"></script>
-    <script src="js/app.js?v=266.6"></script>
+    <script src="js/supabase-client.js?v=266.7"></script>
+    <script src="js/egypt_verified_titans.js?v=266.7"></script>
+    <script src="js/egypt_enterprises_pool.js?v=266.7"></script>
+    <script src="js/companies-worker.js?v=266.7"></script>
+    <script src="js/storage.js?v=266.7"></script>
+    <script src="js/excel-handler.js?v=266.7"></script>
+    <script src="js/dashboard.js?v=266.7"></script>
+    <script src="js/companies.js?v=266.7"></script>
+    <script src="js/calls.js?v=266.7"></script>
+    <script src="js/reports.js?v=266.7"></script>
+    <script src="js/scraper.js?v=266.7"></script>
+    <script src="js/team.js?v=266.7"></script>
+    <script src="js/settings.js?v=266.7"></script>
+    <script src="js/app.js?v=266.7"></script>
 
     <!-- Cleanup overlay on load - runs once only, does NOT override App.checkAuth -->
     <script>
