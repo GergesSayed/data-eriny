@@ -1001,14 +1001,14 @@ const Companies = {
             let callResultBadge = '';
             if (callResult) {
                 callResultBadge = `
-                    <div style="white-space:nowrap;">
-                        <span class="result-badge result-${callResult}" style="font-size:0.75rem;">${window.AppStorage.getCallResultLabel(callResult)}</span>
-                        ${callDate ? `<small style="display:block; font-size:10px; color:var(--text-muted); margin-top:2px;">${callDate}</small>` : ''}
+                    <div style="display:inline-flex; align-items:center; gap:5px; margin-top:2px;">
+                        <span class="result-badge result-${callResult}" style="font-size:0.72rem; padding:2px 7px; border-radius:5px; font-weight:600;">${window.AppStorage.getCallResultLabel(callResult)}</span>
+                        ${callDate ? `<span style="font-size:10px; color:var(--text-muted); font-family:Inter;">${callDate}</span>` : ''}
                     </div>`;
             } else if (c.status === 'interested') {
-                callResultBadge = `<span class="badge" style="background:#10b98122; color:#10b981; border:1px solid #10b981; font-size:0.75rem; white-space:nowrap;">💚 عميل مهتم</span>`;
+                callResultBadge = `<span class="badge" style="background:#10b98122; color:#10b981; border:1px solid #10b981; font-size:0.72rem; padding:2px 7px; border-radius:5px; font-weight:600;">💚 عميل مهتم</span>`;
             } else {
-                callResultBadge = `<span style="color:var(--text-muted); font-size:11px; white-space:nowrap;">⚪ لم يتواصل بعد</span>`;
+                callResultBadge = `<span style="color:var(--text-muted); font-size:0.72rem; display:inline-flex; align-items:center; gap:4px;"><span style="font-size:8px;">⚪</span> لم يتواصل بعد</span>`;
             }
 
             const isTitan = Boolean(c.isTitan || (c.id && String(c.id).startsWith('eg_titan_')));
@@ -1029,6 +1029,16 @@ const Companies = {
                 }
             }
 
+            // Phone formatting & WhatsApp
+            const rawPhone = String(c.phone1 || c.mobile || c.phone2 || '').trim();
+            const phoneDisplay = esc(rawPhone || '—');
+            const cleanDigits = rawPhone.replace(/\D/g, '');
+            const isMobile = cleanDigits.startsWith('01') || cleanDigits.startsWith('1') || cleanDigits.length === 11;
+            const whatsappLink = (isMobile && cleanDigits.length >= 10) ? `https://wa.me/20${cleanDigits.replace(/^0+/, '')}` : '';
+
+            // Priority
+            const priorityVal = c.priority || 'B';
+
             return `
                 <tr class="${isChecked ? 'row-selected' : ''}" onclick="Companies.showDetail('${c.id}')" style="cursor: pointer;">
                     ${isAdmin ? `
@@ -1037,49 +1047,80 @@ const Companies = {
                         </td>
                     ` : ''}
                     <td>
-                        <div class="company-name-cell">
-                            <div style="display:flex; align-items:center; gap: 6px; flex-wrap:wrap;">
-                                <span class="name-ar" style="font-weight:700;">${mainName}</span>
+                        <div class="company-cell-wrapper">
+                            <div class="company-cell-top">
+                                <span class="company-name-title" title="${mainName}">${mainName}</span>
                                 ${titanBadge}
                                 ${recencyBadge}
-                                ${linkedinIcon}
-                                ${facebookIcon}
-                                ${mapsIcon}
+                                <div class="company-quick-links" onclick="event.stopPropagation();">
+                                    ${linkedinIcon}
+                                    ${facebookIcon}
+                                    ${mapsIcon}
+                                </div>
                             </div>
-                            <div style="display:flex; align-items:center; gap:8px; margin-top:2px;">
-                                ${subName ? `<span class="name-en" style="font-size:0.75rem; color:var(--text-muted);">${subName}</span>` : ''}
+                            <div class="company-cell-sub">
+                                ${subName ? `<span class="company-en-name" title="${subName}">${subName}</span>` : ''}
                                 ${hotlineBadge}
                             </div>
                         </div>
                     </td>
-                    <td><span class="badge sector-badge" style="max-width:105px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:inline-block;" title="${sectorLabel}">${sectorLabel}</span></td>
-                    <td style="white-space:nowrap; font-size:0.75rem;">${cityLabel}</td>
-                    <td style="direction:ltr; text-align:right; font-family:Inter; font-weight:600; font-size:0.75rem; white-space:nowrap;">${phone}</td>
-                    <td style="text-align:center; white-space:nowrap;"><span class="fleet-badge" style="font-size:0.72rem; padding:2px 5px;">${fleet}</span></td>
-                    <td style="text-align:center; white-space:nowrap;"><span class="badge priority-badge priority-${c.priority || 'B'}" style="font-size:0.72rem; padding:2px 5px;">${c.priority || 'B'}</span></td>
-                    <td style="white-space:nowrap;">${assignedBadge}</td>
-                    <td style="white-space:nowrap;">${callResultBadge}</td>
-                    <td style="max-width: 110px;">
-                        <div style="font-size:0.75rem; display:flex; align-items:center; gap: 3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${contact}">
-                            <span style="overflow:hidden; text-overflow:ellipsis; max-width:95px;">${contact}</span>
-                            ${contactLinkedinIcon}
+                    <td>
+                        <div class="sector-area-cell">
+                            <span class="sector-pill" title="${sectorLabel}"><i class="fas fa-industry"></i> ${sectorLabel}</span>
+                            <div class="location-pill"><i class="fas fa-map-marker-alt" style="color:#ef4444; font-size:10px;"></i> ${cityLabel}</div>
                         </div>
-                        ${contactTitle ? `<div style="font-size:0.65rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:105px;" title="${contactTitle}">${contactTitle}</div>` : ''}
                     </td>
                     <td>
-                        <div class="table-actions" onclick="event.stopPropagation();">
-                            <button class="btn-icon btn-view" onclick="event.stopPropagation(); Companies.showDetail('${c.id}')" title="تفاصيل">
+                        <div class="fleet-priority-cell">
+                            <div class="fleet-pill"><i class="fas fa-truck-moving"></i> <span>${c.fleetSize ? c.fleetSize + ' مركبة' : '—'}</span></div>
+                            <span class="priority-pill priority-${priorityVal}"><i class="fas fa-star" style="font-size:8px;"></i> أولوية ${priorityVal}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="phone-comm-cell" onclick="event.stopPropagation();">
+                            ${rawPhone ? `
+                                <a href="tel:${rawPhone}" class="phone-action-pill" title="اتصال مباشر: ${rawPhone}">
+                                    <i class="fas fa-phone-alt"></i>
+                                    <span dir="ltr">${phoneDisplay}</span>
+                                </a>
+                            ` : `<span style="color:var(--text-muted); font-size:0.75rem;">—</span>`}
+                            ${whatsappLink ? `
+                                <a href="${whatsappLink}" target="_blank" class="whatsapp-pill" title="محادثة واتساب">
+                                    <i class="fab fa-whatsapp"></i> واتساب
+                                </a>
+                            ` : ''}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="contact-cell">
+                            <div class="contact-name-row" title="${contact}">
+                                <i class="fas fa-user-tie" style="color:var(--primary); font-size:10px;"></i>
+                                <span>${contact}</span>
+                                <span onclick="event.stopPropagation();">${contactLinkedinIcon}</span>
+                            </div>
+                            ${contactTitle ? `<div class="contact-title-row" title="${contactTitle}">${contactTitle}</div>` : ''}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="assigned-status-cell" onclick="event.stopPropagation();">
+                            <div>${assignedBadge}</div>
+                            <div>${callResultBadge}</div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="table-actions-modern" onclick="event.stopPropagation();">
+                            <button class="btn-modern-action btn-view" onclick="event.stopPropagation(); Companies.showDetail('${c.id}')" title="عرض التفاصيل">
                                 <i class="fas fa-eye"></i>
                             </button>
-                            <button class="btn-icon btn-call" onclick="event.stopPropagation(); App.logCallForCompany('${c.id}')" title="مكالمة">
+                            <button class="btn-modern-action btn-call" onclick="event.stopPropagation(); App.logCallForCompany('${c.id}')" title="تسجيل مكالمة">
                                 <i class="fas fa-phone"></i>
                             </button>
                             ${window.AppStorage.canModify(currentUser) ? `
-                                <button class="btn-icon btn-edit" onclick="event.stopPropagation(); Companies.edit('${c.id}')" title="تعديل">
-                                    <i class="fas fa-edit"></i>
+                                <button class="btn-modern-action btn-edit" onclick="event.stopPropagation(); Companies.edit('${c.id}')" title="تعديل">
+                                    <i class="fas fa-pen"></i>
                                 </button>
-                                <button class="btn-icon btn-delete" onclick="event.stopPropagation(); Companies.confirmDelete('${c.id}')" title="حذف">
-                                    <i class="fas fa-trash"></i>
+                                <button class="btn-modern-action btn-del" onclick="event.stopPropagation(); Companies.confirmDelete('${c.id}')" title="حذف">
+                                    <i class="fas fa-trash-alt"></i>
                                 </button>
                             ` : ''}
                         </div>
