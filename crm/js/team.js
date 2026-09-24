@@ -1026,17 +1026,22 @@ const Team = {
                         <th style="padding:10px;">الشركة <small>Company</small></th>
                         <th style="padding:10px;">القطاع / المدينة</th>
                         <th style="padding:10px;">المسند إليه حالياً <small>Assigned To</small></th>
+                        <th style="padding:10px; text-align:center;">سجل العهدة والمتابعة <small>Custody History</small></th>
                         <th style="padding:10px; text-align:center;">الإجراء السريع</th>
                     </tr>
                 </thead>
                 <tbody>
                     ${companies.map(c => {
                         const isTargetUser = c.assignedTo === targetUserId;
+                        const custodyHistory = (window.AppStorage && window.AppStorage.getCustodyHistory) ? window.AppStorage.getCustodyHistory(c.id) : [];
+                        const targetRecords = custodyHistory.filter(h => String(h.toUserId) === String(targetUserId));
+                        const wasWithTarget = targetRecords.length > 0;
+                        const totalCallsWithTarget = targetRecords.reduce((sum, r) => sum + (r.callsCount || (r.calls ? r.calls.length : 0)), 0);
 
                         return `
                             <tr style="border-bottom:1px solid var(--border-light); ${isTargetUser ? 'background:rgba(124, 58, 237, 0.12);' : ''}">
                                 <td style="padding:10px;">
-                                    <div style="font-weight:700; color:var(--text-primary);">${esc(c.nameAr || c.nameEn || 'بدون اسم')}</div>
+                                    <div style="font-weight:700; color:var(--text-primary); cursor:pointer;" onclick="Companies.showDetail('${c.id}')" title="انقر لعرض تفاصيل الشركة">${esc(c.nameAr || c.nameEn || 'بدون اسم')}</div>
                                     <small style="color:var(--text-muted);">${esc(c.phone1 || c.mobile || 'لا يوجد هاتف')}</small>
                                 </td>
                                 <td style="padding:10px; font-size:12px;">
@@ -1053,6 +1058,30 @@ const Team = {
                                             </option>
                                         `).join('')}
                                     </select>
+                                </td>
+                                <td style="padding:10px; text-align:center;">
+                                    <div style="display:flex; flex-direction:column; align-items:center; gap:4px;">
+                                        <button class="btn btn-outline btn-sm" onclick="Companies.showCustodyModal('${c.id}')" style="padding:3px 8px; font-size:11px; font-weight:700; gap:5px; background:rgba(124, 58, 237, 0.08); border-color:rgba(124, 58, 237, 0.35); color:#c4b5fd;">
+                                            <i class="fas fa-history" style="color:#a78bfa;"></i>
+                                            <span>سجل العهدة (${custodyHistory.length})</span>
+                                        </button>
+                                        ${isTargetUser ? `
+                                            <span style="font-size:10px; color:#10b981; font-weight:700;">
+                                                🟢 في عهدته حالياً ${c.assignedAt ? '(' + window.AppStorage.formatDurationBetween(c.assignedAt, new Date().toISOString()) + ')' : ''}
+                                            </span>
+                                        ` : wasWithTarget ? `
+                                            <span style="font-size:10px; color:#f87171; font-weight:700;" title="كانت في عهدته سابقاً وتم سحبها">
+                                                ⚠️ سُحبت منه سابقاً (${targetRecords.length} مرة)
+                                            </span>
+                                        ` : `
+                                            <span style="font-size:10px; color:var(--text-muted);">لم تسند له من قبل</span>
+                                        `}
+                                        ${wasWithTarget && totalCallsWithTarget > 0 ? `
+                                            <span style="font-size:10px; color:#38bdf8; font-weight:600;">📞 كلّمها ${totalCallsWithTarget} مكالمة</span>
+                                        ` : wasWithTarget ? `
+                                            <span style="font-size:10px; color:#fbbf24; font-weight:600;">⚠️ 0 مكالمات أثناء عهدته</span>
+                                        ` : ''}
+                                    </div>
                                 </td>
                                 <td style="padding:10px; text-align:center;">
                                     ${isTargetUser ? `

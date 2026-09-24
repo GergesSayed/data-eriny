@@ -50,13 +50,14 @@ window.SupabaseClient = (function() {
                 }
             };
 
-            const [dynamicCompaniesObj, assignmentsObj, callsData, usersData, actsData, deletedCallsObj] = await Promise.all([
+            const [dynamicCompaniesObj, assignmentsObj, callsData, usersData, actsData, deletedCallsObj, custodyObj] = await Promise.all([
                 safeFetch(`${FIREBASE_DB_URL}/dynamic_companies.json?t=${Date.now()}`, {}),
                 safeFetch(`${FIREBASE_DB_URL}/assignments.json?t=${Date.now()}`, {}),
                 safeFetch(`${FIREBASE_DB_URL}/calls.json?t=${Date.now()}`, []),
                 safeFetch(`${FIREBASE_DB_URL}/users.json?t=${Date.now()}`, []),
                 safeFetch(`${FIREBASE_DB_URL}/activities.json?t=${Date.now()}`, []),
-                safeFetch(`${FIREBASE_DB_URL}/deleted_calls.json?t=${Date.now()}`, {})
+                safeFetch(`${FIREBASE_DB_URL}/deleted_calls.json?t=${Date.now()}`, {}),
+                safeFetch(`${FIREBASE_DB_URL}/custody.json?t=${Date.now()}`, {})
             ]);
             clearTimeout(timeoutId);
 
@@ -87,6 +88,7 @@ window.SupabaseClient = (function() {
                 deletedCalls: deletedCallsList,
                 users: Array.isArray(usersData) ? usersData : (usersData ? Object.values(usersData) : []),
                 activities: Array.isArray(actsData) ? actsData : (actsData ? Object.values(actsData) : []),
+                custody: (custodyObj && typeof custodyObj === 'object') ? custodyObj : {},
                 updated_at: new Date().toISOString()
             };
         } catch (err) {
@@ -195,6 +197,18 @@ window.SupabaseClient = (function() {
                         body: JSON.stringify(data.users),
                         signal: controller.signal
                     })
+                );
+            }
+
+            // 3.1 Sync custody history if present
+            if (data.custody && typeof data.custody === 'object' && Object.keys(data.custody).length > 0) {
+                promises.push(
+                    fetch(`${FIREBASE_DB_URL}/custody.json`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data.custody),
+                        signal: controller.signal
+                    }).catch(() => {})
                 );
             }
 
@@ -637,6 +651,21 @@ window.SupabaseClient = (function() {
         }
     }
 
+    async function pushCustody(companyId, historyList) {
+        if (!companyId || !Array.isArray(historyList)) return true;
+        try {
+            const resp = await fetch(`${FIREBASE_DB_URL}/custody/${encodeURIComponent(companyId)}.json`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(historyList)
+            });
+            return resp.ok;
+        } catch(e) {
+            console.warn('pushCustody error:', e);
+            return false;
+        }
+    }
+
     return {
         getStatus,
         onStatusChange,
@@ -646,6 +675,7 @@ window.SupabaseClient = (function() {
         pushDynamicCompanies,
         pushUsers,
         pushAssignments,
+        pushCustody,
         pushDeletedCall,
         deleteDynamicCompany,
         wipeDynamicCompanies,

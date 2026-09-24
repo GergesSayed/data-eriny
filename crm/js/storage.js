@@ -40,7 +40,8 @@ const AppStorage = {
         SETTINGS: 'fleetcrm_settings',
         USERS: 'fleetcrm_users',
         CURRENT_USER: 'fleetcrm_current_user',
-        HASH_UPGRADE_KEY: 'fleetcrm_hash_v2'
+        HASH_UPGRADE_KEY: 'fleetcrm_hash_v2',
+        CUSTODY: 'fleetcrm_custody_history'
     },
 
     /* Crypto & Environment Helpers */
@@ -89,7 +90,8 @@ const AppStorage = {
             companies: this.getCompanies(),
             calls: this.getCalls(),
             users: this.getUsers().map(u => ({ ...u, password: '***' })),
-            activities: this.getActivities(100)
+            activities: this.getActivities(100),
+            custody: this.getCustodyHistoryMap ? this.getCustodyHistoryMap() : {}
         };
         const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
@@ -112,6 +114,9 @@ const AppStorage = {
             }
             if (Array.isArray(data.calls) && data.calls.length > 0) {
                 this._set(this.KEYS.CALLS, data.calls);
+            }
+            if (data.custody && typeof data.custody === 'object') {
+                this.setCustodyHistoryMap(data.custody);
             }
             this.addActivity('system', 'restore', 'استعادة نسخة احتياطية', `تم استعادة ${data.companies.length} شركة و${(data.calls || []).length} مكالمة`);
             return { success: true, count: data.companies.length };
@@ -1812,7 +1817,8 @@ const AppStorage = {
                     assignments: assignmentsMap,
                     users: users,
                     calls: calls,
-                    activities: activities
+                    activities: activities,
+                    custody: this.getCustodyHistoryMap ? this.getCustodyHistoryMap() : {}
                 });
                 if (ok) {
                     localStorage.setItem('fleetcrm_last_synced_hash', quickHash);
@@ -1902,6 +1908,21 @@ const AppStorage = {
 
                     if (changedComps.length > 0) {
                         this.saveBatchToIDB(changedComps);
+                    }
+                }
+
+                // B.1 Apply custody history directly from cloud custody endpoint
+                if (data.custody && typeof data.custody === 'object') {
+                    const localCustody = this.getCustodyHistoryMap ? this.getCustodyHistoryMap() : {};
+                    let custodyChanged = false;
+                    for (const [compId, cloudHist] of Object.entries(data.custody)) {
+                        if (Array.isArray(cloudHist) && cloudHist.length > 0) {
+                            localCustody[compId] = cloudHist;
+                            custodyChanged = true;
+                        }
+                    }
+                    if (custodyChanged && this.setCustodyHistoryMap) {
+                        this.setCustodyHistoryMap(localCustody);
                     }
                 }
 
@@ -2616,9 +2637,237 @@ const AppStorage = {
         return true;
     },
 
+    // ---- Sales Custody & Assignment Audit Trail Engine ----
+    getCustodyHistoryMap() {
+        try {
+            const raw = localStorage.getItem(this.KEYS.CUSTODY);
+            return (raw && raw.startsWith('{')) ? JSON.parse(raw) : {};
+        } catch (e) {
+            return {};
+        }
+    },
+
+    setCustodyHistoryMap(map) {
+        try {
+            if (map && typeof map === 'object') {
+                localStorage.setItem(this.KEYS.CUSTODY, JSON.stringify(map));
+            }
+        } catch (e) { }
+    },
+
+    formatDurationBetween(startDate, endDate) {
+        if (!startDate) return 'غير محدد';
+        const start = new Date(startDate).getTime();
+        const end = endDate ? new Date(endDate).getTime() : Date.now();
+        const diffMs = Math.max(0, end - start);
+        const diffSec = Math.floor(diffMs / 1000);
+        const diffMin = Math.floor(diffSec / 60);
+        const diffHours = Math.floor(diffMin / 60);
+        const diffDays = Math.floor(diffHours / 24);
+
+        if (diffDays > 0) {
+            const dText = diffDays === 1 ? 'يوم واحد' : (diffDays === 2 ? 'يومان' : (diffDays <= 10 ? `${diffDays} أيام` : `${diffDays} يوماً`));
+            const remHours = diffHours % 24;
+            if (remHours > 0) {
+                const hText = remHours === 1 ? 'ساعة واحدة' : (remHours === 2 ? 'ساعتان' : (remHours <= 10 ? `${remHours} ساعات` : `${remHours} ساعة`));
+                return `${dText} و ${hText}`;
+            }
+            return dText;
+        }
+        if (diffHours > 0) {
+            const hText = diffHours === 1 ? 'ساعة واحدة' : (diffHours === 2 ? 'ساعتان' : (diffHours <= 10 ? `${diffHours} ساعات` : `${diffHours} ساعة`));
+            const remMin = diffMin % 60;
+            if (remMin > 0) {
+                const mText = remMin === 1 ? 'دقيقة واحدة' : (remMin === 2 ? 'دقيقتان' : (remMin <= 10 ? `${remMin} دقائق` : `${remMin} دقيقة`));
+                return `${hText} و ${mText}`;
+            }
+            return hText;
+        }
+        if (diffMin > 0) {
+            return diffMin === 1 ? 'دقيقة واحدة' : (diffMin === 2 ? 'دقيقتان' : (diffMin <= 10 ? `${diffMin} دقائق` : `${diffMin} دقيقة`));
+        }
+        return 'أقل من دقيقة واحدة';
+    },
+
+    getCustodyHistory(companyId) {
+        if (!companyId) return [];
+        const sId = String(companyId);
+        const allHistory = this.getCustodyHistoryMap();
+
+        const company = this.getCompany(sId);
+        let list = (allHistory[sId] && Array.isArray(allHistory[sId])) ? [...allHistory[sId]] : [];
+
+        // If company currently has assignedTo, but no active record in history, synthesize active record
+        const currentUserId = company?.assignedTo;
+        const hasActiveRecord = list.some(item => !item.withdrawnAt && item.toUserId === currentUserId);
+
+        if (currentUserId && !hasActiveRecord) {
+            const userObj = this.getUser(currentUserId);
+            const assignedTime = company.assignedAt || company.createdAt || (company.lastUpdated ? company.lastUpdated + 'T09:00:00.000Z' : new Date().toISOString());
+            const syntheticActive = {
+                id: 'cust_act_' + sId + '_' + currentUserId,
+                action: 'assigned',
+                toUserId: currentUserId,
+                toUserName: userObj ? userObj.name : currentUserId,
+                toUserAvatar: userObj ? (userObj.avatar || '👨‍💼') : '👨‍💼',
+                toUserColor: userObj ? (userObj.color || '#3b82f6') : '#3b82f6',
+                assignedAt: assignedTime,
+                assignedBy: 'إدارة التعيينات والتوزيع',
+                withdrawnAt: null,
+                withdrawnBy: null,
+                durationText: this.formatDurationBetween(assignedTime, new Date().toISOString()),
+                notes: 'تخصيص نشط حالياً'
+            };
+            list.unshift(syntheticActive);
+        }
+
+        // Correlate calls for each custody period
+        const allCalls = this.getCallsForCompany(sId);
+
+        list.forEach(entry => {
+            const repId = String(entry.toUserId || '').toLowerCase();
+            const repName = String(entry.toUserName || '').toLowerCase();
+
+            // Find calls by this rep
+            const repCalls = allCalls.filter(call => {
+                if (!call) return false;
+                const cUserId = String(call.userId || '').toLowerCase();
+                const cUserName = String(call.createdByName || '').toLowerCase();
+                const isMatch = (repId && (cUserId === repId || cUserName === repId)) ||
+                                (repName && (cUserName === repName || cUserId === repName));
+                if (!isMatch) return false;
+
+                if (entry.assignedAt) {
+                    const callTime = new Date(call.createdAt || (call.date + 'T12:00:00')).getTime();
+                    const startTime = new Date(entry.assignedAt).getTime() - (24 * 3600 * 1000);
+                    if (callTime < startTime) return false;
+                    if (entry.withdrawnAt) {
+                        const endTime = new Date(entry.withdrawnAt).getTime() + (24 * 3600 * 1000);
+                        if (callTime > endTime) return false;
+                    }
+                }
+                return true;
+            });
+
+            entry.callsCount = repCalls.length;
+            entry.calls = repCalls.map(c => ({
+                id: c.id,
+                date: c.date,
+                time: c.time || '',
+                result: c.result,
+                resultLabel: this.getCallResultLabel(c.result),
+                notes: c.notes || '',
+                createdByName: c.createdByName || entry.toUserName
+            }));
+
+            const end = entry.withdrawnAt || new Date().toISOString();
+            entry.durationText = this.formatDurationBetween(entry.assignedAt, end);
+        });
+
+        return list;
+    },
+
+    recordCustodyChange(company, newUserId, notes = '') {
+        if (!company || !company.id) return;
+        const sId = String(company.id);
+        const prevUserId = company.assignedTo || '';
+        const targetUserId = newUserId || '';
+
+        // If same user, do nothing
+        if (prevUserId === targetUserId) return;
+
+        const now = new Date().toISOString();
+        const currentUser = this.getCurrentUser();
+        const operatorName = currentUser ? (currentUser.name || currentUser.username) : 'مدير النظام';
+
+        const allHistory = this.getCustodyHistoryMap();
+        if (!allHistory[sId]) allHistory[sId] = [];
+        const historyList = allHistory[sId];
+
+        // 1. If previous user was assigned, close their custody
+        if (prevUserId) {
+            const prevUser = this.getUser(prevUserId);
+            const prevUserName = prevUser ? prevUser.name : prevUserId;
+
+            let activeRecord = historyList.find(r => r.toUserId === prevUserId && !r.withdrawnAt);
+            if (!activeRecord) {
+                const startTime = company.assignedAt || company.createdAt || (company.lastUpdated ? company.lastUpdated + 'T09:00:00.000Z' : now);
+                activeRecord = {
+                    id: 'cust_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                    action: 'assigned',
+                    toUserId: prevUserId,
+                    toUserName: prevUserName,
+                    toUserAvatar: prevUser ? (prevUser.avatar || '👨‍💼') : '👨‍💼',
+                    toUserColor: prevUser ? (prevUser.color || '#3b82f6') : '#3b82f6',
+                    assignedAt: startTime,
+                    assignedBy: 'النظام / إدارة التعيينات'
+                };
+                historyList.unshift(activeRecord);
+            }
+
+            activeRecord.withdrawnAt = now;
+            activeRecord.withdrawnBy = operatorName;
+            activeRecord.durationText = this.formatDurationBetween(activeRecord.assignedAt, now);
+            activeRecord.withdrawalReason = targetUserId ?
+                `نقل وإعادة إسناد إلى: ${this.getUser(targetUserId)?.name || targetUserId}` :
+                (notes || 'سحب وإلغاء الإسناد والتفريغ');
+
+            const compCalls = this.getCallsForCompany(sId);
+            const repCalls = compCalls.filter(c => {
+                const uid = String(c.userId || '').toLowerCase();
+                const uname = String(c.createdByName || '').toLowerCase();
+                return uid === String(prevUserId).toLowerCase() || uname === String(prevUserName).toLowerCase();
+            });
+            activeRecord.callsCount = repCalls.length;
+            activeRecord.callsSnapshot = repCalls.map(c => ({
+                id: c.id,
+                date: c.date,
+                time: c.time || '',
+                result: c.result,
+                resultLabel: this.getCallResultLabel(c.result),
+                notes: c.notes || ''
+            }));
+        }
+
+        // 2. If new user assigned, open new active custody
+        if (targetUserId) {
+            const targetUser = this.getUser(targetUserId);
+            const targetUserName = targetUser ? targetUser.name : targetUserId;
+
+            const newRecord = {
+                id: 'cust_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                action: prevUserId ? 'reassigned' : 'assigned',
+                toUserId: targetUserId,
+                toUserName: targetUserName,
+                toUserAvatar: targetUser ? (targetUser.avatar || '👨‍💼') : '👨‍💼',
+                toUserColor: targetUser ? (targetUser.color || '#3b82f6') : '#3b82f6',
+                fromUserId: prevUserId || null,
+                fromUserName: prevUserId ? (this.getUser(prevUserId)?.name || prevUserId) : null,
+                assignedAt: now,
+                assignedBy: operatorName,
+                withdrawnAt: null,
+                withdrawnBy: null,
+                notes: notes || (prevUserId ? `تحويل العهدة من: ${this.getUser(prevUserId)?.name || prevUserId}` : 'إسناد جديد للشركة')
+            };
+            historyList.unshift(newRecord);
+        }
+
+        allHistory[sId] = historyList;
+        this.setCustodyHistoryMap(allHistory);
+
+        // Async cloud push if SupabaseClient is available
+        if (window.SupabaseClient && typeof window.SupabaseClient.pushCustody === 'function') {
+            window.SupabaseClient.pushCustody(sId, historyList).catch(() => {});
+        }
+    },
+
     assignCompany(companyId, userId) {
         const company = this.getCompany(companyId);
         if (!company) return null;
+
+        // Record custody movement audit trail (when assigned, withdrawn, or reassigned)
+        this.recordCustodyChange(company, userId);
+
         company.assignedTo = userId || '';
         company.assignedAt = userId ? new Date().toISOString() : null;
         company.lastUpdated = new Date().toISOString().split('T')[0];
@@ -2670,6 +2919,7 @@ const AppStorage = {
 
         this.getCompanies().forEach(c => {
             if (c && idSet.has(String(c.id))) {
+                this.recordCustodyChange(c, userId, 'تخصيص جماعي');
                 c.assignedTo = userId || '';
                 c.assignedAt = userId ? now : null;
                 c.lastUpdated = today;

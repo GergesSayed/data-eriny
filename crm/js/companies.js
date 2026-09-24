@@ -2168,7 +2168,7 @@ const Companies = {
                     </div>
                     <div>
                         <h4 style="margin:0 0 4px 0; font-size:0.95rem; color:var(--text-primary); font-weight:800;"><i class="fas fa-bullseye" style="color:${scoreColor};"></i> درجة العميل المتوقعة</h4>
-                        <p style="margin:0; font-size:0.75rem; color:var(--text-muted); font-weight:600;">تقدير فرصة بيع الكاوتش وتوريد الأساطيل</p>
+                        <p style="margin:0; font-size:0.75rem; color:var(--text-muted); font-weight:600;">تقييم أولوية العميل وإمكانية التعاقد</p>
                     </div>
                 </div>
                 
@@ -2184,6 +2184,9 @@ const Companies = {
                     </div>
                 </div>
             </div>
+
+            <!-- Sales Custody & Assignment History Audit Trail (Prominently at the top) -->
+            ${this.buildCustodyAuditHtml(company)}
 
             <div class="detail-grid">
                 <div>
@@ -2305,35 +2308,285 @@ const Companies = {
         return `<div class="detail-item"><span class="label">${label}</span><span class="value"${phoneStyle}>${value}</span></div>`;
     },
 
+    buildCustodyAuditHtml(company) {
+        if (!company) return '';
+        const custodyList = (window.AppStorage && window.AppStorage.getCustodyHistory) ? window.AppStorage.getCustodyHistory(company.id) : [];
+        const currentRepId = company.assignedTo;
+        const currentRep = currentRepId ? window.AppStorage.getUser(currentRepId) : null;
+        const currentRepName = currentRep ? currentRep.name : (currentRepId || 'غير مسندة');
+        const assignedTime = company.assignedAt;
+
+        // 1. Current Custody Card
+        let currentCustodyHtml = '';
+        if (currentRepId) {
+            const activeEntry = custodyList.find(c => !c.withdrawnAt && String(c.toUserId) === String(currentRepId));
+            const repCalls = activeEntry ? (activeEntry.calls || []) : (window.AppStorage.getCallsForCompany(company.id) || []).filter(cl => String(cl.userId) === String(currentRepId) || String(cl.createdByName) === String(currentRepName));
+            const durationTxt = activeEntry ? activeEntry.durationText : (assignedTime ? window.AppStorage.formatDurationBetween(assignedTime, new Date().toISOString()) : 'غير محدد');
+            const formattedStart = assignedTime ? new Date(assignedTime).toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' }) : 'مسجلة مسبقاً';
+
+            currentCustodyHtml = `
+                <div style="background:linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(5, 150, 105, 0.05) 100%); border:1px solid rgba(16, 185, 129, 0.35); border-radius:10px; padding:14px; margin-bottom:14px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <span style="font-size:24px; background:rgba(16, 185, 129, 0.2); width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:1px solid rgba(16, 185, 129, 0.4);">
+                                ${currentRep ? (currentRep.avatar || '👨‍💼') : '👨‍💼'}
+                            </span>
+                            <div>
+                                <div style="font-weight:800; font-size:14px; color:var(--text-primary); display:flex; align-items:center; gap:6px;">
+                                    <span>العهدة الحالية نشطة لدى: <strong style="color:#10b981;">${esc(currentRepName)}</strong></span>
+                                    <span class="badge" style="background:#10b981; color:#fff; font-size:10px; padding:2px 8px; border-radius:20px;">نشط حالياً</span>
+                                </div>
+                                <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">
+                                    <span>📅 تاريخ وتوقيت الاستلام: <strong style="color:var(--text-secondary);">${formattedStart}</strong></span>
+                                    <span style="margin:0 6px;">•</span>
+                                    <span>⏱️ مدة بقاء الشركة في عهدته حتى الآن: <strong style="color:#38bdf8;">${durationTxt}</strong></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <span class="badge" style="background:${repCalls.length > 0 ? 'rgba(59, 130, 246, 0.2)' : 'rgba(245, 158, 11, 0.2)'}; color:${repCalls.length > 0 ? '#60a5fa' : '#f59e0b'}; border:1px solid ${repCalls.length > 0 ? 'rgba(59, 130, 246, 0.4)' : 'rgba(245, 158, 11, 0.4)'}; font-size:12px; font-weight:700; padding:4px 10px; border-radius:8px;">
+                                📞 ${repCalls.length > 0 ? `أجرى ${repCalls.length} مكالمة` : 'لم يتصل بعد (0 مكالمات)'}
+                            </span>
+                        </div>
+                    </div>
+
+                    ${repCalls.length === 0 ? `
+                        <div style="background:rgba(245, 158, 11, 0.1); border:1px dashed rgba(245, 158, 11, 0.4); border-radius:8px; padding:8px 12px; font-size:12px; color:#fbbf24; display:flex; align-items:center; gap:8px;">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span>تنبيه المتابعة: المندوب لم يقم بإجراء أي مكالمة مسجلة مع الشركة منذ استلام العهدة!</span>
+                        </div>
+                    ` : `
+                        <div style="margin-top:10px; padding-top:10px; border-top:1px solid rgba(16, 185, 129, 0.15);">
+                            <div style="font-size:11px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">
+                                <i class="fas fa-headset"></i> مكالمات المندوب الحالي أثناء هذه العهدة:
+                            </div>
+                            <div style="display:flex; flex-direction:column; gap:4px; max-height:140px; overflow-y:auto;">
+                                ${repCalls.map(c => `
+                                    <div style="display:flex; align-items:center; gap:8px; padding:5px 8px; border-radius:6px; background:rgba(0,0,0,0.18); font-size:11px;">
+                                        <span style="color:var(--text-muted); font-family:Inter; min-width:80px;">${c.date} ${c.time || ''}</span>
+                                        <span class="result-badge result-${c.result}" style="font-size:10px; padding:2px 6px;">${window.AppStorage.getCallResultLabel(c.result)}</span>
+                                        <span style="flex:1; color:var(--text-secondary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${esc(c.notes || 'لا توجد ملاحظات')}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `}
+                </div>
+            `;
+        } else {
+            currentCustodyHtml = `
+                <div style="background:rgba(255,255,255,0.03); border:1px dashed var(--border-color); border-radius:10px; padding:12px 16px; margin-bottom:14px; display:flex; align-items:center; justify-content:space-between;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="font-size:20px; color:var(--text-muted);">⚪</span>
+                        <div>
+                            <div style="font-weight:700; font-size:13px; color:var(--text-secondary);">الشركة غير مسندة حالياً في عهدة أي موظف</div>
+                            <div style="font-size:11px; color:var(--text-muted);">يمكن للمدير أو المشرف إسنادها لأي مندوب مبيعات في أي وقت</div>
+                        </div>
+                    </div>
+                    <span class="badge" style="background:rgba(124, 58, 237, 0.15); color:#a78bfa; border:1px solid rgba(124, 58, 237, 0.3); font-size:11px; padding:3px 10px;">جاهزة للتخصيص</span>
+                </div>
+            `;
+        }
+
+        // 2. Past Hand-offs & Withdrawals
+        const pastEntries = custodyList.filter(e => e.withdrawnAt || (currentRepId && String(e.toUserId) !== String(currentRepId)));
+
+        let pastCustodyHtml = '';
+        if (pastEntries.length === 0) {
+            pastCustodyHtml = `
+                <div style="text-align:center; padding:16px; color:var(--text-muted); font-size:12px; background:rgba(0,0,0,0.1); border-radius:8px;">
+                    <i class="fas fa-history" style="font-size:18px; margin-bottom:4px; opacity:0.5; display:block;"></i>
+                    لا توجد حركات سحب أو تحويلات سابقة مسجلة لهذه الشركة
+                </div>
+            `;
+        } else {
+            pastCustodyHtml = `
+                <div style="display:flex; flex-direction:column; gap:10px; margin-top:8px;">
+                    ${pastEntries.map((item) => {
+                        const formattedFrom = item.assignedAt ? new Date(item.assignedAt).toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' }) : '—';
+                        const formattedTo = item.withdrawnAt ? new Date(item.withdrawnAt).toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' }) : '—';
+                        const repCalls = item.calls || item.callsSnapshot || [];
+                        const callsCount = item.callsCount !== undefined ? item.callsCount : repCalls.length;
+
+                        return `
+                            <div style="background:rgba(255, 255, 255, 0.02); border:1px solid var(--border-color); border-radius:8px; padding:12px; position:relative;">
+                                <div style="display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+                                    <div style="display:flex; align-items:center; gap:8px;">
+                                        <span style="font-size:18px;">${item.toUserAvatar || '👨‍💼'}</span>
+                                        <div>
+                                            <span style="font-weight:700; font-size:13px; color:var(--text-primary);">${esc(item.toUserName || 'موظف مبيعات')}</span>
+                                            <div style="font-size:11px; color:var(--text-muted); margin-top:1px;">
+                                                <span>⏱️ مكثت في عهدته: <strong style="color:#fbbf24;">${item.durationText || 'غير محدد'}</strong></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div style="display:flex; align-items:center; gap:6px;">
+                                        <span class="badge" style="background:${callsCount > 0 ? 'rgba(59, 130, 246, 0.15)' : 'rgba(239, 68, 68, 0.15)'}; color:${callsCount > 0 ? '#60a5fa' : '#f87171'}; border:1px solid ${callsCount > 0 ? 'rgba(59, 130, 246, 0.3)' : 'rgba(239, 68, 68, 0.3)'}; font-size:11px; padding:2px 8px; border-radius:6px;">
+                                            ${callsCount > 0 ? `📞 ${callsCount} مكالمات مسجلة` : '⚠️ 0 مكالمات (لم يتصل)'}
+                                        </span>
+                                        <span class="badge" style="background:rgba(239, 68, 68, 0.12); color:#ef4444; border:1px solid rgba(239, 68, 68, 0.3); font-size:10px; padding:2px 8px; border-radius:6px;">
+                                            مسحوبة / منتهية
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- Key Time Details Grid -->
+                                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:6px; margin-top:8px; padding:8px; background:rgba(0,0,0,0.15); border-radius:6px; font-size:11px;">
+                                    <div>
+                                        <span style="color:var(--text-muted);">📥 تاريخ وساعة الاستلام:</span>
+                                        <div style="font-weight:600; color:var(--text-secondary);">${formattedFrom}</div>
+                                    </div>
+                                    <div>
+                                        <span style="color:var(--text-muted);">📤 تاريخ وساعة السحب:</span>
+                                        <div style="font-weight:600; color:var(--text-secondary);">${formattedTo}</div>
+                                    </div>
+                                    <div>
+                                        <span style="color:var(--text-muted);">👤 سُحبت بواسطة:</span>
+                                        <div style="font-weight:600; color:var(--text-secondary);">${esc(item.withdrawnBy || 'إدارة النظام')}</div>
+                                    </div>
+                                    ${item.withdrawalReason ? `
+                                        <div>
+                                            <span style="color:var(--text-muted);">📝 سبب / حركة الإنهاء:</span>
+                                            <div style="font-weight:600; color:#38bdf8;">${esc(item.withdrawalReason)}</div>
+                                        </div>
+                                    ` : ''}
+                                </div>
+
+                                <!-- Calls conducted during that custody -->
+                                ${callsCount > 0 ? `
+                                    <div style="margin-top:8px;">
+                                        <details style="font-size:11px;">
+                                            <summary style="cursor:pointer; color:#60a5fa; font-weight:700; user-select:none;">
+                                                <i class="fas fa-chevron-down" style="font-size:9px; margin-left:4px;"></i> عرض تفاصيل المكالمات (${repCalls.length})
+                                            </summary>
+                                            <div style="display:flex; flex-direction:column; gap:4px; margin-top:6px; max-height:120px; overflow-y:auto; padding-right:6px;">
+                                                ${repCalls.map(c => `
+                                                    <div style="display:flex; align-items:center; gap:6px; padding:4px 6px; background:rgba(0,0,0,0.2); border-radius:4px;">
+                                                        <span style="color:var(--text-muted); font-family:Inter; min-width:75px;">${c.date} ${c.time || ''}</span>
+                                                        <span class="result-badge result-${c.result}" style="font-size:9px; padding:1px 5px;">${window.AppStorage.getCallResultLabel(c.result)}</span>
+                                                        <span style="flex:1; color:var(--text-secondary);">${esc(c.notes || '—')}</span>
+                                                    </div>
+                                                `).join('')}
+                                            </div>
+                                        </details>
+                                    </div>
+                                ` : `
+                                    <div style="margin-top:6px; font-size:11px; color:#f87171; background:rgba(239, 68, 68, 0.08); padding:4px 8px; border-radius:4px;">
+                                        <i class="fas fa-times-circle"></i> لم يقم هذا المندوب بأي اتصال مع الشركة طوال فترة بقائها في عهدته (${item.durationText || 'كامل الفترة'}).
+                                    </div>
+                                `}
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+
+        return `
+            <div class="detail-section" id="detail-custody-section" style="border:1px solid rgba(124, 58, 237, 0.3); background:linear-gradient(135deg, rgba(30, 27, 75, 0.35) 0%, rgba(15, 23, 42, 0.5) 100%); border-radius:12px; padding:16px; margin-bottom:20px; box-shadow:0 4px 16px rgba(0,0,0,0.2);">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; border-bottom:1px solid rgba(124, 58, 237, 0.2); padding-bottom:10px;">
+                    <div>
+                        <h3 style="margin:0; font-size:1rem; color:#c4b5fd; display:flex; align-items:center; gap:8px;">
+                            <i class="fas fa-id-badge" style="color:#a78bfa;"></i>
+                            <span>سجل عهدة الشركة وحركة التكليفات للمناديب (Custody Audit Trail)</span>
+                        </h3>
+                        <p style="margin:3px 0 0 0; font-size:11px; color:var(--text-muted);">
+                            تتبع زمني دقيق لكل موظف مبيعات: تاريخ استلام الشركة، تاريخ سحبها، مدة بقائها، والمكالمات المنفذة
+                        </p>
+                    </div>
+                    <span class="badge" style="background:rgba(124, 58, 237, 0.2); color:#c4b5fd; border:1px solid rgba(124, 58, 237, 0.4); font-size:11px;">
+                        إجمالي الحركات: ${custodyList.length}
+                    </span>
+                </div>
+
+                <!-- 1. Current Custody -->
+                <div style="margin-bottom:12px;">
+                    <div style="font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">
+                        🟢 حالة العهدة الحالية (Current Custody):
+                    </div>
+                    ${currentCustodyHtml}
+                </div>
+
+                <!-- 2. Past Hand-offs & Withdrawals -->
+                <div>
+                    <div style="font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">
+                        📜 سجل السحب والتكليفات السابقة (Historical Custody Trail):
+                    </div>
+                    ${pastCustodyHtml}
+                </div>
+            </div>
+        `;
+    },
+
+    showCustodyModal(companyId) {
+        const company = window.AppStorage.getCompany(companyId);
+        if (!company) {
+            App.showToast('تعذر العثور على بيانات الشركة', 'error');
+            return;
+        }
+
+        const nameEl = document.getElementById('custody-modal-company-name');
+        const bodyEl = document.getElementById('company-custody-body');
+        const openDetailBtn = document.getElementById('btn-custody-open-detail');
+
+        if (nameEl) nameEl.textContent = `سجل حركة وعهدة: ${company.nameAr || company.nameEn || 'الشركة'}`;
+        if (bodyEl) bodyEl.innerHTML = this.buildCustodyAuditHtml(company);
+        if (openDetailBtn) {
+            openDetailBtn.onclick = () => {
+                App.closeModal('modal-company-custody');
+                this.showDetail(companyId);
+            };
+        }
+
+        App.openModal('modal-company-custody');
+    },
+
     buildAssignedWidget(c) {
         const currentUser = (window.AppStorage && typeof window.AppStorage.getCurrentUser === 'function') ? window.AppStorage.getCurrentUser() : null;
         const currentName = (currentUser && currentUser.name) ? String(currentUser.name).split(' ')[0] : (currentUser?.username || 'أنا');
         const users = (window.AppStorage && typeof window.AppStorage.getUsers === 'function') ? (window.AppStorage.getUsers() || []) : [];
         const assignedUser = (window.AppStorage && typeof window.AppStorage.getUser === 'function') ? window.AppStorage.getUser(c.assignedTo) : null;
 
+        const custodyBtnHtml = `
+            <button onclick="event.stopPropagation(); Companies.showCustodyModal('${c.id}')" title="عرض سجل حركة وعهدة ومكالمات هذه الشركة بالتفصيل" style="background:rgba(124, 58, 237, 0.12); border:1px solid rgba(124, 58, 237, 0.35); color:#c4b5fd; cursor:pointer; font-size:11px; font-weight:700; padding:2px 7px; border-radius:6px; display:inline-flex; align-items:center; gap:4px; text-decoration:none;" onmouseover="this.style.background='rgba(124, 58, 237, 0.28)'; this.style.borderColor='#a78bfa';" onmouseout="this.style.background='rgba(124, 58, 237, 0.12)'; this.style.borderColor='rgba(124, 58, 237, 0.35)';">
+                <i class="fas fa-history" style="color:#a78bfa; font-size:11px;"></i>
+                <span>العهدة</span>
+            </button>
+        `;
+
         if (assignedUser) {
             const userName = assignedUser.name || assignedUser.username || 'موظف';
             if (window.AppStorage.canModify()) {
                 return `
-                    <div onclick="event.stopPropagation();" style="display:inline-flex; justify-content:center;">
-                        <select onchange="Companies.assignToUser('${c.id}', this.value)" style="padding:3px 6px; border-radius:6px; border:1px solid ${assignedUser.color || '#7c3aed'}66; background:${assignedUser.color || '#7c3aed'}15; color:${assignedUser.color || '#7c3aed'}; font-size:0.75rem; font-weight:700; width:125px; cursor:pointer; text-align:center; direction:ltr;" title="المسند إليه: ${userName} (تاريخ التعيين: ${c.assignedAt ? new Date(c.assignedAt).toLocaleDateString('ar-EG') : ''})">
+                    <div onclick="event.stopPropagation();" style="display:inline-flex; align-items:center; justify-content:center; gap:5px;">
+                        ${custodyBtnHtml}
+                        <select onchange="Companies.assignToUser('${c.id}', this.value)" style="padding:3px 6px; border-radius:6px; border:1px solid ${assignedUser.color || '#7c3aed'}66; background:${assignedUser.color || '#7c3aed'}15; color:${assignedUser.color || '#7c3aed'}; font-size:0.75rem; font-weight:700; width:118px; cursor:pointer; text-align:center; direction:ltr;" title="المسند إليه: ${userName} (تاريخ التعيين: ${c.assignedAt ? new Date(c.assignedAt).toLocaleDateString('ar-EG') : ''})">
                             <option value="${assignedUser.id}" selected>👤 ${userName}</option>
                             <option value="">⚪ إلغاء التعيين</option>
                             ${users.filter(u => u && u.id !== assignedUser.id).map(u => `<option value="${u.id}">👤 ${u.name || u.username || 'موظف'}</option>`).join('')}
                         </select>
                     </div>`;
             } else {
-                return `<span class="badge" style="background:${assignedUser.color || '#7c3aed'}22; color:${assignedUser.color || '#7c3aed'}; font-size:0.75rem; padding:3px 8px; border-radius:6px; font-weight:700; white-space:nowrap; display:inline-block;">👤 ${userName}</span>`;
+                return `
+                    <div style="display:inline-flex; align-items:center; gap:5px;">
+                        ${custodyBtnHtml}
+                        <span class="badge" style="background:${assignedUser.color || '#7c3aed'}22; color:${assignedUser.color || '#7c3aed'}; font-size:0.75rem; padding:3px 8px; border-radius:6px; font-weight:700; white-space:nowrap; display:inline-block;">👤 ${userName}</span>
+                    </div>`;
             }
         } else {
             return window.AppStorage.canModify() ? `
-                <div onclick="event.stopPropagation();" style="display:inline-flex; justify-content:center;">
-                    <select onchange="Companies.assignToUser('${c.id}', this.value)" style="padding:3px 6px; border-radius:6px; border:1px dashed #7c3aed; background:rgba(124, 58, 237, 0.08); color:#7c3aed; font-size:0.75rem; font-weight:700; width:110px; cursor:pointer; text-align:center;" title="اختر الموظف لإسناد هذه الشركة له">
+                <div onclick="event.stopPropagation();" style="display:inline-flex; align-items:center; justify-content:center; gap:5px;">
+                    ${custodyBtnHtml}
+                    <select onchange="Companies.assignToUser('${c.id}', this.value)" style="padding:3px 6px; border-radius:6px; border:1px dashed #7c3aed; background:rgba(124, 58, 237, 0.08); color:#7c3aed; font-size:0.75rem; font-weight:700; width:105px; cursor:pointer; text-align:center;" title="اختر الموظف لإسناد هذه الشركة له">
                         <option value="" selected>➕ إسناد</option>
                         <option value="current_user">🙋‍♂️ أنا (${currentName})</option>
                         ${users.map(u => `<option value="${u.id}">👤 ${u.name || u.username || 'موظف'}</option>`).join('')}
                     </select>
-                </div>` : `<span style="color:var(--text-muted); font-size:11px;">⚪ غير مسندة</span>`;
+                </div>` : `
+                <div style="display:inline-flex; align-items:center; gap:5px;">
+                    ${custodyBtnHtml}
+                    <span style="color:var(--text-muted); font-size:11px;">⚪ غير مسندة</span>
+                </div>`;
         }
     },
 
