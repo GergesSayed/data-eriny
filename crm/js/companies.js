@@ -57,11 +57,13 @@ const Companies = {
         const cities = window.AppStorage ? window.AppStorage.CITIES : null;
         const { sectorCounts, cityCounts } = this.getSectorAndCityCounts();
 
-        // 1. Populate Sectors List
+        // 1. Populate Sectors List (strictly exclude sectors with 0 companies)
         const sectorsListEl = document.getElementById('multiselect-sectors-list');
         if (sectorsListEl && sectors) {
             let html = '';
-            const sortedSectors = Object.keys(sectors).sort((a, b) => (sectorCounts[b] || 0) - (sectorCounts[a] || 0));
+            const sortedSectors = Object.keys(sectors)
+                .filter(key => (sectorCounts[key] || 0) > 0)
+                .sort((a, b) => (sectorCounts[b] || 0) - (sectorCounts[a] || 0));
             sortedSectors.forEach(key => {
                 const s = sectors[key];
                 const count = sectorCounts[key] || 0;
@@ -77,11 +79,13 @@ const Companies = {
             sectorsListEl.innerHTML = html;
         }
 
-        // 2. Populate Cities List
+        // 2. Populate Cities List (strictly exclude cities with 0 companies)
         const citiesListEl = document.getElementById('multiselect-cities-list');
         if (citiesListEl && cities) {
             let html = '';
-            const sortedCities = Object.keys(cities).sort((a, b) => (cityCounts[b] || 0) - (cityCounts[a] || 0));
+            const sortedCities = Object.keys(cities)
+                .filter(key => (cityCounts[key] || 0) > 0)
+                .sort((a, b) => (cityCounts[b] || 0) - (cityCounts[a] || 0));
             sortedCities.forEach(key => {
                 const c = cities[key];
                 const count = cityCounts[key] || 0;
@@ -131,8 +135,13 @@ const Companies = {
 
     selectAllDropdown(type) {
         const set = (type === 'sectors') ? this.selectedSectors : this.selectedCities;
-        const source = (type === 'sectors') ? (window.AppStorage?.SECTORS || {}) : (window.AppStorage?.CITIES || {});
-        Object.keys(source).forEach(k => set.add(k));
+        const listEl = document.getElementById(`multiselect-${type}-list`);
+        if (listEl) {
+            listEl.querySelectorAll('.multiselect-item').forEach(item => {
+                const k = item.dataset.key;
+                if (k) set.add(k);
+            });
+        }
         this._syncDropdownDOM(type);
         this.updateMultiSelectLabels();
         this.onFilterChange(true);
@@ -148,7 +157,7 @@ const Companies = {
 
     selectCityGroup(groupKey) {
         const industrialCities = ['6october', '10thramadan', 'obour', 'badr', 'sadat', 'helwan'];
-        const cairoMetroCities = ['cairo', 'giza', 'nasr_city', 'new_cairo', 'maadi', 'qalyubia', 'shorouk'];
+        const cairoMetroCities = ['cairo', 'giza', 'nasr_city', 'new_cairo', 'maadi', 'qalyubia'];
         this.selectedCities.clear();
         const targetList = groupKey === 'industrial' ? industrialCities : cairoMetroCities;
         targetList.forEach(k => this.selectedCities.add(k));
@@ -405,11 +414,14 @@ const Companies = {
         const sectors = window.AppStorage ? window.AppStorage.SECTORS : null;
         if (!sectors) return;
 
+        const { sectorCounts } = this.getSectorAndCityCounts();
         const modalSec = document.getElementById('company-sector');
         let modalOptionsHtml = '<option value="">اختر القطاع</option>';
 
         Object.keys(sectors).forEach(key => {
             const s = sectors[key];
+            const count = sectorCounts[key] || 0;
+            if (count <= 0) return;
             modalOptionsHtml += `<option value="${key}">${s.icon} ${s.ar}</option>`;
         });
 
@@ -443,6 +455,7 @@ const Companies = {
         Object.keys(sectors).forEach(key => {
             const s = sectors[key];
             const count = sectorCounts[key] || 0;
+            if (count <= 0) return;
             const isActive = this.selectedSectors.has(key);
             const pillStyle = isActive 
                 ? 'background: rgba(16, 185, 129, 0.3); color: #6ee7b7; border: 1px solid #10b981; font-weight: 800;' 
