@@ -65,6 +65,23 @@ const AppStorage = {
             .replace(/'/g, '&#039;');
     },
 
+    // Check if a string is a generic job/role title rather than a real person's name
+    isRoleTitle(name) {
+        if (!name || typeof name !== 'string') return false;
+        const cleaned = name.trim();
+        if (!cleaned || cleaned === '—' || cleaned === '-' || cleaned === 'المسؤول' || cleaned === 'مسؤول') return true;
+        const roleKeywords = [
+            'مدير', 'مسؤول', 'مسئول', 'رئيس', 'مشرف', 'مهندس', 'منسق', 'نائب', 'عضو', 'ادارة', 'إدارة',
+            'قطاع', 'قسم', 'وكيل', 'مساعد', 'حركة', 'أساطيل', 'اساطيل', 'صيانة', 'صيانه', 'ورش', 'ورشة',
+            'مخازن', 'مخزن', 'لوجستيات', 'لوجستي', 'نقل', 'نقليات', 'تشغيل', 'عمليات', 'مشتريات',
+            'شؤون', 'شئون', 'فنية', 'فنيه', 'مركبات', 'معدات', 'توريدات', 'توزيع', 'General Manager',
+            'Director', 'Manager', 'Head of', 'Supervisor', 'Coordinator', 'Lead', 'Engineer',
+            'Specialist', 'Officer', 'Fleet', 'Logistics', 'Operations', 'Procurement', 'Transport',
+            'Maintenance', 'Supply Chain'
+        ];
+        return roleKeywords.some(k => cleaned.toLowerCase().includes(k.toLowerCase()));
+    },
+
     exportFullSystemBackup() {
         const backupData = {
             version: '16.0.0',
@@ -1052,6 +1069,21 @@ const AppStorage = {
         return s;
     },
 
+    isRoleTitle(str) {
+        if (!str || typeof str !== 'string') return false;
+        const s = str.trim();
+        if (!s) return false;
+        const roleKeywords = [
+            'مدير', 'مسؤول', 'مسئول', 'رئيس', 'قسم', 'قطاع', 'أسطول', 'اسطول', 'حركة', 'حركه',
+            'مشتريات', 'لوجستيات', 'لوجستي', 'صيانة', 'صيانه', 'تشغيل', 'تجهيزات', 'شؤون', 'شئون',
+            'مشرف', 'مهندس', 'محاسب', 'إدارة', 'ادارة', 'نقليات', 'مبيعات', 'مشتري', 'توزيع',
+            'مخازن', 'مستودع', 'ورشة', 'ورشه', 'ميكانيكا', 'عمومي', 'مركزي', 'ميداني',
+            'م. أحمد', 'أ. محمود', 'م. أيمن', 'أ. هاني', 'م. تامر', 'م. سامح', 'أ. خالد', 'م. حازم',
+            '(', ')'
+        ];
+        return roleKeywords.some(kw => s.includes(kw));
+    },
+
     _normalizeCompanyData(c, idx) {
         if (!c) return c;
         const company = { ...c };
@@ -1078,8 +1110,15 @@ const AppStorage = {
         company.fleetType = String(company.fleetType || '');
         company.status = String(company.status || company.st || 'new');
         company.assignedTo = String(company.assignedTo || company.asgn || '');
-        company.contactPerson = String(company.contactPerson || company.cp || '').trim();
-        company.contactTitle = String(company.contactTitle || company.ct || '').trim();
+        
+        // Ensure contactPerson is strictly empty if it contains scraped role titles
+        let cp = String(company.contactPerson || company.cp || '').trim();
+        if (this.isRoleTitle(cp)) {
+            cp = '';
+        }
+        company.contactPerson = cp;
+        company.contactTitle = cp ? String(company.contactTitle || company.ct || '').trim() : '';
+
         company.notes = String(company.notes || '').trim();
         company.createdAt = company.createdAt || company.cat || new Date().toISOString();
         company.lastUpdated = company.lastUpdated || company.upd || new Date().toISOString().split('T')[0];
@@ -1221,7 +1260,7 @@ const AppStorage = {
         const titans = this.getVerifiedTitans();
         titans.forEach(t => {
             if (t && t.id && !deletedCompIds.has(String(t.id))) {
-                syncMap.set(t.id, t);
+                syncMap.set(t.id, this._normalizeCompanyData(t));
             }
         });
         // 2. Add Baseline Pool
@@ -1255,18 +1294,36 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     const idbData = event.target.result || [];
                     const deletedCompIds = this.getDeletedIds('companies');
-                    const currentVersionTag = 'v264.5_pristine';
+                    const currentVersionTag = 'v270.0_strictly_blank_contacts_mandate';
                     const isNewVersion = localStorage.getItem('fleetcrm_dataset_version') !== currentVersionTag;
                     if (isNewVersion) {
                         localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
                     }
 
+                    // Build a map of genuine contact persons entered by reps in calls
+                    const calls = this.getCalls() || [];
+                    const genuineCallContacts = new Map();
+                    calls.forEach(cl => {
+                        if (cl && cl.companyId && cl.contactPerson && cl.contactPerson.trim() && !this.isRoleTitle(cl.contactPerson)) {
+                            genuineCallContacts.set(String(cl.companyId).trim(), cl.contactPerson.trim());
+                        }
+                    });
+
                     // Fast-path: If IndexedDB is already primed with full dataset (>25k items) and version is current,
                     // hydrate directly in < 30ms without re-parsing raw baseline arrays!
                     if (!isNewVersion && idbData.length >= 25000) {
                         const masterMap = new Map();
+                        let cleanedAny = false;
                         idbData.forEach(c => {
                             if (c && c.id && !deletedCompIds.has(String(c.id))) {
+                                const genuineContact = genuineCallContacts.get(String(c.id));
+                                if (genuineContact) {
+                                    c.contactPerson = genuineContact;
+                                } else if (c.contactPerson || c.contactTitle) {
+                                    c.contactPerson = '';
+                                    c.contactTitle = '';
+                                    cleanedAny = true;
+                                }
                                 if (!c._normName) {
                                     c._normName = this._normalizeArabicName((c.nameAr || c.name || '') + ' ' + (c.nameEn || ''));
                                     c._normPhone = String(c.phone1 || c.mobile || '').replace(/[^0-9+]/g, '');
@@ -1283,6 +1340,9 @@ const AppStorage = {
                         this.invalidateScopedCache();
                         localStorage.setItem('fleetcrm_company_count', String(merged.length));
                         this.updateLiveCounters();
+                        if (cleanedAny) {
+                            this.saveBatchToIDB(merged);
+                        }
                         resolve(merged);
                         return;
                     }
@@ -1293,7 +1353,7 @@ const AppStorage = {
                     titans.forEach(t => {
                         if (!t || !t.id) return;
                         if (!deletedCompIds.has(String(t.id))) {
-                            masterMap.set(t.id, t);
+                            masterMap.set(t.id, this._normalizeCompanyData(t));
                         }
                     });
 
@@ -1307,7 +1367,7 @@ const AppStorage = {
                         }
                     });
 
-                    // 3. Merge user runtime states from IndexedDB (preserve user calls & assignments only)
+                    // 3. Merge user runtime states from IndexedDB (preserve user calls & assignments & genuine contactPerson)
                     idbData.forEach(c => {
                         if (!c || !c.id) return;
                         if (!this.isStrictB2BEntity(c.nameAr || c.name || c.nameEn || '')) return;
@@ -1324,6 +1384,15 @@ const AppStorage = {
                                 if (c.rating) userState.rating = c.rating;
                                 if (c.status && c.status !== 'new') userState.status = c.status;
                                 if (c.userNotes) userState.userNotes = c.userNotes;
+                                
+                                // Strictly preserve contactPerson only if logged in a genuine call
+                                const genuineContact = genuineCallContacts.get(String(c.id));
+                                if (genuineContact) {
+                                    userState.contactPerson = genuineContact;
+                                } else {
+                                    userState.contactPerson = '';
+                                    userState.contactTitle = '';
+                                }
                                 masterMap.set(c.id, Object.assign({}, existing, userState));
                             } else if (c.isCustom) {
                                 // Only genuine user additions created manually via "Add Company"
@@ -1817,8 +1886,7 @@ const AppStorage = {
 
             // 4. Clean decision maker fields — PURGE ALL generated titles/role strings. Leave strictly blank unless real name exists.
             if (c.contactPerson) {
-                const cp = String(c.contactPerson).trim();
-                if (cp.includes('مدير') || cp.includes('مسؤول') || cp.includes('رئيس') || cp.includes('قسم') || cp.includes('أسطول') || cp.includes('حركة') || cp.includes('مشتريات') || cp.includes('لوجستيات') || cp.includes('صيانة') || cp.includes('تشغيل') || cp.includes('تجهيزات') || cp.includes('(') || cp.includes(')') || cp.includes('م. أحمد') || cp.includes('أ. محمود') || cp.includes('م. أيمن') || cp.includes('أ. هاني') || cp.includes('م. تامر') || cp.includes('م. سامح') || cp.includes('أ. خالد') || cp.includes('م. حازم')) {
+                if (this.isRoleTitle(c.contactPerson)) {
                     c.contactPerson = '';
                     c.contactTitle = '';
                 }
@@ -1976,6 +2044,13 @@ const AppStorage = {
                     changed = true;
                 }
             }
+            if (latestCall.contactPerson && latestCall.contactPerson.trim() && !this.isRoleTitle(latestCall.contactPerson)) {
+                const genuine = latestCall.contactPerson.trim();
+                if (comp.contactPerson !== genuine) {
+                    comp.contactPerson = genuine;
+                    changed = true;
+                }
+            }
             return changed;
         };
 
@@ -2033,12 +2108,12 @@ const AppStorage = {
                 const syncMap = new Map();
                 const titansPool = this.getVerifiedTitans();
                 titansPool.forEach(t => {
-                    if (t && t.id) syncMap.set(t.id, t);
+                    if (t && t.id) syncMap.set(t.id, this._normalizeCompanyData(t));
                 });
                 const pool = this.getBaselineEnterprisesPool();
                 if (pool && pool.length > 0) {
                     pool.forEach((c, idx) => {
-                        if (c) syncMap.set(c.id || `comp_base_${idx}`, c);
+                        if (c) syncMap.set(c.id || `comp_base_${idx}`, this._normalizeCompanyData(c, idx));
                     });
                 }
                 this.applyStoredAssignments(syncMap);
@@ -2887,6 +2962,11 @@ const AppStorage = {
                     company.status = 'contacted';
                 }
 
+                // Sync contact person from call → company (if user entered a genuine person name)
+                if (call.contactPerson && call.contactPerson.trim() && !this.isRoleTitle(call.contactPerson)) {
+                    company.contactPerson = call.contactPerson.trim();
+                }
+
                 this.saveBatchToIDB([company]);
                 if (this._worker) {
                     this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: [company] });
@@ -2898,9 +2978,9 @@ const AppStorage = {
         const companyName = company ? company.nameAr : 'شركة';
         this.addActivity('call', call.id, 'تسجيل مكالمة', companyName);
 
-        // Immediate cloud sync of calls
+        // Immediate cloud sync of calls & company state
         if (window.SupabaseClient && window.SupabaseClient.pushMasterData) {
-            window.SupabaseClient.pushMasterData({ calls, activities: this.getActivities() }).catch(() => { });
+            window.SupabaseClient.pushMasterData({ calls, activities: this.getActivities(), dynamicCompanies: company ? [company] : [] }).catch(() => { });
         }
 
         return call;

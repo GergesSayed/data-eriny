@@ -401,11 +401,14 @@ const Calls = {
 
             this.populateCompanyDropdown('call-companyId', companyId);
 
-            if (companyId) {
-                const company = window.AppStorage.getCompany(companyId);
-                const contactEl = document.getElementById('call-contactPerson');
-                if (company && company.contactPerson && contactEl) {
-                    contactEl.value = company.contactPerson;
+            const contactEl = document.getElementById('call-contactPerson');
+            if (contactEl) {
+                if (companyId) {
+                    const company = window.AppStorage.getCompany(companyId);
+                    const isRole = window.AppStorage && window.AppStorage.isRoleTitle ? window.AppStorage.isRoleTitle(company?.contactPerson) : false;
+                    contactEl.value = (company && company.contactPerson && !isRole && company.contactPerson !== '—') ? company.contactPerson : '';
+                } else {
+                    contactEl.value = '';
                 }
             }
 
@@ -469,6 +472,14 @@ const Calls = {
             const opt = select.options[select.selectedIndex];
             if (opt && opt.value && searchInput) {
                 searchInput.value = opt.text.split('(')[0].trim();
+            }
+            if (opt && opt.value) {
+                const comp = window.AppStorage.getCompany(opt.value);
+                const contactEl = document.getElementById('call-contactPerson');
+                if (contactEl) {
+                    const isRole = window.AppStorage && window.AppStorage.isRoleTitle ? window.AppStorage.isRoleTitle(comp?.contactPerson) : false;
+                    contactEl.value = (comp && comp.contactPerson && !isRole && comp.contactPerson !== '—') ? comp.contactPerson : '';
+                }
             }
         };
     },

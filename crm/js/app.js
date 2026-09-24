@@ -122,7 +122,7 @@ const App = {
 
             // PWA Service Worker Registration & Offline Support
             if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-                navigator.serviceWorker.register('sw.js?v=266.2').then(reg => {
+                navigator.serviceWorker.register('sw.js?v=270.0').then(reg => {
                     reg.update().catch(() => {});
                     // Detect when a new SW version is waiting — show update notification
                     reg.addEventListener('updatefound', () => {

@@ -11,7 +11,7 @@
     <script>
         // Force purge any legacy service workers, disk caches, and old deals storage immediately
         (function() {
-            var CURRENT_VER = '267.2';
+            var CURRENT_VER = '270.0';
             try {
                 localStorage.removeItem('fleetcrm_deals');
                 localStorage.removeItem('fleetcrm_deals_count');
@@ -67,7 +67,7 @@
     <link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap"></noscript>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=267.2">
+    <link rel="stylesheet" href="css/style.css?v=267.4">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
         (function() {
@@ -322,7 +322,7 @@
             </div>
             <div class="brand-text">
                 <h2>Fleet CRM</h2>
-                <span>إدارة بيع الإطارات <small class="brand-ver-badge" style="background:#7c3aed33; color:#a78bfa; padding:1px 6px; border-radius:6px; font-size:10px; font-weight:700;">v267.2</small></span>
+                <span>إدارة بيع الإطارات <small class="brand-ver-badge" style="background:#7c3aed33; color:#a78bfa; padding:1px 6px; border-radius:6px; font-size:10px; font-weight:700;">v270.0</small></span>
             </div>
         </div>
 
@@ -630,146 +630,181 @@
 
             <!-- ===================== COMPANIES PAGE ===================== -->
             <section id="page-companies" class="page">
-                <div class="page-header">
-                    <div>
-                        <h1><i class="fas fa-building"></i> الشركات <small>Companies</small></h1>
-                        <p class="page-subtitle">قاعدة بيانات الشركات والمصانع المستهدفة</p>
+                <div class="page-header companies-header-modern">
+                    <div class="page-header-title-box">
+                        <h1>
+                            <span class="header-icon-box"><i class="fas fa-building"></i></span>
+                            <span class="header-text-wrap">
+                                <span class="header-main-title">قاعدة بيانات الشركات والمصانع</span>
+                                <span class="header-badge-tag"><i class="fas fa-truck"></i> أساطيل النقل واللوجستيات</span>
+                            </span>
+                        </h1>
+                        <p class="page-subtitle">استعراض وإدارة كبرى الشركات المستهدفة وتوزيع العملاء على فريق المبيعات</p>
                     </div>
-                    <div class="page-header-actions" style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
-                        <button class="btn btn-accent btn-sm" id="btn-audit-data" onclick="Companies.openAuditModal()">
-                            <i class="fas fa-shield-alt"></i> فحص دقة وتكرار البيانات
+                    <div class="page-header-actions-modern">
+                        <button class="btn btn-primary btn-add-company-glow" id="btn-add-company" onclick="Companies.openAddModal()">
+                            <i class="fas fa-plus-circle"></i> <span>إضافة شركة جديدة</span>
                         </button>
-                        <button class="btn btn-outline btn-sm" id="btn-import-excel" onclick="ExcelHandler.triggerImport()">
-                            <i class="fas fa-file-import"></i> استيراد Excel
-                        </button>
-                        <button class="btn btn-outline btn-sm" id="btn-export-pdf" onclick="Reports.exportPDF()" title="تصدير تقرير الشركات PDF" style="gap:6px;">
-                            <i class="fas fa-file-pdf"></i> <span>تقرير PDF</span>
-                        </button>
-                        <button class="btn btn-outline btn-sm" id="btn-export-excel" onclick="ExcelHandler.exportCompanies()">
-                            <i class="fas fa-file-export"></i> تصدير Excel
-                        </button>
-                        <button class="btn btn-primary btn-sm" id="btn-add-company" onclick="Companies.openAddModal()">
-                            <i class="fas fa-plus"></i> إضافة شركة
-                        </button>
+                        <div class="actions-tools-group">
+                            <button class="btn-action-tool" id="btn-import-excel" onclick="ExcelHandler.triggerImport()" title="استيراد شركات من ملف إكسيل">
+                                <i class="fas fa-file-import"></i> <span>استيراد Excel</span>
+                            </button>
+                            <button class="btn-action-tool" id="btn-export-excel" onclick="ExcelHandler.exportCompanies()" title="تصدير بيانات الشركات إلى إكسيل">
+                                <i class="fas fa-file-export"></i> <span>تصدير Excel</span>
+                            </button>
+                            <button class="btn-action-tool" id="btn-export-pdf" onclick="Reports.exportPDF()" title="تصدير تقرير الشركات PDF">
+                                <i class="fas fa-file-pdf"></i> <span>تقرير PDF</span>
+                            </button>
+                            <button class="btn-action-tool btn-audit-tool" id="btn-audit-data" onclick="Companies.openAuditModal()" title="فحص دقة وتكرار الشركات">
+                                <i class="fas fa-shield-alt"></i> <span>تدقيق وتكرار</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Modern Clean Filters Bar -->
-                <div class="filters-bar">
-                    <!-- 1. Search Box (Prominent) -->
-                    <div class="filter-group search-filter" style="flex: 1 1 240px; min-width: 200px;">
-                        <i class="fas fa-search" style="color: var(--accent);"></i>
-                        <input type="text" id="filter-search" placeholder="🔍 بحث بالاسم، الهاتف، أو المدينة..." oninput="Companies.onFilterChange()" style="width:100%; padding: 10px 14px 10px 38px; border-radius: 10px; font-size: 13px; outline: none;">
-                    </div>
-
-                    <!-- 2. Multi-Select Sector Filter -->
-                    <div class="filter-group custom-multiselect" id="multiselect-sectors-wrapper" style="flex: 1 1 190px; min-width: 160px;">
-                        <button type="button" class="multiselect-trigger" id="multiselect-sectors-btn" onclick="Companies.toggleMultiDropdown('sectors', event)">
-                            <span class="multiselect-label" id="multiselect-sectors-label"><i class="fas fa-industry" style="color:var(--accent);"></i> كل القطاعات (الكل)</span>
-                            <span class="multiselect-badge" id="multiselect-sectors-badge" style="display:none;">0</span>
-                            <i class="fas fa-chevron-down multiselect-arrow"></i>
-                        </button>
-                        <div class="multiselect-menu" id="multiselect-sectors-menu">
-                            <div class="multiselect-search-box">
-                                <i class="fas fa-search"></i>
-                                <input type="text" placeholder="بحث في القطاعات..." oninput="Companies.filterDropdownList('sectors', this.value)">
-                            </div>
-                            <div class="multiselect-actions">
-                                <button type="button" class="ms-btn-action" onclick="Companies.selectAllDropdown('sectors')"><i class="fas fa-check-double"></i> تحديد الكل</button>
-                                <button type="button" class="ms-btn-action" onclick="Companies.clearDropdown('sectors')"><i class="fas fa-times"></i> إلغاء التحديد</button>
-                            </div>
-                            <div class="multiselect-list" id="multiselect-sectors-list">
-                                <!-- Populated dynamically by JS -->
-                            </div>
+                <!-- Modern Organized Filters Card -->
+                <div class="companies-filters-card">
+                    <!-- Row 1: Search + Sort + Reset -->
+                    <div class="filters-top-bar">
+                        <div class="filter-search-box">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" id="filter-search" placeholder="ابحث باسم الشركة، الهاتف، أو المدينة..." oninput="Companies.onFilterChange()">
+                            <button type="button" class="btn-search-clear" onclick="document.getElementById('filter-search').value=''; Companies.onFilterChange();" title="مسح نص البحث">
+                                <i class="fas fa-times"></i>
+                            </button>
                         </div>
-                        <!-- Hidden legacy select for fallback compatibility -->
-                        <select id="filter-sector" style="display:none;"><option value=""></option></select>
-                    </div>
-
-                    <!-- 3. Multi-Select City / Region Filter -->
-                    <div class="filter-group custom-multiselect" id="multiselect-cities-wrapper" style="flex: 1 1 190px; min-width: 160px;">
-                        <button type="button" class="multiselect-trigger" id="multiselect-cities-btn" onclick="Companies.toggleMultiDropdown('cities', event)">
-                            <span class="multiselect-label" id="multiselect-cities-label"><i class="fas fa-map-marker-alt" style="color:var(--danger);"></i> كل المحافظات والمدن (الكل)</span>
-                            <span class="multiselect-badge" id="multiselect-cities-badge" style="display:none;">0</span>
-                            <i class="fas fa-chevron-down multiselect-arrow"></i>
-                        </button>
-                        <div class="multiselect-menu" id="multiselect-cities-menu">
-                            <div class="multiselect-search-box">
-                                <i class="fas fa-search"></i>
-                                <input type="text" placeholder="بحث في المناطق..." oninput="Companies.filterDropdownList('cities', this.value)">
-                            </div>
-                            <div class="multiselect-actions">
-                                <button type="button" class="ms-btn-action" onclick="Companies.selectAllDropdown('cities')"><i class="fas fa-check-double"></i> تحديد الكل</button>
-                                <button type="button" class="ms-btn-action" onclick="Companies.clearDropdown('cities')"><i class="fas fa-times"></i> إلغاء التحديد</button>
-                            </div>
-                            <div class="multiselect-quick-groups">
-                                <span class="ms-pill" onclick="Companies.selectCityGroup('industrial')">🏭 المدن الصناعية</span>
-                                <span class="ms-pill" onclick="Companies.selectCityGroup('cairo_metro')">🏙️ القاهرة الكبرى</span>
-                            </div>
-                            <div class="multiselect-list" id="multiselect-cities-list">
-                                <!-- Populated dynamically by JS -->
-                            </div>
+                        <div class="filter-sort-box">
+                            <span class="sort-label"><i class="fas fa-sort-amount-down"></i> الترتيب:</span>
+                            <select id="filter-sort" class="filter-select-clean" onchange="Companies.onFilterChange()">
+                                <option value="priority_fleet" selected>🎯 كبرى الشركات والأسطول أولاً</option>
+                                <option value="fleet_desc">📈 الأكثر في الأسطول أولاً</option>
+                                <option value="latest">🆕 الأحدث إضافة أولاً</option>
+                                <option value="fleet_asc">📉 الأقل في الأسطول أولاً</option>
+                                <option value="priority">⭐ حسب الأولوية (A -> C)</option>
+                                <option value="name">🔤 حسب الاسم أبجدياً</option>
+                            </select>
                         </div>
-                        <!-- Hidden legacy select for fallback compatibility -->
-                        <select id="filter-city" style="display:none;"><option value=""></option></select>
+                        <button class="btn-reset-filters-modern" id="btn-clear-filters" onclick="Companies.clearFilters()" title="إعادة تعيين جميع الفلاتر">
+                            <i class="fas fa-redo-alt"></i> <span>إعادة ضبط</span>
+                        </button>
                     </div>
 
-                    <!-- 4. Contact & Data Readiness Filter -->
-                    <div class="filter-group" style="flex: 1 1 170px; min-width: 145px;">
-                        <select id="filter-contact-type" class="filter-select" onchange="Companies.onFilterChange()" style="width:100%; padding: 10px 14px; border-radius: 10px; font-size: 13px; font-weight: 700; outline: none;">
-                            <option value="">📞 بيانات الاتصال (الكل)</option>
-                            <option value="has_phone">📱 بها هاتف مباشر فقط</option>
-                            <option value="has_maps">📍 مزودة بخرائط جوجل و GPS</option>
-                            <option value="has_website">🌐 بها موقع إلكتروني رسمي</option>
-                        </select>
+                    <!-- Row 2: Quick Filter Presets (1-Click Filters) -->
+                    <div class="filters-quick-presets">
+                        <span class="presets-title"><i class="fas fa-bolt"></i> وصول سريع:</span>
+                        <div class="presets-scroll-wrap">
+                            <button type="button" class="company-quick-pill active" onclick="Companies.setQuickFilterPreset('', this)">
+                                <span>الكل</span>
+                            </button>
+                            <button type="button" class="company-quick-pill" onclick="Companies.setQuickFilterPreset('titans', this)">
+                                <i class="fas fa-crown" style="color:#f59e0b;"></i> <span>كبرى الشركات (VIP)</span>
+                            </button>
+                            <button type="button" class="company-quick-pill" onclick="Companies.setQuickFilterPreset('giant_fleet', this)">
+                                <i class="fas fa-truck-moving" style="color:#10b981;"></i> <span>أساطيل 100+ مركبة</span>
+                            </button>
+                            <button type="button" class="company-quick-pill" onclick="Companies.setQuickFilterPreset('interested', this)">
+                                <i class="fas fa-heart" style="color:#ef4444;"></i> <span>عملاء مهتمون</span>
+                            </button>
+                            <button type="button" class="company-quick-pill" onclick="Companies.setQuickFilterPreset('not_contacted', this)">
+                                <i class="far fa-clock" style="color:#6366f1;"></i> <span>لم يتواصل بعد</span>
+                            </button>
+                            <button type="button" class="company-quick-pill" onclick="Companies.setQuickFilterPreset('unassigned', this)">
+                                <i class="far fa-user" style="color:#8b5cf6;"></i> <span>غير مسندة</span>
+                            </button>
+                            <button type="button" class="company-quick-pill" onclick="Companies.setQuickFilterPreset('my_leads', this)">
+                                <i class="fas fa-star" style="color:#eab308;"></i> <span>شركاتي أنا</span>
+                            </button>
+                        </div>
                     </div>
 
-                    <!-- 5. Fleet Size Filter -->
-                    <div class="filter-group" style="flex: 1 1 170px; min-width: 145px;">
-                        <select id="filter-fleet-size" class="filter-select" onchange="Companies.onFilterChange()" style="width:100%; padding: 10px 14px; border-radius: 10px; font-size: 13px; font-weight: 700; outline: none;">
-                            <option value="">🚛 حجم الأسطول (الكل)</option>
-                            <option value="giant_fleet">👑 أساطيل عملاقة (100+ مركبة)</option>
-                            <option value="large_fleet">🏆 أساطيل ضخمة (50 - 99 مركبة)</option>
-                            <option value="medium_fleet">🚚 أساطيل متوسطة (15 - 49 مركبة)</option>
-                            <option value="small_fleet">🚐 أساطيل صغيرة (&lt; 15 مركبة)</option>
-                        </select>
-                    </div>
+                    <!-- Row 3: Precision Dropdown Filters Grid (Balanced 6 Columns) -->
+                    <div class="filters-precision-grid">
+                        <!-- 1. Sector -->
+                        <div class="precision-filter-cell custom-multiselect" id="multiselect-sectors-wrapper">
+                            <button type="button" class="multiselect-trigger" id="multiselect-sectors-btn" onclick="Companies.toggleMultiDropdown('sectors', event)">
+                                <span class="multiselect-label" id="multiselect-sectors-label"><i class="fas fa-industry"></i> كل القطاعات</span>
+                                <span class="multiselect-badge" id="multiselect-sectors-badge" style="display:none;">0</span>
+                                <i class="fas fa-chevron-down multiselect-arrow"></i>
+                            </button>
+                            <div class="multiselect-menu" id="multiselect-sectors-menu">
+                                <div class="multiselect-search-box">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text" placeholder="بحث في القطاعات..." oninput="Companies.filterDropdownList('sectors', this.value)">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button type="button" class="ms-btn-action" onclick="Companies.selectAllDropdown('sectors')"><i class="fas fa-check-double"></i> تحديد الكل</button>
+                                    <button type="button" class="ms-btn-action" onclick="Companies.clearDropdown('sectors')"><i class="fas fa-times"></i> إلغاء التحديد</button>
+                                </div>
+                                <div class="multiselect-list" id="multiselect-sectors-list"></div>
+                            </div>
+                            <select id="filter-sector" style="display:none;"><option value=""></option></select>
+                        </div>
 
-                    <!-- 6. Priority Filter -->
-                    <div class="filter-group" style="flex: 1 1 140px; min-width: 130px;">
-                        <select id="filter-priority" class="filter-select" onchange="Companies.onFilterChange()" style="width:100%; padding: 10px 14px; border-radius: 10px; font-size: 13px; font-weight: 700; outline: none;">
-                            <option value="">🎯 الأولوية (الكل)</option>
-                            <option value="A">⭐ أولوية A (مرتفعة)</option>
-                            <option value="B">🔹 أولوية B (متوسطة)</option>
-                            <option value="C">⚪ أولوية C (عادية)</option>
-                        </select>
-                    </div>
+                        <!-- 2. City -->
+                        <div class="precision-filter-cell custom-multiselect" id="multiselect-cities-wrapper">
+                            <button type="button" class="multiselect-trigger" id="multiselect-cities-btn" onclick="Companies.toggleMultiDropdown('cities', event)">
+                                <span class="multiselect-label" id="multiselect-cities-label"><i class="fas fa-map-marker-alt"></i> كل المحافظات والمدن</span>
+                                <span class="multiselect-badge" id="multiselect-cities-badge" style="display:none;">0</span>
+                                <i class="fas fa-chevron-down multiselect-arrow"></i>
+                            </button>
+                            <div class="multiselect-menu" id="multiselect-cities-menu">
+                                <div class="multiselect-search-box">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text" placeholder="بحث في المناطق..." oninput="Companies.filterDropdownList('cities', this.value)">
+                                </div>
+                                <div class="multiselect-actions">
+                                    <button type="button" class="ms-btn-action" onclick="Companies.selectAllDropdown('cities')"><i class="fas fa-check-double"></i> تحديد الكل</button>
+                                    <button type="button" class="ms-btn-action" onclick="Companies.clearDropdown('cities')"><i class="fas fa-times"></i> إلغاء التحديد</button>
+                                </div>
+                                <div class="multiselect-quick-groups">
+                                    <span class="ms-pill" onclick="Companies.selectCityGroup('industrial')">🏭 المدن الصناعية</span>
+                                    <span class="ms-pill" onclick="Companies.selectCityGroup('cairo_metro')">🏙️ القاهرة الكبرى</span>
+                                </div>
+                                <div class="multiselect-list" id="multiselect-cities-list"></div>
+                            </div>
+                            <select id="filter-city" style="display:none;"><option value=""></option></select>
+                        </div>
 
-                    <!-- 7. Assigned Employee Filter (Visible to Admin/Supervisor) -->
-                    <div class="filter-group" id="filter-assigned-group" style="flex: 1 1 170px; min-width: 145px;">
-                        <select id="filter-assigned" class="filter-select" onchange="Companies.onFilterChange()" style="width:100%; padding: 10px 14px; border-radius: 10px; font-size: 13px; font-weight: 700; outline: none;">
-                            <option value="">👤 كل الموظفين / التخصيص</option>
-                            <option value="my_leads">⭐ شركاتي أنا فقط</option>
-                            <option value="unassigned">⚪ غير مسندة لأحد</option>
-                        </select>
-                    </div>
+                        <!-- 3. Fleet Size -->
+                        <div class="precision-filter-cell">
+                            <select id="filter-fleet-size" class="filter-select-clean" onchange="Companies.onFilterChange()">
+                                <option value="">🚛 حجم الأسطول (الكل)</option>
+                                <option value="giant_fleet">👑 أساطيل عملاقة (100+ مركبة)</option>
+                                <option value="large_fleet">🏆 أساطيل ضخمة (50 - 99)</option>
+                                <option value="medium_fleet">🚚 أساطيل متوسطة (15 - 49)</option>
+                                <option value="small_fleet">🚐 أساطيل صغيرة (&lt; 15)</option>
+                            </select>
+                        </div>
 
-                    <!-- 8. Sort Order -->
-                    <div class="filter-group" style="flex: 1 1 180px; min-width: 155px;">
-                        <select id="filter-sort" class="filter-select" onchange="Companies.onFilterChange()" style="width:100%; padding: 10px 14px; border-radius: 10px; font-size: 13px; font-weight: 700; outline: none;">
-                            <option value="priority_fleet" selected>🎯 كبرى الشركات والأسطول أولاً</option>
-                            <option value="fleet_desc">📈 الأكثر في الأسطول أولاً</option>
-                            <option value="latest">🆕 الأحدث إضافة أولاً</option>
-                            <option value="fleet_asc">📉 الأقل في الأسطول أولاً</option>
-                            <option value="priority">⭐ حسب الأولوية (A -&gt; C)</option>
-                            <option value="name">🔤 حسب الاسم أبجدي</option>
-                        </select>
-                    </div>
+                        <!-- 4. Priority -->
+                        <div class="precision-filter-cell">
+                            <select id="filter-priority" class="filter-select-clean" onchange="Companies.onFilterChange()">
+                                <option value="">🎯 الأولوية (الكل)</option>
+                                <option value="A">⭐ أولوية A (مرتفعة)</option>
+                                <option value="B">🔹 أولوية B (متوسطة)</option>
+                                <option value="C">⚪ أولوية C (عادية)</option>
+                            </select>
+                        </div>
 
-                    <!-- 9. Reset Filters Button -->
-                    <button class="btn btn-outline btn-sm" id="btn-clear-filters" onclick="Companies.clearFilters()" style="padding: 10px 18px; border-radius: 10px; font-weight: 700; cursor: pointer; transition: all 0.2s; white-space: nowrap;">
-                        <i class="fas fa-undo"></i> إعادة ضبط الفلاتر
-                    </button>
+                        <!-- 5. Contact Readiness -->
+                        <div class="precision-filter-cell">
+                            <select id="filter-contact-type" class="filter-select-clean" onchange="Companies.onFilterChange()">
+                                <option value="">📞 بيانات الاتصال (الكل)</option>
+                                <option value="has_phone">📱 بها هاتف مباشر فقط</option>
+                                <option value="has_maps">📍 مزودة بخرائط جوجل و GPS</option>
+                                <option value="has_website">🌐 بها موقع إلكتروني رسمي</option>
+                            </select>
+                        </div>
+
+                        <!-- 6. Assigned Employee -->
+                        <div class="precision-filter-cell" id="filter-assigned-group">
+                            <select id="filter-assigned" class="filter-select-clean" onchange="Companies.onFilterChange()">
+                                <option value="">👤 كل الموظفين / التخصيص</option>
+                                <option value="my_leads">⭐ شركاتي أنا فقط</option>
+                                <option value="unassigned">⚪ غير مسندة لأحد</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Active Filter Badges Bar -->
@@ -799,30 +834,50 @@
                     <button class="btn btn-ghost btn-sm" id="btn-cancel-bulk-selection">إلغاء التحديد</button>
                 </div>
 
-                <!-- Company Stats Bar -->
-                <div class="table-stats-bar">
-                    <span id="companies-count-display"><script>document.write('📊 إجمالي شركات السيستم: ' + (localStorage.getItem('fleetcrm_company_count') ? parseInt(String(localStorage.getItem('fleetcrm_company_count')).replace(/,/g,''),10).toLocaleString() : '25,628') + ' شركة');</script></span>
-                    <div class="table-view-toggle">
-                        <button class="btn-icon active" id="btn-view-table" title="عرض جدول"><i class="fas fa-table"></i></button>
-                        <button class="btn-icon" id="btn-view-cards" title="عرض بطاقات"><i class="fas fa-th-large"></i></button>
+                <!-- Modern Table Stats & Controls Toolbar -->
+                <div class="companies-toolbar-modern">
+                    <div class="toolbar-stat-box">
+                        <span class="toolbar-icon-badge"><i class="fas fa-database"></i></span>
+                        <span id="companies-count-display">
+                            <script>document.write('📊 إجمالي شركات السيستم: ' + (localStorage.getItem('fleetcrm_company_count') ? parseInt(String(localStorage.getItem('fleetcrm_company_count')).replace(/,/g,''),10).toLocaleString() : '25,928') + ' شركة');</script>
+                        </span>
+                    </div>
+                    <div class="toolbar-controls-box">
+                        <div class="page-size-picker">
+                            <label for="companies-page-size-select"><i class="fas fa-layer-group"></i> العرض:</label>
+                            <select id="companies-page-size-select" onchange="Companies.changePageSize(this.value)">
+                                <option value="15">15 شركة</option>
+                                <option value="25" selected>25 شركة</option>
+                                <option value="50">50 شركة</option>
+                                <option value="100">100 شركة</option>
+                            </select>
+                        </div>
+                        <div class="view-mode-pill-toggle">
+                            <button class="view-pill-btn active" id="btn-view-table" onclick="Companies.setView('table')" title="عرض جدول منظم">
+                                <i class="fas fa-table"></i> <span>جدول</span>
+                            </button>
+                            <button class="view-pill-btn" id="btn-view-cards" onclick="Companies.setView('cards')" title="عرض كروت">
+                                <i class="fas fa-th-large"></i> <span>كروت</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Table View -->
-                <div class="table-container" id="companies-table-view">
-                    <table class="data-table" id="companies-table">
+                <!-- Table View Container -->
+                <div class="table-container companies-table-wrapper" id="companies-table-view">
+                    <table class="data-table companies-table-modern" id="companies-table">
                         <thead>
                             <tr>
-                                <th id="th-select-all-companies" style="width:38px; text-align:center;"><input type="checkbox" id="select-all-companies" title="تحديد الكل"></th>
-                                <th class="sortable" data-sort="nameAr" style="min-width:220px;">الشركة</th>
-                                <th class="sortable" data-sort="sector" style="min-width:120px; text-align:center;">القطاع</th>
-                                <th class="sortable" data-sort="city" style="min-width:90px; text-align:center;">المنطقة</th>
-                                <th style="min-width:125px; text-align:center;">الهاتف</th>
-                                <th class="sortable" data-sort="fleetSize" style="min-width:85px; text-align:center;">الأسطول</th>
-                                <th style="min-width:140px; text-align:center;">المسند إليه</th>
-                                <th style="min-width:125px; text-align:center;">نتيجة المكالمة</th>
-                                <th style="min-width:165px;">جهة الاتصال</th>
-                                <th style="min-width:115px; text-align:center;">إجراءات</th>
+                                <th id="th-select-all-companies" style="width:42px; text-align:center;"><input type="checkbox" id="select-all-companies" title="تحديد الكل"></th>
+                                <th class="sortable col-company" data-sort="nameAr">الشركة والمصنع</th>
+                                <th class="sortable col-sector" data-sort="sector" style="text-align:center;">القطاع</th>
+                                <th class="sortable col-city" data-sort="city" style="text-align:center;">المنطقة / المحافظة</th>
+                                <th class="col-phone" style="text-align:center;">الهاتف والاتصال</th>
+                                <th class="sortable col-fleet" data-sort="fleetSize" style="text-align:center;">الأسطول</th>
+                                <th class="col-assigned" style="text-align:center;">المسند إليه</th>
+                                <th class="col-call-result" style="text-align:center;">نتيجة المكالمة</th>
+                                <th class="col-contact" style="text-align:center;">جهة الاتصال (المسؤول)</th>
+                                <th class="col-actions" style="text-align:center;">إجراءات</th>
                             </tr>
                         </thead>
                         <tbody id="companies-tbody"></tbody>
@@ -1604,20 +1659,20 @@
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <script src="js/supabase-client.js?v=267.2"></script>
-    <script src="js/egypt_verified_titans.js?v=267.2"></script>
-    <script src="js/egypt_enterprises_pool.js?v=267.2"></script>
-    <script src="js/companies-worker.js?v=267.2"></script>
-    <script src="js/storage.js?v=267.2"></script>
-    <script src="js/excel-handler.js?v=267.2"></script>
-    <script src="js/dashboard.js?v=267.2"></script>
-    <script src="js/companies.js?v=267.2"></script>
-    <script src="js/calls.js?v=267.2"></script>
-    <script src="js/reports.js?v=267.2"></script>
-    <script src="js/scraper.js?v=267.2"></script>
-    <script src="js/team.js?v=267.2"></script>
-    <script src="js/settings.js?v=267.2"></script>
-    <script src="js/app.js?v=267.2"></script>
+    <script src="js/supabase-client.js?v=270.0"></script>
+    <script src="js/egypt_verified_titans.js?v=270.0"></script>
+    <script src="js/egypt_enterprises_pool.js?v=270.0"></script>
+    <script src="js/companies-worker.js?v=270.0"></script>
+    <script src="js/storage.js?v=270.0"></script>
+    <script src="js/excel-handler.js?v=270.0"></script>
+    <script src="js/dashboard.js?v=270.0"></script>
+    <script src="js/companies.js?v=270.0"></script>
+    <script src="js/calls.js?v=270.0"></script>
+    <script src="js/reports.js?v=270.0"></script>
+    <script src="js/scraper.js?v=270.0"></script>
+    <script src="js/team.js?v=270.0"></script>
+    <script src="js/settings.js?v=270.0"></script>
+    <script src="js/app.js?v=270.0"></script>
 
     <!-- Cleanup overlay on load - runs once only, does NOT override App.checkAuth -->
     <script>
