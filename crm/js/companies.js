@@ -1081,11 +1081,11 @@ const Companies = {
 
         const sectorsListEl = document.getElementById('multiselect-sectors-list');
         const govsListEl = document.getElementById('multiselect-govs-list');
-        if ((sectorsListEl && sectorsListEl.children.length === 0) || (govsListEl && govsListEl.children.length === 0)) {
+        if ((sectorsListEl && (!sectorsListEl.children || sectorsListEl.children.length === 0)) || (govsListEl && (!govsListEl.children || govsListEl.children.length === 0))) {
             this.initMultiSelects();
         }
         const pillsContainer = document.getElementById('sector-quick-pills-bar');
-        if (pillsContainer && pillsContainer.children.length === 0) {
+        if (pillsContainer && (!pillsContainer.children || pillsContainer.children.length === 0)) {
             this.renderSectorPills();
         }
 
@@ -2310,6 +2310,7 @@ const Companies = {
 
     buildCustodyAuditHtml(company) {
         if (!company) return '';
+        const esc = (s) => (window.AppStorage && window.AppStorage.escapeHtml) ? window.AppStorage.escapeHtml(s || '') : (s || '');
         const custodyList = (window.AppStorage && window.AppStorage.getCustodyHistory) ? window.AppStorage.getCustodyHistory(company.id) : [];
         const currentRepId = company.assignedTo;
         const currentRep = currentRepId ? window.AppStorage.getUser(currentRepId) : null;
