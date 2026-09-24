@@ -916,6 +916,12 @@ const Team = {
     },
 
     openAssignCompaniesModal(userId) {
+        if (window.AppStorage && window.AppStorage.canViewCustody && !window.AppStorage.canViewCustody()) {
+            if (window.App && window.App.showToast) {
+                App.showToast('عفواً، هذه الشاشة مخصصة للإدارة فقط', 'warning');
+            }
+            return;
+        }
         const user = window.AppStorage.getUser(userId);
         if (!user) return;
 

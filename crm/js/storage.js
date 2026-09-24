@@ -343,6 +343,12 @@ const AppStorage = {
         return this.isAdmin(u) || this.isSupervisor(u);
     },
 
+    canViewCustody(user) {
+        const u = user || this.getCurrentUser();
+        if (!u) return false;
+        return this.isAdmin(u) || this.isSupervisor(u);
+    },
+
     canModify(user) {
         const u = user || this.getCurrentUser();
         if (!u) return true;
@@ -377,15 +383,16 @@ const AppStorage = {
     },
 
     setCurrentUser(userId, remember = false) {
-        if (!userId) {
+        const uid = (userId && typeof userId === 'object') ? (userId.id || userId.username) : userId;
+        if (!uid) {
             sessionStorage.removeItem(this.KEYS.CURRENT_USER);
             localStorage.removeItem(this.KEYS.CURRENT_USER);
             this.invalidateScopedCache();
             return;
         }
-        sessionStorage.setItem(this.KEYS.CURRENT_USER, userId);
+        sessionStorage.setItem(this.KEYS.CURRENT_USER, uid);
         if (remember) {
-            localStorage.setItem(this.KEYS.CURRENT_USER, userId);
+            localStorage.setItem(this.KEYS.CURRENT_USER, uid);
         } else {
             localStorage.removeItem(this.KEYS.CURRENT_USER);
         }

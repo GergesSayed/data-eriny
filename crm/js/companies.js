@@ -2310,6 +2310,9 @@ const Companies = {
 
     buildCustodyAuditHtml(company) {
         if (!company) return '';
+        if (window.AppStorage && window.AppStorage.canViewCustody && !window.AppStorage.canViewCustody()) {
+            return '';
+        }
         const esc = (s) => (window.AppStorage && window.AppStorage.escapeHtml) ? window.AppStorage.escapeHtml(s || '') : (s || '');
         const custodyList = (window.AppStorage && window.AppStorage.getCustodyHistory) ? window.AppStorage.getCustodyHistory(company.id) : [];
         const currentRepId = company.assignedTo;
@@ -2559,6 +2562,12 @@ const Companies = {
     },
 
     showCustodyModal(companyId) {
+        if (window.AppStorage && window.AppStorage.canViewCustody && !window.AppStorage.canViewCustody()) {
+            if (window.App && window.App.showToast) {
+                App.showToast('عفواً، سجل عهدة وحركة الشركات متاح للإدارة والمشرفين فقط', 'warning');
+            }
+            return;
+        }
         const company = window.AppStorage.getCompany(companyId);
         if (!company) {
             App.showToast('تعذر العثور على بيانات الشركة', 'error');
@@ -2586,13 +2595,14 @@ const Companies = {
         const currentName = (currentUser && currentUser.name) ? String(currentUser.name).split(' ')[0] : (currentUser?.username || 'أنا');
         const users = (window.AppStorage && typeof window.AppStorage.getUsers === 'function') ? (window.AppStorage.getUsers() || []) : [];
         const assignedUser = (window.AppStorage && typeof window.AppStorage.getUser === 'function') ? window.AppStorage.getUser(c.assignedTo) : null;
+        const canViewCustody = (window.AppStorage && typeof window.AppStorage.canViewCustody === 'function') ? window.AppStorage.canViewCustody() : false;
 
-        const custodyBtnHtml = `
+        const custodyBtnHtml = canViewCustody ? `
             <button onclick="event.stopPropagation(); Companies.showCustodyModal('${c.id}')" title="عرض سجل حركة وعهدة ومكالمات هذه الشركة بالتفصيل" style="background:rgba(124, 58, 237, 0.12); border:1px solid rgba(124, 58, 237, 0.35); color:#c4b5fd; cursor:pointer; font-size:11px; font-weight:700; padding:2px 7px; border-radius:6px; display:inline-flex; align-items:center; gap:4px; text-decoration:none;" onmouseover="this.style.background='rgba(124, 58, 237, 0.28)'; this.style.borderColor='#a78bfa';" onmouseout="this.style.background='rgba(124, 58, 237, 0.12)'; this.style.borderColor='rgba(124, 58, 237, 0.35)';">
                 <i class="fas fa-history" style="color:#a78bfa; font-size:11px;"></i>
                 <span>العهدة</span>
             </button>
-        `;
+        ` : '';
 
         if (assignedUser) {
             const userName = assignedUser.name || assignedUser.username || 'موظف';
