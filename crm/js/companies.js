@@ -2067,62 +2067,13 @@ const Companies = {
 
         const calls = window.AppStorage.getCallsForCompany(id);
 
-        // Tire lead logic
-        let tirePitchHtml = '';
+        // Permanent closure alert (if applicable)
+        let closedWarningHtml = '';
         if (company.operating_status === 'permanently_closed') {
-            tirePitchHtml = `
+            closedWarningHtml = `
                 <div class="detail-section" style="border-right: 4px solid #ef4444; background: rgba(239, 68, 68, 0.05); padding: 12px 16px; border-radius: 8px; margin-bottom: 20px;">
-                    <h3 style="color:#ef4444; margin: 0 0 6px 0; font-size:1.05rem;"><i class="fas fa-ban"></i> نصيحة مبيعات الكاوتش: الشركة مغلقة نهائياً</h3>
-                    <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">الشركة مسجلة كـ <strong>مغلقة نهائياً</strong> على الخرائط. لا يُنصح بالاتصال بها لعدم إهدار الوقت.</p>
-                </div>`;
-        } else {
-            const highFleetSectors = ['transport', 'distribution', 'public_transport', 'construction', 'rental', 'delivery', 'transport_freight', 'shipping', 'logistics', 'courier', 'bus_company', 'moving_company', 'refrigerated', 'tanker', 'security', 'waste_management', 'ambulance'];
-            const isHighFleetSector = highFleetSectors.includes(company.sector) || (company.sector_details && highFleetSectors.some(k => company.sector_details.includes(k)));
-            const fleetSize = parseInt(company.fleetSize) || 0;
-            
-            let leadScore = 'C';
-            let recommendation = 'اتصال استكشافي لتحديد حجم الأسطول الفعلي والمسؤول عن الشراء.';
-            let reason = 'الشركة في قطاع ذو طلب عادي على الإطارات.';
-            
-            if (fleetSize >= 15) {
-                leadScore = 'A';
-                recommendation = '<strong>عميل أسطول رئيسي (Key Account)!</strong> اتصل فوراً واعرض عقود توريد سنوية مخصصة مع خصم كميات كبير وخدمات دعم فني.';
-                reason = `تمتلك أسطولاً كبيراً ومؤكداً يبلغ (${fleetSize} سيارة).`;
-            } else if (isHighFleetSector) {
-                leadScore = 'B';
-                recommendation = 'اتصل فوراً واعرض باقات إطارات النقل الثقيل / الخفيف واعرض أسعاراً تنافسية للشحن والتوصيل.';
-                reason = `تعمل في قطاع لوجستي/نقل ذو حاجة مستمرة وشبه يومية لتغيير الإطارات.`;
-            }
-            
-            let callingAdvice = 'يُنصح بالاتصال بين 9 صباحاً و 3 مساءً خلال أيام العمل الرسمية لمخاطبة المسؤول عن المشتريات / أسطول السيارات.';
-            if (company.working_hours) {
-                const wh = company.working_hours;
-                if (wh.includes('٢٤ ساعة') || wh.includes('24 ساعة') || wh.includes('24 hours') || wh.includes('٢٤ ساعه')) {
-                    callingAdvice = '<span style="color:#10b981; font-weight:700;">🚨 شركة نقل تعمل بنظام ورديات 24 ساعة (حركة مستمرة)</span>: استهلاك الكاوتش لديهم ضخم جداً وشبه يومي. يُنصح بالاتصال الهاتفي الفوري لطلب مقابلة مسؤول المشتريات، وتنسيق زيارة ميدانية صباحاً لعرض التعاقدات.';
-                } else if (wh.includes('مغلق اليوم') || wh.includes('Closed today')) {
-                    callingAdvice = '<span style="color:#ef4444; font-weight:700;">⚠️ النشاط مغلق اليوم</span>: لا يُنصح بالاتصال الهاتفي الآن لعدم وجود المسؤولين، انتظر ليوم العمل التالي.';
-                } else if (wh.includes('مفتوح الآن') || wh.includes('Open now')) {
-                    callingAdvice = '<span style="color:#10b981; font-weight:700;">🟢 مفتوح الآن للعمل</span>: يُنصح بالاتصال الهاتفي فوراً الآن لاستغلال تواجد الموظفين في مكتبهم.';
-                }
-            }
-            
-            const badgeColor = leadScore === 'A' ? '#ef4444' : (leadScore === 'B' ? '#f59e0b' : '#10b981');
-            const bgLight = leadScore === 'A' ? 'rgba(239,68,68,0.05)' : (leadScore === 'B' ? 'rgba(245,158,11,0.05)' : 'rgba(16,185,129,0.05)');
-            
-            tirePitchHtml = `
-                <div class="detail-section" style="border-right: 4px solid ${badgeColor}; background: ${bgLight}; padding: 16px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
-                    <h3 style="color:${badgeColor}; margin: 0 0 10px 0; display:flex; align-items:center; gap:8px; font-size:1.05rem;">
-                        <i class="fas fa-lightbulb"></i> 
-                        <span>تحليل فرصة بيع إطارات: درجة (${leadScore})</span>
-                    </h3>
-                    <div style="font-size: 0.85rem; line-height: 1.6; color: var(--text-secondary);">
-                        <div><strong>المبرر:</strong> ${reason}</div>
-                        <div style="margin-top: 6px;"><strong>التوصية المقترحة للمبيعات:</strong> ${recommendation}</div>
-                        ${company.working_hours ? `<div style="margin-top: 6px; color:var(--text-muted);"><i class="fas fa-clock"></i> ساعات عمل الخرائط: <span style="color:var(--text-primary);font-weight:600;">${company.working_hours}</span></div>` : ''}
-                        <div style="margin-top: 8px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 8px;">
-                            <strong>📞 التوقيت الأمثل للتواصل البيعي:</strong> ${callingAdvice}
-                        </div>
-                    </div>
+                    <h3 style="color:#ef4444; margin: 0 0 6px 0; font-size:1.05rem;"><i class="fas fa-ban"></i> تنبيه: الشركة مسجلة كمغلقة نهائياً</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">الشركة مسجلة كـ <strong>مغلقة نهائياً</strong> على الخرائط.</p>
                 </div>`;
         }
 
@@ -2205,7 +2156,7 @@ const Companies = {
 
         const body = document.getElementById('company-detail-body');
         body.innerHTML = `
-            ${tirePitchHtml}
+            ${closedWarningHtml}
             
             <!-- Lead Score & Data Confidence Gauge Widgets -->
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:20px;">
