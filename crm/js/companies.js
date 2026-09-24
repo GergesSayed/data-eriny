@@ -2057,7 +2057,15 @@ const Companies = {
 
             window.SupabaseClient.checkCompanyLock(id, myId).then(lockInfo => {
                 if (lockInfo && lockInfo.isLocked && warnEl && warnTxt) {
-                    warnTxt.innerHTML = `⚠️ <strong>تنبيه فوري لتفادي تكرار الاتصال:</strong> الزميل <strong>(${esc(lockInfo.user)})</strong> يراجع هذا العميل حالياً (منذ ${lockInfo.ageSeconds || 5} ثانية).`;
+                    let timeAgo = 'بضع ثوانٍ';
+                    const sec = Number(lockInfo.ageSeconds) || 5;
+                    if (sec < 60) {
+                        timeAgo = sec <= 10 ? `${sec} ثوانٍ` : `${sec} ثانية`;
+                    } else {
+                        const mins = Math.floor(sec / 60);
+                        timeAgo = mins === 1 ? 'دقيقة واحدة' : (mins === 2 ? 'دقيقتين' : `${mins} دقائق`);
+                    }
+                    warnTxt.innerHTML = `<strong>تنبيه فوري لتفادي تكرار الاتصال:</strong> الزميل <span class="user-tag">${esc(lockInfo.user)}</span> يراجع هذا العميل حالياً (منذ ${timeAgo}).`;
                     warnEl.style.display = 'flex';
                 }
             }).catch(() => {});

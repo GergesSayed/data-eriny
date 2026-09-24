@@ -11,7 +11,7 @@
     <script>
         // Force purge any legacy service workers, disk caches, and old deals storage immediately
         (function() {
-            var CURRENT_VER = '285.0';
+            var CURRENT_VER = '286.0';
             try {
                 localStorage.removeItem('fleetcrm_deals');
                 localStorage.removeItem('fleetcrm_deals_count');
@@ -76,7 +76,7 @@
     <link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap"></noscript>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=285.0">
+    <link rel="stylesheet" href="css/style.css?v=286.0">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
         (function() {
@@ -1526,9 +1526,9 @@
                 <button class="modal-close" data-modal="modal-company-detail" onclick="App.closeModal('modal-company-detail')"><i class="fas fa-times"></i></button>
             </div>
             <!-- Real-time Lead Collision / Presence Warning -->
-            <div id="detail-collision-warning" style="display:none; background:linear-gradient(135deg, rgba(245, 158, 11, 0.22), rgba(217, 119, 6, 0.22)); border:1.5px solid #f59e0b; color:#fde68a; padding:10px 16px; margin:12px 24px 0 24px; border-radius:10px; font-weight:700; font-size:13px; align-items:center; gap:8px; box-shadow:0 4px 12px rgba(245,158,11,0.15);">
-                <i class="fas fa-exclamation-triangle" style="color:#f59e0b; font-size:16px;"></i>
-                <span id="detail-collision-text"></span>
+            <div id="detail-collision-warning" class="collision-alert-banner">
+                <i class="fas fa-exclamation-triangle collision-icon"></i>
+                <div id="detail-collision-text" style="flex:1;"></div>
             </div>
             <div class="modal-body" id="company-detail-body">
                 <!-- Filled dynamically -->
@@ -1696,20 +1696,20 @@
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <script src="js/supabase-client.js?v=285.0"></script>
-    <script src="js/egypt_verified_titans.js?v=285.0"></script>
-    <script src="js/egypt_enterprises_pool.js?v=285.0"></script>
-    <script src="js/companies-worker.js?v=285.0"></script>
-    <script src="js/storage.js?v=285.0"></script>
-    <script src="js/excel-handler.js?v=285.0"></script>
-    <script src="js/dashboard.js?v=285.0"></script>
-    <script src="js/companies.js?v=285.0"></script>
-    <script src="js/calls.js?v=285.0"></script>
-    <script src="js/reports.js?v=285.0"></script>
-    <script src="js/scraper.js?v=285.0"></script>
-    <script src="js/team.js?v=285.0"></script>
-    <script src="js/settings.js?v=285.0"></script>
-    <script src="js/app.js?v=285.0"></script>
+    <script src="js/supabase-client.js?v=286.0"></script>
+    <script src="js/egypt_verified_titans.js?v=286.0"></script>
+    <script src="js/egypt_enterprises_pool.js?v=286.0"></script>
+    <script src="js/companies-worker.js?v=286.0"></script>
+    <script src="js/storage.js?v=286.0"></script>
+    <script src="js/excel-handler.js?v=286.0"></script>
+    <script src="js/dashboard.js?v=286.0"></script>
+    <script src="js/companies.js?v=286.0"></script>
+    <script src="js/calls.js?v=286.0"></script>
+    <script src="js/reports.js?v=286.0"></script>
+    <script src="js/scraper.js?v=286.0"></script>
+    <script src="js/team.js?v=286.0"></script>
+    <script src="js/settings.js?v=286.0"></script>
+    <script src="js/app.js?v=286.0"></script>
 
     <!-- Cleanup overlay on load - runs once only, does NOT override App.checkAuth -->
     <script>
