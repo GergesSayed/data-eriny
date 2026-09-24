@@ -3429,9 +3429,9 @@ const AppStorage = {
         if (['security_cash_transit', 'security', 'safety_equipment', 'fire_fighting'].includes(sector)) {
             return 'security';
         }
-        // 9. Car Rental & Dealerships (تأجير سيارات)
+        // 9. Car Rental & Dealerships (تأجير سيارات) - Merged into transport
         if (['car_rental_taxi_limousine', 'rental', 'car_rental', 'limousine', 'auto_dealership', 'car_showroom'].includes(sector)) {
-            return 'rental';
+            return 'transport';
         }
         // 10. Education (تعليم ومدارس)
         if (['school_university_buses', 'education', 'school', 'university', 'college', 'nursery'].includes(sector)) {
