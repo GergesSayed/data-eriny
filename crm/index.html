@@ -11,7 +11,7 @@
     <script>
         // Force purge any legacy service workers, disk caches, and old deals storage immediately
         (function() {
-            var CURRENT_VER = '277.0';
+            var CURRENT_VER = '280.0';
             try {
                 localStorage.removeItem('fleetcrm_deals');
                 localStorage.removeItem('fleetcrm_deals_count');
@@ -48,6 +48,10 @@
                             for (var i = 0; i < regs.length; i++) regs[i].unregister();
                         });
                     }
+                    if (!sessionStorage.getItem('fleetcrm_auto_reloaded_' + CURRENT_VER)) {
+                        sessionStorage.setItem('fleetcrm_auto_reloaded_' + CURRENT_VER, '1');
+                        setTimeout(function() { window.location.reload(); }, 250);
+                    }
                 }
             } catch(e) {}
         })();
@@ -61,7 +65,7 @@
             } catch(e) {}
         })();
     </script>
-    <link rel="manifest" href="manifest.json?v=277.0">
+    <link rel="manifest" href="manifest.json?v=280.0">
     <meta name="theme-color" content="#7c3aed">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -72,7 +76,7 @@
     <link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap"></noscript>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=277.0">
+    <link rel="stylesheet" href="css/style.css?v=280.0">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
         (function() {
@@ -327,7 +331,7 @@
             </div>
             <div class="brand-text">
                 <h2>Fleet CRM</h2>
-                <span>إدارة بيع الإطارات <small class="brand-ver-badge" style="background:#7c3aed33; color:#a78bfa; padding:1px 6px; border-radius:6px; font-size:10px; font-weight:700;">v277.0</small></span>
+                <span>إدارة بيع الإطارات <small class="brand-ver-badge" style="background:#7c3aed33; color:#a78bfa; padding:1px 6px; border-radius:6px; font-size:10px; font-weight:700;">v280.0</small></span>
             </div>
         </div>
 
@@ -667,7 +671,54 @@
                         <input type="text" id="filter-search" placeholder="🔍 بحث بالاسم، الهاتف، أو المدينة..." oninput="Companies.onFilterChange()" style="width:100%; padding: 10px 14px 10px 38px; border-radius: 10px; font-size: 13px; outline: none;">
                     </div>
 
-                    <!-- 2. Multi-Select Sector Filter -->
+                    <!-- 2. Multi-Select Governorate Filter (First in Hierarchy) -->
+                    <div class="filter-group custom-multiselect" id="multiselect-govs-wrapper" style="flex: 1 1 185px; min-width: 155px;">
+                        <button type="button" class="multiselect-trigger" id="multiselect-govs-btn" onclick="Companies.toggleMultiDropdown('govs', event)">
+                            <span class="multiselect-label" id="multiselect-govs-label"><i class="fas fa-map" style="color:#6366f1;"></i> كل المحافظات (الكل)</span>
+                            <span class="multiselect-badge" id="multiselect-govs-badge" style="display:none;">0</span>
+                            <i class="fas fa-chevron-down multiselect-arrow"></i>
+                        </button>
+                        <div class="multiselect-menu" id="multiselect-govs-menu">
+                            <div class="multiselect-search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" placeholder="بحث في المحافظات..." oninput="Companies.filterDropdownList('govs', this.value)">
+                            </div>
+                            <div class="multiselect-actions">
+                                <button type="button" class="ms-btn-action" onclick="Companies.selectAllDropdown('govs')"><i class="fas fa-check-double"></i> تحديد الكل</button>
+                                <button type="button" class="ms-btn-action" onclick="Companies.clearDropdown('govs')"><i class="fas fa-times"></i> إلغاء التحديد</button>
+                            </div>
+                            <div class="multiselect-list" id="multiselect-govs-list">
+                                <!-- Populated dynamically with Governorates -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Multi-Select City / Region Filter (Cascades directly from Governorate) -->
+                    <div class="filter-group custom-multiselect" id="multiselect-cities-wrapper" style="flex: 1 1 185px; min-width: 155px;">
+                        <button type="button" class="multiselect-trigger" id="multiselect-cities-btn" onclick="Companies.toggleMultiDropdown('cities', event)">
+                            <span class="multiselect-label" id="multiselect-cities-label"><i class="fas fa-map-marker-alt" style="color:var(--danger);"></i> كل المدن (الكل)</span>
+                            <span class="multiselect-badge" id="multiselect-cities-badge" style="display:none;">0</span>
+                            <i class="fas fa-chevron-down multiselect-arrow"></i>
+                        </button>
+                        <div class="multiselect-menu" id="multiselect-cities-menu">
+                            <div class="multiselect-search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" placeholder="بحث في المدن والمناطق..." oninput="Companies.filterDropdownList('cities', this.value)">
+                            </div>
+                            <div class="multiselect-actions">
+                                <button type="button" class="ms-btn-action" onclick="Companies.selectAllDropdown('cities')"><i class="fas fa-check-double"></i> تحديد الكل</button>
+                                <button type="button" class="ms-btn-action" onclick="Companies.clearDropdown('cities')"><i class="fas fa-times"></i> إلغاء التحديد</button>
+                            </div>
+                            <div id="multiselect-cities-context-header" style="display:none; padding:5px 10px; font-size:11.5px; font-weight:700; background:rgba(99, 102, 241, 0.15); color:#a5b4fc; border-radius:6px; margin:4px 8px 6px;"></div>
+                            <div class="multiselect-list" id="multiselect-cities-list">
+                                <!-- Populated dynamically by JS -->
+                            </div>
+                        </div>
+                        <!-- Hidden legacy select for fallback compatibility -->
+                        <select id="filter-city" style="display:none;"><option value=""></option></select>
+                    </div>
+
+                    <!-- 4. Multi-Select Sector Filter -->
                     <div class="filter-group custom-multiselect" id="multiselect-sectors-wrapper" style="flex: 1 1 190px; min-width: 160px;">
                         <button type="button" class="multiselect-trigger" id="multiselect-sectors-btn" onclick="Companies.toggleMultiDropdown('sectors', event)">
                             <span class="multiselect-label" id="multiselect-sectors-label"><i class="fas fa-industry" style="color:var(--accent);"></i> كل القطاعات (الكل)</span>
@@ -689,34 +740,6 @@
                         </div>
                         <!-- Hidden legacy select for fallback compatibility -->
                         <select id="filter-sector" style="display:none;"><option value=""></option></select>
-                    </div>
-
-                    <!-- 3. Multi-Select City / Region Filter -->
-                    <div class="filter-group custom-multiselect" id="multiselect-cities-wrapper" style="flex: 1 1 190px; min-width: 160px;">
-                        <button type="button" class="multiselect-trigger" id="multiselect-cities-btn" onclick="Companies.toggleMultiDropdown('cities', event)">
-                            <span class="multiselect-label" id="multiselect-cities-label"><i class="fas fa-map-marker-alt" style="color:var(--danger);"></i> كل المحافظات والمدن (الكل)</span>
-                            <span class="multiselect-badge" id="multiselect-cities-badge" style="display:none;">0</span>
-                            <i class="fas fa-chevron-down multiselect-arrow"></i>
-                        </button>
-                        <div class="multiselect-menu" id="multiselect-cities-menu">
-                            <div class="multiselect-search-box">
-                                <i class="fas fa-search"></i>
-                                <input type="text" placeholder="بحث في المناطق..." oninput="Companies.filterDropdownList('cities', this.value)">
-                            </div>
-                            <div class="multiselect-actions">
-                                <button type="button" class="ms-btn-action" onclick="Companies.selectAllDropdown('cities')"><i class="fas fa-check-double"></i> تحديد الكل</button>
-                                <button type="button" class="ms-btn-action" onclick="Companies.clearDropdown('cities')"><i class="fas fa-times"></i> إلغاء التحديد</button>
-                            </div>
-                            <div class="multiselect-quick-groups">
-                                <span class="ms-pill" onclick="Companies.selectCityGroup('industrial')">🏭 المدن الصناعية</span>
-                                <span class="ms-pill" onclick="Companies.selectCityGroup('cairo_metro')">🏙️ القاهرة الكبرى</span>
-                            </div>
-                            <div class="multiselect-list" id="multiselect-cities-list">
-                                <!-- Populated dynamically by JS -->
-                            </div>
-                        </div>
-                        <!-- Hidden legacy select for fallback compatibility -->
-                        <select id="filter-city" style="display:none;"><option value=""></option></select>
                     </div>
 
                     <!-- 4. Contact & Data Readiness Filter -->
@@ -1647,20 +1670,20 @@
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <script src="js/supabase-client.js?v=277.0"></script>
-    <script src="js/egypt_verified_titans.js?v=277.0"></script>
-    <script src="js/egypt_enterprises_pool.js?v=277.0"></script>
-    <script src="js/companies-worker.js?v=277.0"></script>
-    <script src="js/storage.js?v=277.0"></script>
-    <script src="js/excel-handler.js?v=277.0"></script>
-    <script src="js/dashboard.js?v=277.0"></script>
-    <script src="js/companies.js?v=277.0"></script>
-    <script src="js/calls.js?v=277.0"></script>
-    <script src="js/reports.js?v=277.0"></script>
-    <script src="js/scraper.js?v=277.0"></script>
-    <script src="js/team.js?v=277.0"></script>
-    <script src="js/settings.js?v=277.0"></script>
-    <script src="js/app.js?v=277.0"></script>
+    <script src="js/supabase-client.js?v=280.0"></script>
+    <script src="js/egypt_verified_titans.js?v=280.0"></script>
+    <script src="js/egypt_enterprises_pool.js?v=280.0"></script>
+    <script src="js/companies-worker.js?v=280.0"></script>
+    <script src="js/storage.js?v=280.0"></script>
+    <script src="js/excel-handler.js?v=280.0"></script>
+    <script src="js/dashboard.js?v=280.0"></script>
+    <script src="js/companies.js?v=280.0"></script>
+    <script src="js/calls.js?v=280.0"></script>
+    <script src="js/reports.js?v=280.0"></script>
+    <script src="js/scraper.js?v=280.0"></script>
+    <script src="js/team.js?v=280.0"></script>
+    <script src="js/settings.js?v=280.0"></script>
+    <script src="js/app.js?v=280.0"></script>
 
     <!-- Cleanup overlay on load - runs once only, does NOT override App.checkAuth -->
     <script>

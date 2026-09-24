@@ -122,7 +122,15 @@ const App = {
 
             // PWA Service Worker Registration & Offline Support
             if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-                navigator.serviceWorker.register('sw.js?v=270.0').then(reg => {
+                let isRefreshing = false;
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    if (!isRefreshing) {
+                        isRefreshing = true;
+                        window.location.reload();
+                    }
+                });
+
+                navigator.serviceWorker.register('sw.js?v=280.0').then(reg => {
                     reg.update().catch(() => {});
                     // Detect when a new SW version is waiting — show update notification
                     reg.addEventListener('updatefound', () => {
@@ -130,7 +138,7 @@ const App = {
                         if (!newWorker) return;
                         newWorker.addEventListener('statechange', () => {
                             if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                // New version ready — prompt user to reload
+                                // New version ready — prompt user to reload or auto reload
                                 this._showUpdateBanner();
                             }
                         });
@@ -1568,6 +1576,27 @@ const App = {
             navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
         }
         location.reload();
+    },
+
+    async forceHardReload() {
+        try {
+            if ('caches' in window) {
+                const keys = await caches.keys();
+                await Promise.all(keys.map(k => caches.delete(k)));
+            }
+            if ('serviceWorker' in navigator) {
+                const regs = await navigator.serviceWorker.getRegistrations();
+                await Promise.all(regs.map(r => r.unregister()));
+            }
+        } catch(e) {}
+        try {
+            localStorage.setItem('fleetcrm_app_version', '280.0');
+            localStorage.setItem('fleetcrm_dataset_version', 'v280.0_governorates_and_cities_dual_filter');
+            sessionStorage.clear();
+        } catch(e) {}
+        const base = window.location.origin + window.location.pathname;
+        window.location.href = base + '?t=' + Date.now() + '#companies';
+        setTimeout(() => window.location.reload(true), 150);
     },
 
     // ---- Network & PWA Offline Status Indicator ----

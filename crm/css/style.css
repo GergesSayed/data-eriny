@@ -3669,7 +3669,7 @@ html.user-role-agent #cloud-sync-indicator {
 }
 
 .multiselect-list {
-    max-height: 220px;
+    max-height: 320px;
     overflow-y: auto;
     padding: 4px 0;
 }
@@ -3721,6 +3721,26 @@ html.user-role-agent #cloud-sync-indicator {
     padding: 1px 7px;
     border-radius: 10px;
     font-weight: 600;
+}
+
+/* Multiselect Context Header (when governorate is selected) */
+#multiselect-cities-context-header {
+    padding: 6px 12px;
+    font-size: 11.5px;
+    font-weight: 700;
+    background: rgba(99, 102, 241, 0.15);
+    color: #a5b4fc;
+    border-radius: 6px;
+    margin: 4px 8px 6px;
+    border: 1px solid rgba(99, 102, 241, 0.25);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+[data-theme="light"] #multiselect-cities-context-header {
+    background: rgba(99, 102, 241, 0.1);
+    color: #4f46e5;
+    border-color: rgba(99, 102, 241, 0.2);
 }
 
 /* Active Filter Chips Bar */

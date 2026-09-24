@@ -12,19 +12,30 @@ const Companies = {
     statusFilter: null,
     selectedCompanies: new Set(),
     selectedSectors: new Set(),
+    selectedGovs: new Set(),
     selectedCities: new Set(),
 
     _countsCache: null,
     _countsCacheLength: 0,
 
-    getSectorAndCityCounts() {
+    getSectorCityAndGovCounts() {
         const allCompanies = window.AppStorage ? window.AppStorage.getCompanies() : [];
         if (this._countsCache && this._countsCacheLength === allCompanies.length) {
             return this._countsCache;
         }
 
+        const governorates = window.AppStorage ? window.AppStorage.GOVERNORATES : {};
+        const cityToGov = {};
+        for (const [gk, g] of Object.entries(governorates)) {
+            for (const ck of (g.cities || [])) {
+                cityToGov[ck] = gk;
+            }
+        }
+
         const sectorCounts = {};
         const cityCounts = {};
+        const govCounts = {};
+
         for (let i = 0; i < allCompanies.length; i++) {
             const c = allCompanies[i];
             if (!c) continue;
@@ -32,10 +43,19 @@ const Companies = {
             const ct = c.city || 'other';
             sectorCounts[sec] = (sectorCounts[sec] || 0) + 1;
             cityCounts[ct] = (cityCounts[ct] || 0) + 1;
+
+            const gk = cityToGov[ct];
+            if (gk) {
+                govCounts[gk] = (govCounts[gk] || 0) + 1;
+            }
         }
         this._countsCacheLength = allCompanies.length;
-        this._countsCache = { sectorCounts, cityCounts, total: allCompanies.length };
+        this._countsCache = { sectorCounts, cityCounts, govCounts, total: allCompanies.length };
         return this._countsCache;
+    },
+
+    getSectorAndCityCounts() {
+        return this.getSectorCityAndGovCounts();
     },
 
     init() {
@@ -55,10 +75,9 @@ const Companies = {
 
     initMultiSelects() {
         const sectors = window.AppStorage ? window.AppStorage.SECTORS : null;
-        const cities = window.AppStorage ? window.AppStorage.CITIES : null;
-        const { sectorCounts, cityCounts } = this.getSectorAndCityCounts();
+        const { sectorCounts, cityCounts, govCounts } = this.getSectorCityAndGovCounts();
 
-        // 1. Populate Sectors List (strictly exclude sectors with 0 companies)
+        // 1. Populate Sectors List
         const sectorsListEl = document.getElementById('multiselect-sectors-list');
         if (sectorsListEl && sectors) {
             let html = '';
@@ -80,15 +99,85 @@ const Companies = {
             sectorsListEl.innerHTML = html;
         }
 
-        // 2. Populate Cities List (strictly exclude cities with 0 companies)
+        // 2. Populate Governorates List
+        this.populateGovsMultiSelect(govCounts);
+
+        // 3. Populate Cities List (filtered by selected governorates if any)
+        this.populateCitiesMultiSelect(cityCounts);
+
+        this.updateMultiSelectLabels();
+    },
+
+    populateGovsMultiSelect(govCounts) {
+        const govsListEl = document.getElementById('multiselect-govs-list');
+        const governorates = window.AppStorage ? window.AppStorage.GOVERNORATES : null;
+        if (!govsListEl || !governorates) return;
+
+        if (!govCounts) {
+            const counts = this.getSectorCityAndGovCounts();
+            govCounts = counts.govCounts;
+        }
+
+        let html = '';
+        const sortedGovs = Object.keys(governorates)
+            .filter(key => (govCounts[key] || 0) > 0)
+            .sort((a, b) => (govCounts[b] || 0) - (govCounts[a] || 0));
+
+        sortedGovs.forEach(govKey => {
+            const g = governorates[govKey];
+            const count = govCounts[govKey] || 0;
+            const isChecked = this.selectedGovs.has(govKey);
+            html += `
+                <div class="multiselect-item ${isChecked ? 'selected' : ''}" data-key="${govKey}" onclick="Companies.toggleDropdownItem('govs', '${govKey}')">
+                    <input type="checkbox" class="multiselect-checkbox" ${isChecked ? 'checked' : ''} onclick="event.stopPropagation(); Companies.toggleDropdownItem('govs', '${govKey}')">
+                    <span class="multiselect-item-label">${g.icon || '🏛️'} ${g.ar}</span>
+                    <span class="multiselect-item-count">${count.toLocaleString()}</span>
+                </div>
+            `;
+        });
+        govsListEl.innerHTML = html;
+    },
+
+    populateCitiesMultiSelect(cityCounts) {
         const citiesListEl = document.getElementById('multiselect-cities-list');
-        if (citiesListEl && cities) {
-            let html = '';
-            const sortedCities = Object.keys(cities)
+        const cities = window.AppStorage ? window.AppStorage.CITIES : null;
+        const governorates = window.AppStorage ? window.AppStorage.GOVERNORATES : null;
+        const contextHeaderEl = document.getElementById('multiselect-cities-context-header');
+        if (!citiesListEl || !cities || !governorates) return;
+
+        if (!cityCounts) {
+            const counts = this.getSectorCityAndGovCounts();
+            cityCounts = counts.cityCounts;
+        }
+
+        // Case A: Specific governorate(s) selected -> show ONLY their member cities
+        if (this.selectedGovs.size > 0) {
+            const allowedCityKeys = new Set();
+            this.selectedGovs.forEach(gk => {
+                const g = governorates[gk];
+                if (g && Array.isArray(g.cities)) {
+                    g.cities.forEach(ck => allowedCityKeys.add(ck));
+                }
+            });
+
+            if (contextHeaderEl) {
+                const govNames = Array.from(this.selectedGovs).map(gk => governorates[gk]?.ar || gk).join('، ');
+                contextHeaderEl.innerHTML = `<i class="fas fa-filter" style="color:#818cf8;"></i> <span>مدن ومناطق: <strong>${govNames}</strong></span>`;
+                contextHeaderEl.style.display = 'flex';
+            }
+
+            const sortedCities = Array.from(allowedCityKeys)
                 .filter(key => (cityCounts[key] || 0) > 0)
                 .sort((a, b) => (cityCounts[b] || 0) - (cityCounts[a] || 0));
+
+            if (sortedCities.length === 0) {
+                citiesListEl.innerHTML = `<div style="padding:14px; text-align:center; color:#94a3b8; font-size:12px;">لا توجد شركات مسجلة في مدن المحافظة المختارة</div>`;
+                return;
+            }
+
+            let html = '';
             sortedCities.forEach(key => {
-                const c = cities[key];
+                const c = cities[key] || { ar: key };
                 const count = cityCounts[key] || 0;
                 const isChecked = this.selectedCities.has(key);
                 html += `
@@ -100,9 +189,54 @@ const Companies = {
                 `;
             });
             citiesListEl.innerHTML = html;
+            return;
         }
 
-        this.updateMultiSelectLabels();
+        // Case B: No governorate selected -> render cities cleanly GROUPED under their Parent Governorates
+        if (contextHeaderEl) {
+            contextHeaderEl.innerHTML = `<i class="fas fa-info-circle" style="color:#38bdf8;"></i> <span>يمكنك اختيار المحافظة أولاً من الفلتر السابق، أو تصفية المدن المجمعة أدناه:</span>`;
+            contextHeaderEl.style.display = 'flex';
+        }
+
+        // Sort governorates by active company counts
+        const sortedGovKeys = Object.keys(governorates).sort((a, b) => {
+            const countA = (governorates[a].cities || []).reduce((sum, ck) => sum + (cityCounts[ck] || 0), 0);
+            const countB = (governorates[b].cities || []).reduce((sum, ck) => sum + (cityCounts[ck] || 0), 0);
+            return countB - countA;
+        });
+
+        let html = '';
+        sortedGovKeys.forEach(gk => {
+            const g = governorates[gk];
+            const memberCities = (g.cities || [])
+                .filter(ck => (cityCounts[ck] || 0) > 0)
+                .sort((a, b) => (cityCounts[b] || 0) - (cityCounts[a] || 0));
+
+            if (memberCities.length === 0) return;
+
+            const govTotal = memberCities.reduce((sum, ck) => sum + (cityCounts[ck] || 0), 0);
+            html += `
+                <div class="ms-gov-category-header" style="padding:6px 12px; margin:8px 6px 4px; font-size:11.5px; font-weight:800; color:#38bdf8; background:rgba(56,189,248,0.1); border-radius:6px; border-right:3px solid #38bdf8; display:flex; justify-content:space-between; align-items:center;">
+                    <span>${g.icon || '🏛️'} مدن ومناطق ${g.ar}</span>
+                    <span style="font-size:10.5px; opacity:0.85;">(${govTotal.toLocaleString()} شركة)</span>
+                </div>
+            `;
+
+            memberCities.forEach(key => {
+                const c = cities[key] || { ar: key };
+                const count = cityCounts[key] || 0;
+                const isChecked = this.selectedCities.has(key);
+                html += `
+                    <div class="multiselect-item ${isChecked ? 'selected' : ''}" style="padding-right:24px;" data-key="${key}" onclick="Companies.toggleDropdownItem('cities', '${key}')">
+                        <input type="checkbox" class="multiselect-checkbox" ${isChecked ? 'checked' : ''} onclick="event.stopPropagation(); Companies.toggleDropdownItem('cities', '${key}')">
+                        <span class="multiselect-item-label">📍 ${c.ar}</span>
+                        <span class="multiselect-item-count">${count.toLocaleString()}</span>
+                    </div>
+                `;
+            });
+        });
+
+        citiesListEl.innerHTML = html;
     },
 
     toggleMultiDropdown(type, event) {
@@ -123,19 +257,47 @@ const Companies = {
     },
 
     toggleDropdownItem(type, key) {
-        const set = (type === 'sectors') ? this.selectedSectors : this.selectedCities;
+        let set;
+        if (type === 'sectors') set = this.selectedSectors;
+        else if (type === 'govs') set = this.selectedGovs;
+        else set = this.selectedCities;
+
         if (set.has(key)) {
             set.delete(key);
         } else {
             set.add(key);
         }
+
         this._syncDropdownDOM(type);
+
+        if (type === 'govs') {
+            if (this.selectedGovs.size > 0) {
+                const governorates = window.AppStorage?.GOVERNORATES || {};
+                const allowedCities = new Set();
+                this.selectedGovs.forEach(gk => {
+                    const g = governorates[gk];
+                    if (g && Array.isArray(g.cities)) g.cities.forEach(ck => allowedCities.add(ck));
+                });
+                for (const ck of this.selectedCities) {
+                    if (!allowedCities.has(ck)) {
+                        this.selectedCities.delete(ck);
+                    }
+                }
+            }
+            this.populateCitiesMultiSelect();
+            this._syncDropdownDOM('cities');
+        }
+
         this.updateMultiSelectLabels();
         this.onFilterChange(true);
     },
 
     selectAllDropdown(type) {
-        const set = (type === 'sectors') ? this.selectedSectors : this.selectedCities;
+        let set;
+        if (type === 'sectors') set = this.selectedSectors;
+        else if (type === 'govs') set = this.selectedGovs;
+        else set = this.selectedCities;
+
         const listEl = document.getElementById(`multiselect-${type}-list`);
         if (listEl) {
             listEl.querySelectorAll('.multiselect-item').forEach(item => {
@@ -144,30 +306,28 @@ const Companies = {
             });
         }
         this._syncDropdownDOM(type);
+        if (type === 'govs') {
+            this.populateCitiesMultiSelect();
+            this._syncDropdownDOM('cities');
+        }
         this.updateMultiSelectLabels();
         this.onFilterChange(true);
     },
 
     clearDropdown(type) {
-        const set = (type === 'sectors') ? this.selectedSectors : this.selectedCities;
+        let set;
+        if (type === 'sectors') set = this.selectedSectors;
+        else if (type === 'govs') set = this.selectedGovs;
+        else set = this.selectedCities;
+
         set.clear();
         this._syncDropdownDOM(type);
-        this.updateMultiSelectLabels();
-        this.onFilterChange(true);
-    },
-
-    selectCityGroup(groupKey) {
-        const industrialCities = ['6october', '10thramadan', 'obour', 'badr', 'sadat', 'helwan'];
-        const cairoMetroCities = ['cairo', 'giza', 'nasr_city', 'new_cairo', 'maadi', 'qalyubia'];
-        this.selectedCities.clear();
-        const targetList = groupKey === 'industrial' ? industrialCities : cairoMetroCities;
-        targetList.forEach(k => this.selectedCities.add(k));
-        this._syncDropdownDOM('cities');
-        this.updateMultiSelectLabels();
-        this.onFilterChange(true);
-        if (typeof App !== 'undefined' && App.showToast) {
-            App.showToast(groupKey === 'industrial' ? 'تم تحديد المدن والمجمعات الصناعية الكبرى' : 'تم تحديد نطاق القاهرة الكبرى والجيزة', 'info');
+        if (type === 'govs') {
+            this.populateCitiesMultiSelect();
+            this._syncDropdownDOM('cities');
         }
+        this.updateMultiSelectLabels();
+        this.onFilterChange(true);
     },
 
     filterDropdownList(type, query) {
@@ -182,11 +342,16 @@ const Companies = {
     },
 
     _syncDropdownDOM(type) {
-        const set = (type === 'sectors') ? this.selectedSectors : this.selectedCities;
+        let set;
+        if (type === 'sectors') set = this.selectedSectors;
+        else if (type === 'govs') set = this.selectedGovs;
+        else set = this.selectedCities;
+
         const listEl = document.getElementById(`multiselect-${type}-list`);
         if (!listEl) return;
         listEl.querySelectorAll('.multiselect-item').forEach(item => {
             const key = item.dataset.key;
+            if (!key) return;
             const isSelected = set.has(key);
             item.classList.toggle('selected', isSelected);
             const cb = item.querySelector('.multiselect-checkbox');
@@ -197,6 +362,7 @@ const Companies = {
     updateMultiSelectLabels() {
         const sectors = window.AppStorage?.SECTORS || {};
         const cities = window.AppStorage?.CITIES || {};
+        const governorates = window.AppStorage?.GOVERNORATES || {};
 
         // Sectors
         const secLabel = document.getElementById('multiselect-sectors-label');
@@ -218,13 +384,41 @@ const Companies = {
             }
         }
 
+        // Governorates
+        const govLabel = document.getElementById('multiselect-govs-label');
+        const govBadge = document.getElementById('multiselect-govs-badge');
+        if (govLabel && govBadge) {
+            const size = this.selectedGovs.size;
+            if (size === 0) {
+                govLabel.innerHTML = '<i class="fas fa-map" style="color:#6366f1;"></i> كل المحافظات (الكل)';
+                govBadge.style.display = 'none';
+            } else if (size === 1) {
+                const singleKey = Array.from(this.selectedGovs)[0];
+                const g = governorates[singleKey];
+                govLabel.innerHTML = `${g?.icon || '🏛️'} ${g?.ar || singleKey}`;
+                govBadge.style.display = 'none';
+            } else {
+                govLabel.innerHTML = `<i class="fas fa-map" style="color:#6366f1;"></i> ${size} محافظات محددة`;
+                govBadge.textContent = size;
+                govBadge.style.display = 'inline-block';
+            }
+        }
+
         // Cities
         const cityLabel = document.getElementById('multiselect-cities-label');
         const cityBadge = document.getElementById('multiselect-cities-badge');
         if (cityLabel && cityBadge) {
             const size = this.selectedCities.size;
             if (size === 0) {
-                cityLabel.innerHTML = '<i class="fas fa-map-marker-alt" style="color:#f43f5e;"></i> كل المحافظات والمدن (الكل)';
+                if (this.selectedGovs.size === 1) {
+                    const singleGovKey = Array.from(this.selectedGovs)[0];
+                    const g = governorates[singleGovKey];
+                    cityLabel.innerHTML = `<i class="fas fa-map-marker-alt" style="color:var(--danger);"></i> مدن ${g?.ar || 'المحافظة'} (الكل)`;
+                } else if (this.selectedGovs.size > 1) {
+                    cityLabel.innerHTML = `<i class="fas fa-map-marker-alt" style="color:var(--danger);"></i> مدن المحافظات المختارة (الكل)`;
+                } else {
+                    cityLabel.innerHTML = `<i class="fas fa-map-marker-alt" style="color:var(--danger);"></i> كل المدن والمناطق (الكل)`;
+                }
                 cityBadge.style.display = 'none';
             } else if (size === 1) {
                 const singleKey = Array.from(this.selectedCities)[0];
@@ -232,7 +426,7 @@ const Companies = {
                 cityLabel.innerHTML = `📍 ${c?.ar || singleKey}`;
                 cityBadge.style.display = 'none';
             } else {
-                cityLabel.innerHTML = `<i class="fas fa-map-marker-alt" style="color:#f43f5e;"></i> ${size} مناطق محددة`;
+                cityLabel.innerHTML = `<i class="fas fa-map-marker-alt" style="color:var(--danger);"></i> ${size} مدن محددة`;
                 cityBadge.textContent = size;
                 cityBadge.style.display = 'inline-block';
             }
@@ -246,6 +440,7 @@ const Companies = {
 
         const sectors = window.AppStorage?.SECTORS || {};
         const cities = window.AppStorage?.CITIES || {};
+        const governorates = window.AppStorage?.GOVERNORATES || {};
 
         const search = document.getElementById('filter-search')?.value?.trim() || '';
         const contactType = document.getElementById('filter-contact-type')?.value || '';
@@ -255,6 +450,7 @@ const Companies = {
 
         const hasActiveFilters = (
             this.selectedSectors.size > 0 ||
+            this.selectedGovs.size > 0 ||
             this.selectedCities.size > 0 ||
             search ||
             contactType ||
@@ -280,6 +476,17 @@ const Companies = {
                 <span class="active-filter-chip chip-primary">
                     <span>${s?.icon || '🏢'} ${s?.ar || k}</span>
                     <i class="fas fa-times chip-remove" title="إزالة" onclick="Companies.removeActiveFilter('sector', '${k}')"></i>
+                </span>
+            `;
+        });
+
+        // Governorates Chips
+        this.selectedGovs.forEach(k => {
+            const g = governorates[k];
+            chipsHtml += `
+                <span class="active-filter-chip" style="background:rgba(99, 102, 241, 0.18); color:#c7d2fe; border:1px solid rgba(99, 102, 241, 0.35);">
+                    <span>${g?.icon || '🏛️'} ${g?.ar || k}</span>
+                    <i class="fas fa-times chip-remove" title="إزالة" onclick="Companies.removeActiveFilter('gov', '${k}')"></i>
                 </span>
             `;
         });
@@ -385,6 +592,11 @@ const Companies = {
         if (type === 'sector' && key) {
             this.selectedSectors.delete(key);
             this._syncDropdownDOM('sectors');
+            this.updateMultiSelectLabels();
+        } else if (type === 'gov' && key) {
+            this.selectedGovs.delete(key);
+            this._syncDropdownDOM('govs');
+            this.populateCitiesMultiSelect();
             this.updateMultiSelectLabels();
         } else if (type === 'city' && key) {
             this.selectedCities.delete(key);
@@ -670,8 +882,11 @@ const Companies = {
 
         // Reset multi-select sets & UI
         this.selectedSectors.clear();
+        this.selectedGovs.clear();
         this.selectedCities.clear();
         this._syncDropdownDOM('sectors');
+        this._syncDropdownDOM('govs');
+        this.populateCitiesMultiSelect();
         this._syncDropdownDOM('cities');
         this.updateMultiSelectLabels();
         this.renderSectorPills();
@@ -865,7 +1080,8 @@ const Companies = {
         this.refreshUserFilter();
 
         const sectorsListEl = document.getElementById('multiselect-sectors-list');
-        if (sectorsListEl && sectorsListEl.children.length === 0) {
+        const govsListEl = document.getElementById('multiselect-govs-list');
+        if ((sectorsListEl && sectorsListEl.children.length === 0) || (govsListEl && govsListEl.children.length === 0)) {
             this.initMultiSelects();
         }
         const pillsContainer = document.getElementById('sector-quick-pills-bar');
@@ -874,11 +1090,27 @@ const Companies = {
         }
 
         const sectors = Array.from(this.selectedSectors);
-        const cities = Array.from(this.selectedCities);
+        const governorates = window.AppStorage?.GOVERNORATES || {};
+        let finalCities = [];
+
+        if (this.selectedCities.size > 0) {
+            finalCities = Array.from(this.selectedCities);
+        } else if (this.selectedGovs.size > 0) {
+            const govCities = new Set();
+            this.selectedGovs.forEach(gk => {
+                const g = governorates[gk];
+                if (g && Array.isArray(g.cities)) {
+                    g.cities.forEach(ck => govCities.add(ck));
+                }
+            });
+            finalCities = Array.from(govCities);
+        } else {
+            const legacyCity = document.getElementById('filter-city')?.value || '';
+            if (legacyCity) finalCities = [legacyCity];
+        }
+
         const legacySector = document.getElementById('filter-sector')?.value || '';
-        const legacyCity = document.getElementById('filter-city')?.value || '';
         const finalSectors = sectors.length > 0 ? sectors : (legacySector ? [legacySector] : []);
-        const finalCities = cities.length > 0 ? cities : (legacyCity ? [legacyCity] : []);
 
         const contactType = document.getElementById('filter-contact-type')?.value || '';
         const priority = document.getElementById('filter-priority')?.value || '';

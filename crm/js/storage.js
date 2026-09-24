@@ -637,53 +637,192 @@ const AppStorage = {
     // ---- City & Governorate Definitions (Egypt Comprehensive) ----
     CITIES: {
         // Greater Cairo & Metropolitan
-        cairo: { ar: 'القاهرة', en: 'Cairo' },
-        giza: { ar: 'الجيزة', en: 'Giza' },
-        qalyubia: { ar: 'القليوبية', en: 'Qalyubia' },
-        '6october': { ar: '6 أكتوبر', en: '6th October' },
+        cairo: { ar: 'القاهرة (وسط البلد والمناطق العامة)', en: 'Cairo (Downtown & General)' },
+        giza: { ar: 'الجيزة (الهرم، فيصل، الدقي، العمرانية)', en: 'Giza (Haram, Dokki, Faisal)' },
+        qalyubia: { ar: 'القليوبية (شبرا وبنها وقليوب)', en: 'Qalyubia (Shubra & Banha)' },
+        '6october': { ar: 'السادس من أكتوبر', en: '6th October' },
         '10thramadan': { ar: 'العاشر من رمضان', en: '10th of Ramadan' },
-        obour: { ar: 'العبور', en: 'Obour' },
+        obour: { ar: 'مدينة العبور', en: 'Obour City' },
         badr: { ar: 'مدينة بدر', en: 'Badr City' },
         sadat: { ar: 'مدينة السادات', en: 'Sadat City' },
-        shorouk: { ar: 'الشروق', en: 'Shorouk' },
-        helwan: { ar: 'حلوان', en: 'Helwan' },
+        shorouk: { ar: 'مدينة الشروق', en: 'Shorouk' },
+        helwan: { ar: 'حلوان والتبين', en: 'Helwan' },
         nasr_city: { ar: 'مدينة نصر', en: 'Nasr City' },
-        maadi: { ar: 'المعادي', en: 'Maadi' },
-        new_cairo: { ar: 'القاهرة الجديدة', en: 'New Cairo' },
+        maadi: { ar: 'المعادي وطرة', en: 'Maadi' },
+        new_cairo: { ar: 'القاهرة الجديدة والتجمع', en: 'New Cairo' },
 
         // Alexandria & North Coast
-        alexandria: { ar: 'الإسكندرية', en: 'Alexandria' },
-        matrouh: { ar: 'مطروح', en: 'Matrouh' },
+        alexandria: { ar: 'الإسكندرية وبرج العرب', en: 'Alexandria & Borg El Arab' },
+        matrouh: { ar: 'مرسى مطروح والعلمين', en: 'Matrouh & Alamein' },
 
         // Canal Cities
-        suez: { ar: 'السويس', en: 'Suez' },
-        port_said: { ar: 'بورسعيد', en: 'Port Said' },
-        ismailia: { ar: 'الإسماعيلية', en: 'Ismailia' },
+        suez: { ar: 'السويس والعين السخنة', en: 'Suez & Ain Sokhna' },
+        port_said: { ar: 'بورسعيد وبورفؤاد', en: 'Port Said' },
+        ismailia: { ar: 'الإسماعيلية والقنطرة', en: 'Ismailia' },
 
         // Delta Governorates
-        sharqia: { ar: 'الشرقية', en: 'Sharqia' },
-        dakahlia: { ar: 'الدقهلية', en: 'Dakahlia' },
-        gharbia: { ar: 'الغربية', en: 'Gharbia' },
-        monufia: { ar: 'المنوفية', en: 'Monufia' },
-        beheira: { ar: 'البحيرة', en: 'Beheira' },
-        damietta: { ar: 'دمياط', en: 'Damietta' },
-        kafr_el_sheikh: { ar: 'كفر الشيخ', en: 'Kafr El Sheikh' },
+        sharqia: { ar: 'الشرقية (الزقازيق وبلبيس والمراكز)', en: 'Sharqia (Zagazig & Centers)' },
+        dakahlia: { ar: 'الدقهلية (المنصورة وميت غمر)', en: 'Dakahlia (Mansoura)' },
+        gharbia: { ar: 'الغربية (طنطا والمحلة الكبرى)', en: 'Gharbia (Tanta & Mehalla)' },
+        monufia: { ar: 'المنوفية (شبين الكوم وقويسنا)', en: 'Monufia (Shebin & Quesna)' },
+        beheira: { ar: 'البحيرة (دمنهور وكفر الدوار)', en: 'Beheira (Damanhour)' },
+        damietta: { ar: 'دمياط ودمياط الجديدة', en: 'Damietta' },
+        kafr_el_sheikh: { ar: 'كفر الشيخ ودسوق', en: 'Kafr El Sheikh' },
 
         // Upper Egypt Governorates
-        fayoum: { ar: 'الفيوم', en: 'Fayoum' },
-        beni_suef: { ar: 'بني سويف', en: 'Beni Suef' },
-        minya: { ar: 'المنيا', en: 'Minya' },
-        assiut: { ar: 'أسيوط', en: 'Assiut' },
-        sohag: { ar: 'سوهاج', en: 'Sohag' },
-        qena: { ar: 'قنا', en: 'Qena' },
-        luxor: { ar: 'الأقصر', en: 'Luxor' },
-        aswan: { ar: 'أسوان', en: 'Aswan' },
-        new_valley: { ar: 'الوادي الجديد', en: 'New Valley' },
+        fayoum: { ar: 'الفيوم والمناطق الصناعية', en: 'Fayoum' },
+        beni_suef: { ar: 'بني سويف وبياض العرب', en: 'Beni Suef' },
+        minya: { ar: 'المنيا والمنيا الجديدة', en: 'Minya' },
+        assiut: { ar: 'أسيوط وأسيوط الجديدة', en: 'Assiut' },
+        sohag: { ar: 'سوهاج وسوهاج الجديدة', en: 'Sohag' },
+        qena: { ar: 'قنا ونجع حمادي', en: 'Qena' },
+        luxor: { ar: 'الأقصر وطيبة الجديدة', en: 'Luxor' },
+        aswan: { ar: 'أسوان وكوم أمبو', en: 'Aswan' },
+        new_valley: { ar: 'الوادي الجديد (الخارجة والداخلة)', en: 'New Valley' },
 
         // Frontier & Sinai
-        red_sea: { ar: 'البحر الأحمر', en: 'Red Sea' },
-        north_sinai: { ar: 'شمال سيناء', en: 'North Sinai' },
-        south_sinai: { ar: 'جنوب سيناء', en: 'South Sinai' }
+        red_sea: { ar: 'البحر الأحمر (الغردقة وسفاجا)', en: 'Red Sea' },
+        north_sinai: { ar: 'شمال سيناء (العريش وبئر العبد)', en: 'North Sinai' },
+        south_sinai: { ar: 'جنوب سيناء (شرم الشيخ والطور)', en: 'South Sinai' }
+    },
+
+    // ---- Governorate → Cities Hierarchy ----
+    GOVERNORATES: {
+        gov_cairo: {
+            ar: 'القاهرة الكبرى',
+            icon: '🏙️',
+            cities: ['cairo', 'nasr_city', 'maadi', 'new_cairo', 'helwan', 'shorouk', 'badr', 'obour']
+        },
+        gov_giza: {
+            ar: 'الجيزة',
+            icon: '🏛️',
+            cities: ['giza', '6october']
+        },
+        gov_qalyubia: {
+            ar: 'القليوبية',
+            icon: '🏘️',
+            cities: ['qalyubia']
+        },
+        gov_alexandria: {
+            ar: 'الإسكندرية',
+            icon: '⚓',
+            cities: ['alexandria']
+        },
+        gov_monufia: {
+            ar: 'المنوفية',
+            icon: '🌾',
+            cities: ['monufia', 'sadat']
+        },
+        gov_sharqia: {
+            ar: 'الشرقية',
+            icon: '🌿',
+            cities: ['sharqia', '10thramadan']
+        },
+        gov_dakahlia: {
+            ar: 'الدقهلية',
+            icon: '🌊',
+            cities: ['dakahlia']
+        },
+        gov_gharbia: {
+            ar: 'الغربية',
+            icon: '🧵',
+            cities: ['gharbia']
+        },
+        gov_beheira: {
+            ar: 'البحيرة',
+            icon: '🌅',
+            cities: ['beheira']
+        },
+        gov_kafr_el_sheikh: {
+            ar: 'كفر الشيخ',
+            icon: '🐟',
+            cities: ['kafr_el_sheikh']
+        },
+        gov_damietta: {
+            ar: 'دمياط',
+            icon: '🪑',
+            cities: ['damietta']
+        },
+        gov_suez: {
+            ar: 'السويس',
+            icon: '🚢',
+            cities: ['suez']
+        },
+        gov_port_said: {
+            ar: 'بورسعيد',
+            icon: '⛵',
+            cities: ['port_said']
+        },
+        gov_ismailia: {
+            ar: 'الإسماعيلية',
+            icon: '🌴',
+            cities: ['ismailia']
+        },
+        gov_matrouh: {
+            ar: 'مطروح',
+            icon: '🏖️',
+            cities: ['matrouh']
+        },
+        gov_fayoum: {
+            ar: 'الفيوم',
+            icon: '🏺',
+            cities: ['fayoum']
+        },
+        gov_beni_suef: {
+            ar: 'بني سويف',
+            icon: '🏔️',
+            cities: ['beni_suef']
+        },
+        gov_minya: {
+            ar: 'المنيا',
+            icon: '⛰️',
+            cities: ['minya']
+        },
+        gov_assiut: {
+            ar: 'أسيوط',
+            icon: '🏗️',
+            cities: ['assiut']
+        },
+        gov_sohag: {
+            ar: 'سوهاج',
+            icon: '🌾',
+            cities: ['sohag']
+        },
+        gov_qena: {
+            ar: 'قنا',
+            icon: '🏛️',
+            cities: ['qena']
+        },
+        gov_luxor: {
+            ar: 'الأقصر',
+            icon: '🏛️',
+            cities: ['luxor']
+        },
+        gov_aswan: {
+            ar: 'أسوان',
+            icon: '💧',
+            cities: ['aswan']
+        },
+        gov_new_valley: {
+            ar: 'الوادي الجديد',
+            icon: '🏜️',
+            cities: ['new_valley']
+        },
+        gov_red_sea: {
+            ar: 'البحر الأحمر',
+            icon: '🐠',
+            cities: ['red_sea']
+        },
+        gov_north_sinai: {
+            ar: 'شمال سيناء',
+            icon: '🏕️',
+            cities: ['north_sinai']
+        },
+        gov_south_sinai: {
+            ar: 'جنوب سيناء',
+            icon: '⛺',
+            cities: ['south_sinai']
+        }
     },
 
     FLEET_TYPES: {
@@ -1327,7 +1466,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     const idbData = event.target.result || [];
                     const deletedCompIds = this.getDeletedIds('companies');
-                    const currentVersionTag = 'v277.0_standardized_regions_and_sectors';
+                    const currentVersionTag = 'v280.0_governorates_and_cities_dual_filter';
                     const isNewVersion = localStorage.getItem('fleetcrm_dataset_version') !== currentVersionTag;
                     if (isNewVersion) {
                         localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
