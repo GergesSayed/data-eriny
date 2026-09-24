@@ -1227,6 +1227,10 @@ const Companies = {
             const esc = (s) => window.AppStorage.escapeHtml(s || '');
             const sectorLabel = window.AppStorage.getSectorLabel(c.sector);
             const cityLabel = window.AppStorage.getCityLabel(c.city);
+            const govName = c.governorate || '';
+            const locDisplay = (govName && govName !== cityLabel && !cityLabel.includes(govName))
+                ? `<div style="line-height:1.25;"><span style="font-weight:700; color:var(--text-primary); font-size:0.82rem;">${cityLabel}</span><small style="display:block; font-size:10px; color:var(--text-muted); font-weight:600; margin-top:2px;">🏛️ ${govName}</small></div>`
+                : `<span style="font-weight:700; color:var(--text-primary); font-size:0.82rem;">${cityLabel}</span>`;
             const phone = esc(c.phone1 || c.mobile || c.phone2 || '—');
             const fleet = c.fleetSize ? `🚛 ${c.fleetSize}` : '—';
             const contact = esc(c.contactPerson || '—');
@@ -1315,7 +1319,7 @@ const Companies = {
                         </div>
                     </td>
                     <td style="white-space:nowrap; text-align:center;"><span class="badge sector-badge" style="font-size:0.75rem; padding:3px 8px; border-radius:6px; font-weight:600;">${sectorLabel}</span></td>
-                    <td style="white-space:nowrap; text-align:center; font-weight:600; font-size:0.8rem; color:var(--text-secondary);">${cityLabel}</td>
+                    <td style="white-space:nowrap; text-align:center;">${locDisplay}</td>
                     <td style="white-space:nowrap; text-align:center;">
                         <a href="tel:${phone}" onclick="event.stopPropagation();" style="display:inline-flex; align-items:center; gap:4px; font-family:Inter, monospace; font-weight:700; font-size:0.78rem; color:var(--text-primary); text-decoration:none; direction:ltr; unicode-bidi:embed;" title="اتصال">
                             <i class="fas fa-phone-alt" style="font-size:0.68rem; color:var(--success);"></i>
@@ -1454,7 +1458,7 @@ const Companies = {
                     </div>
                     <div class="company-card__details">
                         <div class="company-card__detail"><i class="fas fa-industry"></i> ${sectorLabel}</div>
-                        <div class="company-card__detail"><i class="fas fa-map-marker-alt"></i> ${cityLabel}</div>
+                        <div class="company-card__detail"><i class="fas fa-map-marker-alt"></i> ${cityLabel}${c.governorate && !cityLabel.includes(c.governorate) ? ` (${c.governorate})` : ''}</div>
                         <div class="company-card__detail"><i class="fas fa-phone"></i> <span style="direction:ltr;">${phone}</span></div>
                         <div class="company-card__detail"><i class="fas fa-user-tag"></i> المسند إليه: ${assignedBadge}</div>
                         ${callResult ? `<div class="company-card__detail"><i class="fas fa-phone-volume"></i> نتيجة المكالمة: <span class="result-badge result-${callResult}" style="font-size:11px;">${window.AppStorage.getCallResultLabel(callResult)}</span> ${callDate ? `<small style="color:var(--text-muted); font-size:10px;">(${callDate})</small>` : ''}</div>` : ''}

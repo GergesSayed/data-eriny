@@ -636,48 +636,59 @@ const AppStorage = {
 
     // ---- City & Governorate Definitions (Egypt Comprehensive) ----
     CITIES: {
-        // Greater Cairo & Metropolitan
-        cairo: { ar: 'القاهرة (وسط البلد والمناطق العامة)', en: 'Cairo (Downtown & General)' },
-        giza: { ar: 'الجيزة (الهرم، فيصل، الدقي، العمرانية)', en: 'Giza (Haram, Dokki, Faisal)' },
-        qalyubia: { ar: 'القليوبية (شبرا وبنها وقليوب)', en: 'Qalyubia (Shubra & Banha)' },
-        '6october': { ar: 'السادس من أكتوبر', en: '6th October' },
-        '10thramadan': { ar: 'العاشر من رمضان', en: '10th of Ramadan' },
-        obour: { ar: 'مدينة العبور', en: 'Obour City' },
-        badr: { ar: 'مدينة بدر', en: 'Badr City' },
-        sadat: { ar: 'مدينة السادات', en: 'Sadat City' },
-        shorouk: { ar: 'مدينة الشروق', en: 'Shorouk' },
-        helwan: { ar: 'حلوان والتبين', en: 'Helwan' },
+        // Cairo Specific Districts & Industrial Zones
+        shaq_thoaban: { ar: 'منطقة شق الثعبان والرخام', en: 'Shaq El Thoaban' },
+        helwan: { ar: 'حلوان والتبين و15 مايو', en: 'Helwan & Tebbin' },
+        badr: { ar: 'مدينة بدر والروبيكي للجلود', en: 'Badr City & Robbiki' },
+        new_cairo: { ar: 'القاهرة الجديدة والتجمع والقطامية', en: 'New Cairo & Tagamoa' },
         nasr_city: { ar: 'مدينة نصر', en: 'Nasr City' },
-        maadi: { ar: 'المعادي وطرة', en: 'Maadi' },
-        new_cairo: { ar: 'القاهرة الجديدة والتجمع', en: 'New Cairo' },
+        heliopolis: { ar: 'مصر الجديدة والنزهة وشيراتون', en: 'Heliopolis & Nozha' },
+        maadi: { ar: 'المعادي ودجلة والبساتين', en: 'Maadi & Degla' },
+        downtown: { ar: 'وسط البلد والتحرير وعابدين', en: 'Downtown & Tahrir' },
+        shorouk: { ar: 'مدينة الشروق', en: 'Shorouk' },
+        abbasiya: { ar: 'العباسية والأميرية والزيتون', en: 'Abbasiya & Amiriya' },
+        shubra_cairo: { ar: 'شبرا مصر والساحل', en: 'Shubra Masr' },
+        salam_marg: { ar: 'عين شمس والسلام والمرج', en: 'Ain Shams & Salam' },
+        mokattam: { ar: 'المقطم والهضبة الوسطى', en: 'Mokattam' },
+        cairo: { ar: 'القاهرة (مناطق متنوعة)', en: 'Cairo (Other Areas)' },
+
+        // Giza & 6th October
+        '6october': { ar: 'السادس من أكتوبر', en: '6th October' },
+        giza: { ar: 'الجيزة (الهرم، فيصل، الدقي، زايد، أبو رواش)', en: 'Giza & Zayed' },
+
+        // Qalyubia & Obour
+        obour: { ar: 'مدينة العبور الصناعية', en: 'Obour City' },
+        qalyubia: { ar: 'القليوبية (شبرا الخيمة، بنها، قليوب)', en: 'Qalyubia' },
+        sadat: { ar: 'مدينة السادات الصناعية', en: 'Sadat City' },
+        '10thramadan': { ar: 'العاشر من رمضان وبلبيس', en: '10th of Ramadan' },
 
         // Alexandria & North Coast
-        alexandria: { ar: 'الإسكندرية وبرج العرب', en: 'Alexandria & Borg El Arab' },
+        alexandria: { ar: 'الإسكندرية وبرج العرب والعامرية', en: 'Alexandria & Borg El Arab' },
         matrouh: { ar: 'مرسى مطروح والعلمين', en: 'Matrouh & Alamein' },
 
         // Canal Cities
-        suez: { ar: 'السويس والعين السخنة', en: 'Suez & Ain Sokhna' },
-        port_said: { ar: 'بورسعيد وبورفؤاد', en: 'Port Said' },
-        ismailia: { ar: 'الإسماعيلية والقنطرة', en: 'Ismailia' },
+        suez: { ar: 'السويس والعين السخنة وعتاقة', en: 'Suez & Ain Sokhna' },
+        port_said: { ar: 'بورسعيد وبورفؤاد وشرق التفريعة', en: 'Port Said' },
+        ismailia: { ar: 'الإسماعيلية ووادي التكنولوجيا', en: 'Ismailia' },
 
         // Delta Governorates
-        sharqia: { ar: 'الشرقية (الزقازيق وبلبيس والمراكز)', en: 'Sharqia (Zagazig & Centers)' },
-        dakahlia: { ar: 'الدقهلية (المنصورة وميت غمر)', en: 'Dakahlia (Mansoura)' },
+        sharqia: { ar: 'الشرقية (الزقازيق ومراكز المحافظة)', en: 'Sharqia (Zagazig)' },
+        dakahlia: { ar: 'الدقهلية (المنصورة وجمصة وميت غمر)', en: 'Dakahlia (Mansoura)' },
         gharbia: { ar: 'الغربية (طنطا والمحلة الكبرى)', en: 'Gharbia (Tanta & Mehalla)' },
-        monufia: { ar: 'المنوفية (شبين الكوم وقويسنا)', en: 'Monufia (Shebin & Quesna)' },
-        beheira: { ar: 'البحيرة (دمنهور وكفر الدوار)', en: 'Beheira (Damanhour)' },
-        damietta: { ar: 'دمياط ودمياط الجديدة', en: 'Damietta' },
+        monufia: { ar: 'المنوفية (قويسنا وشبين الكوم)', en: 'Monufia (Quesna & Shebin)' },
+        beheira: { ar: 'البحيرة (دمنهور وكفر الدوار والنوبارية)', en: 'Beheira (Damanhour)' },
+        damietta: { ar: 'دمياط وميناء دمياط الجديد', en: 'Damietta' },
         kafr_el_sheikh: { ar: 'كفر الشيخ ودسوق', en: 'Kafr El Sheikh' },
 
         // Upper Egypt Governorates
-        fayoum: { ar: 'الفيوم والمناطق الصناعية', en: 'Fayoum' },
-        beni_suef: { ar: 'بني سويف وبياض العرب', en: 'Beni Suef' },
-        minya: { ar: 'المنيا والمنيا الجديدة', en: 'Minya' },
-        assiut: { ar: 'أسيوط وأسيوط الجديدة', en: 'Assiut' },
-        sohag: { ar: 'سوهاج وسوهاج الجديدة', en: 'Sohag' },
-        qena: { ar: 'قنا ونجع حمادي', en: 'Qena' },
+        fayoum: { ar: 'الفيوم والمناطق الصناعية (كوم أوشيم)', en: 'Fayoum' },
+        beni_suef: { ar: 'بني سويف (بياض العرب وكوم أبو راضي)', en: 'Beni Suef' },
+        minya: { ar: 'المنيا (المطاهرة والمنيا الجديدة)', en: 'Minya' },
+        assiut: { ar: 'أسيوط (عرب المدابغ وبني غالب)', en: 'Assiut' },
+        sohag: { ar: 'سوهاج (حي الكوثر وغرب جرجا)', en: 'Sohag' },
+        qena: { ar: 'قنا (قفط ونجع حمادي وهو)', en: 'Qena' },
         luxor: { ar: 'الأقصر وطيبة الجديدة', en: 'Luxor' },
-        aswan: { ar: 'أسوان وكوم أمبو', en: 'Aswan' },
+        aswan: { ar: 'أسوان (العلاقي والمحاجر وكوم أمبو)', en: 'Aswan' },
         new_valley: { ar: 'الوادي الجديد (الخارجة والداخلة)', en: 'New Valley' },
 
         // Frontier & Sinai
@@ -689,19 +700,19 @@ const AppStorage = {
     // ---- Governorate → Cities Hierarchy ----
     GOVERNORATES: {
         gov_cairo: {
-            ar: 'القاهرة الكبرى',
+            ar: 'القاهرة',
             icon: '🏙️',
-            cities: ['cairo', 'nasr_city', 'maadi', 'new_cairo', 'helwan', 'shorouk', 'badr', 'obour']
+            cities: ['shaq_thoaban', 'helwan', 'badr', 'new_cairo', 'nasr_city', 'heliopolis', 'maadi', 'downtown', 'shorouk', 'abbasiya', 'shubra_cairo', 'salam_marg', 'mokattam', 'cairo']
         },
         gov_giza: {
             ar: 'الجيزة',
             icon: '🏛️',
-            cities: ['giza', '6october']
+            cities: ['6october', 'giza']
         },
         gov_qalyubia: {
             ar: 'القليوبية',
             icon: '🏘️',
-            cities: ['qalyubia']
+            cities: ['obour', 'qalyubia']
         },
         gov_alexandria: {
             ar: 'الإسكندرية',
@@ -711,12 +722,12 @@ const AppStorage = {
         gov_monufia: {
             ar: 'المنوفية',
             icon: '🌾',
-            cities: ['monufia', 'sadat']
+            cities: ['sadat', 'monufia']
         },
         gov_sharqia: {
             ar: 'الشرقية',
             icon: '🌿',
-            cities: ['sharqia', '10thramadan']
+            cities: ['10thramadan', 'sharqia']
         },
         gov_dakahlia: {
             ar: 'الدقهلية',
@@ -1256,6 +1267,67 @@ const AppStorage = {
         return roleKeywords.some(kw => s.includes(kw));
     },
 
+    detectLocation(c) {
+        if (!c) return { gov: 'القاهرة', city: 'cairo' };
+        const text = ((c.nameAr || '') + ' ' + (c.nameEn || '') + ' ' + (c.address || '') + ' ' + (c.notes || '')).toLowerCase();
+
+        // 1. Industrial & regional zones across Egypt
+        if (/شق الثعبان/i.test(text)) return { gov: 'القاهرة', city: 'shaq_thoaban' };
+        if (/حلوان|التبين|15 مايو/i.test(text)) return { gov: 'القاهرة', city: 'helwan' };
+        if (/بدر|الروبيكي/i.test(text)) return { gov: 'القاهرة', city: 'badr' };
+        if (/الشروق/i.test(text)) return { gov: 'القاهرة', city: 'shorouk' };
+        if (/العبور/i.test(text)) return { gov: 'القليوبية', city: 'obour' };
+        if (/العاشر من رمضان|العاشر/i.test(text)) return { gov: 'الشرقية', city: '10thramadan' };
+        if (/السادات/i.test(text)) return { gov: 'المنوفية', city: 'sadat' };
+        if (/قويسنا|شبين الكوم/i.test(text)) return { gov: 'المنوفية', city: 'monufia' };
+        if (/السخنة|العين السخنة|ميناء السويس|عتاقة|السويس/i.test(text)) return { gov: 'السويس', city: 'suez' };
+        if (/برج العرب|العامرية|ميناء الإسكندرية|الإسكندرية/i.test(text)) return { gov: 'الإسكندرية', city: 'alexandria' };
+        if (/دمياط/i.test(text)) return { gov: 'دمياط', city: 'damietta' };
+        if (/بورسعيد|شرق التفريعة|بورفؤاد/i.test(text)) return { gov: 'بورسعيد', city: 'port_said' };
+        if (/الإسماعيلية|وادي التكنولوجيا|القنطرة/i.test(text)) return { gov: 'الإسماعيلية', city: 'ismailia' };
+        if (/الفيوم|كوم أوشيم/i.test(text)) return { gov: 'الفيوم', city: 'fayoum' };
+        if (/بني سويف|بياض العرب|كوم أبو راضي/i.test(text)) return { gov: 'بني سويف', city: 'beni_suef' };
+        if (/المنيا|المطاهرة/i.test(text)) return { gov: 'المنيا', city: 'minya' };
+        if (/أسيوط|عرب المدابغ|بني غالب/i.test(text)) return { gov: 'أسيوط', city: 'assiut' };
+        if (/سوهاج|حي الكوثر|جرجا/i.test(text)) return { gov: 'سوهاج', city: 'sohag' };
+        if (/قنا|قفط|نجع حمادي/i.test(text)) return { gov: 'قنا', city: 'qena' };
+        if (/الأقصر|طيبة/i.test(text)) return { gov: 'الأقصر', city: 'luxor' };
+        if (/أسوان|العلاقي|كوم أمبو/i.test(text)) return { gov: 'أسوان', city: 'aswan' };
+        if (/جمصة|المنصورة|ميت غمر/i.test(text)) return { gov: 'الدقهلية', city: 'dakahlia' };
+        if (/طنطا|المحلة الكبرى/i.test(text)) return { gov: 'الغربية', city: 'gharbia' };
+        if (/دمنهور|كفر الدوار|النوبارية|البحيرة/i.test(text)) return { gov: 'البحيرة', city: 'beheira' };
+        if (/كفر الشيخ|دسوق/i.test(text)) return { gov: 'كفر الشيخ', city: 'kafr_el_sheikh' };
+        if (/شبرا الخيمة|قليوب|بنها|مسطرد|أبو زعبل|الخانكة/i.test(text)) return { gov: 'القليوبية', city: 'qalyubia' };
+        if (/6 أكتوبر|السادس من أكتوبر/i.test(text)) return { gov: 'الجيزة', city: '6october' };
+        if (/أبو رواش|الشيخ زايد|الهرم|فيصل|الدقي|المهندسين|العمرانية|الجيزة/i.test(text)) return { gov: 'الجيزة', city: 'giza' };
+        if (/شمال سيناء|العريش|بئر العبد/i.test(text)) return { gov: 'شمال سيناء', city: 'north_sinai' };
+        if (/جنوب سيناء|شرم الشيخ|الطور/i.test(text)) return { gov: 'جنوب سيناء', city: 'south_sinai' };
+        if (/الغردقة|سفاجا|البحر الأحمر/i.test(text)) return { gov: 'البحر الأحمر', city: 'red_sea' };
+        if (/الوادي الجديد|الخارجة|الداخلة/i.test(text)) return { gov: 'الوادي الجديد', city: 'new_valley' };
+        if (/مرسى مطروح|العلمين/i.test(text)) return { gov: 'مطروح', city: 'matrouh' };
+
+        // Cairo Specific Districts
+        if (/التجمع|القاهرة الجديدة|القطامية/i.test(text)) return { gov: 'القاهرة', city: 'new_cairo' };
+        if (/مدينة نصر|مكرم عبيد|عباس العقاد/i.test(text)) return { gov: 'القاهرة', city: 'nasr_city' };
+        if (/مصر الجديدة|النزهة|ألماظة|شيراتون|روكسي/i.test(text)) return { gov: 'القاهرة', city: 'heliopolis' };
+        if (/المعادي|طرة|البساتين/i.test(text)) return { gov: 'القاهرة', city: 'maadi' };
+        if (/وسط البلد|التحرير|رمسيس|عابدين|الأزبكية|باب اللوق|قصر العيني|الترجمان/i.test(text)) return { gov: 'القاهرة', city: 'downtown' };
+        if (/المقطم|الهضبة/i.test(text)) return { gov: 'القاهرة', city: 'mokattam' };
+        if (/العباسية|الوايلي|الأميرية|الزيتون|حدائق القبة|سراي القبة/i.test(text)) return { gov: 'القاهرة', city: 'abbasiya' };
+        if (/شبرا|الساحل|روض الفرج/i.test(text)) return { gov: 'القاهرة', city: 'shubra_cairo' };
+        if (/عين شمس|المطرية|المرج|مدينة السلام|مستقبل سيتي|مدينتي/i.test(text)) return { gov: 'القاهرة', city: 'salam_marg' };
+
+        const cCity = c.city ? this.mapScraperCityToCRM(c.city) : '';
+        if (cCity && cCity !== 'cairo' && this.CITIES && this.CITIES[cCity]) {
+            return { gov: c.governorate || 'القاهرة', city: cCity };
+        }
+
+        return {
+            gov: c.governorate || 'القاهرة',
+            city: this.mapScraperCityToCRM(c.city || c.governorate)
+        };
+    },
+
     _normalizeCompanyData(c, idx) {
         if (!c) return c;
         const company = { ...c };
@@ -1265,9 +1337,15 @@ const AppStorage = {
         company.nameAr = String(rawName).trim();
         company.nameEn = String(company.nameEn || company.nameAr || '').trim();
         company.sector = this.mapScraperSectorToCRM(company.sector);
-        company.city = this.mapScraperCityToCRM(company.city || company.governorate || company.gov);
-        company.governorate = String(company.governorate || company.gov || '').trim();
         company.address = String(company.address || company.addr || '').trim();
+        company.governorate = String(company.governorate || company.gov || '').trim();
+
+        // Accurate geographic positioning
+        const loc = this.detectLocation(company);
+        company.city = loc.city;
+        if (!company.governorate || company.governorate === 'القاهرة' || company.governorate === 'other') {
+            company.governorate = loc.gov;
+        }
 
         // Preserve phone numbers cleanly without synthetic phone generation
         const p1 = String(company.phone1 || company.phone || company.p1 || '').trim();
