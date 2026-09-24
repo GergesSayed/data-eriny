@@ -4,7 +4,7 @@
 
 const Companies = {
     currentPage: 1,
-    pageSize: (window.innerWidth <= 768) ? 10 : 25, // ⚡ 25 rows on desktop, 10 on mobile
+    pageSize: (window.innerWidth <= 768) ? 10 : 15, // ⚡ fewer cards on mobile for faster render
     sortField: 'priority',
     sortDir: 'asc',
     viewMode: 'table', // 'table' or 'cards'
@@ -42,7 +42,7 @@ const Companies = {
         let savedMode = null;
         try { savedMode = localStorage.getItem('fleetcrm_view_mode'); } catch(e) {}
         this.viewMode = savedMode || ((window.innerWidth <= 768) ? 'cards' : 'table');
-        this.pageSize = (window.innerWidth <= 768) ? 10 : 25; // ⚡ adaptive page size
+        this.pageSize = (window.innerWidth <= 768) ? 10 : 15; // ⚡ adaptive page size
         this.populateSectorSelects();
         this.bindEvents();
         this.refreshUserFilter();
@@ -585,92 +585,34 @@ const Companies = {
         });
     },
 
-    setQuickFilterPreset(presetKey, btnEl) {
+    setQuickFilter(presetKey, btnEl) {
         document.querySelectorAll('.company-quick-pill').forEach(b => {
+            b.style.opacity = '0.6';
             b.classList.remove('active');
         });
         if (btnEl) {
+            btnEl.style.opacity = '1';
             btnEl.classList.add('active');
         }
 
         const fleetSel = document.getElementById('filter-fleet-size');
+        const dateSel = document.getElementById('filter-added-date');
         const sortSel = document.getElementById('filter-sort');
-        const assignedSel = document.getElementById('filter-assigned');
-        const prioritySel = document.getElementById('filter-priority');
 
-        // Reset any prior quick filter states
-        this.statusFilter = null;
-        if (fleetSel) fleetSel.value = '';
-        if (assignedSel) assignedSel.value = '';
-        if (prioritySel) prioritySel.value = '';
-        if (sortSel) sortSel.value = 'priority_fleet';
-
-        if (presetKey === 'titans') {
+        if (presetKey === 'fleet_desc' || presetKey === 'fleet_asc') {
+            if (sortSel) sortSel.value = presetKey;
+        } else if (presetKey === 'large_fleet') {
+            if (fleetSel) fleetSel.value = 'large_fleet';
+        } else if (presetKey === 'recent_7days') {
+            if (dateSel) dateSel.value = 'recent_7days';
+        } else if (!presetKey) {
+            if (fleetSel) fleetSel.value = '';
+            if (dateSel) dateSel.value = '';
             if (sortSel) sortSel.value = 'priority_fleet';
-            if (prioritySel) prioritySel.value = 'A';
-        } else if (presetKey === 'giant_fleet') {
-            if (fleetSel) fleetSel.value = 'giant_fleet';
-        } else if (presetKey === 'interested') {
-            this.statusFilter = 'interested';
-        } else if (presetKey === 'not_contacted') {
-            this.statusFilter = 'remaining';
-        } else if (presetKey === 'unassigned') {
-            if (assignedSel) assignedSel.value = 'unassigned';
-        } else if (presetKey === 'my_leads') {
-            if (assignedSel) assignedSel.value = 'my_leads';
         }
 
         this.currentPage = 1;
         this.render();
-    },
-
-    setQuickFilter(presetKey, btnEl) {
-        return this.setQuickFilterPreset(presetKey, btnEl);
-    },
-
-    changePageSize(newSize) {
-        const parsed = parseInt(newSize, 10);
-        if (parsed > 0) {
-            this.pageSize = parsed;
-            this.currentPage = 1;
-            const selectEl = document.getElementById('companies-page-size-select');
-            if (selectEl && selectEl.value != String(parsed)) {
-                selectEl.value = String(parsed);
-            }
-            this.render();
-        }
-    },
-
-    formatPhone(raw) {
-        if (!raw || raw === '—') return '—';
-        const str = String(raw).trim();
-        const clean = str.replace(/\s+/g, '');
-        if (/^01[0125]\d{8}$/.test(clean)) {
-            return `${clean.slice(0, 3)} ${clean.slice(3, 7)} ${clean.slice(7)}`;
-        }
-        if (/^02\d{8}$/.test(clean)) {
-            return `${clean.slice(0, 2)} ${clean.slice(2, 6)} ${clean.slice(6)}`;
-        }
-        if (/^0[3-9]\d{7,8}$/.test(clean)) {
-            return `${clean.slice(0, 3)} ${clean.slice(3, 6)} ${clean.slice(6)}`;
-        }
-        return str;
-    },
-
-    copyPhone(phone, event) {
-        if (event) event.stopPropagation();
-        if (!phone) return;
-        const clean = String(phone).replace(/[^0-9+]/g, '');
-        if (!clean) return;
-        navigator.clipboard.writeText(clean).then(() => {
-            if (typeof App !== 'undefined' && App.showToast) {
-                App.showToast(`📋 تم نسخ الرقم (${clean}) للحافظة`, 'success');
-            }
-        }).catch(() => {
-            if (typeof App !== 'undefined' && App.showToast) {
-                App.showToast(clean, 'info');
-            }
-        });
     },
 
     confirmWipeAllCompanies() {
@@ -1023,45 +965,23 @@ const Companies = {
             const esc = (s) => window.AppStorage.escapeHtml(s || '');
             const sectorLabel = window.AppStorage.getSectorLabel(c.sector);
             const cityLabel = window.AppStorage.getCityLabel(c.city);
-            
-            const rawPhone = c.phone1 || c.mobile || c.phone2 || '';
-            const cleanPhone = (rawPhone && rawPhone !== '—') ? String(rawPhone).trim() : '';
-            const formattedPhone = cleanPhone ? esc(this.formatPhone(cleanPhone)) : '—';
-
-            // Fleet size badge
-            let fleetBadge = `<span style="color:var(--text-muted); font-size:0.8rem;">—</span>`;
-            if (c.fleetSize && parseInt(c.fleetSize, 10) > 0) {
-                const fleetCount = parseInt(c.fleetSize, 10);
-                const formattedCount = fleetCount.toLocaleString();
-                if (fleetCount >= 100) {
-                    fleetBadge = `<span class="fleet-pill fleet-giant" title="أسطول عملاق: ${formattedCount} مركبة"><i class="fas fa-truck-moving"></i> ${formattedCount}</span>`;
-                } else if (fleetCount >= 50) {
-                    fleetBadge = `<span class="fleet-pill fleet-large" title="أسطول ضخم: ${formattedCount} مركبة"><i class="fas fa-truck"></i> ${formattedCount}</span>`;
-                } else if (fleetCount >= 15) {
-                    fleetBadge = `<span class="fleet-pill fleet-medium" title="أسطول متوسط: ${formattedCount} مركبة"><i class="fas fa-truck-pickup"></i> ${formattedCount}</span>`;
-                } else {
-                    fleetBadge = `<span class="fleet-pill fleet-small" title="أسطول صغير: ${formattedCount} مركبة"><i class="fas fa-shuttle-van"></i> ${formattedCount}</span>`;
-                }
-            }
-
-            const isRole = window.AppStorage && window.AppStorage.isRoleTitle ? window.AppStorage.isRoleTitle(c.contactPerson) : false;
-            const validContact = (!isRole && c.contactPerson && c.contactPerson !== '—') ? c.contactPerson.trim() : '';
-            const contact = esc(validContact);
-            const contactTitle = esc(c.contactTitle || (isRole ? c.contactPerson : ''));
-
+            const phone = esc(c.phone1 || c.mobile || c.phone2 || '—');
+            const fleet = c.fleetSize ? `🚛 ${c.fleetSize}` : '—';
+            const contact = esc(c.contactPerson || '—');
+            const contactTitle = esc(c.contactTitle || '');
             const linkedinRaw = typeof c.linkedinUrl === 'string' ? c.linkedinUrl : (typeof c.linkedin === 'string' ? c.linkedin : '');
             const linkedinLink = (linkedinRaw && linkedinRaw.includes('linkedin.com') && !linkedinRaw.includes('google.com')) ? esc(linkedinRaw) : '';
-            const linkedinIcon = linkedinLink ? `<a href="${linkedinLink}" target="_blank" class="meta-link linkedin" title="صفحة لينكدإن للشركة" onclick="event.stopPropagation();"><i class="fab fa-linkedin-in"></i></a>` : '';
+            const linkedinIcon = linkedinLink ? `<a href="${linkedinLink}" target="_blank" style="color:#0077b5; font-size:13px; display:inline-flex; align-items:center;" title="LinkedIn الشركة" onclick="event.stopPropagation();"><i class="fab fa-linkedin"></i></a>` : '';
 
             const facebookLink = esc(typeof c.facebook === 'string' ? c.facebook : '');
-            const facebookIcon = facebookLink ? `<a href="${facebookLink}" target="_blank" class="meta-link facebook" title="صفحة فيسبوك للشركة" onclick="event.stopPropagation();"><i class="fab fa-facebook-f"></i></a>` : '';
+            const facebookIcon = facebookLink ? `<a href="${facebookLink}" target="_blank" style="color:#1877f2; font-size:13px; display:inline-flex; align-items:center;" title="Facebook الشركة" onclick="event.stopPropagation();"><i class="fab fa-facebook-f"></i></a>` : '';
             const rawMaps = window.AppStorage.getGoogleMapsUrl ? window.AppStorage.getGoogleMapsUrl(c) : (c.google_maps_url || '');
             const mapsLink = esc(rawMaps);
-            const mapsIcon = mapsLink ? `<a href="${mapsLink}" target="_blank" class="meta-link maps" title="موقع الشركة على خرائط جوجل" onclick="event.stopPropagation();"><i class="fas fa-map-marker-alt"></i></a>` : '';
+            const mapsIcon = mapsLink ? `<a href="${mapsLink}" target="_blank" style="color:#ea4335; font-size:13px; display:inline-flex; align-items:center;" title="موقع الشركة على خرائط جوجل" onclick="event.stopPropagation();"><i class="fas fa-map-marker-alt"></i></a>` : '';
 
             const contactLinkedinRaw = typeof c.linkedinContactUrl === 'string' ? c.linkedinContactUrl : (typeof c.contactLinkedin === 'string' ? c.contactLinkedin : '');
             const contactLinkedin = (contactLinkedinRaw && contactLinkedinRaw.includes('linkedin.com') && !contactLinkedinRaw.includes('google.com')) ? esc(contactLinkedinRaw) : '';
-            const contactLinkedinIcon = contactLinkedin ? `<a href="${contactLinkedin}" target="_blank" class="meta-link linkedin" style="margin-right:2px;" title="LinkedIn المسؤول" onclick="event.stopPropagation();"><i class="fab fa-linkedin-in"></i></a>` : '';
+            const contactLinkedinIcon = contactLinkedin ? `<a href="${contactLinkedin}" target="_blank" style="color:#0077b5; font-size:12px; display:inline-flex; align-items:center;" title="LinkedIn المسؤول" onclick="event.stopPropagation();"><i class="fab fa-linkedin"></i></a>` : '';
 
             const isChecked = this.selectedCompanies && this.selectedCompanies.has(c.id) ? 'checked' : '';
             const assignedBadge = this.buildAssignedWidget(c);
@@ -1081,7 +1001,7 @@ const Companies = {
             let callResultBadge = '';
             if (callResult) {
                 callResultBadge = `
-                    <div style="white-space:nowrap; display:inline-flex; flex-direction:column; align-items:center;">
+                    <div style="white-space:nowrap;">
                         <span class="result-badge result-${callResult}" style="font-size:0.75rem;">${window.AppStorage.getCallResultLabel(callResult)}</span>
                         ${callDate ? `<small style="display:block; font-size:10px; color:var(--text-muted); margin-top:2px;">${callDate}</small>` : ''}
                     </div>`;
@@ -1092,8 +1012,8 @@ const Companies = {
             }
 
             const isTitan = Boolean(c.isTitan || (c.id && String(c.id).startsWith('eg_titan_')));
-            const titanBadge = isTitan ? `<span class="badge titan-badge" title="شركة كبرى VIP"><i class="fas fa-crown"></i> VIP</span>` : '';
-            const hotlineBadge = c.hotline ? `<span class="badge hotline-badge" title="الخط الساخن"><i class="fas fa-headset"></i> ${esc(c.hotline)}</span>` : '';
+            const titanBadge = isTitan ? `<span class="badge" style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#fff; font-size:10px; padding:2px 7px; border-radius:5px; font-weight:900; letter-spacing:0.5px; display:inline-flex; align-items:center; gap:3px;" title="عميل كبار الشخصيات VIP"><i class="fas fa-crown"></i> VIP</span>` : '';
+            const hotlineBadge = c.hotline ? `<span class="badge" style="background:rgba(59,130,246,0.15); color:#3b82f6; font-size:11px; padding:1px 6px; border-radius:4px; font-family:Inter; font-weight:800;" title="الخط الساخن"><i class="fas fa-headset"></i> ${esc(c.hotline)}</span>` : '';
 
             // Recency Warning Badge (Avoid double-calling)
             let recencyBadge = '';
@@ -1103,86 +1023,75 @@ const Companies = {
                 const todayDate = new Date(new Date().toISOString().split('T')[0]);
                 const diffDays = Math.round((todayDate - cd) / (1000 * 60 * 60 * 24));
                 if (diffDays === 0) {
-                    recencyBadge = `<span class="badge recency-badge recency-today" title="تم الاتصال بها اليوم!"><i class="fas fa-history"></i> اليوم</span>`;
+                    recencyBadge = `<span class="badge" style="background:rgba(239, 68, 68, 0.15); color:#ef4444; border:1px solid rgba(239, 68, 68, 0.35); font-size:10px; font-weight:700; padding:1px 6px; border-radius:5px; white-space:nowrap;" title="تم الاتصال بها اليوم!"><i class="fas fa-history"></i> اتصلت اليوم</span>`;
                 } else if (diffDays === 1) {
-                    recencyBadge = `<span class="badge recency-badge recency-yesterday" title="تم الاتصال بها أمس"><i class="fas fa-history"></i> أمس</span>`;
+                    recencyBadge = `<span class="badge" style="background:rgba(245, 158, 11, 0.15); color:#f59e0b; border:1px solid rgba(245, 158, 11, 0.35); font-size:10px; font-weight:700; padding:1px 6px; border-radius:5px; white-space:nowrap;" title="تم الاتصال بها أمس"><i class="fas fa-history"></i> اتصلت أمس</span>`;
                 }
             }
 
             return `
                 <tr class="${isChecked ? 'row-selected' : ''}" onclick="Companies.showDetail('${c.id}')" style="cursor: pointer;">
                     ${isAdmin ? `
-                        <td class="col-checkbox" style="text-align:center;" onclick="event.stopPropagation();">
-                            <input type="checkbox" class="company-checkbox custom-table-checkbox" data-id="${c.id}" ${isChecked} onchange="Companies.toggleSelectCompany('${c.id}', this.checked)" onclick="event.stopPropagation();">
+                        <td style="text-align:center;" onclick="event.stopPropagation();">
+                            <input type="checkbox" class="company-checkbox" data-id="${c.id}" ${isChecked} onchange="Companies.toggleSelectCompany('${c.id}', this.checked)" onclick="event.stopPropagation();">
                         </td>
                     ` : ''}
-                    <td class="col-company">
-                        <div class="company-name-cell">
-                            <div class="company-title-row">
-                                <span class="name-ar" title="${mainName}">${mainName}</span>
+                    <td>
+                        <div class="company-name-cell" style="display:flex; flex-direction:column; justify-content:center; gap:2px;">
+                            <div class="company-title-row" style="display:flex; align-items:center; gap:6px; white-space:nowrap; overflow:hidden;">
+                                <span class="name-ar" style="font-weight:700; color:var(--text-primary); font-size:0.84rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:210px;" title="${mainName}">${mainName}</span>
                                 ${titanBadge}
                                 ${recencyBadge}
                             </div>
-                            <div class="company-meta-row">
+                            <div class="company-meta-row" style="display:flex; align-items:center; gap:6px; font-size:0.72rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:230px;">
                                 ${hotlineBadge}
                                 ${linkedinIcon}
                                 ${facebookIcon}
                                 ${mapsIcon}
-                                ${subName ? `<span class="name-en" title="${subName}">${subName}</span>` : ''}
+                                ${subName ? `<span class="name-en" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:140px;" title="${subName}">${subName}</span>` : ''}
                             </div>
                         </div>
                     </td>
-                    <td class="col-sector" style="white-space:nowrap; text-align:center;">
-                        <span class="sector-pill">${sectorLabel}</span>
+                    <td style="white-space:nowrap; text-align:center;"><span class="badge sector-badge" style="font-size:0.75rem; padding:3px 8px; border-radius:6px; font-weight:600;">${sectorLabel}</span></td>
+                    <td style="white-space:nowrap; text-align:center; font-weight:600; font-size:0.8rem; color:var(--text-secondary);">${cityLabel}</td>
+                    <td style="white-space:nowrap; text-align:center;">
+                        <a href="tel:${phone}" onclick="event.stopPropagation();" style="display:inline-flex; align-items:center; gap:4px; font-family:Inter, monospace; font-weight:700; font-size:0.78rem; color:var(--text-primary); text-decoration:none; direction:ltr; unicode-bidi:embed;" title="اتصال">
+                            <i class="fas fa-phone-alt" style="font-size:0.68rem; color:var(--success);"></i>
+                            <span>${phone}</span>
+                        </a>
                     </td>
-                    <td class="col-city" style="white-space:nowrap; text-align:center;">
-                        <span class="city-pill"><i class="fas fa-map-marker-alt"></i> ${cityLabel}</span>
-                    </td>
-                    <td class="col-phone" style="white-space:nowrap; text-align:center;">
-                        <div class="phone-cell-wrap">
-                            <a href="tel:${cleanPhone}" class="phone-link" onclick="event.stopPropagation();" title="اتصال بالرقم">
-                                <i class="fas fa-phone-alt"></i>
-                                <span>${formattedPhone}</span>
-                            </a>
-                            ${cleanPhone ? `<button type="button" class="btn-copy-phone" onclick="Companies.copyPhone('${cleanPhone}', event)" title="نسخ الرقم"><i class="far fa-copy"></i></button>` : ''}
-                        </div>
-                    </td>
-                    <td class="col-fleet" style="white-space:nowrap; text-align:center;">
-                        ${fleetBadge}
-                    </td>
-                    <td class="col-assigned" style="white-space:nowrap; text-align:center;">
-                        ${assignedBadge}
-                    </td>
-                    <td class="col-call" style="white-space:nowrap; text-align:center;">
-                        ${callResultBadge}
-                    </td>
-                    <td class="col-contact" onclick="event.stopPropagation();">
-                        <div class="inline-contact-wrap">
-                            <input type="text" value="${contact}" placeholder="✏️ أضف مسؤول" 
+                    <td style="white-space:nowrap; text-align:center;"><span class="fleet-badge" style="font-weight:800; font-size:0.82rem;">${fleet}</span></td>
+                    <td style="white-space:nowrap; text-align:center;">${assignedBadge}</td>
+                    <td style="white-space:nowrap; text-align:center;">${callResultBadge}</td>
+                    <td style="max-width: 160px;" onclick="event.stopPropagation();">
+                        <div style="display:flex; align-items:center; gap:4px;">
+                            <input type="text" value="${esc(c.contactPerson || '')}" placeholder="✏️ أضف مسؤول" 
                                 class="inline-contact-input"
                                 data-company-id="${c.id}"
                                 onclick="event.stopPropagation();"
                                 onkeydown="if(event.key==='Enter'){this.blur();}"
                                 onblur="Companies.saveContactPerson('${c.id}', this.value, this)"
-                                title="${contact ? 'مسؤول التواصل: ' + contact + ' (انقر للتعديل)' : 'انقر لإدخال اسم مسؤول التواصل'}"
+                                style="width:100%; border:1px solid transparent; background:transparent; color:var(--text-primary); font-size:0.8rem; font-weight:700; padding:3px 6px; border-radius:6px; outline:none; font-family:inherit; transition:all 0.2s;"
+                                onfocus="this.style.borderColor='var(--primary, #7c3aed)'; this.style.background='var(--bg-surface, #fff)';"
                             />
                             ${contactLinkedinIcon}
                         </div>
+                        ${contactTitle ? `<div style="font-size:0.68rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:150px; margin-top:2px;" title="${contactTitle}">${contactTitle}</div>` : ''}
                     </td>
-                    <td class="col-actions" style="white-space:nowrap; text-align:center;">
-                        <div class="table-actions-modern" onclick="event.stopPropagation();">
-                            <button class="action-btn action-call" onclick="event.stopPropagation(); App.logCallForCompany('${c.id}')" title="تسجيل مكالمة سريعة">
-                                <i class="fas fa-phone-alt"></i>
-                            </button>
-                            <button class="action-btn action-view" onclick="event.stopPropagation(); Companies.showDetail('${c.id}')" title="عرض تفاصيل الشركة">
+                    <td style="white-space:nowrap; text-align:center;">
+                        <div class="table-actions" onclick="event.stopPropagation();" style="display:inline-flex; gap:3px; justify-content:center; align-items:center;">
+                            <button class="btn-icon btn-view" onclick="event.stopPropagation(); Companies.showDetail('${c.id}')" title="تفاصيل">
                                 <i class="fas fa-eye"></i>
                             </button>
+                            <button class="btn-icon btn-call" onclick="event.stopPropagation(); App.logCallForCompany('${c.id}')" title="مكالمة">
+                                <i class="fas fa-phone"></i>
+                            </button>
                             ${window.AppStorage.canModify(currentUser) ? `
-                                <button class="action-btn action-edit" onclick="event.stopPropagation(); Companies.edit('${c.id}')" title="تعديل بيانات الشركة">
-                                    <i class="fas fa-pen"></i>
+                                <button class="btn-icon btn-edit" onclick="event.stopPropagation(); Companies.edit('${c.id}')" title="تعديل">
+                                    <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="action-btn action-delete" onclick="event.stopPropagation(); Companies.confirmDelete('${c.id}')" title="حذف الشركة">
-                                    <i class="fas fa-trash-alt"></i>
+                                <button class="btn-icon btn-delete" onclick="event.stopPropagation(); Companies.confirmDelete('${c.id}')" title="حذف">
+                                    <i class="fas fa-trash"></i>
                                 </button>
                             ` : ''}
                         </div>
@@ -1259,10 +1168,9 @@ const Companies = {
             const contactLinkedinIcon = contactLinkedin ? ` <a href="${contactLinkedin}" target="_blank" style="color: #0077b5; margin-right: 6px; font-size: 12px;" title="LinkedIn المسؤول" onclick="event.stopPropagation();"><i class="fab fa-linkedin"></i></a>` : '';
             const nameAr = esc(c.nameAr || c.nameEn || 'شركة بدون اسم');
             const rawNameEn = (c.nameEn && c.nameEn.trim() !== (c.nameAr || '').trim()) ? esc(c.nameEn.trim()) : '';
-            const isCardRole = window.AppStorage && window.AppStorage.isRoleTitle ? window.AppStorage.isRoleTitle(c.contactPerson) : false;
-            const validCardContact = (!isCardRole && c.contactPerson && c.contactPerson !== '—') ? c.contactPerson.trim() : '';
-            const contactPerson = esc(validCardContact);
-            const contactTitle = esc(c.contactTitle || (isCardRole ? c.contactPerson : ''));
+            const nameEn = (rawNameEn && rawNameEn.toLowerCase() !== nameAr.toLowerCase()) ? rawNameEn : '';
+            const contactPerson = esc(c.contactPerson);
+            const contactTitle = esc(c.contactTitle);
 
             const assignedBadge = this.buildAssignedWidget(c);
 
@@ -1296,7 +1204,7 @@ const Companies = {
                         ${callResult ? `<div class="company-card__detail"><i class="fas fa-phone-volume"></i> نتيجة المكالمة: <span class="result-badge result-${callResult}" style="font-size:11px;">${window.AppStorage.getCallResultLabel(callResult)}</span> ${callDate ? `<small style="color:var(--text-muted); font-size:10px;">(${callDate})</small>` : ''}</div>` : ''}
                         ${c.rating ? `<div class="company-card__detail"><i class="fas fa-star" style="color:#f59e0b;"></i> التقييم: ${c.rating} / 5</div>` : ''}
                         ${c.fleetSize ? `<div class="company-card__detail"><i class="fas fa-truck"></i> أسطول: ${c.fleetSize} سيارة</div>` : ''}
-                        ${validCardContact ? `<div class="company-card__detail" style="display:flex; align-items:center; gap: 4px;"><i class="fas fa-user"></i> <span>${contactPerson}${contactTitle ? ' — ' + contactTitle : ''}</span>${contactLinkedinIcon}</div>` : ''}
+                        ${c.contactPerson ? `<div class="company-card__detail" style="display:flex; align-items:center; gap: 4px;"><i class="fas fa-user"></i> <span>${contactPerson}${contactTitle ? ' — ' + contactTitle : ''}</span>${contactLinkedinIcon}</div>` : ''}
                     </div>
                     <div class="company-card__footer" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; padding-top: 10px; border-top: 1px solid var(--border-light); margin-top: 8px;">
                         <div style="display: flex; gap: 5px; align-items: center; flex-wrap: wrap;">
@@ -1743,14 +1651,7 @@ const Companies = {
 
         fields.forEach(field => {
             const el = document.getElementById(`company-${field}`);
-            if (el) {
-                if (field === 'contactPerson') {
-                    const isRole = window.AppStorage && window.AppStorage.isRoleTitle ? window.AppStorage.isRoleTitle(company.contactPerson) : false;
-                    el.value = (!isRole && company.contactPerson && company.contactPerson !== '—') ? company.contactPerson : '';
-                } else {
-                    el.value = company[field] || '';
-                }
-            }
+            if (el) el.value = company[field] || '';
         });
 
         App.openModal('modal-company');
@@ -2037,9 +1938,6 @@ const Companies = {
         // Sort descending
         timelineList.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-        const isDetailRole = window.AppStorage && window.AppStorage.isRoleTitle ? window.AppStorage.isRoleTitle(company.contactPerson) : false;
-        const genuineContact = (!isDetailRole && company.contactPerson && company.contactPerson !== '—') ? company.contactPerson.trim() : '';
-
         const body = document.getElementById('company-detail-body');
         body.innerHTML = `
             ${tirePitchHtml}
@@ -2125,7 +2023,7 @@ const Companies = {
                         <div class="detail-item" style="align-items:center;">
                             <span class="label">اسم المسؤول</span>
                             <div style="display:flex; align-items:center; gap:6px; flex:1; max-width:340px;">
-                                <input type="text" id="detail-contact-person-input" value="${esc(genuineContact)}" placeholder="✏️ أدخل اسم الشخص المسؤول..."
+                                <input type="text" id="detail-contact-person-input" value="${esc(company.contactPerson || '')}" placeholder="✏️ أدخل اسم الشخص المسؤول..."
                                     style="flex:1; border:1px solid var(--border-color); background:var(--bg-card, rgba(255,255,255,0.05)); color:var(--text-primary); font-size:0.85rem; font-weight:700; padding:6px 10px; border-radius:6px; outline:none; font-family:inherit;"
                                     onkeydown="if(event.key==='Enter') Companies.saveContactFromDetail('${company.id}')"
                                 />
@@ -2195,110 +2093,6 @@ const Companies = {
             window.SupabaseClient.releaseCompanyLock(this.currentDetailId, myId);
         }
         this.currentDetailId = null;
-    },
-
-    // ── Inline Contact Person Save ──
-    saveContactPerson(companyId, newName, inputEl) {
-        try {
-            const trimmed = (newName || '').trim();
-            const company = window.AppStorage.getCompany(companyId);
-            if (!company) return;
-
-            // Only save if actually changed
-            const oldName = (company.contactPerson || '').trim();
-            if (trimmed === oldName) {
-                // Reset border style on no-change
-                if (inputEl) {
-                    inputEl.style.borderColor = 'var(--border-color)';
-                    inputEl.style.boxShadow = 'none';
-                }
-                return;
-            }
-
-            company.contactPerson = trimmed;
-            company.lastUpdated = new Date().toISOString().split('T')[0];
-
-            // Persist to IDB
-            if (window.AppStorage.saveBatchToIDB) {
-                window.AppStorage.saveBatchToIDB([company]);
-            }
-            // Sync to worker memory
-            if (window.AppStorage._worker) {
-                window.AppStorage._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: [company] });
-            }
-            // Cloud sync
-            if (window.SupabaseClient && window.SupabaseClient.pushMasterData) {
-                window.SupabaseClient.pushMasterData({}).catch(() => {});
-            }
-
-            // Visual feedback
-            if (inputEl) {
-                inputEl.style.borderColor = '#10b981';
-                inputEl.style.boxShadow = '0 0 0 2px rgba(16,185,129,0.2)';
-                setTimeout(() => {
-                    inputEl.style.borderColor = 'var(--border-color)';
-                    inputEl.style.boxShadow = 'none';
-                }, 1200);
-            }
-
-            if (trimmed) {
-                App.showToast(`✅ تم حفظ جهة الاتصال: ${trimmed}`, 'success');
-            }
-        } catch (err) {
-            console.error('saveContactPerson error:', err);
-        }
-    },
-
-    saveContactFromDetail(companyId) {
-        try {
-            const input = document.getElementById('detail-contact-person-input');
-            if (!input) return;
-            const val = input.value.trim();
-            this.saveContactPerson(companyId, val, input);
-            const tableInput = document.querySelector(`.inline-contact-input[data-company-id="${companyId}"]`);
-            if (tableInput) {
-                tableInput.value = val;
-            }
-        } catch (err) {
-            console.error('saveContactFromDetail error:', err);
-        }
-    },
-
-    formatPhone(num) {
-        if (!num) return '—';
-        const str = String(num).trim();
-        const digits = str.replace(/[^\d+]/g, '');
-        if (digits.length === 11 && digits.startsWith('01')) {
-            return `${digits.slice(0, 3)} ${digits.slice(3, 7)} ${digits.slice(7)}`;
-        }
-        if (digits.length === 10 && digits.startsWith('02')) {
-            return `${digits.slice(0, 2)} ${digits.slice(2, 6)} ${digits.slice(6)}`;
-        }
-        return str;
-    },
-
-    copyPhone(phone, ev) {
-        if (!phone || phone === '—') return;
-        if (ev && ev.stopPropagation) ev.stopPropagation();
-        const clean = phone.replace(/[^\d+]/g, '');
-        const textToCopy = clean || phone;
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(textToCopy).then(() => {
-                if (window.App && window.App.showToast) {
-                    window.App.showToast(`📋 تم نسخ الرقم: ${phone}`, 'info');
-                }
-            }).catch(() => {});
-        } else {
-            const ta = document.createElement('textarea');
-            ta.value = textToCopy;
-            document.body.appendChild(ta);
-            ta.select();
-            document.execCommand('copy');
-            document.body.removeChild(ta);
-            if (window.App && window.App.showToast) {
-                window.App.showToast(`📋 تم نسخ الرقم: ${phone}`, 'info');
-            }
-        }
     },
 
     _detailRow(label, value, isPhone = false) {
@@ -2422,6 +2216,66 @@ const Companies = {
             </html>
         `);
         printWindow.document.close();
+    },
+
+    saveContactPerson(companyId, newName, inputEl) {
+        try {
+            const trimmed = (newName || '').trim();
+            const company = window.AppStorage.getCompany(companyId);
+            if (!company) return;
+
+            const oldName = (company.contactPerson || '').trim();
+            if (trimmed === oldName) {
+                if (inputEl) {
+                    inputEl.style.borderColor = 'transparent';
+                    inputEl.style.background = 'transparent';
+                }
+                return;
+            }
+
+            company.contactPerson = trimmed;
+            company.lastUpdated = new Date().toISOString().split('T')[0];
+
+            if (window.AppStorage.saveBatchToIDB) {
+                window.AppStorage.saveBatchToIDB([company]);
+            }
+            if (window.AppStorage._worker) {
+                window.AppStorage._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: [company] });
+            }
+            if (window.SupabaseClient && window.SupabaseClient.pushMasterData) {
+                window.SupabaseClient.pushMasterData({ dynamicCompanies: [company] }).catch(() => {});
+            }
+
+            if (inputEl) {
+                inputEl.style.borderColor = '#10b981';
+                inputEl.style.background = 'rgba(16, 185, 129, 0.1)';
+                setTimeout(() => {
+                    inputEl.style.borderColor = 'transparent';
+                    inputEl.style.background = 'transparent';
+                }, 1200);
+            }
+
+            if (trimmed && window.App && window.App.showToast) {
+                window.App.showToast(`✅ تم حفظ جهة الاتصال: ${trimmed}`, 'success');
+            }
+        } catch (err) {
+            console.error('saveContactPerson error:', err);
+        }
+    },
+
+    saveContactFromDetail(companyId) {
+        try {
+            const input = document.getElementById('detail-contact-person-input');
+            if (!input) return;
+            const val = input.value.trim();
+            this.saveContactPerson(companyId, val, input);
+            const tableInput = document.querySelector(`.inline-contact-input[data-company-id="${companyId}"]`);
+            if (tableInput) {
+                tableInput.value = val;
+            }
+        } catch (err) {
+            console.error('saveContactFromDetail error:', err);
+        }
     }
 };
 
