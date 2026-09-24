@@ -2322,50 +2322,89 @@ const Companies = {
             const activeEntry = custodyList.find(c => !c.withdrawnAt && String(c.toUserId) === String(currentRepId));
             const repCalls = activeEntry ? (activeEntry.calls || []) : (window.AppStorage.getCallsForCompany(company.id) || []).filter(cl => String(cl.userId) === String(currentRepId) || String(cl.createdByName) === String(currentRepName));
             const durationTxt = activeEntry ? activeEntry.durationText : (assignedTime ? window.AppStorage.formatDurationBetween(assignedTime, new Date().toISOString()) : 'غير محدد');
-            const formattedStart = assignedTime ? new Date(assignedTime).toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' }) : 'مسجلة مسبقاً';
+
+            let formattedDate = 'تاريخ سابق';
+            let formattedTime = '';
+            if (assignedTime) {
+                try {
+                    const d = new Date(assignedTime);
+                    formattedDate = d.toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                    formattedTime = d.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+                } catch(e) {
+                    formattedDate = assignedTime;
+                }
+            }
+
+            const hasCalls = repCalls.length > 0;
 
             currentCustodyHtml = `
-                <div style="background:linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(5, 150, 105, 0.05) 100%); border:1px solid rgba(16, 185, 129, 0.35); border-radius:10px; padding:14px; margin-bottom:14px;">
-                    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
-                        <div style="display:flex; align-items:center; gap:10px;">
-                            <span style="font-size:24px; background:rgba(16, 185, 129, 0.2); width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:1px solid rgba(16, 185, 129, 0.4);">
+                <div class="custody-card-active">
+                    <div class="custody-user-header">
+                        <div class="custody-user-info">
+                            <div class="custody-avatar">
                                 ${currentRep ? (currentRep.avatar || '👨‍💼') : '👨‍💼'}
-                            </span>
+                            </div>
                             <div>
-                                <div style="font-weight:800; font-size:14px; color:var(--text-primary); display:flex; align-items:center; gap:6px;">
-                                    <span>العهدة الحالية نشطة لدى: <strong style="color:#10b981;">${esc(currentRepName)}</strong></span>
-                                    <span class="badge" style="background:#10b981; color:#fff; font-size:10px; padding:2px 8px; border-radius:20px;">نشط حالياً</span>
-                                </div>
-                                <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">
-                                    <span>📅 تاريخ وتوقيت الاستلام: <strong style="color:var(--text-secondary);">${formattedStart}</strong></span>
-                                    <span style="margin:0 6px;">•</span>
-                                    <span>⏱️ مدة بقاء الشركة في عهدته حتى الآن: <strong style="color:#38bdf8;">${durationTxt}</strong></span>
+                                <div class="custody-user-name">${esc(currentRepName)}</div>
+                                <div class="custody-user-role">
+                                    <i class="fas fa-user-check" style="margin-left:4px; color:#10b981;"></i>
+                                    ${currentRep ? (currentRep.role === 'admin' ? 'مدير المبيعات' : 'مسؤول المبيعات / مندوب') : 'موظف مبيعات'}
                                 </div>
                             </div>
                         </div>
-                        <div style="display:flex; align-items:center; gap:6px;">
-                            <span class="badge" style="background:${repCalls.length > 0 ? 'rgba(59, 130, 246, 0.2)' : 'rgba(245, 158, 11, 0.2)'}; color:${repCalls.length > 0 ? '#60a5fa' : '#f59e0b'}; border:1px solid ${repCalls.length > 0 ? 'rgba(59, 130, 246, 0.4)' : 'rgba(245, 158, 11, 0.4)'}; font-size:12px; font-weight:700; padding:4px 10px; border-radius:8px;">
-                                📞 ${repCalls.length > 0 ? `أجرى ${repCalls.length} مكالمة` : 'لم يتصل بعد (0 مكالمات)'}
+                        <div>
+                            <span class="badge" style="background:#dcfce7; color:#15803d; border:1px solid #86efac; font-size:12px; font-weight:800; padding:6px 14px; border-radius:20px; display:inline-flex; align-items:center; gap:6px;">
+                                <i class="fas fa-check-circle"></i> في عهدته حالياً (نشط)
                             </span>
                         </div>
                     </div>
 
-                    ${repCalls.length === 0 ? `
-                        <div style="background:rgba(245, 158, 11, 0.1); border:1px dashed rgba(245, 158, 11, 0.4); border-radius:8px; padding:8px 12px; font-size:12px; color:#fbbf24; display:flex; align-items:center; gap:8px;">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            <span>تنبيه المتابعة: المندوب لم يقم بإجراء أي مكالمة مسجلة مع الشركة منذ استلام العهدة!</span>
+                    <div class="custody-kpi-grid">
+                        <div class="custody-kpi-box">
+                            <span class="custody-kpi-label"><i class="fas fa-calendar-alt" style="color:#6366f1;"></i> تاريخ الاستلام</span>
+                            <span class="custody-kpi-value" style="font-size:12px;">${formattedDate}</span>
+                            ${formattedTime ? `<span class="custody-kpi-sub"><i class="fas fa-clock" style="font-size:10px;"></i> الساعة ${formattedTime}</span>` : ''}
+                        </div>
+                        <div class="custody-kpi-box">
+                            <span class="custody-kpi-label"><i class="fas fa-stopwatch" style="color:#0284c7;"></i> مدة العهدة حتى الآن</span>
+                            <span class="custody-kpi-value" style="color:#0284c7; font-size:15px; font-weight:900;">${durationTxt}</span>
+                            <span class="custody-kpi-sub">تُحسب تلقائياً من لحظة التكليف</span>
+                        </div>
+                        <div class="custody-kpi-box">
+                            <span class="custody-kpi-label"><i class="fas fa-phone-alt" style="color:${hasCalls ? '#15803d' : '#b91c1c'};"></i> المكالمات المنفذة</span>
+                            <span class="custody-kpi-value" style="color:${hasCalls ? '#15803d' : '#b91c1c'}; font-size:15px; font-weight:900;">
+                                ${hasCalls ? `${repCalls.length} مكالمة مسجلة` : '0 مكالمات'}
+                            </span>
+                            <span class="custody-kpi-sub">${hasCalls ? 'تم التواصل مع العميل' : 'لم يتصل بالشركة بعد'}</span>
+                        </div>
+                        <div class="custody-kpi-box">
+                            <span class="custody-kpi-label"><i class="fas fa-signal" style="color:${hasCalls ? '#15803d' : '#b45309'};"></i> مؤشر التفاعل</span>
+                            <span class="custody-kpi-value" style="color:${hasCalls ? '#15803d' : '#b45309'}; font-size:13px;">
+                                ${hasCalls ? '✅ تواصل ومتابعة' : '⚠️ متأخر / لم يتصل'}
+                            </span>
+                            <span class="custody-kpi-sub">${hasCalls ? 'نشاط مسجل' : 'يحتاج تواصل عاجل'}</span>
+                        </div>
+                    </div>
+
+                    ${!hasCalls ? `
+                        <div class="custody-alert-warning">
+                            <i class="fas fa-exclamation-triangle" style="font-size:20px; color:#d97706; flex-shrink:0;"></i>
+                            <div>
+                                <span>تنبيه المتابعة: المندوب <b>(${esc(currentRepName)})</b> لم يسجل أي اتصال مع هذه الشركة منذ استلام العهدة قبل <b>(${durationTxt})</b>.</span>
+                            </div>
                         </div>
                     ` : `
-                        <div style="margin-top:10px; padding-top:10px; border-top:1px solid rgba(16, 185, 129, 0.15);">
-                            <div style="font-size:11px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">
-                                <i class="fas fa-headset"></i> مكالمات المندوب الحالي أثناء هذه العهدة:
+                        <div class="custody-calls-list">
+                            <div class="custody-calls-header">
+                                <i class="fas fa-headset" style="color:#6366f1;"></i>
+                                <span>مكالمات المندوب أثناء فترة العهدة الحالية (${repCalls.length}):</span>
                             </div>
-                            <div style="display:flex; flex-direction:column; gap:4px; max-height:140px; overflow-y:auto;">
+                            <div style="max-height:160px; overflow-y:auto;">
                                 ${repCalls.map(c => `
-                                    <div style="display:flex; align-items:center; gap:8px; padding:5px 8px; border-radius:6px; background:rgba(0,0,0,0.18); font-size:11px;">
-                                        <span style="color:var(--text-muted); font-family:Inter; min-width:80px;">${c.date} ${c.time || ''}</span>
-                                        <span class="result-badge result-${c.result}" style="font-size:10px; padding:2px 6px;">${window.AppStorage.getCallResultLabel(c.result)}</span>
-                                        <span style="flex:1; color:var(--text-secondary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${esc(c.notes || 'لا توجد ملاحظات')}</span>
+                                    <div class="custody-call-row">
+                                        <span style="font-family:Inter; font-weight:700; color:var(--text-muted); min-width:85px;">${c.date} ${c.time || ''}</span>
+                                        <span class="result-badge result-${c.result}" style="font-size:11px; padding:2px 8px;">${window.AppStorage.getCallResultLabel(c.result)}</span>
+                                        <span style="flex:1; color:var(--text-secondary); font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${esc(c.notes || 'لا توجد ملاحظات')}</span>
                                     </div>
                                 `).join('')}
                             </div>
@@ -2375,15 +2414,19 @@ const Companies = {
             `;
         } else {
             currentCustodyHtml = `
-                <div style="background:rgba(255,255,255,0.03); border:1px dashed var(--border-color); border-radius:10px; padding:12px 16px; margin-bottom:14px; display:flex; align-items:center; justify-content:space-between;">
-                    <div style="display:flex; align-items:center; gap:8px;">
-                        <span style="font-size:20px; color:var(--text-muted);">⚪</span>
+                <div style="background:var(--bg-surface); border:2px dashed var(--border-color); border-radius:12px; padding:20px; display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <div style="width:44px; height:44px; border-radius:50%; background:var(--bg-secondary); border:1px solid var(--border-color); display:flex; align-items:center; justify-content:center; font-size:20px; color:var(--text-muted);">
+                            <i class="fas fa-user-slash"></i>
+                        </div>
                         <div>
-                            <div style="font-weight:700; font-size:13px; color:var(--text-secondary);">الشركة غير مسندة حالياً في عهدة أي موظف</div>
-                            <div style="font-size:11px; color:var(--text-muted);">يمكن للمدير أو المشرف إسنادها لأي مندوب مبيعات في أي وقت</div>
+                            <div style="font-size:15px; font-weight:800; color:var(--text-primary);">الشركة غير مسندة لأي موظف حالياً</div>
+                            <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">الشركة متاحة في قاعدة البيانات العامة ويمكن تخصيصها لأي موظف مبيعات</div>
                         </div>
                     </div>
-                    <span class="badge" style="background:rgba(124, 58, 237, 0.15); color:#a78bfa; border:1px solid rgba(124, 58, 237, 0.3); font-size:11px; padding:3px 10px;">جاهزة للتخصيص</span>
+                    <span class="badge" style="background:#ede9fe; color:#6d28d9; border:1px solid #c4b5fd; font-size:12px; font-weight:800; padding:6px 14px; border-radius:20px;">
+                        جاهزة للتخصيص
+                    </span>
                 </div>
             `;
         }
@@ -2394,85 +2437,91 @@ const Companies = {
         let pastCustodyHtml = '';
         if (pastEntries.length === 0) {
             pastCustodyHtml = `
-                <div style="text-align:center; padding:16px; color:var(--text-muted); font-size:12px; background:rgba(0,0,0,0.1); border-radius:8px;">
-                    <i class="fas fa-history" style="font-size:18px; margin-bottom:4px; opacity:0.5; display:block;"></i>
-                    لا توجد حركات سحب أو تحويلات سابقة مسجلة لهذه الشركة
+                <div class="custody-empty-state">
+                    <i class="fas fa-info-circle" style="font-size:22px; color:#6366f1; margin-bottom:6px; display:block;"></i>
+                    <div style="font-weight:700; color:var(--text-primary); font-size:14px; margin-bottom:2px;">هذا هو التكليف الأول للشركة</div>
+                    <div>لم يسبق سحب هذه الشركة أو تحويلها بين موظفين آخرين في السابق.</div>
                 </div>
             `;
         } else {
             pastCustodyHtml = `
-                <div style="display:flex; flex-direction:column; gap:10px; margin-top:8px;">
+                <div style="display:flex; flex-direction:column; gap:10px;">
                     ${pastEntries.map((item) => {
-                        const formattedFrom = item.assignedAt ? new Date(item.assignedAt).toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' }) : '—';
-                        const formattedTo = item.withdrawnAt ? new Date(item.withdrawnAt).toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' }) : '—';
+                        let formattedFrom = 'غير مسجل';
+                        let formattedTo = 'غير مسجل';
+                        try {
+                            if (item.assignedAt) formattedFrom = new Date(item.assignedAt).toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' });
+                            if (item.withdrawnAt) formattedTo = new Date(item.withdrawnAt).toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' });
+                        } catch(e) {}
+
                         const repCalls = item.calls || item.callsSnapshot || [];
                         const callsCount = item.callsCount !== undefined ? item.callsCount : repCalls.length;
 
                         return `
-                            <div style="background:rgba(255, 255, 255, 0.02); border:1px solid var(--border-color); border-radius:8px; padding:12px; position:relative;">
-                                <div style="display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:8px;">
-                                    <div style="display:flex; align-items:center; gap:8px;">
-                                        <span style="font-size:18px;">${item.toUserAvatar || '👨‍💼'}</span>
+                            <div class="custody-history-item">
+                                <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
+                                    <div style="display:flex; align-items:center; gap:10px;">
+                                        <span style="font-size:20px; width:34px; height:34px; border-radius:50%; background:var(--bg-secondary); border:1px solid var(--border-color); display:flex; align-items:center; justify-content:center;">
+                                            ${item.toUserAvatar || '👨‍💼'}
+                                        </span>
                                         <div>
-                                            <span style="font-weight:700; font-size:13px; color:var(--text-primary);">${esc(item.toUserName || 'موظف مبيعات')}</span>
-                                            <div style="font-size:11px; color:var(--text-muted); margin-top:1px;">
-                                                <span>⏱️ مكثت في عهدته: <strong style="color:#fbbf24;">${item.durationText || 'غير محدد'}</strong></span>
-                                            </div>
+                                            <span style="font-weight:800; font-size:14px; color:var(--text-primary);">${esc(item.toUserName || 'موظف مبيعات')}</span>
+                                            <span style="font-size:11px; color:var(--text-muted); margin-right:6px;">(مندوب سابق)</span>
                                         </div>
                                     </div>
                                     <div style="display:flex; align-items:center; gap:6px;">
-                                        <span class="badge" style="background:${callsCount > 0 ? 'rgba(59, 130, 246, 0.15)' : 'rgba(239, 68, 68, 0.15)'}; color:${callsCount > 0 ? '#60a5fa' : '#f87171'}; border:1px solid ${callsCount > 0 ? 'rgba(59, 130, 246, 0.3)' : 'rgba(239, 68, 68, 0.3)'}; font-size:11px; padding:2px 8px; border-radius:6px;">
-                                            ${callsCount > 0 ? `📞 ${callsCount} مكالمات مسجلة` : '⚠️ 0 مكالمات (لم يتصل)'}
+                                        <span class="badge" style="background:${callsCount > 0 ? '#dbeafe' : '#fee2e2'}; color:${callsCount > 0 ? '#1d4ed8' : '#b91c1c'}; border:1px solid ${callsCount > 0 ? '#93c5fd' : '#fca5a5'}; font-size:11px; font-weight:800; padding:3px 8px; border-radius:6px;">
+                                            ${callsCount > 0 ? `📞 أجرى ${callsCount} مكالمة` : '⚠️ 0 مكالمات (لم يتصل)'}
                                         </span>
-                                        <span class="badge" style="background:rgba(239, 68, 68, 0.12); color:#ef4444; border:1px solid rgba(239, 68, 68, 0.3); font-size:10px; padding:2px 8px; border-radius:6px;">
-                                            مسحوبة / منتهية
+                                        <span class="badge" style="background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5; font-size:11px; font-weight:800; padding:3px 8px; border-radius:6px;">
+                                            سُحبت وانتهت
                                         </span>
                                     </div>
                                 </div>
 
-                                <!-- Key Time Details Grid -->
-                                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:6px; margin-top:8px; padding:8px; background:rgba(0,0,0,0.15); border-radius:6px; font-size:11px;">
+                                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:8px; padding:10px; background:var(--bg-secondary); border-radius:8px; font-size:12px; margin-bottom:8px;">
                                     <div>
-                                        <span style="color:var(--text-muted);">📥 تاريخ وساعة الاستلام:</span>
-                                        <div style="font-weight:600; color:var(--text-secondary);">${formattedFrom}</div>
+                                        <span style="color:var(--text-muted); font-size:11px; display:block;">📥 تاريخ وساعة الاستلام:</span>
+                                        <span style="font-weight:700; color:var(--text-primary);">${formattedFrom}</span>
                                     </div>
                                     <div>
-                                        <span style="color:var(--text-muted);">📤 تاريخ وساعة السحب:</span>
-                                        <div style="font-weight:600; color:var(--text-secondary);">${formattedTo}</div>
+                                        <span style="color:var(--text-muted); font-size:11px; display:block;">📤 تاريخ وساعة السحب:</span>
+                                        <span style="font-weight:700; color:var(--text-primary);">${formattedTo}</span>
                                     </div>
                                     <div>
-                                        <span style="color:var(--text-muted);">👤 سُحبت بواسطة:</span>
-                                        <div style="font-weight:600; color:var(--text-secondary);">${esc(item.withdrawnBy || 'إدارة النظام')}</div>
+                                        <span style="color:var(--text-muted); font-size:11px; display:block;">⏱️ مدة البقاء في عهدته:</span>
+                                        <span style="font-weight:800; color:#d97706;">${item.durationText || 'غير محدد'}</span>
                                     </div>
-                                    ${item.withdrawalReason ? `
-                                        <div>
-                                            <span style="color:var(--text-muted);">📝 سبب / حركة الإنهاء:</span>
-                                            <div style="font-weight:600; color:#38bdf8;">${esc(item.withdrawalReason)}</div>
-                                        </div>
-                                    ` : ''}
+                                    <div>
+                                        <span style="color:var(--text-muted); font-size:11px; display:block;">👤 تم السحب بواسطة:</span>
+                                        <span style="font-weight:700; color:var(--text-primary);">${esc(item.withdrawnBy || 'إدارة النظام')}</span>
+                                    </div>
                                 </div>
 
-                                <!-- Calls conducted during that custody -->
+                                ${item.withdrawalReason ? `
+                                    <div style="font-size:12px; padding:6px 10px; background:rgba(99,102,241,0.08); border-radius:6px; color:#4f46e5; font-weight:700; margin-bottom:8px;">
+                                        <i class="fas fa-info-circle" style="margin-left:4px;"></i> سبب السحب: ${esc(item.withdrawalReason)}
+                                    </div>
+                                ` : ''}
+
                                 ${callsCount > 0 ? `
-                                    <div style="margin-top:8px;">
-                                        <details style="font-size:11px;">
-                                            <summary style="cursor:pointer; color:#60a5fa; font-weight:700; user-select:none;">
-                                                <i class="fas fa-chevron-down" style="font-size:9px; margin-left:4px;"></i> عرض تفاصيل المكالمات (${repCalls.length})
-                                            </summary>
-                                            <div style="display:flex; flex-direction:column; gap:4px; margin-top:6px; max-height:120px; overflow-y:auto; padding-right:6px;">
-                                                ${repCalls.map(c => `
-                                                    <div style="display:flex; align-items:center; gap:6px; padding:4px 6px; background:rgba(0,0,0,0.2); border-radius:4px;">
-                                                        <span style="color:var(--text-muted); font-family:Inter; min-width:75px;">${c.date} ${c.time || ''}</span>
-                                                        <span class="result-badge result-${c.result}" style="font-size:9px; padding:1px 5px;">${window.AppStorage.getCallResultLabel(c.result)}</span>
-                                                        <span style="flex:1; color:var(--text-secondary);">${esc(c.notes || '—')}</span>
-                                                    </div>
-                                                `).join('')}
-                                            </div>
-                                        </details>
-                                    </div>
+                                    <details style="font-size:12px; margin-top:6px;">
+                                        <summary style="cursor:pointer; color:#4f46e5; font-weight:800; user-select:none; padding:4px 0;">
+                                            <i class="fas fa-chevron-down" style="font-size:10px; margin-left:4px;"></i> عرض تفاصيل المكالمات (${callsCount})
+                                        </summary>
+                                        <div style="display:flex; flex-direction:column; gap:4px; margin-top:6px; max-height:130px; overflow-y:auto; padding-right:4px;">
+                                            ${repCalls.map(c => `
+                                                <div style="display:flex; align-items:center; gap:8px; padding:5px 8px; background:var(--bg-secondary); border-radius:6px; font-size:11px;">
+                                                    <span style="color:var(--text-muted); font-family:Inter; min-width:80px; font-weight:700;">${c.date} ${c.time || ''}</span>
+                                                    <span class="result-badge result-${c.result}" style="font-size:10px; padding:1px 6px;">${window.AppStorage.getCallResultLabel(c.result)}</span>
+                                                    <span style="flex:1; color:var(--text-secondary); font-weight:600;">${esc(c.notes || '—')}</span>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    </details>
                                 ` : `
-                                    <div style="margin-top:6px; font-size:11px; color:#f87171; background:rgba(239, 68, 68, 0.08); padding:4px 8px; border-radius:4px;">
-                                        <i class="fas fa-times-circle"></i> لم يقم هذا المندوب بأي اتصال مع الشركة طوال فترة بقائها في عهدته (${item.durationText || 'كامل الفترة'}).
+                                    <div style="font-size:11px; color:#b91c1c; font-weight:600; padding:4px 0;">
+                                        <i class="fas fa-times-circle" style="margin-left:4px;"></i> لم يقم هذا المندوب بأي اتصال مع الشركة طوال فترة بقائها معه (${item.durationText || 'كامل الفترة'}).
                                     </div>
                                 `}
                             </div>
@@ -2483,34 +2532,24 @@ const Companies = {
         }
 
         return `
-            <div class="detail-section" id="detail-custody-section" style="border:1px solid rgba(124, 58, 237, 0.3); background:linear-gradient(135deg, rgba(30, 27, 75, 0.35) 0%, rgba(15, 23, 42, 0.5) 100%); border-radius:12px; padding:16px; margin-bottom:20px; box-shadow:0 4px 16px rgba(0,0,0,0.2);">
-                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; border-bottom:1px solid rgba(124, 58, 237, 0.2); padding-bottom:10px;">
-                    <div>
-                        <h3 style="margin:0; font-size:1rem; color:#c4b5fd; display:flex; align-items:center; gap:8px;">
-                            <i class="fas fa-id-badge" style="color:#a78bfa;"></i>
-                            <span>سجل عهدة الشركة وحركة التكليفات للمناديب (Custody Audit Trail)</span>
-                        </h3>
-                        <p style="margin:3px 0 0 0; font-size:11px; color:var(--text-muted);">
-                            تتبع زمني دقيق لكل موظف مبيعات: تاريخ استلام الشركة، تاريخ سحبها، مدة بقائها، والمكالمات المنفذة
-                        </p>
-                    </div>
-                    <span class="badge" style="background:rgba(124, 58, 237, 0.2); color:#c4b5fd; border:1px solid rgba(124, 58, 237, 0.4); font-size:11px;">
-                        إجمالي الحركات: ${custodyList.length}
-                    </span>
-                </div>
-
-                <!-- 1. Current Custody -->
-                <div style="margin-bottom:12px;">
-                    <div style="font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">
-                        🟢 حالة العهدة الحالية (Current Custody):
+            <div class="custody-container">
+                <!-- 1. Current Custody Section -->
+                <div>
+                    <div class="custody-section-title">
+                        <i class="fas fa-user-tag" style="color:#10b981; font-size:16px;"></i>
+                        <span>المسؤول الحالي عن الشركة (العهدة الحالية):</span>
                     </div>
                     ${currentCustodyHtml}
                 </div>
 
-                <!-- 2. Past Hand-offs & Withdrawals -->
-                <div>
-                    <div style="font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">
-                        📜 سجل السحب والتكليفات السابقة (Historical Custody Trail):
+                <!-- 2. Past Hand-offs Section -->
+                <div style="margin-top:6px;">
+                    <div class="custody-section-title">
+                        <i class="fas fa-history" style="color:#6366f1; font-size:16px;"></i>
+                        <span>سجل المناديب السابقين وتاريخ السحب:</span>
+                        <span class="badge" style="background:var(--bg-secondary); border:1px solid var(--border-color); color:var(--text-secondary); font-size:11px; font-weight:700; margin-right:auto;">
+                            عدد الحركات السابقة: ${pastEntries.length}
+                        </span>
                     </div>
                     ${pastCustodyHtml}
                 </div>

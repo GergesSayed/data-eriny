@@ -11,7 +11,7 @@
     <script>
         // Force purge any legacy service workers, disk caches, and old deals storage immediately
         (function() {
-            var CURRENT_VER = '283.0';
+            var CURRENT_VER = '284.0';
             try {
                 localStorage.removeItem('fleetcrm_deals');
                 localStorage.removeItem('fleetcrm_deals_count');
@@ -76,7 +76,7 @@
     <link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap"></noscript>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=280.0">
+    <link rel="stylesheet" href="css/style.css?v=284.0">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
         (function() {
@@ -331,7 +331,7 @@
             </div>
             <div class="brand-text">
                 <h2>Fleet CRM</h2>
-                <span>إدارة بيع الإطارات <small class="brand-ver-badge" style="background:#7c3aed33; color:#a78bfa; padding:1px 6px; border-radius:6px; font-size:10px; font-weight:700;">v283.0</small></span>
+                <span>إدارة بيع الإطارات <small class="brand-ver-badge" style="background:#7c3aed33; color:#a78bfa; padding:1px 6px; border-radius:6px; font-size:10px; font-weight:700;">v284.0</small></span>
             </div>
         </div>
 
@@ -1636,20 +1636,25 @@
     <!-- Company Custody Audit Trail Modal -->
     <div id="modal-company-custody" class="modal" style="z-index:100000;">
         <div class="modal-overlay" onclick="App.closeModal('modal-company-custody')"></div>
-        <div class="modal-dialog modal-lg" style="max-width:900px; z-index:100001;">
-            <div class="modal-header" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(99, 102, 241, 0.15)); border-bottom: 1px solid rgba(124, 58, 237, 0.4);">
-                <h2 style="display:flex; align-items:center; gap:8px;">
-                    <i class="fas fa-id-badge" style="color:#a78bfa;"></i>
-                    <span id="custody-modal-company-name">سجل حركة وعهدة الشركة</span>
-                </h2>
+        <div class="modal-dialog modal-lg" style="max-width:850px; z-index:100001; background:var(--bg-surface); border:1px solid var(--border-color); box-shadow:var(--shadow-lg);">
+            <div class="modal-header" style="background:var(--bg-surface); border-bottom:1px solid var(--border-color); padding:16px 20px;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div style="width:38px; height:38px; border-radius:10px; background:rgba(99, 102, 241, 0.12); color:#4f46e5; display:flex; align-items:center; justify-content:center; font-size:18px;">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <div>
+                        <h2 style="font-size:16px; font-weight:800; color:var(--text-primary); margin:0;" id="custody-modal-company-name">سجل عهدة ومتابعة الشركة</h2>
+                        <div style="font-size:11px; color:var(--text-muted); font-weight:600; margin-top:2px;">تاريخ استلام المندوب للشركة، فترة العهدة، والمكالمات المسجلة</div>
+                    </div>
+                </div>
                 <button class="modal-close" data-modal="modal-company-custody" onclick="App.closeModal('modal-company-custody')"><i class="fas fa-times"></i></button>
             </div>
-            <div class="modal-body" id="company-custody-body" style="padding:20px; max-height:70vh; overflow-y:auto;">
+            <div class="modal-body" id="company-custody-body" style="padding:18px 20px; max-height:72vh; overflow-y:auto; background:var(--bg-primary);">
                 <!-- Populated dynamically by Companies.showCustodyModal() -->
             </div>
-            <div class="modal-footer" style="justify-content:space-between; gap:10px;">
+            <div class="modal-footer" style="background:var(--bg-surface); border-top:1px solid var(--border-color); padding:12px 20px; justify-content:space-between; gap:10px;">
                 <button class="btn btn-ghost" data-modal="modal-company-custody" onclick="App.closeModal('modal-company-custody')">إغلاق</button>
-                <button class="btn btn-primary" id="btn-custody-open-detail"><i class="fas fa-building"></i> عرض تفاصيل الشركة الكاملة</button>
+                <button class="btn btn-primary" id="btn-custody-open-detail" style="font-weight:700;"><i class="fas fa-building" style="margin-left:6px;"></i> عرض تفاصيل الشركة الكاملة</button>
             </div>
         </div>
     </div>
@@ -1691,20 +1696,20 @@
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <script src="js/supabase-client.js?v=283.0"></script>
-    <script src="js/egypt_verified_titans.js?v=283.0"></script>
-    <script src="js/egypt_enterprises_pool.js?v=283.0"></script>
-    <script src="js/companies-worker.js?v=283.0"></script>
-    <script src="js/storage.js?v=283.0"></script>
-    <script src="js/excel-handler.js?v=283.0"></script>
-    <script src="js/dashboard.js?v=283.0"></script>
-    <script src="js/companies.js?v=283.0"></script>
-    <script src="js/calls.js?v=283.0"></script>
-    <script src="js/reports.js?v=283.0"></script>
-    <script src="js/scraper.js?v=283.0"></script>
-    <script src="js/team.js?v=283.0"></script>
-    <script src="js/settings.js?v=283.0"></script>
-    <script src="js/app.js?v=283.0"></script>
+    <script src="js/supabase-client.js?v=284.0"></script>
+    <script src="js/egypt_verified_titans.js?v=284.0"></script>
+    <script src="js/egypt_enterprises_pool.js?v=284.0"></script>
+    <script src="js/companies-worker.js?v=284.0"></script>
+    <script src="js/storage.js?v=284.0"></script>
+    <script src="js/excel-handler.js?v=284.0"></script>
+    <script src="js/dashboard.js?v=284.0"></script>
+    <script src="js/companies.js?v=284.0"></script>
+    <script src="js/calls.js?v=284.0"></script>
+    <script src="js/reports.js?v=284.0"></script>
+    <script src="js/scraper.js?v=284.0"></script>
+    <script src="js/team.js?v=284.0"></script>
+    <script src="js/settings.js?v=284.0"></script>
+    <script src="js/app.js?v=284.0"></script>
 
     <!-- Cleanup overlay on load - runs once only, does NOT override App.checkAuth -->
     <script>
