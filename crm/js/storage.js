@@ -634,23 +634,56 @@ const AppStorage = {
         government: { ar: 'جهات وهيئات حكومية', en: 'Government & Public', icon: '🏛️' }
     },
 
-    // ---- City Definitions (Greater Cairo) ----
+    // ---- City & Governorate Definitions (Egypt Comprehensive) ----
     CITIES: {
+        // Greater Cairo & Metropolitan
         cairo: { ar: 'القاهرة', en: 'Cairo' },
         giza: { ar: 'الجيزة', en: 'Giza' },
         qalyubia: { ar: 'القليوبية', en: 'Qalyubia' },
         '6october': { ar: '6 أكتوبر', en: '6th October' },
         '10thramadan': { ar: 'العاشر من رمضان', en: '10th of Ramadan' },
         obour: { ar: 'العبور', en: 'Obour' },
+        badr: { ar: 'مدينة بدر', en: 'Badr City' },
+        sadat: { ar: 'مدينة السادات', en: 'Sadat City' },
         shorouk: { ar: 'الشروق', en: 'Shorouk' },
         helwan: { ar: 'حلوان', en: 'Helwan' },
         nasr_city: { ar: 'مدينة نصر', en: 'Nasr City' },
         maadi: { ar: 'المعادي', en: 'Maadi' },
         new_cairo: { ar: 'القاهرة الجديدة', en: 'New Cairo' },
-        badr: { ar: 'مدينة بدر', en: 'Badr City' },
-        sadat: { ar: 'مدينة السادات', en: 'Sadat City' },
+
+        // Alexandria & North Coast
         alexandria: { ar: 'الإسكندرية', en: 'Alexandria' },
-        suez: { ar: 'السويس', en: 'Suez' }
+        matrouh: { ar: 'مطروح', en: 'Matrouh' },
+
+        // Canal Cities
+        suez: { ar: 'السويس', en: 'Suez' },
+        port_said: { ar: 'بورسعيد', en: 'Port Said' },
+        ismailia: { ar: 'الإسماعيلية', en: 'Ismailia' },
+
+        // Delta Governorates
+        sharqia: { ar: 'الشرقية', en: 'Sharqia' },
+        dakahlia: { ar: 'الدقهلية', en: 'Dakahlia' },
+        gharbia: { ar: 'الغربية', en: 'Gharbia' },
+        monufia: { ar: 'المنوفية', en: 'Monufia' },
+        beheira: { ar: 'البحيرة', en: 'Beheira' },
+        damietta: { ar: 'دمياط', en: 'Damietta' },
+        kafr_el_sheikh: { ar: 'كفر الشيخ', en: 'Kafr El Sheikh' },
+
+        // Upper Egypt Governorates
+        fayoum: { ar: 'الفيوم', en: 'Fayoum' },
+        beni_suef: { ar: 'بني سويف', en: 'Beni Suef' },
+        minya: { ar: 'المنيا', en: 'Minya' },
+        assiut: { ar: 'أسيوط', en: 'Assiut' },
+        sohag: { ar: 'سوهاج', en: 'Sohag' },
+        qena: { ar: 'قنا', en: 'Qena' },
+        luxor: { ar: 'الأقصر', en: 'Luxor' },
+        aswan: { ar: 'أسوان', en: 'Aswan' },
+        new_valley: { ar: 'الوادي الجديد', en: 'New Valley' },
+
+        // Frontier & Sinai
+        red_sea: { ar: 'البحر الأحمر', en: 'Red Sea' },
+        north_sinai: { ar: 'شمال سيناء', en: 'North Sinai' },
+        south_sinai: { ar: 'جنوب سيناء', en: 'South Sinai' }
     },
 
     FLEET_TYPES: {
@@ -1294,7 +1327,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     const idbData = event.target.result || [];
                     const deletedCompIds = this.getDeletedIds('companies');
-                    const currentVersionTag = 'v270.0_strictly_blank_contacts_mandate';
+                    const currentVersionTag = 'v277.0_standardized_regions_and_sectors';
                     const isNewVersion = localStorage.getItem('fleetcrm_dataset_version') !== currentVersionTag;
                     if (isNewVersion) {
                         localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
@@ -3417,43 +3450,47 @@ const AppStorage = {
         if (['pharma', 'pharma_company', 'pharma_distribution', 'pharmacy_chain', 'cosmetics', 'detergents'].includes(sector)) {
             return 'pharma';
         }
-        // 6. Construction & Contracting (مقاولات ومعدات)
-        if (['construction_heavy_equipment', 'building_materials_cement_steel', 'equipment_rental_cranes', 'construction', 'contracting', 'building_materials', 'real_estate', 'ceramic_tiles', 'glass_mirrors', 'paint_distribution', 'wood_lumber', 'cement_steel', 'real_estate_facility'].includes(sector)) {
+        // 6. Building Materials & Steel (مواد بناء وحديد وصلب)
+        if (['concrete', 'building_materials', 'building_materials_cement_steel', 'cement_steel'].includes(sector)) {
+            return 'building_materials';
+        }
+        // 7. Construction & Contracting (مقاولات ومعدات)
+        if (['construction_heavy_equipment', 'equipment_rental_cranes', 'construction', 'contracting', 'real_estate', 'ceramic_tiles', 'glass_mirrors', 'paint_distribution', 'wood_lumber', 'real_estate_facility'].includes(sector)) {
             return 'construction';
         }
-        // 7. Petroleum & Energy (بترول وطاقة)
+        // 8. Petroleum & Energy (بترول وطاقة)
         if (['petroleum_gas_water_fleets', 'petroleum', 'gas_station', 'gas_distribution', 'solar_energy'].includes(sector)) {
             return 'petroleum';
         }
-        // 8. Security & Safety
+        // 9. Security & Safety
         if (['security_cash_transit', 'security', 'safety_equipment', 'fire_fighting'].includes(sector)) {
             return 'security';
         }
-        // 9. Car Rental & Dealerships (تأجير سيارات) - Merged into transport
+        // 10. Car Rental & Dealerships (تأجير سيارات) - Merged into transport
         if (['car_rental_taxi_limousine', 'rental', 'car_rental', 'limousine', 'auto_dealership', 'car_showroom'].includes(sector)) {
             return 'transport';
         }
-        // 10. Education (تعليم ومدارس)
+        // 11. Education (تعليم ومدارس)
         if (['school_university_buses', 'education', 'school', 'university', 'college', 'nursery'].includes(sector)) {
             return 'education';
         }
-        // 11. Healthcare (رعاية طبية وإسعاف)
+        // 12. Healthcare (رعاية طبية وإسعاف)
         if (['medical_ambulance_transport', 'hospitals_clinics', 'healthcare', 'hospital', 'medical_center', 'laboratory', 'clinic_chain'].includes(sector)) {
             return 'healthcare';
         }
-        // 12. Tourism & Aviation (سياحة وفنادق)
+        // 13. Tourism & Aviation (سياحة وفنادق)
         if (['tourism_travel_transport', 'hotels_resorts', 'tourism', 'hotel', 'aviation', 'travel_agency'].includes(sector)) {
             return 'tourism';
         }
-        // 13. Public Transport
+        // 14. Public Transport
         if (['public_transport', 'bus_rental', 'passenger_transport'].includes(sector)) {
             return 'public_transport';
         }
-        // 14. Government
+        // 15. Government
         if (['government', 'ministry', 'authority', 'municipality'].includes(sector)) {
             return 'government';
         }
-        // 15. Manufacturing & Factories (المصانع)
+        // 16. Manufacturing & Factories (المصانع)
         if (['industrial_factories', 'food_factories', 'beverage_bottling', 'manufacturing_packaging', 'textile_furniture_electrical', 'manufacturing', 'factory_plastic', 'factory_chemical', 'factory_textile', 'factory_paper', 'factory_furniture', 'factory_electrical', 'factory_general', 'iron_steel_depot', 'packaging_boxes'].includes(sector)) {
             return 'manufacturing';
         }
@@ -3463,23 +3500,58 @@ const AppStorage = {
 
     mapScraperCityToCRM(city) {
         if (!city) return 'cairo';
-        city = city.toString().toLowerCase().trim();
+        const str = city.toString().toLowerCase().trim();
 
-        if (city === 'cairo' || city.includes('قاهرة') || city.includes('قاهره')) return 'cairo';
-        if (city === 'giza' || city.includes('جيزة') || city.includes('جيزه') || city.includes('زايد')) return 'giza';
-        if (city === 'qalyubia' || city.includes('قليوبية') || city.includes('قليوبيه') || city.includes('شبرا الخيمة') || city.includes('بنها')) return 'qalyubia';
-        if (city === '6october' || city.includes('أكتوبر') || city.includes('اكتوبر') || city.includes('6 أكتوبر') || city.includes('6 اكتوبر')) return '6october';
-        if (city === '10thramadan' || city.includes('رمضان') || city.includes('العاشر')) return '10thramadan';
-        if (city === 'obour' || city.includes('عبور') || city.includes('العبور')) return 'obour';
-        if (city === 'shorouk' || city.includes('شروق') || city.includes('الشروق')) return 'shorouk';
-        if (city === 'helwan' || city.includes('حلوان')) return 'helwan';
-        if (city === 'nasr_city' || city.includes('نصر') || city.includes('جديدة') || city.includes('سلام')) return 'nasr_city';
-        if (city === 'maadi' || city.includes('معادي') || city.includes('معاده')) return 'maadi';
-        if (city === 'new_cairo' || city.includes('تجمع') || city.includes('التجمع') || city.includes('القاهرة الجديدة')) return 'new_cairo';
-        if (city === 'badr' || city.includes('بدر')) return 'badr';
-        if (city === 'sadat' || city.includes('سادات')) return 'sadat';
+        if (this.CITIES && this.CITIES[str]) return str;
 
-        return 'cairo'; // default fallback
+        if (str === 'benisuef') return 'beni_suef';
+        if (str === 'portsaid') return 'port_said';
+        if (str === 'menofia' || str === 'menoufia' || str === 'monufiya') return 'monufia';
+        if (str === 'kafr_el-sheikh' || str === 'kafr_sheikh') return 'kafr_el_sheikh';
+        if (str === 'redsea') return 'red_sea';
+        if (str === 'southsinai') return 'south_sinai';
+        if (str === 'northsinai') return 'north_sinai';
+        if (str === 'newvalley') return 'new_valley';
+
+        if (str.includes('أكتوبر') || str.includes('اكتوبر') || str.includes('زايد') || str.includes('رواش')) return '6october';
+        if (str.includes('رمضان') || str.includes('العاشر')) return '10thramadan';
+        if (str.includes('عبور') || str.includes('العبور')) return 'obour';
+        if (str.includes('شروق') || str.includes('الشروق')) return 'shorouk';
+        if (str.includes('بدر')) return 'badr';
+        if (str.includes('سادات')) return 'sadat';
+        if (str.includes('حلوان') || str.includes('التبين') || str.includes('15 مايو')) return 'helwan';
+        if (str.includes('معادي') || str.includes('معاده') || str.includes('طرة') || str.includes('بساتين')) return 'maadi';
+        if (str.includes('نصر') || str.includes('مصر الجديدة') || str.includes('النزهة')) return 'nasr_city';
+        if (str.includes('تجمع') || str.includes('التجمع') || str.includes('القاهرة الجديدة')) return 'new_cairo';
+        if (str.includes('إسكندرية') || str.includes('اسكندرية') || str.includes('اسكندريه') || str.includes('برج العرب') || str.includes('العامرية') || str.includes('alexandria')) return 'alexandria';
+        if (str.includes('سويس') || str.includes('السويس') || str.includes('السخنة') || str.includes('سخنة') || str.includes('suez')) return 'suez';
+        if (str.includes('بورسعيد') || str.includes('بور سعيد') || str.includes('port_said') || str.includes('portsaid')) return 'port_said';
+        if (str.includes('إسماعيلية') || str.includes('اسماعيلية') || str.includes('اسماعيليه') || str.includes('ismailia')) return 'ismailia';
+        if (str.includes('قليوبية') || str.includes('قليوبيه') || str.includes('شبرا الخيمة') || str.includes('شبرا الخيمه') || str.includes('بنها') || str.includes('الخانكة') || str.includes('قليوب')) return 'qalyubia';
+        if (str.includes('شرقية') || str.includes('شرقيه') || str.includes('الزقازيق') || str.includes('بلبيس') || str.includes('فاقوس')) return 'sharqia';
+        if (str.includes('دقهلية') || str.includes('دقهليه') || str.includes('منصورة') || str.includes('المنصورة') || str.includes('ميت غمر')) return 'dakahlia';
+        if (str.includes('غربية') || str.includes('غربيه') || str.includes('طنطا') || str.includes('المحلة') || str.includes('محلة') || str.includes('كفر الزيات')) return 'gharbia';
+        if (str.includes('منوفية') || str.includes('منوفيه') || str.includes('شبين الكوم') || str.includes('قويسنا') || str.includes('منوف')) return 'monufia';
+        if (str.includes('بحيرة') || str.includes('بحيره') || str.includes('دمنهور') || str.includes('النوبارية') || str.includes('نوبارية') || str.includes('وادي النطرون') || str.includes('كفر الدوار')) return 'beheira';
+        if (str.includes('دمياط')) return 'damietta';
+        if (str.includes('كفر الشيخ') || str.includes('دسوق') || str.includes('بيلا')) return 'kafr_el_sheikh';
+        if (str.includes('فيوم') || str.includes('الفيوم')) return 'fayoum';
+        if (str.includes('بني سويف') || str.includes('بنى سويف')) return 'beni_suef';
+        if (str.includes('منيا') || str.includes('المنيا')) return 'minya';
+        if (str.includes('أسيوط') || str.includes('اسيوط')) return 'assiut';
+        if (str.includes('سوهاج') || str.includes('جرجا') || str.includes('طهطا')) return 'sohag';
+        if (str.includes('قنا') || str.includes('نجع حمادي')) return 'qena';
+        if (str.includes('أقصر') || str.includes('اقصر')) return 'luxor';
+        if (str.includes('أسوان') || str.includes('اسوان') || str.includes('إدفو') || str.includes('كوم أمبو')) return 'aswan';
+        if (str.includes('بحر أحمر') || str.includes('البحر الأحمر') || str.includes('الغردقة') || str.includes('غردقة') || str.includes('سفاجا') || str.includes('رأس غارب')) return 'red_sea';
+        if (str.includes('مطروح') || str.includes('الساحل') || str.includes('العلمين') || str.includes('الضبعة')) return 'matrouh';
+        if (str.includes('وادي جديد') || str.includes('الوادي الجديد') || str.includes('الخارجة') || str.includes('الداخلة')) return 'new_valley';
+        if (str.includes('شمال سيناء') || str.includes('العريش')) return 'north_sinai';
+        if (str.includes('جنوب سيناء') || str.includes('شرم الشيخ') || str.includes('طور سيناء')) return 'south_sinai';
+        if (str.includes('جيزة') || str.includes('جيزه') || str.includes('هرم') || str.includes('دقي') || str.includes('مهندسين') || str.includes('عجوزة') || str.includes('فيصل') || str.includes('عمرانية')) return 'giza';
+        if (str.includes('قاهرة') || str.includes('قاهره') || str.includes('وسط البلد') || str.includes('تحرير') || str.includes('شبرا') || str.includes('زمالك')) return 'cairo';
+
+        return 'cairo';
     },
 
     getScraperSectorAr(key) {
@@ -3554,6 +3626,7 @@ const AppStorage = {
     },
 
     getCityLabel(cityKey) {
+        if (!cityKey) return '—';
         const c = this.CITIES[cityKey];
         return c ? c.ar : cityKey;
     },

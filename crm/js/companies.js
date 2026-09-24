@@ -44,6 +44,7 @@ const Companies = {
         this.viewMode = savedMode || ((window.innerWidth <= 768) ? 'cards' : 'table');
         this.pageSize = (window.innerWidth <= 768) ? 10 : 15; // ⚡ adaptive page size
         this.populateSectorSelects();
+        this.populateCitySelects();
         this.bindEvents();
         this.refreshUserFilter();
         if (typeof App !== 'undefined' && App.currentPage === 'companies') {
@@ -430,6 +431,22 @@ const Companies = {
             modalSec.innerHTML = modalOptionsHtml;
             if (curValModal) modalSec.value = curValModal;
         }
+    },
+
+    populateCitySelects() {
+        const cities = window.AppStorage ? window.AppStorage.CITIES : null;
+        if (!cities) return;
+
+        const modalCity = document.getElementById('company-city');
+        if (!modalCity) return;
+
+        const curVal = modalCity.value;
+        let html = '<option value="">اختر المنطقة / المدينة</option>';
+        Object.entries(cities).forEach(([key, val]) => {
+            html += `<option value="${key}">📍 ${val.ar}</option>`;
+        });
+        modalCity.innerHTML = html;
+        if (curVal) modalCity.value = curVal;
     },
 
     renderSectorPills() {
