@@ -1063,20 +1063,14 @@ const Companies = {
                     <td style="white-space:nowrap; text-align:center;"><span class="fleet-badge" style="font-weight:800; font-size:0.82rem;">${fleet}</span></td>
                     <td style="white-space:nowrap; text-align:center;">${assignedBadge}</td>
                     <td style="white-space:nowrap; text-align:center;">${callResultBadge}</td>
-                    <td style="max-width: 160px;" onclick="event.stopPropagation();">
-                        <div style="display:flex; align-items:center; gap:4px;">
-                            <input type="text" value="${esc(c.contactPerson || '')}" placeholder="✏️ أضف مسؤول" 
-                                class="inline-contact-input"
-                                data-company-id="${c.id}"
-                                onclick="event.stopPropagation();"
-                                onkeydown="if(event.key==='Enter'){this.blur();}"
-                                onblur="Companies.saveContactPerson('${c.id}', this.value, this)"
-                                style="width:100%; border:1px solid transparent; background:transparent; color:var(--text-primary); font-size:0.8rem; font-weight:700; padding:3px 6px; border-radius:6px; outline:none; font-family:inherit; transition:all 0.2s;"
-                                onfocus="this.style.borderColor='var(--primary, #7c3aed)'; this.style.background='var(--bg-surface, #fff)';"
-                            />
-                            ${contactLinkedinIcon}
-                        </div>
-                        ${contactTitle ? `<div style="font-size:0.68rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:150px; margin-top:2px;" title="${contactTitle}">${contactTitle}</div>` : ''}
+                    <td style="max-width: 160px; text-align:center;">
+                        ${c.contactPerson ? `
+                            <div style="font-size:0.8rem; font-weight:700; color:var(--text-primary); display:inline-flex; align-items:center; gap:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:150px;" title="${contact}">
+                                <span style="overflow:hidden; text-overflow:ellipsis;">${contact}</span>
+                                ${contactLinkedinIcon}
+                            </div>
+                            ${contactTitle ? `<div style="font-size:0.68rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:150px; margin-top:2px;" title="${contactTitle}">${contactTitle}</div>` : ''}
+                        ` : `<span style="color:var(--text-muted); font-size:0.85rem; font-weight:600;">—</span>`}
                     </td>
                     <td style="white-space:nowrap; text-align:center;">
                         <div class="table-actions" onclick="event.stopPropagation();" style="display:inline-flex; gap:3px; justify-content:center; align-items:center;">
@@ -1631,9 +1625,14 @@ const Companies = {
     },
 
     edit(id) {
-        if (!window.AppStorage.isAdmin()) {
-            App.showToast('🔒 تعديل بيانات الشركة مقتصر على المدير العام فقط', 'warning');
-            return;
+        const currentUser = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
+        if (window.AppStorage && !window.AppStorage.canModify(currentUser) && !window.AppStorage.isAdmin()) {
+            const company = window.AppStorage.getCompany(id);
+            const myId = currentUser ? String(currentUser.id || currentUser.username) : '';
+            if (!company || (company.assignedTo && company.assignedTo !== myId)) {
+                App.showToast('🔒 تعديل بيانات الشركة مقتصر على المشرفين أو المندوب المسندة إليه الشركة', 'warning');
+                return;
+            }
         }
         const company = window.AppStorage.getCompany(id);
         if (!company) return;
@@ -2019,22 +2018,10 @@ const Companies = {
                         ${this._detailRow('Facebook', company.facebook ? `<a href="${esc(company.facebook)}" target="_blank" style="color:#1877f2;"><i class="fab fa-facebook-f"></i> عرض الصفحة</a>` : '—')}
                     </div>
                     <div class="detail-section">
-                        <h3><i class="fas fa-user-tie"></i> جهة الاتصال (المسؤول)</h3>
-                        <div class="detail-item" style="align-items:center;">
-                            <span class="label">اسم المسؤول</span>
-                            <div style="display:flex; align-items:center; gap:6px; flex:1; max-width:340px;">
-                                <input type="text" id="detail-contact-person-input" value="${esc(company.contactPerson || '')}" placeholder="✏️ أدخل اسم الشخص المسؤول..."
-                                    style="flex:1; border:1px solid var(--border-color); background:var(--bg-card, rgba(255,255,255,0.05)); color:var(--text-primary); font-size:0.85rem; font-weight:700; padding:6px 10px; border-radius:6px; outline:none; font-family:inherit;"
-                                    onkeydown="if(event.key==='Enter') Companies.saveContactFromDetail('${company.id}')"
-                                />
-                                <button class="btn btn-sm btn-primary" onclick="Companies.saveContactFromDetail('${company.id}')" style="white-space:nowrap; padding:6px 12px; font-weight:700; display:inline-flex; align-items:center; gap:4px;" title="حفظ اسم المسؤول">
-                                    <i class="fas fa-save"></i> حفظ
-                                </button>
-                                ${company.linkedinContactUrl ? `<a href="${esc(company.linkedinContactUrl)}" target="_blank" style="color:#0077b5; font-size:16px;" title="LinkedIn المسؤول"><i class="fab fa-linkedin"></i></a>` : ''}
-                            </div>
-                        </div>
-                        ${company.contactTitle ? this._detailRow('المسمى', esc(company.contactTitle)) : ''}
-                        ${this._detailRow('التليفون', esc(company.contactPhone), true)}
+                        <h3><i class="fas fa-user-tie"></i> جهة الاتصال</h3>
+                        ${this._detailRow('الاسم', (company.contactPerson ? esc(company.contactPerson) : '—') + (company.linkedinContactUrl ? ` <a href="${esc(company.linkedinContactUrl)}" target="_blank" style="color:#0077b5; margin-right:6px;"><i class="fab fa-linkedin"></i></a>` : ''))}
+                        ${this._detailRow('المسمى', esc(company.contactTitle || '—'))}
+                        ${this._detailRow('التليفون', esc(company.contactPhone || '—'), true)}
                         ${this._detailRow('الإيميل', company.contactEmail ? `<a href="mailto:${esc(company.contactEmail)}">${esc(company.contactEmail)}</a>` : '—')}
                         ${this._detailRow('LinkedIn المسؤول', company.linkedinContactUrl ? `<a href="${esc(company.linkedinContactUrl)}" target="_blank" style="color:#0077b5;"><i class="fab fa-linkedin"></i> عرض الملف الشخصي</a>` : '—')}
                     </div>
