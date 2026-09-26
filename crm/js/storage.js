@@ -2714,6 +2714,9 @@ const AppStorage = {
         if (currentUserId && !hasActiveRecord) {
             const userObj = this.getUser(currentUserId);
             const assignedTime = company.assignedAt || company.createdAt || (company.lastUpdated ? company.lastUpdated + 'T09:00:00.000Z' : new Date().toISOString());
+            if (company && !company.assignedAt) {
+                company.assignedAt = assignedTime;
+            }
             const syntheticActive = {
                 id: 'cust_act_' + sId + '_' + currentUserId,
                 action: 'assigned',

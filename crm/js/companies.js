@@ -2326,22 +2326,36 @@ const Companies = {
         const currentRepId = company.assignedTo;
         const currentRep = currentRepId ? window.AppStorage.getUser(currentRepId) : null;
         const currentRepName = currentRep ? currentRep.name : (currentRepId || 'غير مسندة');
-        const assignedTime = company.assignedAt;
-
         // 1. Current Custody Card
         let currentCustodyHtml = '';
         if (currentRepId) {
             const activeEntry = custodyList.find(c => !c.withdrawnAt && String(c.toUserId) === String(currentRepId));
             const repCalls = activeEntry ? (activeEntry.calls || []) : (window.AppStorage.getCallsForCompany(company.id) || []).filter(cl => String(cl.userId) === String(currentRepId) || String(cl.createdByName) === String(currentRepName));
+
+            // Resolve exact assignment time with complete fallback hierarchy
+            const assignedTime = (activeEntry && activeEntry.assignedAt) ||
+                                 company.assignedAt ||
+                                 (company.createdAt ? (company.createdAt.includes('T') ? company.createdAt : company.createdAt + 'T09:00:00.000Z') : null) ||
+                                 (company.lastUpdated ? (company.lastUpdated.includes('T') ? company.lastUpdated : company.lastUpdated + 'T09:00:00.000Z') : null) ||
+                                 (repCalls.length > 0 && repCalls[0].date ? (repCalls[0].date.includes('T') ? repCalls[0].date : repCalls[0].date + 'T09:00:00.000Z') : null);
+
+            // Backfill company.assignedAt so the record remains consistent
+            if (company && !company.assignedAt && assignedTime) {
+                company.assignedAt = assignedTime;
+            }
+
             const durationTxt = activeEntry ? activeEntry.durationText : (assignedTime ? window.AppStorage.formatDurationBetween(assignedTime, new Date().toISOString()) : 'غير محدد');
 
-            let formattedDate = 'تاريخ سابق';
+            let formattedDate = 'غير مسجل';
             let formattedTime = '';
             if (assignedTime) {
                 try {
-                    const d = new Date(assignedTime);
-                    formattedDate = d.toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-                    formattedTime = d.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+                    const parsedTime = assignedTime.includes('T') ? assignedTime : (assignedTime + 'T09:00:00');
+                    const d = new Date(parsedTime);
+                    if (!isNaN(d.getTime())) {
+                        formattedDate = d.toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                        formattedTime = d.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+                    }
                 } catch(e) {
                     formattedDate = assignedTime;
                 }
@@ -2462,8 +2476,14 @@ const Companies = {
                         let formattedFrom = 'غير مسجل';
                         let formattedTo = 'غير مسجل';
                         try {
-                            if (item.assignedAt) formattedFrom = new Date(item.assignedAt).toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' });
-                            if (item.withdrawnAt) formattedTo = new Date(item.withdrawnAt).toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' });
+                            if (item.assignedAt) {
+                                const fromD = new Date(item.assignedAt.includes('T') ? item.assignedAt : item.assignedAt + 'T09:00:00');
+                                if (!isNaN(fromD.getTime())) formattedFrom = fromD.toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' });
+                            }
+                            if (item.withdrawnAt) {
+                                const toD = new Date(item.withdrawnAt.includes('T') ? item.withdrawnAt : item.withdrawnAt + 'T09:00:00');
+                                if (!isNaN(toD.getTime())) formattedTo = toD.toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' });
+                            }
                         } catch(e) {}
 
                         const repCalls = item.calls || item.callsSnapshot || [];
