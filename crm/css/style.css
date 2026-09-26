@@ -3478,7 +3478,11 @@ html.user-logged-in .login-screen-bg {
     color: #64748b;
 }
 
-/* Strict Employee Role Security Shield — Hide Admin Actions */
+/* Strict Employee Role Security Shield — Hide Admin Actions & Dashboard */
+html.user-role-agent .admin-only-nav,
+body.user-role-agent .admin-only-nav,
+html.user-role-agent .sidebar-nav .nav-link[data-page="dashboard"],
+body.user-role-agent .sidebar-nav .nav-link[data-page="dashboard"],
 html.user-role-agent #btn-remove-duplicates,
 html.user-role-agent #btn-audit-data,
 html.user-role-agent #btn-wipe-all-companies,
