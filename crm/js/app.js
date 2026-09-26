@@ -1666,25 +1666,26 @@ const App = {
 
     // ---- Dark / Light Mode ----
     initTheme() {
-        const saved = localStorage.getItem('fleetcrm_theme') || 'dark';
+        const saved = localStorage.getItem('fleetcrm_theme') || 'light';
         this._applyTheme(saved, false); // false = no toast on init
     },
 
     toggleTheme() {
-        const current = document.documentElement.getAttribute('data-theme') || 'dark';
+        const current = document.documentElement.getAttribute('data-theme') || 'light';
         const next = current === 'dark' ? 'light' : 'dark';
         this._applyTheme(next, true);
         localStorage.setItem('fleetcrm_theme', next);
+        localStorage.setItem('fleetcrm_theme_explicit', 'true');
     },
 
     _applyTheme(theme, showNotification) {
         const html = document.documentElement;
-        const isLight = theme === 'light';
+        const isLight = theme !== 'dark';
 
         if (isLight) {
             html.setAttribute('data-theme', 'light');
         } else {
-            html.removeAttribute('data-theme');
+            html.setAttribute('data-theme', 'dark');
         }
 
         // Update all theme icons
@@ -1700,11 +1701,16 @@ const App = {
             label.textContent = isLight ? 'الوضع النهاري' : 'الوضع الليلي';
         });
 
+        const toggleBtn = document.getElementById('btn-theme-toggle');
+        if (toggleBtn) {
+            toggleBtn.title = isLight ? 'الوضع الحالي: النهاري ☀️ (انقر للتبديل إلى الليلي 🌙)' : 'الوضع الحالي: الليلي 🌙 (انقر للتبديل إلى النهاري ☀️)';
+        }
+
         // Re-render dashboard or reports charts if visible to update chart text contrast
-        if (this.currentPage === 'dashboard' && window.Dashboard && typeof Dashboard.renderCharts === 'function') {
-            try { Dashboard.renderCharts(); } catch (e) {}
-        } else if (this.currentPage === 'reports' && window.Reports && typeof Reports.renderCharts === 'function') {
-            try { Reports.renderCharts(); } catch (e) {}
+        if (this.currentPage === 'dashboard' && window.Dashboard && typeof Dashboard.render === 'function') {
+            try { Dashboard.render(); } catch (e) {}
+        } else if (this.currentPage === 'reports' && window.Reports && typeof Reports.render === 'function') {
+            try { Reports.render(); } catch (e) {}
         }
 
         if (showNotification) {
