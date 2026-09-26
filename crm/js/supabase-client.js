@@ -388,6 +388,125 @@ window.SupabaseClient = (function() {
     }
 
     /**
+     * User Account Presence (Online / Offline Real-time Heartbeat)
+     */
+    function formatArabicLastSeen(timestamp) {
+        if (!timestamp || isNaN(Number(timestamp))) return 'لم يسجل الدخول بعد';
+        const ts = Number(timestamp);
+        const now = Date.now();
+        const diffMs = now - ts;
+        if (diffMs < 0) return 'متصل الآن';
+        const diffSec = Math.round(diffMs / 1000);
+        const diffMin = Math.round(diffSec / 60);
+        const diffHour = Math.round(diffMin / 60);
+        const diffDay = Math.round(diffHour / 24);
+
+        if (diffSec < 75) return 'متصل الآن';
+        if (diffSec < 120) return 'منذ دقيقة واحدة';
+        if (diffMin === 2) return 'منذ دقيقتين';
+        if (diffMin >= 3 && diffMin <= 10) return `منذ ${diffMin} دقائق`;
+        if (diffMin > 10 && diffMin < 60) return `منذ ${diffMin} دقيقة`;
+        if (diffHour === 1) return 'منذ ساعة واحدة';
+        if (diffHour === 2) return 'منذ ساعتين';
+        if (diffHour >= 3 && diffHour <= 10) return `منذ ${diffHour} ساعات`;
+        if (diffHour > 10 && diffHour < 24) return `منذ ${diffHour} ساعة`;
+        if (diffDay === 1) return 'أمس';
+        if (diffDay === 2) return 'منذ يومين';
+        if (diffDay >= 3 && diffDay <= 10) return `منذ ${diffDay} أيام`;
+        
+        const d = new Date(ts);
+        return d.toLocaleDateString('ar-EG', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    }
+
+    function getPageLabelArabic(pageKey) {
+        const map = {
+            'dashboard': 'لوحة القيادة',
+            'companies': 'دليل الشركات والأساطيل',
+            'calls': 'سجل المكالمات والمتابعات',
+            'reports': 'التقارير والإحصائيات',
+            'team': 'متابعة إنجازات الفريق',
+            'employees': 'إدارة حسابات الموظفين',
+            'scraper': 'التنقيب والبيانات'
+        };
+        return map[pageKey] || pageKey || 'الرئيسية';
+    }
+
+    async function sendUserHeartbeat(user, pageName) {
+        if (!user || !user.id || !navigator.onLine) return null;
+        try {
+            const payload = {
+                userId: String(user.id),
+                userName: user.name || user.username || 'موظف',
+                role: user.role || 'agent',
+                avatar: user.avatar || '👨‍💼',
+                color: user.color || '#3b82f6',
+                lastSeen: Date.now(),
+                currentPage: pageName || 'dashboard',
+                status: 'online'
+            };
+            const safeId = encodeURIComponent(String(user.id).trim().replace(/[.$#[\]/]/g, '_'));
+            await fetch(`${FIREBASE_DB_URL}/user_presence/${safeId}.json`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            return payload;
+        } catch(e) {
+            return null;
+        }
+    }
+
+    async function setUserOffline(userId) {
+        if (!userId || !navigator.onLine) return;
+        try {
+            const safeId = encodeURIComponent(String(userId).trim().replace(/[.$#[\]/]/g, '_'));
+            const body = JSON.stringify({
+                status: 'offline',
+                lastSeen: Date.now()
+            });
+            if (typeof fetch === 'function') {
+                fetch(`${FIREBASE_DB_URL}/user_presence/${safeId}.json`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: body,
+                    keepalive: true
+                }).catch(() => {});
+            }
+        } catch(e) {}
+    }
+
+    async function getAllUsersPresence() {
+        if (!navigator.onLine) return {};
+        try {
+            const resp = await fetch(`${FIREBASE_DB_URL}/user_presence.json?t=${Date.now()}`);
+            if (!resp.ok) return {};
+            const raw = await resp.json();
+            if (!raw || typeof raw !== 'object') return {};
+            const now = Date.now();
+            const result = {};
+            for (const [key, item] of Object.entries(raw)) {
+                if (!item || !item.lastSeen) continue;
+                const ageMs = now - Number(item.lastSeen);
+                const isOnline = (item.status === 'online') && (ageMs < 75000);
+                const processed = {
+                    ...item,
+                    isOnline: isOnline,
+                    ageSeconds: Math.round(ageMs / 1000),
+                    lastSeenArabic: formatArabicLastSeen(item.lastSeen),
+                    pageLabelArabic: getPageLabelArabic(item.currentPage)
+                };
+                result[key] = processed;
+                if (item.userId) {
+                    result[item.userId] = processed;
+                }
+            }
+            return result;
+        } catch(e) {
+            return {};
+        }
+    }
+
+    /**
      * Real-time ultra-fast SSE & metadata-driven sync on Firebase
      * Connects persistent EventSource stream for sub-100ms push with smart polling fallback
      */
@@ -684,6 +803,11 @@ window.SupabaseClient = (function() {
         acquireCompanyLock,
         releaseCompanyLock,
         checkCompanyLock,
-        getAllCompanyLocks
+        getAllCompanyLocks,
+        sendUserHeartbeat,
+        setUserOffline,
+        getAllUsersPresence,
+        formatArabicLastSeen,
+        getPageLabelArabic
     };
 })();

@@ -11,7 +11,7 @@
     <script>
         // Force purge any legacy service workers, disk caches, and old deals storage immediately
         (function() {
-            var CURRENT_VER = '287.0';
+            var CURRENT_VER = '288.0';
             try {
                 localStorage.removeItem('fleetcrm_deals');
                 localStorage.removeItem('fleetcrm_deals_count');
@@ -461,6 +461,12 @@
                     <i class="fas fa-download"></i> <span>تثبيت التطبيق</span>
                 </button>
 
+                <!-- Live Team Presence Indicator (Admin & Supervisor) -->
+                <div id="team-presence-indicator" class="team-presence-pill admin-only-nav" title="مراقبة تواجد واتصال الموظفين اللحظي (Online / Offline)" onclick="App.openTeamPresenceModal()" style="display:none; align-items:center; gap:7px; background:rgba(16, 185, 129, 0.12); border:1px solid rgba(16, 185, 129, 0.4); color:#10b981; padding:5px 12px; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer;">
+                    <span class="presence-pulse-dot"></span>
+                    <span id="team-presence-label">جاري فحص التواجد...</span>
+                </div>
+
                 <!-- Live Cloud Sync Status Widget -->
                 <div id="cloud-sync-indicator" class="cloud-sync-pill" title="حالة المزامنة السحابية الفورية" style="display:inline-flex; align-items:center; gap:6px; background:rgba(16, 185, 129, 0.12); border:1px solid rgba(16, 185, 129, 0.3); color:#10b981; padding:5px 12px; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer;" onclick="App.triggerCloudSyncNow()">
                     <i class="fas fa-check-circle" id="cloud-sync-icon" style="font-size:13px;"></i>
@@ -549,11 +555,11 @@
                         <div>
                             <h3 style="margin:0; display:flex; align-items:center; gap:8px; font-size:1.05rem; color:#10b981;">
                                 <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#10b981; box-shadow:0 0 10px #10b981;"></span>
-                                <span>المراقبة الحية: كروت الشركات المفتوحة الآن من قِبل الفريق</span>
-                                <small style="color:var(--text-muted); font-size:0.8rem; font-weight:normal;">Live Active Cards Inspector</small>
+                                <span>المراقبة الحية: حالة اتصال وتواجد فريق العمل وكروت الشركات</span>
+                                <small style="color:var(--text-muted); font-size:0.8rem; font-weight:normal;">Live Team Presence & Active Cards</small>
                             </h3>
                             <p style="margin:3px 0 0 0; font-size:12px; color:var(--text-secondary);">
-                                رصد فوري لأي موظف يفتح كارت عميل حالياً في هذه اللحظة، مع إمكانية فحص الكارت مباشرة
+                                رصد فوري لمن فاتح حسابه الآن (Online 🟢) ومن غير متصل (Offline ⚪) وتوقيت آخر ظهور، بالإضافة إلى كروت الشركات المفتوحة
                             </p>
                         </div>
                         <button class="btn btn-ghost btn-sm" onclick="Dashboard.renderLivePresence()" style="font-size:12px; font-weight:700; color:#10b981; border:1px solid rgba(16, 185, 129, 0.3); padding:4px 12px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
@@ -1666,6 +1672,62 @@
         </div>
     </div>
 
+    <!-- Team Live Presence & Status Modal -->
+    <div id="modal-team-presence" class="modal">
+        <div class="modal-overlay" onclick="App.closeModal('modal-team-presence')"></div>
+        <div class="modal-dialog modal-lg" style="max-width:760px; width:95%;">
+            <div class="modal-header" style="background:var(--bg-surface); border-bottom:1px solid var(--border-color); padding:16px 22px;">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <div style="width:42px; height:42px; border-radius:12px; background:rgba(16, 185, 129, 0.15); color:#10b981; border:1px solid rgba(16, 185, 129, 0.4); display:flex; align-items:center; justify-content:center; font-size:18px;">
+                        <i class="fas fa-users-viewfinder"></i>
+                    </div>
+                    <div>
+                        <h2 style="font-size:16.5px; font-weight:800; color:var(--text-primary); margin:0;">حالة اتصال وتواجد فريق العمل اللحظية</h2>
+                        <div style="font-size:11.5px; color:var(--text-muted); font-weight:600; margin-top:2px;">
+                            مراقبة حية فورية: من فاتح حسابه الآن (Online 🟢) ومن غير متصل (Offline ⚪) وتوقيت آخر ظهور
+                        </div>
+                    </div>
+                </div>
+                <button class="modal-close" data-modal="modal-team-presence" onclick="App.closeModal('modal-team-presence')"><i class="fas fa-times"></i></button>
+            </div>
+            <div style="background:var(--bg-secondary); padding:12px 22px; border-bottom:1px solid var(--border-color); display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+                <!-- Filter Tabs -->
+                <div class="notif-filter-tabs" style="margin:0;">
+                    <button type="button" class="notif-tab active" onclick="App.setTeamPresenceFilter('all', this)">
+                        👥 الكل (<span id="presence-tab-count-all">0</span>)
+                    </button>
+                    <button type="button" class="notif-tab" onclick="App.setTeamPresenceFilter('online', this)" style="color:#10b981;">
+                        🟢 متصل الآن (<span id="presence-tab-count-online">0</span>)
+                    </button>
+                    <button type="button" class="notif-tab" onclick="App.setTeamPresenceFilter('offline', this)" style="color:var(--text-muted);">
+                        ⚪ غير متصل (<span id="presence-tab-count-offline">0</span>)
+                    </button>
+                </div>
+                <!-- Search & Reload -->
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <div style="position:relative;">
+                        <input type="text" id="presence-search-input" placeholder="🔍 بحث عن موظف..." oninput="App.handleTeamPresenceSearch(this.value)" style="padding:6px 12px 6px 28px; font-size:12px; border-radius:8px; background:var(--bg-surface); border:1px solid var(--border-color); color:var(--text-primary); width:180px;">
+                    </div>
+                    <button class="btn btn-ghost btn-xs" onclick="App.renderTeamPresenceModalContent()" title="تحديث لحظي" style="padding:6px 10px; border-radius:8px; border:1px solid var(--border-color); color:var(--primary); cursor:pointer;">
+                        <i class="fas fa-sync-alt" id="team-presence-modal-reload-icon"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body" id="team-presence-modal-body" style="padding:16px 22px; max-height:65vh; overflow-y:auto; display:flex; flex-direction:column; gap:10px;">
+                <div style="text-align:center; padding:30px; color:var(--text-muted);">
+                    <i class="fas fa-spinner fa-spin" style="font-size:24px; margin-bottom:8px;"></i>
+                    <p style="margin:0; font-size:13px;">جاري فحص حالة اتصال وحضور الموظفين...</p>
+                </div>
+            </div>
+            <div class="modal-footer" style="background:var(--bg-surface); border-top:1px solid var(--border-color); padding:12px 22px; justify-content:space-between;">
+                <div style="font-size:11.5px; color:var(--text-muted);">
+                    <i class="fas fa-info-circle"></i> يتم تحديث حالة الحضور تلقائياً كل 20 ثانية عبر السحابة
+                </div>
+                <button class="btn btn-primary btn-sm" onclick="App.closeModal('modal-team-presence')" style="font-weight:700; padding:6px 18px; border-radius:8px;">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Container -->
     <div id="toast-container"></div>
 
@@ -1703,20 +1765,20 @@
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <script src="js/supabase-client.js?v=287.0"></script>
-    <script src="js/egypt_verified_titans.js?v=287.0"></script>
-    <script src="js/egypt_enterprises_pool.js?v=287.0"></script>
-    <script src="js/companies-worker.js?v=287.0"></script>
-    <script src="js/storage.js?v=287.0"></script>
-    <script src="js/excel-handler.js?v=287.0"></script>
-    <script src="js/dashboard.js?v=287.0"></script>
-    <script src="js/companies.js?v=287.0"></script>
-    <script src="js/calls.js?v=287.0"></script>
-    <script src="js/reports.js?v=287.0"></script>
-    <script src="js/scraper.js?v=287.0"></script>
-    <script src="js/team.js?v=287.0"></script>
-    <script src="js/settings.js?v=287.0"></script>
-    <script src="js/app.js?v=287.0"></script>
+    <script src="js/supabase-client.js?v=288.0"></script>
+    <script src="js/egypt_verified_titans.js?v=288.0"></script>
+    <script src="js/egypt_enterprises_pool.js?v=288.0"></script>
+    <script src="js/companies-worker.js?v=288.0"></script>
+    <script src="js/storage.js?v=288.0"></script>
+    <script src="js/excel-handler.js?v=288.0"></script>
+    <script src="js/dashboard.js?v=288.0"></script>
+    <script src="js/companies.js?v=288.0"></script>
+    <script src="js/calls.js?v=288.0"></script>
+    <script src="js/reports.js?v=288.0"></script>
+    <script src="js/scraper.js?v=288.0"></script>
+    <script src="js/team.js?v=288.0"></script>
+    <script src="js/settings.js?v=288.0"></script>
+    <script src="js/app.js?v=288.0"></script>
 
     <!-- Cleanup overlay on load - runs once only, does NOT override App.checkAuth -->
     <script>

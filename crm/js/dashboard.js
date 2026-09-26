@@ -324,7 +324,9 @@ const Dashboard = {
         }
     },
 
+    _presencePollTimer: null,
     activeLocksCache: {},
+    activePresencesCache: {},
 
     async renderLivePresence() {
         const container = document.getElementById('dash-live-presence-list');
@@ -332,61 +334,185 @@ const Dashboard = {
         if (!container) return;
         if (icon) icon.classList.add('fa-spin');
 
+        const esc = (s) => String(s || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+
         try {
-            if (!window.SupabaseClient || typeof window.SupabaseClient.getAllCompanyLocks !== 'function') {
+            if (!window.SupabaseClient) {
                 container.innerHTML = `<div style="color:var(--text-muted); font-size:12.5px;"><i class="fas fa-info-circle"></i> ميزة المراقبة اللحظية غير متاحة بدون اتصال بالإنترنت.</div>`;
                 if (icon) icon.classList.remove('fa-spin');
                 return;
             }
 
-            const locks = await window.SupabaseClient.getAllCompanyLocks();
+            const [locks, presences] = await Promise.all([
+                (typeof window.SupabaseClient.getAllCompanyLocks === 'function') ? window.SupabaseClient.getAllCompanyLocks() : {},
+                (typeof window.SupabaseClient.getAllUsersPresence === 'function') ? window.SupabaseClient.getAllUsersPresence() : {}
+            ]);
+
             this.activeLocksCache = locks || {};
+            this.activePresencesCache = presences || {};
             const lockEntries = Object.entries(this.activeLocksCache);
 
-            if (lockEntries.length === 0) {
-                container.innerHTML = `
-                    <div style="display:flex; align-items:center; gap:8px; color:var(--text-muted); font-size:13px; padding:4px 0;">
-                        <i class="fas fa-check-circle" style="color:#10b981; font-size:15px;"></i>
-                        <span>لا توجد كروت شركات مفتوحة حالياً في هذه اللحظة — جميع الموظفين في وضع الاستعداد أو إنهاء المكالمات.</span>
-                    </div>`;
-                if (icon) icon.classList.remove('fa-spin');
-                return;
-            }
+            const allUsers = (window.AppStorage && window.AppStorage.getUsers) ? (window.AppStorage.getUsers() || []) : [];
+            let onlineUsers = [];
+            let offlineUsers = [];
 
-            const cardsHtml = lockEntries.map(([companyId, lock]) => {
-                const comp = (window.AppStorage && typeof window.AppStorage.getCompany === 'function') ? window.AppStorage.getCompany(companyId) : null;
-                const compName = (comp && (comp.nameAr || comp.nameEn)) ? (comp.nameAr || comp.nameEn) : `شركة (${companyId})`;
-                const sector = (comp && comp.sector) ? (window.AppStorage.SECTORS[comp.sector]?.ar || comp.sector) : '—';
-                const city = (comp && (comp.governorate || comp.city)) ? (comp.governorate || comp.city) : '—';
-                const repName = lock.user || 'مندوب مبيعات';
-                const secondsAgo = lock.ageSeconds !== undefined ? lock.ageSeconds : 10;
-                const timeAgoText = secondsAgo < 60 ? `منذ ${secondsAgo} ثانية` : `منذ ${Math.round(secondsAgo/60)} دقيقة`;
+            allUsers.forEach(u => {
+                const p = presences[u.id] || presences[String(u.id).toLowerCase()] || (u.username && presences[u.username.toLowerCase()]);
+                const isOnline = Boolean(p && p.isOnline);
+                const lastSeenText = p ? p.lastSeenArabic : 'لم يسجل الدخول بعد';
+                const pageLabel = (p && p.pageLabelArabic) ? p.pageLabelArabic : 'لوحة القيادة';
+                const uName = (u.name && u.name !== 'undefined') ? u.name : ((u.id === 'admin' || u.role === 'admin') ? 'Admin' : (u.username || 'موظف'));
 
-                return `
-                    <div class="active-presence-card" style="background:var(--bg-surface); border:1.5px solid var(--success); border-radius:10px; padding:10px 14px; display:flex; align-items:center; justify-content:space-between; gap:14px; min-width:300px; flex:1; box-shadow:0 2px 10px rgba(0,0,0,0.06);">
-                        <div style="display:flex; align-items:center; gap:10px;">
-                            <span style="display:inline-flex; width:36px; height:36px; border-radius:50%; background:var(--success-bg); color:var(--success); border:1px solid var(--success); align-items:center; justify-content:center; font-size:14px;">
-                                <i class="fas fa-eye"></i>
-                            </span>
-                            <div>
-                                <div style="font-size:13px; font-weight:800; color:var(--text-primary);">
-                                    <span style="color:var(--success);">🟢 ${esc(repName)}</span> يفتح الآن:
+                const info = {
+                    user: u,
+                    isOnline,
+                    lastSeenText,
+                    pageLabel,
+                    uName
+                };
+
+                if (isOnline) onlineUsers.push(info);
+                else offlineUsers.push(info);
+            });
+
+            // Sort: online first
+            const sortedUsers = [...onlineUsers, ...offlineUsers];
+
+            // 1. Team Online / Offline Section HTML
+            const presenceSummaryHeader = `
+                <div style="width:100%; display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="font-weight:800; font-size:13.5px; color:var(--text-primary);">
+                            <i class="fas fa-signal" style="color:#10b981; margin-left:5px;"></i> حالة اتصال فريق العمل:
+                        </span>
+                        <span class="badge" style="background:rgba(16,185,129,0.15); color:#10b981; border:1px solid #10b981; font-weight:800; font-size:11.5px; padding:3px 10px; border-radius:10px;">
+                            🟢 ${onlineUsers.length} متصل الآن
+                        </span>
+                        <span class="badge" style="background:rgba(148,163,184,0.15); color:var(--text-muted); border:1px solid var(--border-color); font-weight:700; font-size:11px; padding:3px 10px; border-radius:10px;">
+                            ⚪ ${offlineUsers.length} غير متصل
+                        </span>
+                    </div>
+                    <button class="btn btn-ghost btn-xs" onclick="App.openTeamPresenceModal()" style="font-size:11.5px; font-weight:700; border:1px solid var(--border-color); color:var(--primary); padding:4px 10px; border-radius:8px; display:inline-flex; align-items:center; gap:5px; cursor:pointer;">
+                        <i class="fas fa-expand-alt"></i> استعراض تفصيلي كامل
+                    </button>
+                </div>
+            `;
+
+            const usersChipsHtml = `
+                <div style="width:100%; display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:12px; margin-bottom:18px;">
+                    ${sortedUsers.map(item => {
+                        const u = item.user;
+                        const roleLabel = u.role === 'admin' ? '👑 مدير عام' : (u.role === 'supervisor' ? '👁️ مشرف' : '👨‍💼 مبيعات');
+                        return `
+                            <div class="presence-user-card" style="background:var(--bg-surface); border:1.5px solid ${item.isOnline ? 'rgba(16, 185, 129, 0.45)' : 'var(--border-color)'}; border-radius:12px; padding:10px 14px; display:flex; align-items:center; justify-content:space-between; gap:10px; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+                                <div style="display:flex; align-items:center; gap:10px;">
+                                    <div style="position:relative;">
+                                        <span style="background:${u.color || '#7c3aed'}; color:#fff; width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:bold;">
+                                            ${u.avatar || (u.role === 'admin' ? '👑' : u.role === 'supervisor' ? '👁️' : '👨‍💼')}
+                                        </span>
+                                        <span style="position:absolute; bottom:-2px; right:-2px; width:10px; height:10px; border-radius:50%; background:${item.isOnline ? '#10b981' : '#94a3b8'}; border:2px solid var(--bg-surface);"></span>
+                                    </div>
+                                    <div>
+                                        <div style="font-size:13px; font-weight:800; color:var(--text-primary); display:flex; align-items:center; gap:5px;">
+                                            <span>${esc(item.uName)}</span>
+                                            <small style="font-size:10px; color:var(--text-muted); font-weight:normal;">(${roleLabel})</small>
+                                        </div>
+                                        <div style="font-size:11px; margin-top:2px;">
+                                            ${item.isOnline
+                                                ? `<span style="color:var(--accent); font-weight:700;"><i class="fas fa-compass" style="font-size:9.5px;"></i> ${esc(item.pageLabel)}</span>`
+                                                : `<span style="color:var(--text-muted);"><i class="far fa-clock" style="font-size:9.5px;"></i> ${esc(item.lastSeenText)}</span>`
+                                            }
+                                        </div>
+                                    </div>
                                 </div>
-                                <div style="font-size:12.5px; font-weight:800; color:var(--primary); margin-top:2px;">
-                                    ${esc(compName)}
-                                </div>
-                                <div style="font-size:11px; color:var(--text-muted); margin-top:2px; font-weight:600;">
-                                    ${esc(sector)} • ${esc(city)} • <span style="color:var(--warning); font-weight:700;">${timeAgoText}</span>
+                                <div>
+                                    ${item.isOnline
+                                        ? `<span class="badge" style="background:rgba(16,185,129,0.14); color:#10b981; border:1px solid #10b981; font-size:10px; font-weight:800; padding:2px 7px; border-radius:6px; display:inline-flex; align-items:center; gap:4px;"><span class="presence-pulse-dot" style="width:6px; height:6px;"></span> متصل</span>`
+                                        : `<span class="badge" style="background:rgba(148,163,184,0.12); color:var(--text-muted); border:1px solid var(--border-color); font-size:9.5px; font-weight:600; padding:2px 6px; border-radius:6px; display:inline-flex; align-items:center; gap:4px;"><span class="presence-offline-dot" style="width:5px; height:5px;"></span> أوفلاين</span>`
+                                    }
                                 </div>
                             </div>
-                        </div>
-                        <button class="btn btn-sm btn-outline" onclick="Companies.showDetail('${companyId}')" style="padding:6px 12px; font-size:11.5px; font-weight:800; border-radius:8px; cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; gap:5px; border-color:var(--border-color); color:var(--primary);" title="تفقد كارت الشركة مباشرة">
-                            <i class="fas fa-external-link-alt"></i> تفقد الكارت
-                        </button>
-                    </div>`;
-            }).join('');
+                        `;
+                    }).join('')}
+                </div>
+            `;
 
-            container.innerHTML = cardsHtml;
+            // 2. Open Company Cards Section HTML
+            let locksSectionHtml = '';
+            if (lockEntries.length === 0) {
+                locksSectionHtml = `
+                    <div style="width:100%; border-top:1px solid var(--border-color); padding-top:12px;">
+                        <div style="display:flex; align-items:center; gap:8px; color:var(--text-muted); font-size:12.5px;">
+                            <i class="fas fa-check-circle" style="color:#10b981; font-size:14px;"></i>
+                            <span>لا توجد كروت شركات مفتوحة حالياً في هذه اللحظة — جميع الموظفين متاحون وفي وضع الاستعداد.</span>
+                        </div>
+                    </div>`;
+            } else {
+                const lockCardsHtml = lockEntries.map(([companyId, lock]) => {
+                    const comp = (window.AppStorage && typeof window.AppStorage.getCompany === 'function') ? window.AppStorage.getCompany(companyId) : null;
+                    const compName = (comp && (comp.nameAr || comp.nameEn)) ? (comp.nameAr || comp.nameEn) : `شركة (${companyId})`;
+                    const sector = (comp && comp.sector) ? (window.AppStorage.SECTORS[comp.sector]?.ar || comp.sector) : '—';
+                    const city = (comp && (comp.governorate || comp.city)) ? (comp.governorate || comp.city) : '—';
+                    const repName = lock.user || 'مندوب مبيعات';
+                    const secondsAgo = lock.ageSeconds !== undefined ? lock.ageSeconds : 10;
+                    const timeAgoText = secondsAgo < 60 ? `منذ ${secondsAgo} ثانية` : `منذ ${Math.round(secondsAgo/60)} دقيقة`;
+
+                    return `
+                        <div class="active-presence-card" style="background:var(--bg-surface); border:1.5px solid var(--warning); border-radius:10px; padding:10px 14px; display:flex; align-items:center; justify-content:space-between; gap:14px; min-width:280px; flex:1; box-shadow:0 2px 10px rgba(0,0,0,0.06);">
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <span style="display:inline-flex; width:34px; height:34px; border-radius:50%; background:var(--warning-bg); color:var(--warning); border:1px solid var(--warning); align-items:center; justify-content:center; font-size:13px;">
+                                    <i class="fas fa-eye"></i>
+                                </span>
+                                <div>
+                                    <div style="font-size:12.5px; font-weight:800; color:var(--text-primary);">
+                                        <span style="color:var(--warning);">👁️ ${esc(repName)}</span> يراجع الآن:
+                                    </div>
+                                    <div style="font-size:12.5px; font-weight:800; color:var(--primary); margin-top:2px;">
+                                        ${esc(compName)}
+                                    </div>
+                                    <div style="font-size:11px; color:var(--text-muted); margin-top:2px; font-weight:600;">
+                                        ${esc(sector)} • ${esc(city)} • <span style="color:var(--warning); font-weight:700;">${timeAgoText}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="btn btn-sm btn-outline" onclick="Companies.showDetail('${companyId}')" style="padding:5px 10px; font-size:11.5px; font-weight:800; border-radius:8px; cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; gap:5px; border-color:var(--border-color); color:var(--primary);" title="تفقد كارت الشركة مباشرة">
+                                <i class="fas fa-external-link-alt"></i> تفقد الكارت
+                            </button>
+                        </div>`;
+                }).join('');
+
+                locksSectionHtml = `
+                    <div style="width:100%; border-top:1px solid var(--border-color); padding-top:14px;">
+                        <div style="font-size:12px; font-weight:800; color:var(--warning); margin-bottom:10px; display:flex; align-items:center; gap:6px;">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span>كروت الشركات المفتوحة في هذه اللحظة لمنع التضارب (${lockEntries.length}):</span>
+                        </div>
+                        <div style="display:flex; flex-wrap:wrap; gap:10px;">
+                            ${lockCardsHtml}
+                        </div>
+                    </div>`;
+            }
+
+            container.innerHTML = `
+                <div style="width:100%; display:flex; flex-direction:column;">
+                    ${presenceSummaryHeader}
+                    ${usersChipsHtml}
+                    ${locksSectionHtml}
+                </div>
+            `;
+
+            // Start auto refresh while user is on dashboard
+            if (!this._presencePollTimer) {
+                this._presencePollTimer = setInterval(() => {
+                    if (typeof App !== 'undefined' && App.currentPage === 'dashboard') {
+                        this.renderLivePresence();
+                    } else {
+                        clearInterval(this._presencePollTimer);
+                        this._presencePollTimer = null;
+                    }
+                }, 20000);
+            }
+
         } catch(e) {
             console.error('renderLivePresence error:', e);
             container.innerHTML = `<div style="color:var(--text-muted); font-size:12.5px;"><i class="fas fa-exclamation-triangle"></i> تعذر جلب التواجد اللحظي.</div>`;

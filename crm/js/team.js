@@ -4,6 +4,8 @@
    ============================================ */
 
 const Team = {
+    _presencesCache: {},
+
     init() {
         this.bindEvents();
         if (typeof App !== 'undefined' && App.currentPage === 'team') {
@@ -17,6 +19,42 @@ const Team = {
             e.preventDefault();
             this.saveUser();
         });
+    },
+
+    updateLivePresenceBadgesInDom() {
+        const presences = this._presencesCache || {};
+        const users = (window.AppStorage && window.AppStorage.getUsers) ? (window.AppStorage.getUsers() || []) : [];
+        let onlineCount = 0;
+        const esc = (s) => String(s || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+
+        users.forEach(u => {
+            const p = presences[u.id] || presences[String(u.id).toLowerCase()] || (u.username && presences[u.username.toLowerCase()]);
+            const isOnline = Boolean(p && p.isOnline);
+            if (isOnline) onlineCount++;
+            const lastSeenText = p ? p.lastSeenArabic : 'لم يسجل الدخول بعد';
+            const pageLabel = (p && p.pageLabelArabic) ? p.pageLabelArabic : '';
+
+            const badgeHtml = isOnline
+                ? `<span class="badge" style="background:rgba(16,185,129,0.15); color:#10b981; border:1px solid #10b981; font-weight:800; font-size:10.5px; padding:2px 7px; border-radius:6px; display:inline-flex; align-items:center; gap:4px;"><span class="presence-pulse-dot" style="width:6px; height:6px;"></span> متصل الآن ${pageLabel ? `(${esc(pageLabel)})` : ''}</span>`
+                : `<span class="badge" style="background:rgba(148,163,184,0.12); color:var(--text-muted); border:1px solid var(--border-color); font-weight:600; font-size:10px; padding:2px 7px; border-radius:6px; display:inline-flex; align-items:center; gap:4px;"><span class="presence-offline-dot" style="width:6px; height:6px;"></span> ${esc(lastSeenText)}</span>`;
+
+            // Update in #page-team
+            document.querySelectorAll(`.team-presence-badge-${u.id}`).forEach(el => el.innerHTML = badgeHtml);
+            document.querySelectorAll(`.team-user-dot-${u.id}`).forEach(el => {
+                el.style.background = isOnline ? '#10b981' : '#94a3b8';
+            });
+
+            // Update in #page-employees
+            document.querySelectorAll(`.emp-presence-badge-${u.id}`).forEach(el => el.innerHTML = badgeHtml);
+            document.querySelectorAll(`.emp-user-dot-${u.id}`).forEach(el => {
+                el.style.background = isOnline ? '#10b981' : '#94a3b8';
+            });
+        });
+
+        const counterEl = document.getElementById('team-live-online-counter');
+        if (counterEl) {
+            counterEl.innerHTML = `${onlineCount} <small style="font-size:14px; font-weight:normal;">متصل حالياً</small>`;
+        }
     },
 
     render() {
@@ -93,19 +131,41 @@ const Team = {
                 }
             }
 
+            const presences = this._presencesCache || {};
+            if (window.SupabaseClient && typeof window.SupabaseClient.getAllUsersPresence === 'function') {
+                window.SupabaseClient.getAllUsersPresence().then(p => {
+                    if (p && typeof p === 'object') {
+                        this._presencesCache = p;
+                        this.updateLivePresenceBadgesInDom();
+                    }
+                }).catch(() => {});
+            }
+
+            let onlineUsersCount = 0;
+            users.forEach(u => {
+                const p = presences[u.id] || presences[String(u.id).toLowerCase()] || (u.username && presences[u.username.toLowerCase()]);
+                if (p && p.isOnline) onlineUsersCount++;
+            });
+
+            const esc = (s) => String(s || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+
             teamPage.innerHTML = `
                 <div class="page-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
                     <div>
                         <h1 class="page-title"><i class="fas fa-chart-line"></i> متابعة إنجازات وتواصل الفريق الحية</h1>
-                        <p class="page-subtitle">متابعة نسب التواصل، والشركات المسندة، ورصد المكالمات والصفقات الناجحة لكل موظف</p>
+                        <p class="page-subtitle">متابعة نسب التواصل، والشركات المسندة، وحالة اتصال وتواجد الموظفين لحظياً</p>
                     </div>
                 </div>
 
                 <!-- Team Overview Summary Cards -->
-                <div class="stats-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:16px; margin-bottom:24px;">
+                <div class="stats-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:16px; margin-bottom:24px;">
                     <div class="stat-card" style="background:var(--bg-secondary); border-radius:12px; padding:16px; border:1px solid var(--border-color);">
                         <div style="font-size:12px; color:var(--text-muted); font-weight:700;">👥 عدد أعضاء الفريق</div>
                         <div style="font-size:28px; font-weight:800; color:var(--text-primary); margin-top:4px;">${users.length} <small style="font-size:14px; font-weight:normal;">حسابات</small></div>
+                    </div>
+                    <div class="stat-card" style="background:var(--bg-secondary); border-radius:12px; padding:16px; border:1px solid rgba(16, 185, 129, 0.4);">
+                        <div style="font-size:12px; color:var(--text-muted); font-weight:700;">🟢 المتصلون الآن بالسيستم</div>
+                        <div id="team-live-online-counter" style="font-size:28px; font-weight:800; color:#10b981; margin-top:4px;">${onlineUsersCount} <small style="font-size:14px; font-weight:normal;">متصل حالياً</small></div>
                     </div>
                     <div class="stat-card" style="background:var(--bg-secondary); border-radius:12px; padding:16px; border:1px solid var(--border-color);">
                         <div style="font-size:12px; color:var(--text-muted); font-weight:700;">📌 شركات مسندة للموظفين</div>
@@ -135,7 +195,7 @@ const Team = {
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>الموظف <small>Employee</small></th>
+                                <th>الموظف والتواجد <small>Employee & Presence</small></th>
                                 <th>المنطقة ورقم ERP</th>
                                 <th>الشركات المسندة</th>
                                 <th>تم التواصل <small>Contacted</small></th>
@@ -150,14 +210,29 @@ const Team = {
                             ${usersStats.map(u => {
                                 const uName = (u.name && u.name !== 'undefined') ? u.name : ((u.id === 'admin' || u.role === 'admin') ? 'Admin' : (u.username || 'موظف'));
                                 const uEmail = (u.email && u.email !== 'undefined') ? u.email : (u.username && u.username.includes('@') ? u.username : ((u.id === 'admin' || u.role === 'admin') ? 'admin@fleet.com' : (u.username ? u.username + '@fleet.com' : 'admin@fleet.com')));
+                                const p = presences[u.id] || presences[String(u.id).toLowerCase()] || (u.username && presences[u.username.toLowerCase()]);
+                                const isOnline = Boolean(p && p.isOnline);
+                                const lastSeenText = p ? p.lastSeenArabic : 'لم يسجل الدخول بعد';
+                                const pageLabel = (p && p.pageLabelArabic) ? p.pageLabelArabic : '';
+
+                                const presenceBadgeHtml = isOnline
+                                    ? `<span class="badge" style="background:rgba(16,185,129,0.15); color:#10b981; border:1px solid #10b981; font-weight:800; font-size:10.5px; padding:2px 7px; border-radius:6px; display:inline-flex; align-items:center; gap:4px;"><span class="presence-pulse-dot" style="width:6px; height:6px;"></span> متصل الآن ${pageLabel ? `(${esc(pageLabel)})` : ''}</span>`
+                                    : `<span class="badge" style="background:rgba(148,163,184,0.12); color:var(--text-muted); border:1px solid var(--border-color); font-weight:600; font-size:10px; padding:2px 7px; border-radius:6px; display:inline-flex; align-items:center; gap:4px;"><span class="presence-offline-dot" style="width:6px; height:6px;"></span> ${esc(lastSeenText)}</span>`;
+
                                 return `
                                 <tr>
                                     <td>
                                         <div style="display:flex; align-items:center; gap:10px;">
-                                            <span style="background:${u.color || '#7c3aed'}; color:#fff; width:36px; height:36px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:bold;">${u.avatar || (u.role === 'admin' ? '👑' : u.role === 'supervisor' ? '👁️' : '👨‍💼')}</span>
+                                            <div style="position:relative;">
+                                                <span style="background:${u.color || '#7c3aed'}; color:#fff; width:38px; height:38px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:bold;">${u.avatar || (u.role === 'admin' ? '👑' : u.role === 'supervisor' ? '👁️' : '👨‍💼')}</span>
+                                                <span class="team-user-dot-${u.id}" style="position:absolute; bottom:-2px; right:-2px; width:11px; height:11px; border-radius:50%; background:${isOnline ? '#10b981' : '#94a3b8'}; border:2px solid var(--bg-surface);"></span>
+                                            </div>
                                             <div>
-                                                <div style="font-weight:800; color:var(--text-primary); font-size:14px;">${uName}</div>
-                                                <small style="color:var(--text-muted); font-size:11px; direction:ltr; text-align:right; display:block;">📧 ${uEmail}</small>
+                                                <div style="font-weight:800; color:var(--text-primary); font-size:14px; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                                                    <span>${esc(uName)}</span>
+                                                    <span class="team-presence-badge-${u.id}">${presenceBadgeHtml}</span>
+                                                </div>
+                                                <small style="color:var(--text-muted); font-size:11px; direction:ltr; text-align:right; display:block;">📧 ${esc(uEmail)}</small>
                                             </div>
                                         </div>
                                     </td>
@@ -259,12 +334,24 @@ const Team = {
                 </div>
             `;
 
+            const presences = this._presencesCache || {};
+            if (window.SupabaseClient && typeof window.SupabaseClient.getAllUsersPresence === 'function') {
+                window.SupabaseClient.getAllUsersPresence().then(p => {
+                    if (p && typeof p === 'object') {
+                        this._presencesCache = p;
+                        this.updateLivePresenceBadgesInDom();
+                    }
+                }).catch(() => {});
+            }
+
+            const esc = (s) => String(s || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+
             empPage.innerHTML = `
                 ${pendingHtml}
                 <div class="page-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
                     <div>
                         <h1 class="page-title"><i class="fas fa-users-cog"></i> إدارة الموظفين وصلاحيات الوصول للنظام</h1>
-                        <p class="page-subtitle">إنشاء وتعيين حسابات الموظفين، وتحديد مستويات التحكم، وإعادة ضبط كلمة المرور والحالة</p>
+                        <p class="page-subtitle">إنشاء وتعيين حسابات الموظفين، وتحديد مستويات التحكم، ومراقبة حالة التواجد والاتصال</p>
                     </div>
                     ${window.AppStorage.canModify() ? `
                         <button class="btn btn-primary" id="btn-add-user" onclick="Team.openUserModal()" style="background:var(--gradient-primary); padding:10px 22px; font-weight:800; border-radius:12px; box-shadow:0 4px 15px rgba(124, 58, 237, 0.4);">
@@ -281,7 +368,7 @@ const Team = {
                         </h4>
                         <span style="font-size: 0.78rem; color: #94a3b8;">يمكنك تغيير صلاحية أي موظف فوراً من زر التعديل ✏️</span>
                     </div>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px;">
+                    <div style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px;" style="display: grid;">
                         <div style="background: rgba(124, 58, 237, 0.1); border: 1px solid rgba(124, 58, 237, 0.3); border-radius: 12px; padding: 12px 14px;">
                             <div style="font-weight: 800; color: #c4b5fd; font-size: 0.9rem; margin-bottom: 4px;">👑 مدير عام (Admin)</div>
                             <p style="font-size: 0.78rem; color: #cbd5e1; margin: 0; line-height: 1.4;">تحكم شامل بكافة الخصائص • إضافة وتعديل الشركات • إسناد الشركات للموظفين • إدارة وصلاحيات الفريق كاملاً.</p>
@@ -311,7 +398,7 @@ const Team = {
                                 <th>بيانات الدخول <small>Email & Login</small></th>
                                 <th>مستوى الصلاحية والتحكم <small>Role & Scope</small></th>
                                 <th>المنطقة ورقم ERP</th>
-                                <th>حالة الحساب <small>Status</small></th>
+                                <th>حالة الحساب والتواجد <small>Status & Presence</small></th>
                                 ${window.AppStorage.canModify() ? `<th>إجراءات الحساب <small>Actions</small></th>` : ''}
                             </tr>
                         </thead>
@@ -339,20 +426,32 @@ const Team = {
                                 const uName = (u.name && u.name !== 'undefined') ? u.name : ((u.id === 'admin' || u.role === 'admin') ? 'Admin' : (u.username || 'موظف'));
                                 const uEmail = (u.email && u.email !== 'undefined') ? u.email : (u.username && u.username.includes('@') ? u.username : ((u.id === 'admin' || u.role === 'admin') ? 'admin@fleet.com' : (u.username ? u.username + '@fleet.com' : 'admin@fleet.com')));
 
+                                const p = presences[u.id] || presences[String(u.id).toLowerCase()] || (u.username && presences[u.username.toLowerCase()]);
+                                const isOnline = Boolean(p && p.isOnline);
+                                const lastSeenText = p ? p.lastSeenArabic : 'لم يسجل الدخول بعد';
+                                const pageLabel = (p && p.pageLabelArabic) ? p.pageLabelArabic : '';
+
+                                const presenceBadgeHtml = isOnline
+                                    ? `<span class="badge" style="background:rgba(16,185,129,0.15); color:#10b981; border:1px solid #10b981; font-weight:800; font-size:10px; padding:2px 7px; border-radius:6px; display:inline-flex; align-items:center; gap:4px;"><span class="presence-pulse-dot" style="width:6px; height:6px;"></span> متصل الآن ${pageLabel ? `(${esc(pageLabel)})` : ''}</span>`
+                                    : `<span class="badge" style="background:rgba(148,163,184,0.12); color:var(--text-muted); border:1px solid var(--border-color); font-weight:600; font-size:9.5px; padding:2px 7px; border-radius:6px; display:inline-flex; align-items:center; gap:4px;"><span class="presence-offline-dot" style="width:6px; height:6px;"></span> ${esc(lastSeenText)}</span>`;
+
                                 return `
                                 <tr>
                                     <td>
                                         <div style="display:flex; align-items:center; gap:10px;">
-                                            <span style="background:${u.color || '#7c3aed'}; color:#fff; width:38px; height:38px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:bold;">${u.avatar || (u.role === 'admin' ? '👑' : u.role === 'supervisor' ? '👁️' : '👨‍💼')}</span>
+                                            <div style="position:relative;">
+                                                <span style="background:${u.color || '#7c3aed'}; color:#fff; width:38px; height:38px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:bold;">${u.avatar || (u.role === 'admin' ? '👑' : u.role === 'supervisor' ? '👁️' : '👨‍💼')}</span>
+                                                <span class="emp-user-dot-${u.id}" style="position:absolute; bottom:-2px; right:-2px; width:11px; height:11px; border-radius:50%; background:${isOnline ? '#10b981' : '#94a3b8'}; border:2px solid var(--bg-surface);"></span>
+                                            </div>
                                             <div>
-                                                <div style="font-weight:800; color:var(--text-primary); font-size:14px;">${uName}</div>
+                                                <div style="font-weight:800; color:var(--text-primary); font-size:14px;">${esc(uName)}</div>
                                                 <small style="color:var(--text-muted); font-size:11px;">تاريخ الإنشاء: ${u.createdAt ? u.createdAt.split('T')[0] : 'سابق'}</small>
                                             </div>
                                         </div>
                                     </td>
                                     <td>
                                         <div style="direction:ltr; text-align:right;">
-                                            <code style="font-weight:800; color:#3b82f6; font-size:12px;"><i class="fas fa-envelope"></i> ${uEmail}</code>
+                                            <code style="font-weight:800; color:#3b82f6; font-size:12px;"><i class="fas fa-envelope"></i> ${esc(uEmail)}</code>
                                             <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">🔑 كلمة المرور: <span style="font-family:monospace; color:#a78bfa;">••••••••</span></div>
                                         </div>
                                     </td>
@@ -364,7 +463,12 @@ const Team = {
                                         <div style="font-size:11px;"><span class="badge" style="background:var(--bg-surface); border:1px solid var(--border-color);">${window.AppStorage.getRegionLabel(u.region)}</span></div>
                                         <code style="font-size:10px; color:var(--accent);">${u.erpCode || 'بدون ERP'}</code>
                                     </td>
-                                    <td>${statusBadge}</td>
+                                    <td>
+                                        <div style="display:flex; flex-direction:column; gap:5px; align-items:flex-start;">
+                                            <div>${statusBadge}</div>
+                                            <div class="emp-presence-badge-${u.id}">${presenceBadgeHtml}</div>
+                                        </div>
+                                    </td>
                                     ${window.AppStorage.canModify() ? `
                                         <td>
                                             <div class="table-actions" style="display:flex; gap:6px; flex-wrap:wrap;">

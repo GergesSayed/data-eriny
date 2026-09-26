@@ -4433,4 +4433,62 @@ html.user-role-agent #cloud-sync-indicator {
     color: #ffffff;
 }
 
+/* ========================================================
+   Real-Time User Presence Tracker (Online / Offline Engine)
+   ======================================================== */
+@keyframes presencePulseRadar {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    }
+    70% {
+        transform: scale(1.15);
+        box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+    }
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    }
+}
+
+.presence-pulse-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #10b981;
+    animation: presencePulseRadar 2s infinite cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+}
+
+.presence-offline-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #94a3b8;
+    flex-shrink: 0;
+}
+
+.team-presence-pill {
+    transition: all 0.25s ease;
+    user-select: none;
+}
+
+.team-presence-pill:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+}
+
+.presence-user-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-radius: 12px;
+}
+
+.presence-user-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+
 

@@ -94,9 +94,23 @@ const App = {
                     }
                 }).catch(() => {});
             };
-            window.addEventListener('focus', handleInstantSync);
+            window.addEventListener('focus', () => {
+                handleInstantSync();
+                this.sendPresenceHeartbeat();
+            });
             document.addEventListener('visibilitychange', () => {
-                if (document.visibilityState === 'visible') handleInstantSync();
+                if (document.visibilityState === 'visible') {
+                    handleInstantSync();
+                    this.sendPresenceHeartbeat();
+                }
+            });
+            window.addEventListener('beforeunload', () => {
+                try {
+                    const u = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
+                    if (u && u.id && window.SupabaseClient && typeof window.SupabaseClient.setUserOffline === 'function') {
+                        window.SupabaseClient.setUserOffline(u.id);
+                    }
+                } catch(e) {}
             });
 
             // Migrate existing companies' sectors/cities to canonical keys if not done yet
@@ -212,6 +226,11 @@ const App = {
 
             this.initCloudSyncStatusUI();
             this.navigateTo(targetPage, true);
+
+            if (currentUser) {
+                this.startPresenceHeartbeat();
+                this.startTeamPresenceWatcher();
+            }
 
             // Periodic cloud sync pull — check for remote changes every 60 seconds
             this._cloudSyncInterval = setInterval(() => {
@@ -447,6 +466,8 @@ const App = {
                 const targetPage = isAdmin ? 'dashboard' : 'companies';
                 window.location.hash = '#' + targetPage;
                 this.navigateTo(targetPage, true);
+                this.startPresenceHeartbeat();
+                this.startTeamPresenceWatcher();
             } catch (err) {
                 console.error('Handle login error:', err);
                 if (submitBtn) {
@@ -497,6 +518,11 @@ const App = {
 
     logoutSystem() {
         try {
+            const current = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
+            this.stopPresenceHeartbeat();
+            if (current && current.id && window.SupabaseClient && typeof window.SupabaseClient.setUserOffline === 'function') {
+                window.SupabaseClient.setUserOffline(current.id);
+            }
             const db = window.AppStorage;
             if (db && typeof db.logout === 'function') {
                 db.logout();
@@ -634,6 +660,8 @@ const App = {
         const isAdmin = user && user.role === 'admin';
         this.showToast(isAdmin ? `👑 تم تفعيل حساب: ${user.name} - تحكم كامل بالمأذونيات` : `👤 تم التبديل إلى حساب: ${user.name}`, 'success');
         this.navigateTo(isAdmin ? 'dashboard' : 'companies', true);
+        this.startPresenceHeartbeat();
+        this.startTeamPresenceWatcher();
     },
 
     async autoImportScrapedData() {
@@ -852,6 +880,9 @@ const App = {
         } catch (e) {
             console.error('Navigate render error:', e);
         }
+
+        // Re-send presence heartbeat with updated page location
+        this.sendPresenceHeartbeat();
 
         // Close sidebar + overlay on mobile navigation
         this.closeSidebar();
@@ -1491,6 +1522,266 @@ const App = {
             if (icon) { icon.className = 'fas fa-exclamation-circle'; }
             if (label) { label.textContent = 'تعذر المزامنة'; }
         }
+    },
+
+    // ---- Live Team Presence Engine (Online / Offline Tracker) ----
+    _presenceInterval: null,
+    _teamPresenceInterval: null,
+    _teamPresenceModalFilter: 'all',
+    _teamPresenceSearchQuery: '',
+
+    startPresenceHeartbeat() {
+        this.stopPresenceHeartbeat();
+        this.sendPresenceHeartbeat();
+        this._presenceInterval = setInterval(() => {
+            this.sendPresenceHeartbeat();
+        }, 25000); // 25s heartbeat
+    },
+
+    stopPresenceHeartbeat() {
+        if (this._presenceInterval) {
+            clearInterval(this._presenceInterval);
+            this._presenceInterval = null;
+        }
+    },
+
+    sendPresenceHeartbeat() {
+        try {
+            const user = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
+            if (!user || !user.id) return;
+            if (window.SupabaseClient && typeof window.SupabaseClient.sendUserHeartbeat === 'function') {
+                window.SupabaseClient.sendUserHeartbeat(user, this.currentPage || 'dashboard');
+            }
+        } catch (e) {}
+    },
+
+    startTeamPresenceWatcher() {
+        if (this._teamPresenceInterval) {
+            clearInterval(this._teamPresenceInterval);
+            this._teamPresenceInterval = null;
+        }
+        const user = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
+        if (!user || !window.AppStorage.canViewAll(user)) return;
+
+        this.updateTeamPresencePill();
+        this._teamPresenceInterval = setInterval(() => {
+            this.updateTeamPresencePill();
+            const modal = document.getElementById('modal-team-presence');
+            if (modal && modal.classList.contains('show')) {
+                this.renderTeamPresenceModalContent();
+            }
+        }, 20000); // 20s update
+    },
+
+    async updateTeamPresencePill() {
+        const pill = document.getElementById('team-presence-indicator');
+        const label = document.getElementById('team-presence-label');
+        if (!pill || !label) return;
+
+        const user = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
+        if (!user || !window.AppStorage.canViewAll(user)) {
+            pill.style.display = 'none';
+            return;
+        }
+        pill.style.display = 'inline-flex';
+
+        if (!window.SupabaseClient || typeof window.SupabaseClient.getAllUsersPresence !== 'function') {
+            label.textContent = 'المراقبة غير متاحة';
+            return;
+        }
+
+        try {
+            const presences = await window.SupabaseClient.getAllUsersPresence();
+            const allUsers = (window.AppStorage && window.AppStorage.getUsers) ? (window.AppStorage.getUsers() || []) : [];
+            let onlineCount = 0;
+
+            allUsers.forEach(u => {
+                const p = presences[u.id] || presences[String(u.id).toLowerCase()] || (u.username && presences[u.username.toLowerCase()]);
+                if (p && p.isOnline) onlineCount++;
+            });
+
+            if (onlineCount > 0) {
+                pill.style.background = 'rgba(16, 185, 129, 0.14)';
+                pill.style.borderColor = 'rgba(16, 185, 129, 0.45)';
+                pill.style.color = '#10b981';
+                label.innerHTML = `🟢 <b>${onlineCount}</b> ${onlineCount === 1 ? 'متصل الآن' : 'متصلين الآن'}`;
+            } else {
+                pill.style.background = 'rgba(148, 163, 184, 0.12)';
+                pill.style.borderColor = 'rgba(148, 163, 184, 0.3)';
+                pill.style.color = 'var(--text-muted)';
+                label.innerHTML = `⚪ لا يوجد متصلين`;
+            }
+        } catch(e) {
+            console.warn('updateTeamPresencePill error:', e);
+        }
+    },
+
+    async openTeamPresenceModal() {
+        this.openModal('modal-team-presence');
+        await this.renderTeamPresenceModalContent();
+    },
+
+    async renderTeamPresenceModalContent() {
+        const container = document.getElementById('team-presence-modal-body');
+        const reloadIcon = document.getElementById('team-presence-modal-reload-icon');
+        if (!container) return;
+        if (reloadIcon) reloadIcon.classList.add('fa-spin');
+
+        const esc = (s) => String(s || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+
+        try {
+            const presences = (window.SupabaseClient && typeof window.SupabaseClient.getAllUsersPresence === 'function')
+                ? await window.SupabaseClient.getAllUsersPresence()
+                : {};
+
+            const allUsers = (window.AppStorage && window.AppStorage.getUsers) ? (window.AppStorage.getUsers() || []) : [];
+            const filter = this._teamPresenceModalFilter || 'all';
+            const query = (this._teamPresenceSearchQuery || '').trim().toLowerCase();
+
+            let onlineList = [];
+            let offlineList = [];
+
+            const userCards = allUsers.map(u => {
+                const p = presences[u.id] || presences[String(u.id).toLowerCase()] || (u.username && presences[u.username.toLowerCase()]);
+                const isOnline = Boolean(p && p.isOnline);
+                const lastSeenText = p ? p.lastSeenArabic : 'لم يسجل الدخول بعد';
+                const pageLabel = p ? p.pageLabelArabic : '—';
+                const uName = (u.name && u.name !== 'undefined') ? u.name : ((u.id === 'admin' || u.role === 'admin') ? 'Admin' : (u.username || 'موظف'));
+                const uEmail = (u.email && u.email !== 'undefined') ? u.email : (u.username && u.username.includes('@') ? u.username : ((u.id === 'admin' || u.role === 'admin') ? 'admin@fleet.com' : (u.username ? u.username + '@fleet.com' : 'admin@fleet.com')));
+
+                let roleBadge = '';
+                if (u.role === 'admin' || u.id === 'admin') {
+                    roleBadge = '<span class="badge" style="background:rgba(124, 58, 237, 0.18); color:#a78bfa; border:1px solid #7c3aed; font-weight:800; font-size:10.5px;">👑 مدير عام</span>';
+                } else if (u.role === 'supervisor') {
+                    roleBadge = '<span class="badge" style="background:rgba(6, 182, 212, 0.18); color:#22d3ee; border:1px solid #06b6d4; font-weight:800; font-size:10.5px;">👁️ مشرف</span>';
+                } else {
+                    roleBadge = '<span class="badge" style="background:rgba(59, 130, 246, 0.18); color:#60a5fa; border:1px solid #3b82f6; font-weight:800; font-size:10.5px;">👨‍💼 مسؤول مبيعات</span>';
+                }
+
+                const itemData = {
+                    user: u,
+                    isOnline,
+                    lastSeenText,
+                    pageLabel,
+                    uName,
+                    uEmail,
+                    roleBadge
+                };
+
+                if (isOnline) onlineList.push(itemData);
+                else offlineList.push(itemData);
+
+                return itemData;
+            });
+
+            // Update tab counts
+            const countAllEl = document.getElementById('presence-tab-count-all');
+            const countOnlineEl = document.getElementById('presence-tab-count-online');
+            const countOfflineEl = document.getElementById('presence-tab-count-offline');
+            if (countAllEl) countAllEl.textContent = allUsers.length;
+            if (countOnlineEl) countOnlineEl.textContent = onlineList.length;
+            if (countOfflineEl) countOfflineEl.textContent = offlineList.length;
+
+            let displayedUsers = userCards;
+            if (filter === 'online') {
+                displayedUsers = userCards.filter(x => x.isOnline);
+            } else if (filter === 'offline') {
+                displayedUsers = userCards.filter(x => !x.isOnline);
+            }
+
+            if (query) {
+                displayedUsers = displayedUsers.filter(x => {
+                    return x.uName.toLowerCase().includes(query) ||
+                           x.uEmail.toLowerCase().includes(query) ||
+                           (x.user.role && x.user.role.toLowerCase().includes(query));
+                });
+            }
+
+            // Sort: Online first, then by name
+            displayedUsers.sort((a, b) => {
+                if (a.isOnline && !b.isOnline) return -1;
+                if (!a.isOnline && b.isOnline) return 1;
+                return a.uName.localeCompare(b.uName, 'ar');
+            });
+
+            if (displayedUsers.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align:center; padding:36px 16px; color:var(--text-muted);">
+                        <i class="fas fa-users-slash" style="font-size:36px; margin-bottom:12px; color:var(--text-muted); opacity:0.6;"></i>
+                        <p style="font-weight:700; margin:0;">لا توجد حسابات تطابق معايير الفلترة المحددة</p>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = displayedUsers.map(item => {
+                const u = item.user;
+                const statusHtml = item.isOnline
+                    ? `<div style="display:flex; align-items:center; gap:6px; background:rgba(16, 185, 129, 0.14); border:1px solid #10b981; color:#10b981; padding:5px 12px; border-radius:10px; font-size:12px; font-weight:800; white-space:nowrap;">
+                         <span class="presence-pulse-dot"></span>
+                         <span>متصل الآن</span>
+                       </div>`
+                    : `<div style="display:flex; align-items:center; gap:6px; background:rgba(148, 163, 184, 0.12); border:1px solid var(--border-color); color:var(--text-muted); padding:5px 12px; border-radius:10px; font-size:11.5px; font-weight:700; white-space:nowrap;">
+                         <span class="presence-offline-dot"></span>
+                         <span>غير متصل</span>
+                       </div>`;
+
+                const detailInfo = item.isOnline
+                    ? `<div style="font-size:12px; color:var(--accent); margin-top:5px; font-weight:700; display:flex; align-items:center; gap:5px;">
+                         <i class="fas fa-compass" style="font-size:11px;"></i>
+                         <span>يتصفح حالياً: <b style="color:var(--text-primary);">${esc(item.pageLabel)}</b></span>
+                       </div>`
+                    : `<div style="font-size:11.5px; color:var(--text-muted); margin-top:5px; font-weight:600; display:flex; align-items:center; gap:5px;">
+                         <i class="far fa-clock" style="font-size:11px;"></i>
+                         <span>آخر ظهور: <b style="color:var(--text-secondary);">${esc(item.lastSeenText)}</b></span>
+                       </div>`;
+
+                return `
+                    <div class="presence-user-card" style="background:var(--bg-surface); border:1px solid ${item.isOnline ? 'rgba(16, 185, 129, 0.4)' : 'var(--border-color)'}; padding:14px 18px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; box-shadow:0 2px 10px rgba(0,0,0,0.04);">
+                        <div style="display:flex; align-items:center; gap:12px; min-width:240px;">
+                            <div style="position:relative;">
+                                <span style="background:${u.color || '#7c3aed'}; color:#fff; width:46px; height:46px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:bold; box-shadow:0 3px 10px rgba(0,0,0,0.12);">
+                                    ${u.avatar || (u.role === 'admin' ? '👑' : u.role === 'supervisor' ? '👁️' : '👨‍💼')}
+                                </span>
+                                <span style="position:absolute; bottom:-2px; right:-2px; width:13px; height:13px; border-radius:50%; background:${item.isOnline ? '#10b981' : '#94a3b8'}; border:2.5px solid var(--bg-surface);"></span>
+                            </div>
+                            <div>
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <h4 style="margin:0; font-size:14.5px; font-weight:800; color:var(--text-primary);">${esc(item.uName)}</h4>
+                                    ${item.roleBadge}
+                                </div>
+                                <div style="font-size:11px; color:var(--text-muted); direction:ltr; text-align:right; margin-top:2px;">
+                                    ${esc(item.uEmail)}
+                                </div>
+                                ${detailInfo}
+                            </div>
+                        </div>
+                        <div>
+                            ${statusHtml}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+        } catch (err) {
+            console.error('renderTeamPresenceModalContent error:', err);
+            container.innerHTML = `<div style="color:var(--text-muted); padding:20px; text-align:center;"><i class="fas fa-exclamation-triangle"></i> تعذر تحديث بيانات الحضور والتواجد.</div>`;
+        } finally {
+            if (reloadIcon) reloadIcon.classList.remove('fa-spin');
+        }
+    },
+
+    setTeamPresenceFilter(filterType, btnEl) {
+        this._teamPresenceModalFilter = filterType;
+        if (btnEl && btnEl.parentElement) {
+            btnEl.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+            btnEl.classList.add('active');
+        }
+        this.renderTeamPresenceModalContent();
+    },
+
+    handleTeamPresenceSearch(query) {
+        this._teamPresenceSearchQuery = query;
+        this.renderTeamPresenceModalContent();
     },
 
     initUserSwitcher() {
