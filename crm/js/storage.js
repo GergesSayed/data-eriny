@@ -1962,22 +1962,26 @@ const AppStorage = {
                 }
             }
 
-            // 3. Ingest cloud tombstones into local storage
-            if (data.deletedCalls && Array.isArray(data.deletedCalls) && data.deletedCalls.length > 0) {
-                data.deletedCalls.forEach(id => {
-                    if (id) {
-                        try {
-                            const key = 'fleetcrm_deleted_calls';
-                            const list = JSON.parse(localStorage.getItem(key) || '[]');
-                            const sId = String(id);
-                            if (!list.includes(sId)) {
-                                list.push(sId);
-                                localStorage.setItem(key, JSON.stringify(list));
-                            }
-                        } catch (e) { }
+            // 3. Ingest cloud tombstones into local storage & safely restore active calls
+            const cloudDeletedSet = new Set((data.deletedCalls && Array.isArray(data.deletedCalls)) ? data.deletedCalls.map(String) : []);
+            try {
+                const key = 'fleetcrm_deleted_calls';
+                let list = JSON.parse(localStorage.getItem(key) || '[]');
+                
+                // Self-healing: If cloud explicitly has active calls that are NOT tombstoned in cloud, remove them from local deleted tombstone list
+                if (data.calls && Array.isArray(data.calls)) {
+                    const activeCloudIds = new Set(data.calls.filter(c => c && c.id && !cloudDeletedSet.has(String(c.id))).map(c => String(c.id)));
+                    list = list.filter(id => !activeCloudIds.has(String(id)));
+                }
+
+                // Append any genuine cloud tombstones
+                cloudDeletedSet.forEach(sId => {
+                    if (sId && !list.includes(sId)) {
+                        list.push(sId);
                     }
                 });
-            }
+                localStorage.setItem(key, JSON.stringify(list));
+            } catch (e) { }
 
             const deletedCompIds = this.getDeletedIds('companies');
             const deletedCallIds = this.getDeletedIds('calls');
@@ -1996,26 +2000,25 @@ const AppStorage = {
                     callMap.set(String(c.id), c);
                 });
 
-                // B. Reconcile local calls
-                const now = Date.now();
+                // B. Reconcile local calls (NEVER falsely delete local calls; preserve and mark for sync)
+                let hasUnsyncedLocal = false;
                 localCalls.forEach(c => {
                     const cId = String(c.id);
                     if (cloudIdSet.has(cId)) {
                         const existing = callMap.get(cId);
                         callMap.set(cId, { ...c, ...existing });
                     } else {
-                        // Call is present locally but missing from cloud
-                        const createdTs = c.createdAt ? new Date(c.createdAt).getTime() : 0;
-                        const isRecentDraft = (now - createdTs) < 45000 && createdTs > 0;
-                        if (isRecentDraft) {
-                            // Offline draft logged in last 45 seconds, preserve it
-                            callMap.set(cId, c);
-                        } else {
-                            // Call was deleted in cloud/by admin!
-                            this.recordDeletedId('calls', cId);
-                        }
+                        // Call exists locally and is not tombstoned: preserve it!
+                        callMap.set(cId, c);
+                        hasUnsyncedLocal = true;
                     }
                 });
+
+                if (hasUnsyncedLocal && this.autoSyncToCloud) {
+                    setTimeout(() => {
+                        this.autoSyncToCloud(this.companiesMemory, true);
+                    }, 1000);
+                }
 
                 const mergedCalls = Array.from(callMap.values());
                 if (mergedCalls.length !== localRawCalls.length || JSON.stringify(mergedCalls) !== JSON.stringify(localRawCalls)) {
