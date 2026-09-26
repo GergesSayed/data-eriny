@@ -11,7 +11,7 @@
     <script>
         // Force purge any legacy service workers, disk caches, and old deals storage immediately
         (function() {
-            var CURRENT_VER = '290.0';
+            var CURRENT_VER = '291.0';
             try {
                 localStorage.removeItem('fleetcrm_deals');
                 localStorage.removeItem('fleetcrm_deals_count');
@@ -83,7 +83,7 @@
     <link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap"></noscript>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=287.0">
+    <link rel="stylesheet" href="css/style.css?v=291.0">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
         (function() {
@@ -207,8 +207,15 @@
         html.user-role-agent .admin-only-nav,
         body.user-role-agent .admin-only-nav,
         html.user-role-agent .sidebar-nav .nav-link[data-page="dashboard"],
-        body.user-role-agent .sidebar-nav .nav-link[data-page="dashboard"] {
+        body.user-role-agent .sidebar-nav .nav-link[data-page="dashboard"],
+        html.user-role-agent #pwa-offline-indicator,
+        body.user-role-agent #pwa-offline-indicator,
+        html.user-role-agent .pwa-offline-pill,
+        html.user-role-agent #btn-pwa-install-top,
+        html.user-role-agent #modal-pwa-status {
             display: none !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
         }
 
         /* Mobile & Tablet Safe-Layout Rules */
@@ -452,14 +459,14 @@
                     <i class="fas fa-sun theme-toggle-icon" id="theme-toggle-icon"></i>
                 </button>
 
-                <!-- Full Offline PWA Status Indicator -->
-                <div id="pwa-offline-indicator" class="pwa-offline-pill" title="حالة العمل دون إنترنت (Full Offline PWA)" onclick="App.showOfflineStatusModal()" style="display:inline-flex; align-items:center; gap:6px; background:rgba(99, 102, 241, 0.15); border:1px solid rgba(99, 102, 241, 0.4); color:#a5b4fc; padding:5px 12px; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer;">
-                    <i class="fas fa-bolt" id="pwa-offline-icon" style="color:#22d3ee;"></i>
+                <!-- Full Offline PWA Status Indicator (Strictly Admin Only) -->
+                <div id="pwa-offline-indicator" class="pwa-offline-pill admin-only-nav is-online" title="حالة نظام PWA ووضع Offline الكامل (إداري فقط)" onclick="App.showOfflineStatusModal()" style="display:none; align-items:center; gap:7px; cursor:pointer;">
+                    <i class="fas fa-bolt" id="pwa-offline-icon"></i>
                     <span id="pwa-offline-label">وضع Offline جاهز ⚡</span>
                 </div>
 
-                <!-- Topbar PWA Install button -->
-                <button id="btn-pwa-install-top" onclick="App.installPWA()" class="btn btn-outline btn-sm" style="display: none; border-color: rgba(34, 211, 238, 0.4); color: #22d3ee; background: rgba(34, 211, 238, 0.08); font-weight: 700; font-size: 11.5px; border-radius: 8px; align-items: center; gap: 6px; cursor: pointer;" title="تثبيت Fleet CRM كتطبيق على جهازك">
+                <!-- Topbar PWA Install button (Admin Only) -->
+                <button id="btn-pwa-install-top" onclick="App.installPWA()" class="btn btn-outline btn-sm admin-only-nav" style="display: none; border-color: rgba(34, 211, 238, 0.4); color: #22d3ee; background: rgba(34, 211, 238, 0.08); font-weight: 700; font-size: 11.5px; border-radius: 8px; align-items: center; gap: 6px; cursor: pointer;" title="تثبيت Fleet CRM كتطبيق على جهازك">
                     <i class="fas fa-download"></i> <span>تثبيت التطبيق</span>
                 </button>
 
@@ -1602,47 +1609,81 @@
         </div>
     </div>
 
-    <!-- ⚡ PWA & Full Offline Status Modal -->
-    <div id="modal-pwa-status" class="modal">
-        <div class="modal-dialog" style="max-width: 520px;">
-            <div class="modal-header" style="background: linear-gradient(135deg, rgba(124,58,237,0.2), rgba(34,211,238,0.1));">
-                <h3><i class="fas fa-bolt" style="color: #22d3ee; margin-left: 8px;"></i> حالة نظام PWA ووضع Offline الكامل</h3>
+    <!-- ⚡ PWA & Full Offline Status Modal (Strictly Admin Only) -->
+    <div id="modal-pwa-status" class="modal admin-only-nav">
+        <div class="modal-dialog" style="max-width: 560px;">
+            <div class="modal-header" style="background: var(--bg-surface); border-bottom: 1px solid var(--border-color); padding: 16px 20px;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div style="width:38px; height:38px; border-radius:10px; background:rgba(2, 132, 199, 0.12); color:#0284c7; display:flex; align-items:center; justify-content:center; font-size:18px;">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <div>
+                        <h3 style="margin:0; font-size:1.05rem; font-weight:800; display:flex; align-items:center; gap:8px;">
+                            حالة نظام PWA ووضع Offline الكامل
+                            <span style="background:rgba(124, 58, 237, 0.12); color:#7c3aed; border:1px solid rgba(124, 58, 237, 0.3); font-size:10px; font-weight:800; padding:2px 7px; border-radius:6px;">إداري فقط 👑</span>
+                        </h3>
+                        <small style="color:var(--text-muted); font-size:11px;">مراقبة تخزين الكود والبيانات محلياً لضمان العمل 100% بدون إنترنت</small>
+                    </div>
+                </div>
                 <button class="modal-close" data-modal="modal-pwa-status" onclick="App.closeModal('modal-pwa-status')">&times;</button>
             </div>
             <div class="modal-body" style="padding: 20px;">
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <div style="display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 50%; background: rgba(16, 185, 129, 0.15); color: #10b981; font-size: 28px; margin-bottom: 12px; border: 2px solid rgba(16, 185, 129, 0.4);">
-                        <i class="fas fa-check-circle"></i>
+                <div style="text-align: center; margin-bottom: 18px; background: rgba(14, 165, 233, 0.05); border: 1px solid rgba(14, 165, 233, 0.2); border-radius: 14px; padding: 16px;">
+                    <div style="display: inline-flex; align-items: center; justify-content: center; width: 54px; height: 54px; border-radius: 50%; background: rgba(16, 185, 129, 0.15); color: #10b981; font-size: 24px; margin-bottom: 8px; border: 2px solid rgba(16, 185, 129, 0.4); box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);">
+                        <i class="fas fa-check-double"></i>
                     </div>
-                    <h4 style="font-size: 1.15rem; font-weight: 800; color: var(--text-primary); margin-bottom: 6px;">نظام Fleet CRM جاهز للعمل بدون إنترنت 100%</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">تم تخزين كامل ملفات النظام وقاعدة البيانات محلياً. إذا انقطع اتصال الإنترنت أو قمت بتشغيل وضع الطيران، ستستمر في التصفح والبحث وتسجيل المكالمات دون أي توقف.</p>
+                    <h4 style="font-size: 1.08rem; font-weight: 800; color: var(--text-primary); margin-bottom: 4px;">السيستم جاهز ومؤمن للعمل بدون إنترنت 100%</h4>
+                    <p style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.5; margin: 0;">جميع ملفات الواجهة (App Shell) وقاعدة بيانات الشركات وسجل المكالمات مخزنة محلياً في جهازك، وتتزامن تلقائياً مع السحابة عند توفر الاتصال.</p>
                 </div>
 
-                <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px; margin-bottom: 16px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border-light);">
-                        <span style="font-size: 13px; color: var(--text-secondary);"><i class="fas fa-cube" style="color: #6366f1; margin-left: 6px;"></i> واجهة النظام (App Shell):</span>
-                        <span style="font-size: 12.5px; font-weight: 700; color: #10b981;">✅ مخزنة في الكاش</span>
+                <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 14px; padding: 14px; margin-bottom: 16px; display: flex; flex-direction: column; gap: 9px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid var(--border-light);">
+                        <span style="font-size: 12.5px; color: var(--text-secondary);"><i class="fas fa-microchip" style="color: #6366f1; margin-left: 6px;"></i> خدمة المتصفح (Service Worker):</span>
+                        <span id="pwa-modal-sw-status" style="font-size: 12px; font-weight: 800; color: #10b981;">✅ نشط ويتحكم بالصفحات (Active)</span>
                     </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border-light);">
-                        <span style="font-size: 13px; color: var(--text-secondary);"><i class="fas fa-database" style="color: #22d3ee; margin-left: 6px;"></i> قاعدة الشركات المحلية (IndexedDB):</span>
-                        <span style="font-size: 12.5px; font-weight: 700; color: #10b981;">✅ 25,928 شركة مخزنة</span>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid var(--border-light);">
+                        <span style="font-size: 12.5px; color: var(--text-secondary);"><i class="fas fa-layer-group" style="color: #0284c7; margin-left: 6px;"></i> واجهة وأكواد النظام (App Shell):</span>
+                        <span id="pwa-modal-appshell-status" style="font-size: 12px; font-weight: 800; color: #10b981;">✅ مخزنة بالكامل (v290.0)</span>
                     </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0;">
-                        <span style="font-size: 13px; color: var(--text-secondary);"><i class="fas fa-arrows-rotate" style="color: #f59e0b; margin-left: 6px;"></i> المزامنة السحابية:</span>
-                        <span style="font-size: 12.5px; font-weight: 700; color: #22d3ee;" id="modal-sync-status-text">تلقائية عند توفر النت</span>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid var(--border-light);">
+                        <span style="font-size: 12.5px; color: var(--text-secondary);"><i class="fas fa-database" style="color: #10b981; margin-left: 6px;"></i> قاعدة الشركات المحلية (IndexedDB):</span>
+                        <span id="pwa-modal-comp-count" style="font-size: 12px; font-weight: 800; color: #0284c7;">✅ 25,929 شركة متوفرة أوفلاين</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid var(--border-light);">
+                        <span style="font-size: 12.5px; color: var(--text-secondary);"><i class="fas fa-phone-volume" style="color: #f59e0b; margin-left: 6px;"></i> سجل المكالمات المحلي (Local Vault):</span>
+                        <span id="pwa-modal-calls-count" style="font-size: 12px; font-weight: 800; color: #0284c7;">✅ مؤمن ومحفوظ محلياً</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid var(--border-light);">
+                        <span style="font-size: 12.5px; color: var(--text-secondary);"><i class="fas fa-wifi" style="color: #10b981; margin-left: 6px;"></i> حالة الاتصال بالشبكة:</span>
+                        <span id="pwa-modal-network-status" style="font-size: 12px; font-weight: 800; color: #10b981;">🟢 متصل بالإنترنت (Online)</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid var(--border-light);">
+                        <span style="font-size: 12.5px; color: var(--text-secondary);"><i class="fas fa-sync" style="color: #7c3aed; margin-left: 6px;"></i> محرك المزامنة السحابية:</span>
+                        <span id="modal-sync-status-text" style="font-size: 12px; font-weight: 800; color: #7c3aed;">🔄 مزامنة تلقائية عبر السحابة</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 12.5px; color: var(--text-secondary);"><i class="fas fa-hdd" style="color: #64748b; margin-left: 6px;"></i> المساحة التخزينية المقدرة:</span>
+                        <span id="pwa-modal-storage-usage" style="font-size: 12px; font-weight: 700; color: var(--text-muted);">💾 ~18.5 ميجابايت (سريعة جداً)</span>
                     </div>
                 </div>
 
-                <div style="display: flex; gap: 10px;">
-                    <button class="btn btn-accent btn-sm" onclick="App.testOfflineSimulation()" style="flex: 1; justify-content: center; gap: 6px; font-weight: 700;">
-                        <i class="fas fa-vial"></i> اختبار التصفح أوفلاين
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button class="btn btn-accent btn-sm" onclick="App.testOfflineSimulation()" style="flex: 1; min-width: 150px; justify-content: center; gap: 6px; font-weight: 700; border-radius: 10px;">
+                        <i class="fas fa-vial"></i> اختبار محاكاة أوفلاين
                     </button>
-                    <button class="btn btn-outline btn-sm" onclick="App.clearCacheAndReload()" style="flex: 1; justify-content: center; gap: 6px; font-weight: 700; border-color: rgba(239, 68, 68, 0.4); color: #ef4444;">
+                    <button class="btn btn-outline btn-sm" onclick="App.clearCacheAndReload()" style="flex: 1; min-width: 150px; justify-content: center; gap: 6px; font-weight: 700; border-color: rgba(239, 68, 68, 0.4); color: #ef4444; border-radius: 10px;">
                         <i class="fas fa-rotate"></i> مسح الكاش وتحديث فوري
                     </button>
+                    <button id="btn-modal-pwa-install" class="btn btn-primary btn-sm" onclick="App.installPWA()" style="flex: 1; min-width: 100%; justify-content: center; gap: 6px; font-weight: 800; border-radius: 10px; display: none; background: var(--gradient-primary); box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);">
+                        <i class="fas fa-download"></i> تثبيت التطبيق على جهازك الآن (PWA)
+                    </button>
+                </div>
+                
+                <div style="margin-top: 14px; text-align: center; font-size: 11px; color: var(--text-muted);">
+                    <i class="fas fa-shield-alt" style="color: #7c3aed; margin-left: 4px;"></i> هذه اللوحة إدارية خاصة بالمدير العام فقط، ولا تظهر إطلاقاً في حسابات موظفي المبيعات.
                 </div>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer" style="padding: 12px 20px;">
                 <button class="btn btn-ghost" data-modal="modal-pwa-status" onclick="App.closeModal('modal-pwa-status')">إغلاق</button>
             </div>
         </div>
@@ -1767,20 +1808,20 @@
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <script src="js/supabase-client.js?v=290.0"></script>
-    <script src="js/egypt_verified_titans.js?v=290.0"></script>
-    <script src="js/egypt_enterprises_pool.js?v=290.0"></script>
-    <script src="js/companies-worker.js?v=290.0"></script>
-    <script src="js/storage.js?v=290.0"></script>
-    <script src="js/excel-handler.js?v=290.0"></script>
-    <script src="js/dashboard.js?v=290.0"></script>
-    <script src="js/companies.js?v=290.0"></script>
-    <script src="js/calls.js?v=290.0"></script>
-    <script src="js/reports.js?v=290.0"></script>
-    <script src="js/scraper.js?v=290.0"></script>
-    <script src="js/team.js?v=290.0"></script>
-    <script src="js/settings.js?v=290.0"></script>
-    <script src="js/app.js?v=290.0"></script>
+    <script src="js/supabase-client.js?v=291.0"></script>
+    <script src="js/egypt_verified_titans.js?v=291.0"></script>
+    <script src="js/egypt_enterprises_pool.js?v=291.0"></script>
+    <script src="js/companies-worker.js?v=291.0"></script>
+    <script src="js/storage.js?v=291.0"></script>
+    <script src="js/excel-handler.js?v=291.0"></script>
+    <script src="js/dashboard.js?v=291.0"></script>
+    <script src="js/companies.js?v=291.0"></script>
+    <script src="js/calls.js?v=291.0"></script>
+    <script src="js/reports.js?v=291.0"></script>
+    <script src="js/scraper.js?v=291.0"></script>
+    <script src="js/team.js?v=291.0"></script>
+    <script src="js/settings.js?v=291.0"></script>
+    <script src="js/app.js?v=291.0"></script>
 
     <!-- Cleanup overlay on load - runs once only, does NOT override App.checkAuth -->
     <script>

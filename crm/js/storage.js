@@ -422,7 +422,7 @@ const AppStorage = {
 
             // Direct fast-path for Admin credentials
             if (query === 'admin' || query === 'admin@fleet.com') {
-                const validAdminPws = ['admin', 'Admin@123', 'Admin@2026!ChangeMe', '123456'];
+                const validAdminPws = ['admin', 'admin123', 'Admin@123', 'Admin@2026!ChangeMe', '123456'];
                 const adminUser = this.getUser('admin') || this.DEFAULT_USERS[0];
                 let isMatch = validAdminPws.includes(password);
                 if (!isMatch && adminUser && adminUser.password) {

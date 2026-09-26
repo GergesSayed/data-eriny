@@ -4494,5 +4494,80 @@ html.user-role-agent #cloud-sync-indicator {
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
 }
 
+/* ============================================
+   PWA & Full Offline Status Pill Styles
+   High-Contrast & Responsive Design Tokens
+   ============================================ */
+.pwa-offline-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 12px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Dark Mode (Default) */
+.pwa-offline-pill.is-online {
+    background: rgba(14, 165, 233, 0.14);
+    border: 1px solid rgba(14, 165, 233, 0.4);
+    color: #38bdf8;
+}
+.pwa-offline-pill.is-online i {
+    color: #22d3ee;
+}
+.pwa-offline-pill.is-offline {
+    background: rgba(245, 158, 11, 0.2);
+    border: 1px solid rgba(245, 158, 11, 0.5);
+    color: #fcd34d;
+}
+.pwa-offline-pill.is-offline i {
+    color: #f59e0b;
+}
+.pwa-offline-pill:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(14, 165, 233, 0.25);
+}
+
+/* Light Mode High-Contrast Overrides */
+[data-theme="light"] .pwa-offline-pill.is-online {
+    background: #e0f2fe;
+    border: 1px solid #7dd3fc;
+    color: #0369a1;
+}
+[data-theme="light"] .pwa-offline-pill.is-online i {
+    color: #0284c7;
+}
+[data-theme="light"] .pwa-offline-pill.is-offline {
+    background: #fef3c7;
+    border: 1px solid #fcd34d;
+    color: #b45309;
+}
+[data-theme="light"] .pwa-offline-pill.is-offline i {
+    color: #d97706;
+}
+[data-theme="light"] .pwa-offline-pill:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2);
+}
+
+/* Strict Zero-Flash Guard: Sales Agents must NEVER see PWA indicator, top install button, or PWA modal */
+html.user-role-agent #pwa-offline-indicator,
+body.user-role-agent #pwa-offline-indicator,
+html.user-role-agent .pwa-offline-pill,
+body.user-role-agent .pwa-offline-pill,
+html.user-role-agent #modal-pwa-status,
+body.user-role-agent #modal-pwa-status,
+html.user-role-agent #btn-pwa-install-top,
+body.user-role-agent #btn-pwa-install-top {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
 
 
