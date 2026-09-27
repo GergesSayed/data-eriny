@@ -8,6 +8,7 @@ window.SupabaseClient = (function() {
     'use strict';
 
     const FIREBASE_DB_URL = 'https://fleet-crm-38ba6-default-rtdb.firebaseio.com';
+    const currentClientId = 'cli_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 6);
     let currentStatus = 'local'; // 'synced' | 'syncing' | 'offline' | 'local'
     let statusCallbacks = [];
     let sseSource = null;
@@ -222,7 +223,7 @@ window.SupabaseClient = (function() {
                     body: JSON.stringify({
                         updated_at: new Date().toISOString(),
                         sync_timestamp: now,
-                        updated_by: 'client_v122',
+                        updated_by: currentClientId,
                         total_dynamic: data.dynamicCompanies ? data.dynamicCompanies.length : 0
                     }),
                     signal: controller.signal
@@ -521,6 +522,9 @@ window.SupabaseClient = (function() {
                 const resp = await fetch(`${FIREBASE_DB_URL}/metadata.json?t=${Date.now()}`);
                 if (resp.ok) {
                     const meta = await resp.json();
+                    if (meta && meta.updated_by && meta.updated_by === currentClientId) {
+                        return; // Ignore own push echo
+                    }
                     const metaTs = Number(meta && (meta.sync_timestamp || (meta.updated_at ? new Date(meta.updated_at).getTime() : 0))) || 0;
                     if (forceTrigger || metaTs > lastSyncTimestamp || (meta && meta.total_dynamic && lastSyncTimestamp === 0)) {
                         lastSyncTimestamp = metaTs || Date.now();
@@ -549,6 +553,7 @@ window.SupabaseClient = (function() {
                     try {
                         const parsed = JSON.parse(e.data || '{}');
                         const data = (parsed && parsed.data !== undefined) ? parsed.data : parsed;
+                        if (data && data.updated_by && data.updated_by === currentClientId) return;
                         const ts = Number(data && data.sync_timestamp) || 0;
                         if (ts > lastSyncTimestamp) {
                             checkMetadataDelta(true);
@@ -560,6 +565,7 @@ window.SupabaseClient = (function() {
                     try {
                         const parsed = JSON.parse(e.data || '{}');
                         const data = (parsed && parsed.data !== undefined) ? parsed.data : parsed;
+                        if (data && data.updated_by && data.updated_by === currentClientId) return;
                         const ts = Number(data && data.sync_timestamp) || 0;
                         if (ts > lastSyncTimestamp) {
                             checkMetadataDelta(true);
@@ -682,6 +688,7 @@ window.SupabaseClient = (function() {
                 body: JSON.stringify({
                     updated_at: new Date().toISOString(),
                     sync_timestamp: now,
+                    updated_by: currentClientId,
                     total_dynamic: companiesList.length
                 })
             });
@@ -705,7 +712,8 @@ window.SupabaseClient = (function() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         updated_at: new Date().toISOString(),
-                        sync_timestamp: now
+                        sync_timestamp: now,
+                        updated_by: currentClientId
                     })
                 });
             } catch(e) {}
@@ -745,7 +753,8 @@ window.SupabaseClient = (function() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         updated_at: new Date().toISOString(),
-                        sync_timestamp: now
+                        sync_timestamp: now,
+                        updated_by: currentClientId
                     })
                 });
             } catch(e) {}
@@ -759,9 +768,10 @@ window.SupabaseClient = (function() {
     async function setAssignment(companyId, assignedTo, assignedAt) {
         if (!companyId) return false;
         const sId = String(companyId);
+        const now = Date.now();
         const payload = {
             assignedTo: assignedTo || '',
-            assignedAt: assignedTo ? (assignedAt || new Date().toISOString()) : null
+            assignedAt: assignedTo ? (assignedAt || new Date(now).toISOString()) : null
         };
         try {
             const promises = [
@@ -777,6 +787,19 @@ window.SupabaseClient = (function() {
                 }).catch(() => {})
             ];
             await Promise.all(promises);
+
+            try {
+                lastSyncTimestamp = now;
+                await fetch(`${FIREBASE_DB_URL}/metadata.json`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        updated_at: new Date(now).toISOString(),
+                        sync_timestamp: now,
+                        updated_by: currentClientId
+                    })
+                });
+            } catch(e) {}
             return true;
         } catch(e) {
             console.warn('setAssignment error:', e);
@@ -800,7 +823,8 @@ window.SupabaseClient = (function() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         updated_at: new Date().toISOString(),
-                        sync_timestamp: now
+                        sync_timestamp: now,
+                        updated_by: currentClientId
                     })
                 });
             } catch(e) {}

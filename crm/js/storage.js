@@ -1797,13 +1797,19 @@ const AppStorage = {
                 const assignmentsMap = {};
                 const canModifyAssignments = this.canModify ? this.canModify() : true;
 
-                // Load stored assignments so explicit unassignments are preserved and pushed to cloud
+                // Load stored assignments so explicit unassignments and fresh assignments are preserved and pushed to cloud
                 const storedAssignments = this.getStoredAssignments() || {};
                 for (const [sId, ass] of Object.entries(storedAssignments)) {
-                    if (ass && (ass.assignedTo === '' || !ass.assignedTo)) {
+                    if (!ass) continue;
+                    if (ass.assignedTo === '' || !ass.assignedTo) {
                         assignmentsMap[sId] = {
                             assignedTo: '',
                             assignedAt: null
+                        };
+                    } else {
+                        assignmentsMap[sId] = {
+                            assignedTo: ass.assignedTo,
+                            assignedAt: ass.assignedAt || new Date().toISOString()
                         };
                     }
                 }
@@ -1812,13 +1818,22 @@ const AppStorage = {
                     if (!c || !c.id) return;
                     const sId = String(c.id);
                     const explicitStored = storedAssignments[sId];
-                    if (explicitStored && (explicitStored.assignedTo === '' || !explicitStored.assignedTo)) {
-                        c.assignedTo = '';
-                        c.assignedAt = null;
-                        assignmentsMap[sId] = {
-                            assignedTo: '',
-                            assignedAt: null
-                        };
+                    if (explicitStored) {
+                        if (explicitStored.assignedTo === '' || !explicitStored.assignedTo) {
+                            c.assignedTo = '';
+                            c.assignedAt = null;
+                            assignmentsMap[sId] = {
+                                assignedTo: '',
+                                assignedAt: null
+                            };
+                        } else {
+                            c.assignedTo = explicitStored.assignedTo;
+                            c.assignedAt = explicitStored.assignedAt || c.assignedAt || new Date().toISOString();
+                            assignmentsMap[sId] = {
+                                assignedTo: c.assignedTo,
+                                assignedAt: c.assignedAt
+                            };
+                        }
                     } else if (c.assignedTo) {
                         assignmentsMap[sId] = {
                             assignedTo: c.assignedTo,
@@ -1913,21 +1928,29 @@ const AppStorage = {
                     });
                 }
 
-                // B. Apply assignments directly from cloud assignments endpoint
+                // B. Apply assignments directly from cloud assignments endpoint with bidirectional local protection
                 if (data.assignments && typeof data.assignments === 'object') {
                     const localAssignments = this.getStoredAssignments() || {};
                     const mergedAssignments = { ...data.assignments };
-                    // Preserve explicit local unassignments so stale cloud assignments cannot resurrect
-                    for (const [compId, ass] of Object.entries(localAssignments)) {
-                        if (ass && (ass.assignedTo === '' || !ass.assignedTo)) {
-                            const cloudAss = data.assignments[compId];
-                            const cloudTime = cloudAss && cloudAss.assignedAt ? new Date(cloudAss.assignedAt).getTime() : 0;
-                            const unassignedTime = ass.unassignedAt || Date.now();
-                            if (unassignedTime >= cloudTime) {
-                                mergedAssignments[compId] = { assignedTo: '', assignedAt: null, unassignedAt: unassignedTime };
-                            }
+                    const now = Date.now();
+
+                    for (const [compId, localAss] of Object.entries(localAssignments)) {
+                        if (!localAss) continue;
+                        const localModTime = localAss.updatedAt || localAss.unassignedAt || (localAss.assignedAt ? new Date(localAss.assignedAt).getTime() : 0);
+                        const cloudAss = data.assignments[compId];
+                        const cloudTime = cloudAss && cloudAss.assignedAt ? new Date(cloudAss.assignedAt).getTime() : 0;
+
+                        // Preserve recent local user changes (within 120 seconds) against stale cloud reads
+                        const isRecent = localModTime && (now - localModTime < 120000);
+                        if (isRecent && localModTime >= cloudTime) {
+                            mergedAssignments[compId] = localAss;
+                        } else if ((localAss.assignedTo === '' || !localAss.assignedTo) && localModTime >= cloudTime) {
+                            mergedAssignments[compId] = { assignedTo: '', assignedAt: null, unassignedAt: localModTime };
+                        } else if (localModTime > cloudTime) {
+                            mergedAssignments[compId] = localAss;
                         }
                     }
+
                     this.setStoredAssignments(mergedAssignments);
                     this.invalidateScopedCache();
                     const changedComps = [];
@@ -2048,12 +2071,6 @@ const AppStorage = {
                     }
                 });
 
-                if (hasUnsyncedLocal && this.autoSyncToCloud) {
-                    setTimeout(() => {
-                        this.autoSyncToCloud(this.companiesMemory, true);
-                    }, 1000);
-                }
-
                 const mergedCalls = Array.from(callMap.values());
                 if (mergedCalls.length !== localRawCalls.length || JSON.stringify(mergedCalls) !== JSON.stringify(localRawCalls)) {
                     this._set(this.KEYS.CALLS, mergedCalls);
@@ -2084,11 +2101,6 @@ const AppStorage = {
             if (data.activities && Array.isArray(data.activities)) {
                 const cleanActivities = data.activities.filter(a => !a || !a.refId || !deletedCallIds.has(String(a.refId)));
                 this._set(this.KEYS.ACTIVITIES, cleanActivities);
-            }
-
-            // If any tombstoned items were filtered from cloud data, push cleaned state back to cloud immediately
-            if ((deletedCompIds && deletedCompIds.size > 0) || (deletedCallIds && deletedCallIds.size > 0)) {
-                this.autoSyncToCloud(this.companiesMemory, true);
             }
 
             const cloudTimestamp = (data && data.updated_at) ? new Date(data.updated_at).getTime() : Date.now();
@@ -2915,16 +2927,19 @@ const AppStorage = {
         // Record custody movement audit trail (when assigned, withdrawn, or reassigned)
         this.recordCustodyChange(company, userId);
 
+        const now = Date.now();
+        const isoNow = new Date(now).toISOString();
         company.assignedTo = userId || '';
-        company.assignedAt = userId ? new Date().toISOString() : null;
-        company.lastUpdated = new Date().toISOString().split('T')[0];
+        company.assignedAt = userId ? isoNow : null;
+        company.lastUpdated = isoNow.split('T')[0];
 
         // Update local persistent assignments store
         const storedAssignments = this.getStoredAssignments();
         storedAssignments[String(companyId)] = {
             assignedTo: userId || '',
             assignedAt: company.assignedAt,
-            unassignedAt: userId ? null : Date.now()
+            updatedAt: now,
+            unassignedAt: userId ? null : now
         };
         this.setStoredAssignments(storedAssignments);
 
@@ -2958,7 +2973,8 @@ const AppStorage = {
 
     bulkAssignCompanies(companyIds, userId) {
         if (!Array.isArray(companyIds) || companyIds.length === 0) return 0;
-        const now = new Date().toISOString();
+        const nowMs = Date.now();
+        const now = new Date(nowMs).toISOString();
         const today = now.split('T')[0];
         const targetUser = userId ? this.getUser(userId) : null;
         const userName = targetUser ? targetUser.name : (userId || 'إلغاء التعيين');
@@ -2977,7 +2993,8 @@ const AppStorage = {
                 assignmentsMap[String(c.id)] = {
                     assignedTo: userId || '',
                     assignedAt: c.assignedAt,
-                    unassignedAt: userId ? null : Date.now()
+                    updatedAt: nowMs,
+                    unassignedAt: userId ? null : nowMs
                 };
             }
         });
