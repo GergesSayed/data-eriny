@@ -724,6 +724,19 @@ window.SupabaseClient = (function() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(assignmentsMap)
             });
+
+            // If any assignments are being cleared (assignedTo: ''), also patch dynamic_companies node for those IDs
+            const unassignedEntries = Object.entries(assignmentsMap).filter(([_, v]) => v && (v.assignedTo === '' || !v.assignedTo));
+            if (unassignedEntries.length > 0) {
+                unassignedEntries.forEach(([compId]) => {
+                    fetch(`${FIREBASE_DB_URL}/dynamic_companies/${compId}.json`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ assignedTo: '', assignedAt: null })
+                    }).catch(() => {});
+                });
+            }
+
             try {
                 const now = Date.now();
                 lastSyncTimestamp = now;
@@ -739,6 +752,34 @@ window.SupabaseClient = (function() {
             return resp.ok;
         } catch(e) {
             console.warn('pushAssignments error:', e);
+            return false;
+        }
+    }
+
+    async function setAssignment(companyId, assignedTo, assignedAt) {
+        if (!companyId) return false;
+        const sId = String(companyId);
+        const payload = {
+            assignedTo: assignedTo || '',
+            assignedAt: assignedTo ? (assignedAt || new Date().toISOString()) : null
+        };
+        try {
+            const promises = [
+                fetch(`${FIREBASE_DB_URL}/assignments/${sId}.json`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                }),
+                fetch(`${FIREBASE_DB_URL}/dynamic_companies/${sId}.json`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ assignedTo: assignedTo || '', assignedAt: assignedTo ? (assignedAt || null) : null })
+                }).catch(() => {})
+            ];
+            await Promise.all(promises);
+            return true;
+        } catch(e) {
+            console.warn('setAssignment error:', e);
             return false;
         }
     }
@@ -794,6 +835,7 @@ window.SupabaseClient = (function() {
         pushDynamicCompanies,
         pushUsers,
         pushAssignments,
+        setAssignment,
         pushCustody,
         pushDeletedCall,
         deleteDynamicCompany,

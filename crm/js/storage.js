@@ -1796,6 +1796,17 @@ const AppStorage = {
                 const dynamicCompanies = [];
                 const assignmentsMap = {};
 
+                // Load stored assignments so explicit unassignments are preserved and pushed to cloud
+                const storedAssignments = this.getStoredAssignments() || {};
+                for (const [sId, ass] of Object.entries(storedAssignments)) {
+                    if (ass && ass.assignedTo === '') {
+                        assignmentsMap[sId] = {
+                            assignedTo: '',
+                            assignedAt: null
+                        };
+                    }
+                }
+
                 companies.forEach(c => {
                     if (!c || !c.id) return;
                     const sId = String(c.id);
@@ -1803,6 +1814,11 @@ const AppStorage = {
                         assignmentsMap[sId] = {
                             assignedTo: c.assignedTo,
                             assignedAt: c.assignedAt || new Date().toISOString()
+                        };
+                    } else if (storedAssignments[sId] && storedAssignments[sId].assignedTo === '') {
+                        assignmentsMap[sId] = {
+                            assignedTo: '',
+                            assignedAt: null
                         };
                     }
                     const isNew = !baseIds.has(sId) && !titanIds.has(sId);
@@ -1880,12 +1896,13 @@ const AppStorage = {
                             idMap.set(sId, this._normalizeCompanyData(c));
                             anyChanged = true;
                         } else {
-                            if (c.assignedTo !== undefined && existing.assignedTo !== c.assignedTo) {
-                                existing.assignedTo = c.assignedTo;
-                                anyChanged = true;
-                            }
+                            // Dynamic companies should NEVER overwrite assignments on existing companies!
                             if (c.status !== undefined && existing.status !== c.status) {
                                 existing.status = c.status;
+                                anyChanged = true;
+                            }
+                            if (c.notes && !existing.notes) {
+                                existing.notes = c.notes;
                                 anyChanged = true;
                             }
                         }
@@ -1894,16 +1911,29 @@ const AppStorage = {
 
                 // B. Apply assignments directly from cloud assignments endpoint
                 if (data.assignments && typeof data.assignments === 'object') {
-                    this.setStoredAssignments(data.assignments);
+                    const localAssignments = this.getStoredAssignments() || {};
+                    const mergedAssignments = { ...data.assignments };
+                    // Preserve explicit local unassignments so stale cloud assignments cannot resurrect
+                    for (const [compId, ass] of Object.entries(localAssignments)) {
+                        if (ass && ass.assignedTo === '') {
+                            const cloudAss = data.assignments[compId];
+                            const cloudTime = cloudAss && cloudAss.assignedAt ? new Date(cloudAss.assignedAt).getTime() : 0;
+                            const unassignedTime = ass.unassignedAt || 0;
+                            if (unassignedTime >= cloudTime) {
+                                mergedAssignments[compId] = { assignedTo: '', assignedAt: null };
+                            }
+                        }
+                    }
+                    this.setStoredAssignments(mergedAssignments);
                     this.invalidateScopedCache();
                     const changedComps = [];
 
-                    for (const [compId, assignData] of Object.entries(data.assignments)) {
+                    for (const [compId, assignData] of Object.entries(mergedAssignments)) {
                         if (!assignData) continue;
                         const comp = idMap.get(String(compId));
                         if (comp) {
                             const targetUser = typeof assignData === 'string' ? assignData : (assignData.assignedTo || '');
-                            const targetAt = assignData.assignedAt || null;
+                            const targetAt = targetUser ? (assignData.assignedAt || null) : null;
                             if (comp.assignedTo !== targetUser) {
                                 comp.assignedTo = targetUser;
                                 comp.assignedAt = targetAt;
@@ -2253,7 +2283,7 @@ const AppStorage = {
                 const comp = target.get(String(compId));
                 if (comp) {
                     comp.assignedTo = typeof assignData === 'string' ? assignData : (assignData.assignedTo || '');
-                    comp.assignedAt = assignData.assignedAt || comp.assignedAt || null;
+                    comp.assignedAt = comp.assignedTo ? (assignData.assignedAt || comp.assignedAt || null) : null;
                 }
             }
         } else if (Array.isArray(target)) {
@@ -2264,7 +2294,7 @@ const AppStorage = {
                 const assignData = assignMap.get(String(comp.id));
                 if (assignData) {
                     comp.assignedTo = typeof assignData === 'string' ? assignData : (assignData.assignedTo || '');
-                    comp.assignedAt = assignData.assignedAt || comp.assignedAt || null;
+                    comp.assignedAt = comp.assignedTo ? (assignData.assignedAt || comp.assignedAt || null) : null;
                 }
             }
         }
@@ -2889,7 +2919,8 @@ const AppStorage = {
         const storedAssignments = this.getStoredAssignments();
         storedAssignments[String(companyId)] = {
             assignedTo: userId || '',
-            assignedAt: company.assignedAt
+            assignedAt: company.assignedAt,
+            unassignedAt: userId ? null : Date.now()
         };
         this.setStoredAssignments(storedAssignments);
 
@@ -2907,7 +2938,9 @@ const AppStorage = {
                 assignedAt: company.assignedAt
             }
         };
-        if (window.SupabaseClient && window.SupabaseClient.pushAssignments) {
+        if (window.SupabaseClient && typeof window.SupabaseClient.setAssignment === 'function') {
+            window.SupabaseClient.setAssignment(companyId, userId, company.assignedAt).catch(() => { });
+        } else if (window.SupabaseClient && window.SupabaseClient.pushAssignments) {
             window.SupabaseClient.pushAssignments(assignmentsMap).catch(() => { });
         }
 
@@ -2939,7 +2972,8 @@ const AppStorage = {
                 updatedBatch.push(c);
                 assignmentsMap[String(c.id)] = {
                     assignedTo: userId || '',
-                    assignedAt: c.assignedAt
+                    assignedAt: c.assignedAt,
+                    unassignedAt: userId ? null : Date.now()
                 };
             }
         });

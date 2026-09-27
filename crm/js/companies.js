@@ -2322,6 +2322,10 @@ const Companies = {
             return '';
         }
         const esc = (s) => (window.AppStorage && window.AppStorage.escapeHtml) ? window.AppStorage.escapeHtml(s || '') : (s || '');
+        const canModify = (window.AppStorage && typeof window.AppStorage.canModify === 'function') ? window.AppStorage.canModify() : false;
+        const users = (window.AppStorage && typeof window.AppStorage.getUsers === 'function') ? (window.AppStorage.getUsers() || []) : [];
+        const currentUser = (window.AppStorage && typeof window.AppStorage.getCurrentUser === 'function') ? window.AppStorage.getCurrentUser() : null;
+        const currentName = (currentUser && currentUser.name) ? String(currentUser.name).split(' ')[0] : (currentUser?.username || 'أنا');
         const custodyList = (window.AppStorage && window.AppStorage.getCustodyHistory) ? window.AppStorage.getCustodyHistory(company.id) : [];
         const currentRepId = company.assignedTo;
         const currentRep = currentRepId ? window.AppStorage.getUser(currentRepId) : null;
@@ -2378,10 +2382,20 @@ const Companies = {
                                 </div>
                             </div>
                         </div>
-                        <div>
+                        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                             <span class="badge" style="background:#dcfce7; color:#15803d; border:1px solid #86efac; font-size:12px; font-weight:800; padding:6px 14px; border-radius:20px; display:inline-flex; align-items:center; gap:6px;">
                                 <i class="fas fa-check-circle"></i> في عهدته حالياً (نشط)
                             </span>
+                            ${canModify ? `
+                                <button type="button" onclick="Companies.assignToUser('${company.id}', '')" style="background:#fee2e2; border:1px solid #fca5a5; color:#b91c1c; font-size:12px; font-weight:800; padding:6px 12px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:5px;" title="إلغاء تعيين هذه الشركة وسحب عهدتها فوراً">
+                                    <i class="fas fa-user-slash"></i> سحب العهدة / إلغاء التعيين
+                                </button>
+                                <select onchange="Companies.assignToUser('${company.id}', this.value)" style="padding:5px 8px; border-radius:8px; border:1px solid #cbd5e1; background:var(--bg-surface); color:var(--text-primary); font-size:12px; font-weight:700; cursor:pointer;" title="تحويل العهدة إلى موظف آخر">
+                                    <option value="" disabled selected>🔄 تحويل العهدة لموظف...</option>
+                                    <option value="">⚪ إلغاء التعيين (متاحة للعامة)</option>
+                                    ${users.filter(u => u && u.id !== currentRepId).map(u => `<option value="${u.id}">👤 ${u.name || u.username}</option>`).join('')}
+                                </select>
+                            ` : ''}
                         </div>
                     </div>
 
@@ -2450,9 +2464,18 @@ const Companies = {
                             <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">الشركة متاحة في قاعدة البيانات العامة ويمكن تخصيصها لأي موظف مبيعات</div>
                         </div>
                     </div>
-                    <span class="badge" style="background:#ede9fe; color:#6d28d9; border:1px solid #c4b5fd; font-size:12px; font-weight:800; padding:6px 14px; border-radius:20px;">
-                        جاهزة للتخصيص
-                    </span>
+                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                        <span class="badge" style="background:#ede9fe; color:#6d28d9; border:1px solid #c4b5fd; font-size:12px; font-weight:800; padding:6px 14px; border-radius:20px;">
+                            ⚪ غير مسندة (جاهزة للتخصيص)
+                        </span>
+                        ${canModify ? `
+                            <select onchange="Companies.assignToUser('${company.id}', this.value)" style="padding:6px 12px; border-radius:8px; border:1px solid #7c3aed; background:rgba(124,58,237,0.08); color:#7c3aed; font-size:12px; font-weight:800; cursor:pointer;" title="اختر موظف لإسناد الشركة له">
+                                <option value="" selected>➕ إسناد وتعيين لموظف...</option>
+                                <option value="current_user">🙋‍♂️ أنا (${currentName})</option>
+                                ${users.map(u => `<option value="${u.id}">👤 ${u.name || u.username}</option>`).join('')}
+                            </select>
+                        ` : ''}
+                    </div>
                 </div>
             `;
         }
@@ -2701,6 +2724,21 @@ const Companies = {
         this.refreshUserFilter();
         this.render();
         if (typeof Team !== 'undefined' && Team.render) Team.render();
+        if (typeof Dashboard !== 'undefined' && Dashboard.render) Dashboard.render();
+
+        // If company detail modal is currently open, re-render it immediately!
+        const detailModal = document.getElementById('modal-company-detail');
+        if (detailModal && (detailModal.classList.contains('active') || detailModal.style.display === 'flex' || detailModal.style.display === 'block')) {
+            if (this.currentDetailId === companyId || !this.currentDetailId) {
+                this.showDetail(companyId);
+            }
+        }
+
+        // If custody modal is currently open, re-render it immediately!
+        const custodyModal = document.getElementById('modal-company-custody');
+        if (custodyModal && (custodyModal.classList.contains('active') || custodyModal.style.display === 'flex' || custodyModal.style.display === 'block')) {
+            this.showCustodyModal(companyId);
+        }
     },
 
     claimLead(companyId) {
