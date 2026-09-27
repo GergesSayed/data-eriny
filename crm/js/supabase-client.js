@@ -782,31 +782,37 @@ window.SupabaseClient = (function() {
                 };
             }
 
+            lastSyncTimestamp = now;
+
             const resp = await fetch(`${FIREBASE_DB_URL}/assignments.json`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(normalizedMap)
             });
 
-            // If any assignments are being cleared (assignedTo: ''), also patch dynamic_companies node for those IDs
+            // Single atomic batch patch for dynamic_companies instead of individual requests
             const unassignedEntries = Object.entries(normalizedMap).filter(([_, v]) => v && (v.assignedTo === '' || !v.assignedTo));
             if (unassignedEntries.length > 0) {
+                const dynPatch = {};
                 unassignedEntries.forEach(([compId]) => {
-                    fetch(`${FIREBASE_DB_URL}/dynamic_companies/${compId}.json`, {
-                        method: 'PATCH',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ assignedTo: '', assignedAt: null, unassignedAt: now, updatedAt: now })
-                    }).catch(() => {});
+                    dynPatch[`${compId}/assignedTo`] = '';
+                    dynPatch[`${compId}/assignedAt`] = null;
+                    dynPatch[`${compId}/unassignedAt`] = now;
+                    dynPatch[`${compId}/updatedAt`] = now;
                 });
+                fetch(`${FIREBASE_DB_URL}/dynamic_companies.json`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dynPatch)
+                }).catch(() => {});
             }
 
             try {
-                lastSyncTimestamp = now;
                 await fetch(`${FIREBASE_DB_URL}/metadata.json`, {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        updated_at: new Date().toISOString(),
+                        updated_at: new Date(now).toISOString(),
                         sync_timestamp: now,
                         updated_by: currentClientId
                     })
@@ -943,6 +949,57 @@ window.SupabaseClient = (function() {
         }
     }
 
+    async function pushDeletedCompaniesBatch(ids) {
+        if (!Array.isArray(ids) || ids.length === 0) return true;
+        try {
+            const now = Date.now();
+            const delPatch = {};
+            const dynPatch = {};
+            const asgnPatch = {};
+            ids.forEach(id => {
+                const sId = String(id);
+                delPatch[sId] = { deletedAt: now };
+                dynPatch[sId] = null;
+                asgnPatch[sId] = null;
+            });
+
+            await Promise.all([
+                fetch(`${FIREBASE_DB_URL}/deleted_companies.json`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(delPatch)
+                }),
+                fetch(`${FIREBASE_DB_URL}/dynamic_companies.json`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dynPatch)
+                }),
+                fetch(`${FIREBASE_DB_URL}/assignments.json`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(asgnPatch)
+                })
+            ]);
+
+            try {
+                lastSyncTimestamp = now;
+                await fetch(`${FIREBASE_DB_URL}/metadata.json`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        updated_at: new Date(now).toISOString(),
+                        sync_timestamp: now,
+                        updated_by: currentClientId
+                    })
+                });
+            } catch(e) {}
+            return true;
+        } catch(e) {
+            console.warn('pushDeletedCompaniesBatch error:', e);
+            return false;
+        }
+    }
+
     async function pushSingleCall(call) {
         if (!call || !call.id) return false;
         const sId = String(call.id);
@@ -989,6 +1046,21 @@ window.SupabaseClient = (function() {
         }
     }
 
+    async function pushCustodyBatch(batchMap) {
+        if (!batchMap || typeof batchMap !== 'object' || Object.keys(batchMap).length === 0) return true;
+        try {
+            const resp = await fetch(`${FIREBASE_DB_URL}/custody.json`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(batchMap)
+            });
+            return resp.ok;
+        } catch(e) {
+            console.warn('pushCustodyBatch error:', e);
+            return false;
+        }
+    }
+
     return {
         getStatus,
         onStatusChange,
@@ -1000,8 +1072,10 @@ window.SupabaseClient = (function() {
         pushAssignments,
         setAssignment,
         pushCustody,
+        pushCustodyBatch,
         pushDeletedCall,
         pushDeletedCompany,
+        pushDeletedCompaniesBatch,
         pushSingleCall,
         deleteDynamicCompany,
         wipeDynamicCompanies,

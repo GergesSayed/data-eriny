@@ -87,10 +87,12 @@ self.onmessage = function(e) {
                 sector: c.sector || 'other',
                 city: c.city || 'other',
                 priority: c.priority || 'B',
+                prioNum: (c.priority === 'A+' ? 1 : c.priority === 'A' ? 2 : c.priority === 'B' ? 3 : 4),
                 fleetSize: Number(c.fleetSize) || 0,
                 fleetType: c.fleetType || '',
                 assignedTo: c.assignedTo || '',
                 createdAt: c.createdAt || '',
+                createdTs: c.createdAt ? new Date(c.createdAt).getTime() : 0,
                 isTitan,
                 raw: c
             };
@@ -126,10 +128,12 @@ self.onmessage = function(e) {
                 sector: c.sector || 'other',
                 city: c.city || 'other',
                 priority: c.priority || 'B',
+                prioNum: (c.priority === 'A+' ? 1 : c.priority === 'A' ? 2 : c.priority === 'B' ? 3 : 4),
                 fleetSize: Number(c.fleetSize) || 0,
                 fleetType: c.fleetType || '',
                 assignedTo: c.assignedTo || '',
                 createdAt: c.createdAt || '',
+                createdTs: c.createdAt ? new Date(c.createdAt).getTime() : 0,
                 isTitan,
                 raw: c
             };
@@ -168,6 +172,26 @@ self.onmessage = function(e) {
             }
         }
         self.postMessage({ action: 'UPDATE_DONE', queryId, totalCount: _companiesIndex.length });
+        return;
+    }
+
+    if (action === 'DELETE_COMPANIES_BATCH') {
+        const ids = Array.isArray(payload) ? payload : [];
+        if (ids.length > 0) {
+            const delSet = new Set(ids.map(String));
+            _companiesIndex = _companiesIndex.filter(c => c && !delSet.has(String(c.id)));
+            _idMap.clear();
+            _idToIndexMap.clear();
+            for (let i = 0; i < _companiesIndex.length; i++) {
+                const item = _companiesIndex[i];
+                if (item && item.id) {
+                    _idMap.set(item.id, item);
+                    _idToIndexMap.set(item.id, i);
+                }
+            }
+            rebuildBuckets();
+            self.postMessage({ action: 'UPDATE_DONE', queryId, totalCount: _companiesIndex.length });
+        }
         return;
     }
 
@@ -316,8 +340,7 @@ self.onmessage = function(e) {
             filtered.push(c);
         }
 
-        // 3. Fast In-Place Sort — All 700 Titans ALWAYS at the very top!
-        const priorityOrder = { 'A+': 1, 'A': 2, 'B': 3, 'C': 4 };
+        // 3. Ultra-Fast In-Place Sort — All Titans ALWAYS at the very top!
         filtered.sort((a, b) => {
             const titanA = a.isTitan ? 1 : 0;
             const titanB = b.isTitan ? 1 : 0;
@@ -326,38 +349,35 @@ self.onmessage = function(e) {
             }
 
             if (sortMode === 'priority_fleet') {
-                const pA = priorityOrder[a.priority] || 3;
-                const pB = priorityOrder[b.priority] || 3;
-                if (pA !== pB) return pA - pB;
+                const pDiff = a.prioNum - b.prioNum;
+                if (pDiff !== 0) return pDiff;
                 if (b.fleetSize !== a.fleetSize) return b.fleetSize - a.fleetSize;
-                return (new Date(b.createdAt || 0)) - (new Date(a.createdAt || 0));
+                return b.createdTs - a.createdTs;
             }
             if (sortMode === 'fleet_desc') {
                 if (b.fleetSize !== a.fleetSize) return b.fleetSize - a.fleetSize;
-                return (new Date(b.createdAt || 0)) - (new Date(a.createdAt || 0));
+                return b.createdTs - a.createdTs;
             }
             if (sortMode === 'fleet_asc') {
                 if (a.fleetSize !== b.fleetSize) return a.fleetSize - b.fleetSize;
-                return (new Date(b.createdAt || 0)) - (new Date(a.createdAt || 0));
+                return b.createdTs - a.createdTs;
             }
             if (sortMode === 'name_asc' || sortMode === 'name') {
                 return a.normNameAr.localeCompare(b.normNameAr, 'ar');
             }
             if (sortMode === 'priority_desc' || sortMode === 'priority') {
-                const pA = priorityOrder[a.priority] || 3;
-                const pB = priorityOrder[b.priority] || 3;
-                if (pA !== pB) return pA - pB;
+                const pDiff = a.prioNum - b.prioNum;
+                if (pDiff !== 0) return pDiff;
                 return b.fleetSize - a.fleetSize;
             }
             if (sortMode === 'oldest') {
-                return (new Date(a.createdAt || 0)) - (new Date(b.createdAt || 0));
+                return a.createdTs - b.createdTs;
             }
             // Default (latest / priority_fleet):
-            const pA = priorityOrder[a.priority] || 3;
-            const pB = priorityOrder[b.priority] || 3;
-            if (pA !== pB) return pA - pB;
+            const pDiff = a.prioNum - b.prioNum;
+            if (pDiff !== 0) return pDiff;
             if (b.fleetSize !== a.fleetSize) return b.fleetSize - a.fleetSize;
-            return (new Date(b.createdAt || 0)) - (new Date(a.createdAt || 0));
+            return b.createdTs - a.createdTs;
         });
 
         // 4. Slice Page Items

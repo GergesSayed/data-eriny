@@ -759,9 +759,8 @@ const Companies = {
                 `<option value="${u.id}">${u.role === 'admin' ? '👑' : (u.avatar || '👨‍💼')} ${u.name}</option>`
             ).join('');
             bulkSel.innerHTML = `
-                <option value="">تخصيص لـ...</option>
+                <option value="" disabled ${!currentVal ? 'selected' : ''}>اختر الموظف للتخصيص...</option>
                 ${optionsHtml}
-                <option value="">⚪ إلغاء التخصيص</option>
             `;
             if (currentVal) bulkSel.value = currentVal;
         }
@@ -1026,29 +1025,45 @@ const Companies = {
             }
 
             if (sortMode === 'priority_fleet') {
-                const pA = priorityOrder[a.priority] || 3;
-                const pB = priorityOrder[b.priority] || 3;
+                const pA = a._prioNum || priorityOrder[a.priority] || 3;
+                const pB = b._prioNum || priorityOrder[b.priority] || 3;
                 if (pA !== pB) return pA - pB;
-                const fA = Number(a.fleetSize) || 0;
-                const fB = Number(b.fleetSize) || 0;
+                const fA = a._fleetNum !== undefined ? a._fleetNum : (Number(a.fleetSize) || 0);
+                const fB = b._fleetNum !== undefined ? b._fleetNum : (Number(b.fleetSize) || 0);
                 if (fA !== fB) return fB - fA;
-                return (new Date(b.createdAt || 0)) - (new Date(a.createdAt || 0));
+                const tA = a._createdTs !== undefined ? a._createdTs : (a.createdAt ? (a._createdTs = new Date(a.createdAt).getTime() || 0) : 0);
+                const tB = b._createdTs !== undefined ? b._createdTs : (b.createdAt ? (b._createdTs = new Date(b.createdAt).getTime() || 0) : 0);
+                return tB - tA;
             }
             if (sortMode === 'oldest') {
-                return (new Date(a.createdAt || 0)) - (new Date(b.createdAt || 0));
+                const tA = a._createdTs !== undefined ? a._createdTs : (a.createdAt ? (a._createdTs = new Date(a.createdAt).getTime() || 0) : 0);
+                const tB = b._createdTs !== undefined ? b._createdTs : (b.createdAt ? (b._createdTs = new Date(b.createdAt).getTime() || 0) : 0);
+                return tA - tB;
             }
             if (sortMode === 'latest') {
-                return (new Date(b.createdAt || 0)) - (new Date(a.createdAt || 0));
+                const tA = a._createdTs !== undefined ? a._createdTs : (a.createdAt ? (a._createdTs = new Date(a.createdAt).getTime() || 0) : 0);
+                const tB = b._createdTs !== undefined ? b._createdTs : (b.createdAt ? (b._createdTs = new Date(b.createdAt).getTime() || 0) : 0);
+                return tB - tA;
             }
             if (sortMode === 'fleet_desc') {
-                return (Number(b.fleetSize) || 0) - (Number(a.fleetSize) || 0);
+                const fA = a._fleetNum !== undefined ? a._fleetNum : (Number(a.fleetSize) || 0);
+                const fB = b._fleetNum !== undefined ? b._fleetNum : (Number(b.fleetSize) || 0);
+                if (fA !== fB) return fB - fA;
+                const tA = a._createdTs !== undefined ? a._createdTs : 0;
+                const tB = b._createdTs !== undefined ? b._createdTs : 0;
+                return tB - tA;
             }
             if (sortMode === 'fleet_asc') {
-                return (Number(a.fleetSize) || 0) - (Number(b.fleetSize) || 0);
+                const fA = a._fleetNum !== undefined ? a._fleetNum : (Number(a.fleetSize) || 0);
+                const fB = b._fleetNum !== undefined ? b._fleetNum : (Number(b.fleetSize) || 0);
+                if (fA !== fB) return fA - fB;
+                const tA = a._createdTs !== undefined ? a._createdTs : 0;
+                const tB = b._createdTs !== undefined ? b._createdTs : 0;
+                return tB - tA;
             }
             if (sortMode === 'priority') {
-                const pA = priorityOrder[a.priority] || 3;
-                const pB = priorityOrder[b.priority] || 3;
+                const pA = a._prioNum || priorityOrder[a.priority] || 3;
+                const pB = b._prioNum || priorityOrder[b.priority] || 3;
                 return pA - pB;
             }
             if (sortMode === 'name' || sortMode === 'name_asc') {
@@ -1582,16 +1597,42 @@ const Companies = {
         } else {
             this.selectedCompanies.delete(id);
         }
+
+        // Direct DOM update for selected row
+        const rowCb = document.querySelector(`.company-checkbox[data-id="${id}"]`);
+        if (rowCb) {
+            rowCb.checked = isChecked;
+            const tr = rowCb.closest('tr');
+            if (tr) tr.classList.toggle('row-selected', isChecked);
+        }
+
+        // Synchronize header "Select All" checkbox
+        const selectAllInput = document.getElementById('select-all-companies');
+        if (selectAllInput) {
+            const allCbs = document.querySelectorAll('.company-checkbox');
+            selectAllInput.checked = allCbs.length > 0 && Array.from(allCbs).every(cb => cb.checked);
+        }
+
         this.updateBulkBar();
     },
 
     toggleSelectAll(isChecked, pageIds) {
         if (isChecked) {
-            pageIds.forEach(id => this.selectedCompanies.add(id));
+            (pageIds || []).forEach(id => this.selectedCompanies.add(id));
         } else {
-            pageIds.forEach(id => this.selectedCompanies.delete(id));
+            (pageIds || []).forEach(id => this.selectedCompanies.delete(id));
         }
-        this.render();
+
+        // Direct DOM update — 0ms instant without expensive table re-render!
+        document.querySelectorAll('.company-checkbox').forEach(cb => {
+            cb.checked = isChecked;
+            const tr = cb.closest('tr');
+            if (tr) tr.classList.toggle('row-selected', isChecked);
+        });
+
+        const selectAllInput = document.getElementById('select-all-companies');
+        if (selectAllInput) selectAllInput.checked = isChecked;
+
         this.updateBulkBar();
     },
 
@@ -1617,26 +1658,68 @@ const Companies = {
 
     clearSelection() {
         this.selectedCompanies.clear();
+
+        // Direct DOM uncheck
+        document.querySelectorAll('.company-checkbox').forEach(cb => {
+            cb.checked = false;
+            const tr = cb.closest('tr');
+            if (tr) tr.classList.remove('row-selected');
+        });
+        const selectAllInput = document.getElementById('select-all-companies');
+        if (selectAllInput) selectAllInput.checked = false;
+
         this.updateBulkBar();
-        this.render();
     },
 
     applyBulkAssign() {
         const currentUser = window.AppStorage.getCurrentUser();
         if (!window.AppStorage.isAdmin(currentUser)) {
-            App.showToast('⚠️ إعادة التخصيص التجميعي مسموحة فقط للمدير العام', 'error');
+            App.showToast('⚠️ التخصيص الجماعي مسموح فقط للمدير العام', 'error');
+            return;
+        }
+        if (this.selectedCompanies.size === 0) {
+            App.showToast('⚠️ يرجى تحديد شركة واحدة على الأقل أولاً', 'warning');
             return;
         }
         const select = document.getElementById('bulk-assign-user-select');
         const userId = select ? select.value : '';
-        if (this.selectedCompanies.size === 0) return;
+        if (!userId) {
+            App.showToast('⚠️ يرجى اختيار الموظف أولاً من القائمة المنسدلة لتخصيص الشركات له', 'warning');
+            if (select) select.focus();
+            return;
+        }
 
         const ids = Array.from(this.selectedCompanies);
         const count = window.AppStorage.bulkAssignCompanies(ids, userId);
-        const userName = userId ? (window.AppStorage.getUser(userId)?.name || userId) : 'إلغاء المسند إليه';
+        const targetUser = window.AppStorage.getUser(userId);
+        const userName = targetUser ? targetUser.name : userId;
 
-        App.showToast(`✅ تم تعيين ${count} شركة لـ ${userName}`);
+        App.showToast(`✅ تم بنجاح إسناد وتخصيص ${count} شركة إلى: ${userName}`, 'success');
         this.clearSelection();
+        this.refreshUserFilter();
+        this.render();
+        if (typeof Team !== 'undefined' && Team.render) Team.render();
+        if (typeof Dashboard !== 'undefined' && Dashboard.render) Dashboard.render();
+    },
+
+    applyBulkUnassign() {
+        const currentUser = window.AppStorage.getCurrentUser();
+        if (!window.AppStorage.isAdmin(currentUser)) {
+            App.showToast('⚠️ إلغاء التخصيص الجماعي مسموح فقط للمدير العام', 'error');
+            return;
+        }
+        if (this.selectedCompanies.size === 0) {
+            App.showToast('⚠️ يرجى تحديد شركة واحدة على الأقل أولاً', 'warning');
+            return;
+        }
+        const ids = Array.from(this.selectedCompanies);
+        const count = window.AppStorage.bulkAssignCompanies(ids, '');
+        App.showToast(`⚪ تم بنجاح إلغاء تخصيص ${count} شركة وأصبحت متاحة للجميع`, 'info');
+        this.clearSelection();
+        this.refreshUserFilter();
+        this.render();
+        if (typeof Team !== 'undefined' && Team.render) Team.render();
+        if (typeof Dashboard !== 'undefined' && Dashboard.render) Dashboard.render();
     },
 
     removeDuplicatesNow() {
@@ -1673,7 +1756,7 @@ const Companies = {
         const count = this.selectedCompanies.size;
         App.confirm('🗑️ حذف الشركات المحددة', `هل أنت متأكد من حذف ${count} شركة محددة نهائياً من السيستم؟ لا يمكن التراجع عن هذه العملية.`, () => {
             const ids = Array.from(this.selectedCompanies);
-            ids.forEach(id => window.AppStorage.deleteCompany(id));
+            window.AppStorage.bulkDeleteCompanies(ids);
             App.showToast(`✅ تم حذف ${count} شركة محددة بنجاح`, 'success');
             this.clearSelection();
             this.render();

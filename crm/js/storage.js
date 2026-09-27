@@ -1057,7 +1057,7 @@ const AppStorage = {
                 const timeout = setTimeout(() => {
                     delete this._workerCallbacks[queryId];
                     resolve(this._queryCompaniesFallback(options));
-                }, 250);
+                }, 1200);
 
                 this._workerCallbacks[queryId] = (result) => {
                     clearTimeout(timeout);
@@ -1180,36 +1180,40 @@ const AppStorage = {
         });
 
         // Fast Sort — Titans ALWAYS pinned to the very top!
-        const priorityOrder = { 'A+': 1, 'A': 2, 'B': 3, 'C': 4 };
         filtered.sort((a, b) => {
-            const titanA = (a._isTitan !== undefined) ? (a._isTitan ? 1 : 0) : ((a.isTitan || (a.id && String(a.id).startsWith('eg_titan_'))) ? 1 : 0);
-            const titanB = (b._isTitan !== undefined) ? (b._isTitan ? 1 : 0) : ((b.isTitan || (b.id && String(b.id).startsWith('eg_titan_'))) ? 1 : 0);
+            const titanA = a._isTitan ? 1 : (a.isTitan || (a.id && String(a.id).startsWith('eg_titan_')) ? 1 : 0);
+            const titanB = b._isTitan ? 1 : (b.isTitan || (b.id && String(b.id).startsWith('eg_titan_')) ? 1 : 0);
             if (titanA !== titanB) {
                 return titanB - titanA; // 👑 Titans ALWAYS first!
             }
 
             if (sortMode === 'fleet_desc') {
-                return (b._fleetNum !== undefined ? b._fleetNum : (Number(b.fleetSize) || 0)) - (a._fleetNum !== undefined ? a._fleetNum : (Number(a.fleetSize) || 0));
+                const fDiff = (b._fleetNum || 0) - (a._fleetNum || 0);
+                if (fDiff !== 0) return fDiff;
+                return (b._createdTs || 0) - (a._createdTs || 0);
             }
             if (sortMode === 'fleet_asc') {
-                return (a._fleetNum !== undefined ? a._fleetNum : (Number(a.fleetSize) || 0)) - (b._fleetNum !== undefined ? b._fleetNum : (Number(b.fleetSize) || 0));
+                const fDiff = (a._fleetNum || 0) - (b._fleetNum || 0);
+                if (fDiff !== 0) return fDiff;
+                return (b._createdTs || 0) - (a._createdTs || 0);
             }
             if (sortMode === 'name_asc' || sortMode === 'name') {
                 return (a.nameAr || '').localeCompare(b.nameAr || '', 'ar');
             }
             if (sortMode === 'priority_desc' || sortMode === 'priority') {
-                return (priorityOrder[a.priority] || 3) - (priorityOrder[b.priority] || 3);
+                const pDiff = (a._prioNum || 3) - (b._prioNum || 3);
+                if (pDiff !== 0) return pDiff;
+                return (b._fleetNum || 0) - (a._fleetNum || 0);
             }
             if (sortMode === 'oldest') {
-                return (new Date(a.createdAt || 0)) - (new Date(b.createdAt || 0));
+                return (a._createdTs || 0) - (b._createdTs || 0);
             }
             // Default latest / priority_fleet
-            const pA = priorityOrder[a.priority] || 3;
-            const pB = priorityOrder[b.priority] || 3;
-            if (pA !== pB) return pA - pB;
-            const fDiff = (b._fleetNum !== undefined ? b._fleetNum : (Number(b.fleetSize) || 0)) - (a._fleetNum !== undefined ? a._fleetNum : (Number(a.fleetSize) || 0));
+            const pDiff = (a._prioNum || 3) - (b._prioNum || 3);
+            if (pDiff !== 0) return pDiff;
+            const fDiff = (b._fleetNum || 0) - (a._fleetNum || 0);
             if (fDiff !== 0) return fDiff;
-            return (new Date(b.createdAt || 0)) - (new Date(a.createdAt || 0));
+            return (b._createdTs || 0) - (a._createdTs || 0);
         });
 
         const total = filtered.length;
@@ -1403,6 +1407,8 @@ const AppStorage = {
         company._normName = this._normalizeArabicName((company.nameAr || '') + ' ' + (company.nameEn || ''));
         company._normPhone = String(company.phone1 || company.mobile || '').replace(/[^0-9+]/g, '');
         company._fleetNum = Number(company.fleetSize) || 0;
+        company._createdTs = company.createdAt ? new Date(company.createdAt).getTime() : 0;
+        company._prioNum = company.priority === 'A+' ? 1 : company.priority === 'A' ? 2 : company.priority === 'B' ? 3 : 4;
 
         return company;
     },
@@ -1998,11 +2004,20 @@ const AppStorage = {
 
                         const targetUser = typeof assignData === 'string' ? assignData : (assignData.assignedTo || '');
                         const targetAt = targetUser ? (assignData.assignedAt || null) : null;
+                        const cloudUpdatedAt = Number(assignData.updatedAt) || 0;
+
+                        const localAssign = storedAssignments[sId];
+                        const localUpdatedAt = Number(localAssign ? localAssign.updatedAt : 0) || 0;
+
+                        // 🛡️ REVERSION GUARD: Never let stale cloud sync overwrite recent local user assignment
+                        if (localUpdatedAt > cloudUpdatedAt) {
+                            continue;
+                        }
 
                         storedAssignments[sId] = {
                             assignedTo: targetUser,
                             assignedAt: targetAt,
-                            updatedAt: assignData.updatedAt || Date.now(),
+                            updatedAt: cloudUpdatedAt || Date.now(),
                             unassignedAt: assignData.unassignedAt || null
                         };
 
@@ -2791,6 +2806,81 @@ const AppStorage = {
         return true;
     },
 
+    bulkDeleteCompanies(ids) {
+        if (!this.canModify()) {
+            console.warn('Unauthorized bulk company delete attempt blocked');
+            return 0;
+        }
+        if (!Array.isArray(ids) || ids.length === 0) return 0;
+
+        const idSet = new Set(ids.map(id => String(id)));
+        
+        // 1. Record deleted IDs in tombstone storage
+        idSet.forEach(sId => this.recordDeletedId('companies', sId));
+
+        // 2. Instant in-memory deletion (O(N) single-pass filter)
+        const companies = this.companiesMemory || [];
+        this.companiesMemory = companies.filter(c => c && !idSet.has(String(c.id)));
+
+        // 3. Clean stored assignments once in memory and persist
+        const storedAssignments = this.getStoredAssignments() || {};
+        let assignmentsModified = false;
+        idSet.forEach(sId => {
+            if (storedAssignments[sId]) {
+                delete storedAssignments[sId];
+                assignmentsModified = true;
+            }
+        });
+        if (assignmentsModified) {
+            this.setStoredAssignments(storedAssignments);
+        }
+
+        // 4. Batch delete from IndexedDB
+        try {
+            const request = indexedDB.open('FleetCRM_DB', 5);
+            request.onsuccess = (e) => {
+                const db = e.target.result;
+                if (db.objectStoreNames.contains('companies')) {
+                    const tx = db.transaction(['companies'], 'readwrite');
+                    const store = tx.objectStore('companies');
+                    idSet.forEach(sId => store.delete(sId));
+                }
+            };
+        } catch (e) { }
+
+        // 5. Worker batch delete
+        if (this._worker) {
+            this._worker.postMessage({ action: 'DELETE_COMPANIES_BATCH', payload: Array.from(idSet) });
+        }
+
+        // 6. Invalidate caches once
+        this.invalidateScopedCache();
+        this.invalidateStatsCache();
+        this.updateLiveCounters();
+
+        if (this.companiesMemory.length === 0) {
+            localStorage.setItem('fleetcrm_user_wiped_companies', 'true');
+        }
+
+        // 7. Background cloud sync
+        setTimeout(() => {
+            if (window.SupabaseClient) {
+                if (typeof window.SupabaseClient.pushDeletedCompaniesBatch === 'function') {
+                    window.SupabaseClient.pushDeletedCompaniesBatch(Array.from(idSet)).catch(() => {});
+                } else if (typeof window.SupabaseClient.pushDeletedCompany === 'function') {
+                    Array.from(idSet).forEach(sId => {
+                        window.SupabaseClient.pushDeletedCompany(sId).catch(() => {});
+                    });
+                }
+            }
+            if (this.autoSyncToCloud) {
+                this.autoSyncToCloud(this.companiesMemory, false);
+            }
+        }, 50);
+
+        return idSet.size;
+    },
+
     // ---- Sales Custody & Assignment Audit Trail Engine ----
     getCustodyHistoryMap() {
         try {
@@ -3077,48 +3167,120 @@ const AppStorage = {
         const now = new Date(nowMs).toISOString();
         const today = now.split('T')[0];
         const targetUser = userId ? this.getUser(userId) : null;
-        const userName = targetUser ? targetUser.name : (userId || 'إلغاء التعيين');
-        const idSet = new Set(companyIds.map(String));
+        const targetUserName = targetUser ? targetUser.name : (userId || 'إلغاء التعيين');
+        const currentUser = this.getCurrentUser();
+        const operatorName = currentUser ? (currentUser.name || currentUser.username) : 'مدير النظام';
 
         const updatedBatch = [];
         const assignmentsMap = {};
+        const allHistory = this.getCustodyHistoryMap() || {};
 
-        this.getCompanies().forEach(c => {
-            if (c && idSet.has(String(c.id))) {
-                this.recordCustodyChange(c, userId, 'تخصيص جماعي');
-                c.assignedTo = userId || '';
-                c.assignedAt = userId ? now : null;
-                c.lastUpdated = today;
-                updatedBatch.push(c);
-                assignmentsMap[String(c.id)] = {
-                    assignedTo: userId || '',
-                    assignedAt: c.assignedAt,
-                    updatedAt: nowMs,
-                    unassignedAt: userId ? null : nowMs
-                };
+        companyIds.forEach(id => {
+            const comp = this.getCompany(id);
+            if (!comp) return;
+
+            const sId = String(comp.id);
+            const prevUserId = comp.assignedTo || '';
+            const targetUserId = userId || '';
+
+            // Update custody history in memory
+            if (prevUserId !== targetUserId) {
+                if (!allHistory[sId]) allHistory[sId] = [];
+                const historyList = allHistory[sId];
+
+                if (prevUserId) {
+                    const prevUser = this.getUser(prevUserId);
+                    const prevUserName = prevUser ? prevUser.name : prevUserId;
+                    let activeRecord = historyList.find(r => r.toUserId === prevUserId && !r.withdrawnAt);
+                    if (!activeRecord) {
+                        const startTime = comp.assignedAt || comp.createdAt || now;
+                        activeRecord = {
+                            id: 'cust_' + nowMs + '_' + Math.random().toString(36).substr(2, 5),
+                            action: 'assigned',
+                            toUserId: prevUserId,
+                            toUserName: prevUserName,
+                            toUserAvatar: prevUser ? (prevUser.avatar || '👨‍💼') : '👨‍💼',
+                            toUserColor: prevUser ? (prevUser.color || '#3b82f6') : '#3b82f6',
+                            assignedAt: startTime,
+                            assignedBy: 'النظام / إدارة التعيينات'
+                        };
+                        historyList.unshift(activeRecord);
+                    }
+                    activeRecord.withdrawnAt = now;
+                    activeRecord.withdrawnBy = operatorName;
+                    activeRecord.durationText = this.formatDurationBetween(activeRecord.assignedAt, now);
+                    activeRecord.withdrawalReason = targetUserId ?
+                        `نقل جماعي إلى: ${targetUserName}` :
+                        'سحب وإلغاء الإسناد والتفريغ';
+                }
+
+                if (targetUserId) {
+                    historyList.unshift({
+                        id: 'cust_' + nowMs + '_' + Math.random().toString(36).substr(2, 5),
+                        action: prevUserId ? 'reassigned' : 'assigned',
+                        toUserId: targetUserId,
+                        toUserName: targetUserName,
+                        toUserAvatar: targetUser ? (targetUser.avatar || '👨‍💼') : '👨‍💼',
+                        toUserColor: targetUser ? (targetUser.color || '#3b82f6') : '#3b82f6',
+                        fromUserId: prevUserId || null,
+                        fromUserName: prevUserId ? (this.getUser(prevUserId)?.name || prevUserId) : null,
+                        assignedAt: now,
+                        assignedBy: operatorName,
+                        withdrawnAt: null,
+                        withdrawnBy: null,
+                        notes: prevUserId ? `تحويل جماعي من: ${this.getUser(prevUserId)?.name || prevUserId}` : 'إسناد جماعي'
+                    });
+                }
             }
+
+            comp.assignedTo = targetUserId;
+            comp.assignedAt = targetUserId ? now : null;
+            comp.lastUpdated = today;
+            updatedBatch.push(comp);
+
+            assignmentsMap[sId] = {
+                assignedTo: targetUserId,
+                assignedAt: comp.assignedAt,
+                updatedAt: nowMs,
+                unassignedAt: targetUserId ? null : nowMs
+            };
         });
 
         if (updatedBatch.length > 0) {
-            // Update local persistent assignments store
-            const storedAssignments = this.getStoredAssignments();
+            // 1. Save custody once in localStorage
+            this.setCustodyHistoryMap(allHistory);
+
+            // 2. Update local persistent assignments store
+            const storedAssignments = this.getStoredAssignments() || {};
             Object.assign(storedAssignments, assignmentsMap);
             this.setStoredAssignments(storedAssignments);
 
+            // 3. Invalidate caches and save batch to IDB
             this.invalidateStatsCache();
             this.invalidateScopedCache();
             this.saveBatchToIDB(updatedBatch);
 
+            // 4. Update Web Worker
             if (this._worker) {
                 this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: updatedBatch });
             }
 
+            // 5. Send single atomic batch PATCH to Firebase assignments
             if (window.SupabaseClient && window.SupabaseClient.pushAssignments) {
                 window.SupabaseClient.pushAssignments(assignmentsMap).catch(() => { });
             }
 
+            // 6. Push custody in background batch if supported
+            if (window.SupabaseClient && typeof window.SupabaseClient.pushCustodyBatch === 'function') {
+                const custodyBatch = {};
+                companyIds.forEach(id => {
+                    if (allHistory[id]) custodyBatch[id] = allHistory[id];
+                });
+                window.SupabaseClient.pushCustodyBatch(custodyBatch).catch(() => {});
+            }
+
             this.updateLiveCounters();
-            this.addActivity('company', 'bulk', 'تخصيص جماعي', `تم إسناد وتخصيص ${updatedBatch.length} شركة إلى: ${userName}`);
+            this.addActivity('company', 'bulk', 'تخصيص جماعي', `تم إسناد وتخصيص ${updatedBatch.length} شركة إلى: ${targetUserName}`);
         }
         return updatedBatch.length;
     },
