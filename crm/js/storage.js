@@ -1795,11 +1795,12 @@ const AppStorage = {
                 // Extract dynamic companies (custom / newly scraped or modified)
                 const dynamicCompanies = [];
                 const assignmentsMap = {};
+                const canModifyAssignments = this.canModify ? this.canModify() : true;
 
                 // Load stored assignments so explicit unassignments are preserved and pushed to cloud
                 const storedAssignments = this.getStoredAssignments() || {};
                 for (const [sId, ass] of Object.entries(storedAssignments)) {
-                    if (ass && ass.assignedTo === '') {
+                    if (ass && (ass.assignedTo === '' || !ass.assignedTo)) {
                         assignmentsMap[sId] = {
                             assignedTo: '',
                             assignedAt: null
@@ -1810,15 +1811,18 @@ const AppStorage = {
                 companies.forEach(c => {
                     if (!c || !c.id) return;
                     const sId = String(c.id);
-                    if (c.assignedTo) {
-                        assignmentsMap[sId] = {
-                            assignedTo: c.assignedTo,
-                            assignedAt: c.assignedAt || new Date().toISOString()
-                        };
-                    } else if (storedAssignments[sId] && storedAssignments[sId].assignedTo === '') {
+                    const explicitStored = storedAssignments[sId];
+                    if (explicitStored && (explicitStored.assignedTo === '' || !explicitStored.assignedTo)) {
+                        c.assignedTo = '';
+                        c.assignedAt = null;
                         assignmentsMap[sId] = {
                             assignedTo: '',
                             assignedAt: null
+                        };
+                    } else if (c.assignedTo) {
+                        assignmentsMap[sId] = {
+                            assignedTo: c.assignedTo,
+                            assignedAt: c.assignedAt || new Date().toISOString()
                         };
                     }
                     const isNew = !baseIds.has(sId) && !titanIds.has(sId);
@@ -1827,8 +1831,8 @@ const AppStorage = {
                     }
                 });
 
-                // Immediately push assignments
-                if (Object.keys(assignmentsMap).length > 0 && window.SupabaseClient.pushAssignments) {
+                // Immediately push assignments (only if authorized operator)
+                if (canModifyAssignments && Object.keys(assignmentsMap).length > 0 && window.SupabaseClient.pushAssignments) {
                     window.SupabaseClient.pushAssignments(assignmentsMap).catch(() => { });
                 }
 
@@ -1837,7 +1841,7 @@ const AppStorage = {
 
                 const ok = await window.SupabaseClient.pushMasterData({
                     dynamicCompanies: dynamicCompanies,
-                    assignments: assignmentsMap,
+                    assignments: canModifyAssignments ? assignmentsMap : undefined,
                     users: users,
                     calls: calls,
                     activities: activities,
@@ -1915,12 +1919,12 @@ const AppStorage = {
                     const mergedAssignments = { ...data.assignments };
                     // Preserve explicit local unassignments so stale cloud assignments cannot resurrect
                     for (const [compId, ass] of Object.entries(localAssignments)) {
-                        if (ass && ass.assignedTo === '') {
+                        if (ass && (ass.assignedTo === '' || !ass.assignedTo)) {
                             const cloudAss = data.assignments[compId];
                             const cloudTime = cloudAss && cloudAss.assignedAt ? new Date(cloudAss.assignedAt).getTime() : 0;
-                            const unassignedTime = ass.unassignedAt || 0;
+                            const unassignedTime = ass.unassignedAt || Date.now();
                             if (unassignedTime >= cloudTime) {
-                                mergedAssignments[compId] = { assignedTo: '', assignedAt: null };
+                                mergedAssignments[compId] = { assignedTo: '', assignedAt: null, unassignedAt: unassignedTime };
                             }
                         }
                     }
