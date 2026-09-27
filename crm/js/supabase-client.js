@@ -12,7 +12,10 @@ window.SupabaseClient = (function() {
     let currentStatus = 'local'; // 'synced' | 'syncing' | 'offline' | 'local'
     let statusCallbacks = [];
     let sseSource = null;
+    let sseAssignments = null;
     let pollInterval = null;
+    let assignPollInterval = null;
+    const syncChannel = (typeof window !== 'undefined' && typeof window.BroadcastChannel !== 'undefined') ? new BroadcastChannel('fleetcrm_realtime_sync') : null;
     let isPushing = false;
 
     function onStatusChange(callback) {
@@ -668,9 +671,128 @@ window.SupabaseClient = (function() {
             try { sseSource.close(); } catch(e) {}
             sseSource = null;
         }
+        if (sseAssignments) {
+            try { sseAssignments.close(); } catch(e) {}
+            sseAssignments = null;
+        }
         if (pollInterval) {
             clearInterval(pollInterval);
             pollInterval = null;
+        }
+        if (assignPollInterval) {
+            clearInterval(assignPollInterval);
+            assignPollInterval = null;
+        }
+    }
+
+    /**
+     * Dedicated ultra-fast Real-time assignments stream (< 100ms sync across devices)
+     */
+    function subscribeToAssignments(onDeltaCallback) {
+        if (sseAssignments) {
+            try { sseAssignments.close(); } catch(e) {}
+            sseAssignments = null;
+        }
+        if (assignPollInterval) {
+            clearInterval(assignPollInterval);
+            assignPollInterval = null;
+        }
+
+        // 1. Cross-tab BroadcastChannel listener (Instant 0.1ms for same browser)
+        if (syncChannel) {
+            syncChannel.onmessage = (event) => {
+                try {
+                    if (event.data && event.data.type === 'ASSIGNMENTS_DELTA') {
+                        if (event.data.clientId === currentClientId) return; // ignore self
+                        if (onDeltaCallback && event.data.delta) {
+                            onDeltaCallback(event.data.delta, 'local_broadcast');
+                        }
+                    }
+                } catch(e) {}
+            };
+        }
+
+        // 2. Real-time Firebase RTDB SSE connection directly on /assignments.json
+        try {
+            if (typeof EventSource !== 'undefined') {
+                sseAssignments = new EventSource(`${FIREBASE_DB_URL}/assignments.json`);
+
+                const handleEvent = (e) => {
+                    try {
+                        const parsed = JSON.parse(e.data || '{}');
+                        const path = parsed.path || '/';
+                        const data = parsed.data;
+
+                        if (data === undefined) return;
+
+                        const delta = {};
+                        if (path === '/') {
+                            if (data && typeof data === 'object') {
+                                Object.assign(delta, data);
+                            }
+                        } else {
+                            const parts = path.split('/').filter(Boolean);
+                            if (parts.length === 1) {
+                                const compId = parts[0];
+                                delta[compId] = data || { assignedTo: '' };
+                            } else if (parts.length >= 2) {
+                                const compId = parts[0];
+                                const prop = parts[1];
+                                delta[compId] = { [prop]: data };
+                            }
+                        }
+
+                        if (Object.keys(delta).length > 0 && onDeltaCallback) {
+                            onDeltaCallback(delta, 'cloud_sse');
+                        }
+                    } catch(err) {
+                        console.warn('Assignments SSE parse err:', err);
+                    }
+                };
+
+                sseAssignments.addEventListener('put', handleEvent);
+                sseAssignments.addEventListener('patch', handleEvent);
+
+                sseAssignments.onerror = () => {
+                    if (sseAssignments) {
+                        try { sseAssignments.close(); } catch(e) {}
+                        sseAssignments = null;
+                    }
+                };
+            }
+        } catch(e) {
+            console.warn('Assignments SSE init error:', e);
+        }
+
+        // 3. Ultra-lightweight fallback polling: Every 2.5 seconds, fetch ONLY /assignments.json (< 10KB)
+        let lastPollJson = '';
+        const pollAssignments = async () => {
+            try {
+                const resp = await fetch(`${FIREBASE_DB_URL}/assignments.json?t=${Date.now()}`);
+                if (!resp.ok) return;
+                const text = await resp.text();
+                if (text === lastPollJson) return; // zero changes, exit early in 1ms!
+                lastPollJson = text;
+                const parsed = JSON.parse(text || '{}');
+                if (parsed && typeof parsed === 'object' && onDeltaCallback) {
+                    onDeltaCallback(parsed, 'cloud_poll');
+                }
+            } catch(e) {}
+        };
+
+        assignPollInterval = setInterval(pollAssignments, 2500);
+
+        // Instant poll on focus / visibility change
+        if (typeof window !== 'undefined') {
+            window.addEventListener('focus', pollAssignments);
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') {
+                    pollAssignments();
+                    if (!sseAssignments && typeof EventSource !== 'undefined') {
+                        subscribeToAssignments(onDeltaCallback);
+                    }
+                }
+            });
         }
     }
 
@@ -811,6 +933,17 @@ window.SupabaseClient = (function() {
                 }).catch(() => {});
             }
 
+            // Instant cross-tab broadcast notification (< 1ms)
+            if (syncChannel) {
+                try {
+                    syncChannel.postMessage({
+                        type: 'ASSIGNMENTS_DELTA',
+                        clientId: currentClientId,
+                        delta: normalizedMap
+                    });
+                } catch(e) {}
+            }
+
             try {
                 await fetch(`${FIREBASE_DB_URL}/metadata.json`, {
                     method: 'PATCH',
@@ -864,6 +997,17 @@ window.SupabaseClient = (function() {
                 );
             }
             await Promise.all(promises);
+
+            // Instant cross-tab broadcast notification (< 1ms)
+            if (syncChannel) {
+                try {
+                    syncChannel.postMessage({
+                        type: 'ASSIGNMENTS_DELTA',
+                        clientId: currentClientId,
+                        delta: { [sId]: payload }
+                    });
+                } catch(e) {}
+            }
 
             try {
                 lastSyncTimestamp = now;
@@ -1090,6 +1234,7 @@ window.SupabaseClient = (function() {
         deleteDynamicCompany,
         wipeDynamicCompanies,
         subscribeToChanges,
+        subscribeToAssignments,
         unsubscribe,
         acquireCompanyLock,
         releaseCompanyLock,

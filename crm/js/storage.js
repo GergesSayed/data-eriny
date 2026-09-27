@@ -2402,6 +2402,93 @@ const AppStorage = {
         }
     },
 
+    applyRealtimeAssignmentsDelta(assignmentsDelta, source = 'cloud') {
+        if (!assignmentsDelta || typeof assignmentsDelta !== 'object') return false;
+        const entries = Object.entries(assignmentsDelta);
+        if (entries.length === 0) return false;
+
+        const storedAssignments = this.getStoredAssignments() || {};
+        const changedComps = [];
+        const now = Date.now();
+        const idMap = this._getCompanyIdMap();
+
+        for (const [compId, assignData] of entries) {
+            if (!compId) continue;
+            const sId = String(compId).replace(/^\//, '');
+            if (!sId) continue;
+
+            let targetUser = '';
+            let targetAt = null;
+            let updatedAt = 0;
+            let unassignedAt = null;
+
+            if (typeof assignData === 'string') {
+                targetUser = assignData;
+                targetAt = targetUser ? new Date().toISOString() : null;
+                updatedAt = now;
+            } else if (assignData && typeof assignData === 'object') {
+                targetUser = assignData.assignedTo || '';
+                targetAt = targetUser ? (assignData.assignedAt || new Date().toISOString()) : null;
+                updatedAt = Number(assignData.updatedAt) || 0;
+                if (!updatedAt && assignData.assignedAt) {
+                    const p = new Date(assignData.assignedAt).getTime();
+                    if (!isNaN(p) && p > 0) updatedAt = p;
+                }
+                if (!updatedAt) updatedAt = now;
+                unassignedAt = targetUser ? null : (assignData.unassignedAt || updatedAt);
+            } else if (assignData === null) {
+                targetUser = '';
+                targetAt = null;
+                updatedAt = now;
+                unassignedAt = now;
+            }
+
+            const localAssign = storedAssignments[sId];
+            const localUpdatedAt = Number(localAssign ? localAssign.updatedAt : 0) || 0;
+            const localUser = localAssign ? (localAssign.assignedTo || '') : '';
+            const localUnassignedAt = Number(localAssign ? localAssign.unassignedAt : 0) || 0;
+
+            if (source === 'cloud') {
+                if (!localUser && localUnassignedAt > 0 && localUnassignedAt > updatedAt) {
+                    continue;
+                }
+                if (localUser && localUser !== targetUser && localUpdatedAt > updatedAt) {
+                    continue;
+                }
+            }
+
+            storedAssignments[sId] = {
+                assignedTo: targetUser,
+                assignedAt: targetAt,
+                updatedAt: updatedAt,
+                unassignedAt: unassignedAt
+            };
+
+            const comp = idMap.get(sId);
+            if (comp) {
+                const prevUser = comp.assignedTo || '';
+                if (prevUser !== targetUser) {
+                    comp.assignedTo = targetUser;
+                    comp.assignedAt = targetAt;
+                    changedComps.push(comp);
+                }
+            }
+        }
+
+        if (changedComps.length > 0) {
+            this.setStoredAssignments(storedAssignments);
+            this.invalidateScopedCache();
+            this.invalidateStatsCache();
+            this.saveBatchToIDB(changedComps);
+            if (this._worker) {
+                this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: changedComps });
+            }
+            this.updateLiveCounters();
+            return true;
+        }
+        return false;
+    },
+
     applyCallsToCompanies(target) {
         const calls = this.getCalls() || [];
 
