@@ -1938,14 +1938,18 @@ const AppStorage = {
                         if (!localAss) continue;
                         const localModTime = localAss.updatedAt || localAss.unassignedAt || (localAss.assignedAt ? new Date(localAss.assignedAt).getTime() : 0);
                         const cloudAss = data.assignments[compId];
-                        const cloudTime = cloudAss && cloudAss.assignedAt ? new Date(cloudAss.assignedAt).getTime() : 0;
+                        const cloudTime = cloudAss ? (cloudAss.updatedAt || cloudAss.unassignedAt || (cloudAss.assignedAt ? new Date(cloudAss.assignedAt).getTime() : 0)) : 0;
 
-                        // Preserve recent local user changes (within 120 seconds) against stale cloud reads
+                        // 1. If local assignment/unassignment happened recently (within 120 seconds) and local is strictly newer or equal:
                         const isRecent = localModTime && (now - localModTime < 120000);
                         if (isRecent && localModTime >= cloudTime) {
                             mergedAssignments[compId] = localAss;
+                        } else if (cloudTime > localModTime) {
+                            // Cloud modification is strictly newer (e.g. Admin unassigned or assigned it from another device!)
+                            mergedAssignments[compId] = cloudAss;
                         } else if ((localAss.assignedTo === '' || !localAss.assignedTo) && localModTime >= cloudTime) {
-                            mergedAssignments[compId] = { assignedTo: '', assignedAt: null, unassignedAt: localModTime };
+                            // Local explicit unassignment wins against older or equal cloud state
+                            mergedAssignments[compId] = { assignedTo: '', assignedAt: null, unassignedAt: localModTime, updatedAt: localModTime };
                         } else if (localModTime > cloudTime) {
                             mergedAssignments[compId] = localAss;
                         }
@@ -2954,11 +2958,13 @@ const AppStorage = {
         const assignmentsMap = {
             [String(companyId)]: {
                 assignedTo: userId || '',
-                assignedAt: company.assignedAt
+                assignedAt: company.assignedAt,
+                updatedAt: now,
+                unassignedAt: userId ? null : now
             }
         };
         if (window.SupabaseClient && typeof window.SupabaseClient.setAssignment === 'function') {
-            window.SupabaseClient.setAssignment(companyId, userId, company.assignedAt).catch(() => { });
+            window.SupabaseClient.setAssignment(companyId, userId, company.assignedAt, now).catch(() => { });
         } else if (window.SupabaseClient && window.SupabaseClient.pushAssignments) {
             window.SupabaseClient.pushAssignments(assignmentsMap).catch(() => { });
         }

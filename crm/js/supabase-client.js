@@ -727,26 +727,38 @@ window.SupabaseClient = (function() {
     async function pushAssignments(assignmentsMap) {
         if (!assignmentsMap || typeof assignmentsMap !== 'object' || Object.keys(assignmentsMap).length === 0) return true;
         try {
+            const now = Date.now();
+            const normalizedMap = {};
+            for (const [sId, item] of Object.entries(assignmentsMap)) {
+                if (!item) continue;
+                const isAssigned = Boolean(item.assignedTo);
+                normalizedMap[sId] = {
+                    assignedTo: isAssigned ? item.assignedTo : '',
+                    assignedAt: isAssigned ? (item.assignedAt || new Date(now).toISOString()) : null,
+                    unassignedAt: isAssigned ? null : (item.unassignedAt || now),
+                    updatedAt: item.updatedAt || now
+                };
+            }
+
             const resp = await fetch(`${FIREBASE_DB_URL}/assignments.json`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(assignmentsMap)
+                body: JSON.stringify(normalizedMap)
             });
 
             // If any assignments are being cleared (assignedTo: ''), also patch dynamic_companies node for those IDs
-            const unassignedEntries = Object.entries(assignmentsMap).filter(([_, v]) => v && (v.assignedTo === '' || !v.assignedTo));
+            const unassignedEntries = Object.entries(normalizedMap).filter(([_, v]) => v && (v.assignedTo === '' || !v.assignedTo));
             if (unassignedEntries.length > 0) {
                 unassignedEntries.forEach(([compId]) => {
                     fetch(`${FIREBASE_DB_URL}/dynamic_companies/${compId}.json`, {
                         method: 'PATCH',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ assignedTo: '', assignedAt: null })
+                        body: JSON.stringify({ assignedTo: '', assignedAt: null, unassignedAt: now, updatedAt: now })
                     }).catch(() => {});
                 });
             }
 
             try {
-                const now = Date.now();
                 lastSyncTimestamp = now;
                 await fetch(`${FIREBASE_DB_URL}/metadata.json`, {
                     method: 'PATCH',
@@ -765,13 +777,15 @@ window.SupabaseClient = (function() {
         }
     }
 
-    async function setAssignment(companyId, assignedTo, assignedAt) {
+    async function setAssignment(companyId, assignedTo, assignedAt, timestamp) {
         if (!companyId) return false;
         const sId = String(companyId);
-        const now = Date.now();
+        const now = timestamp || Date.now();
         const payload = {
             assignedTo: assignedTo || '',
-            assignedAt: assignedTo ? (assignedAt || new Date(now).toISOString()) : null
+            assignedAt: assignedTo ? (assignedAt || new Date(now).toISOString()) : null,
+            unassignedAt: assignedTo ? null : now,
+            updatedAt: now
         };
         try {
             const promises = [
@@ -783,7 +797,12 @@ window.SupabaseClient = (function() {
                 fetch(`${FIREBASE_DB_URL}/dynamic_companies/${sId}.json`, {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ assignedTo: assignedTo || '', assignedAt: assignedTo ? (assignedAt || null) : null })
+                    body: JSON.stringify({
+                        assignedTo: assignedTo || '',
+                        assignedAt: assignedTo ? (assignedAt || null) : null,
+                        unassignedAt: assignedTo ? null : now,
+                        updatedAt: now
+                    })
                 }).catch(() => {})
             ];
             await Promise.all(promises);

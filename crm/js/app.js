@@ -910,6 +910,14 @@ const App = {
         if (this.currentPage) {
             this.navigateTo(this.currentPage, true);
         }
+        if (typeof Companies !== 'undefined') {
+            const modal = document.getElementById('modal-company-detail');
+            if (modal && (modal.classList.contains('active') || modal.classList.contains('show') || modal.style.display === 'flex' || modal.style.display === 'block')) {
+                if (Companies.currentDetailId) {
+                    Companies.showDetail(Companies.currentDetailId);
+                }
+            }
+        }
     },
 
     exportFullBackup() {
@@ -1979,7 +1987,7 @@ const App = {
         // 2. App Shell Version
         const appShellEl = document.getElementById('pwa-modal-appshell-status');
         if (appShellEl) {
-            appShellEl.innerHTML = '✅ مخزنة بالكامل (v293.0) 🛡️';
+            appShellEl.innerHTML = '✅ مخزنة بالكامل (v294.0) 🛡️';
             appShellEl.style.color = '#10b981';
         }
 

@@ -910,9 +910,15 @@ const Companies = {
     },
 
     getFilteredCompanies() {
-        let rawCompanies = window.AppStorage ? window.AppStorage.getScopedCompanies() : [];
-        if (!rawCompanies || rawCompanies.length === 0) {
-            rawCompanies = window.AppStorage ? window.AppStorage.getCompanies() : [];
+        const currentUser = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
+        const canViewAll = window.AppStorage ? window.AppStorage.canViewAll(currentUser) : true;
+        let rawCompanies = [];
+        if (window.AppStorage) {
+            if (canViewAll) {
+                rawCompanies = window.AppStorage.getCompanies() || [];
+            } else {
+                rawCompanies = window.AppStorage.getScopedCompanies() || [];
+            }
         }
         if (!rawCompanies || rawCompanies.length === 0) return [];
 
@@ -926,7 +932,6 @@ const Companies = {
         const sortMode = document.getElementById('filter-sort')?.value || 'priority_fleet';
         const assigned = document.getElementById('filter-assigned')?.value;
         const search = document.getElementById('filter-search')?.value?.toLowerCase().trim();
-        const currentUser = window.AppStorage.getCurrentUser();
         const now = Date.now();
         const todayStr = new Date().toISOString().split('T')[0];
 
