@@ -75,8 +75,10 @@ const App = {
             window.AppStorage.pullFromCloud().then(wasUpdated => {
                 window.AppStorage.updateLiveCounters();
                 if (wasUpdated) {
-                    if (typeof Companies !== 'undefined' && this.currentPage === 'companies') Companies.render();
-                    if (typeof Dashboard !== 'undefined' && this.currentPage === 'dashboard') Dashboard.render();
+                    const active = this.currentPage || window.location.hash.replace('#', '') || 'companies';
+                    if (typeof Companies !== 'undefined' && active === 'companies') Companies.render();
+                    if (typeof Dashboard !== 'undefined' && active === 'dashboard') Dashboard.render();
+                    if (typeof Team !== 'undefined' && active === 'team') Team.render();
                 }
             }).catch(() => {});
 
@@ -89,8 +91,10 @@ const App = {
                 _lastSyncTs = now;
                 window.AppStorage.pullFromCloud().then(wasUpdated => {
                     if (wasUpdated) {
-                        if (typeof Companies !== 'undefined' && this.currentPage === 'companies') Companies.render();
-                        if (typeof Dashboard !== 'undefined' && this.currentPage === 'dashboard') Dashboard.render();
+                        const active = this.currentPage || window.location.hash.replace('#', '') || 'companies';
+                        if (typeof Companies !== 'undefined' && active === 'companies') Companies.render();
+                        if (typeof Dashboard !== 'undefined' && active === 'dashboard') Dashboard.render();
+                        if (typeof Team !== 'undefined' && active === 'team') Team.render();
                     }
                 }).catch(() => {});
             };

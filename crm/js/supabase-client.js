@@ -790,8 +790,12 @@ window.SupabaseClient = (function() {
                 body: JSON.stringify(normalizedMap)
             });
 
-            // Single atomic batch patch for dynamic_companies instead of individual requests
-            const unassignedEntries = Object.entries(normalizedMap).filter(([_, v]) => v && (v.assignedTo === '' || !v.assignedTo));
+            // Single atomic batch patch for dynamic_companies instead of individual requests (ONLY for genuine dynamic companies, NEVER titans or base pool!)
+            const unassignedEntries = Object.entries(normalizedMap).filter(([compId, v]) => 
+                v && (v.assignedTo === '' || !v.assignedTo) && 
+                !compId.startsWith('eg_titan_') && 
+                !compId.startsWith('comp_base_')
+            );
             if (unassignedEntries.length > 0) {
                 const dynPatch = {};
                 unassignedEntries.forEach(([compId]) => {
@@ -841,18 +845,24 @@ window.SupabaseClient = (function() {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
-                }),
-                fetch(`${FIREBASE_DB_URL}/dynamic_companies/${sId}.json`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        assignedTo: assignedTo || '',
-                        assignedAt: assignedTo ? (assignedAt || null) : null,
-                        unassignedAt: assignedTo ? null : now,
-                        updatedAt: now
-                    })
-                }).catch(() => {})
+                })
             ];
+
+            // Only patch dynamic_companies if this is a genuine custom/scraped company, NOT a titan or base company
+            if (!sId.startsWith('eg_titan_') && !sId.startsWith('comp_base_')) {
+                promises.push(
+                    fetch(`${FIREBASE_DB_URL}/dynamic_companies/${sId}.json`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            assignedTo: assignedTo || '',
+                            assignedAt: assignedTo ? (assignedAt || null) : null,
+                            unassignedAt: assignedTo ? null : now,
+                            updatedAt: now
+                        })
+                    }).catch(() => {})
+                );
+            }
             await Promise.all(promises);
 
             try {

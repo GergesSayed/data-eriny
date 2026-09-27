@@ -2745,7 +2745,9 @@ const Companies = {
         const currentUser = (window.AppStorage && typeof window.AppStorage.getCurrentUser === 'function') ? window.AppStorage.getCurrentUser() : null;
         const currentName = (currentUser && currentUser.name) ? String(currentUser.name).split(' ')[0] : (currentUser?.username || 'أنا');
         const users = (window.AppStorage && typeof window.AppStorage.getUsers === 'function') ? (window.AppStorage.getUsers() || []) : [];
-        const assignedUser = (window.AppStorage && typeof window.AppStorage.getUser === 'function') ? window.AppStorage.getUser(c.assignedTo) : null;
+        const assignedUser = (window.AppStorage && typeof window.AppStorage.getUser === 'function') 
+            ? (window.AppStorage.getUser(c.assignedTo) || window.AppStorage.getUserByUsername(c.assignedTo) || window.AppStorage.getUserByEmail(c.assignedTo)) 
+            : null;
         const canViewCustody = (window.AppStorage && typeof window.AppStorage.canViewCustody === 'function') ? window.AppStorage.canViewCustody() : false;
 
         const custodyBtnHtml = canViewCustody ? `
@@ -2772,6 +2774,25 @@ const Companies = {
                     <div style="display:inline-flex; align-items:center; gap:5px;">
                         ${custodyBtnHtml}
                         <span class="badge" style="background:${assignedUser.color || '#7c3aed'}22; color:${assignedUser.color || '#7c3aed'}; font-size:0.75rem; padding:3px 8px; border-radius:6px; font-weight:700; white-space:nowrap; display:inline-block;">👤 ${userName}</span>
+                    </div>`;
+            }
+        } else if (c.assignedTo) {
+            const fallbackName = c.assignedTo;
+            if (window.AppStorage.canModify()) {
+                return `
+                    <div onclick="event.stopPropagation();" style="display:inline-flex; align-items:center; justify-content:center; gap:5px;">
+                        ${custodyBtnHtml}
+                        <select onchange="Companies.assignToUser('${c.id}', this.value)" style="padding:3px 6px; border-radius:6px; border:1px solid #7c3aed66; background:rgba(124, 58, 237, 0.15); color:#c4b5fd; font-size:0.75rem; font-weight:700; width:118px; cursor:pointer; text-align:center; direction:ltr;" title="المسند إليه: ${fallbackName}">
+                            <option value="${c.assignedTo}" selected>👤 ${fallbackName}</option>
+                            <option value="">⚪ إلغاء التعيين</option>
+                            ${users.map(u => `<option value="${u.id}">👤 ${u.name || u.username || 'موظف'}</option>`).join('')}
+                        </select>
+                    </div>`;
+            } else {
+                return `
+                    <div style="display:inline-flex; align-items:center; gap:5px;">
+                        ${custodyBtnHtml}
+                        <span class="badge" style="background:rgba(124, 58, 237, 0.22); color:#c4b5fd; font-size:0.75rem; padding:3px 8px; border-radius:6px; font-weight:700; white-space:nowrap; display:inline-block;">👤 ${fallbackName}</span>
                     </div>`;
             }
         } else {

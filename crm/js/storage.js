@@ -1815,12 +1815,16 @@ const AppStorage = {
                     if (ass.assignedTo === '' || !ass.assignedTo) {
                         assignmentsMap[sId] = {
                             assignedTo: '',
-                            assignedAt: null
+                            assignedAt: null,
+                            updatedAt: ass.updatedAt || Date.now(),
+                            unassignedAt: ass.unassignedAt || Date.now()
                         };
                     } else {
                         assignmentsMap[sId] = {
                             assignedTo: ass.assignedTo,
-                            assignedAt: ass.assignedAt || new Date().toISOString()
+                            assignedAt: ass.assignedAt || new Date().toISOString(),
+                            updatedAt: ass.updatedAt || Date.now(),
+                            unassignedAt: null
                         };
                     }
                 }
@@ -1837,20 +1841,26 @@ const AppStorage = {
                             c.assignedAt = null;
                             assignmentsMap[sId] = {
                                 assignedTo: '',
-                                assignedAt: null
+                                assignedAt: null,
+                                updatedAt: explicitStored.updatedAt || Date.now(),
+                                unassignedAt: explicitStored.unassignedAt || Date.now()
                             };
                         } else {
                             c.assignedTo = explicitStored.assignedTo;
                             c.assignedAt = explicitStored.assignedAt || c.assignedAt || new Date().toISOString();
                             assignmentsMap[sId] = {
                                 assignedTo: c.assignedTo,
-                                assignedAt: c.assignedAt
+                                assignedAt: c.assignedAt,
+                                updatedAt: explicitStored.updatedAt || Date.now(),
+                                unassignedAt: null
                             };
                         }
                     } else if (c.assignedTo) {
                         assignmentsMap[sId] = {
                             assignedTo: c.assignedTo,
-                            assignedAt: c.assignedAt || new Date().toISOString()
+                            assignedAt: c.assignedAt || new Date().toISOString(),
+                            updatedAt: Date.now(),
+                            unassignedAt: null
                         };
                     }
                     const isNew = !baseIds.has(sId) && !titanIds.has(sId);
@@ -2004,13 +2014,32 @@ const AppStorage = {
 
                         const targetUser = typeof assignData === 'string' ? assignData : (assignData.assignedTo || '');
                         const targetAt = targetUser ? (assignData.assignedAt || null) : null;
-                        const cloudUpdatedAt = Number(assignData.updatedAt) || 0;
+                        
+                        let cloudUpdatedAt = Number(assignData.updatedAt) || 0;
+                        if (!cloudUpdatedAt && assignData.assignedAt) {
+                            const parsed = new Date(assignData.assignedAt).getTime();
+                            if (!isNaN(parsed) && parsed > 0) cloudUpdatedAt = parsed;
+                        }
+                        if (!cloudUpdatedAt && assignData.unassignedAt) {
+                            const parsed = Number(assignData.unassignedAt) || new Date(assignData.unassignedAt).getTime();
+                            if (!isNaN(parsed) && parsed > 0) cloudUpdatedAt = parsed;
+                        }
+                        if (!cloudUpdatedAt && targetUser) {
+                            cloudUpdatedAt = 1;
+                        }
 
                         const localAssign = storedAssignments[sId];
                         const localUpdatedAt = Number(localAssign ? localAssign.updatedAt : 0) || 0;
+                        const localUser = localAssign ? (localAssign.assignedTo || '') : '';
+                        const localUnassignedAt = Number(localAssign ? localAssign.unassignedAt : 0) || 0;
 
-                        // 🛡️ REVERSION GUARD: Never let stale cloud sync overwrite recent local user assignment
-                        if (localUpdatedAt > cloudUpdatedAt) {
+                        // 🛡️ REVERSION GUARD:
+                        // 1. If local user explicitly unassigned this on this client AFTER cloud assigned it:
+                        if (!localUser && localUnassignedAt > 0 && localUnassignedAt > cloudUpdatedAt) {
+                            continue;
+                        }
+                        // 2. If local user reassigned to a DIFFERENT user AFTER cloud record:
+                        if (localUser && localUser !== targetUser && localUpdatedAt > cloudUpdatedAt) {
                             continue;
                         }
 
