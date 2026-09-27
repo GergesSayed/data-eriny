@@ -51,13 +51,14 @@ window.SupabaseClient = (function() {
                 }
             };
 
-            const [dynamicCompaniesObj, assignmentsObj, callsData, usersData, actsData, deletedCallsObj, custodyObj] = await Promise.all([
+            const [dynamicCompaniesObj, assignmentsObj, callsData, usersData, actsData, deletedCallsObj, deletedCompaniesObj, custodyObj] = await Promise.all([
                 safeFetch(`${FIREBASE_DB_URL}/dynamic_companies.json?t=${Date.now()}`, {}),
                 safeFetch(`${FIREBASE_DB_URL}/assignments.json?t=${Date.now()}`, {}),
                 safeFetch(`${FIREBASE_DB_URL}/calls.json?t=${Date.now()}`, []),
                 safeFetch(`${FIREBASE_DB_URL}/users.json?t=${Date.now()}`, []),
                 safeFetch(`${FIREBASE_DB_URL}/activities.json?t=${Date.now()}`, []),
                 safeFetch(`${FIREBASE_DB_URL}/deleted_calls.json?t=${Date.now()}`, {}),
+                safeFetch(`${FIREBASE_DB_URL}/deleted_companies.json?t=${Date.now()}`, {}),
                 safeFetch(`${FIREBASE_DB_URL}/custody.json?t=${Date.now()}`, {})
             ]);
             clearTimeout(timeoutId);
@@ -80,6 +81,15 @@ window.SupabaseClient = (function() {
                 }
             }
 
+            let deletedCompaniesList = [];
+            if (deletedCompaniesObj && typeof deletedCompaniesObj === 'object') {
+                if (Array.isArray(deletedCompaniesObj)) {
+                    deletedCompaniesList = deletedCompaniesObj.filter(Boolean).map(String);
+                } else {
+                    deletedCompaniesList = Object.keys(deletedCompaniesObj);
+                }
+            }
+
             setStatus('synced', { dynamicCount: dynamicCompanies.length });
 
             return {
@@ -87,6 +97,7 @@ window.SupabaseClient = (function() {
                 assignments: (assignmentsObj && typeof assignmentsObj === 'object') ? assignmentsObj : {},
                 calls: Array.isArray(callsData) ? callsData : (callsData ? Object.values(callsData) : []),
                 deletedCalls: deletedCallsList,
+                deletedCompanies: deletedCompaniesList,
                 users: Array.isArray(usersData) ? usersData : (usersData ? Object.values(usersData) : []),
                 activities: Array.isArray(actsData) ? actsData : (actsData ? Object.values(actsData) : []),
                 custody: (custodyObj && typeof custodyObj === 'object') ? custodyObj : {},
@@ -184,6 +195,37 @@ window.SupabaseClient = (function() {
                         method: 'PATCH',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(delMap),
+                        signal: controller.signal
+                    })
+                );
+            }
+
+            // 2.2 Sync deleted company tombstones and remove key from Firebase dynamic_companies & assignments
+            if (data.deletedCompanies && Array.isArray(data.deletedCompanies) && data.deletedCompanies.length > 0) {
+                const delCompMap = {};
+                data.deletedCompanies.forEach(id => {
+                    if (id) {
+                        const sId = String(id);
+                        delCompMap[sId] = { deletedAt: Date.now() };
+                        promises.push(
+                            fetch(`${FIREBASE_DB_URL}/dynamic_companies/${sId}.json`, {
+                                method: 'DELETE',
+                                signal: controller.signal
+                            }).catch(() => {})
+                        );
+                        promises.push(
+                            fetch(`${FIREBASE_DB_URL}/assignments/${sId}.json`, {
+                                method: 'DELETE',
+                                signal: controller.signal
+                            }).catch(() => {})
+                        );
+                    }
+                });
+                promises.push(
+                    fetch(`${FIREBASE_DB_URL}/deleted_companies.json`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(delCompMap),
                         signal: controller.signal
                     })
                 );
@@ -828,28 +870,106 @@ window.SupabaseClient = (function() {
 
     async function pushDeletedCall(id) {
         if (!id) return false;
+        const sId = String(id);
         try {
-            const resp = await fetch(`${FIREBASE_DB_URL}/deleted_calls/${id}.json`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ deletedAt: Date.now() })
-            });
+            const now = Date.now();
+            const promises = [
+                fetch(`${FIREBASE_DB_URL}/deleted_calls/${encodeURIComponent(sId)}.json`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ deletedAt: now })
+                }),
+                fetch(`${FIREBASE_DB_URL}/calls/${encodeURIComponent(sId)}.json`, {
+                    method: 'DELETE'
+                })
+            ];
+            await Promise.all(promises);
+
             try {
-                const now = Date.now();
                 lastSyncTimestamp = now;
                 await fetch(`${FIREBASE_DB_URL}/metadata.json`, {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        updated_at: new Date().toISOString(),
+                        updated_at: new Date(now).toISOString(),
                         sync_timestamp: now,
                         updated_by: currentClientId
                     })
                 });
             } catch(e) {}
-            return resp.ok;
+            return true;
         } catch(e) {
             console.warn('pushDeletedCall error:', e);
+            return false;
+        }
+    }
+
+    async function pushDeletedCompany(id) {
+        if (!id) return false;
+        const sId = String(id);
+        try {
+            const now = Date.now();
+            const promises = [
+                fetch(`${FIREBASE_DB_URL}/deleted_companies/${encodeURIComponent(sId)}.json`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ deletedAt: now })
+                }),
+                fetch(`${FIREBASE_DB_URL}/dynamic_companies/${encodeURIComponent(sId)}.json`, {
+                    method: 'DELETE'
+                }),
+                fetch(`${FIREBASE_DB_URL}/assignments/${encodeURIComponent(sId)}.json`, {
+                    method: 'DELETE'
+                })
+            ];
+            await Promise.all(promises);
+
+            try {
+                lastSyncTimestamp = now;
+                await fetch(`${FIREBASE_DB_URL}/metadata.json`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        updated_at: new Date(now).toISOString(),
+                        sync_timestamp: now,
+                        updated_by: currentClientId
+                    })
+                });
+            } catch(e) {}
+            return true;
+        } catch(e) {
+            console.warn('pushDeletedCompany error:', e);
+            return false;
+        }
+    }
+
+    async function pushSingleCall(call) {
+        if (!call || !call.id) return false;
+        const sId = String(call.id);
+        try {
+            const now = Date.now();
+            const payload = { ...call, updatedAt: now };
+            await fetch(`${FIREBASE_DB_URL}/calls/${encodeURIComponent(sId)}.json`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            try {
+                lastSyncTimestamp = now;
+                await fetch(`${FIREBASE_DB_URL}/metadata.json`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        updated_at: new Date(now).toISOString(),
+                        sync_timestamp: now,
+                        updated_by: currentClientId
+                    })
+                });
+            } catch(e) {}
+            return true;
+        } catch(e) {
+            console.warn('pushSingleCall error:', e);
             return false;
         }
     }
@@ -881,6 +1001,8 @@ window.SupabaseClient = (function() {
         setAssignment,
         pushCustody,
         pushDeletedCall,
+        pushDeletedCompany,
+        pushSingleCall,
         deleteDynamicCompany,
         wipeDynamicCompanies,
         subscribeToChanges,

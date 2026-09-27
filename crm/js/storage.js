@@ -1000,7 +1000,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=264.0');
+            this._worker = new Worker('js/companies-worker.js?v=295.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -1764,6 +1764,8 @@ const AppStorage = {
             }
             if (type === 'calls' && window.SupabaseClient && window.SupabaseClient.pushDeletedCall) {
                 window.SupabaseClient.pushDeletedCall(sId).catch(() => { });
+            } else if (type === 'companies' && window.SupabaseClient && window.SupabaseClient.pushDeletedCompany) {
+                window.SupabaseClient.pushDeletedCompany(sId).catch(() => { });
             }
         } catch (e) { }
     },
@@ -1784,7 +1786,10 @@ const AppStorage = {
 
         const syncFn = async () => {
             try {
-                const calls = this.getCalls ? this.getCalls() : [];
+                const deletedCompIds = this.getDeletedIds ? this.getDeletedIds('companies') : new Set();
+                const deletedCallIds = this.getDeletedIds ? this.getDeletedIds('calls') : new Set();
+
+                const calls = (this.getCalls ? this.getCalls() : []).filter(c => c && c.id && !deletedCallIds.has(String(c.id)));
                 const users = this.getUsers ? this.getUsers() : [];
                 const activities = this.getActivities ? this.getActivities() : [];
 
@@ -1800,7 +1805,7 @@ const AppStorage = {
                 // Load stored assignments so explicit unassignments and fresh assignments are preserved and pushed to cloud
                 const storedAssignments = this.getStoredAssignments() || {};
                 for (const [sId, ass] of Object.entries(storedAssignments)) {
-                    if (!ass) continue;
+                    if (!ass || deletedCompIds.has(sId)) continue;
                     if (ass.assignedTo === '' || !ass.assignedTo) {
                         assignmentsMap[sId] = {
                             assignedTo: '',
@@ -1817,6 +1822,8 @@ const AppStorage = {
                 companies.forEach(c => {
                     if (!c || !c.id) return;
                     const sId = String(c.id);
+                    if (deletedCompIds.has(sId)) return; // Never push deleted companies
+
                     const explicitStored = storedAssignments[sId];
                     if (explicitStored) {
                         if (explicitStored.assignedTo === '' || !explicitStored.assignedTo) {
@@ -1859,6 +1866,8 @@ const AppStorage = {
                     assignments: canModifyAssignments ? assignmentsMap : undefined,
                     users: users,
                     calls: calls,
+                    deletedCalls: Array.from(deletedCallIds),
+                    deletedCompanies: Array.from(deletedCompIds),
                     activities: activities,
                     custody: this.getCustodyHistoryMap ? this.getCustodyHistoryMap() : {}
                 });
@@ -1892,19 +1901,69 @@ const AppStorage = {
 
             let updated = false;
 
-            // 1. Sync companies with cloud with guaranteed baseline pool and titans
+            // 1. Ingest cloud tombstones into local storage (Permanent tombstones — ZERO resurrection!)
+            const cloudDeletedCompanies = new Set((data.deletedCompanies && Array.isArray(data.deletedCompanies)) ? data.deletedCompanies.map(String) : []);
+            const cloudDeletedCalls = new Set((data.deletedCalls && Array.isArray(data.deletedCalls)) ? data.deletedCalls.map(String) : []);
+
+            try {
+                // A. Company tombstones
+                const compKey = 'fleetcrm_deleted_companies';
+                let localCompList = JSON.parse(localStorage.getItem(compKey) || '[]');
+                let compListChanged = false;
+                cloudDeletedCompanies.forEach(id => {
+                    if (id && !localCompList.includes(id)) {
+                        localCompList.push(id);
+                        compListChanged = true;
+                    }
+                });
+                if (compListChanged) {
+                    localStorage.setItem(compKey, JSON.stringify(localCompList));
+                }
+
+                // B. Call tombstones (clean, non-reverting)
+                const callKey = 'fleetcrm_deleted_calls';
+                let localCallList = JSON.parse(localStorage.getItem(callKey) || '[]');
+                let callListChanged = false;
+                cloudDeletedCalls.forEach(id => {
+                    if (id && !localCallList.includes(id)) {
+                        localCallList.push(id);
+                        callListChanged = true;
+                    }
+                });
+                if (callListChanged) {
+                    localStorage.setItem(callKey, JSON.stringify(localCallList));
+                }
+            } catch (e) { }
+
+            const deletedCompIds = this.getDeletedIds('companies');
+            const deletedCallIds = this.getDeletedIds('calls');
+
+            // 2. Sync companies with cloud
             const isWipedComps = localStorage.getItem('fleetcrm_user_wiped_companies') === 'true';
             if (isWipedComps && (!this.companiesMemory || this.companiesMemory.length === 0)) {
                 this.companiesMemory = [];
                 this.updateLiveCounters();
             } else {
-                const idMap = new Map();
-                (this.companiesMemory || []).forEach(c => { if (c && c.id) idMap.set(String(c.id), c); });
                 let anyChanged = false;
+
+                // Purge any tombstoned companies that might currently exist in memory
+                if (deletedCompIds.size > 0 && this.companiesMemory && this.companiesMemory.length > 0) {
+                    const beforeCount = this.companiesMemory.length;
+                    this.companiesMemory = this.companiesMemory.filter(c => c && c.id && !deletedCompIds.has(String(c.id)));
+                    if (this.companiesMemory.length !== beforeCount) {
+                        anyChanged = true;
+                    }
+                }
+
+                const idMap = new Map();
+                (this.companiesMemory || []).forEach(c => {
+                    if (c && c.id && !deletedCompIds.has(String(c.id))) {
+                        idMap.set(String(c.id), c);
+                    }
+                });
 
                 // A. Apply dynamic companies (newly scraped/custom)
                 if (data.dynamicCompanies && Array.isArray(data.dynamicCompanies)) {
-                    const deletedCompIds = this.getDeletedIds('companies');
                     const cloudDynamic = data.dynamicCompanies.filter(c => c && c.id && !deletedCompIds.has(String(c.id)) && this.isStrictB2BEntity(c.nameAr || c.name || c.nameEn || ''));
 
                     cloudDynamic.forEach(c => {
@@ -1915,7 +1974,6 @@ const AppStorage = {
                             idMap.set(sId, this._normalizeCompanyData(c));
                             anyChanged = true;
                         } else {
-                            // Dynamic companies should NEVER overwrite assignments on existing companies!
                             if (c.status !== undefined && existing.status !== c.status) {
                                 existing.status = c.status;
                                 anyChanged = true;
@@ -1928,52 +1986,36 @@ const AppStorage = {
                     });
                 }
 
-                // B. Apply assignments directly from cloud assignments endpoint with bidirectional local protection
+                // B. Apply assignments directly from cloud (Authoritative single source of truth!)
                 if (data.assignments && typeof data.assignments === 'object') {
-                    const localAssignments = this.getStoredAssignments() || {};
-                    const mergedAssignments = { ...data.assignments };
-                    const now = Date.now();
-
-                    for (const [compId, localAss] of Object.entries(localAssignments)) {
-                        if (!localAss) continue;
-                        const localModTime = localAss.updatedAt || localAss.unassignedAt || (localAss.assignedAt ? new Date(localAss.assignedAt).getTime() : 0);
-                        const cloudAss = data.assignments[compId];
-                        const cloudTime = cloudAss ? (cloudAss.updatedAt || cloudAss.unassignedAt || (cloudAss.assignedAt ? new Date(cloudAss.assignedAt).getTime() : 0)) : 0;
-
-                        // 1. If local assignment/unassignment happened recently (within 120 seconds) and local is strictly newer or equal:
-                        const isRecent = localModTime && (now - localModTime < 120000);
-                        if (isRecent && localModTime >= cloudTime) {
-                            mergedAssignments[compId] = localAss;
-                        } else if (cloudTime > localModTime) {
-                            // Cloud modification is strictly newer (e.g. Admin unassigned or assigned it from another device!)
-                            mergedAssignments[compId] = cloudAss;
-                        } else if ((localAss.assignedTo === '' || !localAss.assignedTo) && localModTime >= cloudTime) {
-                            // Local explicit unassignment wins against older or equal cloud state
-                            mergedAssignments[compId] = { assignedTo: '', assignedAt: null, unassignedAt: localModTime, updatedAt: localModTime };
-                        } else if (localModTime > cloudTime) {
-                            mergedAssignments[compId] = localAss;
-                        }
-                    }
-
-                    this.setStoredAssignments(mergedAssignments);
-                    this.invalidateScopedCache();
+                    const storedAssignments = this.getStoredAssignments() || {};
                     const changedComps = [];
 
-                    for (const [compId, assignData] of Object.entries(mergedAssignments)) {
+                    for (const [compId, assignData] of Object.entries(data.assignments)) {
                         if (!assignData) continue;
-                        const comp = idMap.get(String(compId));
-                        if (comp) {
-                            const targetUser = typeof assignData === 'string' ? assignData : (assignData.assignedTo || '');
-                            const targetAt = targetUser ? (assignData.assignedAt || null) : null;
-                            if (comp.assignedTo !== targetUser) {
-                                comp.assignedTo = targetUser;
-                                comp.assignedAt = targetAt;
-                                anyChanged = true;
-                                changedComps.push(comp);
-                            }
+                        const sId = String(compId);
+                        if (deletedCompIds.has(sId)) continue; // ignore deleted
+
+                        const targetUser = typeof assignData === 'string' ? assignData : (assignData.assignedTo || '');
+                        const targetAt = targetUser ? (assignData.assignedAt || null) : null;
+
+                        storedAssignments[sId] = {
+                            assignedTo: targetUser,
+                            assignedAt: targetAt,
+                            updatedAt: assignData.updatedAt || Date.now(),
+                            unassignedAt: assignData.unassignedAt || null
+                        };
+
+                        const comp = idMap.get(sId);
+                        if (comp && (comp.assignedTo || '') !== targetUser) {
+                            comp.assignedTo = targetUser;
+                            comp.assignedAt = targetAt;
+                            anyChanged = true;
+                            changedComps.push(comp);
                         }
                     }
 
+                    this.setStoredAssignments(storedAssignments);
                     if (changedComps.length > 0) {
                         this.saveBatchToIDB(changedComps);
                     }
@@ -2007,7 +2049,7 @@ const AppStorage = {
                 }
             }
 
-            // 2. Users sync with smart merge — deduplicate by identity (email/username/name)
+            // 3. Users sync with smart merge — deduplicate by identity (email/username/name)
             if (data.users && Array.isArray(data.users)) {
                 const localUsers = this.getUsers() || [];
                 const combined = [...localUsers, ...data.users];
@@ -2023,31 +2065,7 @@ const AppStorage = {
                 }
             }
 
-            // 3. Ingest cloud tombstones into local storage & safely restore active calls
-            const cloudDeletedSet = new Set((data.deletedCalls && Array.isArray(data.deletedCalls)) ? data.deletedCalls.map(String) : []);
-            try {
-                const key = 'fleetcrm_deleted_calls';
-                let list = JSON.parse(localStorage.getItem(key) || '[]');
-                
-                // Self-healing: If cloud explicitly has active calls that are NOT tombstoned in cloud, remove them from local deleted tombstone list
-                if (data.calls && Array.isArray(data.calls)) {
-                    const activeCloudIds = new Set(data.calls.filter(c => c && c.id && !cloudDeletedSet.has(String(c.id))).map(c => String(c.id)));
-                    list = list.filter(id => !activeCloudIds.has(String(id)));
-                }
-
-                // Append any genuine cloud tombstones
-                cloudDeletedSet.forEach(sId => {
-                    if (sId && !list.includes(sId)) {
-                        list.push(sId);
-                    }
-                });
-                localStorage.setItem(key, JSON.stringify(list));
-            } catch (e) { }
-
-            const deletedCompIds = this.getDeletedIds('companies');
-            const deletedCallIds = this.getDeletedIds('calls');
-
-            // 4. Calls sync with cloud tombstones and safe reconciliation
+            // 4. Calls sync with cloud tombstones and safe reconciliation (NO resurrection!)
             const localRawCalls = this._get(this.KEYS.CALLS) || [];
             const localCalls = localRawCalls.filter(c => c && c.id && !deletedCallIds.has(String(c.id)));
 
@@ -2061,17 +2079,14 @@ const AppStorage = {
                     callMap.set(String(c.id), c);
                 });
 
-                // B. Reconcile local calls (NEVER falsely delete local calls; preserve and mark for sync)
-                let hasUnsyncedLocal = false;
+                // B. Reconcile local calls (preserve unsynced local calls, push them to cloud)
                 localCalls.forEach(c => {
                     const cId = String(c.id);
-                    if (cloudIdSet.has(cId)) {
-                        const existing = callMap.get(cId);
-                        callMap.set(cId, { ...c, ...existing });
-                    } else {
-                        // Call exists locally and is not tombstoned: preserve it!
+                    if (!deletedCallIds.has(cId) && !cloudIdSet.has(cId)) {
                         callMap.set(cId, c);
-                        hasUnsyncedLocal = true;
+                        if (window.SupabaseClient && window.SupabaseClient.pushSingleCall) {
+                            window.SupabaseClient.pushSingleCall(c).catch(() => {});
+                        }
                     }
                 });
 
@@ -2079,6 +2094,7 @@ const AppStorage = {
                 if (mergedCalls.length !== localRawCalls.length || JSON.stringify(mergedCalls) !== JSON.stringify(localRawCalls)) {
                     this._set(this.KEYS.CALLS, mergedCalls);
                     this.invalidateStatsCache();
+                    this.invalidateCallsCache();
                     this.syncCallsToCompanies();
                     updated = true;
 
@@ -2097,13 +2113,34 @@ const AppStorage = {
             } else if (deletedCallIds.size > 0 && localCalls.length !== localRawCalls.length) {
                 this._set(this.KEYS.CALLS, localCalls);
                 this.invalidateStatsCache();
+                this.invalidateCallsCache();
                 updated = true;
                 try { if (typeof Calls !== 'undefined' && Calls.render) Calls.render(); } catch (e) { }
                 try { if (typeof Dashboard !== 'undefined' && Dashboard.render) Dashboard.render(); } catch (e) { }
             }
 
+            // 5. Clean up any stray tombstoned items lingering in cloud endpoints
+            if (data.calls && Array.isArray(data.calls)) {
+                data.calls.forEach(c => {
+                    if (c && c.id && deletedCallIds.has(String(c.id))) {
+                        if (window.SupabaseClient && window.SupabaseClient.pushDeletedCall) {
+                            window.SupabaseClient.pushDeletedCall(c.id).catch(() => {});
+                        }
+                    }
+                });
+            }
+            if (data.dynamicCompanies && Array.isArray(data.dynamicCompanies)) {
+                data.dynamicCompanies.forEach(c => {
+                    if (c && c.id && deletedCompIds.has(String(c.id))) {
+                        if (window.SupabaseClient && window.SupabaseClient.pushDeletedCompany) {
+                            window.SupabaseClient.pushDeletedCompany(c.id).catch(() => {});
+                        }
+                    }
+                });
+            }
+
             if (data.activities && Array.isArray(data.activities)) {
-                const cleanActivities = data.activities.filter(a => !a || !a.refId || !deletedCallIds.has(String(a.refId)));
+                const cleanActivities = data.activities.filter(a => !a || !a.refId || (!deletedCallIds.has(String(a.refId)) && !deletedCompIds.has(String(a.refId))));
                 this._set(this.KEYS.ACTIVITIES, cleanActivities);
             }
 
@@ -2437,14 +2474,20 @@ const AppStorage = {
         if (!this.companiesMemory || !Array.isArray(this.companiesMemory) || this.companiesMemory.length === 0) {
             if (localStorage.getItem('fleetcrm_user_wiped_companies') !== 'true') {
                 const syncMap = new Map();
+                const deletedCompIds = this.getDeletedIds('companies');
                 const titansPool = this.getVerifiedTitans();
                 titansPool.forEach(t => {
-                    if (t && t.id) syncMap.set(t.id, this._normalizeCompanyData(t));
+                    if (t && t.id && !deletedCompIds.has(String(t.id))) {
+                        syncMap.set(t.id, this._normalizeCompanyData(t));
+                    }
                 });
                 const pool = this.getBaselineEnterprisesPool();
                 if (pool && pool.length > 0) {
                     pool.forEach((c, idx) => {
-                        if (c) syncMap.set(c.id || `comp_base_${idx}`, this._normalizeCompanyData(c, idx));
+                        const sId = c.id || `comp_base_${idx}`;
+                        if (c && !deletedCompIds.has(String(sId))) {
+                            syncMap.set(sId, this._normalizeCompanyData(c, idx));
+                        }
                     });
                 }
                 this.applyStoredAssignments(syncMap);
@@ -2667,6 +2710,13 @@ const AppStorage = {
             localStorage.setItem('fleetcrm_user_wiped_companies', 'true');
         }
 
+        // Clean stored assignment for this company
+        const storedAssignments = this.getStoredAssignments() || {};
+        if (storedAssignments[sId]) {
+            delete storedAssignments[sId];
+            this.setStoredAssignments(storedAssignments);
+        }
+
         // 2. Fast single-record deletion in IndexedDB (0.5ms instead of writing 27,000 records)
         try {
             const request = indexedDB.open('FleetCRM_DB', 5);
@@ -2686,13 +2736,13 @@ const AppStorage = {
 
         // 4. Cloud sync in background (non-blocking)
         setTimeout(() => {
-            if (window.SupabaseClient && window.SupabaseClient.deleteDynamicCompany) {
-                window.SupabaseClient.deleteDynamicCompany(sId).catch(() => { });
+            if (window.SupabaseClient && window.SupabaseClient.pushDeletedCompany) {
+                window.SupabaseClient.pushDeletedCompany(sId).catch(() => { });
             }
             if (this.autoSyncToCloud) {
                 this.autoSyncToCloud(this.companiesMemory, false);
             }
-        }, 50);
+        }, 30);
 
         return true;
     },
@@ -3552,9 +3602,14 @@ const AppStorage = {
         const companyName = company ? company.nameAr : 'شركة';
         this.addActivity('call', call.id, 'تسجيل مكالمة', companyName);
 
-        // Immediate cloud sync of calls & company state
-        if (window.SupabaseClient && window.SupabaseClient.pushMasterData) {
-            window.SupabaseClient.pushMasterData({ calls, activities: this.getActivities(), dynamicCompanies: company ? [company] : [] }).catch(() => { });
+        call.updatedAt = Date.now();
+
+        // Immediate atomic cloud sync of call & company
+        if (window.SupabaseClient && window.SupabaseClient.pushSingleCall) {
+            window.SupabaseClient.pushSingleCall(call).catch(() => { });
+        }
+        if (company && window.SupabaseClient && window.SupabaseClient.pushSingleCompany) {
+            window.SupabaseClient.pushSingleCompany(company).catch(() => { });
         }
 
         return call;
@@ -3569,6 +3624,7 @@ const AppStorage = {
         const calls = (this._get(this.KEYS.CALLS) || []).filter(c => c && String(c.id) !== sId);
         this._set(this.KEYS.CALLS, calls);
         this.invalidateStatsCache();
+        this.invalidateCallsCache();
 
         // Remove associated activity
         const activities = (this._get(this.KEYS.ACTIVITIES) || []).filter(a => a && String(a.refId) !== sId);
@@ -3599,19 +3655,18 @@ const AppStorage = {
                     }
                 }
                 this.saveBatchToIDB([company]);
+                if (window.SupabaseClient && window.SupabaseClient.pushSingleCompany) {
+                    window.SupabaseClient.pushSingleCompany(company).catch(() => { });
+                }
             }
         }
 
-        // Push master data to cloud asynchronously in background (0ms UI latency)
+        // Push deletion tombstone to cloud in background
         setTimeout(() => {
-            if (window.SupabaseClient && window.SupabaseClient.pushMasterData) {
-                window.SupabaseClient.pushMasterData({
-                    calls,
-                    deletedCalls: [sId],
-                    activities: this.getActivities()
-                }).catch(() => { });
+            if (window.SupabaseClient && window.SupabaseClient.pushDeletedCall) {
+                window.SupabaseClient.pushDeletedCall(sId).catch(() => { });
             }
-        }, 30);
+        }, 20);
     },
 
     clearAllCalls() {

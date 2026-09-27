@@ -1987,7 +1987,7 @@ const App = {
         // 2. App Shell Version
         const appShellEl = document.getElementById('pwa-modal-appshell-status');
         if (appShellEl) {
-            appShellEl.innerHTML = '✅ مخزنة بالكامل (v294.0) 🛡️';
+            appShellEl.innerHTML = '✅ مخزنة بالكامل (v295.0) 🛡️';
             appShellEl.style.color = '#10b981';
         }
 

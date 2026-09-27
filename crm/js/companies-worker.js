@@ -219,9 +219,7 @@ self.onmessage = function(e) {
                     for (let j = 0; j < arr.length; j++) seenCandidateIdx.add(arr[j]);
                 }
             }
-            if (seenCandidateIdx.size > 0) {
-                candidateIndices = Array.from(seenCandidateIdx);
-            }
+            candidateIndices = Array.from(seenCandidateIdx);
         } else if (sectorSet && sectorSet.size <= 2) {
             const seenCandidateIdx = new Set();
             sectorSet.forEach(sec => {
