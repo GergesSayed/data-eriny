@@ -1262,9 +1262,13 @@ const Companies = {
             const subName = (rawSub && rawSub.toLowerCase() !== mainName.toLowerCase()) ? rawSub : '';
 
             const latestCall = latestCallsMap.get(String(c.id).trim());
-            const callResult = c.lastCallResult || (latestCall ? latestCall.result : null);
-            const callDate = c.lastCallDate || (latestCall ? latestCall.date : null);
-            if (!c.lastCallResult && callResult) {
+            const callResult = latestCall ? latestCall.result : null;
+            const callDate = latestCall ? latestCall.date : null;
+            if (!latestCall) {
+                if (c.lastCallResult) delete c.lastCallResult;
+                if (c.lastCallDate) delete c.lastCallDate;
+                if (c.lastCallNotes) delete c.lastCallNotes;
+            } else {
                 c.lastCallResult = callResult;
                 c.lastCallDate = callDate;
             }
@@ -1440,8 +1444,16 @@ const Companies = {
             const assignedBadge = this.buildAssignedWidget(c);
 
             const latestCall = latestCallsMap.get(String(c.id).trim());
-            const callResult = c.lastCallResult || (latestCall ? latestCall.result : null);
-            const callDate = c.lastCallDate || (latestCall ? latestCall.date : null);
+            const callResult = latestCall ? latestCall.result : null;
+            const callDate = latestCall ? latestCall.date : null;
+            if (!latestCall) {
+                if (c.lastCallResult) delete c.lastCallResult;
+                if (c.lastCallDate) delete c.lastCallDate;
+                if (c.lastCallNotes) delete c.lastCallNotes;
+            } else {
+                c.lastCallResult = callResult;
+                c.lastCallDate = callDate;
+            }
 
             const isTitan = Boolean(c.isTitan || (c.id && String(c.id).startsWith('eg_titan_')));
             const titanBadge = isTitan ? `<span class="badge" style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#fff; font-size:9px; padding:1px 6px; border-radius:4px; font-weight:900; letter-spacing:0.5px; display:inline-flex; align-items:center; gap:3px;" title="عميل كبار الشخصيات VIP"><i class="fas fa-crown"></i> VIP</span>` : '';

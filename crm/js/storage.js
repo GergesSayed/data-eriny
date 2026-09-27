@@ -1000,7 +1000,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=295.0');
+            this._worker = new Worker('js/companies-worker.js?v=296.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -2114,6 +2114,7 @@ const AppStorage = {
                 this._set(this.KEYS.CALLS, localCalls);
                 this.invalidateStatsCache();
                 this.invalidateCallsCache();
+                this.syncCallsToCompanies();
                 updated = true;
                 try { if (typeof Calls !== 'undefined' && Calls.render) Calls.render(); } catch (e) { }
                 try { if (typeof Dashboard !== 'undefined' && Dashboard.render) Dashboard.render(); } catch (e) { }
@@ -2359,7 +2360,6 @@ const AppStorage = {
 
     applyCallsToCompanies(target) {
         const calls = this.getCalls() || [];
-        if (!calls || calls.length === 0) return;
 
         // Build a map of the latest call for each companyId
         const latestCallMap = new Map();
@@ -2378,8 +2378,6 @@ const AppStorage = {
                 }
             }
         }
-
-        if (latestCallMap.size === 0) return;
 
         const updateCompanyWithCall = (comp, latestCall) => {
             if (!comp || !latestCall) return false;
@@ -2422,23 +2420,69 @@ const AppStorage = {
             return changed;
         };
 
+        const purgeOrphanedCall = (comp) => {
+            if (!comp) return false;
+            let changed = false;
+            if (comp.lastCallResult || comp.lastCallDate || comp.lastCallNotes) {
+                delete comp.lastCallResult;
+                delete comp.lastCallDate;
+                delete comp.lastCallNotes;
+                changed = true;
+            }
+            if (['interested', 'unqualified', 'contacted'].includes(comp.status)) {
+                comp.status = 'new';
+                changed = true;
+            }
+            return changed;
+        };
+
+        let anyChanged = false;
+        const modifiedComps = [];
+
         if (target instanceof Map) {
-            for (const [compId, latestCall] of latestCallMap.entries()) {
-                const comp = target.get(String(compId));
-                if (comp) {
-                    updateCompanyWithCall(comp, latestCall);
+            for (const [compId, comp] of target.entries()) {
+                if (!comp) continue;
+                const cId = String(comp.id || compId).trim();
+                const latestCall = latestCallMap.get(cId);
+                if (latestCall) {
+                    if (updateCompanyWithCall(comp, latestCall)) {
+                        anyChanged = true;
+                        modifiedComps.push(comp);
+                    }
+                } else if (comp.lastCallResult || comp.lastCallDate || comp.lastCallNotes) {
+                    if (purgeOrphanedCall(comp)) {
+                        anyChanged = true;
+                        modifiedComps.push(comp);
+                    }
                 }
             }
         } else if (Array.isArray(target)) {
             for (let i = 0; i < target.length; i++) {
                 const comp = target[i];
                 if (!comp || !comp.id) continue;
-                const latestCall = latestCallMap.get(String(comp.id).trim());
+                const cId = String(comp.id).trim();
+                const latestCall = latestCallMap.get(cId);
                 if (latestCall) {
-                    updateCompanyWithCall(comp, latestCall);
+                    if (updateCompanyWithCall(comp, latestCall)) {
+                        anyChanged = true;
+                        modifiedComps.push(comp);
+                    }
+                } else if (comp.lastCallResult || comp.lastCallDate || comp.lastCallNotes) {
+                    if (purgeOrphanedCall(comp)) {
+                        anyChanged = true;
+                        modifiedComps.push(comp);
+                    }
                 }
             }
         }
+
+        if (anyChanged && modifiedComps.length > 0) {
+            this.saveBatchToIDB(modifiedComps);
+            if (this._worker) {
+                this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: modifiedComps });
+            }
+        }
+        return anyChanged;
     },
 
     syncCallsToCompanies() {
@@ -3655,11 +3699,15 @@ const AppStorage = {
                     }
                 }
                 this.saveBatchToIDB([company]);
+                if (this._worker) {
+                    this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: [company] });
+                }
                 if (window.SupabaseClient && window.SupabaseClient.pushSingleCompany) {
                     window.SupabaseClient.pushSingleCompany(company).catch(() => { });
                 }
             }
         }
+        this.syncCallsToCompanies();
 
         // Push deletion tombstone to cloud in background
         setTimeout(() => {
@@ -3685,6 +3733,7 @@ const AppStorage = {
         this._set(this.KEYS.CALLS, []);
         this.invalidateStatsCache();
         this.invalidateCallsCache(); // ⚡ flush call cache after clear
+        this.syncCallsToCompanies();
         if (window.SupabaseClient && window.SupabaseClient.pushMasterData) {
             window.SupabaseClient.pushMasterData({
                 calls: [],
