@@ -19,7 +19,9 @@ const Companies = {
     _countsCacheLength: 0,
 
     getSectorCityAndGovCounts() {
-        const allCompanies = window.AppStorage ? window.AppStorage.getCompanies() : [];
+        const currentUser = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
+        const canViewAll = window.AppStorage ? window.AppStorage.canViewAll(currentUser) : true;
+        const allCompanies = window.AppStorage ? (canViewAll ? window.AppStorage.getCompanies() : window.AppStorage.getScopedCompanies()) : [];
         if (this._countsCache && this._countsCacheLength === allCompanies.length) {
             return this._countsCache;
         }
@@ -665,7 +667,9 @@ const Companies = {
         const container = document.getElementById('sector-quick-pills-bar');
         if (!container) return;
 
-        const allCompanies = window.AppStorage.getCompanies() || [];
+        const currentUser = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
+        const canViewAll = window.AppStorage ? window.AppStorage.canViewAll(currentUser) : true;
+        const allCompanies = window.AppStorage ? (canViewAll ? window.AppStorage.getCompanies() : window.AppStorage.getScopedCompanies()) : [];
         const sectors = window.AppStorage.SECTORS;
         if (!sectors) return;
 

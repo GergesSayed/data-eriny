@@ -2843,6 +2843,12 @@ a:hover { color: var(--accent); }
         content-visibility: auto;
         contain-intrinsic-size: 0 120px;
     }
+
+    /* ⚡ MOBILE TOUCH & FLUID SCROLL PERFORMANCE */
+    button, a, input, select, .nav-link, .mobile-nav-item, .card, .table-row, .pagination-btn, .action-btn, .sector-pill {
+        touch-action: manipulation !important;
+        -webkit-tap-highlight-color: transparent !important;
+    }
 }
 
 /* ---- Small Mobile (≤480px) ---- */

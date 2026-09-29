@@ -9,9 +9,9 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <script>
-        // Force purge any legacy service workers, disk caches, and old deals storage immediately
+        // Clean storage initialization
         (function() {
-            var CURRENT_VER = '302.0';
+            var CURRENT_VER = '303.0';
             try {
                 localStorage.removeItem('fleetcrm_deals');
                 localStorage.removeItem('fleetcrm_deals_count');
@@ -29,33 +29,9 @@
                 if (lastVer !== CURRENT_VER) {
                     localStorage.setItem('fleetcrm_app_version', CURRENT_VER);
                     localStorage.setItem('fleetcrm_company_count', '25,929');
-                    localStorage.removeItem('fleetcrm_dataset_version');
+                    localStorage.setItem('fleetcrm_dataset_version', 'v303.0_fleet_companies_locked_25929');
                     if (!localStorage.getItem('fleetcrm_theme_explicit')) {
                         localStorage.setItem('fleetcrm_theme', 'light');
-                    }
-                    try {
-                        var req = indexedDB.open('FleetCRM_DB', 5);
-                        req.onsuccess = function(e) {
-                            var db = e.target.result;
-                            if (db.objectStoreNames.contains('companies')) {
-                                var tx = db.transaction(['companies'], 'readwrite');
-                                tx.objectStore('companies').clear();
-                            }
-                        };
-                    } catch(e) {}
-                    if ('caches' in window) {
-                        caches.keys().then(function(keys) {
-                            for (var i = 0; i < keys.length; i++) caches.delete(keys[i]);
-                        });
-                    }
-                    if ('serviceWorker' in navigator) {
-                        navigator.serviceWorker.getRegistrations().then(function(regs) {
-                            for (var i = 0; i < regs.length; i++) regs[i].unregister();
-                        });
-                    }
-                    if (!sessionStorage.getItem('fleetcrm_auto_reloaded_' + CURRENT_VER)) {
-                        sessionStorage.setItem('fleetcrm_auto_reloaded_' + CURRENT_VER, '1');
-                        setTimeout(function() { window.location.reload(); }, 250);
                     }
                 }
             } catch(e) {}
@@ -85,8 +61,8 @@
     <link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap"></noscript>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=302.0">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="css/style.css?v=303.0">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
     <script>
         (function() {
             function updateImmediateCounters() {
@@ -344,7 +320,7 @@
             </div>
             <div class="brand-text">
                 <h2>Fleet CRM</h2>
-                <span>إدارة بيع الإطارات <small class="brand-ver-badge" style="background:#7c3aed33; color:#a78bfa; padding:1px 6px; border-radius:6px; font-size:10px; font-weight:700;">v302.0</small></span>
+                <span>إدارة بيع الإطارات <small class="brand-ver-badge" style="background:#7c3aed33; color:#a78bfa; padding:1px 6px; border-radius:6px; font-size:10px; font-weight:700;">v303.0</small></span>
             </div>
         </div>
 
@@ -1643,7 +1619,7 @@
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid var(--border-light);">
                         <span style="font-size: 12.5px; color: var(--text-secondary);"><i class="fas fa-layer-group" style="color: #0284c7; margin-left: 6px;"></i> واجهة وأكواد النظام (App Shell):</span>
-                        <span id="pwa-modal-appshell-status" style="font-size: 12px; font-weight: 800; color: #10b981;">✅ مخزنة بالكامل (v302.0)</span>
+                        <span id="pwa-modal-appshell-status" style="font-size: 12px; font-weight: 800; color: #10b981;">✅ مخزنة بالكامل (v303.0)</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid var(--border-light);">
                         <span style="font-size: 12.5px; color: var(--text-secondary);"><i class="fas fa-database" style="color: #10b981; margin-left: 6px;"></i> قاعدة الشركات المحلية (IndexedDB):</span>
@@ -1805,23 +1781,22 @@
     <!-- Hidden file input for Full CRM Backup JSON import -->
     <input type="file" id="backup-file-input" accept=".json" onchange="App.importFullBackup(event)" style="display:none;">
 
-    <!-- External Libraries -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- External Libraries (Deferred for instant mobile paint) -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
 
-    <script src="js/supabase-client.js?v=302.0"></script>
-    <script src="js/egypt_verified_titans.js?v=302.0"></script>
-    <script src="js/egypt_enterprises_pool.js?v=302.0"></script>
-    <script src="js/companies-worker.js?v=302.0"></script>
-    <script src="js/storage.js?v=302.0"></script>
-    <script src="js/excel-handler.js?v=302.0"></script>
-    <script src="js/dashboard.js?v=302.0"></script>
-    <script src="js/companies.js?v=302.0"></script>
-    <script src="js/calls.js?v=302.0"></script>
-    <script src="js/reports.js?v=302.0"></script>
-    <script src="js/scraper.js?v=302.0"></script>
-    <script src="js/team.js?v=302.0"></script>
-    <script src="js/settings.js?v=302.0"></script>
-    <script src="js/app.js?v=302.0"></script>
+    <script src="js/supabase-client.js?v=303.0"></script>
+    <script src="js/egypt_verified_titans.js?v=303.0"></script>
+    <script src="js/egypt_enterprises_pool.js?v=303.0" defer></script>
+    <script src="js/storage.js?v=303.0"></script>
+    <script src="js/excel-handler.js?v=303.0"></script>
+    <script src="js/dashboard.js?v=303.0"></script>
+    <script src="js/companies.js?v=303.0"></script>
+    <script src="js/calls.js?v=303.0"></script>
+    <script src="js/reports.js?v=303.0"></script>
+    <script src="js/scraper.js?v=303.0"></script>
+    <script src="js/team.js?v=303.0"></script>
+    <script src="js/settings.js?v=303.0"></script>
+    <script src="js/app.js?v=303.0"></script>
 
     <!-- Cleanup overlay on load - runs once only, does NOT override App.checkAuth -->
     <script>

@@ -181,7 +181,7 @@ const App = {
                     }
                 });
 
-                navigator.serviceWorker.register('sw.js?v=302.0').then(reg => {
+                navigator.serviceWorker.register('sw.js?v=303.0').then(reg => {
                     reg.update().catch(() => {});
                     // Detect when a new SW version is waiting — show update notification
                     reg.addEventListener('updatefound', () => {
@@ -943,26 +943,28 @@ const App = {
             ScraperPage.destroy();
         }
 
-        // Re-render page data (with error protection)
-        try {
-            switch (page) {
-                case 'dashboard': if (typeof Dashboard !== 'undefined') Dashboard.render(); break;
-                case 'companies': if (typeof Companies !== 'undefined') Companies.render(); break;
-                case 'calls': if (typeof Calls !== 'undefined') Calls.render(); break;
-                case 'reports': if (typeof Reports !== 'undefined') Reports.render(); break;
-                case 'scraper': if (typeof ScraperPage !== 'undefined') ScraperPage.render(); break;
-                case 'team': if (typeof Team !== 'undefined') Team.render(); break;
-                case 'employees': if (typeof Team !== 'undefined') Team.renderEmployeesPage(); break;
-            }
-        } catch (e) {
-            console.error('Navigate render error:', e);
-        }
+        // Close sidebar + overlay immediately on mobile navigation for instant response
+        this.closeSidebar();
 
         // Re-send presence heartbeat with updated page location
         this.sendPresenceHeartbeat();
 
-        // Close sidebar + overlay on mobile navigation
-        this.closeSidebar();
+        // Re-render page data in requestAnimationFrame for buttery-smooth 60fps UI
+        requestAnimationFrame(() => {
+            try {
+                switch (page) {
+                    case 'dashboard': if (typeof Dashboard !== 'undefined') Dashboard.render(); break;
+                    case 'companies': if (typeof Companies !== 'undefined') Companies.render(); break;
+                    case 'calls': if (typeof Calls !== 'undefined') Calls.render(); break;
+                    case 'reports': if (typeof Reports !== 'undefined') Reports.render(); break;
+                    case 'scraper': if (typeof ScraperPage !== 'undefined') ScraperPage.render(); break;
+                    case 'team': if (typeof Team !== 'undefined') Team.render(); break;
+                    case 'employees': if (typeof Team !== 'undefined') Team.renderEmployeesPage(); break;
+                }
+            } catch (e) {
+                console.error('Navigate render error:', e);
+            }
+        });
     },
 
     refreshCurrentPage() {
@@ -2047,7 +2049,7 @@ const App = {
         // 2. App Shell Version
         const appShellEl = document.getElementById('pwa-modal-appshell-status');
         if (appShellEl) {
-            appShellEl.innerHTML = '✅ مخزنة بالكامل (v302.0) 🛡️';
+            appShellEl.innerHTML = '✅ مخزنة بالكامل (v303.0) 🛡️';
             appShellEl.style.color = '#10b981';
         }
 
