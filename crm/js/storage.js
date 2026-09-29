@@ -909,10 +909,34 @@ const AppStorage = {
         return `${prefix}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     },
 
+    hydrateMemoryFromBaseline() {
+        try {
+            if (this.companiesMemory && this.companiesMemory.length > 0) return;
+            if (localStorage.getItem('fleetcrm_user_wiped_companies') === 'true') return;
+            const syncMap = new Map();
+            const titansPool = this.getVerifiedTitans ? this.getVerifiedTitans() : [];
+            titansPool.forEach(t => {
+                if (t && t.id) syncMap.set(t.id, t);
+            });
+            const pool = this.getBaselineEnterprisesPool ? this.getBaselineEnterprisesPool() : [];
+            if (pool && pool.length > 0) {
+                pool.forEach((c, idx) => {
+                    if (c) syncMap.set(c.id || `comp_base_${idx}`, c);
+                });
+            }
+            if (syncMap.size > 0) {
+                this.companiesMemory = Array.from(syncMap.values());
+                localStorage.setItem('fleetcrm_company_count', syncMap.size);
+                this.updateLiveCounters(syncMap.size);
+            }
+        } catch (e) { }
+    },
+
     // ---- IndexedDB helper functions ----
     async initDB() {
-        if (!this.companiesMemory || !Array.isArray(this.companiesMemory)) {
-            this.companiesMemory = [];
+        if (!this.companiesMemory || !Array.isArray(this.companiesMemory) || this.companiesMemory.length === 0) {
+            this.hydrateMemoryFromBaseline();
+            if (!this.companiesMemory) this.companiesMemory = [];
         }
         try { localStorage.removeItem(this.KEYS.COMPANIES); } catch (e) { }
 
@@ -4706,24 +4730,11 @@ window.escapeHtml = (s) => AppStorage.escapeHtml(s);
 window.esc = (s) => AppStorage.escapeHtml(s);
 var Storage = AppStorage;
 
-// Synchronous immediate memory hydration on script load — eliminates 0-count startup flash!
+// Synchronous immediate memory hydration on script load ONLY if already logged in!
+// For logged-out users, this is deferred until login so the login screen renders instantly (< 2ms)!
 try {
-    if (localStorage.getItem('fleetcrm_user_wiped_companies') !== 'true') {
-        const syncMap = new Map();
-        const titansPool = AppStorage.getVerifiedTitans();
-        titansPool.forEach(t => {
-            if (t && t.id) syncMap.set(t.id, t);
-        });
-        const pool = AppStorage.getBaselineEnterprisesPool();
-        if (pool && pool.length > 0) {
-            pool.forEach((c, idx) => {
-                if (c) syncMap.set(c.id || `comp_base_${idx}`, c);
-            });
-        }
-        if (syncMap.size > 0) {
-            AppStorage.companiesMemory = Array.from(syncMap.values());
-            localStorage.setItem('fleetcrm_company_count', syncMap.size);
-            AppStorage.updateLiveCounters(syncMap.size);
-        }
+    const isUserLoggedIn = Boolean(sessionStorage.getItem('fleetcrm_current_user') || localStorage.getItem('fleetcrm_current_user'));
+    if (isUserLoggedIn) {
+        AppStorage.hydrateMemoryFromBaseline();
     }
 } catch (e) { }

@@ -46,6 +46,32 @@ const App = {
             this.cleanAllOverlays();
         };
 
+        // If user is not logged in, execute instant fast-path for the login screen (< 2ms)
+        const currentUser = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
+        if (!currentUser) {
+            hideOverlay();
+            this.checkAuth();
+            this.initTheme();
+            this.initLoginCapsWarning();
+            setTimeout(() => {
+                const u = document.getElementById('login-username');
+                if (u) {
+                    u.focus();
+                    if (u.select) u.select();
+                }
+            }, 10);
+            return;
+        }
+
+        await this.initWorkspace();
+    },
+
+    async initWorkspace() {
+        this.cleanAllOverlays();
+        const hideOverlay = () => {
+            this.cleanAllOverlays();
+        };
+
         // Force-hide overlay after 5 seconds max — prevents infinite loading on slow devices
         const forceTimeout = setTimeout(() => {
             hideOverlay();
@@ -83,39 +109,42 @@ const App = {
             }).catch(() => {});
 
             // Throttled sync on focus/visibility — max once every 90s to prevent hammering mobile connections
-            let _lastSyncTs = 0;
-            const SYNC_THROTTLE_MS = 90000; // 90 seconds minimum between syncs
-            const handleInstantSync = () => {
-                const now = Date.now();
-                if (now - _lastSyncTs < SYNC_THROTTLE_MS) return; // already synced recently
-                _lastSyncTs = now;
-                window.AppStorage.pullFromCloud().then(wasUpdated => {
-                    if (wasUpdated) {
-                        const active = this.currentPage || window.location.hash.replace('#', '') || 'companies';
-                        if (typeof Companies !== 'undefined' && active === 'companies') Companies.render();
-                        if (typeof Dashboard !== 'undefined' && active === 'dashboard') Dashboard.render();
-                        if (typeof Team !== 'undefined' && active === 'team') Team.render();
-                    }
-                }).catch(() => {});
-            };
-            window.addEventListener('focus', () => {
-                handleInstantSync();
-                this.sendPresenceHeartbeat();
-            });
-            document.addEventListener('visibilitychange', () => {
-                if (document.visibilityState === 'visible') {
+            if (!this._syncListenersAttached) {
+                this._syncListenersAttached = true;
+                let _lastSyncTs = 0;
+                const SYNC_THROTTLE_MS = 90000; // 90 seconds minimum between syncs
+                const handleInstantSync = () => {
+                    const now = Date.now();
+                    if (now - _lastSyncTs < SYNC_THROTTLE_MS) return; // already synced recently
+                    _lastSyncTs = now;
+                    window.AppStorage.pullFromCloud().then(wasUpdated => {
+                        if (wasUpdated) {
+                            const active = this.currentPage || window.location.hash.replace('#', '') || 'companies';
+                            if (typeof Companies !== 'undefined' && active === 'companies') Companies.render();
+                            if (typeof Dashboard !== 'undefined' && active === 'dashboard') Dashboard.render();
+                            if (typeof Team !== 'undefined' && active === 'team') Team.render();
+                        }
+                    }).catch(() => {});
+                };
+                window.addEventListener('focus', () => {
                     handleInstantSync();
                     this.sendPresenceHeartbeat();
-                }
-            });
-            window.addEventListener('beforeunload', () => {
-                try {
-                    const u = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
-                    if (u && u.id && window.SupabaseClient && typeof window.SupabaseClient.setUserOffline === 'function') {
-                        window.SupabaseClient.setUserOffline(u.id);
+                });
+                document.addEventListener('visibilitychange', () => {
+                    if (document.visibilityState === 'visible') {
+                        handleInstantSync();
+                        this.sendPresenceHeartbeat();
                     }
-                } catch(e) {}
-            });
+                });
+                window.addEventListener('beforeunload', () => {
+                    try {
+                        const u = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
+                        if (u && u.id && window.SupabaseClient && typeof window.SupabaseClient.setUserOffline === 'function') {
+                            window.SupabaseClient.setUserOffline(u.id);
+                        }
+                    } catch(e) {}
+                });
+            }
 
             // Migrate existing companies' sectors/cities to canonical keys if not done yet
             if (!localStorage.getItem('fleetcrm_city_sector_mapped_v7')) {
@@ -133,13 +162,17 @@ const App = {
             }
 
             // Initialize routing
-            this.initRouting();
+            if (!this._routingInitialized) {
+                this._routingInitialized = true;
+                this.initRouting();
+            }
 
             // Apply saved theme preference (dark/light) before first render
             this.initTheme();
 
             // PWA Service Worker Registration & Offline Support
-            if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+            if (!this._pwaInitialized && 'serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+                this._pwaInitialized = true;
                 let isRefreshing = false;
                 navigator.serviceWorker.addEventListener('controllerchange', () => {
                     if (!isRefreshing) {
@@ -148,7 +181,7 @@ const App = {
                     }
                 });
 
-                navigator.serviceWorker.register('sw.js?v=280.0').then(reg => {
+                navigator.serviceWorker.register('sw.js?v=299.0').then(reg => {
                     reg.update().catch(() => {});
                     // Detect when a new SW version is waiting — show update notification
                     reg.addEventListener('updatefound', () => {
@@ -179,21 +212,27 @@ const App = {
             }
 
             // PWA Install Prompt Listener (Admin Only)
-            window.addEventListener('beforeinstallprompt', (e) => {
-                e.preventDefault();
-                window.__pwaDeferredPrompt = e;
-                const user = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
-                const isAdmin = user && (user.role === 'admin' || user.id === 'admin' || user.username === 'admin');
-                const pwaBtnSide = document.getElementById('btn-pwa-install');
-                const pwaBtnTop = document.getElementById('btn-pwa-install-top');
-                const pwaModalBtn = document.getElementById('btn-modal-pwa-install');
-                if (pwaBtnSide) pwaBtnSide.style.display = isAdmin ? 'inline-flex' : 'none';
-                if (pwaBtnTop) pwaBtnTop.style.display = isAdmin ? 'inline-flex' : 'none';
-                if (pwaModalBtn) pwaModalBtn.style.display = 'inline-flex';
-            });
+            if (!this._pwaInstallPromptBound) {
+                this._pwaInstallPromptBound = true;
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    window.__pwaDeferredPrompt = e;
+                    const user = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
+                    const isAdmin = user && (user.role === 'admin' || user.id === 'admin' || user.username === 'admin');
+                    const pwaBtnSide = document.getElementById('btn-pwa-install');
+                    const pwaBtnTop = document.getElementById('btn-pwa-install-top');
+                    const pwaModalBtn = document.getElementById('btn-modal-pwa-install');
+                    if (pwaBtnSide) pwaBtnSide.style.display = isAdmin ? 'inline-flex' : 'none';
+                    if (pwaBtnTop) pwaBtnTop.style.display = isAdmin ? 'inline-flex' : 'none';
+                    if (pwaModalBtn) pwaModalBtn.style.display = 'inline-flex';
+                });
+            }
 
             this.renderNotifications();
-            this.bindEvents();
+            if (!this._eventsBound) {
+                this._eventsBound = true;
+                this.bindEvents();
+            }
 
             // Landing page resolution:
             const currentUser = window.AppStorage.getCurrentUser();
@@ -221,6 +260,7 @@ const App = {
 
             // Initialize User Switcher
             this.initUserSwitcher();
+            this.updateUserUI();
 
             // Initialize all modules safely with error boundaries
             const safeInit = (name, check, fn) => {
@@ -241,14 +281,17 @@ const App = {
             }
 
             // Periodic cloud sync pull — check for remote changes every 60 seconds
-            this._cloudSyncInterval = setInterval(() => {
-                window.AppStorage.pullFromCloud().then(pulled => {
-                    if (pulled) this.refreshCurrentPage();
-                }).catch(() => {});
-            }, 60000);
+            if (!this._cloudSyncInterval) {
+                this._cloudSyncInterval = setInterval(() => {
+                    window.AppStorage.pullFromCloud().then(pulled => {
+                        if (pulled) this.refreshCurrentPage();
+                    }).catch(() => {});
+                }, 60000);
+            }
 
             // Real-time Cloud subscription for instant cross-device sync
-            if (window.SupabaseClient) {
+            if (!this._supabaseSubscribed && window.SupabaseClient) {
+                this._supabaseSubscribed = true;
                 window.SupabaseClient.subscribeToChanges((newData) => {
                     // Always use pullFromCloud() to safely merge cloud data without overwriting un-pushed local scraping
                     window.AppStorage.pullFromCloud().then(wasUpdated => {
@@ -480,27 +523,14 @@ const App = {
                 const loginScreen = document.getElementById('login-screen');
                 if (loginScreen) {
                     loginScreen.classList.add('hidden');
-                    loginScreen.style.display = 'none';
+                    loginScreen.style.setProperty('display', 'none', 'important');
                 }
                 document.documentElement.classList.add('user-logged-in');
 
                 this.checkAuth();
 
-                // Immediately initialize DB and pull latest cloud data after fresh login
-                try {
-                    window.AppStorage.initDB().then(() => window.AppStorage.pullFromCloud()).then(() => {
-                        if (typeof Dashboard !== 'undefined' && this.currentPage === 'dashboard') Dashboard.render();
-                        if (typeof Companies !== 'undefined' && this.currentPage === 'companies') Companies.render();
-                        window.AppStorage.updateLiveCounters();
-                    });
-                } catch(e) {}
-
-                const isAdmin = window.AppStorage.isAdmin(res.user);
-                const targetPage = isAdmin ? 'dashboard' : 'companies';
-                window.location.hash = '#' + targetPage;
-                this.navigateTo(targetPage, true);
-                this.startPresenceHeartbeat();
-                this.startTeamPresenceWatcher();
+                // Initialize the full workspace seamlessly
+                await this.initWorkspace();
             } catch (err) {
                 console.error('Handle login error:', err);
                 if (submitBtn) {
