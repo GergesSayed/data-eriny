@@ -1000,7 +1000,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=296.0');
+            this._worker = new Worker('js/companies-worker.js?v=298.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -1052,41 +1052,64 @@ const AppStorage = {
             ].filter(Boolean)));
 
             // 1. Try Web Worker first for non-blocking 60fps search
-            if (this._worker && this._workerReady) {
-                const queryId = 'q_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6);
-                const timeout = setTimeout(() => {
-                    delete this._workerCallbacks[queryId];
-                    resolve(this._queryCompaniesFallback(options));
-                }, 1200);
+            const executeWorkerQuery = () => {
+                if (this._worker && this._workerReady) {
+                    const queryId = 'q_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6);
+                    const timeout = setTimeout(() => {
+                        delete this._workerCallbacks[queryId];
+                        resolve(this._queryCompaniesFallback(options));
+                    }, 800);
 
-                this._workerCallbacks[queryId] = (result) => {
-                    clearTimeout(timeout);
-                    resolve(result);
-                };
+                    this._workerCallbacks[queryId] = (result) => {
+                        clearTimeout(timeout);
+                        resolve(result);
+                    };
 
-                this._worker.postMessage({
-                    action: 'FILTER_AND_SEARCH',
-                    queryId,
-                    payload: {
-                        search,
-                        sector,
-                        sectors,
-                        city,
-                        cities,
-                        contactType,
-                        priority,
-                        fleetType,
-                        fleetSize,
-                        assigned,
-                        addedDate,
-                        sortMode,
-                        page,
-                        pageSize,
-                        currentUserId,
-                        userKeys,
-                        isAdmin
+                    this._worker.postMessage({
+                        action: 'FILTER_AND_SEARCH',
+                        queryId,
+                        payload: {
+                            search,
+                            sector,
+                            sectors,
+                            city,
+                            cities,
+                            contactType,
+                            priority,
+                            fleetType,
+                            fleetSize,
+                            assigned,
+                            addedDate,
+                            sortMode,
+                            page,
+                            pageSize,
+                            currentUserId,
+                            userKeys,
+                            isAdmin
+                        }
+                    });
+                    return true;
+                }
+                return false;
+            };
+
+            if (executeWorkerQuery()) return;
+
+            // If worker is initializing, wait briefly (up to 200ms) rather than locking main UI thread
+            if (this._worker && !this._workerReady) {
+                let waited = 0;
+                const checkInterval = setInterval(() => {
+                    waited += 20;
+                    if (this._workerReady) {
+                        clearInterval(checkInterval);
+                        if (!executeWorkerQuery()) {
+                            resolve(this._queryCompaniesFallback(options));
+                        }
+                    } else if (waited >= 200) {
+                        clearInterval(checkInterval);
+                        resolve(this._queryCompaniesFallback(options));
                     }
-                });
+                }, 20);
                 return;
             }
 
@@ -2358,21 +2381,28 @@ const AppStorage = {
         return deduplicated;
     },
 
+    _storedAssignmentsCache: null,
+    _saveAssignmentsTimeout: null,
     getStoredAssignments() {
+        if (this._storedAssignmentsCache) return this._storedAssignmentsCache;
         try {
             const raw = localStorage.getItem('fleetcrm_assignments');
-            return raw ? JSON.parse(raw) : {};
+            this._storedAssignmentsCache = raw ? JSON.parse(raw) : {};
         } catch (e) {
-            return {};
+            this._storedAssignmentsCache = {};
         }
+        return this._storedAssignmentsCache;
     },
 
     setStoredAssignments(map) {
-        try {
-            if (map && typeof map === 'object') {
-                localStorage.setItem('fleetcrm_assignments', JSON.stringify(map));
-            }
-        } catch (e) { }
+        if (!map || typeof map !== 'object') return;
+        this._storedAssignmentsCache = map;
+        if (this._saveAssignmentsTimeout) clearTimeout(this._saveAssignmentsTimeout);
+        this._saveAssignmentsTimeout = setTimeout(() => {
+            try {
+                localStorage.setItem('fleetcrm_assignments', JSON.stringify(this._storedAssignmentsCache || {}));
+            } catch (e) { }
+        }, 150);
     },
 
     applyStoredAssignments(target) {
@@ -2998,21 +3028,28 @@ const AppStorage = {
     },
 
     // ---- Sales Custody & Assignment Audit Trail Engine ----
+    _custodyHistoryCache: null,
+    _saveCustodyTimeout: null,
     getCustodyHistoryMap() {
+        if (this._custodyHistoryCache) return this._custodyHistoryCache;
         try {
             const raw = localStorage.getItem(this.KEYS.CUSTODY);
-            return (raw && raw.startsWith('{')) ? JSON.parse(raw) : {};
+            this._custodyHistoryCache = (raw && raw.startsWith('{')) ? JSON.parse(raw) : {};
         } catch (e) {
-            return {};
+            this._custodyHistoryCache = {};
         }
+        return this._custodyHistoryCache;
     },
 
     setCustodyHistoryMap(map) {
-        try {
-            if (map && typeof map === 'object') {
-                localStorage.setItem(this.KEYS.CUSTODY, JSON.stringify(map));
-            }
-        } catch (e) { }
+        if (!map || typeof map !== 'object') return;
+        this._custodyHistoryCache = map;
+        if (this._saveCustodyTimeout) clearTimeout(this._saveCustodyTimeout);
+        this._saveCustodyTimeout = setTimeout(() => {
+            try {
+                localStorage.setItem(this.KEYS.CUSTODY, JSON.stringify(this._custodyHistoryCache || {}));
+            } catch (e) { }
+        }, 200);
     },
 
     formatDurationBetween(startDate, endDate) {

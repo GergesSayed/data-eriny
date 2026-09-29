@@ -758,13 +758,19 @@ window.SupabaseClient = (function() {
                         try { sseAssignments.close(); } catch(e) {}
                         sseAssignments = null;
                     }
+                    // Auto-reconnect SSE after 1.5s to ensure constant real-time stream
+                    setTimeout(() => {
+                        if (!sseAssignments && typeof EventSource !== 'undefined') {
+                            subscribeToAssignments(onDeltaCallback);
+                        }
+                    }, 1500);
                 };
             }
         } catch(e) {
             console.warn('Assignments SSE init error:', e);
         }
 
-        // 3. Ultra-lightweight fallback polling: Every 2.5 seconds, fetch ONLY /assignments.json (< 10KB)
+        // 3. Supercharged 1-second fallback polling (< 10KB, 0ms overhead when unchanged)
         let lastPollJson = '';
         const pollAssignments = async () => {
             try {
@@ -780,7 +786,7 @@ window.SupabaseClient = (function() {
             } catch(e) {}
         };
 
-        assignPollInterval = setInterval(pollAssignments, 2500);
+        assignPollInterval = setInterval(pollAssignments, 1000);
 
         // Instant poll on focus / visibility change
         if (typeof window !== 'undefined') {

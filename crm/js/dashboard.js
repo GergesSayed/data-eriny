@@ -13,6 +13,10 @@ const Dashboard = {
 
     render() {
         try {
+            const dashPage = document.getElementById('page-dashboard');
+            if (!dashPage || (!dashPage.classList.contains('active') && dashPage.style.display === 'none')) {
+                return;
+            }
             const stats = window.AppStorage ? window.AppStorage.getStats() : {};
             this.updateStatCards(stats);
             this.renderLivePresence();

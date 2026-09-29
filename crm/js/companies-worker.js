@@ -108,6 +108,8 @@ self.onmessage = function(e) {
 
     if (action === 'UPDATE_COMPANIES') {
         const batch = payload || [];
+        const isSmallBatch = batch.length <= 100;
+
         for (let i = 0; i < batch.length; i++) {
             const c = batch[i];
             if (!c || !c.id) continue;
@@ -140,16 +142,41 @@ self.onmessage = function(e) {
 
             const existingIdx = _idToIndexMap.get(c.id);
             if (existingIdx !== undefined && existingIdx >= 0 && existingIdx < _companiesIndex.length) {
+                const old = _companiesIndex[existingIdx];
+                if (isSmallBatch && old) {
+                    const oldAsgn = old.assignedTo ? String(old.assignedTo).trim().toLowerCase() : '';
+                    const newAsgn = indexed.assignedTo ? String(indexed.assignedTo).trim().toLowerCase() : '';
+                    if (oldAsgn !== newAsgn) {
+                        if (oldAsgn && _assignedBuckets.has(oldAsgn)) {
+                            const arr = _assignedBuckets.get(oldAsgn);
+                            const p = arr.indexOf(existingIdx);
+                            if (p !== -1) arr.splice(p, 1);
+                        }
+                        if (newAsgn) {
+                            let arr = _assignedBuckets.get(newAsgn);
+                            if (!arr) { arr = []; _assignedBuckets.set(newAsgn, arr); }
+                            if (!arr.includes(existingIdx)) arr.push(existingIdx);
+                        }
+                    }
+                }
                 _companiesIndex[existingIdx] = indexed;
             } else {
                 const newIdx = _companiesIndex.length;
                 _companiesIndex.push(indexed);
                 _idToIndexMap.set(c.id, newIdx);
+                if (isSmallBatch && indexed.assignedTo) {
+                    const newAsgn = String(indexed.assignedTo).trim().toLowerCase();
+                    let arr = _assignedBuckets.get(newAsgn);
+                    if (!arr) { arr = []; _assignedBuckets.set(newAsgn, arr); }
+                    arr.push(newIdx);
+                }
             }
             _idMap.set(c.id, indexed);
         }
 
-        rebuildBuckets();
+        if (!isSmallBatch) {
+            rebuildBuckets();
+        }
         self.postMessage({ action: 'UPDATE_DONE', queryId, totalCount: _companiesIndex.length });
         return;
     }

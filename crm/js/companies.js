@@ -1097,6 +1097,10 @@ const Companies = {
     },
 
     async render() {
+        const compPage = document.getElementById('page-companies');
+        if (compPage && !compPage.classList.contains('active') && compPage.style.display === 'none') {
+            return;
+        }
         this.refreshUserFilter();
 
         const sectorsListEl = document.getElementById('multiselect-sectors-list');
@@ -1320,7 +1324,7 @@ const Companies = {
             }
 
             return `
-                <tr class="${isChecked ? 'row-selected' : ''}" onclick="Companies.showDetail('${c.id}')" style="cursor: pointer;">
+                <tr data-id="${c.id}" class="${isChecked ? 'row-selected' : ''}" onclick="Companies.showDetail('${c.id}')" style="cursor: pointer;">
                     ${isAdmin ? `
                         <td style="text-align:center;" onclick="event.stopPropagation();">
                             <input type="checkbox" class="company-checkbox" data-id="${c.id}" ${isChecked} onchange="Companies.toggleSelectCompany('${c.id}', this.checked)" onclick="event.stopPropagation();">
@@ -1351,7 +1355,7 @@ const Companies = {
                         </a>
                     </td>
                     <td style="white-space:nowrap; text-align:center;"><span class="fleet-badge" style="font-weight:800; font-size:0.82rem;">${fleet}</span></td>
-                    <td style="white-space:nowrap; text-align:center;">${assignedBadge}</td>
+                    <td data-cell="assigned" style="white-space:nowrap; text-align:center;">${assignedBadge}</td>
                     <td style="white-space:nowrap; text-align:center;">${callResultBadge}</td>
                     <td style="max-width: 160px; text-align:center;">
                         ${c.contactPerson ? `
@@ -1474,7 +1478,7 @@ const Companies = {
             const titanBadge = isTitan ? `<span class="badge" style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#fff; font-size:9px; padding:1px 6px; border-radius:4px; font-weight:900; letter-spacing:0.5px; display:inline-flex; align-items:center; gap:3px;" title="عميل كبار الشخصيات VIP"><i class="fas fa-crown"></i> VIP</span>` : '';
 
             return `
-                <div class="company-card" data-priority="${c.priority || 'B'}" onclick="Companies.showDetail('${c.id}')" style="cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: rgba(99, 102, 241, 0.2);">
+                <div class="company-card" data-card-id="${c.id}" data-priority="${c.priority || 'B'}" onclick="Companies.showDetail('${c.id}')" style="cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: rgba(99, 102, 241, 0.2);">
                     <div class="company-card__header">
                         <div>
                             <div class="company-card__name" style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
@@ -1492,7 +1496,7 @@ const Companies = {
                         <div class="company-card__detail"><i class="fas fa-industry"></i> ${sectorLabel}</div>
                         <div class="company-card__detail"><i class="fas fa-map-marker-alt"></i> ${cityLabel}${c.governorate && !cityLabel.includes(c.governorate) ? ` (${c.governorate})` : ''}</div>
                         <div class="company-card__detail"><i class="fas fa-phone"></i> <span style="direction:ltr;">${phone}</span></div>
-                        <div class="company-card__detail"><i class="fas fa-user-tag"></i> المسند إليه: ${assignedBadge}</div>
+                        <div class="company-card__detail" data-cell="assigned"><i class="fas fa-user-tag"></i> المسند إليه: ${assignedBadge}</div>
                         ${callResult ? `<div class="company-card__detail"><i class="fas fa-phone-volume"></i> نتيجة المكالمة: <span class="result-badge result-${callResult}" style="font-size:11px;">${window.AppStorage.getCallResultLabel(callResult)}</span> ${callDate ? `<small style="color:var(--text-muted); font-size:10px;">(${callDate})</small>` : ''}</div>` : ''}
                         ${c.rating ? `<div class="company-card__detail"><i class="fas fa-star" style="color:#f59e0b;"></i> التقييم: ${c.rating} / 5</div>` : ''}
                         ${c.fleetSize ? `<div class="company-card__detail"><i class="fas fa-truck"></i> أسطول: ${c.fleetSize} سيارة</div>` : ''}
@@ -1698,8 +1702,6 @@ const Companies = {
         this.clearSelection();
         this.refreshUserFilter();
         this.render();
-        if (typeof Team !== 'undefined' && Team.render) Team.render();
-        if (typeof Dashboard !== 'undefined' && Dashboard.render) Dashboard.render();
     },
 
     applyBulkUnassign() {
@@ -1718,8 +1720,6 @@ const Companies = {
         this.clearSelection();
         this.refreshUserFilter();
         this.render();
-        if (typeof Team !== 'undefined' && Team.render) Team.render();
-        if (typeof Dashboard !== 'undefined' && Dashboard.render) Dashboard.render();
     },
 
     removeDuplicatesNow() {
@@ -2823,6 +2823,10 @@ const Companies = {
         const comp = window.AppStorage.getCompany(companyId);
         const compName = comp ? (comp.nameAr || comp.nameEn || 'الشركة') : 'الشركة';
 
+        const tr = document.querySelector(`tr[data-id="${companyId}"]`);
+        const card = document.querySelector(`.company-card[data-card-id="${companyId}"]`);
+        const activeFilterAssigned = document.getElementById('filter-assigned')?.value;
+
         if (!targetUserId) {
             window.AppStorage.assignCompany(companyId, '');
             App.showToast(`🗑️ تم إلغاء حجز وإسناد شركة "${compName}"`, 'info');
@@ -2833,7 +2837,6 @@ const Companies = {
             App.showToast(`✅ تم إسناد وتخصيص شركة "${compName}" بنجاح إلى: ${targetName}`, 'success');
 
             // If active filter is 'unassigned', notify user where the company went
-            const activeFilterAssigned = document.getElementById('filter-assigned')?.value;
             if (activeFilterAssigned === 'unassigned') {
                 setTimeout(() => {
                     App.showToast(`ℹ️ ملحوظة: اصبحت الشركة الآن تابعة لـ (${targetName}). يمكنك فلترة الصفحة بـ (${targetName}) لمشاهدتها.`, 'info');
@@ -2841,11 +2844,60 @@ const Companies = {
             }
         }
 
-        // Refresh Companies view, Team view & User Filters
+        // Instant In-Place DOM Update (0ms latency, zero flicker)
+        let needsFullRender = false;
+        const updatedComp = window.AppStorage.getCompany(companyId);
+
+        if (activeFilterAssigned === 'unassigned' && targetUserId) {
+            if (tr) {
+                tr.style.transition = 'all 0.2s ease-out';
+                tr.style.opacity = '0';
+                tr.style.transform = 'translateX(20px)';
+                setTimeout(() => { if (tr.parentNode) tr.remove(); }, 200);
+            } else if (card) {
+                card.style.transition = 'all 0.2s ease-out';
+                card.style.opacity = '0';
+                card.style.transform = 'scale(0.95)';
+                setTimeout(() => { if (card.parentNode) card.remove(); }, 200);
+            } else {
+                needsFullRender = true;
+            }
+        } else if (activeFilterAssigned && activeFilterAssigned !== 'unassigned' && activeFilterAssigned !== targetUserId) {
+            if (tr) {
+                tr.style.transition = 'all 0.2s ease-out';
+                tr.style.opacity = '0';
+                setTimeout(() => { if (tr.parentNode) tr.remove(); }, 200);
+            } else if (card) {
+                card.style.transition = 'all 0.2s ease-out';
+                card.style.opacity = '0';
+                setTimeout(() => { if (card.parentNode) card.remove(); }, 200);
+            } else {
+                needsFullRender = true;
+            }
+        } else {
+            if (tr) {
+                const cell = tr.querySelector('td[data-cell="assigned"]');
+                if (cell && updatedComp) {
+                    cell.innerHTML = this.buildAssignedWidget(updatedComp);
+                } else {
+                    needsFullRender = true;
+                }
+            } else if (card) {
+                const cell = card.querySelector('[data-cell="assigned"]');
+                if (cell && updatedComp) {
+                    cell.innerHTML = '<i class="fas fa-user-tag"></i> المسند إليه: ' + this.buildAssignedWidget(updatedComp);
+                } else {
+                    needsFullRender = true;
+                }
+            } else {
+                needsFullRender = true;
+            }
+        }
+
         this.refreshUserFilter();
-        this.render();
-        if (typeof Team !== 'undefined' && Team.render) Team.render();
-        if (typeof Dashboard !== 'undefined' && Dashboard.render) Dashboard.render();
+        if (needsFullRender) {
+            this.render();
+        }
 
         // If company detail modal is currently open, re-render it immediately!
         const detailModal = document.getElementById('modal-company-detail');

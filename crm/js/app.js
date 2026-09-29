@@ -258,20 +258,24 @@ const App = {
 
                 // Real-time instant assignments watcher (< 100ms sync across devices and tabs)
                 if (typeof window.SupabaseClient.subscribeToAssignments === 'function') {
+                    let _assignRenderDebounce = null;
                     window.SupabaseClient.subscribeToAssignments((delta, source) => {
                         if (window.AppStorage && typeof window.AppStorage.applyRealtimeAssignmentsDelta === 'function') {
                             const updated = window.AppStorage.applyRealtimeAssignmentsDelta(delta, source);
                             if (updated) {
-                                const active = this.currentPage || window.location.hash.replace('#', '') || 'companies';
-                                if (typeof Companies !== 'undefined' && active === 'companies') {
-                                    Companies.render();
-                                }
-                                if (typeof Dashboard !== 'undefined' && active === 'dashboard') {
-                                    Dashboard.render();
-                                }
-                                if (typeof Team !== 'undefined' && active === 'team') {
-                                    Team.render();
-                                }
+                                if (_assignRenderDebounce) clearTimeout(_assignRenderDebounce);
+                                _assignRenderDebounce = setTimeout(() => {
+                                    const active = this.currentPage || window.location.hash.replace('#', '') || 'companies';
+                                    if (typeof Companies !== 'undefined' && active === 'companies') {
+                                        Companies.render();
+                                    }
+                                    if (typeof Dashboard !== 'undefined' && active === 'dashboard') {
+                                        Dashboard.render();
+                                    }
+                                    if (typeof Team !== 'undefined' && active === 'team') {
+                                        Team.render();
+                                    }
+                                }, 35);
                             }
                         }
                     });

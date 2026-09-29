@@ -61,7 +61,7 @@ const Team = {
         try {
             const currentUser = window.AppStorage.getCurrentUser();
             const teamPage = document.getElementById('page-team');
-            if (!teamPage) return;
+            if (!teamPage || (!teamPage.classList.contains('active') && teamPage.style.display === 'none')) return;
 
             const isRestricted = currentUser && currentUser.role === 'agent';
             if (isRestricted) {
@@ -1229,7 +1229,10 @@ const Team = {
         this.render();
         if (typeof Companies !== 'undefined') {
             Companies.refreshUserFilter();
-            if (Companies.render) Companies.render();
+            const compPage = document.getElementById('page-companies');
+            if (compPage && compPage.classList.contains('active') && Companies.render) {
+                Companies.render();
+            }
         }
     },
 
