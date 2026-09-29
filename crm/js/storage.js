@@ -1526,8 +1526,8 @@ const AppStorage = {
 
             extraSources.forEach((c, idx) => {
                 if (!c) return;
-                const name = c.nameAr || c.name || c.nameEn || '';
-                if (!this.isStrictB2BEntity(name)) return;
+                const isAuditedBaseline = c.isTitan || (c.id && (String(c.id).startsWith('eg_titan_') || String(c.id).startsWith('eg_b2b_fleet_') || String(c.id).startsWith('scraped_live_') || String(c.id).startsWith('comp_base_')));
+                if (!isAuditedBaseline && !this.isStrictB2BEntity(c)) return;
                 const normalized = this._normalizeCompanyData(c, idx);
                 const nameKey = this._normalizeArabicName(normalized.nameAr || normalized.nameEn || normalized.name);
                 const regionKey = String(normalized.governorate || normalized.gov || normalized.city || '').trim().toLowerCase();
@@ -1594,7 +1594,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     const idbData = event.target.result || [];
                     const deletedCompIds = this.getDeletedIds('companies');
-                    const currentVersionTag = 'v299.0_fleet_companies_master_25929';
+                    const currentVersionTag = 'v300.0_fleet_companies_master_25929';
                     const isNewVersion = localStorage.getItem('fleetcrm_dataset_version') !== currentVersionTag;
                     if (isNewVersion) {
                         localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
@@ -1673,7 +1673,8 @@ const AppStorage = {
                     // 3. Merge user runtime states from IndexedDB (preserve user calls & assignments & genuine contactPerson)
                     idbData.forEach(c => {
                         if (!c || !c.id) return;
-                        if (!this.isStrictB2BEntity(c.nameAr || c.name || c.nameEn || '')) return;
+                        const isAuditedBaseline = c.isTitan || (c.id && (String(c.id).startsWith('eg_titan_') || String(c.id).startsWith('eg_b2b_fleet_') || String(c.id).startsWith('scraped_live_') || String(c.id).startsWith('comp_base_')));
+                        if (!isAuditedBaseline && !this.isStrictB2BEntity(c)) return;
                         if (!deletedCompIds.has(String(c.id))) {
                             const existing = masterMap.get(c.id);
                             if (existing) {
@@ -2013,7 +2014,7 @@ const AppStorage = {
 
                 // A. Apply dynamic companies (newly scraped/custom)
                 if (data.dynamicCompanies && Array.isArray(data.dynamicCompanies)) {
-                    const cloudDynamic = data.dynamicCompanies.filter(c => c && c.id && !deletedCompIds.has(String(c.id)) && this.isStrictB2BEntity(c.nameAr || c.name || c.nameEn || ''));
+                    const cloudDynamic = data.dynamicCompanies.filter(c => c && c.id && !deletedCompIds.has(String(c.id)) && this.isStrictB2BEntity(c));
 
                     cloudDynamic.forEach(c => {
                         if (!c || !c.id) return;
@@ -2235,8 +2236,17 @@ const AppStorage = {
     },
 
     // ---- Strict B2B Fleet & Corporate Entity Validator ----
-    isStrictB2BEntity(name, tags = {}) {
-        if (!name || typeof name !== 'string' || name.trim().length < 3) return false;
+    isStrictB2BEntity(nameOrComp, tags = {}) {
+        if (!nameOrComp) return false;
+        let name = nameOrComp;
+        if (typeof nameOrComp === 'object') {
+            const comp = nameOrComp;
+            if (comp.isTitan || (comp.id && (String(comp.id).startsWith('eg_titan_') || String(comp.id).startsWith('eg_b2b_fleet_') || String(comp.id).startsWith('scraped_live_') || String(comp.id).startsWith('comp_base_')))) {
+                return true;
+            }
+            name = comp.nameAr || comp.name || comp.nameEn || '';
+        }
+        if (typeof name !== 'string' || name.trim().length < 3) return false;
         const n = name.trim();
 
         const cityBlacklist = [
@@ -2252,17 +2262,21 @@ const AppStorage = {
             return true;
         }
 
+        // 0b. Positive Corporate & Enterprise Prefix Protection (Unicode-safe prefix match evaluated BEFORE negative filters)
+        const prefixRegex = /^(?:شركة|شركه|الشركة|الشركه|مصنع|المصنع|مجموعة|مجموعه|المجموعة|المجموعه|مؤسسة|مؤسسه|المؤسسة|المؤسسه|هيئة|هيئه|الهيئة|الهيئه|توكيل|التوكيل|صوامع|مطاحن|مستودع|مستودعات|محطة خرسانة|محطة خرسانه|محطة خلط|خلاطة|خلاطه|كسارة|كساره|مسبك|معامل تصنيع)(?:\s|$)/;
+        if (prefixRegex.test(n)) {
+            if (!/(?:نقل عفش|نقل اثاث|نقل موبيليا|صيانة غسالات|صيانة ثلاجات|صيانة تكييف|تنظيف منازل|مكافحة حشرات|تسليك مجاري)/.test(n)) {
+                return true;
+            }
+        }
+
         // 1. Street, Road, Highway, Landmark, Plot, and Residential Negatives (Arabic & English)
         const streetNegRegex = /\b(?:street|st\.?|road|rd\.?|avenue|ave\.?|lane|drive|dr\.?|way|boulevard|blvd\.?|highway|hwy\.?|junction|roundabout|bridge|tunnel|exit|ramp|axis|corridor|square|block|plot|sector|zone|district|neighborhood|building|bldg|residence|compound|gate|checkpoint)\b|^(?:شارع|طريق|محور|حارة|حاره|ممر|ميدان|كوبري|كوبرى|نفق|مطلع|منزل|تقاطع|نزلة|نزله|طلعة|طلعه|وصلة|وصله|دائري|دائرى|بوابة|بوابه|كارتة|كارته|كمين|مزلقان|عمارة|عماره|برج|مجاورة|مجاوره|قطعة|قطعه|بلوك|مربع|منطقة|منطقه|حي|حى|عزبة|عزبه|كفر|نجع|قرية|قريه|حوض|ترعة|ترعه|مصرف|جزيرة|جزيره|جبل|تل)\b|(?:^|\s)(?:شارع|طريق|محور|كوبري|كوبرى|ميدان|تقاطع|نفق|مطلع|منزل|نزلة|نزله|دائري|دائرى)(?:\s|$)/i;
         if (streetNegRegex.test(n)) return false;
 
         // 2. Public, Government Administration, Retail, Worship, Medical Clinics, Cafes & Personal Services
-        const publicNegRegex = /(?:محطة مترو|محطة قطار|محطة اتوبيس|محطة ترام|محطة رسوم|موقف ميكروباص|موقف توشكى|محطة موبيل|محطة بنزين|محطة وقود|محطه ⛽|محطه بنزين|محطه وقود|مجمع محاكم|محكمة|محكمه|محاكم|النيابة العامة|نيابة|نيابه|مجلس الدولة|الشهر العقاري|مصلحة الضرائب|مصلحه الضرائب|مأمورية ضرائب|مامورية ضرائب|مصلحة الجمارك|مصلحه الجمارك|مبنى ادار|مبني ادار|مبنى إدار|مبني إدار|العهد الجديد|ديوان عام|ديوان المحافظ|الوحدة المحلية|الوحده المحليه|مجلس مدينة|مجلس مدينه|مجلس قروي|مكتب تموين|سجل مدني|سجل مدنى|مكتب بريد|سنترال|هيئة الأبنية|هيئه الابنيه|الشئون الاجتماعية|التضامن الاجتماعي|مكتب صحة|مكتب صحه|وحدة صحية|وحده صحيه|مباحث|إدارة مرور|ادارة مرور|مرور العاشر|مرور اكتوبر|مدرسة|مدرسه|مدارس|حضانة|حضانه|روضة|روضه|جامعة|جامعه|كلية|كليه|معهد أزهري|معهد ازهري|معهد موسيقي|معهد موسيقى|سنتر تعليمي|أكاديمية تعليمية|اكاديمية تعليمية|مستشفى|مستشفي|مستشفا|عيادة|عياده|عيادات|مركز طبي|مركز طبى|مركز عيون|مركز أشعة|مركز اشعة|مركز علاج|مركز أسنان|مركز اسنان|صيدلية|صيدليه|صيدليات|مستوصف|مختبر تحاليل|معمل تحاليل|مسجد|جامع الن|جامع ال|مسجد ال|كنيسة|كنيسه|كاتدرائية|كاتدرائيه|دير الأنبا|دير الشهيد|دير القديس|دير السريان|دير المحرق|دير مار|دير وادي|مطرانية|مطرانيه|خلوة|خلوه|جمعية خيرية|جمعيه خيريه|مؤسسة خيرية|مؤسسه خيريه|دار أيتام|دار ايتام|دار مسنين|دار رعاية|دار المناسبات|دار مناسبات|قاعة افراح|قاعه افراح|قسم شرطة|قسم شرطه|نقطة شرطة|نقطه شرطه|مركز شرطة|مركز شرطه|أمن مركزي|امن مركزي|معسكر|سجن|قاعدة جوية|قاعده جويه|مركز شباب|نادي رياضي|نادى رياضى|نادي اجتماعي|نادى اجتماعى|حديقة عامة|حديقه عامه|حدائق|ملعب|استاد|مقابر|مقبرة|مقبره|جبانة|جبانه|مدافن|مغسلة اموات|مغسله اموات|فرن بلدي|فرن بلدى|مخبز بلدي|مخبز بلدى|مخبز|حلواني|حلوانى|باتيسري|مطعم|كافيه|كافيتريا|كوفي شوب|بيتزا|كشري|فول وطعمية|مشويات|شاورما|كبابجي|اسماك|كبدة|سوبر ماركت|ميني ماركت|هايبر ماركت|محل بقالة|محل بقاله|محل خضار|محل فاكه|محل جزارة|محل دواجن|عطارة|عطاره|جزارة|جزاره|علافة|علافه|مقلة|مقله|محمصة|مول |shopping mall|إيبي مول|الحجاز مول|Hammamat El Kobba|كوافير|صالون حلاقة|صالون حلاقه|صالون رجالي|صالون حريمي|بيوتي سنتر|beauty salon|دراي كلين|dry clean|مغسلة ملابس|مغسله ملابس|خياط|ترزي|اتيليه|ميك اب|مكتبة عامة|مكتبه عامه|مكتبة|مكتبه|قرطاسية|ادوات مكتبية|ادوات كتابية|بلايستيشن|جيم |فتنس|سفارة|سفاره|قنصلية|قنصليه|ماكينة صراف|ماكينه صراف|ATM|صراف آلي|فرع بنك|خدمات فوري|أمان للمدفوعات|عربية كبدة|عربيه كبده|عربية فول|عربيه فول|كشك |بائع |محل موبايل|صيانة موبايل|صيانة شاشات|عفشجي|عفشجى|سمكري|سمكرى|دوكو|بنشري|بنشرى|صيانة سيارات|صيانه سيارات|تصليح سيارات|إصلاح سيارات|اصلاح سيارات|كهربائي سيارات|كهربائى سيارات|ميكانيكي سيارات|ميكانيكى سيارات|مغسلة سيارات|مغسله سيارات|كار كير|تلميع سيارات|تظليل سيارات|مركز خدمة سيارات|مركز خدمه سيارات|لصيانة السيارات|لصيانه السيارات|لتصليح السيارات|auto service|car service|auto repair|car wash|car care|ورشة سمكرة|ورشه سمكره|ورشة ميكانيكا|ورشه ميكانيكا|ورشة عفشة|ورشه عفشه|عفشة سيارات|عفشه سيارات|شكمانات|رادياتير|ضبط زوايا|ترصيص|قطع غيار سيارات|تشليح سيارات|خردة سيارات|سروجى سيارات|سروجي سيارات|جراحة التجميل|جراحات التجميل|plastic surgeon|plastic surgery|زراعة الشعر|جراح تجميل|استشاري جراحة التجميل|أستاذ جراحة التجميل|نحت القوام|تنسيق القوام|ونش رفع اثاث|ونش رفع عفش|ونش اثاث|ونش عفش|شركه نقل عفش|شركات نقل عفش|نقل عفش|نقل اثاث|شركات نقل اثاث|نقل موبيليا|رفع موبيليا|نقل اثاث بالونش|عربيات ربع نقل|\bStore\b|\bستور\b|مجوهرات|مصوغات|جواهرجي|الصايغ الجواهرجي|فضيات|ساعات رولكس|\bYMB\b|\bGusto food\b|اسبرانزاوي|مركز كرم أوبل|المنذر اوبل|مركز الطيار|Fit & Fix|Fit and Fix|فيت آند فيكس|غيار زيت|تغيير زيوت|فلاتر وزيوت|موان\b|أبو فتحى الموان|حدايد وبويات|مطابخ الوميتال|اعمال الالوميتال|صيانة غسالات|صيانة ثلاجات|صيانة تكييف|رقم صيانة|صيانه كريازى|صيانكو الاصلى|الخط الساخن لصيانة|hotel|restaurant|cafe|clinic|hospital|school|mosque|church)/i;
+        const publicNegRegex = /(?:محطة مترو|محطة قطار|محطة اتوبيس|محطة ترام|محطة رسوم|موقف ميكروباص|موقف توشكى|محطة موبيل|محطة بنزين|محطة وقود|محطه ⛽|محطه بنزين|محطه وقود|مجمع محاكم|محكمة|محكمه|محاكم|النيابة العامة|نيابة|نيابه|مجلس الدولة|الشهر العقاري|مصلحة الضرائب|مصلحه الضرائب|مأمورية ضرائب|مامورية ضرائب|مصلحة الجمارك|مصلحه الجمارك|مبنى ادار|مبني ادار|مبنى إدار|مبني إدار|العهد الجديد|ديوان عام|ديوان المحافظ|الوحدة المحلية|الوحده المحليه|مجلس مدينة|مجلس مدينه|مجلس قروي|مكتب تموين|سجل مدني|سجل مدنى|مكتب بريد|سنترال|هيئة الأبنية|هيئه الابنيه|الشئون الاجتماعية|التضامن الاجتماعي|مكتب صحة|مكتب صحه|وحدة صحية|وحده صحيه|مباحث|إدارة مرور|ادارة مرور|مرور العاشر|مرور اكتوبر|مدرسة|مدرسه|مدارس|حضانة|حضانه|روضة|روضه|جامعة|جامعه|كلية|كليه|معهد أزهري|معهد ازهري|معهد موسيقي|معهد موسيقى|سنتر تعليمي|أكاديمية تعليمية|اكاديمية تعليمية|مستشفى|مستشفي|مستشفا|عيادة|عياده|عيادات|مركز طبي|مركز طبى|مركز عيون|مركز أشعة|مركز اشعة|مركز علاج|مركز أسنان|مركز اسنان|صيدلية|صيدليه|صيدليات|مستوصف|مختبر تحاليل|معمل تحاليل|مسجد|جامع الن|جامع ال|مسجد ال|كنيسة|كنيسه|كاتدرائية|كاتدرائيه|دير الأنبا|دير الشهيد|دير القديس|دير السريان|دير المحرق|دير مار|دير وادي|مطرانية|مطرانيه|خلوة|خلوه|جمعية خيرية|جمعيه خيريه|مؤسسة خيرية|مؤسسه خيريه|دار أيتام|دار ايتام|دار مسنين|دار رعاية|دار المناسبات|دار مناسبات|قاعة افراح|قاعة أفراح|قاعه افراح|قسم شرطة|قسم شرطه|نقطة شرطة|نقطه شرطه|مركز شرطة|مركز شرطه|أمن مركزي|امن مركزي|معسكر|سجن|قاعدة جوية|قاعده جويه|مركز شباب|نادي رياضي|نادى رياضى|نادي اجتماعي|نادى اجتماعى|حديقة عامة|حديقه عامه|حدائق|ملعب|استاد|مقابر|مقبرة|مقبره|جبانة|جبانه|مدافن|مغسلة اموات|مغسله اموات|فرن بلدي|فرن بلدى|مخبز بلدي|مخبز بلدى|مخبز|حلواني|حلوانى|باتيسري|مطعم|كافيه|كافيتريا|كوفي شوب|بيتزا|كشري|فول وطعمية|مشويات|شاورما|كبابجي|اسماك|كبدة|سوبر ماركت|ميني ماركت|هايبر ماركت|محل بقالة|محل بقاله|محل خضار|محل فاكه|محل جزارة|محل دواجن|عطارة|عطاره|جزارة|جزاره|علافة|علافه|مقلة|مقله|محمصة|مول |shopping mall|إيبي مول|الحجاز مول|Hammamat El Kobba|كوافير|صالون حلاقة|صالون حلاقه|صالون رجالي|صالون حريمي|بيوتي سنتر|beauty salon|دراي كلين|dry clean|مغسلة ملابس|مغسله ملابس|خياط|ترزي|اتيليه|ميك اب|مكتبة عامة|مكتبه عامه|مكتبة|مكتبه|قرطاسية|ادوات مكتبية|ادوات كتابية|بلايستيشن|جيم |فتنس|سفارة|سفاره|قنصلية|قنصليه|ماكينة صراف|ماكينه صراف|ATM|صراف آلي|فرع بنك|خدمات فوري|أمان للمدفوعات|عربية كبدة|عربيه كبده|عربية فول|عربيه فول|كشك |بائع |محل موبايل|صيانة موبايل|صيانة شاشات|عفشجي|عفشجى|سمكري|سمكرى|دوكو|بنشري|بنشرى|صيانة سيارات|صيانه سيارات|تصليح سيارات|إصلاح سيارات|اصلاح سيارات|كهربائي سيارات|كهربائى سيارات|ميكانيكي سيارات|ميكانيكى سيارات|مغسلة سيارات|مغسله سيارات|كار كير|تلميع سيارات|تظليل سيارات|مركز خدمة سيارات|مركز خدمه سيارات|لصيانة السيارات|لصيانه السيارات|لتصليح السيارات|auto service|car service|auto repair|car wash|car care|ورشة سمكرة|ورشه سمكره|ورشة ميكانيكا|ورشه ميكانيكا|ورشة عفشة|ورشه عفشه|عفشة سيارات|عفشه سيارات|شكمانات|رادياتير|ضبط زوايا|ترصيص|قطع غيار سيارات|تشليح سيارات|خردة سيارات|سروجى سيارات|سروجي سيارات|جراحة التجميل|جراحات التجميل|plastic surgeon|plastic surgery|زراعة الشعر|جراح تجميل|استشاري جراحة التجميل|أستاذ جراحة التجميل|نحت القوام|تنسيق القوام|ونش رفع اثاث|ونش رفع عفش|ونش اثاث|ونش عفش|شركه نقل عفش|شركات نقل عفش|نقل عفش|نقل اثاث|شركات نقل اثاث|نقل موبيليا|رفع موبيليا|نقل اثاث بالونش|عربيات ربع نقل|\bStore\b|\bستور\b|مجوهرات|مصوغات|جواهرجي|الصايغ الجواهرجي|فضيات|ساعات رولكس|\bYMB\b|\bGusto food\b|اسبرانزاوي|مركز كرم أوبل|المنذر اوبل|مركز الطيار|Fit & Fix|Fit and Fix|فيت آند فيكس|غيار زيت|تغيير زيوت|فلاتر وزيوت|موان\b|أبو فتحى الموان|حدايد وبويات|مطابخ الوميتال|اعمال الالوميتال|صيانة غسالات|صيانة ثلاجات|صيانة تكييف|رقم صيانة|صيانه كريازى|صيانكو الاصلى|الخط الساخن لصيانة|hotel|restaurant|cafe|clinic|hospital|school|mosque|church)/i;
         if (publicNegRegex.test(n)) return false;
-
-        // 3. Positive Corporate, Industrial, and Fleet Commercial Indicators (Unicode-safe prefix match)
-        const prefixRegex = /^(?:شركة|شركه|الشركة|الشركه|مصنع|المصنع|مجموعة|مجموعه|المجموعة|المجموعه|مؤسسة|مؤسسه|المؤسسة|المؤسسه|توكيل|التوكيل|صوامع|مطاحن|مستودع|مستودعات|محطة خرسانة|محطة خرسانه|محطة خلط|خلاطة|خلاطه|كسارة|كساره|مسبك|معامل تصنيع)(?:\s|$)/;
-        if (prefixRegex.test(n)) return true;
 
         const termRegex = /(?:للصناعات|للصناعة|للصناعه|للتجارة|للتجاره|للتوزيع|للنقل|للمقاولات|للاستثمار|للتوريدات|للبترول|للغاز|للخدمات اللوجستية|للخدمات اللوجستيه|للتصدير|للاستيراد|للتنمية|للتنميه|القابضة|القابضه|المساهمة|المساهمه|ذ\.م\.م|ش\.م\.م|لإنتاج|لانتاج|لتصنيع|لتوزيع|لتدوير|لتجميع|للأدوية|للادوية|للأغذية|للاغذية|للغزل|للنسيج|للسيراميك|للحديد|للصلب|للأسمنت|للاسمنت|للكيماويات|للبلاستيك|للتعبئة|للتعبئه|للتغليف|للشحن|كابلات|خرسانة|خرسانه|مقاولات|لوجستيات|شحن وتفريغ)/;
         if (termRegex.test(n)) return true;
@@ -2289,17 +2303,18 @@ const AppStorage = {
             const name = c.nameAr || c.name || c.nameEn || c.companyName || '';
             if (!name || String(name).trim().length < 2) return;
 
+            const isAuditedBaseline = c.isTitan || (c.id && (String(c.id).startsWith('eg_titan_') || String(c.id).startsWith('eg_b2b_fleet_') || String(c.id).startsWith('scraped_live_') || String(c.id).startsWith('comp_base_')));
+
             // 0b. Strict B2B entity filter (reject roads, ramps, bridges, courts, schools, clinics, cafes, etc.)
-            if (!this.isStrictB2BEntity(name)) return;
+            if (!isAuditedBaseline && !this.isStrictB2BEntity(c)) return;
 
             const nameKey = this._normalizeArabicName(name);
             const regionKey = String(c.governorate || c.gov || c.city || '').trim().toLowerCase();
             const comboKey = nameKey + '_' + regionKey;
             const idKey = c.id ? String(c.id).trim() : null;
 
-            if ((idKey && seenIds.has(idKey)) || (comboKey && seenNames.has(comboKey))) {
-                return; // Duplicate prevented!
-            }
+            if (idKey && seenIds.has(idKey)) return;
+            if (!isAuditedBaseline && comboKey && seenNames.has(comboKey)) return;
 
             if (idKey) seenIds.add(idKey);
             if (comboKey) seenNames.add(comboKey);
@@ -2810,9 +2825,8 @@ const AppStorage = {
         const addedBatch = [];
         newCompanies.forEach(c => {
             if (!c) return;
-            const name = String(c.nameAr || c.name || c.nameEn || '').trim();
-            if (name.length < 2) return;
-            if (!this.isStrictB2BEntity(name)) return;
+            const isAuditedBaseline = c.isTitan || (c.id && (String(c.id).startsWith('eg_titan_') || String(c.id).startsWith('eg_b2b_fleet_') || String(c.id).startsWith('scraped_live_') || String(c.id).startsWith('comp_base_')));
+            if (!isAuditedBaseline && !this.isStrictB2BEntity(c)) return;
 
             c.sector = this.mapScraperSectorToCRM(c.sector);
             c.city = this.mapScraperCityToCRM(c.city);
