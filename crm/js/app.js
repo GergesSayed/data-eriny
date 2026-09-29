@@ -181,7 +181,7 @@ const App = {
                     }
                 });
 
-                navigator.serviceWorker.register('sw.js?v=300.0').then(reg => {
+                navigator.serviceWorker.register('sw.js?v=301.0').then(reg => {
                     reg.update().catch(() => {});
                     // Detect when a new SW version is waiting — show update notification
                     reg.addEventListener('updatefound', () => {
@@ -1966,8 +1966,8 @@ const App = {
             }
         } catch(e) {}
         try {
-            localStorage.setItem('fleetcrm_app_version', '300.0');
-            localStorage.setItem('fleetcrm_dataset_version', 'v300.0_fleet_companies_master_25929');
+            localStorage.setItem('fleetcrm_app_version', '301.0');
+            localStorage.setItem('fleetcrm_dataset_version', 'v301.0_fleet_companies_locked_25929');
             localStorage.setItem('fleetcrm_company_count', '25,929');
             sessionStorage.clear();
         } catch(e) {}
