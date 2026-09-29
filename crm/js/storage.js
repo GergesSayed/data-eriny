@@ -1598,7 +1598,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     const idbData = event.target.result || [];
                     const deletedCompIds = this.getDeletedIds('companies');
-                    const currentVersionTag = 'v301.0_fleet_companies_locked_25929';
+                    const currentVersionTag = 'v302.0_fleet_companies_locked_25929';
                     const isNewVersion = localStorage.getItem('fleetcrm_dataset_version') !== currentVersionTag;
                     if (isNewVersion) {
                         localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
