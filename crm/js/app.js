@@ -1966,8 +1966,9 @@ const App = {
             }
         } catch(e) {}
         try {
-            localStorage.setItem('fleetcrm_app_version', '280.0');
-            localStorage.setItem('fleetcrm_dataset_version', 'v280.0_governorates_and_cities_dual_filter');
+            localStorage.setItem('fleetcrm_app_version', '299.0');
+            localStorage.setItem('fleetcrm_dataset_version', 'v299.0_fleet_companies_master_25929');
+            localStorage.setItem('fleetcrm_company_count', '25,929');
             sessionStorage.clear();
         } catch(e) {}
         const base = window.location.origin + window.location.pathname;

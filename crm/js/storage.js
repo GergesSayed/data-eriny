@@ -911,24 +911,9 @@ const AppStorage = {
 
     hydrateMemoryFromBaseline() {
         try {
-            if (this.companiesMemory && this.companiesMemory.length > 0) return;
+            if (this.companiesMemory && this.companiesMemory.length >= 25800) return;
             if (localStorage.getItem('fleetcrm_user_wiped_companies') === 'true') return;
-            const syncMap = new Map();
-            const titansPool = this.getVerifiedTitans ? this.getVerifiedTitans() : [];
-            titansPool.forEach(t => {
-                if (t && t.id) syncMap.set(t.id, t);
-            });
-            const pool = this.getBaselineEnterprisesPool ? this.getBaselineEnterprisesPool() : [];
-            if (pool && pool.length > 0) {
-                pool.forEach((c, idx) => {
-                    if (c) syncMap.set(c.id || `comp_base_${idx}`, c);
-                });
-            }
-            if (syncMap.size > 0) {
-                this.companiesMemory = Array.from(syncMap.values());
-                localStorage.setItem('fleetcrm_company_count', syncMap.size);
-                this.updateLiveCounters(syncMap.size);
-            }
+            this._fallbackHydrateBaseline();
         } catch (e) { }
     },
 
@@ -1609,7 +1594,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     const idbData = event.target.result || [];
                     const deletedCompIds = this.getDeletedIds('companies');
-                    const currentVersionTag = 'v280.0_governorates_and_cities_dual_filter';
+                    const currentVersionTag = 'v299.0_fleet_companies_master_25929';
                     const isNewVersion = localStorage.getItem('fleetcrm_dataset_version') !== currentVersionTag;
                     if (isNewVersion) {
                         localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
@@ -1624,9 +1609,12 @@ const AppStorage = {
                         }
                     });
 
-                    // Fast-path: If IndexedDB is already primed with full dataset (>25k items) and version is current,
+                    const baselineTotal = (this.getVerifiedTitans ? this.getVerifiedTitans().length : 1000) + (this.getBaselineEnterprisesPool ? this.getBaselineEnterprisesPool().length : 24928);
+                    const minAcceptableCount = Math.max(25800, baselineTotal - 50);
+
+                    // Fast-path: If IndexedDB is already primed with full dataset (>= 25,800 items) and version is current,
                     // hydrate directly in < 30ms without re-parsing raw baseline arrays!
-                    if (!isNewVersion && idbData.length >= 25000) {
+                    if (!isNewVersion && idbData.length >= minAcceptableCount) {
                         const masterMap = new Map();
                         let cleanedAny = false;
                         idbData.forEach(c => {
@@ -1728,9 +1716,7 @@ const AppStorage = {
                     localStorage.setItem('fleetcrm_company_count', String(merged.length));
                     this.updateLiveCounters();
 
-                    if (isNewVersion || (idbData.length < 100 && merged.length >= 100)) {
-                        this.saveBatchToIDB(merged);
-                    }
+                    this.saveBatchToIDB(merged);
 
                     resolve(merged);
                 };
