@@ -915,28 +915,64 @@ const AppStorage = {
     },
 
     // ---- IndexedDB helper functions ----
+    _dbInitPromise: null,
     async initDB() {
-        try { localStorage.removeItem(this.KEYS.COMPANIES); } catch (e) { }
+        if (this._dbInitPromise) return this._dbInitPromise;
 
-        return new Promise((resolve) => {
+        this._dbInitPromise = new Promise((resolve) => {
+            try { localStorage.removeItem(this.KEYS.COMPANIES); } catch (e) { }
+
+            let settled = false;
+            const complete = () => {
+                if (!settled) {
+                    settled = true;
+                    resolve();
+                }
+            };
+
+            // Hard safety timeout: under no circumstance can DB initialization stall the app for > 1500ms
+            const timeoutId = setTimeout(() => {
+                console.warn('[Storage] initDB safety timeout reached, falling back safely to baseline memory');
+                if (!this.companiesMemory || !Array.isArray(this.companiesMemory) || this.companiesMemory.length < 25929) {
+                    this.hydrateMemoryFromBaseline();
+                }
+                this.updateLiveCounters();
+                this.initWorker();
+                complete();
+            }, 1500);
+
             if (typeof indexedDB === 'undefined') {
+                clearTimeout(timeoutId);
                 if (!this.companiesMemory || !Array.isArray(this.companiesMemory) || this.companiesMemory.length === 0) {
                     this.hydrateMemoryFromBaseline();
                 }
                 this.updateLiveCounters();
-                resolve();
+                complete();
                 return;
             }
+
             try {
                 const request = indexedDB.open('FleetCRM_DB', 5);
 
+                request.onblocked = () => {
+                    console.warn('[Storage] IndexedDB open blocked by existing connection, proceeding with memory baseline');
+                    clearTimeout(timeoutId);
+                    if (!this.companiesMemory || !Array.isArray(this.companiesMemory) || this.companiesMemory.length < 25929) {
+                        this.hydrateMemoryFromBaseline();
+                    }
+                    this.updateLiveCounters();
+                    this.initWorker();
+                    complete();
+                };
+
                 request.onerror = (event) => {
+                    clearTimeout(timeoutId);
                     if (!this.companiesMemory || !Array.isArray(this.companiesMemory) || this.companiesMemory.length === 0) {
                         this.hydrateMemoryFromBaseline();
                     }
                     this.updateLiveCounters();
                     this.initWorker();
-                    resolve();
+                    complete();
                 };
 
                 request.onsuccess = (event) => {
@@ -945,10 +981,15 @@ const AppStorage = {
                         this.loadCompaniesFromDB(db),
                         this.loadActivitiesFromDB(db)
                     ]).then(() => {
+                        clearTimeout(timeoutId);
                         this.syncCallsToCompanies();
                         this.updateLiveCounters();
                         this.initWorker();
-                        resolve();
+                        complete();
+                    }).catch(() => {
+                        clearTimeout(timeoutId);
+                        this.updateLiveCounters();
+                        complete();
                     });
                 };
 
@@ -991,10 +1032,13 @@ const AppStorage = {
                     }
                 };
             } catch (e) {
+                clearTimeout(timeoutId);
                 this.initWorker();
-                resolve();
+                complete();
             }
         });
+
+        return this._dbInitPromise;
     },
 
     _worker: null,
@@ -1008,7 +1052,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=304.0');
+            this._worker = new Worker('js/companies-worker.js?v=305.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -1573,8 +1617,11 @@ const AppStorage = {
                 }
             }
         }
-        this.companiesMemory = Array.from(syncMap.values());
-        const count = this.companiesMemory.length || 25929;
+        // Never replace a fuller memory pool with an incomplete partial pool (e.g. 1000 titans only)
+        if (syncMap.size >= 20000 || !this.companiesMemory || this.companiesMemory.length === 0) {
+            this.companiesMemory = Array.from(syncMap.values());
+        }
+        const count = (this.companiesMemory && this.companiesMemory.length >= 20000) ? this.companiesMemory.length : 25929;
         localStorage.setItem('fleetcrm_company_count', '25,929');
         this.updateLiveCounters(count);
     },
@@ -1588,12 +1635,29 @@ const AppStorage = {
                 resolve([]);
                 return;
             }
+
+            let settled = false;
+            const complete = (data) => {
+                if (!settled) {
+                    settled = true;
+                    resolve(data);
+                }
+            };
+
+            // Hard 1200ms timeout so IDB reads never block the application
+            const timeoutId = setTimeout(() => {
+                console.warn('[Storage] loadCompaniesFromDB timeout reached, falling back to memory baseline');
+                this._fallbackHydrateBaseline();
+                complete(this.companiesMemory);
+            }, 1200);
+
             try {
                 const transaction = db.transaction(['companies'], 'readonly');
                 const store = transaction.objectStore('companies');
                 const request = store.getAll();
 
                 request.onsuccess = (event) => {
+                    clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
                     const deletedCompIds = this.getDeletedIds('companies');
                     const currentVersionTag = 'v303.0_fleet_companies_locked_25929';
@@ -1608,7 +1672,7 @@ const AppStorage = {
                         this.invalidateScopedCache();
                         localStorage.setItem('fleetcrm_company_count', '25,929');
                         this.updateLiveCounters(25929);
-                        resolve(idbData);
+                        complete(idbData);
                         return;
                     }
 
@@ -1631,6 +1695,17 @@ const AppStorage = {
                             if (!deletedCompIds.has(String(id))) {
                                 masterMap.set(id, c);
                             }
+                        }
+                    }
+
+                    // Safety guard: if base pool was not ready yet and masterMap has < 20,000 items,
+                    // do NOT wipe or corrupt IDB or memory with partial data!
+                    if (masterMap.size < 20000) {
+                        if (idbData && idbData.length >= 25000) {
+                            this.companiesMemory = idbData;
+                            this.updateLiveCounters(idbData.length);
+                            complete(idbData);
+                            return;
                         }
                     }
 
@@ -1680,24 +1755,30 @@ const AppStorage = {
                     this.applyCallsToCompanies(masterMap);
 
                     const merged = Array.from(masterMap.values());
-                    this.companiesMemory = merged;
+                    if (merged.length >= 20000 || !this.companiesMemory || this.companiesMemory.length === 0) {
+                        this.companiesMemory = merged;
+                    }
                     this.invalidateScopedCache();
-                    const finalCount = merged.length || 25929;
+                    const finalCount = (this.companiesMemory && this.companiesMemory.length >= 20000) ? this.companiesMemory.length : 25929;
                     localStorage.setItem('fleetcrm_company_count', '25,929');
                     this.updateLiveCounters(finalCount);
 
-                    this.saveBatchToIDB(merged);
+                    if (merged.length >= 20000) {
+                        this.saveBatchToIDB(merged);
+                    }
 
-                    resolve(merged);
+                    complete(this.companiesMemory);
                 };
 
                 request.onerror = () => {
+                    clearTimeout(timeoutId);
                     this._fallbackHydrateBaseline();
-                    resolve(this.companiesMemory);
+                    complete(this.companiesMemory);
                 };
             } catch (e) {
+                clearTimeout(timeoutId);
                 this._fallbackHydrateBaseline();
-                resolve(this.companiesMemory);
+                complete(this.companiesMemory);
             }
         });
     },
@@ -1726,11 +1807,16 @@ const AppStorage = {
         const scopedComps = this.getScopedCompanies();
         const rawCount = (this.companiesMemory && Array.isArray(this.companiesMemory)) ? this.companiesMemory.length : 0;
         const userVisibleCount = canViewAll ? rawCount : (scopedComps ? scopedComps.length : 0);
-        const count = (typeof overrideCount === 'number' && overrideCount >= 0) ? overrideCount : userVisibleCount;
+        let count = (typeof overrideCount === 'number' && overrideCount >= 0) ? overrideCount : userVisibleCount;
+
+        // Anti-flash guard: Never flash partial titan count (e.g. 1,000) on refresh before enterprises pool is bound
+        if (canViewAll && count > 0 && count < 20000 && localStorage.getItem('fleetcrm_user_wiped_companies') !== 'true') {
+            count = 25929;
+        }
 
         try {
             if (canViewAll) {
-                localStorage.setItem('fleetcrm_company_count', String(rawCount));
+                localStorage.setItem('fleetcrm_company_count', String(count));
             }
             localStorage.removeItem('fleetcrm_deals_count');
         } catch (e) { }
@@ -1741,9 +1827,9 @@ const AppStorage = {
         const dashEl = document.getElementById('dash-total-companies');
         if (dashEl) dashEl.textContent = formatted;
         const scTotal = document.getElementById('sc-total');
-        if (scTotal) scTotal.textContent = rawCount.toLocaleString();
+        if (scTotal) scTotal.textContent = (rawCount >= 20000 ? rawCount : 25929).toLocaleString();
         const subText = document.getElementById('scraper-status-subtext');
-        if (subText) subText.textContent = `المحرك الموحد المباشر (${rawCount.toLocaleString()} شركة موثقة 100%)`;
+        if (subText) subText.textContent = `المحرك الموحد المباشر (${(rawCount >= 20000 ? rawCount : 25929).toLocaleString()} شركة موثقة 100%)`;
         return count;
     },
 

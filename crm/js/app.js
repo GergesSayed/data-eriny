@@ -53,6 +53,17 @@ const App = {
             this.checkAuth();
             this.initTheme();
             this.initLoginCapsWarning();
+            // Pre-warm DB and memory baseline quietly in the background while user enters credentials
+            setTimeout(() => {
+                try {
+                    if (window.AppStorage) {
+                        window.AppStorage.hydrateMemoryFromBaseline();
+                        if (typeof window.AppStorage.initDB === 'function') {
+                            window.AppStorage.initDB().catch(() => {});
+                        }
+                    }
+                } catch(e) {}
+            }, 60);
             setTimeout(() => {
                 const u = document.getElementById('login-username');
                 if (u) {
@@ -175,13 +186,20 @@ const App = {
                 this._pwaInitialized = true;
                 let isRefreshing = false;
                 navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    const currentUser = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
+                    const loginScreen = document.getElementById('login-screen');
+                    const isLoginVisible = loginScreen && loginScreen.style.display !== 'none' && !loginScreen.classList.contains('hidden');
+                    if (!currentUser || isLoginVisible || window.__isLoggingIn) {
+                        console.log('[SW] Controller changed, suppressing reload during login flow.');
+                        return;
+                    }
                     if (!isRefreshing) {
                         isRefreshing = true;
                         window.location.reload();
                     }
                 });
 
-                navigator.serviceWorker.register('sw.js?v=304.0').then(reg => {
+                navigator.serviceWorker.register('sw.js?v=305.0').then(reg => {
                     reg.update().catch(() => {});
                     // Detect when a new SW version is waiting — show update notification
                     reg.addEventListener('updatefound', () => {
@@ -460,10 +478,20 @@ const App = {
         const rememberEl = document.getElementById('login-remember');
         const remember = rememberEl ? rememberEl.checked : false;
 
+        window.__isLoggingIn = true;
         if (submitBtn) {
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-left: 8px;"></i> جاري التحقق...';
         }
+
+        // Safety watchdog: ensure submitBtn is NEVER stuck permanently on "جاري التحقق..."
+        const btnWatchdog = setTimeout(() => {
+            if (submitBtn && submitBtn.disabled) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-sign-in-alt" style="margin-left: 8px;"></i> دخول النظام';
+            }
+            window.__isLoggingIn = false;
+        }, 3500);
 
         setTimeout(async () => {
             try {
@@ -485,6 +513,8 @@ const App = {
                 }
 
                 if (!res || !res.success) {
+                    clearTimeout(btnWatchdog);
+                    window.__isLoggingIn = false;
                     if (submitBtn) {
                         submitBtn.disabled = false;
                         submitBtn.innerHTML = '<i class="fas fa-sign-in-alt" style="margin-left: 8px;"></i> دخول النظام';
@@ -496,6 +526,8 @@ const App = {
                 }
 
                 if (res.user && res.user.status === 'frozen') {
+                    clearTimeout(btnWatchdog);
+                    window.__isLoggingIn = false;
                     if (submitBtn) {
                         submitBtn.disabled = false;
                         submitBtn.innerHTML = '<i class="fas fa-sign-in-alt" style="margin-left: 8px;"></i> دخول النظام';
@@ -505,6 +537,8 @@ const App = {
                 }
 
                 if (res.user && res.user.status === 'pending_approval') {
+                    clearTimeout(btnWatchdog);
+                    window.__isLoggingIn = false;
                     if (submitBtn) {
                         submitBtn.disabled = false;
                         submitBtn.innerHTML = '<i class="fas fa-sign-in-alt" style="margin-left: 8px;"></i> دخول النظام';
@@ -513,25 +547,36 @@ const App = {
                     return;
                 }
 
+                clearTimeout(btnWatchdog);
+                window.__isLoggingIn = false;
+
                 this.showToast(`🎉 أهلاً بك يا ${res.user.name}`, 'success');
                 if (submitBtn) {
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = '<i class="fas fa-sign-in-alt" style="margin-left: 8px;"></i> دخول النظام';
                 }
 
-                // Hide login screen instantly
+                // Hide login screen instantly & permanently
                 const loginScreen = document.getElementById('login-screen');
                 if (loginScreen) {
                     loginScreen.classList.add('hidden');
                     loginScreen.style.setProperty('display', 'none', 'important');
+                    loginScreen.style.setProperty('visibility', 'hidden', 'important');
+                    loginScreen.style.setProperty('opacity', '0', 'important');
+                    loginScreen.style.setProperty('pointer-events', 'none', 'important');
+                    loginScreen.style.setProperty('z-index', '-100', 'important');
                 }
                 document.documentElement.classList.add('user-logged-in');
 
                 this.checkAuth();
 
-                // Initialize the full workspace seamlessly
-                await this.initWorkspace();
+                // Initialize the full workspace seamlessly (non-blocking for UI)
+                this.initWorkspace().catch(err => {
+                    console.error('initWorkspace notice:', err);
+                });
             } catch (err) {
+                clearTimeout(btnWatchdog);
+                window.__isLoggingIn = false;
                 console.error('Handle login error:', err);
                 if (submitBtn) {
                     submitBtn.disabled = false;
@@ -539,7 +584,7 @@ const App = {
                 }
                 this.showLoginError('❌ حدث خطأ غير متوقع: ' + err.message);
             }
-        }, 50);
+        }, 10);
     },
 
     showLoginError(msg) {
