@@ -18,6 +18,8 @@ window.SupabaseClient = (function() {
     const syncChannel = (typeof window !== 'undefined' && typeof window.BroadcastChannel !== 'undefined') ? new BroadcastChannel('fleetcrm_realtime_sync') : null;
     let isPushing = false;
     let lastSyncTimestamp = 0;
+    let _mobileFocusBound = false;
+    let _assignFocusBound = false;
 
     function onStatusChange(callback) {
         if (typeof callback === 'function') {
@@ -643,7 +645,8 @@ window.SupabaseClient = (function() {
         startPolling();
 
         // 4. Instant trigger on mobile tab focus or screen unlock
-        if (typeof document !== 'undefined' && typeof window !== 'undefined') {
+        if (typeof document !== 'undefined' && typeof window !== 'undefined' && !_mobileFocusBound) {
+            _mobileFocusBound = true;
             const handleMobileFocus = () => {
                 checkMetadataDelta();
                 if (!sseSource && typeof EventSource !== 'undefined') {
@@ -788,7 +791,8 @@ window.SupabaseClient = (function() {
         assignPollInterval = setInterval(pollAssignments, 1000);
 
         // Instant poll on focus / visibility change
-        if (typeof window !== 'undefined') {
+        if (typeof window !== 'undefined' && !_assignFocusBound) {
+            _assignFocusBound = true;
             window.addEventListener('focus', pollAssignments);
             document.addEventListener('visibilitychange', () => {
                 if (document.visibilityState === 'visible') {

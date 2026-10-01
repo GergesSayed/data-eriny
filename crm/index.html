@@ -11,7 +11,7 @@
     <script>
         // Clean storage initialization
         (function() {
-            var CURRENT_VER = '303.0';
+            var CURRENT_VER = '305.0';
             try {
                 localStorage.removeItem('fleetcrm_deals');
                 localStorage.removeItem('fleetcrm_deals_count');
@@ -29,7 +29,7 @@
                 if (lastVer !== CURRENT_VER) {
                     localStorage.setItem('fleetcrm_app_version', CURRENT_VER);
                     localStorage.setItem('fleetcrm_company_count', '25,929');
-                    localStorage.setItem('fleetcrm_dataset_version', 'v303.0_fleet_companies_locked_25929');
+                    localStorage.setItem('fleetcrm_dataset_version', 'v305.0_fleet_companies_locked_25929');
                     if (!localStorage.getItem('fleetcrm_theme_explicit')) {
                         localStorage.setItem('fleetcrm_theme', 'light');
                     }
@@ -50,7 +50,7 @@
             } catch(e) {}
         })();
     </script>
-    <link rel="manifest" href="manifest.json?v=303.0">
+    <link rel="manifest" href="manifest.json?v=305.0">
     <meta name="theme-color" content="#7c3aed">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -309,7 +309,7 @@
             </div>
             <div class="brand-text">
                 <h2>Fleet CRM</h2>
-                <span>إدارة بيع الإطارات <small class="brand-ver-badge" style="background:#7c3aed33; color:#a78bfa; padding:1px 6px; border-radius:6px; font-size:10px; font-weight:700;">v303.0</small></span>
+                <span>إدارة بيع الإطارات <small class="brand-ver-badge" style="background:#7c3aed33; color:#a78bfa; padding:1px 6px; border-radius:6px; font-size:10px; font-weight:700;">v305.0</small></span>
             </div>
         </div>
 
@@ -1629,7 +1629,7 @@
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid var(--border-light);">
                         <span style="font-size: 12.5px; color: var(--text-secondary);"><i class="fas fa-layer-group" style="color: #0284c7; margin-left: 6px;"></i> واجهة وأكواد النظام (App Shell):</span>
-                        <span id="pwa-modal-appshell-status" style="font-size: 12px; font-weight: 800; color: #10b981;">✅ مخزنة بالكامل (v303.0)</span>
+                        <span id="pwa-modal-appshell-status" style="font-size: 12px; font-weight: 800; color: #10b981;">✅ مخزنة بالكامل (v305.0)</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid var(--border-light);">
                         <span style="font-size: 12.5px; color: var(--text-secondary);"><i class="fas fa-database" style="color: #10b981; margin-left: 6px;"></i> قاعدة الشركات المحلية (IndexedDB):</span>

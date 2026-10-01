@@ -495,7 +495,10 @@ const ScraperSettings = (() => {
 window.ScraperSettings = ScraperSettings;
 
 // Auto-init when DOM ready
-document.addEventListener('DOMContentLoaded', () => {
-    // Delay init slightly to let other scripts load
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => ScraperSettings.init(), 500);
+    });
+} else {
     setTimeout(() => ScraperSettings.init(), 500);
-});
+}

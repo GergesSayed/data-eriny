@@ -1660,7 +1660,7 @@ const AppStorage = {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
                     const deletedCompIds = this.getDeletedIds('companies');
-                    const currentVersionTag = 'v303.0_fleet_companies_locked_25929';
+                    const currentVersionTag = 'v305.0_fleet_companies_locked_25929';
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 
                     // Fast-path: When IndexedDB already contains the full dataset (25,929 items)

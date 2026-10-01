@@ -1957,7 +1957,7 @@ const Companies = {
                 if (window.AppStorage.saveBatchToIDB) {
                     await window.AppStorage.saveBatchToIDB(window.AppStorage.companiesMemory);
                 }
-                localStorage.setItem('fleetcrm_dataset_version', 'v302.0_fleet_companies_master_25929');
+                localStorage.setItem('fleetcrm_dataset_version', 'v305.0_fleet_companies_locked_25929');
                 App.showToast('✨ تم بنجاح تحديث وتطهير قاعدة البيانات بالكامل (25,929 شركة فريدة 100%)!', 'success');
                 this.openAuditModal();
                 this.render();

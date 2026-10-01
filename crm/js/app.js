@@ -2013,8 +2013,8 @@ const App = {
             }
         } catch(e) {}
         try {
-            localStorage.setItem('fleetcrm_app_version', '302.0');
-            localStorage.setItem('fleetcrm_dataset_version', 'v302.0_fleet_companies_locked_25929');
+            localStorage.setItem('fleetcrm_app_version', '305.0');
+            localStorage.setItem('fleetcrm_dataset_version', 'v305.0_fleet_companies_locked_25929');
             localStorage.setItem('fleetcrm_company_count', '25,929');
             sessionStorage.clear();
         } catch(e) {}
@@ -2094,7 +2094,7 @@ const App = {
         // 2. App Shell Version
         const appShellEl = document.getElementById('pwa-modal-appshell-status');
         if (appShellEl) {
-            appShellEl.innerHTML = '✅ مخزنة بالكامل (v303.0) 🛡️';
+            appShellEl.innerHTML = '✅ مخزنة بالكامل (v305.0) 🛡️';
             appShellEl.style.color = '#10b981';
         }
 
