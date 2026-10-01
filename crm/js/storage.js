@@ -75,7 +75,8 @@ const AppStorage = {
             'مدير', 'مسؤول', 'مسئول', 'رئيس', 'مشرف', 'مهندس', 'منسق', 'نائب', 'عضو', 'ادارة', 'إدارة',
             'قطاع', 'قسم', 'وكيل', 'مساعد', 'حركة', 'أساطيل', 'اساطيل', 'صيانة', 'صيانه', 'ورش', 'ورشة',
             'مخازن', 'مخزن', 'لوجستيات', 'لوجستي', 'نقل', 'نقليات', 'تشغيل', 'عمليات', 'مشتريات',
-            'شؤون', 'شئون', 'فنية', 'فنيه', 'مركبات', 'معدات', 'توريدات', 'توزيع', 'General Manager',
+            'شؤون', 'شئون', 'فنية', 'فنيه', 'مركبات', 'معدات', 'توريدات', 'توزيع', 'محاسب', 'مستودع',
+            'ميكانيكا', 'عمومي', 'مركزي', 'ميداني', 'تجهيزات', 'General Manager',
             'Director', 'Manager', 'Head of', 'Supervisor', 'Coordinator', 'Lead', 'Engineer',
             'Specialist', 'Officer', 'Fleet', 'Logistics', 'Operations', 'Procurement', 'Transport',
             'Maintenance', 'Supply Chain'
@@ -397,6 +398,7 @@ const AppStorage = {
             localStorage.removeItem(this.KEYS.CURRENT_USER);
         }
         this.invalidateScopedCache();
+        this.addActivity('user', uid, 'تغيير المستخدم النشط', this.getUser(uid)?.name || uid);
     },
 
     resetToAdmin() {
@@ -612,11 +614,6 @@ const AppStorage = {
         this.addActivity('user', id, 'حذف موظف', `حذف معرّف الحساب: ${id}`);
         this._syncUsersToCloud();
         return { success: true };
-    },
-
-    setCurrentUser(userId) {
-        localStorage.setItem(this.KEYS.CURRENT_USER, userId);
-        this.addActivity('user', userId, 'تغيير المستخدم النشط', this.getUser(userId)?.name || userId);
     },
 
     // ---- Sector Definitions ----
@@ -1021,6 +1018,10 @@ const AppStorage = {
                     delete this._workerCallbacks[queryId];
                 }
             };
+            this._worker.onerror = (err) => {
+                console.warn('Worker runtime notice, utilizing main thread fallback:', err);
+                this._workerReady = false;
+            };
             this._worker.postMessage({ action: 'INIT_INDEX', payload: this.companiesMemory || [] });
         } catch (e) {
             console.warn('Worker initialization fallback:', e);
@@ -1300,21 +1301,6 @@ const AppStorage = {
             .replace(/[^a-z0-9\u0600-\u06FF]/gi, '');
         s = s.replace(/^(شركه|مصنع|مؤسسه|مجموعه|توكيل|مكتب|معرض)/, '');
         return s;
-    },
-
-    isRoleTitle(str) {
-        if (!str || typeof str !== 'string') return false;
-        const s = str.trim();
-        if (!s) return false;
-        const roleKeywords = [
-            'مدير', 'مسؤول', 'مسئول', 'رئيس', 'قسم', 'قطاع', 'أسطول', 'اسطول', 'حركة', 'حركه',
-            'مشتريات', 'لوجستيات', 'لوجستي', 'صيانة', 'صيانه', 'تشغيل', 'تجهيزات', 'شؤون', 'شئون',
-            'مشرف', 'مهندس', 'محاسب', 'إدارة', 'ادارة', 'نقليات', 'مبيعات', 'مشتري', 'توزيع',
-            'مخازن', 'مستودع', 'ورشة', 'ورشه', 'ميكانيكا', 'عمومي', 'مركزي', 'ميداني',
-            'م. أحمد', 'أ. محمود', 'م. أيمن', 'أ. هاني', 'م. تامر', 'م. سامح', 'أ. خالد', 'م. حازم',
-            '(', ')'
-        ];
-        return roleKeywords.some(kw => s.includes(kw));
     },
 
     detectLocation(c) {
@@ -1638,6 +1624,16 @@ const AppStorage = {
                         }
                     }
 
+                    // Build map of genuine contacts from actual recorded calls
+                    const genuineCallContacts = new Map();
+                    const recordedCalls = this.getCalls ? (this.getCalls() || []) : [];
+                    for (let ki = 0; ki < recordedCalls.length; ki++) {
+                        const call = recordedCalls[ki];
+                        if (call && call.companyId && call.contactPerson && !this.isRoleTitle(call.contactPerson)) {
+                            genuineCallContacts.set(String(call.companyId), call.contactPerson.trim());
+                        }
+                    }
+
                     // Merge user runtime states from IndexedDB (preserve user calls & assignments & genuine contactPerson)
                     for (let i = 0; i < idbData.length; i++) {
                         const c = idbData[i];
@@ -1657,6 +1653,8 @@ const AppStorage = {
                                 const genuineContact = genuineCallContacts.get(String(c.id));
                                 if (genuineContact) {
                                     userState.contactPerson = genuineContact;
+                                } else if (c.contactPerson && !this.isRoleTitle(c.contactPerson)) {
+                                    userState.contactPerson = String(c.contactPerson).trim();
                                 } else {
                                     userState.contactPerson = '';
                                     userState.contactTitle = '';

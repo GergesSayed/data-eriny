@@ -14,6 +14,9 @@ const Team = {
     },
 
     bindEvents() {
+        if (this._eventsBound) return;
+        this._eventsBound = true;
+
         document.getElementById('btn-add-user')?.addEventListener('click', () => this.openUserModal());
         document.getElementById('form-user')?.addEventListener('submit', (e) => {
             e.preventDefault();

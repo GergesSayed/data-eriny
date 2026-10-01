@@ -50,7 +50,7 @@
             } catch(e) {}
         })();
     </script>
-    <link rel="manifest" href="manifest.json?v=280.0">
+    <link rel="manifest" href="manifest.json?v=303.0">
     <meta name="theme-color" content="#7c3aed">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -137,17 +137,6 @@
                                 navLinks[j].classList.remove('active');
                             }
                         }
-                        // Dynamically hydrate live company count from storage immediately
-                        var rawCount = localStorage.getItem('fleetcrm_company_count') || '25,929';
-                        var parsed = parseInt(String(rawCount).replace(/,/g, ''), 10);
-                        if (!parsed || parsed !== 25929) parsed = 25929;
-                        var formatted = parsed.toLocaleString();
-                        var elSide = document.getElementById('sidebar-total-companies');
-                        var elDash = document.getElementById('dash-total-companies');
-                        var elComp = document.getElementById('companies-count-display');
-                        if (elSide) elSide.textContent = formatted;
-                        if (elDash) elDash.textContent = formatted;
-                        if (elComp) elComp.textContent = '📊 إجمالي شركات السيستم: ' + formatted + ' شركة';
                     });
                 }
             } catch(e) {}

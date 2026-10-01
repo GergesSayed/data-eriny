@@ -786,6 +786,9 @@ const Companies = {
     },
 
     bindEvents() {
+        if (this._eventsBound) return;
+        this._eventsBound = true;
+
         // Filters
         document.getElementById('filter-sector')?.addEventListener('change', () => this.onFilterChange(true));
         document.getElementById('filter-city')?.addEventListener('change', () => this.onFilterChange(true));
@@ -1575,8 +1578,9 @@ const Companies = {
 
     claimLead(companyId) {
         const currentUser = window.AppStorage.getCurrentUser();
+        if (!currentUser) return;
         window.AppStorage.assignCompany(companyId, currentUser.id);
-        App.showToast(`✅ تم حجز الشركة باسم ${currentUser.name}`);
+        App.showToast(`✅ تم حجز هذه الشركة لـ: ${currentUser.name}`);
         this.render();
     },
 
@@ -2916,14 +2920,6 @@ const Companies = {
         if (custodyModal && (custodyModal.classList.contains('active') || custodyModal.style.display === 'flex' || custodyModal.style.display === 'block')) {
             this.showCustodyModal(companyId);
         }
-    },
-
-    claimLead(companyId) {
-        const currentUser = window.AppStorage.getCurrentUser();
-        if (!currentUser) return;
-        window.AppStorage.assignCompany(companyId, currentUser.id);
-        App.showToast(`✅ تم حجز هذه الشركة لـ: ${currentUser.name}`);
-        this.render();
     },
 
     printCompanyCard() {

@@ -17,6 +17,7 @@ window.SupabaseClient = (function() {
     let assignPollInterval = null;
     const syncChannel = (typeof window !== 'undefined' && typeof window.BroadcastChannel !== 'undefined') ? new BroadcastChannel('fleetcrm_realtime_sync') : null;
     let isPushing = false;
+    let lastSyncTimestamp = 0;
 
     function onStatusChange(callback) {
         if (typeof callback === 'function') {
@@ -351,8 +352,6 @@ window.SupabaseClient = (function() {
             return false;
         }
     }
-
-    let lastSyncTimestamp = 0;
 
     /**
      * Presence & Lead Collision Prevention
