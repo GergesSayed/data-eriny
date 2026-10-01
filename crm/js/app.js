@@ -181,7 +181,7 @@ const App = {
                     }
                 });
 
-                navigator.serviceWorker.register('sw.js?v=303.0').then(reg => {
+                navigator.serviceWorker.register('sw.js?v=304.0').then(reg => {
                     reg.update().catch(() => {});
                     // Detect when a new SW version is waiting — show update notification
                     reg.addEventListener('updatefound', () => {

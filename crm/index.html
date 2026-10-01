@@ -757,7 +757,16 @@
                         </select>
                     </div>
 
-                    <!-- 7. Assigned Employee Filter (Visible to Admin/Supervisor) -->
+                    <!-- 7. VIP / Titans Filter -->
+                    <div class="filter-group" style="flex: 1 1 150px; min-width: 140px;">
+                        <select id="filter-vip" class="filter-select" onchange="Companies.onFilterChange(true)" style="width:100%; padding: 10px 14px; border-radius: 10px; font-size: 13px; font-weight: 700; outline: none; border-color: rgba(245, 158, 11, 0.4); color: #fbbf24; background: rgba(245, 158, 11, 0.05);">
+                            <option value="">👑 تصنيف VIP (الكل)</option>
+                            <option value="vip_only">⭐ كبرى شركات مصر VIP فقط</option>
+                            <option value="standard_only">🏢 شركات عادية</option>
+                        </select>
+                    </div>
+
+                    <!-- 8. Assigned Employee Filter (Visible to Admin/Supervisor) -->
                     <div class="filter-group" id="filter-assigned-group" style="flex: 1 1 170px; min-width: 145px;">
                         <select id="filter-assigned" class="filter-select" onchange="Companies.onFilterChange()" style="width:100%; padding: 10px 14px; border-radius: 10px; font-size: 13px; font-weight: 700; outline: none;">
                             <option value="">👤 كل الموظفين / التخصيص</option>
@@ -766,7 +775,7 @@
                         </select>
                     </div>
 
-                    <!-- 8. Sort Order -->
+                    <!-- 9. Sort Order -->
                     <div class="filter-group" style="flex: 1 1 180px; min-width: 155px;">
                         <select id="filter-sort" class="filter-select" onchange="Companies.onFilterChange()" style="width:100%; padding: 10px 14px; border-radius: 10px; font-size: 13px; font-weight: 700; outline: none;">
                             <option value="priority_fleet" selected>🎯 كبرى الشركات والأسطول أولاً</option>
@@ -778,7 +787,7 @@
                         </select>
                     </div>
 
-                    <!-- 9. Reset Filters Button -->
+                    <!-- 10. Reset Filters Button -->
                     <button class="btn btn-outline btn-sm" id="btn-clear-filters" onclick="Companies.clearFilters()" style="padding: 10px 18px; border-radius: 10px; font-weight: 700; cursor: pointer; transition: all 0.2s; white-space: nowrap;">
                         <i class="fas fa-undo"></i> إعادة ضبط الفلاتر
                     </button>
@@ -815,8 +824,13 @@
                 </div>
 
                 <!-- Company Stats Bar -->
-                <div class="table-stats-bar">
-                    <span id="companies-count-display">📊 إجمالي شركات السيستم: 25,929 شركة</span>
+                <div class="table-stats-bar" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+                    <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                        <span id="companies-count-display">📊 إجمالي شركات السيستم: 25,929 شركة</span>
+                        <button type="button" id="btn-quick-toggle-vip" onclick="Companies.toggleVipFilter()" class="btn btn-sm" style="display:inline-flex; align-items:center; gap:6px; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:700; border:1px solid #f59e0b; color:#fbbf24; background:rgba(245, 158, 11, 0.1); cursor:pointer; transition:all 0.2s;" title="تصفية فورية لعرض كبرى شركات مصر VIP فقط">
+                            <i class="fas fa-crown"></i> <span>شركات VIP فقط</span>
+                        </button>
+                    </div>
                     <div class="table-view-toggle">
                         <button class="btn-icon active" id="btn-view-table" title="عرض جدول"><i class="fas fa-table"></i></button>
                         <button class="btn-icon" id="btn-view-cards" title="عرض بطاقات"><i class="fas fa-th-large"></i></button>
@@ -1388,9 +1402,9 @@
                             <div class="form-group">
                                 <label for="company-priority">أولوية البيع</label>
                                 <select id="company-priority">
-                                    <option value="B">?? B — متوسطة</option>
-                                    <option value="A">?? A — عالية</option>
-                                    <option value="C">?? C — منخفضة</option>
+                                    <option value="A">⭐ A — عالية</option>
+                                    <option value="B" selected>🔹 B — متوسطة</option>
+                                    <option value="C">⚪ C — منخفضة</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -1405,6 +1419,12 @@
                                     <option value="exhibition">معرض</option>
                                     <option value="other">أخرى</option>
                                 </select>
+                            </div>
+                            <div class="form-group" style="display:flex; align-items:flex-end; padding-bottom:8px;">
+                                <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:700; color:#fbbf24; user-select:none; margin:0;">
+                                    <input type="checkbox" id="company-isTitan" style="width:18px; height:18px; accent-color:#f59e0b; cursor:pointer;">
+                                    <span>👑 عميل كبار الشخصيات (VIP)</span>
+                                </label>
                             </div>
                             <div class="form-group full-width">
                                 <label for="company-notes">ملاحظات</label>
@@ -1522,6 +1542,7 @@
             </div>
             <div class="modal-footer">
                 <button class="btn btn-ghost" data-modal="modal-company-detail" onclick="App.closeModal('modal-company-detail')">إغلاق</button>
+                <button class="btn btn-outline" id="btn-detail-toggle-vip" onclick="Companies.toggleCurrentCompanyVip()"><i class="fas fa-crown"></i> <span>تصنيف VIP</span></button>
                 <button class="btn btn-outline" onclick="Companies.printCompanyCard()"><i class="fas fa-print"></i> طباعة / PDF</button>
                 <button class="btn btn-accent" id="btn-detail-call"><i class="fas fa-phone"></i> تسجيل مكالمة</button>
                 <button class="btn btn-primary" id="btn-detail-edit"><i class="fas fa-edit"></i> تعديل</button>
@@ -1773,19 +1794,19 @@
     <!-- External Libraries (Deferred for instant mobile paint) -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
 
-    <script src="js/supabase-client.js?v=303.0"></script>
-    <script src="js/egypt_verified_titans.js?v=303.0"></script>
-    <script src="js/egypt_enterprises_pool.js?v=303.0" defer></script>
-    <script src="js/storage.js?v=303.0"></script>
-    <script src="js/excel-handler.js?v=303.0"></script>
-    <script src="js/dashboard.js?v=303.0"></script>
-    <script src="js/companies.js?v=303.0"></script>
-    <script src="js/calls.js?v=303.0"></script>
-    <script src="js/reports.js?v=303.0"></script>
-    <script src="js/scraper.js?v=303.0"></script>
-    <script src="js/team.js?v=303.0"></script>
-    <script src="js/settings.js?v=303.0"></script>
-    <script src="js/app.js?v=303.0"></script>
+    <script src="js/supabase-client.js?v=304.0"></script>
+    <script src="js/egypt_verified_titans.js?v=304.0"></script>
+    <script src="js/egypt_enterprises_pool.js?v=304.0" defer></script>
+    <script src="js/storage.js?v=304.0"></script>
+    <script src="js/excel-handler.js?v=304.0"></script>
+    <script src="js/dashboard.js?v=304.0"></script>
+    <script src="js/companies.js?v=304.0"></script>
+    <script src="js/calls.js?v=304.0"></script>
+    <script src="js/reports.js?v=304.0"></script>
+    <script src="js/scraper.js?v=304.0"></script>
+    <script src="js/team.js?v=304.0"></script>
+    <script src="js/settings.js?v=304.0"></script>
+    <script src="js/app.js?v=304.0"></script>
 
     <!-- Cleanup overlay on load - runs once only, does NOT override App.checkAuth -->
     <script>

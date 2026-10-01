@@ -11,6 +11,7 @@ let _sectorBuckets = new Map();
 let _cityBuckets = new Map();
 let _priorityBuckets = new Map();
 let _assignedBuckets = new Map();
+let _titanIndices = [];
 
 function normalizeArabic(str) {
     if (!str || typeof str !== 'string') return '';
@@ -28,10 +29,15 @@ function rebuildBuckets() {
     _cityBuckets.clear();
     _priorityBuckets.clear();
     _assignedBuckets.clear();
+    _titanIndices = [];
 
     for (let idx = 0; idx < _companiesIndex.length; idx++) {
         const c = _companiesIndex[idx];
         if (!c) continue;
+
+        if (c.isTitan) {
+            _titanIndices.push(idx);
+        }
 
         const sec = c.sector || 'other';
         let secArr = _sectorBuckets.get(sec);
@@ -75,7 +81,7 @@ self.onmessage = function(e) {
             const normContact = normalizeArabic(c.contactPerson || '');
             const id = c.id || ('comp_' + idx);
             
-            const isTitan = Boolean(c.isTitan || (c.id && String(c.id).startsWith('eg_titan_')));
+            const isTitan = Boolean(c.isTitan || (c.id && String(c.id).startsWith('eg_titan_')) || c.isVIP || c.vip);
             const indexed = {
                 id,
                 nameAr: c.nameAr || c.name || '',
@@ -118,7 +124,7 @@ self.onmessage = function(e) {
             const normPhone = (c.phone1 || c.mobile || c.phone2 || '').replace(/[^0-9+]/g, '');
             const normContact = normalizeArabic(c.contactPerson || '');
 
-            const isTitan = Boolean(c.isTitan || (c.id && String(c.id).startsWith('eg_titan_')));
+            const isTitan = Boolean(c.isTitan || (c.id && String(c.id).startsWith('eg_titan_')) || c.isVIP || c.vip);
             const indexed = {
                 id: c.id,
                 nameAr: c.nameAr || c.name || '',
@@ -231,6 +237,7 @@ self.onmessage = function(e) {
             cities = [],
             contactType = '',
             priority = '',
+            vip = '',
             fleetType = '',
             fleetSize = '',
             assigned = '',
@@ -271,6 +278,8 @@ self.onmessage = function(e) {
                 }
             }
             candidateIndices = Array.from(seenCandidateIdx);
+        } else if (vip === 'vip_only' && (!sectorSet || sectorSet.size > 2) && (!citySet || citySet.size > 2)) {
+            candidateIndices = _titanIndices;
         } else if (sectorSet && sectorSet.size <= 2) {
             const seenCandidateIdx = new Set();
             sectorSet.forEach(sec => {
@@ -313,6 +322,9 @@ self.onmessage = function(e) {
                     continue;
                 }
             }
+
+            if (vip === 'vip_only' && !c.isTitan) continue;
+            if (vip === 'standard_only' && c.isTitan) continue;
 
             if (sectorSet && !sectorSet.has(c.sector)) continue;
             if (citySet && !citySet.has(c.city)) continue;

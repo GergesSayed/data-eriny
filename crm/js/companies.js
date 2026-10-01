@@ -448,6 +448,7 @@ const Companies = {
         const contactType = document.getElementById('filter-contact-type')?.value || '';
         const fleetSize = document.getElementById('filter-fleet-size')?.value || '';
         const priority = document.getElementById('filter-priority')?.value || '';
+        const vip = document.getElementById('filter-vip')?.value || '';
         const assigned = document.getElementById('filter-assigned')?.value || '';
 
         const hasActiveFilters = (
@@ -458,6 +459,7 @@ const Companies = {
             contactType ||
             fleetSize ||
             priority ||
+            vip ||
             assigned ||
             Boolean(this.statusFilter)
         );
@@ -503,6 +505,17 @@ const Companies = {
                 </span>
             `;
         });
+
+        // VIP Filter Chip
+        if (vip) {
+            const isVipOnly = vip === 'vip_only';
+            chipsHtml += `
+                <span class="active-filter-chip" style="background:rgba(245, 158, 11, 0.2); color:#fbbf24; border:1px solid rgba(245, 158, 11, 0.45); font-weight:700;">
+                    <span>${isVipOnly ? '👑 شركات VIP فقط' : '🏢 شركات عادية'}</span>
+                    <i class="fas fa-times chip-remove" title="إزالة" onclick="Companies.removeActiveFilter('vip')"></i>
+                </span>
+            `;
+        }
 
         // Contact Type Chip
         if (contactType) {
@@ -604,6 +617,16 @@ const Companies = {
             this.selectedCities.delete(key);
             this._syncDropdownDOM('cities');
             this.updateMultiSelectLabels();
+        } else if (type === 'vip') {
+            const el = document.getElementById('filter-vip');
+            if (el) el.value = '';
+            const btnQuick = document.getElementById('btn-quick-toggle-vip');
+            if (btnQuick) {
+                btnQuick.classList.remove('active');
+                btnQuick.style.background = 'rgba(245, 158, 11, 0.1)';
+                btnQuick.style.color = '#fbbf24';
+                btnQuick.innerHTML = '<i class="fas fa-crown"></i> <span>شركات VIP فقط</span>';
+            }
         } else if (type === 'contactType') {
             const el = document.getElementById('filter-contact-type');
             if (el) el.value = '';
@@ -794,6 +817,7 @@ const Companies = {
         document.getElementById('filter-city')?.addEventListener('change', () => this.onFilterChange(true));
         document.getElementById('filter-contact-type')?.addEventListener('change', () => this.onFilterChange(true));
         document.getElementById('filter-priority')?.addEventListener('change', () => this.onFilterChange(true));
+        document.getElementById('filter-vip')?.addEventListener('change', () => this.onFilterChange(true));
         document.getElementById('filter-fleet-type')?.addEventListener('change', () => this.onFilterChange(true));
         document.getElementById('filter-fleet-size')?.addEventListener('change', () => this.onFilterChange(true));
         document.getElementById('filter-added-date')?.addEventListener('change', () => this.onFilterChange(true));
@@ -879,12 +903,20 @@ const Companies = {
     },
 
     clearFilters() {
-        ['filter-sector', 'filter-city', 'filter-contact-type', 'filter-priority', 'filter-fleet-type', 'filter-fleet-size', 'filter-added-date', 'filter-sort', 'filter-assigned', 'filter-search'].forEach(id => {
+        ['filter-sector', 'filter-city', 'filter-contact-type', 'filter-priority', 'filter-vip', 'filter-fleet-type', 'filter-fleet-size', 'filter-added-date', 'filter-sort', 'filter-assigned', 'filter-search'].forEach(id => {
             const el = document.getElementById(id);
             if (el) el.value = '';
         });
         const sortSelect = document.getElementById('filter-sort');
         if (sortSelect) sortSelect.value = 'priority_fleet';
+
+        const btnQuick = document.getElementById('btn-quick-toggle-vip');
+        if (btnQuick) {
+            btnQuick.classList.remove('active');
+            btnQuick.style.background = 'rgba(245, 158, 11, 0.1)';
+            btnQuick.style.color = '#fbbf24';
+            btnQuick.innerHTML = '<i class="fas fa-crown"></i> <span>شركات VIP فقط</span>';
+        }
 
         // Reset multi-select sets & UI
         this.selectedSectors.clear();
@@ -932,6 +964,7 @@ const Companies = {
         const legacyCity = document.getElementById('filter-city')?.value;
         const contactType = document.getElementById('filter-contact-type')?.value;
         const priority = document.getElementById('filter-priority')?.value;
+        const vip = document.getElementById('filter-vip')?.value;
         const fleetType = document.getElementById('filter-fleet-type')?.value;
         const fleetSize = document.getElementById('filter-fleet-size')?.value;
         const addedDate = document.getElementById('filter-added-date')?.value;
@@ -946,6 +979,12 @@ const Companies = {
 
         // 1 SINGLE OPTIMIZED PASS FILTER (100X Faster!)
         const companies = rawCompanies.filter(c => {
+            if (vip) {
+                const isVip = Boolean(c.isTitan || (c.id && String(c.id).startsWith('eg_titan_')) || c.isVIP || c.vip);
+                if (vip === 'vip_only' && !isVip) return false;
+                if (vip === 'standard_only' && isVip) return false;
+            }
+
             if (sectorSet && !sectorSet.has(c.sector)) return false;
             if (citySet && !citySet.has(c.city)) return false;
             if (priority && c.priority !== priority) return false;
@@ -1025,8 +1064,8 @@ const Companies = {
         // Fast Sort — Titans ALWAYS pinned to the very top!
         const priorityOrder = { 'A+': 1, 'A': 2, 'B': 3, 'C': 4 };
         return companies.sort((a, b) => {
-            const titanA = (a.isTitan || (a.id && String(a.id).startsWith('eg_titan_'))) ? 1 : 0;
-            const titanB = (b.isTitan || (b.id && String(b.id).startsWith('eg_titan_'))) ? 1 : 0;
+            const titanA = (a.isTitan || (a.id && String(a.id).startsWith('eg_titan_')) || a.isVIP || a.vip) ? 1 : 0;
+            const titanB = (b.isTitan || (b.id && String(b.id).startsWith('eg_titan_')) || b.isVIP || b.vip) ? 1 : 0;
             if (titanA !== titanB) {
                 return titanB - titanA; // 👑 Titans ALWAYS first!
             }
@@ -1145,12 +1184,29 @@ const Companies = {
 
         const contactType = document.getElementById('filter-contact-type')?.value || '';
         const priority = document.getElementById('filter-priority')?.value || '';
+        const vip = document.getElementById('filter-vip')?.value || '';
         const fleetType = document.getElementById('filter-fleet-type')?.value || '';
         const fleetSize = document.getElementById('filter-fleet-size')?.value || '';
         const addedDate = document.getElementById('filter-added-date')?.value || '';
         const sortMode = document.getElementById('filter-sort')?.value || 'priority_fleet';
         const assigned = document.getElementById('filter-assigned')?.value || '';
         const search = document.getElementById('filter-search')?.value?.trim() || '';
+
+        // Synchronize Quick VIP Toggle Button UI
+        const btnQuick = document.getElementById('btn-quick-toggle-vip');
+        if (btnQuick) {
+            const isVipOnly = vip === 'vip_only';
+            btnQuick.classList.toggle('active', isVipOnly);
+            if (isVipOnly) {
+                btnQuick.style.background = '#f59e0b';
+                btnQuick.style.color = '#1e1b4b';
+                btnQuick.innerHTML = '<i class="fas fa-crown"></i> <span>معروض: VIP فقط (إلغاء)</span>';
+            } else {
+                btnQuick.style.background = 'rgba(245, 158, 11, 0.1)';
+                btnQuick.style.color = '#fbbf24';
+                btnQuick.innerHTML = '<i class="fas fa-crown"></i> <span>شركات VIP فقط</span>';
+            }
+        }
 
         const result = await window.AppStorage.queryCompanies({
             search,
@@ -1160,6 +1216,7 @@ const Companies = {
             cities: finalCities,
             contactType,
             priority,
+            vip,
             fleetType,
             fleetSize,
             assigned,
@@ -1994,6 +2051,8 @@ const Companies = {
         }
         document.getElementById('form-company').reset();
         document.getElementById('company-id').value = '';
+        const titanCb = document.getElementById('company-isTitan');
+        if (titanCb) titanCb.checked = false;
         document.getElementById('modal-company-title').innerHTML = '<i class="fas fa-building"></i> إضافة شركة جديدة';
         App.openModal('modal-company');
     },
@@ -2027,6 +2086,11 @@ const Companies = {
             if (el) el.value = company[field] || '';
         });
 
+        const titanCb = document.getElementById('company-isTitan');
+        if (titanCb) {
+            titanCb.checked = Boolean(company.isTitan || (company.id && String(company.id).startsWith('eg_titan_')) || company.isVIP || company.vip);
+        }
+
         App.openModal('modal-company');
     },
 
@@ -2053,6 +2117,12 @@ const Companies = {
             const el = document.getElementById(`company-${field}`);
             if (el) company[field] = el.value;
         });
+
+        const titanCb = document.getElementById('company-isTitan');
+        if (titanCb) {
+            company.isTitan = titanCb.checked;
+            company.isVIP = titanCb.checked;
+        }
 
         // Convert numbers
         company.fleetSize = parseInt(company.fleetSize) || 0;
@@ -2397,6 +2467,24 @@ const Companies = {
         `;
 
         // Wire up detail modal buttons
+        const btnVip = document.getElementById('btn-detail-toggle-vip');
+        if (btnVip) {
+            if (isTitan) {
+                btnVip.innerHTML = '<i class="fas fa-crown" style="color:#f59e0b;"></i> <span style="color:#f59e0b; font-weight:700;">إلغاء تصنيف VIP</span>';
+                btnVip.className = 'btn btn-outline';
+                btnVip.style.borderColor = '#f59e0b';
+                btnVip.title = 'إلغاء تمييز الشركة كـ VIP';
+            } else {
+                btnVip.innerHTML = '<i class="fas fa-crown"></i> <span>ترقية إلى VIP</span>';
+                btnVip.className = 'btn btn-outline';
+                btnVip.style.borderColor = '';
+                btnVip.title = 'تمييز الشركة كعميل كبار الشخصيات VIP';
+            }
+            btnVip.onclick = () => {
+                this.toggleCurrentCompanyVip();
+            };
+        }
+
         document.getElementById('btn-detail-call').onclick = () => {
             App.closeModal('modal-company-detail');
             App.logCallForCompany(id);
@@ -2407,6 +2495,52 @@ const Companies = {
         };
 
         App.openModal('modal-company-detail');
+    },
+
+    toggleVipFilter() {
+        const el = document.getElementById('filter-vip');
+        const btnQuick = document.getElementById('btn-quick-toggle-vip');
+        if (!el) return;
+
+        if (el.value === 'vip_only') {
+            el.value = '';
+            if (btnQuick) {
+                btnQuick.classList.remove('active');
+                btnQuick.style.background = 'rgba(245, 158, 11, 0.1)';
+                btnQuick.style.color = '#fbbf24';
+                btnQuick.innerHTML = '<i class="fas fa-crown"></i> <span>شركات VIP فقط</span>';
+            }
+        } else {
+            el.value = 'vip_only';
+            if (btnQuick) {
+                btnQuick.classList.add('active');
+                btnQuick.style.background = '#f59e0b';
+                btnQuick.style.color = '#1e1b4b';
+                btnQuick.innerHTML = '<i class="fas fa-crown"></i> <span>معروض: VIP فقط (إلغاء)</span>';
+            }
+        }
+        this.onFilterChange(true);
+    },
+
+    toggleCurrentCompanyVip() {
+        if (this.currentDetailId) {
+            this.toggleCompanyVip(this.currentDetailId);
+        }
+    },
+
+    toggleCompanyVip(id) {
+        const comp = window.AppStorage.getCompany(id);
+        if (!comp) return;
+        const isCurrentlyVip = Boolean(comp.isTitan || (comp.id && String(comp.id).startsWith('eg_titan_')) || comp.isVIP || comp.vip);
+        const newStatus = !isCurrentlyVip;
+        comp.isTitan = newStatus;
+        comp.isVIP = newStatus;
+        delete comp.vip;
+        window.AppStorage.saveCompany(comp);
+        App.showToast(newStatus ? '⭐ تم تعيين الشركة كـ VIP بنجاح' : 'تم إلغاء تصنيف VIP للشركة', 'success');
+        this.showDetail(id);
+        this.render();
+        if (typeof Dashboard !== 'undefined') Dashboard.render();
     },
 
     onCloseDetail() {

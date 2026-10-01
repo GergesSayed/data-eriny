@@ -1008,7 +1008,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=303.0');
+            this._worker = new Worker('js/companies-worker.js?v=304.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -1038,6 +1038,7 @@ const AppStorage = {
                 cities = [],
                 contactType = '',
                 priority = '',
+                vip = '',
                 fleetType = '',
                 fleetSize = '',
                 assigned = '',
@@ -1088,6 +1089,7 @@ const AppStorage = {
                             cities,
                             contactType,
                             priority,
+                            vip,
                             fleetType,
                             fleetSize,
                             assigned,
@@ -1139,6 +1141,7 @@ const AppStorage = {
             cities = [],
             contactType = '',
             priority = '',
+            vip = '',
             fleetType = '',
             fleetSize = '',
             assigned = '',
@@ -1165,6 +1168,13 @@ const AppStorage = {
 
         let filtered = rawCompanies.filter(c => {
             if (!c) return false;
+
+            if (vip) {
+                const isVip = Boolean(c._isTitan || c.isTitan || (c.id && String(c.id).startsWith('eg_titan_')) || c.isVIP || c.vip);
+                if (vip === 'vip_only' && !isVip) return false;
+                if (vip === 'standard_only' && isVip) return false;
+            }
+
             if (sectorSet && !sectorSet.has(c.sector)) return false;
             if (citySet && !citySet.has(c.city)) return false;
             if (priority && c.priority !== priority) return false;
@@ -1216,8 +1226,8 @@ const AppStorage = {
 
         // Fast Sort — Titans ALWAYS pinned to the very top!
         filtered.sort((a, b) => {
-            const titanA = a._isTitan ? 1 : (a.isTitan || (a.id && String(a.id).startsWith('eg_titan_')) ? 1 : 0);
-            const titanB = b._isTitan ? 1 : (b.isTitan || (b.id && String(b.id).startsWith('eg_titan_')) ? 1 : 0);
+            const titanA = a._isTitan ? 1 : (a.isTitan || (a.id && String(a.id).startsWith('eg_titan_')) || a.isVIP || a.vip ? 1 : 0);
+            const titanB = b._isTitan ? 1 : (b.isTitan || (b.id && String(b.id).startsWith('eg_titan_')) || b.isVIP || b.vip ? 1 : 0);
             if (titanA !== titanB) {
                 return titanB - titanA; // 👑 Titans ALWAYS first!
             }
