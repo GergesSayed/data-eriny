@@ -32,6 +32,24 @@ const AppStorage = {
         return [];
     },
 
+    _baseIdsSet: null,
+    getBaseIdsSet() {
+        if (!this._baseIdsSet) {
+            const pool = this.getBaselineEnterprisesPool ? this.getBaselineEnterprisesPool() : [];
+            this._baseIdsSet = new Set(pool.map(c => String(c.id)));
+        }
+        return this._baseIdsSet;
+    },
+
+    _titanIdsSet: null,
+    getTitanIdsSet() {
+        if (!this._titanIdsSet) {
+            const titans = this.getVerifiedTitans ? this.getVerifiedTitans() : [];
+            this._titanIdsSet = new Set(titans.map(t => String(t.id)));
+        }
+        return this._titanIdsSet;
+    },
+
     KEYS: {
         COMPANIES: 'fleetcrm_companies',
         CALLS: 'fleetcrm_calls',
@@ -1888,9 +1906,8 @@ const AppStorage = {
                 const users = this.getUsers ? this.getUsers() : [];
                 const activities = this.getActivities ? this.getActivities() : [];
 
-                const basePool = this.getBaselineEnterprisesPool();
-                const baseIds = new Set(basePool.map(c => String(c.id)));
-                const titanIds = new Set(this.getVerifiedTitans().map(t => String(t.id)));
+                const baseIds = this.getBaseIdsSet ? this.getBaseIdsSet() : new Set();
+                const titanIds = this.getTitanIdsSet ? this.getTitanIdsSet() : new Set();
 
                 // Extract dynamic companies (custom / newly scraped or modified)
                 const dynamicCompanies = [];
@@ -1957,11 +1974,6 @@ const AppStorage = {
                         dynamicCompanies.push(c);
                     }
                 });
-
-                // Immediately push assignments (only if authorized operator)
-                if (canModifyAssignments && Object.keys(assignmentsMap).length > 0 && window.SupabaseClient.pushAssignments) {
-                    window.SupabaseClient.pushAssignments(assignmentsMap).catch(() => { });
-                }
 
                 const quickHash = `${dynamicCompanies.length}_${Object.keys(assignmentsMap).length}_${calls.length}_${users.length}`;
                 if (!forceSync && quickHash === localStorage.getItem('fleetcrm_last_synced_hash')) return true;
