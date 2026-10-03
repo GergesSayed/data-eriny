@@ -2045,21 +2045,29 @@ const Companies = {
 
     // ---- CRUD ----
     openAddModal() {
-        if (!window.AppStorage.isAdmin()) {
+        const currentUser = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
+        const isAdmin = window.AppStorage ? window.AppStorage.isAdmin(currentUser) : false;
+        if (!isAdmin) {
             App.showToast('🔒 إضافة شركات جديدة مقتصرة على المدير العام فقط', 'warning');
             return;
         }
         document.getElementById('form-company').reset();
         document.getElementById('company-id').value = '';
         const titanCb = document.getElementById('company-isTitan');
-        if (titanCb) titanCb.checked = false;
+        if (titanCb) {
+            titanCb.checked = false;
+            const titanGroup = titanCb.closest('.form-group');
+            if (titanGroup) titanGroup.style.display = isAdmin ? 'flex' : 'none';
+            titanCb.disabled = !isAdmin;
+        }
         document.getElementById('modal-company-title').innerHTML = '<i class="fas fa-building"></i> إضافة شركة جديدة';
         App.openModal('modal-company');
     },
 
     edit(id) {
         const currentUser = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
-        if (window.AppStorage && !window.AppStorage.canModify(currentUser) && !window.AppStorage.isAdmin()) {
+        const isAdmin = window.AppStorage ? window.AppStorage.isAdmin(currentUser) : false;
+        if (window.AppStorage && !window.AppStorage.canModify(currentUser) && !isAdmin) {
             const company = window.AppStorage.getCompany(id);
             const myId = currentUser ? String(currentUser.id || currentUser.username) : '';
             if (!company || (company.assignedTo && company.assignedTo !== myId)) {
@@ -2089,6 +2097,9 @@ const Companies = {
         const titanCb = document.getElementById('company-isTitan');
         if (titanCb) {
             titanCb.checked = Boolean(company.isTitan || (company.id && String(company.id).startsWith('eg_titan_')) || company.isVIP || company.vip);
+            const titanGroup = titanCb.closest('.form-group');
+            if (titanGroup) titanGroup.style.display = isAdmin ? 'flex' : 'none';
+            titanCb.disabled = !isAdmin;
         }
 
         App.openModal('modal-company');
@@ -2100,6 +2111,9 @@ const Companies = {
             form.reportValidity();
             return;
         }
+
+        const currentUser = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
+        const isAdmin = window.AppStorage ? window.AppStorage.isAdmin(currentUser) : false;
 
         const fields = [
             'nameAr', 'nameEn', 'sector', 'subSector', 'city', 'governorate',
@@ -2119,9 +2133,17 @@ const Companies = {
         });
 
         const titanCb = document.getElementById('company-isTitan');
-        if (titanCb) {
+        if (titanCb && isAdmin) {
             company.isTitan = titanCb.checked;
             company.isVIP = titanCb.checked;
+        } else if (id) {
+            // Keep original VIP status intact if non-admin is editing
+            const existingComp = window.AppStorage.getCompany(id);
+            if (existingComp) {
+                const wasVip = Boolean(existingComp.isTitan || (existingComp.id && String(existingComp.id).startsWith('eg_titan_')) || existingComp.isVIP || existingComp.vip);
+                company.isTitan = wasVip;
+                company.isVIP = wasVip;
+            }
         }
 
         // Convert numbers
@@ -2467,22 +2489,29 @@ const Companies = {
         `;
 
         // Wire up detail modal buttons
+        const isAdmin = window.AppStorage ? window.AppStorage.isAdmin(currentUser) : false;
+
         const btnVip = document.getElementById('btn-detail-toggle-vip');
         if (btnVip) {
-            if (isTitan) {
-                btnVip.innerHTML = '<i class="fas fa-crown" style="color:#f59e0b;"></i> <span style="color:#f59e0b; font-weight:700;">إلغاء تصنيف VIP</span>';
-                btnVip.className = 'btn btn-outline';
-                btnVip.style.borderColor = '#f59e0b';
-                btnVip.title = 'إلغاء تمييز الشركة كـ VIP';
+            if (!isAdmin) {
+                btnVip.style.display = 'none';
             } else {
-                btnVip.innerHTML = '<i class="fas fa-crown"></i> <span>ترقية إلى VIP</span>';
-                btnVip.className = 'btn btn-outline';
-                btnVip.style.borderColor = '';
-                btnVip.title = 'تمييز الشركة كعميل كبار الشخصيات VIP';
+                btnVip.style.display = 'inline-flex';
+                if (isTitan) {
+                    btnVip.innerHTML = '<i class="fas fa-crown" style="color:#f59e0b;"></i> <span style="color:#f59e0b; font-weight:700;">إلغاء تصنيف VIP</span>';
+                    btnVip.className = 'btn btn-outline';
+                    btnVip.style.borderColor = '#f59e0b';
+                    btnVip.title = 'إلغاء تمييز الشركة كـ VIP';
+                } else {
+                    btnVip.innerHTML = '<i class="fas fa-crown"></i> <span>ترقية إلى VIP</span>';
+                    btnVip.className = 'btn btn-outline';
+                    btnVip.style.borderColor = '';
+                    btnVip.title = 'تمييز الشركة كعميل كبار الشخصيات VIP';
+                }
+                btnVip.onclick = () => {
+                    this.toggleCurrentCompanyVip();
+                };
             }
-            btnVip.onclick = () => {
-                this.toggleCurrentCompanyVip();
-            };
         }
 
         document.getElementById('btn-detail-call').onclick = () => {
@@ -2529,6 +2558,11 @@ const Companies = {
     },
 
     toggleCompanyVip(id) {
+        const currentUser = (window.AppStorage && typeof window.AppStorage.getCurrentUser === 'function') ? window.AppStorage.getCurrentUser() : null;
+        if (window.AppStorage && !window.AppStorage.isAdmin(currentUser)) {
+            App.showToast('🔒 تعديل أو إلغاء تصنيف VIP متاح فقط لمدير النظام', 'warning');
+            return;
+        }
         const comp = window.AppStorage.getCompany(id);
         if (!comp) return;
         const isCurrentlyVip = Boolean(comp.isTitan || (comp.id && String(comp.id).startsWith('eg_titan_')) || comp.isVIP || comp.vip);
