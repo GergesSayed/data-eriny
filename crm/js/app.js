@@ -177,7 +177,7 @@ const App = {
                     console.log('[SW] Service worker controller updated and active.');
                 });
 
-                navigator.serviceWorker.register('sw.js?v=306.0').then(reg => {
+                navigator.serviceWorker.register('sw.js?v=307.0').then(reg => {
                     reg.update().catch(() => {});
                     // Detect when a new SW version is waiting — show update notification
                     reg.addEventListener('updatefound', () => {
@@ -896,6 +896,35 @@ const App = {
                 overlay.classList.add('active');
             }
         }
+    },
+
+    toggleMobileSearch(e) {
+        if (e && e.stopPropagation) { try { e.stopPropagation(); } catch(err){} }
+        const box = document.getElementById('global-search-box');
+        const input = document.getElementById('global-search');
+        if (!box) return;
+        const isActive = box.classList.contains('mobile-active');
+        if (isActive) {
+            this.closeMobileSearch(e);
+        } else {
+            box.classList.add('mobile-active');
+            if (input) {
+                input.focus();
+            }
+        }
+    },
+
+    closeMobileSearch(e) {
+        if (e && e.stopPropagation) { try { e.stopPropagation(); } catch(err){} }
+        const box = document.getElementById('global-search-box');
+        const input = document.getElementById('global-search');
+        const dropdown = document.getElementById('search-results');
+        if (box) box.classList.remove('mobile-active');
+        if (input) {
+            input.value = '';
+            input.blur();
+        }
+        if (dropdown) dropdown.classList.remove('show');
     },
 
     initRouting() {
@@ -1733,12 +1762,12 @@ const App = {
                 pill.style.background = 'rgba(16, 185, 129, 0.14)';
                 pill.style.borderColor = 'rgba(16, 185, 129, 0.45)';
                 pill.style.color = '#10b981';
-                label.innerHTML = `🟢 <b>${onlineCount}</b> ${onlineCount === 1 ? 'متصل الآن' : 'متصلين الآن'}`;
+                label.innerHTML = `🟢 <b>${onlineCount}</b> <span class="presence-text-label">${onlineCount === 1 ? 'متصل الآن' : 'متصلين الآن'}</span>`;
             } else {
                 pill.style.background = 'rgba(148, 163, 184, 0.12)';
                 pill.style.borderColor = 'rgba(148, 163, 184, 0.3)';
                 pill.style.color = 'var(--text-muted)';
-                label.innerHTML = `⚪ لا يوجد متصلين`;
+                label.innerHTML = `⚪ <span class="presence-text-label">لا يوجد متصلين</span>`;
             }
         } catch(e) {
             console.warn('updateTeamPresencePill error:', e);

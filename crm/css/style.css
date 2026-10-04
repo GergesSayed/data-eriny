@@ -947,6 +947,16 @@ a:hover { color: var(--accent); }
     background: var(--border-color);
 }
 
+.topbar-brand-mobile {
+    display: none;
+}
+.btn-close-search {
+    display: none;
+}
+.presence-text-label {
+    display: inline;
+}
+
 .search-box {
     position: relative;
     width: 350px;
@@ -2370,81 +2380,255 @@ a:hover { color: var(--accent); }
         box-sizing: border-box !important;
     }
 
-    /* -- Topbar: Hardware Accelerated & Blur Free -- */
+    /* -- Topbar: Mobile Optimization & Overlap Prevention -- */
     .topbar {
-        padding: 0 0.6rem;
+        padding: 0 8px;
         gap: 6px;
-        height: 52px;
-        min-height: 52px;
+        height: 54px;
+        min-height: 54px;
         flex-wrap: nowrap;
         width: 100% !important;
         max-width: 100% !important;
         box-sizing: border-box !important;
-        background: #0b0e17 !important;
-        -webkit-backdrop-filter: none !important;
-        backdrop-filter: none !important;
+        background: var(--bg-surface, #0b0e17) !important;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: sticky;
+        top: 0;
+        z-index: 900;
         transform: translateZ(0);
         will-change: transform;
     }
     .topbar-right {
-        flex: 1 1 auto;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        min-width: 0;
-    }
-    .topbar-left {
         flex: 0 0 auto;
         display: flex;
-        justify-content: flex-end;
         align-items: center;
         gap: 6px;
-        flex-wrap: nowrap;
-    }
-    .topbar-left .btn {
-        padding: 5px 8px;
-        font-size: 0.72rem;
         min-width: 0;
-        flex-shrink: 1;
     }
-    .topbar-left .btn span {
-        display: none;
-    }
-    .topbar-divider {
-        display: none;
-    }
-    .search-box {
-        flex: 1 1 auto;
-        width: auto !important;
-        max-width: 180px;
-        min-width: 80px;
-        font-size: 0.72rem;
-    }
-    .search-box input {
-        padding: 0.4rem 1.8rem 0.4rem 0.4rem;
-        font-size: 0.72rem;
-    }
-    #current-user-name {
-        display: none;
-    }
-    .cloud-sync-pill {
-        padding: 5px 8px !important;
-        font-size: 11px !important;
-    }
-    .cloud-sync-pill span {
-        display: none !important;
-    }
-    #btn-pwa-install-top {
-        display: none !important;
+    .topbar-brand-mobile {
+        display: flex !important;
+        align-items: center;
+        font-weight: 800;
+        font-size: 14px;
+        color: var(--text-primary);
+        letter-spacing: -0.2px;
+        white-space: nowrap;
     }
     #toggle-sidebar {
         display: flex !important;
         align-items: center;
         justify-content: center;
-        width: 38px !important;
+        width: 36px !important;
+        height: 36px !important;
+        min-width: 36px !important;
+        font-size: 16px !important;
+        color: #22d3ee !important;
+        background: rgba(30,41,59,0.9) !important;
+        border: 1px solid rgba(124,58,237,0.4) !important;
+        border-radius: 9px !important;
+        cursor: pointer;
+        padding: 0 !important;
+    }
+
+    .topbar-left {
+        flex: 0 0 auto;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 4px;
+        flex-wrap: nowrap;
+    }
+
+    /* Uniform touch targets for icon buttons in mobile topbar */
+    .topbar-left .btn-icon,
+    .topbar-left .btn-theme-toggle {
+        width: 34px !important;
+        height: 34px !important;
+        min-width: 34px !important;
+        padding: 0 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border-radius: 9px !important;
+        font-size: 13.5px !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Expandable Search Box on Mobile */
+    .search-box {
+        position: relative;
+        width: 34px !important;
+        min-width: 34px !important;
+        height: 34px !important;
+        cursor: pointer;
+        margin: 0 !important;
+        border-radius: 9px;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+    }
+    .search-box i.fa-search {
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: 34px;
+        height: 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transform: none;
+        color: var(--text-secondary);
+        z-index: 2;
+        font-size: 13.5px;
+        cursor: pointer;
+        border-radius: 9px;
+    }
+    .search-box input {
+        width: 100% !important;
+        height: 34px !important;
+        opacity: 0;
+        cursor: pointer;
+        padding: 0 !important;
+        border: 1px solid transparent !important;
+        background: transparent !important;
+    }
+
+    /* Full-width overlay expansion when active / focused */
+    .search-box:focus-within,
+    .search-box.mobile-active {
+        position: absolute !important;
+        right: 8px !important;
+        left: 8px !important;
+        top: 8px !important;
+        width: calc(100% - 16px) !important;
+        max-width: none !important;
         height: 38px !important;
-        min-width: 38px !important;
-        font-size: 18px !important;
+        z-index: 9999 !important;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.5) !important;
+        border-radius: 10px !important;
+    }
+    .search-box:focus-within input,
+    .search-box.mobile-active input {
+        opacity: 1 !important;
+        cursor: text !important;
+        background: var(--bg-surface, #1e293b) !important;
+        border: 1.5px solid var(--primary, #7c3aed) !important;
+        padding: 0 38px 0 34px !important;
+        font-size: 13px !important;
+        border-radius: 10px !important;
+        color: var(--text-primary) !important;
+    }
+    .search-box:focus-within i.fa-search,
+    .search-box.mobile-active i.fa-search {
+        right: 10px !important;
+        height: 38px !important;
+        color: var(--primary) !important;
+    }
+    .search-box .btn-close-search {
+        display: none;
+    }
+    .search-box:focus-within .btn-close-search,
+    .search-box.mobile-active .btn-close-search {
+        display: flex !important;
+        position: absolute;
+        left: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 24px;
+        height: 24px;
+        align-items: center;
+        justify-content: center;
+        background: rgba(148, 163, 184, 0.2);
+        border: none;
+        border-radius: 50%;
+        color: var(--text-primary);
+        font-size: 11px;
+        cursor: pointer;
+        z-index: 3;
+    }
+    .search-box .search-dropdown {
+        width: 100% !important;
+        top: 42px !important;
+        right: 0 !important;
+        max-height: 65vh !important;
+    }
+
+    /* Live Presence Pill on Mobile: Compact Badge (🟢 2) */
+    #team-presence-indicator {
+        padding: 4px 7px !important;
+        height: 32px !important;
+        font-size: 11px !important;
+        gap: 4px !important;
+        border-radius: 14px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        white-space: nowrap !important;
+    }
+    .presence-text-label {
+        display: none !important;
+    }
+
+    /* Cloud Sync Pill on Mobile: Compact 32x32px */
+    #cloud-sync-indicator {
+        width: 32px !important;
+        height: 32px !important;
+        min-width: 32px !important;
+        padding: 0 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border-radius: 9px !important;
+    }
+    #cloud-sync-indicator span {
+        display: none !important;
+    }
+
+    /* PWA Offline Indicator on Mobile: Hidden when online */
+    #pwa-offline-indicator.is-online {
+        display: none !important;
+    }
+    #pwa-offline-indicator {
+        width: 32px !important;
+        height: 32px !important;
+        min-width: 32px !important;
+        padding: 0 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border-radius: 9px !important;
+    }
+    #pwa-offline-label {
+        display: none !important;
+    }
+
+    #btn-pwa-install-top {
+        display: none !important;
+    }
+
+    .topbar-divider {
+        display: none !important;
+    }
+
+    /* Topbar User on Mobile: Avatar only, hide redundant logout and username */
+    .topbar-user {
+        gap: 0 !important;
+    }
+    .topbar-user #current-user-avatar {
+        width: 32px !important;
+        height: 32px !important;
+        min-width: 32px !important;
+        font-size: 13px !important;
+    }
+    .topbar-user #current-user-name {
+        display: none !important;
+    }
+    .topbar-user .btn,
+    .topbar-user .topbar-logout-btn {
+        display: none !important;
     }
 
     /* -- Sidebar Touch-Friendly -- */
@@ -2872,11 +3056,8 @@ a:hover { color: var(--accent); }
         font-size: 0.7rem;
     }
     .topbar {
-        height: 48px;
-        min-height: 48px;
-    }
-    .search-box {
-        display: none;
+        height: 52px;
+        min-height: 52px;
     }
     .login-portal-container {
         border-radius: 16px !important;
