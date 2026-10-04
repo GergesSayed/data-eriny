@@ -11,15 +11,14 @@
     <script>
         // Clean storage initialization
         (function() {
-            var CURRENT_VER = '305.0';
+            var CURRENT_VER = '306.0';
             try {
                 localStorage.removeItem('fleetcrm_deals');
                 localStorage.removeItem('fleetcrm_deals_count');
                 localStorage.removeItem('fleetcrm_user_wiped_deals');
-                localStorage.removeItem('fleetcrm_dynamic_companies');
                 var rawCount = localStorage.getItem('fleetcrm_company_count');
                 var parsedCount = rawCount ? parseInt(String(rawCount).replace(/,/g, ''), 10) : 0;
-                if (!parsedCount || parsedCount !== 25929) {
+                if (!parsedCount || parsedCount < 1000) {
                     localStorage.setItem('fleetcrm_company_count', '25,929');
                 }
                 if (window.location.hash === '#pipeline') {
@@ -29,9 +28,18 @@
                 if (lastVer !== CURRENT_VER) {
                     localStorage.setItem('fleetcrm_app_version', CURRENT_VER);
                     localStorage.setItem('fleetcrm_company_count', '25,929');
-                    localStorage.setItem('fleetcrm_dataset_version', 'v305.0_fleet_companies_locked_25929');
+                    localStorage.setItem('fleetcrm_dataset_version', 'v306.0_fleet_companies_locked_25929');
                     if (!localStorage.getItem('fleetcrm_theme_explicit')) {
                         localStorage.setItem('fleetcrm_theme', 'light');
+                    }
+                    if ('caches' in window) {
+                        caches.keys().then(function(keys) {
+                            keys.forEach(function(k) {
+                                if (k !== 'fleetcrm-v306-0-shell') {
+                                    caches.delete(k);
+                                }
+                            });
+                        });
                     }
                 }
             } catch(e) {}
@@ -50,7 +58,7 @@
             } catch(e) {}
         })();
     </script>
-    <link rel="manifest" href="manifest.json?v=305.0">
+    <link rel="manifest" href="manifest.json?v=306.0">
     <meta name="theme-color" content="#7c3aed">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -61,7 +69,7 @@
     <link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap"></noscript>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=305.0">
+    <link rel="stylesheet" href="css/style.css?v=306.0">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
     <script>
         (function() {
@@ -70,7 +78,7 @@
                     if (localStorage.getItem('fleetcrm_user_wiped_companies') !== 'true') {
                         var rawCount = localStorage.getItem('fleetcrm_company_count') || '25,929';
                         var parsed = parseInt(String(rawCount).replace(/,/g, ''), 10);
-                        if (!parsed || parsed !== 25929) parsed = 25929;
+                        if (!parsed || parsed < 1000) parsed = 25929;
                         var formatted = parsed.toLocaleString();
                         var sEl = document.getElementById('sidebar-total-companies');
                         if (sEl) sEl.textContent = formatted;
@@ -1794,19 +1802,19 @@
     <!-- External Libraries (Deferred for instant mobile paint) -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
 
-    <script src="js/supabase-client.js?v=305.0"></script>
-    <script src="js/egypt_verified_titans.js?v=305.0"></script>
-    <script src="js/egypt_enterprises_pool.js?v=305.0"></script>
-    <script src="js/storage.js?v=305.0"></script>
-    <script src="js/excel-handler.js?v=305.0"></script>
-    <script src="js/dashboard.js?v=305.0"></script>
-    <script src="js/companies.js?v=305.0"></script>
-    <script src="js/calls.js?v=305.0"></script>
-    <script src="js/reports.js?v=305.0"></script>
-    <script src="js/scraper.js?v=305.0"></script>
-    <script src="js/team.js?v=305.0"></script>
-    <script src="js/settings.js?v=305.0"></script>
-    <script src="js/app.js?v=305.0"></script>
+    <script src="js/supabase-client.js?v=306.0"></script>
+    <script src="js/egypt_verified_titans.js?v=306.0"></script>
+    <script src="js/egypt_enterprises_pool.js?v=306.0"></script>
+    <script src="js/storage.js?v=306.0"></script>
+    <script src="js/excel-handler.js?v=306.0"></script>
+    <script src="js/dashboard.js?v=306.0"></script>
+    <script src="js/companies.js?v=306.0"></script>
+    <script src="js/calls.js?v=306.0"></script>
+    <script src="js/reports.js?v=306.0"></script>
+    <script src="js/scraper.js?v=306.0"></script>
+    <script src="js/team.js?v=306.0"></script>
+    <script src="js/settings.js?v=306.0"></script>
+    <script src="js/app.js?v=306.0"></script>
 
     <!-- Cleanup overlay on load - runs once only, does NOT override App.checkAuth -->
     <script>

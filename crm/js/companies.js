@@ -1240,7 +1240,8 @@ const Companies = {
         const countDisplay = document.getElementById('companies-count-display');
         if (countDisplay) {
             if (this.myPortfolioOnly) {
-                const contacted = companies.filter(c => c.lastCallDate).length;
+                const portfolioComps = window.AppStorage ? (window.AppStorage.getScopedCompanies() || []) : [];
+                const contacted = portfolioComps.filter(c => c && c.lastCallDate).length;
                 const pct = total > 0 ? Math.round((contacted / total) * 100) : 0;
                 countDisplay.textContent = `💼 محفظتي: تم التواصل مع ${contacted.toLocaleString()} من أصل ${total.toLocaleString()} شركة مسندة إليك (${pct}%)`;
             } else if (!canViewAll) {

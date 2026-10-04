@@ -24,6 +24,26 @@ const Team = {
         });
     },
 
+    _presencePollTimer: null,
+    startPresencePolling() {
+        if (this._presencePollTimer) clearInterval(this._presencePollTimer);
+        this._presencePollTimer = setInterval(() => {
+            if (typeof App !== 'undefined' && (App.currentPage === 'team' || App.currentPage === 'employees')) {
+                if (window.SupabaseClient && typeof window.SupabaseClient.getAllUsersPresence === 'function') {
+                    window.SupabaseClient.getAllUsersPresence().then(p => {
+                        if (p && typeof p === 'object') {
+                            this._presencesCache = p;
+                            this.updateLivePresenceBadgesInDom();
+                        }
+                    }).catch(() => {});
+                }
+            } else {
+                clearInterval(this._presencePollTimer);
+                this._presencePollTimer = null;
+            }
+        }, 15000);
+    },
+
     updateLivePresenceBadgesInDom() {
         const presences = this._presencesCache || {};
         const users = (window.AppStorage && window.AppStorage.getUsers) ? (window.AppStorage.getUsers() || []) : [];
@@ -31,7 +51,9 @@ const Team = {
         const esc = (s) => String(s || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 
         users.forEach(u => {
-            const p = presences[u.id] || presences[String(u.id).toLowerCase()] || (u.username && presences[u.username.toLowerCase()]);
+            const p = (window.SupabaseClient && window.SupabaseClient.getUserPresence)
+                ? window.SupabaseClient.getUserPresence(presences, u)
+                : (presences[u.id] || presences[String(u.id).toLowerCase()] || (u.username && presences[u.username.toLowerCase()]));
             const isOnline = Boolean(p && p.isOnline);
             if (isOnline) onlineCount++;
             const lastSeenText = p ? p.lastSeenArabic : 'لم يسجل الدخول بعد';
@@ -65,6 +87,7 @@ const Team = {
             const currentUser = window.AppStorage.getCurrentUser();
             const teamPage = document.getElementById('page-team');
             if (!teamPage || (!teamPage.classList.contains('active') && teamPage.style.display === 'none')) return;
+            this.startPresencePolling();
 
             const isRestricted = currentUser && currentUser.role === 'agent';
             if (isRestricted) {
@@ -146,7 +169,9 @@ const Team = {
 
             let onlineUsersCount = 0;
             users.forEach(u => {
-                const p = presences[u.id] || presences[String(u.id).toLowerCase()] || (u.username && presences[u.username.toLowerCase()]);
+                const p = (window.SupabaseClient && window.SupabaseClient.getUserPresence)
+                    ? window.SupabaseClient.getUserPresence(presences, u)
+                    : (presences[u.id] || presences[String(u.id).toLowerCase()] || (u.username && presences[u.username.toLowerCase()]));
                 if (p && p.isOnline) onlineUsersCount++;
             });
 
@@ -213,7 +238,9 @@ const Team = {
                             ${usersStats.map(u => {
                                 const uName = (u.name && u.name !== 'undefined') ? u.name : ((u.id === 'admin' || u.role === 'admin') ? 'Admin' : (u.username || 'موظف'));
                                 const uEmail = (u.email && u.email !== 'undefined') ? u.email : (u.username && u.username.includes('@') ? u.username : ((u.id === 'admin' || u.role === 'admin') ? 'admin@fleet.com' : (u.username ? u.username + '@fleet.com' : 'admin@fleet.com')));
-                                const p = presences[u.id] || presences[String(u.id).toLowerCase()] || (u.username && presences[u.username.toLowerCase()]);
+                                const p = (window.SupabaseClient && window.SupabaseClient.getUserPresence)
+                                    ? window.SupabaseClient.getUserPresence(presences, u)
+                                    : (presences[u.id] || presences[String(u.id).toLowerCase()] || (u.username && presences[u.username.toLowerCase()]));
                                 const isOnline = Boolean(p && p.isOnline);
                                 const lastSeenText = p ? p.lastSeenArabic : 'لم يسجل الدخول بعد';
                                 const pageLabel = (p && p.pageLabelArabic) ? p.pageLabelArabic : '';
@@ -286,6 +313,7 @@ const Team = {
             const currentUser = window.AppStorage.getCurrentUser();
             const empPage = document.getElementById('page-employees');
             if (!empPage) return;
+            this.startPresencePolling();
 
             const isRestricted = currentUser && currentUser.role === 'agent';
             if (isRestricted) {
@@ -429,7 +457,9 @@ const Team = {
                                 const uName = (u.name && u.name !== 'undefined') ? u.name : ((u.id === 'admin' || u.role === 'admin') ? 'Admin' : (u.username || 'موظف'));
                                 const uEmail = (u.email && u.email !== 'undefined') ? u.email : (u.username && u.username.includes('@') ? u.username : ((u.id === 'admin' || u.role === 'admin') ? 'admin@fleet.com' : (u.username ? u.username + '@fleet.com' : 'admin@fleet.com')));
 
-                                const p = presences[u.id] || presences[String(u.id).toLowerCase()] || (u.username && presences[u.username.toLowerCase()]);
+                                const p = (window.SupabaseClient && window.SupabaseClient.getUserPresence)
+                                    ? window.SupabaseClient.getUserPresence(presences, u)
+                                    : (presences[u.id] || presences[String(u.id).toLowerCase()] || (u.username && presences[u.username.toLowerCase()]));
                                 const isOnline = Boolean(p && p.isOnline);
                                 const lastSeenText = p ? p.lastSeenArabic : 'لم يسجل الدخول بعد';
                                 const pageLabel = (p && p.pageLabelArabic) ? p.pageLabelArabic : '';

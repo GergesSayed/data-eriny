@@ -361,7 +361,9 @@ const Dashboard = {
             let offlineUsers = [];
 
             allUsers.forEach(u => {
-                const p = presences[u.id] || presences[String(u.id).toLowerCase()] || (u.username && presences[u.username.toLowerCase()]);
+                const p = (window.SupabaseClient && window.SupabaseClient.getUserPresence) 
+                    ? window.SupabaseClient.getUserPresence(presences, u) 
+                    : (presences[u.id] || presences[String(u.id).toLowerCase()] || (u.username && presences[u.username.toLowerCase()]));
                 const isOnline = Boolean(p && p.isOnline);
                 const lastSeenText = p ? p.lastSeenArabic : 'لم يسجل الدخول بعد';
                 const pageLabel = (p && p.pageLabelArabic) ? p.pageLabelArabic : 'لوحة القيادة';

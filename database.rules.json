@@ -1,0 +1,63 @@
+{
+  "rules": {
+    "dynamic_companies": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": ["updatedAt", "sector", "city"]
+    },
+    "assignments": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": ["assignedTo", "updatedAt"]
+    },
+    "calls": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": ["companyId", "date"]
+    },
+    "users": {
+      ".read": true,
+      ".write": true
+    },
+    "presence": {
+      ".read": true,
+      ".write": true
+    },
+    "custody": {
+      ".read": true,
+      ".write": true
+    },
+    "activities": {
+      ".read": true,
+      ".write": true
+    },
+    "deleted_calls": {
+      ".read": true,
+      ".write": true
+    },
+    "deleted_companies": {
+      ".read": true,
+      ".write": true
+    },
+    "metadata": {
+      ".read": true,
+      ".write": true
+    },
+    "user_presence": {
+      ".read": true,
+      ".write": true
+    },
+    "master_data": {
+      ".read": true,
+      ".write": true
+    },
+    "sync_logs": {
+      ".read": true,
+      ".write": true
+    },
+    "$other": {
+      ".read": false,
+      ".write": false
+    }
+  }
+}

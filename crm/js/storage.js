@@ -1070,7 +1070,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=305.0');
+            this._worker = new Worker('js/companies-worker.js?v=306.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -1336,24 +1336,52 @@ const AppStorage = {
         if (!Array.isArray(records) || records.length === 0) return;
         const total = records.length;
 
-        await new Promise((resolve) => {
-            try {
-                const request = indexedDB.open('FleetCRM_DB', 5);
-                request.onsuccess = (e) => {
-                    const db = e.target.result;
-                    if (!db.objectStoreNames.contains('companies')) { resolve(); return; }
-                    const tx = db.transaction(['companies'], 'readwrite');
-                    const store = tx.objectStore('companies');
-                    records.forEach(c => { if (c && c.id) store.put(c); });
-                    tx.oncomplete = () => resolve();
-                    tx.onerror = () => resolve();
-                    tx.onabort = () => resolve();
-                };
-                request.onerror = () => resolve();
-            } catch (err) {
-                resolve();
+        // If batch is large (> 500 items), process in non-blocking slices so UI thread never locks
+        if (total > 500) {
+            const chunkSize = 500;
+            for (let i = 0; i < total; i += chunkSize) {
+                const chunk = records.slice(i, i + chunkSize);
+                await new Promise((resolve) => {
+                    try {
+                        const request = indexedDB.open('FleetCRM_DB', 5);
+                        request.onsuccess = (e) => {
+                            const db = e.target.result;
+                            if (!db.objectStoreNames.contains('companies')) { resolve(); return; }
+                            const tx = db.transaction(['companies'], 'readwrite');
+                            const store = tx.objectStore('companies');
+                            chunk.forEach(c => { if (c && c.id) store.put(c); });
+                            tx.oncomplete = () => resolve();
+                            tx.onerror = () => resolve();
+                            tx.onabort = () => resolve();
+                        };
+                        request.onerror = () => resolve();
+                    } catch (err) {
+                        resolve();
+                    }
+                });
+                // Yield to browser event loop for 10ms between chunks
+                await new Promise(r => setTimeout(r, 10));
             }
-        });
+        } else {
+            await new Promise((resolve) => {
+                try {
+                    const request = indexedDB.open('FleetCRM_DB', 5);
+                    request.onsuccess = (e) => {
+                        const db = e.target.result;
+                        if (!db.objectStoreNames.contains('companies')) { resolve(); return; }
+                        const tx = db.transaction(['companies'], 'readwrite');
+                        const store = tx.objectStore('companies');
+                        records.forEach(c => { if (c && c.id) store.put(c); });
+                        tx.oncomplete = () => resolve();
+                        tx.onerror = () => resolve();
+                        tx.onabort = () => resolve();
+                    };
+                    request.onerror = () => resolve();
+                } catch (err) {
+                    resolve();
+                }
+            });
+        }
 
         if (this._worker) {
             this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: records });
@@ -1781,8 +1809,10 @@ const AppStorage = {
                     localStorage.setItem('fleetcrm_company_count', '25,929');
                     this.updateLiveCounters(finalCount);
 
-                    if (merged.length >= 20000) {
-                        this.saveBatchToIDB(merged);
+                    // Persist only modified/custom entities immediately; baseline is already in memory
+                    const modifiedEntities = merged.filter(c => c && (c.isCustom || c.lastCallDate || c.assignedTo || (c.status && c.status !== 'new')));
+                    if (modifiedEntities.length > 0) {
+                        this.saveBatchToIDB(modifiedEntities);
                     }
 
                     complete(this.companiesMemory);
@@ -2010,11 +2040,23 @@ const AppStorage = {
         }
     },
 
-    async pullFromCloud() {
+    _pullInFlight: null,
+    _lastPullTs: 0,
+    async pullFromCloud(force = false) {
         if (!window.SupabaseClient) return false;
-        try {
-            const data = await window.SupabaseClient.fetchMasterData();
-            if (!data) return false;
+        const now = Date.now();
+        if (!force && (now - this._lastPullTs < 3000)) {
+            return false;
+        }
+        if (this._pullInFlight) {
+            return this._pullInFlight;
+        }
+
+        this._pullInFlight = (async () => {
+            this._lastPullTs = Date.now();
+            try {
+                const data = await window.SupabaseClient.fetchMasterData();
+                if (!data) return false;
 
             let updated = false;
 
@@ -2298,9 +2340,14 @@ const AppStorage = {
             return updated;
         } catch (err) {
             // Offline
+            return false;
         }
-        return false;
-    },
+    })().finally(() => {
+        this._pullInFlight = null;
+    });
+
+    return this._pullInFlight;
+},
 
     // ---- Strict B2B Fleet & Corporate Entity Validator ----
     isStrictB2BEntity(nameOrComp, tags = {}) {

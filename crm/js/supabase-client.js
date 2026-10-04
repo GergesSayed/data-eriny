@@ -552,6 +552,7 @@ window.SupabaseClient = (function() {
             const now = Date.now();
             const activeLocks = {};
             for (const [compId, item] of Object.entries(raw)) {
+                if (compId === 'users' || compId.startsWith('user_')) continue;
                 if (item && item.time && (now - Number(item.time)) < 150000) {
                     activeLocks[compId] = {
                         ...item,
@@ -611,11 +612,13 @@ window.SupabaseClient = (function() {
     }
 
     async function sendUserHeartbeat(user, pageName) {
-        if (!user || !user.id || !navigator.onLine) return null;
+        if (!user || !user.id || (typeof navigator !== 'undefined' && navigator.onLine === false)) return null;
         try {
+            const username = user.username || (user.email ? user.email.split('@')[0] : '');
             const payload = {
                 userId: String(user.id),
-                userName: user.name || user.username || 'موظف',
+                username: username,
+                userName: user.name || username || 'موظف',
                 role: user.role || 'agent',
                 avatar: user.avatar || '👨‍💼',
                 color: user.color || '#3b82f6',
@@ -624,49 +627,80 @@ window.SupabaseClient = (function() {
                 status: 'online'
             };
             const safeId = encodeURIComponent(String(user.id).trim().replace(/[.$#[\]/]/g, '_'));
-            await fetch(`${FIREBASE_DB_URL}/user_presence/${safeId}.json`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
+            const safeUsername = username ? encodeURIComponent(String(username).trim().replace(/[.$#[\]/]/g, '_')) : '';
+            const bodyStr = JSON.stringify(payload);
+            const headers = { 'Content-Type': 'application/json' };
+
+            // Primary endpoint (permitted under presence node) + secondary user_presence endpoint
+            const writes = [
+                fetch(`${FIREBASE_DB_URL}/presence/users/${safeId}.json`, { method: 'PUT', headers, body: bodyStr }),
+                fetch(`${FIREBASE_DB_URL}/user_presence/${safeId}.json`, { method: 'PUT', headers, body: bodyStr })
+            ];
+            if (safeUsername && safeUsername !== safeId) {
+                writes.push(fetch(`${FIREBASE_DB_URL}/presence/users/${safeUsername}.json`, { method: 'PUT', headers, body: bodyStr }));
+            }
+
+            await Promise.allSettled(writes);
             return payload;
         } catch(e) {
             return null;
         }
     }
 
-    async function setUserOffline(userId) {
-        if (!userId || !navigator.onLine) return;
+    async function setUserOffline(userId, username) {
+        if (!userId || (typeof navigator !== 'undefined' && navigator.onLine === false)) return;
         try {
             const safeId = encodeURIComponent(String(userId).trim().replace(/[.$#[\]/]/g, '_'));
+            const safeUsername = username ? encodeURIComponent(String(username).trim().replace(/[.$#[\]/]/g, '_')) : '';
             const body = JSON.stringify({
                 status: 'offline',
                 lastSeen: Date.now()
             });
+            const headers = { 'Content-Type': 'application/json' };
+
             if (typeof fetch === 'function') {
-                fetch(`${FIREBASE_DB_URL}/user_presence/${safeId}.json`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: body,
-                    keepalive: true
-                }).catch(() => {});
+                const calls = [
+                    fetch(`${FIREBASE_DB_URL}/presence/users/${safeId}.json`, { method: 'PATCH', headers, body, keepalive: true }),
+                    fetch(`${FIREBASE_DB_URL}/user_presence/${safeId}.json`, { method: 'PATCH', headers, body, keepalive: true })
+                ];
+                if (safeUsername && safeUsername !== safeId) {
+                    calls.push(fetch(`${FIREBASE_DB_URL}/presence/users/${safeUsername}.json`, { method: 'PATCH', headers, body, keepalive: true }));
+                }
+                Promise.allSettled(calls).catch(() => {});
             }
         } catch(e) {}
     }
 
     async function getAllUsersPresence() {
-        if (!navigator.onLine) return {};
+        if (typeof navigator !== 'undefined' && navigator.onLine === false) return {};
         try {
-            const resp = await fetch(`${FIREBASE_DB_URL}/user_presence.json?t=${Date.now()}`);
-            if (!resp.ok) return {};
-            const raw = await resp.json();
-            if (!raw || typeof raw !== 'object') return {};
             const now = Date.now();
+            const safeFetch = async (path) => {
+                try {
+                    const resp = await fetch(`${FIREBASE_DB_URL}${path}?t=${now}`);
+                    if (!resp.ok) return null;
+                    return await resp.json();
+                } catch(e) {
+                    return null;
+                }
+            };
+
+            const [p1, p2] = await Promise.allSettled([
+                safeFetch('/presence/users.json'),
+                safeFetch('/user_presence.json')
+            ]);
+
+            const raw1 = (p1.status === 'fulfilled' && p1.value && typeof p1.value === 'object') ? p1.value : {};
+            const raw2 = (p2.status === 'fulfilled' && p2.value && typeof p2.value === 'object') ? p2.value : {};
+            const combined = Object.assign({}, raw2, raw1); // raw1 takes priority
+
             const result = {};
-            for (const [key, item] of Object.entries(raw)) {
+            const ACTIVE_WINDOW_MS = 180000; // 3 minutes window (handles tab throttling & sleep)
+
+            for (const [key, item] of Object.entries(combined)) {
                 if (!item || !item.lastSeen) continue;
                 const ageMs = now - Number(item.lastSeen);
-                const isOnline = (item.status === 'online') && (ageMs < 75000);
+                const isOnline = (item.status === 'online') && (ageMs < ACTIVE_WINDOW_MS);
                 const processed = {
                     ...item,
                     isOnline: isOnline,
@@ -674,15 +708,65 @@ window.SupabaseClient = (function() {
                     lastSeenArabic: formatArabicLastSeen(item.lastSeen),
                     pageLabelArabic: getPageLabelArabic(item.currentPage)
                 };
-                result[key] = processed;
-                if (item.userId) {
-                    result[item.userId] = processed;
-                }
+
+                const aliasSet = new Set();
+                const addKey = (k) => {
+                    if (!k) return;
+                    const s = String(k).trim();
+                    if (!s) return;
+                    aliasSet.add(s);
+                    aliasSet.add(s.toLowerCase());
+                    aliasSet.add(s.replace(/[.$#[\]/]/g, '_'));
+                    aliasSet.add(s.replace(/_/g, '.'));
+                };
+
+                addKey(key);
+                if (item.userId) addKey(item.userId);
+                if (item.username) addKey(item.username);
+                if (item.userName) addKey(item.userName);
+                if (item.email) addKey(item.email);
+
+                aliasSet.forEach(k => {
+                    result[k] = processed;
+                });
             }
             return result;
         } catch(e) {
             return {};
         }
+    }
+
+    function getUserPresence(presences, user) {
+        if (!presences || !user) return null;
+        if (typeof user === 'string') {
+            const raw = user.trim();
+            const lower = raw.toLowerCase();
+            return presences[raw] ||
+                   presences[lower] ||
+                   presences[lower.replace(/[.$#[\]/]/g, '_')] ||
+                   presences[lower.replace(/_/g, '.')] ||
+                   null;
+        }
+
+        const keys = [
+            user.id,
+            user.id && String(user.id).toLowerCase(),
+            user.id && String(user.id).replace(/[.$#[\]/]/g, '_'),
+            user.username,
+            user.username && String(user.username).toLowerCase(),
+            user.username && String(user.username).replace(/[.$#[\]/]/g, '_'),
+            user.username && String(user.username).replace(/_/g, '.'),
+            user.email,
+            user.email && String(user.email).toLowerCase(),
+            user.email && String(user.email).split('@')[0],
+            user.name,
+            user.name && String(user.name).toLowerCase()
+        ];
+
+        for (const k of keys) {
+            if (k && presences[k]) return presences[k];
+        }
+        return null;
     }
 
     /**
@@ -694,6 +778,14 @@ window.SupabaseClient = (function() {
 
         let isFetchingUpdate = false;
 
+        let deltaDebounceTimer = null;
+        function scheduleDeltaCheck(force = false, delay = 500) {
+            if (deltaDebounceTimer) clearTimeout(deltaDebounceTimer);
+            deltaDebounceTimer = setTimeout(() => {
+                checkMetadataDelta(force);
+            }, delay);
+        }
+
         async function checkMetadataDelta(forceTrigger = false) {
             if (isFetchingUpdate) return;
             try {
@@ -704,7 +796,7 @@ window.SupabaseClient = (function() {
                         return; // Ignore own push echo
                     }
                     const metaTs = Number(meta && (meta.sync_timestamp || (meta.updated_at ? new Date(meta.updated_at).getTime() : 0))) || 0;
-                    if (forceTrigger || metaTs > lastSyncTimestamp || (meta && meta.total_dynamic && lastSyncTimestamp === 0)) {
+                    if (forceTrigger || (lastSyncTimestamp > 0 && metaTs > lastSyncTimestamp)) {
                         lastSyncTimestamp = metaTs || Date.now();
                         isFetchingUpdate = true;
                         const data = await fetchMasterData();
@@ -712,6 +804,8 @@ window.SupabaseClient = (function() {
                         if (data && onChangeCallback) {
                             onChangeCallback({ data });
                         }
+                    } else if (lastSyncTimestamp === 0 && metaTs > 0) {
+                        lastSyncTimestamp = metaTs;
                     }
                 }
             } catch(e) {
@@ -719,10 +813,10 @@ window.SupabaseClient = (function() {
             }
         }
 
-        // 1. Instant check immediately on subscribe
-        checkMetadataDelta();
+        // 1. Initial check (debounced)
+        scheduleDeltaCheck(false, 1000);
 
-        // 2. Connect native SSE Stream for sub-100ms real-time push!
+        // 2. Connect native SSE Stream for sub-100ms real-time push
         try {
             if (typeof EventSource !== 'undefined') {
                 sseSource = new EventSource(`${FIREBASE_DB_URL}/metadata.json`);
@@ -733,8 +827,10 @@ window.SupabaseClient = (function() {
                         const data = (parsed && parsed.data !== undefined) ? parsed.data : parsed;
                         if (data && data.updated_by && data.updated_by === currentClientId) return;
                         const ts = Number(data && data.sync_timestamp) || 0;
-                        if (ts > lastSyncTimestamp) {
-                            checkMetadataDelta(true);
+                        if (lastSyncTimestamp > 0 && ts > lastSyncTimestamp) {
+                            scheduleDeltaCheck(true, 300);
+                        } else if (lastSyncTimestamp === 0 && ts > 0) {
+                            lastSyncTimestamp = ts;
                         }
                     } catch(err) {}
                 });
@@ -745,8 +841,8 @@ window.SupabaseClient = (function() {
                         const data = (parsed && parsed.data !== undefined) ? parsed.data : parsed;
                         if (data && data.updated_by && data.updated_by === currentClientId) return;
                         const ts = Number(data && data.sync_timestamp) || 0;
-                        if (ts > lastSyncTimestamp) {
-                            checkMetadataDelta(true);
+                        if (lastSyncTimestamp > 0 && ts > lastSyncTimestamp) {
+                            scheduleDeltaCheck(true, 300);
                         }
                     } catch(err) {}
                 });
@@ -859,6 +955,14 @@ window.SupabaseClient = (function() {
 
                         if (data === undefined) return;
 
+                        // Initial connection full snapshot — do not fire heavy UI cascades on first connect
+                        if (path === '/') {
+                            if (!window.__assignmentsInitialSeeded) {
+                                window.__assignmentsInitialSeeded = true;
+                                return;
+                            }
+                        }
+
                         const delta = {};
                         if (path === '/') {
                             if (data && typeof data === 'object') {
@@ -892,26 +996,29 @@ window.SupabaseClient = (function() {
                         try { sseAssignments.close(); } catch(e) {}
                         sseAssignments = null;
                     }
-                    // Auto-reconnect SSE after 1.5s to ensure constant real-time stream
+                    // Auto-reconnect SSE after 4s
                     setTimeout(() => {
                         if (!sseAssignments && typeof EventSource !== 'undefined') {
                             subscribeToAssignments(onDeltaCallback);
                         }
-                    }, 1500);
+                    }, 4000);
                 };
             }
         } catch(e) {
             console.warn('Assignments SSE init error:', e);
         }
 
-        // 3. Supercharged 1-second fallback polling (< 10KB, 0ms overhead when unchanged)
+        // 3. Fallback polling ONLY when SSE is inactive (15s gentle interval)
         let lastPollJson = '';
         const pollAssignments = async () => {
+            if (sseAssignments && sseAssignments.readyState === EventSource.OPEN) {
+                return; // SSE active, skip polling completely
+            }
             try {
                 const resp = await fetch(`${FIREBASE_DB_URL}/assignments.json?t=${Date.now()}`);
                 if (!resp.ok) return;
                 const text = await resp.text();
-                if (text === lastPollJson) return; // zero changes, exit early in 1ms!
+                if (text === lastPollJson) return; // zero changes, exit early
                 lastPollJson = text;
                 const parsed = JSON.parse(text || '{}');
                 if (parsed && typeof parsed === 'object' && onDeltaCallback) {
@@ -920,7 +1027,7 @@ window.SupabaseClient = (function() {
             } catch(e) {}
         };
 
-        assignPollInterval = setInterval(pollAssignments, 1000);
+        assignPollInterval = setInterval(pollAssignments, 15000);
 
         // Instant poll on focus / visibility change
         if (typeof window !== 'undefined' && !_assignFocusBound) {
@@ -1319,7 +1426,9 @@ window.SupabaseClient = (function() {
         sendUserHeartbeat,
         setUserOffline,
         getAllUsersPresence,
+        getUserPresence,
         formatArabicLastSeen,
         getPageLabelArabic
     };
 })();
+window.FirebaseClient = window.SupabaseClient; // Clean modern alias

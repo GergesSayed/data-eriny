@@ -151,26 +151,14 @@ const App = {
                     try {
                         const u = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
                         if (u && u.id && window.SupabaseClient && typeof window.SupabaseClient.setUserOffline === 'function') {
-                            window.SupabaseClient.setUserOffline(u.id);
+                            window.SupabaseClient.setUserOffline(u.id, u.username);
                         }
                     } catch(e) {}
                 });
             }
 
-            // Migrate existing companies' sectors/cities to canonical keys if not done yet
-            if (!localStorage.getItem('fleetcrm_city_sector_mapped_v7')) {
-                const companies = (window.AppStorage && window.AppStorage.getCompanies) ? (window.AppStorage.getCompanies() || []) : [];
-                if (companies && companies.length > 0) {
-                    const migrated = companies.map(c => {
-                        c.sector = window.AppStorage.mapScraperSectorToCRM(c.sector);
-                        c.city = window.AppStorage.mapScraperCityToCRM(c.city);
-                        c.priority = window.AppStorage.calculatePriority(c.sector);
-                        return c;
-                    });
-                    window.AppStorage.setCompanies(migrated);
-                    localStorage.setItem('fleetcrm_city_sector_mapped_v7', 'true');
-                }
-            }
+            // Mark legacy canonical keys migration as complete
+            try { localStorage.setItem('fleetcrm_city_sector_mapped_v7', 'true'); } catch(e) {}
 
             // Initialize routing
             if (!this._routingInitialized) {
@@ -184,22 +172,12 @@ const App = {
             // PWA Service Worker Registration & Offline Support
             if (!this._pwaInitialized && 'serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
                 this._pwaInitialized = true;
-                let isRefreshing = false;
                 navigator.serviceWorker.addEventListener('controllerchange', () => {
-                    const currentUser = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
-                    const loginScreen = document.getElementById('login-screen');
-                    const isLoginVisible = loginScreen && loginScreen.style.display !== 'none' && !loginScreen.classList.contains('hidden');
-                    if (!currentUser || isLoginVisible || window.__isLoggingIn) {
-                        console.log('[SW] Controller changed, suppressing reload during login flow.');
-                        return;
-                    }
-                    if (!isRefreshing) {
-                        isRefreshing = true;
-                        window.location.reload();
-                    }
+                    // Log controller change cleanly — NEVER auto-reload window to prevent infinite reload loops
+                    console.log('[SW] Service worker controller updated and active.');
                 });
 
-                navigator.serviceWorker.register('sw.js?v=305.0').then(reg => {
+                navigator.serviceWorker.register('sw.js?v=306.0').then(reg => {
                     reg.update().catch(() => {});
                     // Detect when a new SW version is waiting — show update notification
                     reg.addEventListener('updatefound', () => {
@@ -1013,9 +991,26 @@ const App = {
     },
 
     refreshCurrentPage() {
-        if (this.currentPage) {
-            this.navigateTo(this.currentPage, true);
+        const active = this.currentPage || window.location.hash.replace('#', '') || 'companies';
+        try {
+            // Re-render the active module smoothly in-place without resetting scroll or navigation
+            if (active === 'companies' && typeof Companies !== 'undefined') {
+                Companies.render();
+            } else if (active === 'dashboard' && typeof Dashboard !== 'undefined') {
+                Dashboard.render();
+            } else if (active === 'team' && typeof Team !== 'undefined') {
+                Team.render();
+            } else if (active === 'calls' && typeof Calls !== 'undefined') {
+                Calls.render();
+            } else if (active === 'reports' && typeof Reports !== 'undefined') {
+                Reports.render();
+            } else if (active === 'scraper' && typeof ScraperPage !== 'undefined') {
+                ScraperPage.render();
+            }
+        } catch(e) {
+            console.warn('In-place refresh error:', e);
         }
+
         if (typeof Companies !== 'undefined') {
             const modal = document.getElementById('modal-company-detail');
             if (modal && (modal.classList.contains('active') || modal.classList.contains('show') || modal.style.display === 'flex' || modal.style.display === 'block')) {
@@ -1728,7 +1723,9 @@ const App = {
             let onlineCount = 0;
 
             allUsers.forEach(u => {
-                const p = presences[u.id] || presences[String(u.id).toLowerCase()] || (u.username && presences[u.username.toLowerCase()]);
+                const p = (window.SupabaseClient && window.SupabaseClient.getUserPresence)
+                    ? window.SupabaseClient.getUserPresence(presences, u)
+                    : (presences[u.id] || presences[String(u.id).toLowerCase()] || (u.username && presences[u.username.toLowerCase()]));
                 if (p && p.isOnline) onlineCount++;
             });
 
@@ -1774,7 +1771,9 @@ const App = {
             let offlineList = [];
 
             const userCards = allUsers.map(u => {
-                const p = presences[u.id] || presences[String(u.id).toLowerCase()] || (u.username && presences[u.username.toLowerCase()]);
+                const p = (window.SupabaseClient && window.SupabaseClient.getUserPresence)
+                    ? window.SupabaseClient.getUserPresence(presences, u)
+                    : (presences[u.id] || presences[String(u.id).toLowerCase()] || (u.username && presences[u.username.toLowerCase()]));
                 const isOnline = Boolean(p && p.isOnline);
                 const lastSeenText = p ? p.lastSeenArabic : 'لم يسجل الدخول بعد';
                 const pageLabel = p ? p.pageLabelArabic : '—';
