@@ -1,6 +1,6 @@
-import { getMasterData, updateMasterData, logSync } from './_lib/supabase.js';
+import { getMasterData, updateMasterData, logSync } from './_lib/firebase.js';
 
-const AUTH_SECRET = 'fleetcrm_sync_v4';
+const AUTH_SECRET = process.env.FLEETCRM_SYNC_SECRET || 'fleetcrm_sync_v4';
 
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');

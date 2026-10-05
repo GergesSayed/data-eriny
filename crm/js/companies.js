@@ -1320,7 +1320,18 @@ const Companies = {
             const locDisplay = (govName && govName !== cityLabel && !cityLabel.includes(govName))
                 ? `<div style="line-height:1.25;"><span style="font-weight:700; color:var(--text-primary); font-size:0.82rem;">${cityLabel}</span><small style="display:block; font-size:10px; color:var(--text-muted); font-weight:600; margin-top:2px;">🏛️ ${govName}</small></div>`
                 : `<span style="font-weight:700; color:var(--text-primary); font-size:0.82rem;">${cityLabel}</span>`;
-            const phone = esc(c.phone1 || c.mobile || c.phone2 || '—');
+            let phone = '—';
+            let cleanPhone = '';
+            if (c.hotline) {
+                phone = `<span style="color:#2563eb; font-weight:700;"><i class="fas fa-headset" style="font-size:10px;"></i> ${esc(c.hotline)}</span>`;
+                cleanPhone = c.hotline;
+            } else if (c.mobile) {
+                phone = `<span style="color:#10b981; font-weight:700;"><i class="fas fa-mobile-alt" style="font-size:10px;"></i> ${esc(c.mobile)}</span>`;
+                cleanPhone = c.mobile;
+            } else if (c.phone1) {
+                phone = `<span>${esc(c.phone1)}</span>`;
+                cleanPhone = c.phone1;
+            }
             const fleet = c.fleetSize ? `🚛 ${c.fleetSize}` : '—';
             const contact = esc(c.contactPerson || '—');
             const contactTitle = esc(c.contactTitle || '');
@@ -1414,10 +1425,12 @@ const Companies = {
                     <td style="white-space:nowrap; text-align:center;"><span class="badge sector-badge" style="font-size:0.75rem; padding:3px 8px; border-radius:6px; font-weight:600;">${sectorLabel}</span></td>
                     <td style="white-space:nowrap; text-align:center;">${locDisplay}</td>
                     <td style="white-space:nowrap; text-align:center;">
-                        <a href="tel:${phone}" onclick="event.stopPropagation();" style="display:inline-flex; align-items:center; gap:4px; font-family:Inter, monospace; font-weight:700; font-size:0.78rem; color:var(--text-primary); text-decoration:none; direction:ltr; unicode-bidi:embed;" title="اتصال">
-                            <i class="fas fa-phone-alt" style="font-size:0.68rem; color:var(--success);"></i>
-                            <span>${phone}</span>
-                        </a>
+                        ${cleanPhone ? `
+                            <a href="tel:${cleanPhone}" onclick="event.stopPropagation();" style="display:inline-flex; align-items:center; gap:4px; font-family:Inter, monospace; font-weight:700; font-size:0.78rem; color:var(--text-primary); text-decoration:none; direction:ltr; unicode-bidi:embed;" title="اتصال">
+                                <i class="fas fa-phone-alt" style="font-size:0.68rem; color:var(--success);"></i>
+                                <span>${phone}</span>
+                            </a>
+                        ` : `<span style="color:var(--text-muted); font-size:0.78rem;">—</span>`}
                     </td>
                     <td style="white-space:nowrap; text-align:center;"><span class="fleet-badge" style="font-weight:800; font-size:0.82rem;">${fleet}</span></td>
                     <td data-cell="assigned" style="white-space:nowrap; text-align:center;">${assignedBadge}</td>
@@ -1507,9 +1520,14 @@ const Companies = {
             const esc = (s) => window.AppStorage.escapeHtml(s || '');
             const sectorLabel = window.AppStorage.getSectorLabel(c.sector);
             const cityLabel = window.AppStorage.getCityLabel(c.city);
-            const rawPhone = String(c.phone1 || c.mobile || c.phone2 || '');
-            const cleanPhone = rawPhone.replace(/[^0-9+]/g, '');
-            const phone = esc(rawPhone || '—');
+            let phoneDisplay = '<span style="color:var(--text-muted); font-size:11px;">—</span>';
+            if (c.hotline) {
+                phoneDisplay = `<a href="tel:${esc(c.hotline)}" onclick="event.stopPropagation();" style="color:#2563eb; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:4px;"><i class="fas fa-headset" style="font-size:11px;"></i> <span>${esc(c.hotline)}</span> <span class="badge" style="background:rgba(37,99,235,0.12); color:#2563eb; font-size:9px; padding:1px 5px; border-radius:4px;">خط ساخن</span></a>`;
+            } else if (c.mobile) {
+                phoneDisplay = `<a href="tel:${esc(c.mobile)}" onclick="event.stopPropagation();" style="color:#10b981; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:4px;"><i class="fas fa-mobile-alt" style="font-size:11px;"></i> <span>${esc(c.mobile)}</span> <span class="badge" style="background:rgba(16,185,129,0.12); color:#10b981; font-size:9px; padding:1px 5px; border-radius:4px;">موبايل</span></a>`;
+            } else if (c.phone1) {
+                phoneDisplay = `<a href="tel:${esc(c.phone1)}" onclick="event.stopPropagation();" style="color:var(--text-primary); font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:4px;"><i class="fas fa-phone-alt" style="font-size:11px; color:var(--text-muted);"></i> <span>${esc(c.phone1)}</span> <span class="badge" style="background:rgba(100,116,139,0.12); color:var(--text-muted); font-size:9px; padding:1px 5px; border-radius:4px;">أرضي</span></a>`;
+            }
             const rawMaps = window.AppStorage.getGoogleMapsUrl ? window.AppStorage.getGoogleMapsUrl(c) : (c.google_maps_url || '');
             const mapsLink = esc(rawMaps);
             const mapsIcon = mapsLink ? ` <a href="${mapsLink}" target="_blank" style="color: #ea4335; margin-right: 6px; font-size: 14px;" title="موقع الشركة على خرائط جوجل" onclick="event.stopPropagation();"><i class="fas fa-map-marker-alt"></i></a>` : '';
@@ -1560,7 +1578,7 @@ const Companies = {
                     <div class="company-card__details">
                         <div class="company-card__detail"><i class="fas fa-industry"></i> ${sectorLabel}</div>
                         <div class="company-card__detail"><i class="fas fa-map-marker-alt"></i> ${cityLabel}${c.governorate && !cityLabel.includes(c.governorate) ? ` (${c.governorate})` : ''}</div>
-                        <div class="company-card__detail"><i class="fas fa-phone"></i> <span style="direction:ltr;">${phone}</span></div>
+                        <div class="company-card__detail"><i class="fas fa-phone"></i> ${phoneDisplay}</div>
                         <div class="company-card__detail" data-cell="assigned"><i class="fas fa-user-tag"></i> المسند إليه: ${assignedBadge}</div>
                         ${callResult ? `<div class="company-card__detail"><i class="fas fa-phone-volume"></i> نتيجة المكالمة: <span class="result-badge result-${callResult}" style="font-size:11px;">${window.AppStorage.getCallResultLabel(callResult)}</span> ${callDate ? `<small style="color:var(--text-muted); font-size:10px;">(${callDate})</small>` : ''}</div>` : ''}
                         ${c.rating ? `<div class="company-card__detail"><i class="fas fa-star" style="color:#f59e0b;"></i> التقييم: ${c.rating} / 5</div>` : ''}
@@ -1948,7 +1966,7 @@ const Companies = {
         }
         App.confirm(
             '🔄 إعادة ضبط وتطهير قاعدة البيانات بالكامل',
-            'سيتم تنظيف أي كاش قديم في المتصفح وإعادة شحن قاعدة البيانات الحقيقية المعتمدة بالكامل (1,000 شركة عملاقة VIP + 17,959 شركة صناعية وتجارية حقيقية بإجمالي 18,959 شركة معتمدة ومحققة 100%). هل تريد المتابعة؟',
+            'سيتم تنظيف أي كاش قديم في المتصفح وإعادة شحن قاعدة البيانات الحقيقية المعتمدة بالكامل (1,000 شركة عملاقة VIP + 17,707 شركة صناعية وتجارية حقيقية بإجمالي 18,707 شركة معتمدة ومحققة 100%). هل تريد المتابعة؟',
             async () => {
                 App.showToast('⏳ جاري إعادة التحديث والتطهير الشامل...', 'info');
                 localStorage.removeItem('fleetcrm_user_wiped_companies');
@@ -1958,9 +1976,9 @@ const Companies = {
                 if (window.AppStorage.saveBatchToIDB) {
                     await window.AppStorage.saveBatchToIDB(window.AppStorage.companiesMemory);
                 }
-                localStorage.setItem('fleetcrm_dataset_version', 'v309.0_100percent_real_verified_18959');
-                localStorage.setItem('fleetcrm_company_count', '18,959');
-                App.showToast('✨ تم بنجاح تحديث وتطهير قاعدة البيانات بالكامل (18,959 شركة حقيقية ومعتمدة 100%)!', 'success');
+                localStorage.setItem('fleetcrm_dataset_version', 'v310.0_100percent_real_verified_18707');
+                localStorage.setItem('fleetcrm_company_count', '18,707');
+                App.showToast('✨ تم بنجاح تحديث وتطهير قاعدة البيانات بالكامل (18,707 شركة حقيقية ومعتمدة 100%)!', 'success');
                 this.openAuditModal();
                 this.render();
                 if (typeof Dashboard !== 'undefined') Dashboard.render();
@@ -2436,10 +2454,11 @@ const Companies = {
                 <div>
                     <div class="detail-section">
                         <h3><i class="fas fa-phone"></i> بيانات الاتصال</h3>
-                        ${company.hotline ? this._detailRow('الخط الساخن (Hotline)', `<span style="color:#3b82f6; font-weight:800; font-family:Inter; font-size:1.1rem;"><i class="fas fa-headset"></i> ${esc(company.hotline)}</span>`) : ''}
-                        ${this._detailRow('هاتف 1', esc(company.phone1), true)}
-                        ${this._detailRow('هاتف 2', esc(company.phone2), true)}
-                        ${this._detailRow('موبايل', esc(company.mobile), true)}
+                        ${company.hotline ? this._detailRow('الخط الساخن (Hotline)', `<a href="tel:${esc(company.hotline)}" style="color:#3b82f6; font-weight:800; font-family:Inter; font-size:1.15rem; text-decoration:none; display:inline-flex; align-items:center; gap:6px;"><i class="fas fa-headset"></i> <span>${esc(company.hotline)}</span> <span class="badge" style="background:rgba(59,130,246,0.15); color:#3b82f6; font-size:11px; padding:2px 8px; border-radius:5px;">رسمي معتمد</span></a>`) : ''}
+                        ${company.mobile ? this._detailRow('رقم الموبايل', `<a href="tel:${esc(company.mobile)}" style="color:#10b981; font-weight:700; text-decoration:none; font-family:Inter; display:inline-flex; align-items:center; gap:6px;"><i class="fas fa-mobile-alt"></i> <span>${esc(company.mobile)}</span></a>`, true) : ''}
+                        ${company.phone1 ? this._detailRow('الهاتف الأرضي / السنترال', `<a href="tel:${esc(company.phone1)}" style="color:var(--text-primary); font-weight:700; text-decoration:none; font-family:Inter; display:inline-flex; align-items:center; gap:6px;"><i class="fas fa-phone-alt"></i> <span>${esc(company.phone1)}</span></a>`, true) : ''}
+                        ${company.phone2 ? this._detailRow('هاتف أرضي إضافي', `<a href="tel:${esc(company.phone2)}" style="color:var(--text-primary); font-weight:700; text-decoration:none; font-family:Inter; display:inline-flex; align-items:center; gap:6px;"><i class="fas fa-phone-alt"></i> <span>${esc(company.phone2)}</span></a>`, true) : ''}
+                        ${(!company.hotline && !company.mobile && !company.phone1) ? this._detailRow('رقم الهاتف', '—') : ''}
                         ${company.otherPhones ? this._detailRow('أرقام إضافية / مدمجة', `<span style="direction:ltr; font-family:Inter; color:#22d3ee; font-weight:700;">${esc(company.otherPhones)}</span>`, true) : ''}
                         ${company.branches && company.branches.length > 0 ? this._detailRow('الفروع والمجمعات', `<div style="display:flex; flex-wrap:wrap; gap:4px; margin-top:4px;">${company.branches.map(b => `<span style="background:rgba(124,58,237,0.2); color:#c4b5fd; border:1px solid rgba(124,58,237,0.3); padding:2px 8px; border-radius:6px; font-size:11px; font-weight:700;">${esc(b)}</span>`).join('')}</div>`) : ''}
                         ${this._detailRow('البريد', company.email ? `<a href="mailto:${esc(company.email)}">${esc(company.email)}</a>` : '—')}

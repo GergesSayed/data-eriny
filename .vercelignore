@@ -1,6 +1,9 @@
 scraper/
 scripts/
 backups/
+crm/backups/
+crm/debug.html
+crm/audit_summary.json
 output/
 scratch/
 node_modules/
@@ -10,3 +13,4 @@ supabase/
 *.bat
 *.md
 *.lock
+
