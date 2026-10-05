@@ -77,7 +77,7 @@ self.onmessage = function(e) {
             if (!c) continue;
             const normNameAr = normalizeArabic(c.nameAr || c.name || '');
             const normNameEn = (c.nameEn || '').toLowerCase().trim();
-            const normPhone = (c.phone1 || c.mobile || c.phone2 || '').replace(/[^0-9+]/g, '');
+            const normPhone = [c.phone1, c.mobile, c.phone2, c.hotline].filter(Boolean).join(' ').replace(/[^0-9+]/g, ' ');
             const normContact = normalizeArabic(c.contactPerson || '');
             const id = c.id || ('comp_' + idx);
             
