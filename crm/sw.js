@@ -1,29 +1,29 @@
 /* ============================================
    Fleet CRM — Full Offline PWA Service Worker
-   v310.2 — Pre-cache App Shell for Offline Use
+   v310.3 — Pre-cache App Shell for Offline Use
    ============================================ */
 
-const CACHE_NAME = 'fleetcrm-v310-2-shell';
+const CACHE_NAME = 'fleetcrm-v310-3-shell';
 const OFFLINE_FALLBACK = './index.html';
 
 // ── App Shell: Pre-cached on install for full offline support ──
 const APP_SHELL = [
     './index.html',
-    './css/style.css?v=310.2',
-    './js/supabase-client.js?v=310.2',
-    './js/egypt_verified_titans.js?v=310.2',
-    './js/egypt_enterprises_pool.js?v=310.2',
-    './js/companies-worker.js?v=310.2',
-    './js/storage.js?v=310.2',
-    './js/excel-handler.js?v=310.2',
-    './js/dashboard.js?v=310.2',
-    './js/companies.js?v=310.2',
-    './js/calls.js?v=310.2',
-    './js/reports.js?v=310.2',
-    './js/scraper.js?v=310.2',
-    './js/team.js?v=310.2',
-    './js/settings.js?v=310.2',
-    './js/app.js?v=310.2',
+    './css/style.css?v=310.3',
+    './js/supabase-client.js?v=310.3',
+    './js/egypt_verified_titans.js?v=310.3',
+    './js/egypt_enterprises_pool.js?v=310.3',
+    './js/companies-worker.js?v=310.3',
+    './js/storage.js?v=310.3',
+    './js/excel-handler.js?v=310.3',
+    './js/dashboard.js?v=310.3',
+    './js/companies.js?v=310.3',
+    './js/calls.js?v=310.3',
+    './js/reports.js?v=310.3',
+    './js/scraper.js?v=310.3',
+    './js/team.js?v=310.3',
+    './js/settings.js?v=310.3',
+    './js/app.js?v=310.3',
 ];
 
 // ── Install: Pre-cache app shell ──

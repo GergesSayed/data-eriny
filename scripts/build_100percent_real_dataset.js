@@ -386,8 +386,8 @@ rawTitans.forEach(t => {
         vip: true,
         badge: t.badge || '👑 VIP Titan',
         notes: t.notes || 'قلعة صناعية وتجارية كبرى موثقة معتمدة في السوق المصري',
-        contactPerson: t.contactPerson || 'مدير الحركة والأسطول اللوجستي',
-        contactTitle: t.contactTitle || 'Fleet & Logistics Director',
+        contactPerson: '',
+        contactTitle: '',
         createdAt: t.createdAt || '2026-09-01',
         lastUpdated: '2026-10-05'
     };
@@ -475,8 +475,8 @@ octRows.forEach(row => {
         status: 'new',
         verified: true,
         notes: `مصنع حقيقي معتمد ميدانياً - المنطقة الصناعية بأكتوبر وأبو رواش (${row['المنطقة الفرعية / المجمع الصناعي'] || 'مجمع المصانع'})`,
-        contactPerson: 'مسؤول الحركة وإدارة النقليات',
-        contactTitle: 'Transport & Operations Supervisor',
+        contactPerson: '',
+        contactTitle: '',
         createdAt: '2026-09-15',
         lastUpdated: '2026-10-05'
     };
@@ -559,8 +559,8 @@ rmdRows.forEach(row => {
         status: 'new',
         verified: true,
         notes: `منشأة صناعية معتمدة - مدينة العاشر من رمضان (${row['المدينة / المنطقة'] || 'المنطقة الصناعية'})`,
-        contactPerson: 'مسؤول الخدمات اللوجستية وتوزيع البضائع',
-        contactTitle: 'Logistics & Dispatch Manager',
+        contactPerson: '',
+        contactTitle: '',
         createdAt: '2026-09-18',
         lastUpdated: '2026-10-05'
     };
@@ -643,8 +643,8 @@ censusRows.forEach(row => {
         status: 'new',
         verified: true,
         notes: `منشأة معتمدة مسجلة جغرافياً - ${row['المحافظة'] || 'القاهرة والجيزة'} (${row['المنطقة الفرعية / المجمع'] || 'المنطقة الصناعية'})`,
-        contactPerson: 'مسؤول المشتريات وصيانة الأساطيل',
-        contactTitle: 'Fleet Maintenance & Purchases',
+        contactPerson: '',
+        contactTitle: '',
         createdAt: '2026-09-20',
         lastUpdated: '2026-10-05'
     };

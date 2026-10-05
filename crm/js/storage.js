@@ -1649,16 +1649,24 @@ const AppStorage = {
         for (let i = 0; i < titans.length; i++) {
             const t = titans[i];
             if (t && t.id && !deletedCompIds.has(String(t.id))) {
+                if (t.contactPerson && this.isRoleTitle(t.contactPerson)) {
+                    t.contactPerson = '';
+                    t.contactTitle = '';
+                }
                 syncMap.set(t.id, t);
             }
         }
-        // 2. Add Baseline Pool (24,929 including c2)
+        // 2. Add Baseline Pool (17,707 real enterprises)
         const basePool = this.getBaselineEnterprisesPool ? this.getBaselineEnterprisesPool() : [];
         for (let i = 0; i < basePool.length; i++) {
             const c = basePool[i];
             if (c) {
                 const id = c.id || `comp_base_${i}`;
                 if (!deletedCompIds.has(String(id))) {
+                    if (c.contactPerson && this.isRoleTitle(c.contactPerson)) {
+                        c.contactPerson = '';
+                        c.contactTitle = '';
+                    }
                     syncMap.set(id, c);
                 }
             }
@@ -1705,7 +1713,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v310.2_100percent_real_verified_18707';
+                    const currentVersionTag = 'v310.3_100percent_real_verified_18707';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 
@@ -1720,6 +1728,13 @@ const AppStorage = {
                     // Fast-path: When IndexedDB already contains the full dataset (18,707 items)
                     // Loads instantly in ~10ms with zero object re-creation or main-thread freezing
                     if (storedVersionTag === currentVersionTag && idbData && idbData.length === 18707) {
+                        for (let i = 0; i < idbData.length; i++) {
+                            const comp = idbData[i];
+                            if (comp && comp.contactPerson && this.isRoleTitle(comp.contactPerson)) {
+                                comp.contactPerson = '';
+                                comp.contactTitle = '';
+                            }
+                        }
                         this.applyStoredAssignments(idbData);
                         this.applyCallsToCompanies(idbData);
                         this.companiesMemory = idbData;
@@ -1738,6 +1753,10 @@ const AppStorage = {
                     for (let i = 0; i < titans.length; i++) {
                         const t = titans[i];
                         if (t && t.id && !deletedCompIds.has(String(t.id))) {
+                            if (t.contactPerson && this.isRoleTitle(t.contactPerson)) {
+                                t.contactPerson = '';
+                                t.contactTitle = '';
+                            }
                             masterMap.set(t.id, t);
                         }
                     }
@@ -1748,6 +1767,10 @@ const AppStorage = {
                         if (c) {
                             const id = c.id || `comp_base_${i}`;
                             if (!deletedCompIds.has(String(id))) {
+                                if (c.contactPerson && this.isRoleTitle(c.contactPerson)) {
+                                    c.contactPerson = '';
+                                    c.contactTitle = '';
+                                }
                                 masterMap.set(id, c);
                             }
                         }

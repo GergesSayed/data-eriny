@@ -177,7 +177,7 @@ const App = {
                     console.log('[SW] Service worker controller updated and active.');
                 });
 
-                navigator.serviceWorker.register('sw.js?v=310.2').then(reg => {
+                navigator.serviceWorker.register('sw.js?v=310.3').then(reg => {
                     reg.update().catch(() => {});
                     // Detect when a new SW version is waiting — show update notification
                     reg.addEventListener('updatefound', () => {
@@ -1513,7 +1513,7 @@ const App = {
                         <span class="notif-date-badge ${badgeClass}">${dateBadgeLabel}</span>
                     </div>
                     <div class="notif-card-body">
-                        <span>👤 جهة الاتصال: <strong>${esc(c.contactPerson || 'المسؤول')}</strong></span>
+                        <span>👤 جهة الاتصال: <strong>${esc(c.contactPerson || '—')}</strong></span>
                         ${phone ? `<span style="font-family:Inter; font-weight:700; color:var(--text-primary);">📞 ${esc(phone)}</span>` : ''}
                     </div>
                     ${c.notes ? `<div class="notif-card-notes">📝 ${esc(c.notes)}</div>` : ''}
@@ -2047,8 +2047,8 @@ const App = {
             }
         } catch(e) {}
         try {
-            localStorage.setItem('fleetcrm_app_version', '310.2');
-            localStorage.setItem('fleetcrm_dataset_version', 'v310.2_100percent_real_verified_18707');
+            localStorage.setItem('fleetcrm_app_version', '310.3');
+            localStorage.setItem('fleetcrm_dataset_version', 'v310.3_100percent_real_verified_18707');
             localStorage.setItem('fleetcrm_company_count', '18,707');
             sessionStorage.clear();
         } catch(e) {}
