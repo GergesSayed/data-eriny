@@ -1705,7 +1705,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v310.0_100percent_real_verified_18707';
+                    const currentVersionTag = 'v310.1_100percent_real_verified_18707';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 
@@ -1733,6 +1733,7 @@ const AppStorage = {
                     // Otherwise (IDB is stale or empty):
                     // Self-heal immediately from the verified 18,707 baseline!
                     const masterMap = new Map();
+                    const deletedCompIds = this.getDeletedIds ? this.getDeletedIds('companies') : new Set();
                     const titans = this.getVerifiedTitans ? this.getVerifiedTitans() : [];
                     for (let i = 0; i < titans.length; i++) {
                         const t = titans[i];
