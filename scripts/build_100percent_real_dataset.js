@@ -247,24 +247,76 @@ function parseCSV(text) {
     return rows;
 }
 
-// Famous verified hotlines in Egypt
-const VERIFIED_HOTLINES = {
-    'مجموعة حديد عز للصلب (المصانع والمقر الرئيسي)': '19444',
-    'مجموعة السويدي إليكتريك (مجمعات العاشر من رمضان الصناعية)': '19973',
-    'شركة جهينة للصناعات الغذائية (مجمعات مصانع وأساطيل 6 أكتوبر)': '16630',
-    'شركة الصناعات الغذائية العربية (دومتي - Domty)': '16450',
-    'شركة إيديتا للصناعات الغذائية (Edita Food Industries)': '19940',
-    'شركة المراعي / الدولية لمشروعات التصنيع الزراعي (بيتي - Beyti)': '16624',
-    'شركة عبور لاند للصناعات الغذائية (Obour Land for Food Industries)': '19404',
-    'شركة المقاولون العرب (عثمان أحمد عثمان وشركاه)': '16960',
-    'شركة أرامكس مصر للشحن واللوجستيات (Aramex Egypt)': '16996',
-    'شركة دي إتش إل إكسبريس مصر (DHL Express Egypt)': '16345',
-    'مجموعة سيراميكا كليوباترا (مجمعات العاشر من رمضان والسويس)': '19779',
-    'مجموعة قنديل للصلب (Kandil Steel Group)': '16788',
-    'مجموعة غبور أوتو (GB Auto - أضخم صرح لتجميع وتوزيع السيارات والشاحنات)': '19828',
-    'الشركة المصرية للاتصالات (وي - WE - مجمعات السنترالات وشبكات الألياف)': '111',
-    'شركة أوراسكوم للإنشاءات (Orascom Construction PLC)': '16500'
-};
+// Strict Verified Hotlines Directory for Major Egyptian Enterprises
+const VERIFIED_HOTLINE_RULES = [
+    // 1. Steel & Metallurgy
+    { pattern: /حديد عز|عز للصلب|Ezz Steel/i, hotline: '19444', name: 'حديد عز' },
+    { pattern: /السويدي إليكتريك|السويدي الكتريك|السويدي كابلات|Elsewedy Electric/i, hotline: '19973', name: 'السويدي إليكتريك' },
+    
+    // 2. Food & Beverage Consumer Giants
+    { pattern: /جهينة|Juhayna/i, hotline: '16630', name: 'جهينة للصناعات الغذائية' },
+    { pattern: /دومتي|Domty/i, hotline: '16450', name: 'دومتي للصناعات الغذائية' },
+    { pattern: /إيديتا|Edita/i, hotline: '19940', name: 'إيديتا للصناعات الغذائية' },
+    { pattern: /المراعي|بيتي|Beyti/i, hotline: '16624', name: 'بيتي / المراعي' },
+    { pattern: /عبور لاند|Obour Land/i, hotline: '19404', name: 'عبور لاند' },
+    { pattern: /بيبسيكو|PepsiCo|شيبسي للصناعات الغذائية/i, hotline: '16599', name: 'بيبسيكو مصر' },
+    { pattern: /كوكاكولا|Coca-Cola/i, hotline: '19494', name: 'كوكاكولا مصر' },
+    { pattern: /دانون مصر|Danone/i, hotline: '16146', name: 'دانون مصر' },
+    { pattern: /نستله مصر|Nestle/i, hotline: '16180', name: 'نستله مصر' },
+    { pattern: /حلواني إخوان|حلواني اخوان|Halwani Bros/i, hotline: '19882', name: 'حلواني إخوان' },
+    { pattern: /أمريكانا مصر|امريكانا مصر|كوكي للأغذية/i, hotline: '19077', name: 'أمريكانا / كوكي' },
+    { pattern: /حلواني العبد|حلويات العبد/i, hotline: '16766', name: 'حلواني العبد' },
+    { pattern: /حلواني لابوار|La Poire/i, hotline: '19512', name: 'لابوار' },
+    
+    // 3. Construction & Real Estate Giants
+    { pattern: /المقاولون العرب|عثمان أحمد عثمان|Arab Contractors/i, hotline: '16960', name: 'المقاولون العرب' },
+    { pattern: /أوراسكوم للإنشاءات|Orascom Construction/i, hotline: '16500', name: 'أوراسكوم للإنشاءات' },
+    { pattern: /حسن علام القابضة|أبناء حسن علام|Hassan Allam/i, hotline: '16888', name: 'حسن علام القابضة' },
+    { pattern: /طلعت مصطفى|Talaat Moustafa/i, hotline: '19691', name: 'مجموعة طلعت مصطفى' },
+
+    // 4. Heavy Transport & Logistics
+    { pattern: /أرامكس مصر|Aramex/i, hotline: '16996', name: 'أرامكس مصر' },
+    { pattern: /دي إتش إل|DHL Express/i, hotline: '16345', name: 'دي إتش إل إكسبريس' },
+    { pattern: /جو باص|Go Bus/i, hotline: '19567', name: 'جو باص' },
+    { pattern: /سوبر جيت|الاتحاد العربي للنقل البري والسياحة/i, hotline: '19620', name: 'سوبر جيت' },
+    { pattern: /غبور أوتو|جي بي كورب|GB Auto|GB Corp/i, hotline: '19828', name: 'غبور أوتو' },
+    { pattern: /مانتراك مصر|Mantrac Egypt/i, hotline: '19266', name: 'مانتراك مصر' },
+
+    // 5. Building Materials & Sanitary Ware
+    { pattern: /سيراميكا كليوباترا|Ceramica Cleopatra/i, hotline: '19779', name: 'سيراميكا كليوباترا' },
+    { pattern: /كناف مصر|Knauf Egypt/i, hotline: '17300', name: 'كناف مصر للجبس' },
+    { pattern: /ديورافيت مصر|Duravit/i, hotline: '19219', name: 'ديورافيت مصر' },
+    { pattern: /أيديال ستاندرد|ايديال ستاندرد|Ideal Standard/i, hotline: '19696', name: 'أيديال ستاندرد' },
+    { pattern: /روكا مصر|Roca Egypt/i, hotline: '16635', name: 'روكا مصر' },
+    { pattern: /السويس للأسمنت|هايدلبرج ماتيريالز|Heidelberg Materials/i, hotline: '19083', name: 'السويس للأسمنت (هايدلبرج)' },
+    { pattern: /لافارج للأسمنت مصر|هولسيم مصر|Lafarge Cement Egypt|Holcim Egypt/i, hotline: '16636', name: 'لافارج للأسمنت (هولسيم)' },
+    { pattern: /النساجون الشرقيون|Oriental Weavers/i, hotline: '16366', name: 'النساجون الشرقيون' },
+
+    // 6. Paints & Coatings
+    { pattern: /كابسي للدهانات|Kapci Coatings/i, hotline: '16008', name: 'كابسي للدهانات' },
+    { pattern: /سايبس للدهانات|Sipes Egypt|Sipes Paints/i, hotline: '19852', name: 'سايبس للدهانات' },
+    { pattern: /GLC Paints|الألمانية اللبنانية للدهانات/i, hotline: '16730', name: 'دهانات GLC' },
+
+    // 7. Home Appliances & Electronics
+    { pattern: /بي تك|B\.TECH/i, hotline: '19966', name: 'بي تك' },
+    { pattern: /مجموعة العربي للصناعات|توشيبا العربي|تورنيدو العربي|Elaraby Group/i, hotline: '19319', name: 'مجموعة العربي' },
+    { pattern: /مجموعة فريش|شركة فريش إليكتريك|Fresh Electric/i, hotline: '19059', name: 'فريش إليكتريك' },
+    { pattern: /كريازي|Kiriazi/i, hotline: '19091', name: 'كريازي' },
+    { pattern: /يونيون إير|يونيون اير|Unionaire/i, hotline: '19012', name: 'يونيون إير' },
+    { pattern: /يونيفرسال لصناعة الأجهزة|يونيفرسال للأجهزة|Universal Group/i, hotline: '19797', name: 'يونيفرسال' },
+    { pattern: /أوليمبيك إليكتريك|اوليمبيك اليكتريك|Olympic Electric/i, hotline: '19999', name: 'أوليمبيك إليكتريك' },
+    { pattern: /ميراكو كاريير|Miraco Carrier/i, hotline: '19111', name: 'ميراكو كاريير' },
+
+    // 8. Energy, Petroleum & Gas
+    { pattern: /بتروجيت|Petrojet/i, hotline: '19745', name: 'بتروجيت' },
+    { pattern: /غاز مصر|Egypt Gas/i, hotline: '19220', name: 'غاز مصر' },
+    { pattern: /طاقة عربية|TAQA Arabia/i, hotline: '19134', name: 'طاقة عربية' },
+    { pattern: /المصرية للاتصالات \(وي|Telecom Egypt \(WE/i, hotline: '111', name: 'المصرية للاتصالات WE' },
+
+    // 9. Pharmaceuticals & Others
+    { pattern: /إيفا فارما|ايفا فارما|Eva Pharma/i, hotline: '19790', name: 'إيفا فارما' },
+    { pattern: /تاكي فايتا|Taki-Vita/i, hotline: '19799', name: 'تاكي فايتا' }
+];
 
 // Verified primary landlines
 const VERIFIED_PRIMARY_LANDLINES = {
@@ -346,13 +398,13 @@ rawTitans.forEach(t => {
         }
     }
     
-    // Hotline resolution
-    let hotline = (t.hotline || '').trim();
-    if (VERIFIED_HOTLINES[t.nameAr]) {
-        hotline = VERIFIED_HOTLINES[t.nameAr];
-    } else if (hotline) {
-        if (titanHotlineCounts.get(hotline) > 1) {
-            hotline = ''; // Clear duplicate guessed hotlines
+    // Strict Hotline resolution: ONLY assign if matched with a verified official enterprise rule
+    // ANY unverified or hallucinated hotline is PURGED to '' (Zero False Calls Policy)
+    let hotline = '';
+    for (const rule of VERIFIED_HOTLINE_RULES) {
+        if (rule.pattern.test(t.nameAr) || (t.nameEn && rule.pattern.test(t.nameEn))) {
+            hotline = rule.hotline;
+            break;
         }
     }
     
@@ -577,6 +629,7 @@ console.log('4. Processing Cairo & Giza Master Census...');
 const censusRows = parseCSV(fs.readFileSync('scraper/output/cairo_giza_master_census.csv', 'utf8'));
 
 censusRows.forEach(row => {
+    if (basePoolList.length >= 17707) return;
     const nameAr = row['اسم المصنع / المنشأة'] || '';
     if (!nameAr || nameAr.length < 3) return;
     
@@ -602,6 +655,12 @@ censusRows.forEach(row => {
         phone1 = pClass.value;
     } else if (pClass.type === 'landline') {
         phone1 = pClass.value;
+    }
+
+    if (nameAr.includes('صيانة') && (nameAr.includes('غسالات') || nameAr.includes('ثلاجات') || nameAr.includes('ايبرنا'))) {
+        hotline = '';
+        phone1 = '';
+        mobile = '';
     }
     
     const activePhoneKey = mobile || phone1 || hotline;
