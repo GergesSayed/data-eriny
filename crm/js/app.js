@@ -177,7 +177,7 @@ const App = {
                     console.log('[SW] Service worker controller updated and active.');
                 });
 
-                navigator.serviceWorker.register('sw.js?v=310.1').then(reg => {
+                navigator.serviceWorker.register('sw.js?v=310.2').then(reg => {
                     reg.update().catch(() => {});
                     // Detect when a new SW version is waiting — show update notification
                     reg.addEventListener('updatefound', () => {
@@ -2002,27 +2002,30 @@ const App = {
         }
     },
 
-    // ---- PWA Update Banner ----
+    // ---- PWA Update Banner (Floating Bottom Toast — Never blocks header) ----
     _showUpdateBanner() {
-        // Don't show if already visible
         if (document.getElementById('pwa-update-banner')) return;
         const banner = document.createElement('div');
         banner.id = 'pwa-update-banner';
         banner.style.cssText = `
-            position: fixed; top: 0; left: 0; right: 0; z-index: 99999;
-            background: linear-gradient(135deg, #4f46e5, #7c3aed);
-            color: #fff; text-align: center; padding: 10px 20px;
-            font-family: 'Cairo', sans-serif; font-size: 14px; font-weight: 700;
+            position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 99999;
+            background: linear-gradient(135deg, #1e1b4b, #312e81);
+            border: 1px solid rgba(167, 139, 250, 0.45);
+            color: #fff; text-align: center; padding: 10px 18px;
+            font-family: 'Cairo', sans-serif; font-size: 13.5px; font-weight: 700;
             display: flex; align-items: center; justify-content: center; gap: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6), 0 0 20px rgba(124, 58, 237, 0.35);
+            border-radius: 50px;
+            max-width: calc(100vw - 32px);
+            box-sizing: border-box;
         `;
         banner.innerHTML = `
-            <i class="fas fa-download"></i>
-            <span>🚀 تحديث جديد متاح لـ Fleet CRM!</span>
-            <button onclick="window.App._activateUpdate()" style="background:#fff; color:#4f46e5; border:none; padding:6px 16px; border-radius:8px; font-weight:800; cursor:pointer; font-size:13px;">تحديث الآن</button>
-            <button onclick="this.parentElement.remove()" style="background:rgba(255,255,255,0.2); color:#fff; border:none; padding:6px 10px; border-radius:8px; cursor:pointer;">✕</button>
+            <i class="fas fa-rocket" style="color: #a78bfa; font-size: 15px;"></i>
+            <span>تحديث جديد متاح لـ Fleet CRM!</span>
+            <button onclick="window.App._activateUpdate()" style="background: linear-gradient(135deg, #7c3aed, #6366f1); color: #fff; border: none; padding: 6px 16px; border-radius: 20px; font-weight: 800; cursor: pointer; font-size: 12.5px; box-shadow: 0 2px 8px rgba(124,58,237,0.4);">تحديث الآن</button>
+            <button onclick="this.parentElement.remove()" style="background: rgba(255,255,255,0.12); color: #fff; border: none; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 12px;" title="إغلاق">✕</button>
         `;
-        document.body.prepend(banner);
+        document.body.appendChild(banner);
     },
 
     _activateUpdate() {
@@ -2044,8 +2047,8 @@ const App = {
             }
         } catch(e) {}
         try {
-            localStorage.setItem('fleetcrm_app_version', '310.1');
-            localStorage.setItem('fleetcrm_dataset_version', 'v310.1_100percent_real_verified_18707');
+            localStorage.setItem('fleetcrm_app_version', '310.2');
+            localStorage.setItem('fleetcrm_dataset_version', 'v310.2_100percent_real_verified_18707');
             localStorage.setItem('fleetcrm_company_count', '18,707');
             sessionStorage.clear();
         } catch(e) {}

@@ -11,8 +11,8 @@
     <script>
         // Clean storage initialization
         (function() {
-            var CURRENT_VER = '310.1';
-            var DATASET_VER = 'v310.1_100percent_real_verified_18707';
+            var CURRENT_VER = '310.2';
+            var DATASET_VER = 'v310.2_100percent_real_verified_18707';
             try {
                 localStorage.removeItem('fleetcrm_deals');
                 localStorage.removeItem('fleetcrm_deals_count');
@@ -34,7 +34,7 @@
                     if ('caches' in window) {
                         caches.keys().then(function(keys) {
                             keys.forEach(function(k) {
-                                if (k !== 'fleetcrm-v310-1-shell') {
+                                if (k !== 'fleetcrm-v310-2-shell') {
                                     caches.delete(k);
                                 }
                             });
@@ -65,7 +65,7 @@
             } catch(e) {}
         })();
     </script>
-    <link rel="manifest" href="manifest.json?v=310.1">
+    <link rel="manifest" href="manifest.json?v=310.2">
     <meta name="theme-color" content="#7c3aed">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -76,7 +76,7 @@
     <link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap"></noscript>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=310.1">
+    <link rel="stylesheet" href="css/style.css?v=310.2">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
     <script>
         (function() {
@@ -324,7 +324,7 @@
             </div>
             <div class="brand-text">
                 <h2>Fleet CRM</h2>
-                <span>إدارة بيع الإطارات <small class="brand-ver-badge" style="background:#7c3aed33; color:#a78bfa; padding:1px 6px; border-radius:6px; font-size:10px; font-weight:700;">v310.1</small></span>
+                <span>إدارة بيع الإطارات <small class="brand-ver-badge" style="background:#7c3aed33; color:#a78bfa; padding:1px 6px; border-radius:6px; font-size:10px; font-weight:700;">v310.2</small></span>
             </div>
         </div>
 
@@ -1648,7 +1648,7 @@
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid var(--border-light);">
                         <span style="font-size: 12.5px; color: var(--text-secondary);"><i class="fas fa-layer-group" style="color: #0284c7; margin-left: 6px;"></i> واجهة وأكواد النظام (App Shell):</span>
-                        <span id="pwa-modal-appshell-status" style="font-size: 12px; font-weight: 800; color: #10b981;">✅ مخزنة بالكامل (v310.1)</span>
+                        <span id="pwa-modal-appshell-status" style="font-size: 12px; font-weight: 800; color: #10b981;">✅ مخزنة بالكامل (v310.2)</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid var(--border-light);">
                         <span style="font-size: 12.5px; color: var(--text-secondary);"><i class="fas fa-database" style="color: #10b981; margin-left: 6px;"></i> قاعدة الشركات المحلية (IndexedDB):</span>
@@ -1813,19 +1813,19 @@
     <!-- External Libraries (Deferred for instant mobile paint) -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
 
-    <script src="js/supabase-client.js?v=310.1"></script>
-    <script src="js/egypt_verified_titans.js?v=310.1"></script>
-    <script src="js/egypt_enterprises_pool.js?v=310.1"></script>
-    <script src="js/storage.js?v=310.1"></script>
-    <script src="js/excel-handler.js?v=310.1"></script>
-    <script src="js/dashboard.js?v=310.1"></script>
-    <script src="js/companies.js?v=310.1"></script>
-    <script src="js/calls.js?v=310.1"></script>
-    <script src="js/reports.js?v=310.1"></script>
-    <script src="js/scraper.js?v=310.1"></script>
-    <script src="js/team.js?v=310.1"></script>
-    <script src="js/settings.js?v=310.1"></script>
-    <script src="js/app.js?v=310.1"></script>
+    <script src="js/supabase-client.js?v=310.2"></script>
+    <script src="js/egypt_verified_titans.js?v=310.2"></script>
+    <script src="js/egypt_enterprises_pool.js?v=310.2"></script>
+    <script src="js/storage.js?v=310.2"></script>
+    <script src="js/excel-handler.js?v=310.2"></script>
+    <script src="js/dashboard.js?v=310.2"></script>
+    <script src="js/companies.js?v=310.2"></script>
+    <script src="js/calls.js?v=310.2"></script>
+    <script src="js/reports.js?v=310.2"></script>
+    <script src="js/scraper.js?v=310.2"></script>
+    <script src="js/team.js?v=310.2"></script>
+    <script src="js/settings.js?v=310.2"></script>
+    <script src="js/app.js?v=310.2"></script>
 
     <!-- Cleanup overlay on load - runs once only, does NOT override App.checkAuth -->
     <script>
