@@ -334,7 +334,22 @@ const VERIFIED_PRIMARY_LANDLINES = {
     '0223959600': 'شركة المقاولون العرب (عثمان أحمد عثمان وشركاه)'
 };
 
-const NON_B2B_FILTER = /(^|\s)(محطة مترو|مترو الانفاق|مترو أنفاق|محطة قطار|سكة حديد|موقف ميكروباص|نقطة شرطة|قسم شرطة|مكتب بريد|بريد مصر|سفارة|قنصلية|مسجد |جامع |Mosque|كنيسة |Church|مدافن|مقابر|مدرسة |School|حضانة |Nursery|كلية |Faculty of|أكاديمية لمعادلة|سنتر لمعادلة|معادلة كلية|Food Court|The Yard|The District|حمام سباحة|Swimming Pool|كشافة|Scout|حديقة عامة|ميدان |صالون تجميل|بيوتي سنتر|كوافير|كافيه|مقهى|كبابجي|مشويات|شاورما|صيدلية |عيادة |عيادات |عياده |Clinic)($|\s)/i;
+const NON_B2B_FILTER = new RegExp([
+    '01[0125]\\d{8}',
+    '02\\d{7,8}',
+    '(^|\\s)(محطة مترو|مترو الانفاق|مترو أنفاق|محطة قطار|سكة حديد|موقف ميكروباص|نقطة شرطة|قسم شرطة|مكتب بريد|بريد مصر|سفارة|قنصلية|مسجد |جامع |Mosque|كنيسة |Church|مدافن|مقابر|مدرسة |School|حضانة |Nursery|كلية |Faculty of|أكاديمية لمعادلة|سنتر لمعادلة|معادلة كلية|Food Court|The Yard|The District|حمام سباحة|Swimming Pool|كشافة|Scout|حديقة عامة|ميدان |صالون تجميل|بيوتي سنتر|كوافير|كافيه|مقهى|كبابجي|مشويات|شاورما|صيدلية |عيادة |عيادات |عياده |Clinic)($|\\s)',
+    '(^|\\s)(بلاي ستيشن|PlayStation|Play Station|بلايستيشن|سايبر)($|\\s)',
+    '(شغالات|خادمات|مربيات|عاملات نظافة منزلية)',
+    '(^|\\s)(حلاق|صالون حلاقة|كوافير|بيوتي سنتر|ميك اب|ميكب|أتيليه|اتيليه)($|\\s)',
+    '(تصليح موبايل|صيانة شاشات|صيانة غسالات|صيانة ثلاجات|فني تكييف)',
+    '(^|\\s)(سباك|نقاش|كهربائي منازل|كسر سيراميك|تركيب سيراميك|سلك بليسيه)($|\\s)',
+    '(زراعة شعر|تجهيز حفلات|افراح|حنة شو|سيارات زفاف|سيارات الزفاف|ليموزين زفاف)',
+    '(^|\\s)(خردة|روبابيكيا)($|\\s)',
+    '(وظائف|وظايف|مطلوب مندوب|مطلوب سائق|\\bcareers\\b|\\brecruitment\\b|توظيف|إلحاق العمالة|الحاق العمالة|فرص عمل)',
+    '(شقق للايجار|شقق للبيع|فيلات للايجار|شاليهات|عقد قديم|للبيع بالتقسيط|سمسار)',
+    '(طريقة تركيب|كيفية تركيب)',
+    '(ارخص شركة|ارخص سعر|اقل الاسعار|سعر متر|بسعر الجمله)'
+].join('|'), 'i');
 
 const titansList = [];
 const basePoolList = [];
@@ -847,6 +862,11 @@ console.log('\nWriting crm/data/companies.json...');
 const allCompaniesCombined = [...titansList, ...basePoolList];
 fs.writeFileSync('crm/data/companies.json', JSON.stringify(allCompaniesCombined), 'utf8');
 console.log(' -> crm/data/companies.json written successfully! Size:', (fs.statSync('crm/data/companies.json').size / (1024*1024)).toFixed(2), 'MB');
+
+// Write crm/data/egypt_verified_titans.json
+console.log('\nWriting crm/data/egypt_verified_titans.json...');
+fs.writeFileSync('crm/data/egypt_verified_titans.json', JSON.stringify(titansList), 'utf8');
+console.log(' -> crm/data/egypt_verified_titans.json written successfully! Size:', (fs.statSync('crm/data/egypt_verified_titans.json').size / (1024*1024)).toFixed(2), 'MB');
 
 // Write crm/data/egypt_enterprises_pool.json
 console.log('\nWriting crm/data/egypt_enterprises_pool.json...');

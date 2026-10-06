@@ -1713,7 +1713,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v310.5_verified_telecom_18707';
+                    const currentVersionTag = 'v310.6_purged_pure_b2b_mobiles_18707';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 

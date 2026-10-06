@@ -1976,7 +1976,7 @@ const Companies = {
                 if (window.AppStorage.saveBatchToIDB) {
                     await window.AppStorage.saveBatchToIDB(window.AppStorage.companiesMemory);
                 }
-                localStorage.setItem('fleetcrm_dataset_version', 'v310.5_verified_telecom_18707');
+                localStorage.setItem('fleetcrm_dataset_version', 'v310.6_purged_pure_b2b_mobiles_18707');
                 localStorage.setItem('fleetcrm_company_count', '18,707');
                 App.showToast('✨ تم بنجاح تحديث وتطهير قاعدة البيانات بالكامل (18,707 شركة حقيقية ومعتمدة 100%)!', 'success');
                 this.openAuditModal();
