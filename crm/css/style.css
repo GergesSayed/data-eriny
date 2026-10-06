@@ -13,6 +13,10 @@
     --bg-surface-light: #2a3255;
     --bg-card: rgba(26, 31, 53, 0.85);
     --bg-glass: rgba(26, 31, 53, 0.6);
+    --bg-hover: var(--bg-surface-hover);
+    --bg-tertiary: var(--bg-surface-light);
+    --surface-card: var(--bg-card);
+    --primary-color: var(--primary);
 
     --border-color: rgba(99, 102, 241, 0.15);
     --border-light: rgba(255, 255, 255, 0.06);
@@ -92,6 +96,10 @@
     --bg-surface-light: #e2e8f0;
     --bg-card: #ffffff;
     --bg-glass: rgba(255, 255, 255, 0.95);
+    --bg-hover: var(--bg-surface-hover);
+    --bg-tertiary: var(--bg-surface-light);
+    --surface-card: var(--bg-card);
+    --primary-color: var(--primary);
 
     --border-color: #cbd5e1;
     --border-light: #e2e8f0;
