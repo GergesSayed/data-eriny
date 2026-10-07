@@ -23,9 +23,9 @@ echo     [2] Google Maps Light — 200-500 شركة (10-20 دقيقة)
 echo     [3] Google Maps Deep — 500-2000 شركة (30-60 دقيقة)
 echo.
 echo ============================================================
-echo   CLOUD ؤ SERVER:
+echo   CLOUD & SERVER:
 echo ============================================================
-echo     [6] Sync to Supabase — رفع أحدث بيانات للسحابة
+echo     [6] Sync to Cloud (Firebase) — رفع أحدث بيانات للسحابة
 echo     [7] Open CRM Online — data-eriny.vercel.app
 echo     [8] Start Local Server — يشغل السيرفر (CRM يتحكم فيه)
 echo.
@@ -43,7 +43,7 @@ if "%choice%"=="2" goto browser
 if "%choice%"=="3" goto browser_deep
 if "%choice%"=="4" goto smart
 if "%choice%"=="5" goto mega
-if "%choice%"=="6" goto sync_supabase
+if "%choice%"=="6" goto sync_cloud
 if "%choice%"=="7" goto crm_online
 if "%choice%"=="8" goto local_server
 if "%choice%"=="9" goto deps
@@ -64,7 +64,7 @@ if %errorlevel% neq 0 (
 )
 echo.
 echo ============================================================
-echo  [2/2] Syncing to Supabase cloud...
+echo  [2/2] Syncing to Firebase cloud...
 echo ============================================================
 python -X utf8 sync_to_supabase.py
 echo.
@@ -84,7 +84,7 @@ echo Press Ctrl+C to stop at any time - progress is saved.
 echo.
 python -X utf8 browser_scraper.py --headless --max 200
 echo.
-echo Syncing to Supabase...
+echo Syncing to Firebase cloud...
 python -X utf8 sync_to_supabase.py
 pause
 goto end
@@ -97,7 +97,7 @@ echo Press Ctrl+C to stop at any time - progress is saved.
 echo.
 python -X utf8 browser_scraper.py --headless --max 2000
 echo.
-echo Syncing to Supabase...
+echo Syncing to Firebase cloud...
 python -X utf8 sync_to_supabase.py
 pause
 goto end
@@ -108,7 +108,7 @@ echo Starting Smart Puller - Google Search scraping...
 echo.
 python -X utf8 smart_puller.py --deep
 echo.
-echo Syncing to Supabase...
+echo Syncing to Firebase cloud...
 python -X utf8 sync_to_supabase.py
 pause
 goto end
@@ -120,14 +120,14 @@ echo Takes 1-2 hours.
 echo.
 python -X utf8 mega_scraper.py --max-companies 5000
 echo.
-echo Syncing to Supabase...
+echo Syncing to Firebase cloud...
 python -X utf8 sync_to_supabase.py
 pause
 goto end
 
-:sync_supabase
+:sync_cloud
 echo.
-echo Syncing scraper output to Supabase cloud...
+echo Syncing scraper output to Firebase cloud...
 python -X utf8 sync_to_supabase.py
 pause
 goto end
