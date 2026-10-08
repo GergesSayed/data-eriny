@@ -177,7 +177,7 @@ const App = {
                     console.log('[SW] Service worker controller updated and active.');
                 });
 
-                navigator.serviceWorker.register('sw.js?v=312.0').then(reg => {
+                navigator.serviceWorker.register('sw.js?v=312.1').then(reg => {
                     reg.update().catch(() => {});
                     // Detect when a new SW version is waiting — show update notification
                     reg.addEventListener('updatefound', () => {
@@ -2047,8 +2047,8 @@ const App = {
             }
         } catch(e) {}
         try {
-            localStorage.setItem('fleetcrm_app_version', '312.0');
-            localStorage.setItem('fleetcrm_dataset_version', 'v312.0_industrial_corridors_19245');
+            localStorage.setItem('fleetcrm_app_version', '312.1');
+            localStorage.setItem('fleetcrm_dataset_version', 'v312.1_industrial_corridors_19245');
             localStorage.setItem('fleetcrm_company_count', '19,245');
             sessionStorage.clear();
         } catch(e) {}

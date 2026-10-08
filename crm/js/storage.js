@@ -1729,7 +1729,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v312.0_industrial_corridors_19245';
+                    const currentVersionTag = 'v312.1_industrial_corridors_19245';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 
@@ -2403,10 +2403,11 @@ const AppStorage = {
         let name = nameOrComp;
         if (typeof nameOrComp === 'object') {
             const comp = nameOrComp;
-            if (comp.isTitan || (comp.id && (String(comp.id).startsWith('eg_titan_') || String(comp.id).startsWith('eg_b2b_fleet_') || String(comp.id).startsWith('scraped_live_') || String(comp.id).startsWith('comp_base_')))) {
+            name = comp.nameAr || comp.name || comp.nameEn || '';
+            if (typeof name !== 'string' || name.trim().length < 3) return false;
+            if (comp.isTitan || (comp.id && (String(comp.id).startsWith('eg_titan_') || String(comp.id).startsWith('eg_b2b_fleet_') || String(comp.id).startsWith('comp_base_')))) {
                 return true;
             }
-            name = comp.nameAr || comp.name || comp.nameEn || '';
         }
         if (typeof name !== 'string' || name.trim().length < 3) return false;
         const n = name.trim();
