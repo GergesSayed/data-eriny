@@ -1966,7 +1966,7 @@ const Companies = {
         }
         App.confirm(
             '🔄 إعادة ضبط وتطهير قاعدة البيانات بالكامل',
-            'سيتم تنظيف أي كاش قديم في المتصفح وإعادة شحن قاعدة البيانات الحقيقية المعتمدة بالكامل (1,000 شركة عملاقة VIP + 18,764 شركة صناعية وتجارية حقيقية بإجمالي 19,764 شركة معتمدة ومحققة 100%). هل تريد المتابعة؟',
+            'سيتم تنظيف أي كاش قديم في المتصفح وإعادة شحن قاعدة البيانات الحقيقية المعتمدة بالكامل (1,000 شركة عملاقة VIP + 18,830 شركة صناعية وتجارية حقيقية بإجمالي 19,830 شركة معتمدة ومحققة 100%). هل تريد المتابعة؟',
             async () => {
                 App.showToast('⏳ جاري إعادة التحديث والتطهير الشامل...', 'info');
                 localStorage.removeItem('fleetcrm_user_wiped_companies');
@@ -1976,9 +1976,9 @@ const Companies = {
                 if (window.AppStorage.saveBatchToIDB) {
                     await window.AppStorage.saveBatchToIDB(window.AppStorage.companiesMemory);
                 }
-                localStorage.setItem('fleetcrm_dataset_version', 'v315.0_track_c_19764');
-                localStorage.setItem('fleetcrm_company_count', '19,764');
-                App.showToast('✨ تم بنجاح تحديث وتطهير قاعدة البيانات بالكامل (19,764 شركة حقيقية ومعتمدة 100%)!', 'success');
+                localStorage.setItem('fleetcrm_dataset_version', 'v316.0_track_d_19830');
+                localStorage.setItem('fleetcrm_company_count', '19,830');
+                App.showToast('✨ تم بنجاح تحديث وتطهير قاعدة البيانات بالكامل (19,830 شركة حقيقية ومعتمدة 100%)!', 'success');
                 this.openAuditModal();
                 this.render();
                 if (typeof Dashboard !== 'undefined') Dashboard.render();
