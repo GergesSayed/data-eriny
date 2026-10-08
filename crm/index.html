@@ -11,8 +11,8 @@
     <script>
         // Clean storage initialization
         (function() {
-            var CURRENT_VER = '314.0';
-            var DATASET_VER = 'v314.0_track_b_19686';
+            var CURRENT_VER = '315.0';
+            var DATASET_VER = 'v315.0_track_c_19764';
             try {
                 localStorage.removeItem('fleetcrm_deals');
                 localStorage.removeItem('fleetcrm_deals_count');
@@ -21,7 +21,7 @@
                 var lastDatasetVer = localStorage.getItem('fleetcrm_dataset_version');
                 if (lastVer !== CURRENT_VER || lastDatasetVer !== DATASET_VER) {
                     localStorage.setItem('fleetcrm_app_version', CURRENT_VER);
-                    localStorage.setItem('fleetcrm_company_count', '19,686');
+                    localStorage.setItem('fleetcrm_company_count', '19,764');
                     localStorage.setItem('fleetcrm_dataset_version', DATASET_VER);
                     try {
                         if (window.indexedDB) {
@@ -34,7 +34,7 @@
                     if ('caches' in window) {
                         caches.keys().then(function(keys) {
                             keys.forEach(function(k) {
-                                if (k !== 'fleetcrm-v314-0-shell') {
+                                if (k !== 'fleetcrm-v315-0-shell') {
                                     caches.delete(k);
                                 }
                             });
@@ -43,8 +43,8 @@
                 }
                 var rawCount = localStorage.getItem('fleetcrm_company_count');
                 var parsedCount = rawCount ? parseInt(String(rawCount).replace(/,/g, ''), 10) : 0;
-                if (!parsedCount || parsedCount < 19686) {
-                    localStorage.setItem('fleetcrm_company_count', '19,686');
+                if (!parsedCount || parsedCount < 19764) {
+                    localStorage.setItem('fleetcrm_company_count', '19,764');
                 }
                 if (window.location.hash === '#pipeline') {
                     window.location.hash = '#companies';
@@ -65,7 +65,7 @@
             } catch(e) {}
         })();
     </script>
-    <link rel="manifest" href="manifest.json?v=314.0">
+    <link rel="manifest" href="manifest.json?v=315.0">
     <meta name="theme-color" content="#7c3aed">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -76,18 +76,18 @@
     <link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap"></noscript>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=314.0">
+    <link rel="stylesheet" href="css/style.css?v=315.0">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
     <script>
         (function() {
             function updateImmediateCounters() {
                 try {
                     if (localStorage.getItem('fleetcrm_user_wiped_companies') !== 'true') {
-                        var rawCount = localStorage.getItem('fleetcrm_company_count') || '19,686';
+                        var rawCount = localStorage.getItem('fleetcrm_company_count') || '19,764';
                         var parsed = parseInt(String(rawCount).replace(/,/g, ''), 10);
-                        if (!parsed || parsed < 19686) {
-                            parsed = 19686;
-                            localStorage.setItem('fleetcrm_company_count', '19,686');
+                        if (!parsed || parsed < 19764) {
+                            parsed = 19764;
+                            localStorage.setItem('fleetcrm_company_count', '19,764');
                         }
                         var formatted = parsed.toLocaleString();
                         var sEl = document.getElementById('sidebar-total-companies');
@@ -373,7 +373,7 @@
         <div class="sidebar-footer admin-only-nav">
             <div class="sidebar-stats" style="justify-content:center;">
                 <div class="sidebar-stat" style="width:100%; text-align:center;">
-                    <span class="stat-num" id="sidebar-total-companies">19,686</span>
+                    <span class="stat-num" id="sidebar-total-companies">19,764</span>
                     <span class="stat-label">شركة ومصنع مسجل</span>
                 </div>
             </div>
@@ -500,7 +500,7 @@
                     <div class="stat-card stat-card--primary">
                         <div class="stat-card__icon"><i class="fas fa-building"></i></div>
                         <div class="stat-card__info">
-                            <h3 id="dash-total-companies">19,686</h3>
+                            <h3 id="dash-total-companies">19,764</h3>
                             <p>إجمالي الشركات <br><small>Total Companies</small></p>
                         </div>
                         <div class="stat-card__trend up">
@@ -848,7 +848,7 @@
                 <!-- Company Stats Bar -->
                 <div class="table-stats-bar" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
                     <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-                        <span id="companies-count-display">📊 إجمالي شركات السيستم: 19,686 شركة</span>
+                        <span id="companies-count-display">📊 إجمالي شركات السيستم: 19,764 شركة</span>
                         <button type="button" id="btn-quick-toggle-vip" onclick="Companies.toggleVipFilter()" class="btn btn-sm" style="display:inline-flex; align-items:center; gap:6px; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:700; border:1px solid #f59e0b; color:#fbbf24; background:rgba(245, 158, 11, 0.1); cursor:pointer; transition:all 0.2s;" title="تصفية فورية لعرض كبرى شركات مصر VIP فقط">
                             <i class="fas fa-crown"></i> <span>شركات VIP فقط</span>
                         </button>
@@ -1587,7 +1587,7 @@
                 <button class="btn btn-ghost" data-modal="modal-data-audit" onclick="App.closeModal('modal-data-audit')">إغلاق النافذة</button>
                 <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                     <button class="btn btn-danger" onclick="Companies.resetToPristinePool()" style="font-weight:800; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white;">
-                        <i class="fas fa-sync-alt"></i> 🔄 إعادة تحديث وتطهير الكاش (19,686 شركة معتمدة ومحققة 100%)
+                        <i class="fas fa-sync-alt"></i> 🔄 إعادة تحديث وتطهير الكاش (19,764 شركة معتمدة ومحققة 100%)
                     </button>
                     <button class="btn btn-accent" id="btn-run-auto-clean" onclick="Companies.runAutoCleanAndMerge()" style="font-weight:800; background: linear-gradient(135deg, #10b981, #059669); color: white;">
                         <i class="fas fa-magic"></i> ✨ تنظيف الكيانات والتكرارات فوراً
@@ -1651,11 +1651,11 @@
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid var(--border-light);">
                         <span style="font-size: 12.5px; color: var(--text-secondary);"><i class="fas fa-layer-group" style="color: #0284c7; margin-left: 6px;"></i> واجهة وأكواد النظام (App Shell):</span>
-                        <span id="pwa-modal-appshell-status" style="font-size: 12px; font-weight: 800; color: #10b981;">✅ مخزنة بالكامل (v314.0)</span>
+                        <span id="pwa-modal-appshell-status" style="font-size: 12px; font-weight: 800; color: #10b981;">✅ مخزنة بالكامل (v315.0)</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid var(--border-light);">
                         <span style="font-size: 12.5px; color: var(--text-secondary);"><i class="fas fa-database" style="color: #10b981; margin-left: 6px;"></i> قاعدة الشركات المحلية (IndexedDB):</span>
-                        <span id="pwa-modal-comp-count" style="font-size: 12px; font-weight: 800; color: #0284c7;">✅ 19,686 شركة متوفرة أوفلاين</span>
+                        <span id="pwa-modal-comp-count" style="font-size: 12px; font-weight: 800; color: #0284c7;">✅ 19,764 شركة متوفرة أوفلاين</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid var(--border-light);">
                         <span style="font-size: 12.5px; color: var(--text-secondary);"><i class="fas fa-phone-volume" style="color: #f59e0b; margin-left: 6px;"></i> سجل المكالمات المحلي (Local Vault):</span>
@@ -1816,19 +1816,19 @@
     <!-- External Libraries (Deferred for instant mobile paint) -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
 
-    <script src="js/supabase-client.js?v=313.0"></script>
-    <script src="js/egypt_verified_titans.js?v=314.0"></script>
-    <script src="js/egypt_enterprises_pool.js?v=314.0"></script>
-    <script src="js/storage.js?v=314.0"></script>
-    <script src="js/excel-handler.js?v=314.0"></script>
-    <script src="js/dashboard.js?v=314.0"></script>
-    <script src="js/companies.js?v=314.0"></script>
-    <script src="js/calls.js?v=314.0"></script>
-    <script src="js/reports.js?v=314.0"></script>
-    <script src="js/scraper.js?v=314.0"></script>
-    <script src="js/team.js?v=314.0"></script>
-    <script src="js/settings.js?v=314.0"></script>
-    <script src="js/app.js?v=314.0"></script>
+    <script src="js/supabase-client.js?v=315.0"></script>
+    <script src="js/egypt_verified_titans.js?v=315.0"></script>
+    <script src="js/egypt_enterprises_pool.js?v=315.0"></script>
+    <script src="js/storage.js?v=315.0"></script>
+    <script src="js/excel-handler.js?v=315.0"></script>
+    <script src="js/dashboard.js?v=315.0"></script>
+    <script src="js/companies.js?v=315.0"></script>
+    <script src="js/calls.js?v=315.0"></script>
+    <script src="js/reports.js?v=315.0"></script>
+    <script src="js/scraper.js?v=315.0"></script>
+    <script src="js/team.js?v=315.0"></script>
+    <script src="js/settings.js?v=315.0"></script>
+    <script src="js/app.js?v=315.0"></script>
 
     <!-- Cleanup overlay on load - runs once only, does NOT override App.checkAuth -->
     <script>
