@@ -20,13 +20,13 @@ function assert(condition, testName) {
 // 1. DATASET INTEGRITY
 console.log('--- TEST GROUP 1: DATASET INTEGRITY ---');
 const rawComps = JSON.parse(fs.readFileSync('crm/data/companies.json', 'utf8'));
-assert(rawComps.length === 20067, 'Exact total company count is 20,067');
+assert(rawComps.length === 20151, 'Exact total company count is 20,151');
 
 const titans = rawComps.filter(c => c.isTitan || c.vip);
 assert(titans.length === 1000, 'Exact VIP Titans count is 1,000');
 
 const basePool = rawComps.filter(c => !c.isTitan && !c.vip);
-assert(basePool.length === 19067, 'Exact Base Pool count is 19,067');
+assert(basePool.length === 19151, 'Exact Base Pool count is 19,151');
 
 const ids = new Set();
 let dupIds = 0;
@@ -34,7 +34,7 @@ rawComps.forEach(c => {
   if (ids.has(c.id)) dupIds++;
   ids.add(c.id);
 });
-assert(dupIds === 0, 'Zero duplicate company IDs across all 20,067 records');
+assert(dupIds === 0, 'Zero duplicate company IDs across all 20,151 records');
 
 // 2. CONTACT PERSON BLANK CHECK (USER REQUIREMENT)
 console.log('\n--- TEST GROUP 2: CONTACT PERSON BLANK POLICY ---');
