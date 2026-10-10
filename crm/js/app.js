@@ -2047,9 +2047,9 @@ const App = {
             }
         } catch(e) {}
         try {
-            localStorage.setItem('fleetcrm_app_version', '324.0');
-            localStorage.setItem('fleetcrm_dataset_version', 'v324.0_phase2_mid_delta_20491');
-            localStorage.setItem('fleetcrm_company_count', '20,491');
+            localStorage.setItem('fleetcrm_app_version', '325.0');
+            localStorage.setItem('fleetcrm_dataset_version', 'v325.0_phase2_canal_sinai_20561');
+            localStorage.setItem('fleetcrm_company_count', '20,561');
             sessionStorage.clear();
         } catch(e) {}
         const base = window.location.origin + window.location.pathname;
