@@ -1729,7 +1729,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v321.0_phase2_alex_corridor_20287';
+                    const currentVersionTag = 'v322.0_phase2_upper_egypt_mining_20355';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 
@@ -1741,9 +1741,9 @@ const AppStorage = {
                         } catch(e) {}
                     }
 
-                    // Fast-path: When IndexedDB already contains the full dataset (20,287 items)
+                    // Fast-path: When IndexedDB already contains the full dataset (20,355 items)
                     // Loads instantly in ~10ms with zero object re-creation or main-thread freezing
-                    if (storedVersionTag === currentVersionTag && idbData && idbData.length === 20287) {
+                    if (storedVersionTag === currentVersionTag && idbData && idbData.length === 20355) {
                         for (let i = 0; i < idbData.length; i++) {
                             const comp = idbData[i];
                             if (comp && comp.contactPerson && this.isRoleTitle(comp.contactPerson)) {
@@ -1755,14 +1755,14 @@ const AppStorage = {
                         this.applyCallsToCompanies(idbData);
                         this.companiesMemory = idbData;
                         this.invalidateScopedCache();
-                        localStorage.setItem('fleetcrm_company_count', (20287).toLocaleString());
-                        this.updateLiveCounters(20287);
+                        localStorage.setItem('fleetcrm_company_count', (20355).toLocaleString());
+                        this.updateLiveCounters(20355);
                         complete(idbData);
                         return;
                     }
 
                     // Otherwise (IDB is stale or empty):
-                    // Self-heal immediately from the verified 20,287 baseline!
+                    // Self-heal immediately from the verified 20,355 baseline!
                     const masterMap = new Map();
                     const deletedCompIds = this.getDeletedIds ? this.getDeletedIds('companies') : new Set();
                     const titans = this.getVerifiedTitans ? this.getVerifiedTitans() : [];
@@ -4939,7 +4939,7 @@ window.esc = (s) => AppStorage.escapeHtml(s);
 var Storage = AppStorage;
 
 // Synchronous immediate memory hydration on script load (ultra-fast ~14-16ms direct insertion)
-// Guarantees AppStorage.companiesMemory has all 20,287 companies before first paint with 0ms login lag!
+// Guarantees AppStorage.companiesMemory has all 20,355 companies before first paint with 0ms login lag!
 try {
     if (localStorage.getItem('fleetcrm_user_wiped_companies') !== 'true') {
         AppStorage.hydrateMemoryFromBaseline();
