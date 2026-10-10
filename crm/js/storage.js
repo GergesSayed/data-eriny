@@ -934,7 +934,7 @@ const AppStorage = {
 
     hydrateMemoryFromBaseline() {
         try {
-            if (this.companiesMemory && this.companiesMemory.length >= 20287) return;
+            if (this.companiesMemory && this.companiesMemory.length >= 20355) return;
             if (localStorage.getItem('fleetcrm_user_wiped_companies') === 'true') return;
             this._fallbackHydrateBaseline();
         } catch (e) { }
@@ -959,7 +959,7 @@ const AppStorage = {
             // Hard safety timeout: under no circumstance can DB initialization stall the app for > 1500ms
             const timeoutId = setTimeout(() => {
                 console.warn('[Storage] initDB safety timeout reached, falling back safely to baseline memory');
-                if (!this.companiesMemory || !Array.isArray(this.companiesMemory) || this.companiesMemory.length < 20287) {
+                if (!this.companiesMemory || !Array.isArray(this.companiesMemory) || this.companiesMemory.length < 20355) {
                     this.hydrateMemoryFromBaseline();
                 }
                 this.updateLiveCounters();
@@ -983,7 +983,7 @@ const AppStorage = {
                 request.onblocked = () => {
                     console.warn('[Storage] IndexedDB open blocked by existing connection, proceeding with memory baseline');
                     clearTimeout(timeoutId);
-                    if (!this.companiesMemory || !Array.isArray(this.companiesMemory) || this.companiesMemory.length < 20287) {
+                    if (!this.companiesMemory || !Array.isArray(this.companiesMemory) || this.companiesMemory.length < 20355) {
                         this.hydrateMemoryFromBaseline();
                     }
                     this.updateLiveCounters();
@@ -1691,7 +1691,7 @@ const AppStorage = {
         if (syncMap.size >= 15000 || !this.companiesMemory || this.companiesMemory.length === 0) {
             this.companiesMemory = Array.from(syncMap.values());
         }
-        const count = (this.companiesMemory && this.companiesMemory.length >= 15000) ? this.companiesMemory.length : 20287;
+        const count = (this.companiesMemory && this.companiesMemory.length >= 15000) ? this.companiesMemory.length : 20355;
         localStorage.setItem('fleetcrm_company_count', count.toLocaleString());
         this.updateLiveCounters(count);
     },
@@ -1853,7 +1853,7 @@ const AppStorage = {
                         this.companiesMemory = merged;
                     }
                     this.invalidateScopedCache();
-                    const finalCount = (this.companiesMemory && this.companiesMemory.length >= 15000) ? this.companiesMemory.length : 20287;
+                    const finalCount = (this.companiesMemory && this.companiesMemory.length >= 15000) ? this.companiesMemory.length : 20355;
                     localStorage.setItem('fleetcrm_company_count', finalCount.toLocaleString());
                     this.updateLiveCounters(finalCount);
 
@@ -1907,7 +1907,7 @@ const AppStorage = {
 
         // Anti-flash guard: Never flash partial titan count (e.g. 1,000) on refresh before enterprises pool is bound
         if (canViewAll && count > 0 && count < 15000 && localStorage.getItem('fleetcrm_user_wiped_companies') !== 'true') {
-            count = 20287;
+            count = 20355;
         }
 
         try {
@@ -1923,9 +1923,9 @@ const AppStorage = {
         const dashEl = document.getElementById('dash-total-companies');
         if (dashEl) dashEl.textContent = formatted;
         const scTotal = document.getElementById('sc-total');
-        if (scTotal) scTotal.textContent = (rawCount >= 15000 ? rawCount : 20287).toLocaleString();
+        if (scTotal) scTotal.textContent = (rawCount >= 15000 ? rawCount : 20355).toLocaleString();
         const subText = document.getElementById('scraper-status-subtext');
-        if (subText) subText.textContent = `المحرك الموحد المباشر (${(rawCount >= 15000 ? rawCount : 20287).toLocaleString()} شركة موثقة 100%)`;
+        if (subText) subText.textContent = `المحرك الموحد المباشر (${(rawCount >= 15000 ? rawCount : 20355).toLocaleString()} شركة موثقة 100%)`;
         return count;
     },
 
