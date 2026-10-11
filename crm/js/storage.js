@@ -934,7 +934,7 @@ const AppStorage = {
 
     hydrateMemoryFromBaseline() {
         try {
-            if (this.companiesMemory && this.companiesMemory.length >= 20925) return;
+            if (this.companiesMemory && this.companiesMemory.length >= 21000) return;
             if (localStorage.getItem('fleetcrm_user_wiped_companies') === 'true') return;
             this._fallbackHydrateBaseline();
         } catch (e) { }
@@ -959,7 +959,7 @@ const AppStorage = {
             // Hard safety timeout: under no circumstance can DB initialization stall the app for > 1500ms
             const timeoutId = setTimeout(() => {
                 console.warn('[Storage] initDB safety timeout reached, falling back safely to baseline memory');
-                if (!this.companiesMemory || !Array.isArray(this.companiesMemory) || this.companiesMemory.length < 20925) {
+                if (!this.companiesMemory || !Array.isArray(this.companiesMemory) || this.companiesMemory.length < 21000) {
                     this.hydrateMemoryFromBaseline();
                 }
                 this.updateLiveCounters();
@@ -983,7 +983,7 @@ const AppStorage = {
                 request.onblocked = () => {
                     console.warn('[Storage] IndexedDB open blocked by existing connection, proceeding with memory baseline');
                     clearTimeout(timeoutId);
-                    if (!this.companiesMemory || !Array.isArray(this.companiesMemory) || this.companiesMemory.length < 20925) {
+                    if (!this.companiesMemory || !Array.isArray(this.companiesMemory) || this.companiesMemory.length < 21000) {
                         this.hydrateMemoryFromBaseline();
                     }
                     this.updateLiveCounters();
@@ -1691,7 +1691,7 @@ const AppStorage = {
         if (syncMap.size >= 15000 || !this.companiesMemory || this.companiesMemory.length === 0) {
             this.companiesMemory = Array.from(syncMap.values());
         }
-        const count = (this.companiesMemory && this.companiesMemory.length >= 15000) ? this.companiesMemory.length : 20925;
+        const count = (this.companiesMemory && this.companiesMemory.length >= 15000) ? this.companiesMemory.length : 21000;
         localStorage.setItem('fleetcrm_company_count', count.toLocaleString());
         this.updateLiveCounters(count);
     },
@@ -1729,7 +1729,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v330.0_phase2_north_delta_black_sands_20925';
+                    const currentVersionTag = 'v331.0_phase2_sinai_deep_corridor_21000';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 
@@ -1741,9 +1741,9 @@ const AppStorage = {
                         } catch(e) {}
                     }
 
-                    // Fast-path: When IndexedDB already contains the full dataset (20,925 items)
+                    // Fast-path: When IndexedDB already contains the full dataset (21,000 items)
                     // Loads instantly in ~10ms with zero object re-creation or main-thread freezing
-                    if (storedVersionTag === currentVersionTag && idbData && idbData.length === 20925) {
+                    if (storedVersionTag === currentVersionTag && idbData && idbData.length === 21000) {
                         for (let i = 0; i < idbData.length; i++) {
                             const comp = idbData[i];
                             if (comp && comp.contactPerson && this.isRoleTitle(comp.contactPerson)) {
@@ -1755,14 +1755,14 @@ const AppStorage = {
                         this.applyCallsToCompanies(idbData);
                         this.companiesMemory = idbData;
                         this.invalidateScopedCache();
-                        localStorage.setItem('fleetcrm_company_count', (20925).toLocaleString());
-                        this.updateLiveCounters(20925);
+                        localStorage.setItem('fleetcrm_company_count', (21000).toLocaleString());
+                        this.updateLiveCounters(21000);
                         complete(idbData);
                         return;
                     }
 
                     // Otherwise (IDB is stale or empty):
-                    // Self-heal immediately from the verified 20,925 baseline!
+                    // Self-heal immediately from the verified 21,000 baseline!
                     const masterMap = new Map();
                     const deletedCompIds = this.getDeletedIds ? this.getDeletedIds('companies') : new Set();
                     const titans = this.getVerifiedTitans ? this.getVerifiedTitans() : [];
@@ -1853,7 +1853,7 @@ const AppStorage = {
                         this.companiesMemory = merged;
                     }
                     this.invalidateScopedCache();
-                    const finalCount = (this.companiesMemory && this.companiesMemory.length >= 15000) ? this.companiesMemory.length : 20925;
+                    const finalCount = (this.companiesMemory && this.companiesMemory.length >= 15000) ? this.companiesMemory.length : 21000;
                     localStorage.setItem('fleetcrm_company_count', finalCount.toLocaleString());
                     this.updateLiveCounters(finalCount);
 
@@ -1907,7 +1907,7 @@ const AppStorage = {
 
         // Anti-flash guard: Never flash partial titan count (e.g. 1,000) on refresh before enterprises pool is bound
         if (canViewAll && count > 0 && count < 15000 && localStorage.getItem('fleetcrm_user_wiped_companies') !== 'true') {
-            count = 20925;
+            count = 21000;
         }
 
         try {
@@ -1923,9 +1923,9 @@ const AppStorage = {
         const dashEl = document.getElementById('dash-total-companies');
         if (dashEl) dashEl.textContent = formatted;
         const scTotal = document.getElementById('sc-total');
-        if (scTotal) scTotal.textContent = (rawCount >= 15000 ? rawCount : 20925).toLocaleString();
+        if (scTotal) scTotal.textContent = (rawCount >= 15000 ? rawCount : 21000).toLocaleString();
         const subText = document.getElementById('scraper-status-subtext');
-        if (subText) subText.textContent = `المحرك الموحد المباشر (${(rawCount >= 15000 ? rawCount : 20925).toLocaleString()} شركة موثقة 100%)`;
+        if (subText) subText.textContent = `المحرك الموحد المباشر (${(rawCount >= 15000 ? rawCount : 21000).toLocaleString()} شركة موثقة 100%)`;
         return count;
     },
 
@@ -4939,7 +4939,7 @@ window.esc = (s) => AppStorage.escapeHtml(s);
 var Storage = AppStorage;
 
 // Synchronous immediate memory hydration on script load (ultra-fast ~14-16ms direct insertion)
-// Guarantees AppStorage.companiesMemory has all 20,925 companies before first paint with 0ms login lag!
+// Guarantees AppStorage.companiesMemory has all 21,000 companies before first paint with 0ms login lag!
 try {
     if (localStorage.getItem('fleetcrm_user_wiped_companies') !== 'true') {
         AppStorage.hydrateMemoryFromBaseline();
