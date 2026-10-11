@@ -4,11 +4,11 @@ import sys
 
 sys.stdout.reconfigure(encoding='utf-8')
 
-print("=== MERGING PHASE 2 - SQUARE 6 (NORTH DELTA, DAMIETTA PORT, LNG & KAFR EL SHEIKH) INTO CRM ===")
+print("=== MERGING PHASE 2 - SQUARE 13 (NORTH & CENTRAL DELTA BLACK SANDS, GAMASA & KAFR EL ZAYAT) INTO CRM ===")
 
-# 1. Load Phase 2 Square 6 verified companies
+# 1. Load Phase 2 Square 13 verified companies
 north_delta_hub = json.load(open('scraper/output/phase2_north_delta_verified_b2b_fleet.json', encoding='utf-8'))
-print(f"Loaded {len(north_delta_hub)} North Delta & Damietta Port verified enterprises.")
+print(f"Loaded {len(north_delta_hub)} North & Central Delta verified enterprises.")
 
 # 2. Load existing pool & companies
 pool_json_path = 'crm/data/egypt_enterprises_pool.json'
@@ -27,14 +27,14 @@ for c in north_delta_hub:
 
 # Append to pool
 new_pool = pool + north_delta_hub
-print(f"New pool total: {len(new_pool)} (expected: 19423)")
+print(f"New pool total: {len(new_pool)} (expected: 19925)")
 
 # Append to companies
 new_companies = companies + north_delta_hub
-print(f"New companies total: {len(new_companies)} (expected: 20423)")
+print(f"New companies total: {len(new_companies)} (expected: 20925)")
 
-assert len(new_pool) == 19423, f"Expected 19423 pool, got {len(new_pool)}"
-assert len(new_companies) == 20423, f"Expected 20423 companies, got {len(new_companies)}"
+assert len(new_pool) == 19925, f"Expected 19925 pool, got {len(new_pool)}"
+assert len(new_companies) == 20925, f"Expected 20925 companies, got {len(new_companies)}"
 
 # 3. Write crm/data/egypt_enterprises_pool.json
 with open(pool_json_path, 'w', encoding='utf-8') as f:
@@ -53,4 +53,4 @@ with open(pool_js_path, 'w', encoding='utf-8') as f:
     f.write(js_content)
 print(f"Saved {pool_js_path} successfully ({len(new_pool)} items).")
 
-print(f"\n=== PHASE 2 SQUARE 6 MERGE COMPLETE: EXACTLY {len(new_companies)} TOTAL REAL COMPANIES DEPLOYED ===")
+print(f"\n=== PHASE 2 SQUARE 13 MERGE COMPLETE: EXACTLY {len(new_companies)} TOTAL REAL COMPANIES DEPLOYED ===")
