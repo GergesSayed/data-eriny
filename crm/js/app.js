@@ -2048,8 +2048,8 @@ const App = {
         } catch(e) {}
         try {
             localStorage.setItem('fleetcrm_app_version', '331.0');
-            localStorage.setItem('fleetcrm_dataset_version', 'v332.0_phase2_middle_upper_egypt_21075');
-            localStorage.setItem('fleetcrm_company_count', '21,075');
+            localStorage.setItem('fleetcrm_dataset_version', 'v333.0_phase2_deep_south_mineral_axis_21150');
+            localStorage.setItem('fleetcrm_company_count', '21,150');
             sessionStorage.clear();
         } catch(e) {}
         const base = window.location.origin + window.location.pathname;
