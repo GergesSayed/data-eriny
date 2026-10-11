@@ -27,8 +27,10 @@ const Companies = {
         }
 
         const governorates = window.AppStorage ? window.AppStorage.GOVERNORATES : {};
+        const govArToKey = {};
         const cityToGov = {};
         for (const [gk, g] of Object.entries(governorates)) {
+            if (g.ar) govArToKey[g.ar] = gk;
             for (const ck of (g.cities || [])) {
                 cityToGov[ck] = gk;
             }
@@ -46,7 +48,7 @@ const Companies = {
             sectorCounts[sec] = (sectorCounts[sec] || 0) + 1;
             cityCounts[ct] = (cityCounts[ct] || 0) + 1;
 
-            const gk = cityToGov[ct];
+            const gk = (c.city && cityToGov[c.city]) || (c.governorate && govArToKey[c.governorate]);
             if (gk) {
                 govCounts[gk] = (govCounts[gk] || 0) + 1;
             }
@@ -1160,20 +1162,11 @@ const Companies = {
         }
 
         const sectors = Array.from(this.selectedSectors);
-        const governorates = window.AppStorage?.GOVERNORATES || {};
+        const finalGovs = Array.from(this.selectedGovs);
         let finalCities = [];
 
         if (this.selectedCities.size > 0) {
             finalCities = Array.from(this.selectedCities);
-        } else if (this.selectedGovs.size > 0) {
-            const govCities = new Set();
-            this.selectedGovs.forEach(gk => {
-                const g = governorates[gk];
-                if (g && Array.isArray(g.cities)) {
-                    g.cities.forEach(ck => govCities.add(ck));
-                }
-            });
-            finalCities = Array.from(govCities);
         } else {
             const legacyCity = document.getElementById('filter-city')?.value || '';
             if (legacyCity) finalCities = [legacyCity];
@@ -1212,6 +1205,8 @@ const Companies = {
             search,
             sector: finalSectors.length === 1 ? finalSectors[0] : '',
             sectors: finalSectors,
+            governorate: finalGovs.length === 1 ? finalGovs[0] : '',
+            governorates: finalGovs,
             city: finalCities.length === 1 ? finalCities[0] : '',
             cities: finalCities,
             contactType,
@@ -1976,7 +1971,7 @@ const Companies = {
                 if (window.AppStorage.saveBatchToIDB) {
                     await window.AppStorage.saveBatchToIDB(window.AppStorage.companiesMemory);
                 }
-                localStorage.setItem('fleetcrm_dataset_version', 'v334.0_phase2_suez_canal_specialized_logistics_21225');
+                localStorage.setItem('fleetcrm_dataset_version', 'v335.0_governorates_hierarchy_fix_21225');
                 localStorage.setItem('fleetcrm_company_count', '21,225');
                 App.showToast('✨ تم بنجاح تحديث وتطهير قاعدة البيانات بالكامل (21,225 شركة حقيقية ومعتمدة 100%)!', 'success');
                 this.openAuditModal();

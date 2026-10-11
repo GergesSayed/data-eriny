@@ -661,209 +661,801 @@ const AppStorage = {
         government: { ar: 'جهات وهيئات حكومية', en: 'Government & Public', icon: '🏛️' }
     },
 
-    // ---- City & Governorate Definitions (Egypt Comprehensive) ----
+    // ---- City & Governorate Definitions (Egypt Comprehensive - 27 Governorates & 106 Cities) ----
     CITIES: {
-        // Cairo Specific Districts & Industrial Zones
-        shaq_thoaban: { ar: 'منطقة شق الثعبان والرخام', en: 'Shaq El Thoaban' },
-        helwan: { ar: 'حلوان والتبين و15 مايو', en: 'Helwan & Tebbin' },
-        badr: { ar: 'مدينة بدر والروبيكي للجلود', en: 'Badr City & Robbiki' },
-        new_cairo: { ar: 'القاهرة الجديدة والتجمع والقطامية', en: 'New Cairo & Tagamoa' },
-        nasr_city: { ar: 'مدينة نصر', en: 'Nasr City' },
-        heliopolis: { ar: 'مصر الجديدة والنزهة وشيراتون', en: 'Heliopolis & Nozha' },
-        maadi: { ar: 'المعادي ودجلة والبساتين', en: 'Maadi & Degla' },
-        downtown: { ar: 'وسط البلد والتحرير وعابدين', en: 'Downtown & Tahrir' },
-        shorouk: { ar: 'مدينة الشروق', en: 'Shorouk' },
-        abbasiya: { ar: 'العباسية والأميرية والزيتون', en: 'Abbasiya & Amiriya' },
-        shubra_cairo: { ar: 'شبرا مصر والساحل', en: 'Shubra Masr' },
-        salam_marg: { ar: 'عين شمس والسلام والمرج', en: 'Ain Shams & Salam' },
-        mokattam: { ar: 'المقطم والهضبة الوسطى', en: 'Mokattam' },
-        cairo: { ar: 'القاهرة (مناطق متنوعة)', en: 'Cairo (Other Areas)' },
+        "nasr_city": {
+                "ar": "مدينة نصر",
+                "en": "Nasr City"
+        },
+        "new_cairo": {
+                "ar": "القاهرة الجديدة والتجمع والقطامية",
+                "en": "New Cairo & Tagamoa"
+        },
+        "heliopolis": {
+                "ar": "مصر الجديدة والنزهة وشيراتون",
+                "en": "Heliopolis & Nozha"
+        },
+        "maadi": {
+                "ar": "المعادي ودجلة والبساتين",
+                "en": "Maadi & Degla"
+        },
+        "cairo": {
+                "ar": "القاهرة (مناطق متنوعة)",
+                "en": "Cairo (Other Areas)"
+        },
+        "helwan": {
+                "ar": "حلوان و15 مايو",
+                "en": "Helwan & 15th of May"
+        },
+        "el_tebbin": {
+                "ar": "التبين ومجمع الصناعات الثقيلة",
+                "en": "El Tebbin"
+        },
+        "badr": {
+                "ar": "مدينة بدر والروبيكي للجلود",
+                "en": "Badr City & Robbiki"
+        },
+        "shorouk": {
+                "ar": "مدينة الشروق",
+                "en": "Shorouk"
+        },
+        "shaq_thoaban": {
+                "ar": "شق الثعبان والرخام",
+                "en": "Shaq El Thoaban"
+        },
+        "shaq_el_thoaban": {
+                "ar": "شق الثعبان ومحاجر طرة",
+                "en": "Shaq El Thoaban Quarries"
+        },
+        "new_capital": {
+                "ar": "العاصمة الإدارية الجديدة",
+                "en": "New Administrative Capital"
+        },
+        "downtown": {
+                "ar": "وسط البلد والتحرير وعابدين",
+                "en": "Downtown & Tahrir"
+        },
+        "abbasiya": {
+                "ar": "العباسية والأميرية والزيتون",
+                "en": "Abbasiya & Amiriya"
+        },
+        "shubra_cairo": {
+                "ar": "شبرا مصر والساحل",
+                "en": "Shubra Masr"
+        },
+        "salam_marg": {
+                "ar": "عين شمس والسلام والمرج",
+                "en": "Ain Shams & Salam"
+        },
+        "mokattam": {
+                "ar": "المقطم والهضبة الوسطى",
+                "en": "Mokattam"
+        },
+        "6october": {
+                "ar": "السادس من أكتوبر والمناطق الصناعية",
+                "en": "6th of October"
+        },
+        "october": {
+                "ar": "أكتوبر والواحات ومحور التوسعات",
+                "en": "October Industrial & Wahat"
+        },
+        "giza": {
+                "ar": "الجيزة (الهرم، فيصل، الدقي، زايد، أبو رواش)",
+                "en": "Giza & Zayed"
+        },
+        "arab_abu_saed": {
+                "ar": "عرب أبو ساعد وقلاع الطوب الطفلي",
+                "en": "Arab Abu Saed"
+        },
+        "el_saff": {
+                "ar": "الصف ومصانع الطوب والحراريات",
+                "en": "El Saff"
+        },
+        "10th_ramadan": {
+                "ar": "العاشر من رمضان والمنطقة الصناعية",
+                "en": "10th of Ramadan"
+        },
+        "10thramadan": {
+                "ar": "العاشر من رمضان وبلبيس",
+                "en": "10th of Ramadan & Belbeis"
+        },
+        "sharqia": {
+                "ar": "الشرقية (الزقازيق ومراكز المحافظة)",
+                "en": "Sharqia (Zagazig)"
+        },
+        "obour": {
+                "ar": "مدينة العبور والامتداد الصناعي",
+                "en": "Obour City"
+        },
+        "qalyubia": {
+                "ar": "القليوبية (شبرا الخيمة، قليوب، قها)",
+                "en": "Qalyubia"
+        },
+        "banha": {
+                "ar": "بنها وقها والمنطقة اللوجستية",
+                "en": "Banha & Qaha"
+        },
+        "qalyub": {
+                "ar": "قليوب وميت حلفا وطريق مصر إسكندرية",
+                "en": "Qalyub"
+        },
+        "alexandria": {
+                "ar": "الإسكندرية وميناء الإسكندرية والدخيلة",
+                "en": "Alexandria & Seaport"
+        },
+        "borg_el_arab": {
+                "ar": "برج العرب والعامرية والمناطق الصناعية",
+                "en": "Borg El Arab & Amreya"
+        },
+        "sadat": {
+                "ar": "مدينة السادات ومجمع الصناعات الثقيلة",
+                "en": "Sadat City"
+        },
+        "monufia": {
+                "ar": "المنوفية (شبين الكوم ومراكز المحافظة)",
+                "en": "Monufia (Shebin El Koum)"
+        },
+        "quesna": {
+                "ar": "قويسنا والمنطقة الصناعية الكبرى",
+                "en": "Quesna Industrial Zone"
+        },
+        "shebin_el_koum": {
+                "ar": "شبين الكوم ومصانع الغزل والنسيج",
+                "en": "Shebin El Koum"
+        },
+        "gharbia": {
+                "ar": "الغربية (مراكز المحافظة)",
+                "en": "Gharbia"
+        },
+        "tanta": {
+                "ar": "طنطا والمجمع اللوجستي المركزي",
+                "en": "Tanta Logistics Hub"
+        },
+        "mahalla": {
+                "ar": "المحلة الكبرى وقلاع الغزل والنسيج",
+                "en": "El Mahalla El Kubra"
+        },
+        "kafr_el_zayat": {
+                "ar": "كفر الزيات والكيماويات والزيوت",
+                "en": "Kafr El Zayat"
+        },
+        "qotour": {
+                "ar": "قطور والحاصلات الزراعية",
+                "en": "Qotour"
+        },
+        "dakahlia": {
+                "ar": "الدقهلية (مراكز المحافظة)",
+                "en": "Dakahlia"
+        },
+        "mansoura": {
+                "ar": "المنصورة والمنطقة اللوجستية",
+                "en": "Mansoura"
+        },
+        "gamasa": {
+                "ar": "جمصة والمنطقة الصناعية الساحلية",
+                "en": "Gamasa Industrial Zone"
+        },
+        "belqas": {
+                "ar": "بلقاس وسكر الحامول",
+                "en": "Belqas & Hamool"
+        },
+        "sherbin": {
+                "ar": "شربين والمحاصيل الزراعية",
+                "en": "Sherbin"
+        },
+        "senbellawein": {
+                "ar": "السنبلاوين والمصنوعات",
+                "en": "Senbellawein"
+        },
+        "beheira": {
+                "ar": "البحيرة (دمنهور وكفر الدوار والساحل)",
+                "en": "Beheira"
+        },
+        "nubaria": {
+                "ar": "النوبارية وصناعات سكر البنجر والاستصلاح",
+                "en": "Nubaria & Agro Sugar"
+        },
+        "wadi_el_natrun": {
+                "ar": "وادي النطرون والملاحات والصناعات الاستخراجية",
+                "en": "Wadi El Natrun"
+        },
+        "kafr_el_sheikh": {
+                "ar": "كفر الشيخ ودسوق",
+                "en": "Kafr El Sheikh"
+        },
+        "baltim": {
+                "ar": "بلطيم ومجمع الرمال السوداء والصناعات التعدينية",
+                "en": "Baltim Black Sands"
+        },
+        "metoubes": {
+                "ar": "مطوبس والمنطقة الصناعية بملاحة منيسي",
+                "en": "Metoubes Industrial"
+        },
+        "burullus": {
+                "ar": "البرلس وميناء التعدين ومحطة الطاقة",
+                "en": "Burullus Mining Port"
+        },
+        "damietta": {
+                "ar": "دمياط وميناء دمياط الجديد وموبكو",
+                "en": "Damietta Port & MOPCO"
+        },
+        "kafr_saad": {
+                "ar": "كفر سعد والصناعات التموينية والزيوت",
+                "en": "Kafr Saad"
+        },
+        "ras_el_bar": {
+                "ar": "رأس البر وعزبة البرج والترسانات البحرية",
+                "en": "Ras El Bar & Shipyards"
+        },
+        "suez": {
+                "ar": "السويس وميناء الأدبية وحوض البترول",
+                "en": "Suez & Adabiya Port"
+        },
+        "sokhna": {
+                "ar": "العين السخنة والموانئ التخصصية والمناطق الاقتصادية",
+                "en": "Ain Sokhna"
+        },
+        "ataqa": {
+                "ar": "عتاقة والصناعات الثقيلة ومجمع الصلب",
+                "en": "Ataqa Industrial"
+        },
+        "port_said": {
+                "ar": "بورسعيد وبورفؤاد والمناطق الحرة",
+                "en": "Port Said & Free Zones"
+        },
+        "east_port_said": {
+                "ar": "شرق بورسعيد ومحطة الحاويات وبيراميدز",
+                "en": "East Port Said & SCCT"
+        },
+        "ismailia": {
+                "ar": "الإسماعيلية ووادي التكنولوجيا وأنفاق القناة",
+                "en": "Ismailia & Tech Valley"
+        },
+        "sarabiom": {
+                "ar": "سرابيوم ومحطات فرز وتصدير الفراولة والمانجو",
+                "en": "Sarabiom Agro Export"
+        },
+        "fayed": {
+                "ar": "فايد وبساتين الموالح ومحطات التبريد",
+                "en": "Fayed Agro Logistics"
+        },
+        "qantara_west": {
+                "ar": "القنطرة غرب والمنطقة الصناعية والتخزينية",
+                "en": "Qantara West"
+        },
+        "qantara_east": {
+                "ar": "القنطرة شرق والصوامع الاستراتيجية بسيناء",
+                "en": "Qantara East"
+        },
+        "matrouh": {
+                "ar": "مطروح والساحل الشمالي الغربي",
+                "en": "Matrouh & North Coast"
+        },
+        "alamein": {
+                "ar": "العلمين وميناء الحاويات والمشاريع التنموية",
+                "en": "El Alamein"
+        },
+        "dabaa": {
+                "ar": "الضبعة ومجمع مشروعات الطاقة النووية",
+                "en": "El Dabaa"
+        },
+        "marsa_matrouh": {
+                "ar": "مرسى مطروح وميناء جرجوب اللوجستي الدولي",
+                "en": "Marsa Matrouh & Gargoub"
+        },
+        "salloum": {
+                "ar": "السلوم والمنفذ اللوجستي البري الدولي",
+                "en": "Salloum Land Port"
+        },
+        "siwa": {
+                "ar": "واحة سيوة وملاحات الملح الصخري والتعدين",
+                "en": "Siwa Rock Salt Mining"
+        },
+        "fayoum": {
+                "ar": "الفيوم والمناطق الصناعية (كوم أوشيم)",
+                "en": "Fayoum"
+        },
+        "kom_oshim": {
+                "ar": "كوم أوشيم الصناعية والملاحات",
+                "en": "Kom Oshim"
+        },
+        "beni_suef": {
+                "ar": "بني سويف والمناطق الصناعية الكبرى",
+                "en": "Beni Suef"
+        },
+        "kom_abu_radi": {
+                "ar": "كوم أبو راضي ومجمعات الإلكترونيات والهندسة",
+                "en": "Kom Abu Radi"
+        },
+        "bayad_el_arab": {
+                "ar": "بياض العرب ومجمعات السيراميك ومواد البناء",
+                "en": "Bayad El Arab"
+        },
+        "minya": {
+                "ar": "المنيا والمطاهرة شرق النيل",
+                "en": "Minya & Matahra"
+        },
+        "samalut": {
+                "ar": "سمالوط ومحاجر الحجر الجيري الأبيض وكربونات الكالسيوم",
+                "en": "Samalut Limestone Quarries"
+        },
+        "west_minya": {
+                "ar": "غرب المنيا ومجمع سكر القناة واستصلاح الأراضي",
+                "en": "West Minya & Canal Sugar"
+        },
+        "new_minya": {
+                "ar": "المنيا الجديدة والمنطقة اللوجستية",
+                "en": "New Minya"
+        },
+        "assiut": {
+                "ar": "أسيوط ومصفاة التكرير والهضبة الغربية",
+                "en": "Assiut & ASORC Refinery"
+        },
+        "asyut": {
+                "ar": "منقباد وجحدم ومصانع الأسمنت",
+                "en": "Manqabad & Cement Complex"
+        },
+        "arab_el_awamer": {
+                "ar": "عرب العوامر الصناعية ومجمعات الأدوية والمطاحن",
+                "en": "Arab El Awamer Industrial"
+        },
+        "new_assiut": {
+                "ar": "أسيوط الجديدة ومجمعات التبريد والتخزين",
+                "en": "New Assiut"
+        },
+        "sohag": {
+                "ar": "سوهاج ومجمعات المطاحن والغزل والزيوت",
+                "en": "Sohag"
+        },
+        "kawthar": {
+                "ar": "حي الكوثر والمنطقة الصناعية ومصانع الكرتون",
+                "en": "El Kawthar Industrial"
+        },
+        "tahta": {
+                "ar": "طهطا وغرب طهطا ومحطات فرز وتصدير البصل",
+                "en": "Tahta Agro Export"
+        },
+        "girga": {
+                "ar": "جرجا ومجمع مصانع السكر والصوامع",
+                "en": "Girga Sugar Mills"
+        },
+        "qena": {
+                "ar": "قنا والجبلاو ومحطات تفريغ وتداول الحبوب",
+                "en": "Qena"
+        },
+        "nagaa_hammadi": {
+                "ar": "نجع حمادي ومجمع الألومنيوم العملاق",
+                "en": "Nagaa Hammadi Aluminium"
+        },
+        "qous": {
+                "ar": "قوص ومصانع السكر ولب الورق والخشب الحبيبي",
+                "en": "Qous Sugar & Paper Mills"
+        },
+        "hoo": {
+                "ar": "منطقة هو الصناعية ومصانع المواسير وشبكات الري",
+                "en": "Hoo Industrial Zone"
+        },
+        "luxor": {
+                "ar": "الأقصر وطيبة الجديدة والمنطقة اللوجستية",
+                "en": "Luxor & New Tiba"
+        },
+        "aswan": {
+                "ar": "أسوان ومجمع كيما للأسمدة واليوريا والشلال",
+                "en": "Aswan & KIMA Complex"
+        },
+        "edfu": {
+                "ar": "إدفو والسباعية ومناجم الفوسفات الصخري والورق",
+                "en": "Edfu & Sebaiya Phosphate"
+        },
+        "kom_ombo": {
+                "ar": "كوم أمبو ومصانع السكر وبنبان للطاقة الشمسية",
+                "en": "Kom Ombo & Benban Solar"
+        },
+        "sebaiya": {
+                "ar": "السباعية ومجمعات تكسير الفوسفات والجبس الزراعي",
+                "en": "El Sebaiya Mining"
+        },
+        "toshka": {
+                "ar": "توشكى الخير ومشروعات الاستصلاح الزراعي الكبرى",
+                "en": "Toshka Land Reclamation"
+        },
+        "new_valley": {
+                "ar": "الوادي الجديد ومناجم فوسفات أبو طرطور",
+                "en": "New Valley & Abu Tartur"
+        },
+        "kharga": {
+                "ar": "الخارجة والصناعات التعدينية ومحطات التمور",
+                "en": "El Kharga"
+        },
+        "dakhla": {
+                "ar": "الداخلة ومجمعات التمور والاستصلاح",
+                "en": "El Dakhla"
+        },
+        "farafra": {
+                "ar": "الفرافرة وسهل بركة وصوامع الحبوب",
+                "en": "El Farafra"
+        },
+        "east_oweinat": {
+                "ar": "شرق العوينات ومزارع القمح والبطاطس التصديرية",
+                "en": "East Oweinat Mega Farms"
+        },
+        "red_sea": {
+                "ar": "البحر الأحمر والموانئ التعدينية والبترولية",
+                "en": "Red Sea"
+        },
+        "safaga": {
+                "ar": "سفاجا وميناء تصدير الفوسفات والحبوب والألومنيوم",
+                "en": "Safaga Mining Port"
+        },
+        "ras_ghareb": {
+                "ar": "رأس غارب وقلاع حقول وإنتاج البترول",
+                "en": "Ras Ghareb Oilfields"
+        },
+        "hurghada": {
+                "ar": "الغردقة ومحطات الخلط الخرساني والنقل السياحي",
+                "en": "Hurghada"
+        },
+        "marsa_alam": {
+                "ar": "مرسى علم وموانئ ومحاجر التعدين والذهب",
+                "en": "Marsa Alam Mining"
+        },
+        "quseir": {
+                "ar": "القصير ومناجم التلك والفوسفات التاريخية",
+                "en": "El Quseir"
+        },
+        "north_sinai": {
+                "ar": "شمال سيناء وميناء العريش البحري ومصانع الملح",
+                "en": "North Sinai"
+        },
+        "el_arish": {
+                "ar": "العريش وميناء التصدير وملاحات سبيكة",
+                "en": "El Arish Port & Sebika"
+        },
+        "central_sinai": {
+                "ar": "وسط سيناء ومجمعات مصانع الأسمنت والجبس",
+                "en": "Central Sinai Cement Hub"
+        },
+        "bir_al_abd": {
+                "ar": "بئر العبد ومصانع تكرير الملح الزراعي والصناعي",
+                "en": "Bir Al Abd Saltworks"
+        },
+        "south_sinai": {
+                "ar": "جنوب سيناء وموانئ التعدين والبترول والترانزيت",
+                "en": "South Sinai"
+        },
+        "abu_zenima": {
+                "ar": "أبو زنيمة وقلاع مجمع سيناء للمنجنيز والجبس",
+                "en": "Abu Zenima Manganese"
+        },
+        "abu_rudeis": {
+                "ar": "أبو رديس وحقول البترول البحرية وميناء الشحن",
+                "en": "Abu Rudeis Petroleum"
+        },
+        "ras_sedr": {
+                "ar": "رأس سدر واللوجستيات والخدمات البترولية",
+                "en": "Ras Sedr Logistics"
+        },
+        "nuweiba": {
+                "ar": "نويبع وميناء نويبع البحري الدولي للترانزيت",
+                "en": "Nuweiba International Port"
+        },
+        "taba": {
+                "ar": "طابا والمنفذ البري والجوي الدولي",
+                "en": "Taba International Port"
+        }
+},
 
-        // Giza & 6th October
-        '6october': { ar: 'السادس من أكتوبر', en: '6th October' },
-        giza: { ar: 'الجيزة (الهرم، فيصل، الدقي، زايد، أبو رواش)', en: 'Giza & Zayed' },
-
-        // Qalyubia & Obour
-        obour: { ar: 'مدينة العبور الصناعية', en: 'Obour City' },
-        qalyubia: { ar: 'القليوبية (شبرا الخيمة، بنها، قليوب)', en: 'Qalyubia' },
-        sadat: { ar: 'مدينة السادات الصناعية', en: 'Sadat City' },
-        '10thramadan': { ar: 'العاشر من رمضان وبلبيس', en: '10th of Ramadan' },
-
-        // Alexandria & North Coast
-        alexandria: { ar: 'الإسكندرية وبرج العرب والعامرية', en: 'Alexandria & Borg El Arab' },
-        matrouh: { ar: 'مرسى مطروح والعلمين', en: 'Matrouh & Alamein' },
-
-        // Canal Cities
-        suez: { ar: 'السويس والعين السخنة وعتاقة', en: 'Suez & Ain Sokhna' },
-        port_said: { ar: 'بورسعيد وبورفؤاد وشرق التفريعة', en: 'Port Said' },
-        ismailia: { ar: 'الإسماعيلية ووادي التكنولوجيا', en: 'Ismailia' },
-
-        // Delta Governorates
-        sharqia: { ar: 'الشرقية (الزقازيق ومراكز المحافظة)', en: 'Sharqia (Zagazig)' },
-        dakahlia: { ar: 'الدقهلية (المنصورة وجمصة وميت غمر)', en: 'Dakahlia (Mansoura)' },
-        gharbia: { ar: 'الغربية (طنطا والمحلة الكبرى)', en: 'Gharbia (Tanta & Mehalla)' },
-        monufia: { ar: 'المنوفية (قويسنا وشبين الكوم)', en: 'Monufia (Quesna & Shebin)' },
-        beheira: { ar: 'البحيرة (دمنهور وكفر الدوار والنوبارية)', en: 'Beheira (Damanhour)' },
-        damietta: { ar: 'دمياط وميناء دمياط الجديد', en: 'Damietta' },
-        kafr_el_sheikh: { ar: 'كفر الشيخ ودسوق', en: 'Kafr El Sheikh' },
-
-        // Upper Egypt Governorates
-        fayoum: { ar: 'الفيوم والمناطق الصناعية (كوم أوشيم)', en: 'Fayoum' },
-        beni_suef: { ar: 'بني سويف (بياض العرب وكوم أبو راضي)', en: 'Beni Suef' },
-        minya: { ar: 'المنيا (المطاهرة والمنيا الجديدة)', en: 'Minya' },
-        assiut: { ar: 'أسيوط (عرب المدابغ وبني غالب)', en: 'Assiut' },
-        sohag: { ar: 'سوهاج (حي الكوثر وغرب جرجا)', en: 'Sohag' },
-        qena: { ar: 'قنا (قفط ونجع حمادي وهو)', en: 'Qena' },
-        luxor: { ar: 'الأقصر وطيبة الجديدة', en: 'Luxor' },
-        aswan: { ar: 'أسوان (العلاقي والمحاجر وكوم أمبو)', en: 'Aswan' },
-        new_valley: { ar: 'الوادي الجديد (الخارجة والداخلة)', en: 'New Valley' },
-
-        // Frontier & Sinai
-        red_sea: { ar: 'البحر الأحمر (الغردقة وسفاجا)', en: 'Red Sea' },
-        north_sinai: { ar: 'شمال سيناء (العريش وبئر العبد)', en: 'North Sinai' },
-        south_sinai: { ar: 'جنوب سيناء (شرم الشيخ والطور)', en: 'South Sinai' }
-    },
-
-    // ---- Governorate → Cities Hierarchy ----
+    // ---- Governorate → Cities Hierarchy (Complete & Mathematically Aligned) ----
     GOVERNORATES: {
-        gov_cairo: {
-            ar: 'القاهرة',
-            icon: '🏙️',
-            cities: ['shaq_thoaban', 'helwan', 'badr', 'new_cairo', 'nasr_city', 'heliopolis', 'maadi', 'downtown', 'shorouk', 'abbasiya', 'shubra_cairo', 'salam_marg', 'mokattam', 'cairo']
+        "gov_cairo": {
+                "ar": "القاهرة",
+                "icon": "🏙️",
+                "cities": [
+                        "nasr_city",
+                        "new_cairo",
+                        "heliopolis",
+                        "maadi",
+                        "cairo",
+                        "helwan",
+                        "badr",
+                        "shorouk",
+                        "shaq_thoaban",
+                        "new_capital",
+                        "shaq_el_thoaban",
+                        "downtown",
+                        "abbasiya",
+                        "el_tebbin",
+                        "shubra_cairo",
+                        "salam_marg",
+                        "mokattam"
+                ]
         },
-        gov_giza: {
-            ar: 'الجيزة',
-            icon: '🏛️',
-            cities: ['6october', 'giza']
+        "gov_giza": {
+                "ar": "الجيزة",
+                "icon": "🏛️",
+                "cities": [
+                        "6october",
+                        "giza",
+                        "october",
+                        "arab_abu_saed",
+                        "el_saff"
+                ]
         },
-        gov_qalyubia: {
-            ar: 'القليوبية',
-            icon: '🏘️',
-            cities: ['obour', 'qalyubia']
+        "gov_sharqia": {
+                "ar": "الشرقية",
+                "icon": "🌿",
+                "cities": [
+                        "10th_ramadan",
+                        "10thramadan",
+                        "sharqia"
+                ]
         },
-        gov_alexandria: {
-            ar: 'الإسكندرية',
-            icon: '⚓',
-            cities: ['alexandria']
+        "gov_qalyubia": {
+                "ar": "القليوبية",
+                "icon": "🏘️",
+                "cities": [
+                        "obour",
+                        "qalyubia",
+                        "banha",
+                        "qalyub"
+                ]
         },
-        gov_monufia: {
-            ar: 'المنوفية',
-            icon: '🌾',
-            cities: ['sadat', 'monufia']
+        "gov_alexandria": {
+                "ar": "الإسكندرية",
+                "icon": "⚓",
+                "cities": [
+                        "alexandria",
+                        "borg_el_arab"
+                ]
         },
-        gov_sharqia: {
-            ar: 'الشرقية',
-            icon: '🌿',
-            cities: ['10thramadan', 'sharqia']
+        "gov_monufia": {
+                "ar": "المنوفية",
+                "icon": "🌾",
+                "cities": [
+                        "sadat",
+                        "monufia",
+                        "quesna",
+                        "shebin_el_koum"
+                ]
         },
-        gov_dakahlia: {
-            ar: 'الدقهلية',
-            icon: '🌊',
-            cities: ['dakahlia']
+        "gov_gharbia": {
+                "ar": "الغربية",
+                "icon": "🧵",
+                "cities": [
+                        "gharbia",
+                        "kafr_el_zayat",
+                        "tanta",
+                        "mahalla",
+                        "qotour"
+                ]
         },
-        gov_gharbia: {
-            ar: 'الغربية',
-            icon: '🧵',
-            cities: ['gharbia']
+        "gov_dakahlia": {
+                "ar": "الدقهلية",
+                "icon": "🌊",
+                "cities": [
+                        "dakahlia",
+                        "gamasa",
+                        "mansoura",
+                        "belqas",
+                        "sherbin",
+                        "senbellawein"
+                ]
         },
-        gov_beheira: {
-            ar: 'البحيرة',
-            icon: '🌅',
-            cities: ['beheira']
+        "gov_beheira": {
+                "ar": "البحيرة",
+                "icon": "🌅",
+                "cities": [
+                        "beheira",
+                        "nubaria",
+                        "wadi_el_natrun"
+                ]
         },
-        gov_kafr_el_sheikh: {
-            ar: 'كفر الشيخ',
-            icon: '🐟',
-            cities: ['kafr_el_sheikh']
+        "gov_kafr_el_sheikh": {
+                "ar": "كفر الشيخ",
+                "icon": "🐟",
+                "cities": [
+                        "kafr_el_sheikh",
+                        "baltim",
+                        "metoubes",
+                        "burullus"
+                ]
         },
-        gov_damietta: {
-            ar: 'دمياط',
-            icon: '🪑',
-            cities: ['damietta']
+        "gov_damietta": {
+                "ar": "دمياط",
+                "icon": "🪑",
+                "cities": [
+                        "damietta",
+                        "kafr_saad",
+                        "ras_el_bar"
+                ]
         },
-        gov_suez: {
-            ar: 'السويس',
-            icon: '🚢',
-            cities: ['suez']
+        "gov_suez": {
+                "ar": "السويس",
+                "icon": "🚢",
+                "cities": [
+                        "suez",
+                        "sokhna",
+                        "ataqa"
+                ]
         },
-        gov_port_said: {
-            ar: 'بورسعيد',
-            icon: '⛵',
-            cities: ['port_said']
+        "gov_port_said": {
+                "ar": "بورسعيد",
+                "icon": "⛵",
+                "cities": [
+                        "port_said",
+                        "east_port_said"
+                ]
         },
-        gov_ismailia: {
-            ar: 'الإسماعيلية',
-            icon: '🌴',
-            cities: ['ismailia']
+        "gov_ismailia": {
+                "ar": "الإسماعيلية",
+                "icon": "🌴",
+                "cities": [
+                        "ismailia",
+                        "qantara_west",
+                        "qantara_east",
+                        "fayed"
+                ]
         },
-        gov_matrouh: {
-            ar: 'مطروح',
-            icon: '🏖️',
-            cities: ['matrouh']
+        "gov_matrouh": {
+                "ar": "مطروح",
+                "icon": "🏖️",
+                "cities": [
+                        "matrouh",
+                        "salloum",
+                        "marsa_matrouh",
+                        "dabaa",
+                        "siwa",
+                        "alamein"
+                ]
         },
-        gov_fayoum: {
-            ar: 'الفيوم',
-            icon: '🏺',
-            cities: ['fayoum']
+        "gov_fayoum": {
+                "ar": "الفيوم",
+                "icon": "🏺",
+                "cities": [
+                        "fayoum",
+                        "kom_oshim"
+                ]
         },
-        gov_beni_suef: {
-            ar: 'بني سويف',
-            icon: '🏔️',
-            cities: ['beni_suef']
+        "gov_beni_suef": {
+                "ar": "بني سويف",
+                "icon": "🏔️",
+                "cities": [
+                        "beni_suef",
+                        "kom_abu_radi",
+                        "bayad_el_arab"
+                ]
         },
-        gov_minya: {
-            ar: 'المنيا',
-            icon: '⛰️',
-            cities: ['minya']
+        "gov_minya": {
+                "ar": "المنيا",
+                "icon": "⛰️",
+                "cities": [
+                        "minya",
+                        "west_minya",
+                        "samalut",
+                        "new_minya"
+                ]
         },
-        gov_assiut: {
-            ar: 'أسيوط',
-            icon: '🏗️',
-            cities: ['assiut']
+        "gov_assiut": {
+                "ar": "أسيوط",
+                "icon": "🏗️",
+                "cities": [
+                        "assiut",
+                        "asyut",
+                        "arab_el_awamer",
+                        "new_assiut"
+                ]
         },
-        gov_sohag: {
-            ar: 'سوهاج',
-            icon: '🌾',
-            cities: ['sohag']
+        "gov_sohag": {
+                "ar": "سوهاج",
+                "icon": "🌾",
+                "cities": [
+                        "sohag",
+                        "tahta",
+                        "girga",
+                        "kawthar"
+                ]
         },
-        gov_qena: {
-            ar: 'قنا',
-            icon: '🏛️',
-            cities: ['qena']
+        "gov_qena": {
+                "ar": "قنا",
+                "icon": "🏛️",
+                "cities": [
+                        "qena",
+                        "nagaa_hammadi",
+                        "qous",
+                        "hoo"
+                ]
         },
-        gov_luxor: {
-            ar: 'الأقصر',
-            icon: '🏛️',
-            cities: ['luxor']
+        "gov_luxor": {
+                "ar": "الأقصر",
+                "icon": "🏛️",
+                "cities": [
+                        "luxor"
+                ]
         },
-        gov_aswan: {
-            ar: 'أسوان',
-            icon: '💧',
-            cities: ['aswan']
+        "gov_aswan": {
+                "ar": "أسوان",
+                "icon": "💧",
+                "cities": [
+                        "aswan",
+                        "toshka",
+                        "edfu",
+                        "kom_ombo",
+                        "sebaiya"
+                ]
         },
-        gov_new_valley: {
-            ar: 'الوادي الجديد',
-            icon: '🏜️',
-            cities: ['new_valley']
+        "gov_new_valley": {
+                "ar": "الوادي الجديد",
+                "icon": "🏜️",
+                "cities": [
+                        "new_valley",
+                        "east_oweinat",
+                        "kharga",
+                        "dakhla",
+                        "farafra"
+                ]
         },
-        gov_red_sea: {
-            ar: 'البحر الأحمر',
-            icon: '🐠',
-            cities: ['red_sea']
+        "gov_red_sea": {
+                "ar": "البحر الأحمر",
+                "icon": "🐠",
+                "cities": [
+                        "red_sea",
+                        "safaga",
+                        "ras_ghareb",
+                        "hurghada",
+                        "marsa_alam",
+                        "quseir"
+                ]
         },
-        gov_north_sinai: {
-            ar: 'شمال سيناء',
-            icon: '🏕️',
-            cities: ['north_sinai']
+        "gov_north_sinai": {
+                "ar": "شمال سيناء",
+                "icon": "🏕️",
+                "cities": [
+                        "north_sinai",
+                        "central_sinai",
+                        "el_arish",
+                        "bir_al_abd"
+                ]
         },
-        gov_south_sinai: {
-            ar: 'جنوب سيناء',
-            icon: '⛺',
-            cities: ['south_sinai']
+        "gov_south_sinai": {
+                "ar": "جنوب سيناء",
+                "icon": "⛰️",
+                "cities": [
+                        "south_sinai",
+                        "abu_zenima",
+                        "nuweiba",
+                        "ras_sedr",
+                        "abu_rudeis",
+                        "taba"
+                ]
+        }
+},
+
+    _cityToGov: null,
+    _govArToKey: null,
+
+    _initGovMaps() {
+        if (this._cityToGov && this._govArToKey) return;
+        this._cityToGov = {};
+        this._govArToKey = {};
+        for (const [gk, g] of Object.entries(this.GOVERNORATES || {})) {
+            if (g.ar) this._govArToKey[g.ar] = gk;
+            for (const ck of (g.cities || [])) {
+                this._cityToGov[ck] = gk;
+            }
         }
     },
 
-    FLEET_TYPES: {
+    getGovKey(companyOrCityOrGov) {
+        this._initGovMaps();
+        if (!companyOrCityOrGov) return '';
+        if (typeof companyOrCityOrGov === 'string') {
+            return this._cityToGov[companyOrCityOrGov] || this._govArToKey[companyOrCityOrGov] || '';
+        }
+        return (companyOrCityOrGov.city && this._cityToGov[companyOrCityOrGov.city]) ||
+               (companyOrCityOrGov.governorate && this._govArToKey[companyOrCityOrGov.governorate]) || '';
+    },
+
+        FLEET_TYPES: {
         heavy: { ar: 'نقل ثقيل', en: 'Heavy Transport' },
         light: { ar: 'نقل خفيف', en: 'Light Transport' },
         passenger: { ar: 'ركاب', en: 'Passenger' },
@@ -1112,6 +1704,8 @@ const AppStorage = {
                 search = '',
                 sector = '',
                 sectors = [],
+                governorate = '',
+                governorates = [],
                 city = '',
                 cities = [],
                 contactType = '',
@@ -1163,6 +1757,8 @@ const AppStorage = {
                             search,
                             sector,
                             sectors,
+                            governorate,
+                            governorates,
                             city,
                             cities,
                             contactType,
@@ -1215,6 +1811,8 @@ const AppStorage = {
             search = '',
             sector = '',
             sectors = [],
+            governorate = '',
+            governorates = [],
             city = '',
             cities = [],
             contactType = '',
@@ -1239,9 +1837,15 @@ const AppStorage = {
         if (sector && !sectorList.includes(sector)) sectorList.push(sector);
         const sectorSet = sectorList.length > 0 ? new Set(sectorList) : null;
 
+        let govList = Array.isArray(governorates) ? governorates.filter(Boolean) : [];
+        if (governorate && !govList.includes(governorate)) govList.push(governorate);
+        const govSet = govList.length > 0 ? new Set(govList) : null;
+
         let cityList = Array.isArray(cities) ? cities.filter(Boolean) : [];
         if (city && !cityList.includes(city)) cityList.push(city);
         const citySet = cityList.length > 0 ? new Set(cityList) : null;
+
+        this._initGovMaps();
 
 
         let filtered = rawCompanies.filter(c => {
@@ -1254,6 +1858,11 @@ const AppStorage = {
             }
 
             if (sectorSet && !sectorSet.has(c.sector)) return false;
+            if (govSet) {
+                const cGov = c.governorate || '';
+                const cGovKey = (this._cityToGov && this._cityToGov[c.city]) || (this._govArToKey && this._govArToKey[cGov]);
+                if (!govSet.has(cGov) && !govSet.has(cGovKey)) return false;
+            }
             if (citySet && !citySet.has(c.city)) return false;
             if (priority && c.priority !== priority) return false;
             if (fleetType && c.fleetType !== fleetType) return false;
@@ -1729,7 +2338,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v334.0_phase2_suez_canal_specialized_logistics_21225';
+                    const currentVersionTag = 'v335.0_governorates_hierarchy_fix_21225';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 

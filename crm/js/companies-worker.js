@@ -12,6 +12,157 @@ let _cityBuckets = new Map();
 let _priorityBuckets = new Map();
 let _assignedBuckets = new Map();
 let _titanIndices = [];
+let _cityToGov = {
+    "nasr_city": "gov_cairo",
+    "new_cairo": "gov_cairo",
+    "heliopolis": "gov_cairo",
+    "maadi": "gov_cairo",
+    "cairo": "gov_cairo",
+    "helwan": "gov_cairo",
+    "badr": "gov_cairo",
+    "shorouk": "gov_cairo",
+    "shaq_thoaban": "gov_cairo",
+    "new_capital": "gov_cairo",
+    "shaq_el_thoaban": "gov_cairo",
+    "downtown": "gov_cairo",
+    "abbasiya": "gov_cairo",
+    "el_tebbin": "gov_cairo",
+    "shubra_cairo": "gov_cairo",
+    "salam_marg": "gov_cairo",
+    "mokattam": "gov_cairo",
+    "6october": "gov_giza",
+    "giza": "gov_giza",
+    "october": "gov_giza",
+    "arab_abu_saed": "gov_giza",
+    "el_saff": "gov_giza",
+    "10th_ramadan": "gov_sharqia",
+    "10thramadan": "gov_sharqia",
+    "sharqia": "gov_sharqia",
+    "obour": "gov_qalyubia",
+    "qalyubia": "gov_qalyubia",
+    "banha": "gov_qalyubia",
+    "qalyub": "gov_qalyubia",
+    "alexandria": "gov_alexandria",
+    "borg_el_arab": "gov_alexandria",
+    "sadat": "gov_monufia",
+    "monufia": "gov_monufia",
+    "quesna": "gov_monufia",
+    "shebin_el_koum": "gov_monufia",
+    "gharbia": "gov_gharbia",
+    "kafr_el_zayat": "gov_gharbia",
+    "tanta": "gov_gharbia",
+    "mahalla": "gov_gharbia",
+    "qotour": "gov_gharbia",
+    "dakahlia": "gov_dakahlia",
+    "gamasa": "gov_dakahlia",
+    "mansoura": "gov_dakahlia",
+    "belqas": "gov_dakahlia",
+    "sherbin": "gov_dakahlia",
+    "senbellawein": "gov_dakahlia",
+    "beheira": "gov_beheira",
+    "nubaria": "gov_beheira",
+    "wadi_el_natrun": "gov_beheira",
+    "kafr_el_sheikh": "gov_kafr_el_sheikh",
+    "baltim": "gov_kafr_el_sheikh",
+    "metoubes": "gov_kafr_el_sheikh",
+    "burullus": "gov_kafr_el_sheikh",
+    "damietta": "gov_damietta",
+    "kafr_saad": "gov_damietta",
+    "ras_el_bar": "gov_damietta",
+    "suez": "gov_suez",
+    "sokhna": "gov_suez",
+    "ataqa": "gov_suez",
+    "port_said": "gov_port_said",
+    "east_port_said": "gov_port_said",
+    "ismailia": "gov_ismailia",
+    "qantara_west": "gov_ismailia",
+    "qantara_east": "gov_ismailia",
+    "fayed": "gov_ismailia",
+    "matrouh": "gov_matrouh",
+    "salloum": "gov_matrouh",
+    "marsa_matrouh": "gov_matrouh",
+    "dabaa": "gov_matrouh",
+    "siwa": "gov_matrouh",
+    "alamein": "gov_matrouh",
+    "fayoum": "gov_fayoum",
+    "kom_oshim": "gov_fayoum",
+    "beni_suef": "gov_beni_suef",
+    "kom_abu_radi": "gov_beni_suef",
+    "bayad_el_arab": "gov_beni_suef",
+    "minya": "gov_minya",
+    "west_minya": "gov_minya",
+    "samalut": "gov_minya",
+    "new_minya": "gov_minya",
+    "assiut": "gov_assiut",
+    "asyut": "gov_assiut",
+    "arab_el_awamer": "gov_assiut",
+    "new_assiut": "gov_assiut",
+    "sohag": "gov_sohag",
+    "tahta": "gov_sohag",
+    "girga": "gov_sohag",
+    "kawthar": "gov_sohag",
+    "qena": "gov_qena",
+    "nagaa_hammadi": "gov_qena",
+    "qous": "gov_qena",
+    "hoo": "gov_qena",
+    "luxor": "gov_luxor",
+    "aswan": "gov_aswan",
+    "toshka": "gov_aswan",
+    "edfu": "gov_aswan",
+    "kom_ombo": "gov_aswan",
+    "sebaiya": "gov_aswan",
+    "new_valley": "gov_new_valley",
+    "east_oweinat": "gov_new_valley",
+    "kharga": "gov_new_valley",
+    "dakhla": "gov_new_valley",
+    "farafra": "gov_new_valley",
+    "red_sea": "gov_red_sea",
+    "safaga": "gov_red_sea",
+    "ras_ghareb": "gov_red_sea",
+    "hurghada": "gov_red_sea",
+    "marsa_alam": "gov_red_sea",
+    "quseir": "gov_red_sea",
+    "north_sinai": "gov_north_sinai",
+    "central_sinai": "gov_north_sinai",
+    "el_arish": "gov_north_sinai",
+    "bir_al_abd": "gov_north_sinai",
+    "south_sinai": "gov_south_sinai",
+    "abu_zenima": "gov_south_sinai",
+    "nuweiba": "gov_south_sinai",
+    "ras_sedr": "gov_south_sinai",
+    "abu_rudeis": "gov_south_sinai",
+    "taba": "gov_south_sinai"
+};
+let _govArToKey = {
+    "القاهرة": "gov_cairo",
+    "الجيزة": "gov_giza",
+    "الشرقية": "gov_sharqia",
+    "القليوبية": "gov_qalyubia",
+    "الإسكندرية": "gov_alexandria",
+    "المنوفية": "gov_monufia",
+    "الغربية": "gov_gharbia",
+    "الدقهلية": "gov_dakahlia",
+    "البحيرة": "gov_beheira",
+    "كفر الشيخ": "gov_kafr_el_sheikh",
+    "دمياط": "gov_damietta",
+    "السويس": "gov_suez",
+    "بورسعيد": "gov_port_said",
+    "الإسماعيلية": "gov_ismailia",
+    "مطروح": "gov_matrouh",
+    "الفيوم": "gov_fayoum",
+    "بني سويف": "gov_beni_suef",
+    "المنيا": "gov_minya",
+    "أسيوط": "gov_assiut",
+    "سوهاج": "gov_sohag",
+    "قنا": "gov_qena",
+    "الأقصر": "gov_luxor",
+    "أسوان": "gov_aswan",
+    "الوادي الجديد": "gov_new_valley",
+    "البحر الأحمر": "gov_red_sea",
+    "شمال سيناء": "gov_north_sinai",
+    "جنوب سيناء": "gov_south_sinai"
+};
+let _govBuckets = new Map();
 
 function normalizeArabic(str) {
     if (!str || typeof str !== 'string') return '';
@@ -27,6 +178,7 @@ function normalizeArabic(str) {
 function rebuildBuckets() {
     _sectorBuckets.clear();
     _cityBuckets.clear();
+    _govBuckets.clear();
     _priorityBuckets.clear();
     _assignedBuckets.clear();
     _titanIndices = [];
@@ -48,6 +200,19 @@ function rebuildBuckets() {
         let cityArr = _cityBuckets.get(city);
         if (!cityArr) { cityArr = []; _cityBuckets.set(city, cityArr); }
         cityArr.push(idx);
+
+        const gov = c.governorate || '';
+        const govKey = _cityToGov[city] || _govArToKey[gov] || '';
+        if (gov) {
+            let arr = _govBuckets.get(gov);
+            if (!arr) { arr = []; _govBuckets.set(gov, arr); }
+            arr.push(idx);
+        }
+        if (govKey && govKey !== gov) {
+            let arr = _govBuckets.get(govKey);
+            if (!arr) { arr = []; _govBuckets.set(govKey, arr); }
+            arr.push(idx);
+        }
 
         const prio = c.priority || 'B';
         let prioArr = _priorityBuckets.get(prio);
@@ -92,6 +257,7 @@ self.onmessage = function(e) {
                 normContact,
                 sector: c.sector || 'other',
                 city: c.city || 'other',
+                governorate: c.governorate || '',
                 priority: c.priority || 'B',
                 prioNum: (c.priority === 'A+' ? 1 : c.priority === 'A' ? 2 : c.priority === 'B' ? 3 : 4),
                 fleetSize: Number(c.fleetSize) || 0,
@@ -135,6 +301,7 @@ self.onmessage = function(e) {
                 normContact,
                 sector: c.sector || 'other',
                 city: c.city || 'other',
+                governorate: c.governorate || '',
                 priority: c.priority || 'B',
                 prioNum: (c.priority === 'A+' ? 1 : c.priority === 'A' ? 2 : c.priority === 'B' ? 3 : 4),
                 fleetSize: Number(c.fleetSize) || 0,
@@ -233,6 +400,8 @@ self.onmessage = function(e) {
             search = '',
             sector = '',
             sectors = [],
+            governorate = '',
+            governorates = [],
             city = '',
             cities = [],
             contactType = '',
@@ -258,6 +427,11 @@ self.onmessage = function(e) {
         let sectorList = Array.isArray(sectors) ? sectors.filter(Boolean) : [];
         if (sector && !sectorList.includes(sector)) sectorList.push(sector);
         const sectorSet = sectorList.length > 0 ? new Set(sectorList) : null;
+
+        // Multi-governorate normalization
+        let govList = Array.isArray(governorates) ? governorates.filter(Boolean) : [];
+        if (governorate && !govList.includes(governorate)) govList.push(governorate);
+        const govSet = govList.length > 0 ? new Set(govList) : null;
 
         // Multi-city normalization
         let cityList = Array.isArray(cities) ? cities.filter(Boolean) : [];
@@ -327,6 +501,11 @@ self.onmessage = function(e) {
             if (vip === 'standard_only' && c.isTitan) continue;
 
             if (sectorSet && !sectorSet.has(c.sector)) continue;
+            if (govSet) {
+                const cGov = c.governorate || '';
+                const cGovKey = _cityToGov[c.city] || _govArToKey[cGov] || '';
+                if (!govSet.has(cGov) && !govSet.has(cGovKey)) continue;
+            }
             if (citySet && !citySet.has(c.city)) continue;
             if (priority && c.priority !== priority) continue;
             if (fleetType && c.fleetType !== fleetType) continue;

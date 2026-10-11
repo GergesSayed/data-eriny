@@ -2047,8 +2047,8 @@ const App = {
             }
         } catch(e) {}
         try {
-            localStorage.setItem('fleetcrm_app_version', '331.0');
-            localStorage.setItem('fleetcrm_dataset_version', 'v334.0_phase2_suez_canal_specialized_logistics_21225');
+            localStorage.setItem('fleetcrm_app_version', '335.0');
+            localStorage.setItem('fleetcrm_dataset_version', 'v335.0_governorates_hierarchy_fix_21225');
             localStorage.setItem('fleetcrm_company_count', '21,225');
             sessionStorage.clear();
         } catch(e) {}
