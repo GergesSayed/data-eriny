@@ -1358,9 +1358,22 @@ const Companies = {
                 if (c.lastCallResult) delete c.lastCallResult;
                 if (c.lastCallDate) delete c.lastCallDate;
                 if (c.lastCallNotes) delete c.lastCallNotes;
+                c.lastCallResult = '';
+                c.lastCallDate = '';
+                c.lastCallNotes = '';
+                if (['interested', 'unqualified', 'contacted'].includes(c.status)) {
+                    c.status = 'new';
+                }
             } else {
                 c.lastCallResult = callResult;
                 c.lastCallDate = callDate;
+                if (['interested', 'meeting_scheduled', 'proposal_sent'].includes(callResult)) {
+                    c.status = 'interested';
+                } else if (['not_interested', 'wrong_number'].includes(callResult)) {
+                    c.status = 'unqualified';
+                } else if (callResult === 'callback') {
+                    c.status = 'contacted';
+                }
             }
 
             let callResultBadge = '';
@@ -1370,8 +1383,6 @@ const Companies = {
                         <span class="result-badge result-${callResult}" style="font-size:0.75rem;">${window.AppStorage.getCallResultLabel(callResult)}</span>
                         ${callDate ? `<small style="display:block; font-size:10px; color:var(--text-muted); margin-top:2px;">${callDate}</small>` : ''}
                     </div>`;
-            } else if (c.status === 'interested') {
-                callResultBadge = `<span class="badge" style="background:#10b98122; color:#10b981; border:1px solid #10b981; font-size:0.75rem; white-space:nowrap;">💚 عميل مهتم</span>`;
             } else {
                 callResultBadge = `<span style="color:var(--text-muted); font-size:11px; white-space:nowrap;">⚪ لم يتواصل بعد</span>`;
             }
@@ -1547,9 +1558,22 @@ const Companies = {
                 if (c.lastCallResult) delete c.lastCallResult;
                 if (c.lastCallDate) delete c.lastCallDate;
                 if (c.lastCallNotes) delete c.lastCallNotes;
+                c.lastCallResult = '';
+                c.lastCallDate = '';
+                c.lastCallNotes = '';
+                if (['interested', 'unqualified', 'contacted'].includes(c.status)) {
+                    c.status = 'new';
+                }
             } else {
                 c.lastCallResult = callResult;
                 c.lastCallDate = callDate;
+                if (['interested', 'meeting_scheduled', 'proposal_sent'].includes(callResult)) {
+                    c.status = 'interested';
+                } else if (['not_interested', 'wrong_number'].includes(callResult)) {
+                    c.status = 'unqualified';
+                } else if (callResult === 'callback') {
+                    c.status = 'contacted';
+                }
             }
 
             const isTitan = Boolean(c.isTitan || (c.id && String(c.id).startsWith('eg_titan_')));
@@ -1971,7 +1995,7 @@ const Companies = {
                 if (window.AppStorage.saveBatchToIDB) {
                     await window.AppStorage.saveBatchToIDB(window.AppStorage.companiesMemory);
                 }
-                localStorage.setItem('fleetcrm_dataset_version', 'v339.0_purge_test_assignments_21225');
+                localStorage.setItem('fleetcrm_dataset_version', 'v340.0_purge_orphaned_calls_and_interested_21225');
                 localStorage.setItem('fleetcrm_company_count', '21,225');
                 App.showToast('✨ تم بنجاح تحديث وتطهير قاعدة البيانات بالكامل (21,225 شركة حقيقية ومعتمدة 100%)!', 'success');
                 this.openAuditModal();

@@ -2805,7 +2805,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v339.0_purge_test_assignments_21225';
+                    const currentVersionTag = 'v340.0_purge_orphaned_calls_and_interested_21225';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 
@@ -2820,6 +2820,9 @@ const AppStorage = {
                     // Fast-path: When IndexedDB already contains the full dataset (21,225 items)
                     // Loads instantly in ~10ms with zero object re-creation or main-thread freezing
                     if (storedVersionTag === currentVersionTag && idbData && idbData.length === 21225) {
+                        const genuineCalls = this.getCalls() || [];
+                        const callCompIds = new Set(genuineCalls.map(cl => cl && String(cl.companyId).trim()).filter(Boolean));
+
                         for (let i = 0; i < idbData.length; i++) {
                             const comp = idbData[i];
                             if (comp) {
@@ -2827,6 +2830,17 @@ const AppStorage = {
                                 if (comp.assignedTo && (String(comp.assignedTo).startsWith('usr_agent_') || comp.assignedTo === 'usr_rep1')) {
                                     comp.assignedTo = '';
                                     comp.assignedAt = null;
+                                }
+                                if (!callCompIds.has(String(comp.id))) {
+                                    delete comp.lastCallResult;
+                                    delete comp.lastCallDate;
+                                    delete comp.lastCallNotes;
+                                    comp.lastCallResult = '';
+                                    comp.lastCallDate = '';
+                                    comp.lastCallNotes = '';
+                                    if (['interested', 'unqualified', 'contacted'].includes(comp.status)) {
+                                        comp.status = 'new';
+                                    }
                                 }
                                 if (comp.contactPerson && this.isRoleTitle(comp.contactPerson)) {
                                     comp.contactPerson = '';
@@ -2904,12 +2918,21 @@ const AppStorage = {
                             const existing = masterMap.get(c.id);
                             if (existing) {
                                 const userState = {};
-                                if (c.assignedTo) userState.assignedTo = c.assignedTo;
-                                if (c.lastCallResult) userState.lastCallResult = c.lastCallResult;
-                                if (c.lastCallDate) userState.lastCallDate = c.lastCallDate;
-                                if (c.lastCallNotes) userState.lastCallNotes = c.lastCallNotes;
+                                if (c.assignedTo && !String(c.assignedTo).startsWith('usr_agent_') && c.assignedTo !== 'usr_rep1') {
+                                    userState.assignedTo = c.assignedTo;
+                                }
+                                if (genuineCallContacts.has(String(c.id))) {
+                                    if (c.lastCallResult) userState.lastCallResult = c.lastCallResult;
+                                    if (c.lastCallDate) userState.lastCallDate = c.lastCallDate;
+                                    if (c.lastCallNotes) userState.lastCallNotes = c.lastCallNotes;
+                                    if (c.status && c.status !== 'new') userState.status = c.status;
+                                } else {
+                                    userState.lastCallResult = '';
+                                    userState.lastCallDate = '';
+                                    userState.lastCallNotes = '';
+                                    userState.status = 'new';
+                                }
                                 if (c.rating) userState.rating = c.rating;
-                                if (c.status && c.status !== 'new') userState.status = c.status;
                                 if (c.userNotes) userState.userNotes = c.userNotes;
 
                                 const genuineContact = genuineCallContacts.get(String(c.id));
@@ -3875,6 +3898,9 @@ const AppStorage = {
                 delete comp.lastCallResult;
                 delete comp.lastCallDate;
                 delete comp.lastCallNotes;
+                comp.lastCallResult = '';
+                comp.lastCallDate = '';
+                comp.lastCallNotes = '';
                 changed = true;
             }
             if (['interested', 'unqualified', 'contacted'].includes(comp.status)) {
@@ -3897,7 +3923,7 @@ const AppStorage = {
                         anyChanged = true;
                         modifiedComps.push(comp);
                     }
-                } else if (comp.lastCallResult || comp.lastCallDate || comp.lastCallNotes) {
+                } else if (comp.lastCallResult || comp.lastCallDate || comp.lastCallNotes || ['interested', 'unqualified', 'contacted'].includes(comp.status)) {
                     if (purgeOrphanedCall(comp)) {
                         anyChanged = true;
                         modifiedComps.push(comp);
@@ -3915,7 +3941,7 @@ const AppStorage = {
                         anyChanged = true;
                         modifiedComps.push(comp);
                     }
-                } else if (comp.lastCallResult || comp.lastCallDate || comp.lastCallNotes) {
+                } else if (comp.lastCallResult || comp.lastCallDate || comp.lastCallNotes || ['interested', 'unqualified', 'contacted'].includes(comp.status)) {
                     if (purgeOrphanedCall(comp)) {
                         anyChanged = true;
                         modifiedComps.push(comp);
@@ -5297,8 +5323,11 @@ const AppStorage = {
                     delete company.lastCallResult;
                     delete company.lastCallDate;
                     delete company.lastCallNotes;
-                    if (['interested', 'unqualified'].includes(company.status)) {
-                        company.status = company.assignedTo ? 'contacted' : 'new';
+                    company.lastCallResult = '';
+                    company.lastCallDate = '';
+                    company.lastCallNotes = '';
+                    if (['interested', 'unqualified', 'contacted'].includes(company.status)) {
+                        company.status = 'new';
                     }
                 }
                 this.saveBatchToIDB([company]);

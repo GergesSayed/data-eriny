@@ -610,6 +610,7 @@ const Calls = {
             setTimeout(() => {
                 window.AppStorage.deleteCall(id);
                 try { this.render(); } catch (e) {}
+                try { if (window.Companies && typeof window.Companies.render === 'function') window.Companies.render(); } catch (e) {}
                 try { if (typeof Dashboard !== 'undefined') Dashboard.render(); } catch (e) {}
                 try { if (window.App && typeof window.App.updateNotificationBadge === 'function') window.App.updateNotificationBadge(); } catch (e) {}
             }, 10);
