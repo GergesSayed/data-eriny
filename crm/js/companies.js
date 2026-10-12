@@ -1527,12 +1527,16 @@ const Companies = {
             const sectorLabel = window.AppStorage.getSectorLabel(c.sector);
             const cityLabel = window.AppStorage.getCityLabel(c.city);
             let phoneDisplay = '<span style="color:var(--text-muted); font-size:11px;">—</span>';
+            let cleanPhone = '';
             if (c.hotline) {
                 phoneDisplay = `<a href="tel:${esc(c.hotline)}" onclick="event.stopPropagation();" style="color:#2563eb; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:4px;"><i class="fas fa-headset" style="font-size:11px;"></i> <span>${esc(c.hotline)}</span> <span class="badge" style="background:rgba(37,99,235,0.12); color:#2563eb; font-size:9px; padding:1px 5px; border-radius:4px;">خط ساخن</span></a>`;
+                cleanPhone = c.hotline;
             } else if (c.mobile) {
                 phoneDisplay = `<a href="tel:${esc(c.mobile)}" onclick="event.stopPropagation();" style="color:#10b981; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:4px;"><i class="fas fa-mobile-alt" style="font-size:11px;"></i> <span>${esc(c.mobile)}</span> <span class="badge" style="background:rgba(16,185,129,0.12); color:#10b981; font-size:9px; padding:1px 5px; border-radius:4px;">موبايل</span></a>`;
+                cleanPhone = c.mobile;
             } else if (c.phone1) {
                 phoneDisplay = `<a href="tel:${esc(c.phone1)}" onclick="event.stopPropagation();" style="color:var(--text-primary); font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:4px;"><i class="fas fa-phone-alt" style="font-size:11px; color:var(--text-muted);"></i> <span>${esc(c.phone1)}</span> <span class="badge" style="background:rgba(100,116,139,0.12); color:var(--text-muted); font-size:9px; padding:1px 5px; border-radius:4px;">أرضي</span></a>`;
+                cleanPhone = c.phone1;
             }
             const rawMaps = window.AppStorage.getGoogleMapsUrl ? window.AppStorage.getGoogleMapsUrl(c) : (c.google_maps_url || '');
             const mapsLink = esc(rawMaps);
@@ -1995,7 +1999,7 @@ const Companies = {
                 if (window.AppStorage.saveBatchToIDB) {
                     await window.AppStorage.saveBatchToIDB(window.AppStorage.companiesMemory);
                 }
-                localStorage.setItem('fleetcrm_dataset_version', 'v340.0_purge_orphaned_calls_and_interested_21225');
+                localStorage.setItem('fleetcrm_dataset_version', 'v341.0_mobile_cards_view_render_fix');
                 localStorage.setItem('fleetcrm_company_count', '21,225');
                 App.showToast('✨ تم بنجاح تحديث وتطهير قاعدة البيانات بالكامل (21,225 شركة حقيقية ومعتمدة 100%)!', 'success');
                 this.openAuditModal();
