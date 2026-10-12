@@ -2577,9 +2577,9 @@ a:hover { color: var(--accent); }
     }
 
     /* -- Topbar: Mobile Optimization & Overlap Prevention -- */
-    /* -- Topbar: Mobile Optimization, Uniform 34px Sizing & Balanced Spacing -- */
+    /* -- Topbar: Mobile Optimization, All Icons Grouped Side-by-Side (34px) -- */
     .topbar {
-        padding: 0 10px !important;
+        padding: 0 8px !important;
         gap: 8px !important;
         height: 56px !important;
         min-height: 56px !important;
@@ -2591,7 +2591,7 @@ a:hover { color: var(--accent); }
         border-bottom: 1px solid var(--border-color) !important;
         display: flex !important;
         align-items: center !important;
-        justify-content: space-between !important;
+        justify-content: center !important;
         position: sticky !important;
         top: 0 !important;
         z-index: 900 !important;
@@ -2600,19 +2600,15 @@ a:hover { color: var(--accent); }
     }
     .topbar-right {
         flex: 0 0 auto !important;
-        display: flex !important;
+        display: inline-flex !important;
         align-items: center !important;
+        justify-content: center !important;
         gap: 8px !important;
         min-width: 0 !important;
+        margin: 0 !important;
     }
     .topbar-brand-mobile {
-        display: flex !important;
-        align-items: center !important;
-        font-weight: 800 !important;
-        font-size: 14.5px !important;
-        color: var(--text-primary) !important;
-        letter-spacing: -0.2px !important;
-        white-space: nowrap !important;
+        display: none !important;
     }
     #toggle-sidebar {
         display: inline-flex !important;
@@ -2633,11 +2629,12 @@ a:hover { color: var(--accent); }
 
     .topbar-left {
         flex: 0 0 auto !important;
-        display: flex !important;
-        justify-content: flex-end !important;
+        display: inline-flex !important;
+        justify-content: center !important;
         align-items: center !important;
-        gap: 6px !important;
+        gap: 8px !important;
         flex-wrap: nowrap !important;
+        margin: 0 !important;
     }
 
     /* Uniform touch targets for icon buttons in mobile topbar (34x34px) */
@@ -2840,7 +2837,7 @@ a:hover { color: var(--accent); }
     .topbar-user {
         display: inline-flex !important;
         align-items: center !important;
-        gap: 6px !important;
+        gap: 8px !important;
     }
     .topbar-user #current-user-avatar {
         width: 34px !important;
@@ -2904,17 +2901,20 @@ a:hover { color: var(--accent); }
 
     @media (max-width: 420px) {
         .topbar {
-            padding: 0 6px !important;
-            gap: 4px !important;
+            padding: 0 4px !important;
+            gap: 5px !important;
+            justify-content: center !important;
         }
         .topbar-right {
             gap: 5px !important;
+            justify-content: center !important;
         }
         .topbar-left {
-            gap: 4px !important;
+            gap: 5px !important;
+            justify-content: center !important;
         }
         .topbar-user {
-            gap: 4px !important;
+            gap: 5px !important;
         }
         .topbar-left .btn-icon,
         .topbar-left .btn-theme-toggle,
