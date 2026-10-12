@@ -285,7 +285,8 @@ function rebuildBuckets() {
             _titanIndices.push(idx);
         }
 
-        const sec = c.sector || 'other';
+        let sec = c.sector || 'other';
+        if (sec === 'rental') sec = 'transport';
         let secArr = _sectorBuckets.get(sec);
         if (!secArr) { secArr = []; _sectorBuckets.set(sec, secArr); }
         secArr.push(idx);

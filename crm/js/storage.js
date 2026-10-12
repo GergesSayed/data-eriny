@@ -636,7 +636,7 @@ const AppStorage = {
 
     // ---- Sector Definitions ----
     SECTORS: {
-        transport: { ar: 'نقل وشحن', en: 'Transport & Shipping', icon: '🚛' },
+        transport: { ar: 'نقل وشحن وتأجير سيارات وأساطيل', en: 'Transport, Shipping & Fleet Rental', icon: '🚛' },
         food: { ar: 'أغذية ومشروبات', en: 'Food & Beverages', icon: '🍔' },
         agri_investment: { ar: 'استثمار واستصلاح زراعي', en: 'Agricultural Investment', icon: '🌱' },
         pharma: { ar: 'أدوية ومستلزمات طبية', en: 'Pharmaceuticals & Medical', icon: '💊' },
@@ -651,7 +651,6 @@ const AppStorage = {
         textile_apparel: { ar: 'غزل ونسيج وملابس', en: 'Textile & Apparel', icon: '🧵' },
         waste_environment: { ar: 'إدارة مخلفات وتدوير', en: 'Waste & Environmental', icon: '♻️' },
         security: { ar: 'أمن وحراسة ونقل أموال', en: 'Security & Cash Transport', icon: '🛡️' },
-        rental: { ar: 'تأجير سيارات وأساطيل', en: 'Car & Fleet Rental', icon: '🚗' },
         manufacturing: { ar: 'مصانع وإنتاج صناعي', en: 'Manufacturing & Industrial', icon: '🏭' },
         education: { ar: 'مدارس وجامعات', en: 'Education', icon: '🎓' },
         healthcare: { ar: 'مستشفيات ورعاية طبية', en: 'Healthcare', icon: '🏥' },
@@ -2740,6 +2739,7 @@ const AppStorage = {
         for (let i = 0; i < titans.length; i++) {
             const t = titans[i];
             if (t && t.id && !deletedCompIds.has(String(t.id))) {
+                if (t.sector === 'rental') t.sector = 'transport';
                 if (t.contactPerson && this.isRoleTitle(t.contactPerson)) {
                     t.contactPerson = '';
                     t.contactTitle = '';
@@ -2754,6 +2754,7 @@ const AppStorage = {
             if (c) {
                 const id = c.id || `comp_base_${i}`;
                 if (!deletedCompIds.has(String(id))) {
+                    if (c.sector === 'rental') c.sector = 'transport';
                     if (c.contactPerson && this.isRoleTitle(c.contactPerson)) {
                         c.contactPerson = '';
                         c.contactTitle = '';
@@ -2804,7 +2805,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v336.0_granular_independent_cities_21225';
+                    const currentVersionTag = 'v337.0_merge_rental_into_transport_21225';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 
@@ -2821,9 +2822,12 @@ const AppStorage = {
                     if (storedVersionTag === currentVersionTag && idbData && idbData.length === 21225) {
                         for (let i = 0; i < idbData.length; i++) {
                             const comp = idbData[i];
-                            if (comp && comp.contactPerson && this.isRoleTitle(comp.contactPerson)) {
-                                comp.contactPerson = '';
-                                comp.contactTitle = '';
+                            if (comp) {
+                                if (comp.sector === 'rental') comp.sector = 'transport';
+                                if (comp.contactPerson && this.isRoleTitle(comp.contactPerson)) {
+                                    comp.contactPerson = '';
+                                    comp.contactTitle = '';
+                                }
                             }
                         }
                         this.applyStoredAssignments(idbData);
@@ -5869,12 +5873,13 @@ const AppStorage = {
     },
     calculatePriority(sector) {
         if (!sector) return 'C';
+        if (sector === 'rental') sector = 'transport';
         // A Priority (High Fleet Potential)
         if (['transport', 'public_transport', 'delivery', 'distribution'].includes(sector)) {
             return 'A';
         }
         // B Priority (Medium Fleet Potential)
-        if (['food', 'pharma', 'construction', 'petroleum', 'rental', 'manufacturing', 'security'].includes(sector)) {
+        if (['food', 'pharma', 'construction', 'petroleum', 'manufacturing', 'security'].includes(sector)) {
             return 'B';
         }
         // C Priority (Low Fleet Potential)
@@ -5886,6 +5891,7 @@ const AppStorage = {
 
     getSectorLabel(sectorKey) {
         if (!sectorKey) return 'مصانع';
+        if (sectorKey === 'rental') sectorKey = 'transport';
         const s = this.SECTORS[sectorKey];
         if (s) return `${s.icon} ${s.ar}`;
         const scraperAr = this.getScraperSectorAr(sectorKey);

@@ -2047,8 +2047,8 @@ const App = {
             }
         } catch(e) {}
         try {
-            localStorage.setItem('fleetcrm_app_version', '336.0');
-            localStorage.setItem('fleetcrm_dataset_version', 'v336.0_granular_independent_cities_21225');
+            localStorage.setItem('fleetcrm_app_version', '337.0');
+            localStorage.setItem('fleetcrm_dataset_version', 'v337.0_merge_rental_into_transport_21225');
             localStorage.setItem('fleetcrm_company_count', '21,225');
             sessionStorage.clear();
         } catch(e) {}

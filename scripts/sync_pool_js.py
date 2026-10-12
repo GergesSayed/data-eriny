@@ -18,7 +18,18 @@ with open('crm/data/egypt_enterprises_pool.json', 'w', encoding='utf-8') as f:
     json.dump(pool, f, ensure_ascii=False, indent=2)
 
 # Update crm/js/egypt_enterprises_pool.js
-pool_js = f"// Total Real Verified Enterprises in this pool: {len(pool)} (plus 1,000 VIP Titans = {len(comps)} Total)\nwindow.EGYPT_ENTERPRISES_POOL = " + json.dumps(pool, ensure_ascii=False) + ";\n"
+pool_js = f"""// Total Real Verified Enterprises in this pool: {len(pool)} (plus 1,000 VIP Titans = {len(comps)} Total)
+(function() {{
+  var data = {json.dumps(pool, ensure_ascii=False)};
+  if (typeof window !== 'undefined') {{
+    window.EGYPT_ENTERPRISES_POOL = data;
+    window.__EGYPT_ENTERPRISES_POOL = data;
+  }}
+  if (typeof module !== 'undefined' && module.exports) {{
+    module.exports = data;
+  }}
+}})();
+"""
 with open('crm/js/egypt_enterprises_pool.js', 'w', encoding='utf-8') as f:
     f.write(pool_js)
 
