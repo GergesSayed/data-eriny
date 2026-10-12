@@ -636,7 +636,7 @@ const AppStorage = {
 
     // ---- Sector Definitions ----
     SECTORS: {
-        transport: { ar: 'نقل وشحن وتأجير سيارات وأساطيل', en: 'Transport, Shipping & Fleet Rental', icon: '🚛' },
+        transport: { ar: 'نقل وشحن', en: 'Transport & Shipping', icon: '🚛' },
         food: { ar: 'أغذية ومشروبات', en: 'Food & Beverages', icon: '🍔' },
         agri_investment: { ar: 'استثمار واستصلاح زراعي', en: 'Agricultural Investment', icon: '🌱' },
         pharma: { ar: 'أدوية ومستلزمات طبية', en: 'Pharmaceuticals & Medical', icon: '💊' },
@@ -2805,7 +2805,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v337.0_merge_rental_into_transport_21225';
+                    const currentVersionTag = 'v338.0_transport_clean_label_21225';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 
