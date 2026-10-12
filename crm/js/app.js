@@ -2047,8 +2047,8 @@ const App = {
             }
         } catch(e) {}
         try {
-            localStorage.setItem('fleetcrm_app_version', '338.0');
-            localStorage.setItem('fleetcrm_dataset_version', 'v338.0_transport_clean_label_21225');
+            localStorage.setItem('fleetcrm_app_version', '339.0');
+            localStorage.setItem('fleetcrm_dataset_version', 'v339.0_purge_test_assignments_21225');
             localStorage.setItem('fleetcrm_company_count', '21,225');
             sessionStorage.clear();
         } catch(e) {}

@@ -314,7 +314,7 @@ function rebuildBuckets() {
         if (!prioArr) { prioArr = []; _priorityBuckets.set(prio, prioArr); }
         prioArr.push(idx);
 
-        if (c.assignedTo) {
+        if (c.assignedTo && !String(c.assignedTo).startsWith('usr_agent_') && c.assignedTo !== 'usr_rep1') {
             const asgn = String(c.assignedTo).trim().toLowerCase();
             let asgnArr = _assignedBuckets.get(asgn);
             if (!asgnArr) { asgnArr = []; _assignedBuckets.set(asgn, asgnArr); }

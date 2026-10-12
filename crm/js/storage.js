@@ -2805,7 +2805,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v338.0_transport_clean_label_21225';
+                    const currentVersionTag = 'v339.0_purge_test_assignments_21225';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 
@@ -2824,6 +2824,10 @@ const AppStorage = {
                             const comp = idbData[i];
                             if (comp) {
                                 if (comp.sector === 'rental') comp.sector = 'transport';
+                                if (comp.assignedTo && (String(comp.assignedTo).startsWith('usr_agent_') || comp.assignedTo === 'usr_rep1')) {
+                                    comp.assignedTo = '';
+                                    comp.assignedAt = null;
+                                }
                                 if (comp.contactPerson && this.isRoleTitle(comp.contactPerson)) {
                                     comp.contactPerson = '';
                                     comp.contactTitle = '';
@@ -3654,7 +3658,19 @@ const AppStorage = {
         if (this._storedAssignmentsCache) return this._storedAssignmentsCache;
         try {
             const raw = localStorage.getItem('fleetcrm_assignments');
-            this._storedAssignmentsCache = raw ? JSON.parse(raw) : {};
+            const parsed = raw ? JSON.parse(raw) : {};
+            let cleaned = false;
+            for (const [k, v] of Object.entries(parsed)) {
+                const u = (v && typeof v === 'object') ? v.assignedTo : v;
+                if (u && (String(u).startsWith('usr_agent_') || u === 'usr_rep1')) {
+                    delete parsed[k];
+                    cleaned = true;
+                }
+            }
+            if (cleaned) {
+                localStorage.setItem('fleetcrm_assignments', JSON.stringify(parsed));
+            }
+            this._storedAssignmentsCache = parsed;
         } catch (e) {
             this._storedAssignmentsCache = {};
         }
@@ -3681,7 +3697,9 @@ const AppStorage = {
                 if (!assignData) continue;
                 const comp = target.get(String(compId));
                 if (comp) {
-                    comp.assignedTo = typeof assignData === 'string' ? assignData : (assignData.assignedTo || '');
+                    let asgn = typeof assignData === 'string' ? assignData : (assignData.assignedTo || '');
+                    if (asgn && (String(asgn).startsWith('usr_agent_') || asgn === 'usr_rep1')) asgn = '';
+                    comp.assignedTo = asgn;
                     comp.assignedAt = comp.assignedTo ? (assignData.assignedAt || comp.assignedAt || null) : null;
                 }
             }
@@ -3692,7 +3710,9 @@ const AppStorage = {
                 if (!comp || !comp.id) continue;
                 const assignData = assignMap.get(String(comp.id));
                 if (assignData) {
-                    comp.assignedTo = typeof assignData === 'string' ? assignData : (assignData.assignedTo || '');
+                    let asgn = typeof assignData === 'string' ? assignData : (assignData.assignedTo || '');
+                    if (asgn && (String(asgn).startsWith('usr_agent_') || asgn === 'usr_rep1')) asgn = '';
+                    comp.assignedTo = asgn;
                     comp.assignedAt = comp.assignedTo ? (assignData.assignedAt || comp.assignedAt || null) : null;
                 }
             }
