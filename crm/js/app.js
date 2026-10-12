@@ -2047,8 +2047,8 @@ const App = {
             }
         } catch(e) {}
         try {
-            localStorage.setItem('fleetcrm_app_version', '343.0');
-            localStorage.setItem('fleetcrm_dataset_version', 'v343.0_mobile_topbar_icons_grouped_side_by_side');
+            localStorage.setItem('fleetcrm_app_version', '344.0');
+            localStorage.setItem('fleetcrm_dataset_version', 'v344.0_restore_stable_clean_baseline');
             localStorage.setItem('fleetcrm_company_count', '21,225');
             sessionStorage.clear();
         } catch(e) {}

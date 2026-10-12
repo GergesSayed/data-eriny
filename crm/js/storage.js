@@ -2805,7 +2805,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v343.0_mobile_topbar_icons_grouped_side_by_side';
+                    const currentVersionTag = 'v344.0_restore_stable_clean_baseline';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 
