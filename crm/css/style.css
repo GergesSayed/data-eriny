@@ -665,6 +665,108 @@ textarea {
     color: #4338ca !important;
 }
 
+/* Light mode: Toast Notifications */
+[data-theme="light"] .toast {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12) !important;
+    color: #0f172a !important;
+}
+[data-theme="light"] .toast-message {
+    color: #0f172a !important;
+    font-weight: 700 !important;
+}
+[data-theme="light"] .toast-close {
+    color: #64748b !important;
+}
+[data-theme="light"] .toast-close:hover {
+    color: #0f172a !important;
+}
+
+/* Light mode: Search dropdown */
+[data-theme="light"] .search-dropdown,
+[data-theme="light"] #search-results {
+    background: #ffffff !important;
+    border: 1.5px solid #cbd5e1 !important;
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.15) !important;
+    color: #0f172a !important;
+}
+[data-theme="light"] .search-dropdown-item {
+    color: #0f172a !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+}
+[data-theme="light"] .search-dropdown-item:hover {
+    background: #f1f5f9 !important;
+}
+[data-theme="light"] .search-dropdown-item small {
+    color: #64748b !important;
+}
+
+/* Light mode: Mobile bottom nav items */
+[data-theme="light"] .mobile-bottom-nav .nav-item,
+[data-theme="light"] .mobile-bottom-nav .mobile-nav-item,
+[data-theme="light"] .mobile-bottom-nav a {
+    color: #64748b !important;
+}
+[data-theme="light"] .mobile-bottom-nav .nav-item.active,
+[data-theme="light"] .mobile-bottom-nav .mobile-nav-item.active,
+[data-theme="light"] .mobile-bottom-nav a.active {
+    color: #4338ca !important;
+}
+[data-theme="light"] .mobile-bottom-nav .nav-item.active i,
+[data-theme="light"] .mobile-bottom-nav .mobile-nav-item.active i,
+[data-theme="light"] .mobile-bottom-nav a.active i {
+    color: #4338ca !important;
+}
+
+/* Light mode: Sector Pills in Companies */
+[data-theme="light"] .sector-pill {
+    background: #f1f5f9 !important;
+    color: #334155 !important;
+    border: 1px solid #cbd5e1 !important;
+}
+[data-theme="light"] .sector-pill.active {
+    background: #dcfce7 !important;
+    color: #166534 !important;
+    border-color: #16a34a !important;
+    font-weight: 800 !important;
+}
+
+/* PWA Update Banner Base & Light Theme */
+#pwa-update-banner,
+.pwa-update-banner {
+    background: linear-gradient(135deg, #1e1b4b, #312e81);
+    border: 1px solid rgba(167, 139, 250, 0.45);
+    color: #ffffff;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6), 0 0 20px rgba(124, 58, 237, 0.35);
+}
+.pwa-btn-close {
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+}
+.pwa-banner-text {
+    color: #ffffff;
+}
+
+[data-theme="light"] #pwa-update-banner,
+[data-theme="light"] .pwa-update-banner {
+    background: #ffffff !important;
+    border: 1.5px solid #cbd5e1 !important;
+    color: #0f172a !important;
+    box-shadow: 0 12px 36px rgba(15, 23, 42, 0.15), 0 0 15px rgba(99, 102, 241, 0.12) !important;
+}
+[data-theme="light"] .pwa-banner-text {
+    color: #0f172a !important;
+    font-weight: 800 !important;
+}
+[data-theme="light"] .pwa-btn-close {
+    background: #f1f5f9 !important;
+    color: #64748b !important;
+}
+[data-theme="light"] .pwa-btn-close:hover {
+    color: #0f172a !important;
+}
+
 /* Theme toggle button styles */
 .btn-theme-toggle {
     display: flex;
@@ -2562,7 +2664,7 @@ a:hover { color: var(--accent); }
     .mobile-bottom-nav {
         display: block !important;
         z-index: 8000 !important;
-        background: #0f172a !important;
+        background: var(--bg-surface, #0f172a) !important;
         -webkit-backdrop-filter: none !important;
         backdrop-filter: none !important;
         transform: translateZ(0);
@@ -2627,9 +2729,9 @@ a:hover { color: var(--accent); }
         height: 32px !important;
         min-width: 32px !important;
         font-size: 14px !important;
-        color: #22d3ee !important;
-        background: rgba(30,41,59,0.9) !important;
-        border: 1px solid rgba(124,58,237,0.4) !important;
+        color: var(--accent) !important;
+        background: var(--bg-surface) !important;
+        border: 1px solid var(--border-color) !important;
         border-radius: 8px !important;
         cursor: pointer;
         padding: 0 !important;
@@ -2790,10 +2892,11 @@ a:hover { color: var(--accent); }
         width: auto !important;
         max-width: calc(100vw - 16px) !important;
         max-height: 70vh !important;
-        background: #0f172a !important;
-        border: 1px solid rgba(124, 58, 237, 0.4) !important;
+        background: var(--bg-surface, #0f172a) !important;
+        border: 1.5px solid var(--border-color, rgba(124, 58, 237, 0.4)) !important;
         border-radius: 14px !important;
-        box-shadow: 0 16px 40px rgba(0,0,0,0.8) !important;
+        box-shadow: 0 16px 40px rgba(0,0,0,0.3) !important;
+        color: var(--text-primary) !important;
         z-index: 99999 !important;
         overflow-y: auto !important;
     }
@@ -3351,7 +3454,8 @@ a:hover { color: var(--accent); }
         animation: none !important;
         backdrop-filter: none !important;
         -webkit-backdrop-filter: none !important;
-        background: #1e293b !important;
+        background: var(--bg-surface) !important;
+        color: var(--text-primary) !important;
     }
     .autocomplete-results {
         backdrop-filter: none !important;

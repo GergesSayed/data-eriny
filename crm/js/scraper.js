@@ -50,26 +50,26 @@ const ScraperPage = {
 
         main.innerHTML = `
         <!-- 1. Targeted Direct Harvester Control Panel -->
-        <div style="background: linear-gradient(135deg, #1e1b4b, #312e81); border: 2px solid #6366f1; border-radius: 16px; padding: 22px; margin-bottom: 24px; box-shadow: 0 10px 25px rgba(99, 102, 241, 0.25);">
+        <div style="background: var(--bg-surface); border: 2px solid var(--primary); border-radius: 16px; padding: 22px; margin-bottom: 24px; box-shadow: var(--shadow-sm);">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:18px;">
                 <div style="display:flex; align-items:center; gap:12px;">
                     <div id="scraper-status-dot" style="width:16px;height:16px;border-radius:50%;background:#4ade80;box-shadow:0 0 12px #4ade80;"></div>
                     <div>
-                        <div style="font-size:1.15rem; font-weight:800; color:#fff;" id="scraper-status-text">محرك استخراج المصانع وشركات الأساطيل المستهدفة لإطارات النقل 🛞⚡</div>
-                        <div style="font-size:0.84rem; color:#a5b4fc;" id="scraper-status-subtext">المسجل في السيستم حالياً: <b style="color:#4ade80; font-size:0.95rem;">${totalComps.toLocaleString()}</b> شركة | إجمالي رصيد الدليل المصري: <b style="color:#38bdf8; font-size:0.95rem;">${poolSize.toLocaleString()}</b> مصنع وشركة أسطول</div>
+                        <div style="font-size:1.15rem; font-weight:800; color:var(--text-primary);" id="scraper-status-text">محرك استخراج المصانع وشركات الأساطيل المستهدفة لإطارات النقل 🛞⚡</div>
+                        <div style="font-size:0.84rem; color:var(--text-secondary);" id="scraper-status-subtext">المسجل في السيستم حالياً: <b style="color:#10b981; font-size:0.95rem;">${totalComps.toLocaleString()}</b> شركة | إجمالي رصيد الدليل المصري: <b style="color:#0284c7; font-size:0.95rem;">${poolSize.toLocaleString()}</b> مصنع وشركة أسطول</div>
                     </div>
                 </div>
                 <div style="display:flex; gap:8px;">
-                    <span class="badge" style="background:rgba(16,185,129,0.2); color:#4ade80; border:1px solid #10b981; font-weight:800;">🟢 دليل موثق 100%</span>
-                    <span class="badge" style="background:rgba(59,130,246,0.2); color:#93c5fd; border:1px solid #3b82f6; font-weight:800;">📍 24 منطقة صناعية</span>
+                    <span class="badge" style="background:rgba(16,185,129,0.15); color:#10b981; border:1px solid #10b981; font-weight:800;">🟢 دليل موثق 100%</span>
+                    <span class="badge" style="background:rgba(59,130,246,0.15); color:#2563eb; border:1px solid #3b82f6; font-weight:800;">📍 24 منطقة صناعية</span>
                 </div>
             </div>
 
             <!-- Targeted Filter Row -->
-            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:14px; margin-bottom:18px; background:rgba(15,23,42,0.6); padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.1);">
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:14px; margin-bottom:18px; background:var(--bg-secondary); padding:14px; border-radius:12px; border:1px solid var(--border-color);">
                 <div>
-                    <label style="display:block; font-size:12px; font-weight:700; color:#cbd5e1; margin-bottom:6px;">🏢 قطاع الأسطول المستهدف:</label>
-                    <select id="scraper-filter-sector" style="width:100%; padding:10px 12px; background:#0f172a; color:#fff; border:1px solid #475569; border-radius:8px; font-weight:700; font-size:13px; outline:none;">
+                    <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">🏢 قطاع الأسطول المستهدف:</label>
+                    <select id="scraper-filter-sector" style="width:100%; padding:10px 12px; background:var(--bg-surface); color:var(--text-primary); border:1px solid var(--border-color); border-radius:8px; font-weight:700; font-size:13px; outline:none;">
                         <option value="all">🌐 كافة قطاعات المصانع والأساطيل</option>
                         <option value="transport">🚚 نقل بري وشحن ولوجستيات (تريلات وشاحنات ثقيلة)</option>
                         <option value="construction">🏗️ مقاولات وخلاطات خرسانة ومحاجر (قلابات وخلاطات)</option>
@@ -83,15 +83,15 @@ const ScraperPage = {
                     </select>
                 </div>
                 <div>
-                    <label style="display:block; font-size:12px; font-weight:700; color:#cbd5e1; margin-bottom:6px;">📍 المنطقة / المدينة الصناعية:</label>
-                    <select id="scraper-filter-city" style="width:100%; padding:10px 12px; background:#0f172a; color:#fff; border:1px solid #475569; border-radius:8px; font-weight:700; font-size:13px; outline:none;">
+                    <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">📍 المنطقة / المدينة الصناعية:</label>
+                    <select id="scraper-filter-city" style="width:100%; padding:10px 12px; background:var(--bg-surface); color:var(--text-primary); border:1px solid var(--border-color); border-radius:8px; font-weight:700; font-size:13px; outline:none;">
                         <option value="all">🗺️ كافة المناطق الصناعية المصرية (24 منطقة)</option>
                         ${this.EGYPT_INDUSTRIAL_ZONES.map(z => `<option value="${z.id}">🏭 ${z.name}</option>`).join('')}
                     </select>
                 </div>
                 <div>
-                    <label style="display:block; font-size:12px; font-weight:700; color:#cbd5e1; margin-bottom:6px;">⚡ حجم الدفعة الجديدة:</label>
-                    <select id="scraper-batch-size" style="width:100%; padding:10px 12px; background:#0f172a; color:#fff; border:1px solid #475569; border-radius:8px; font-weight:700; font-size:13px; outline:none;">
+                    <label style="display:block; font-size:12px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">⚡ حجم الدفعة الجديدة:</label>
+                    <select id="scraper-batch-size" style="width:100%; padding:10px 12px; background:var(--bg-surface); color:var(--text-primary); border:1px solid var(--border-color); border-radius:8px; font-weight:700; font-size:13px; outline:none;">
                         <option value="50">سحب سريع (+50 منشأة جديدة)</option>
                         <option value="100" selected>سحب قياسي (+100 منشأة جديدة)</option>
                         <option value="250">سحب موسع (+250 منشأة جديدة)</option>
@@ -133,14 +133,14 @@ const ScraperPage = {
         </div>
 
         <!-- 2. Staged Companies Review & Inspection Table -->
-        <div id="staged-review-panel" style="display:none; background: linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(30, 41, 59, 0.98)); border: 2px solid #3b82f6; border-radius: 16px; padding: 22px; margin-bottom: 24px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);">
+        <div id="staged-review-panel" style="display:none; background: var(--bg-surface); border: 2px solid var(--accent); border-radius: 16px; padding: 22px; margin-bottom: 24px; box-shadow: var(--shadow-md);">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; margin-bottom:16px;">
                 <div>
-                    <h3 style="margin:0; font-size:1.15rem; font-weight:800; color:#f8fafc; display:flex; align-items:center; gap:10px;">
-                        <i class="fas fa-clipboard-check" style="color:#3b82f6;"></i>
+                    <h3 style="margin:0; font-size:1.15rem; font-weight:800; color:var(--text-primary); display:flex; align-items:center; gap:10px;">
+                        <i class="fas fa-clipboard-check" style="color:var(--accent);"></i>
                         <span>معاينة واعتماد المصانع وشركات الأساطيل المستخرجة (<span id="staged-count-badge">0</span> منشأة جديدة مؤكدة)</span>
                     </h3>
-                    <p style="margin:4px 0 0 0; font-size:0.82rem; color:#94a3b8;">منشآت ومصانع B2B حقيقية ذات أساطيل نقل وتوزيع مستهدفة لمبيعات الإطارات والخدمات اللوجستية.</p>
+                    <p style="margin:4px 0 0 0; font-size:0.82rem; color:var(--text-secondary);">منشآت ومصانع B2B حقيقية ذات أساطيل نقل وتوزيع مستهدفة لمبيعات الإطارات والخدمات اللوجستية.</p>
                 </div>
                 <div style="display:flex; gap:10px; flex-wrap:wrap;">
                     <button onclick="ScraperPage.toggleSelectAllStaged()" class="btn btn-outline btn-sm" style="font-size:12px; font-weight:700;">
@@ -157,10 +157,10 @@ const ScraperPage = {
             </div>
 
             <!-- Table -->
-            <div style="max-height: 480px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;">
+            <div style="max-height: 480px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 12px;">
                 <table class="data-table" style="width:100%; border-collapse:collapse; text-align:right;">
                     <thead>
-                        <tr style="background:#0f172a; position:sticky; top:0; z-index:2;">
+                        <tr style="background:var(--bg-secondary); color:var(--text-primary); position:sticky; top:0; z-index:2;">
                             <th style="width:40px; padding:10px; text-align:center;"><input type="checkbox" id="staged-master-cb" onchange="ScraperPage.toggleSelectAllStaged(this.checked)" checked></th>
                             <th style="padding:10px 14px; font-size:12px;">اسم المنشأة / المصنع</th>
                             <th style="padding:10px 14px; font-size:12px;">القطاع والمنطقة</th>

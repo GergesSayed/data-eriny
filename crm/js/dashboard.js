@@ -824,7 +824,7 @@ const Dashboard = {
             }
 
             return `
-                <tr style="border-bottom:1px solid rgba(255,255,255,0.06); transition:background 0.15s ease;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
+                <tr style="border-bottom:1px solid var(--border-color); transition:background 0.15s ease;" onmouseover="this.style.background='var(--bg-secondary)'" onmouseout="this.style.background='transparent'">
                     <td style="padding:10px 12px; font-weight:700; color:var(--text-muted); font-size:12px; font-family:Inter; white-space:nowrap;">
                         <i class="far fa-clock" style="margin-left:4px;"></i> ${esc(c.time)}
                     </td>
@@ -875,10 +875,10 @@ const Dashboard = {
             </div>
 
             <!-- Table Container -->
-            <div style="max-height:420px; overflow-y:auto; overflow-x:auto; -webkit-overflow-scrolling:touch; border:1px solid var(--border-color); border-radius:10px; background:rgba(0,0,0,0.2); width:100%; box-sizing:border-box;">
+            <div style="max-height:420px; overflow-y:auto; overflow-x:auto; -webkit-overflow-scrolling:touch; border:1px solid var(--border-color); border-radius:10px; background:var(--bg-surface); width:100%; box-sizing:border-box;">
                 <table style="width:100%; border-collapse:collapse; text-align:right;">
                     <thead>
-                        <tr style="background:rgba(255,255,255,0.04); border-bottom:1px solid var(--border-color); color:var(--text-muted); font-size:11.5px;">
+                        <tr style="background:var(--bg-secondary); border-bottom:1px solid var(--border-color); color:var(--text-secondary); font-size:11.5px;">
                             <th style="padding:10px 12px;">الوقت</th>
                             <th style="padding:10px 12px;">الشركة</th>
                             <th style="padding:10px 12px;">الهاتف</th>

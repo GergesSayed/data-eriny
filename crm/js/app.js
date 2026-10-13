@@ -2060,23 +2060,21 @@ const App = {
         if (document.getElementById('pwa-update-banner')) return;
         const banner = document.createElement('div');
         banner.id = 'pwa-update-banner';
+        banner.className = 'pwa-update-banner';
         banner.style.cssText = `
             position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 99999;
-            background: linear-gradient(135deg, #1e1b4b, #312e81);
-            border: 1px solid rgba(167, 139, 250, 0.45);
-            color: #fff; text-align: center; padding: 10px 18px;
+            text-align: center; padding: 10px 18px;
             font-family: 'Cairo', sans-serif; font-size: 13.5px; font-weight: 700;
             display: flex; align-items: center; justify-content: center; gap: 12px;
-            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6), 0 0 20px rgba(124, 58, 237, 0.35);
             border-radius: 50px;
             max-width: calc(100vw - 32px);
             box-sizing: border-box;
         `;
         banner.innerHTML = `
-            <i class="fas fa-rocket" style="color: #a78bfa; font-size: 15px;"></i>
-            <span>تحديث جديد متاح لـ Fleet CRM!</span>
-            <button onclick="window.App._activateUpdate()" style="background: linear-gradient(135deg, #7c3aed, #6366f1); color: #fff; border: none; padding: 6px 16px; border-radius: 20px; font-weight: 800; cursor: pointer; font-size: 12.5px; box-shadow: 0 2px 8px rgba(124,58,237,0.4);">تحديث الآن</button>
-            <button onclick="this.parentElement.remove()" style="background: rgba(255,255,255,0.12); color: #fff; border: none; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 12px;" title="إغلاق">✕</button>
+            <i class="fas fa-rocket" style="color: var(--accent); font-size: 15px;"></i>
+            <span class="pwa-banner-text">تحديث جديد متاح لـ Fleet CRM!</span>
+            <button onclick="window.App._activateUpdate()" class="pwa-btn-update" style="background: var(--gradient-primary, linear-gradient(135deg, #7c3aed, #6366f1)); color: #fff; border: none; padding: 6px 16px; border-radius: 20px; font-weight: 800; cursor: pointer; font-size: 12.5px; box-shadow: 0 2px 8px rgba(124,58,237,0.4);">تحديث الآن</button>
+            <button onclick="this.parentElement.remove()" class="pwa-btn-close" style="width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 12px; border: none;" title="إغلاق">✕</button>
         `;
         document.body.appendChild(banner);
     },
@@ -2100,8 +2098,8 @@ const App = {
             }
         } catch(e) {}
         try {
-            localStorage.setItem('fleetcrm_app_version', '350.0');
-            localStorage.setItem('fleetcrm_dataset_version', 'v350.0_fix_mobile_notif_and_search');
+            localStorage.setItem('fleetcrm_app_version', '351.0');
+            localStorage.setItem('fleetcrm_dataset_version', 'v351.0_comprehensive_light_mode_fix');
             localStorage.setItem('fleetcrm_company_count', '21,225');
             sessionStorage.clear();
         } catch(e) {}

@@ -392,25 +392,25 @@ const Team = {
                 </div>
 
                 <!-- Roles & Permissions Matrix Guide Panel -->
-                <div style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.9)); border: 1px solid rgba(124, 58, 237, 0.25); border-radius: 16px; padding: 18px 22px; margin-bottom: 24px;">
+                <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 16px; padding: 18px 22px; margin-bottom: 24px; box-shadow: var(--shadow-sm);">
                     <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 12px;">
-                        <h4 style="margin: 0; font-size: 1rem; font-weight: 800; color: #f8fafc;">
+                        <h4 style="margin: 0; font-size: 1rem; font-weight: 800; color: var(--text-primary);">
                             <i class="fas fa-shield-halved" style="color: #7c3aed; margin-left: 8px;"></i> نظام إدارة الأدوار ومستويات الوصول (Roles & Permissions Matrix)
                         </h4>
-                        <span style="font-size: 0.78rem; color: #94a3b8;">يمكنك تغيير صلاحية أي موظف فوراً من زر التعديل ✏️</span>
+                        <span style="font-size: 0.78rem; color: var(--text-muted);">يمكنك تغيير صلاحية أي موظف فوراً من زر التعديل ✏️</span>
                     </div>
                     <div style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px;" style="display: grid;">
-                        <div style="background: rgba(124, 58, 237, 0.1); border: 1px solid rgba(124, 58, 237, 0.3); border-radius: 12px; padding: 12px 14px;">
-                            <div style="font-weight: 800; color: #c4b5fd; font-size: 0.9rem; margin-bottom: 4px;">👑 مدير عام (Admin)</div>
-                            <p style="font-size: 0.78rem; color: #cbd5e1; margin: 0; line-height: 1.4;">تحكم شامل بكافة الخصائص • إضافة وتعديل الشركات • إسناد الشركات للموظفين • إدارة وصلاحيات الفريق كاملاً.</p>
+                        <div style="background: rgba(124, 58, 237, 0.08); border: 1px solid rgba(124, 58, 237, 0.25); border-radius: 12px; padding: 12px 14px;">
+                            <div style="font-weight: 800; color: #7c3aed; font-size: 0.9rem; margin-bottom: 4px;">👑 مدير عام (Admin)</div>
+                            <p style="font-size: 0.78rem; color: var(--text-secondary); margin: 0; line-height: 1.4;">تحكم شامل بكافة الخصائص • إضافة وتعديل الشركات • إسناد الشركات للموظفين • إدارة وصلاحيات الفريق كاملاً.</p>
                         </div>
-                        <div style="background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 12px; padding: 12px 14px;">
-                            <div style="font-weight: 800; color: #22d3ee; font-size: 0.9rem; margin-bottom: 4px;">👁️ مشرف (Supervisor)</div>
-                            <p style="font-size: 0.78rem; color: #cbd5e1; margin: 0; line-height: 1.4;">استعراض ومتابعة شاملة لجميع الشاشات والشركات والمكالمات والتقارير <b style="color:#22d3ee;">(🔒 قراءة فقط دون صلاحية إضافة أو تعديل أو حذف)</b>.</p>
+                        <div style="background: rgba(6, 182, 212, 0.08); border: 1px solid rgba(6, 182, 212, 0.25); border-radius: 12px; padding: 12px 14px;">
+                            <div style="font-weight: 800; color: #0891b2; font-size: 0.9rem; margin-bottom: 4px;">👁️ مشرف (Supervisor)</div>
+                            <p style="font-size: 0.78rem; color: var(--text-secondary); margin: 0; line-height: 1.4;">استعراض ومتابعة شاملة لجميع الشاشات والشركات والمكالمات والتقارير <b style="color:#0891b2;">(🔒 قراءة فقط دون صلاحية إضافة أو تعديل أو حذف)</b>.</p>
                         </div>
-                        <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 12px 14px;">
-                            <div style="font-weight: 800; color: #60a5fa; font-size: 0.9rem; margin-bottom: 4px;">👨‍💼 مسؤول مبيعات (Sales Agent)</div>
-                            <p style="font-size: 0.78rem; color: #cbd5e1; margin: 0; line-height: 1.4;">رؤية واستعراض الشركات المسندة له فقط من قبل المدير العام • تسجيل وتوثيق مكالماته اليومية وإضافة الصفقات.</p>
+                        <div style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 12px; padding: 12px 14px;">
+                            <div style="font-weight: 800; color: #2563eb; font-size: 0.9rem; margin-bottom: 4px;">👨‍💼 مسؤول مبيعات (Sales Agent)</div>
+                            <p style="font-size: 0.78rem; color: var(--text-secondary); margin: 0; line-height: 1.4;">رؤية واستعراض الشركات المسندة له فقط من قبل المدير العام • تسجيل وتوثيق مكالماته اليومية وإضافة الصفقات.</p>
                         </div>
                     </div>
                 </div>
@@ -776,12 +776,12 @@ const Team = {
                         </div>
 
                         <!-- Live Password Validation Hints -->
-                        <div id="pw-validation-box" style="background:rgba(30,41,59,0.6); border:1px solid var(--border-color); border-radius:10px; padding:10px 14px; font-size:11px;">
+                        <div id="pw-validation-box" style="background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:10px; padding:10px 14px; font-size:11px;">
                             <div style="font-weight:700; color:var(--text-secondary); margin-bottom:4px;">🔒 شروط صحة كلمة المرور:</div>
                             <div style="display:flex; flex-direction:column; gap:3px;">
-                                <span id="pw-rule-length" style="color:#94a3b8;"><i class="fas fa-circle-notch"></i> 8 أرقام/حروف على الأقل</span>
-                                <span id="pw-rule-complex" style="color:#94a3b8;"><i class="fas fa-circle-notch"></i> تشمل حروف وأرقام معاً</span>
-                                <span id="pw-rule-match" style="color:#94a3b8;"><i class="fas fa-circle-notch"></i> مطابقة كلمتي المرور (إعادة الكتابة)</span>
+                                <span id="pw-rule-length" style="color:var(--text-muted);"><i class="fas fa-circle-notch"></i> 8 أرقام/حروف على الأقل</span>
+                                <span id="pw-rule-complex" style="color:var(--text-muted);"><i class="fas fa-circle-notch"></i> تشمل حروف وأرقام معاً</span>
+                                <span id="pw-rule-match" style="color:var(--text-muted);"><i class="fas fa-circle-notch"></i> مطابقة كلمتي المرور (إعادة الكتابة)</span>
                             </div>
                         </div>
 
