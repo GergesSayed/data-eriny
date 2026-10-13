@@ -169,6 +169,13 @@ const App = {
             // Apply saved theme preference (dark/light) before first render
             this.initTheme();
 
+            // Mobile/Desktop search box position synchronization
+            this.syncSearchBoxPlacement();
+            if (!this._searchPlacementAttached) {
+                this._searchPlacementAttached = true;
+                window.addEventListener('resize', () => this.syncSearchBoxPlacement());
+            }
+
             // PWA Service Worker Registration & Offline Support
             if (!this._pwaInitialized && 'serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
                 this._pwaInitialized = true;
@@ -727,6 +734,15 @@ const App = {
             pwaBtnSide.style.display = 'none';
         }
 
+        // Live Team Presence Indicator: Strictly Admin & Supervisor Only (Hidden for Sales Agents)
+        const teamPresence = document.getElementById('team-presence-indicator');
+        if (teamPresence) {
+            teamPresence.style.display = canViewAll ? 'inline-flex' : 'none';
+        }
+
+        // Keep search box placement in sync with viewport
+        this.syncSearchBoxPlacement();
+
         // Topbar User Avatar & Name
         const avatarEl = document.getElementById('current-user-avatar');
         if (avatarEl) {
@@ -928,6 +944,24 @@ const App = {
             input.blur();
         }
         if (dropdown) dropdown.classList.remove('show');
+    },
+
+    syncSearchBoxPlacement() {
+        try {
+            const searchBox = document.getElementById('global-search-box');
+            const topbarRight = document.querySelector('.topbar-right');
+            const topbarLeft = document.querySelector('.topbar-left');
+            if (!searchBox || !topbarRight || !topbarLeft) return;
+            if (window.innerWidth <= 1024) {
+                if (searchBox.parentElement !== topbarLeft) {
+                    topbarLeft.insertBefore(searchBox, topbarLeft.firstChild);
+                }
+            } else {
+                if (searchBox.parentElement !== topbarRight) {
+                    topbarRight.appendChild(searchBox);
+                }
+            }
+        } catch(e) {}
     },
 
     initRouting() {
@@ -2047,8 +2081,8 @@ const App = {
             }
         } catch(e) {}
         try {
-            localStorage.setItem('fleetcrm_app_version', '346.0');
-            localStorage.setItem('fleetcrm_dataset_version', 'v346.0_perfect_two_sided_mobile_topbar');
+            localStorage.setItem('fleetcrm_app_version', '347.0');
+            localStorage.setItem('fleetcrm_dataset_version', 'v347.0_perfect_mobile_employee_topbar');
             localStorage.setItem('fleetcrm_company_count', '21,225');
             sessionStorage.clear();
         } catch(e) {}

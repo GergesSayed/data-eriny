@@ -11,8 +11,8 @@
     <script>
         // Clean storage initialization
         (function() {
-            var CURRENT_VER = '346.0';
-            var DATASET_VER = 'v346.0_perfect_two_sided_mobile_topbar';
+            var CURRENT_VER = '347.0';
+            var DATASET_VER = 'v347.0_perfect_mobile_employee_topbar';
             try {
                 localStorage.removeItem('fleetcrm_deals');
                 localStorage.removeItem('fleetcrm_deals_count');
@@ -193,6 +193,12 @@
         body.user-role-agent #pwa-offline-indicator,
         html.user-role-agent .pwa-offline-pill,
         html.user-role-agent #btn-pwa-install-top,
+        body.user-role-agent #btn-pwa-install-top,
+        html.user-role-agent #team-presence-indicator,
+        body.user-role-agent #team-presence-indicator,
+        html.user-role-agent .team-presence-pill,
+        body.user-role-agent .team-presence-pill,
+        html.user-role-agent #modal-team-presence,
         html.user-role-agent #modal-pwa-status {
             display: none !important;
             visibility: hidden !important;
@@ -397,14 +403,14 @@
                 <div class="topbar-brand-mobile">
                     <span>Fleet <b style="color:var(--primary-light,#a78bfa);">CRM</b></span>
                 </div>
+            </div>
+            <div class="topbar-left">
                 <div class="search-box" id="global-search-box">
                     <i class="fas fa-search" id="search-box-icon" onclick="App.toggleMobileSearch(event)"></i>
                     <input type="text" id="global-search" placeholder="بحث عن شركة، جهة اتصال...">
                     <button type="button" class="btn-close-search" onclick="App.closeMobileSearch(event)" title="إغلاق البحث"><i class="fas fa-times"></i></button>
                     <div id="search-results" class="search-dropdown"></div>
                 </div>
-            </div>
-            <div class="topbar-left">
                 <!-- Notifications Dropdown -->
                 <div class="topbar-notifications" style="position:relative;" id="topbar-notifications-wrapper">
                     <button class="btn-icon" id="btn-notifications" onclick="App.toggleNotifications(event)" title="مركز التنبيهات والمتابعات اليومية">
@@ -1651,7 +1657,7 @@
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid var(--border-light);">
                         <span style="font-size: 12.5px; color: var(--text-secondary);"><i class="fas fa-layer-group" style="color: #0284c7; margin-left: 6px;"></i> واجهة وأكواد النظام (App Shell):</span>
-                        <span id="pwa-modal-appshell-status" style="font-size: 12px; font-weight: 800; color: #10b981;">✅ مخزنة بالكامل (v346.0)</span>
+                        <span id="pwa-modal-appshell-status" style="font-size: 12px; font-weight: 800; color: #10b981;">✅ مخزنة بالكامل (v347.0)</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid var(--border-light);">
                         <span style="font-size: 12.5px; color: var(--text-secondary);"><i class="fas fa-database" style="color: #10b981; margin-left: 6px;"></i> قاعدة الشركات المحلية (IndexedDB):</span>
