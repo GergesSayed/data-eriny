@@ -967,6 +967,15 @@ a:hover { color: var(--accent); }
     flex-shrink: 0;
 }
 
+/* Sidebar Toggle Button: Strictly hidden on Desktop (since sidebar is pinned), Active on Mobile */
+@media (min-width: 1025px) {
+    #toggle-sidebar {
+        display: none !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+    }
+}
+
 .topbar-brand-mobile {
     display: none;
 }
@@ -2538,7 +2547,9 @@ a:hover { color: var(--accent); }
         box-sizing: border-box !important;
     }
     #toggle-sidebar {
-        display: flex !important;
+        display: inline-flex !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
         align-items: center;
         justify-content: center;
     }
@@ -2610,6 +2621,8 @@ a:hover { color: var(--accent); }
     }
     #toggle-sidebar {
         display: inline-flex !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
         align-items: center;
         justify-content: center;
         width: 32px !important;
