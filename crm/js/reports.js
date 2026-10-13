@@ -13,6 +13,10 @@ const Reports = {
     },
 
     render() {
+        const repPage = document.getElementById('page-reports');
+        if (!repPage || !repPage.classList.contains('active')) {
+            return;
+        }
         this.renderCallsReport();
         this.renderSalesReport();
         this.renderSectorAnalysis();
@@ -315,17 +319,28 @@ const Reports = {
         const companies = window.AppStorage.getCompanies();
 
         // Response rate: positive calls / total calls
-        const positiveCalls = calls.filter(c =>
-            ['interested', 'meeting_scheduled', 'proposal_sent', 'visited'].includes(c.result)
-        ).length;
+        let positiveCalls = 0;
+        const positiveResults = new Set(['interested', 'meeting_scheduled', 'proposal_sent', 'visited']);
+        for (let i = 0; i < calls.length; i++) {
+            if (calls[i] && positiveResults.has(calls[i].result)) positiveCalls++;
+        }
         const responseRate = calls.length > 0 ? Math.round((positiveCalls / calls.length) * 100) : 0;
 
-        // Coverage rate: contacted companies / total companies
-        const contactedCompanies = companies.filter(c => c.status === 'contacted' || c.status === 'interested' || c.lastCallResult).length;
+        // High-speed single-pass company statistics
+        let contactedCompanies = 0;
+        let interestedCompanies = 0;
+        for (let i = 0; i < companies.length; i++) {
+            const c = companies[i];
+            if (!c) continue;
+            const isInterested = (c.status === 'interested' || c.lastCallResult === 'interested');
+            if (isInterested) {
+                interestedCompanies++;
+                contactedCompanies++;
+            } else if (c.status === 'contacted' || c.lastCallResult) {
+                contactedCompanies++;
+            }
+        }
         const coverageRate = companies.length > 0 ? Math.round((contactedCompanies / companies.length) * 100) : 0;
-
-        // Interested leads count
-        const interestedCompanies = companies.filter(c => c.status === 'interested' || c.lastCallResult === 'interested').length;
 
         // Update UI safely
         const respEl = document.getElementById('perf-response-rate');

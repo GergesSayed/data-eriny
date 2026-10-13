@@ -11,8 +11,8 @@
     <script>
         // Clean storage initialization
         (function() {
-            var CURRENT_VER = '351.0';
-            var DATASET_VER = 'v351.0_comprehensive_light_mode_fix';
+            var CURRENT_VER = '352.0';
+            var DATASET_VER = 'v352.0_perf_optimization';
             try {
                 localStorage.removeItem('fleetcrm_deals');
                 localStorage.removeItem('fleetcrm_deals_count');
@@ -23,19 +23,13 @@
                     localStorage.setItem('fleetcrm_app_version', CURRENT_VER);
                     localStorage.setItem('fleetcrm_company_count', '21,225');
                     localStorage.setItem('fleetcrm_dataset_version', DATASET_VER);
-                    try { localStorage.removeItem('fleetcrm_assignments'); } catch(e) {}
-                    try {
-                        if (window.indexedDB) {
-                            window.indexedDB.deleteDatabase('FleetCRM_DB');
-                        }
-                    } catch(e) {}
                     if (!localStorage.getItem('fleetcrm_theme_explicit')) {
                         localStorage.setItem('fleetcrm_theme', 'light');
                     }
                     if ('caches' in window) {
                         caches.keys().then(function(keys) {
                             keys.forEach(function(k) {
-                                if (k !== 'fleetcrm-v334-0-shell') {
+                                if (k !== 'fleetcrm-v352-0-shell') {
                                     caches.delete(k);
                                 }
                             });
@@ -66,7 +60,7 @@
             } catch(e) {}
         })();
     </script>
-    <link rel="manifest" href="manifest.json?v=319.0">
+    <link rel="manifest" href="manifest.json?v=352.0">
     <meta name="theme-color" content="#7c3aed">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -77,7 +71,7 @@
     <link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap"></noscript>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=319.0">
+    <link rel="stylesheet" href="css/style.css?v=352.0">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
     <script>
         (function() {
@@ -1849,19 +1843,19 @@
     <!-- External Libraries (Deferred for instant mobile paint) -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
 
-    <script src="js/supabase-client.js?v=319.0"></script>
-    <script src="js/egypt_verified_titans.js?v=319.0"></script>
-    <script src="js/egypt_enterprises_pool.js?v=319.0"></script>
-    <script src="js/storage.js?v=319.0"></script>
-    <script src="js/excel-handler.js?v=319.0"></script>
-    <script src="js/dashboard.js?v=319.0"></script>
-    <script src="js/companies.js?v=319.0"></script>
-    <script src="js/calls.js?v=319.0"></script>
-    <script src="js/reports.js?v=319.0"></script>
-    <script src="js/scraper.js?v=319.0"></script>
-    <script src="js/team.js?v=319.0"></script>
-    <script src="js/settings.js?v=319.0"></script>
-    <script src="js/app.js?v=319.0"></script>
+    <script src="js/supabase-client.js?v=352.0" defer></script>
+    <script src="js/egypt_verified_titans.js?v=352.0" defer></script>
+    <script src="js/egypt_enterprises_pool.js?v=352.0" defer></script>
+    <script src="js/storage.js?v=352.0" defer></script>
+    <script src="js/excel-handler.js?v=352.0" defer></script>
+    <script src="js/dashboard.js?v=352.0" defer></script>
+    <script src="js/companies.js?v=352.0" defer></script>
+    <script src="js/calls.js?v=352.0" defer></script>
+    <script src="js/reports.js?v=352.0" defer></script>
+    <script src="js/scraper.js?v=352.0" defer></script>
+    <script src="js/team.js?v=352.0" defer></script>
+    <script src="js/settings.js?v=352.0" defer></script>
+    <script src="js/app.js?v=352.0" defer></script>
 
     <!-- Cleanup overlay on load - runs once only, does NOT override App.checkAuth -->
     <script>

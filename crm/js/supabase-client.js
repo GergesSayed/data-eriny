@@ -39,59 +39,66 @@ window.SupabaseClient = (function() {
         return currentStatus;
     }
 
+    let _cachedDynamicCompanies = null;
+    let _lastDynamicCompaniesFetch = 0;
+    const DYNAMIC_COMPANIES_TTL = 300000; // 5 minutes cache
+
+    let _cachedCustody = null;
+    let _lastCustodyFetch = 0;
+    const CUSTODY_TTL = 300000; // 5 minutes cache
+
     /**
-     * Fetch all dynamic data from Firebase (< 40KB total) via high-speed single round-trip GET
+     * Fetch all dynamic data from Firebase (< 40KB total) via high-speed modular GET
      */
-    async function fetchMasterData() {
+    async function fetchMasterData(forceFull = false) {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 12000); // 12s timeout max
 
         try {
-            let rootData = null;
-            try {
-                // ⚡ Turbo Root Fetch: Single HTTP round-trip (< 400ms vs 8 parallel connection queues)
-                const r = await fetch(`${FIREBASE_DB_URL}/.json?t=${Date.now()}`, { signal: controller.signal });
-                if (r.ok) {
-                    rootData = await r.json();
+            const safeFetch = async (url, fallback) => {
+                try {
+                    const r = await fetch(url, { signal: controller.signal });
+                    if (!r.ok) return fallback;
+                    return await r.json();
+                } catch(e) {
+                    return fallback;
                 }
-            } catch(e) {
-                console.warn('Root fetch failed, fallback to modular endpoints:', e);
-            }
+            };
 
-            let dynamicCompaniesObj, assignmentsObj, callsData, usersData, actsData, deletedCallsObj, deletedCompaniesObj, custodyObj;
+            const now = Date.now();
+            const shouldFetchDynamic = forceFull || !_cachedDynamicCompanies || (now - _lastDynamicCompaniesFetch > DYNAMIC_COMPANIES_TTL);
+            const shouldFetchCustody = forceFull || !_cachedCustody || (now - _lastCustodyFetch > CUSTODY_TTL);
 
-            if (rootData && typeof rootData === 'object') {
-                dynamicCompaniesObj = rootData.dynamic_companies || {};
-                assignmentsObj = rootData.assignments || {};
-                callsData = rootData.calls || [];
-                usersData = rootData.users || [];
-                actsData = rootData.activities || [];
-                deletedCallsObj = rootData.deleted_calls || {};
-                deletedCompaniesObj = rootData.deleted_companies || {};
-                custodyObj = rootData.custody || {};
-            } else {
-                // Resilient Fallback to modular endpoints if root was unreachable
-                const safeFetch = async (url, fallback) => {
-                    try {
-                        const r = await fetch(url, { signal: controller.signal });
-                        if (!r.ok) return fallback;
-                        return await r.json();
-                    } catch(e) {
-                        return fallback;
+            const dynamicPromise = shouldFetchDynamic 
+                ? safeFetch(`${FIREBASE_DB_URL}/dynamic_companies.json?t=${now}`, {}).then(res => {
+                    if (res && typeof res === 'object' && Object.keys(res).length > 0) {
+                        _cachedDynamicCompanies = res;
+                        _lastDynamicCompaniesFetch = Date.now();
                     }
-                };
+                    return res || _cachedDynamicCompanies || {};
+                })
+                : Promise.resolve(_cachedDynamicCompanies || {});
 
-                [dynamicCompaniesObj, assignmentsObj, callsData, usersData, actsData, deletedCallsObj, deletedCompaniesObj, custodyObj] = await Promise.all([
-                    safeFetch(`${FIREBASE_DB_URL}/dynamic_companies.json?t=${Date.now()}`, {}),
-                    safeFetch(`${FIREBASE_DB_URL}/assignments.json?t=${Date.now()}`, {}),
-                    safeFetch(`${FIREBASE_DB_URL}/calls.json?t=${Date.now()}`, []),
-                    safeFetch(`${FIREBASE_DB_URL}/users.json?t=${Date.now()}`, []),
-                    safeFetch(`${FIREBASE_DB_URL}/activities.json?t=${Date.now()}`, []),
-                    safeFetch(`${FIREBASE_DB_URL}/deleted_calls.json?t=${Date.now()}`, {}),
-                    safeFetch(`${FIREBASE_DB_URL}/deleted_companies.json?t=${Date.now()}`, {}),
-                    safeFetch(`${FIREBASE_DB_URL}/custody.json?t=${Date.now()}`, {})
-                ]);
-            }
+            const custodyPromise = shouldFetchCustody
+                ? safeFetch(`${FIREBASE_DB_URL}/custody.json?t=${now}`, {}).then(res => {
+                    if (res && typeof res === 'object' && Object.keys(res).length > 0) {
+                        _cachedCustody = res;
+                        _lastCustodyFetch = Date.now();
+                    }
+                    return res || _cachedCustody || {};
+                })
+                : Promise.resolve(_cachedCustody || {});
+
+            const [dynamicCompaniesObj, assignmentsObj, callsData, usersData, actsData, deletedCallsObj, deletedCompaniesObj, custodyObj] = await Promise.all([
+                dynamicPromise,
+                safeFetch(`${FIREBASE_DB_URL}/assignments.json?t=${now}`, {}),
+                safeFetch(`${FIREBASE_DB_URL}/calls.json?t=${now}`, []),
+                safeFetch(`${FIREBASE_DB_URL}/users.json?t=${now}`, []),
+                safeFetch(`${FIREBASE_DB_URL}/activities.json?t=${now}`, []),
+                safeFetch(`${FIREBASE_DB_URL}/deleted_calls.json?t=${now}`, {}),
+                safeFetch(`${FIREBASE_DB_URL}/deleted_companies.json?t=${now}`, {}),
+                custodyPromise
+            ]);
             clearTimeout(timeoutId);
 
             let dynamicCompanies = [];
@@ -1209,6 +1216,8 @@ window.SupabaseClient = (function() {
                 })
             });
         } catch(e) {}
+        _lastDynamicCompaniesFetch = 0;
+        _cachedDynamicCompanies = null;
         return allSuccess;
     }
 

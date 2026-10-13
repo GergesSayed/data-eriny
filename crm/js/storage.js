@@ -1955,6 +1955,11 @@ const AppStorage = {
     },
 
     _set(key, data) {
+        if (key === this.KEYS.COMPANIES) {
+            // NEVER store 21,225 full companies in localStorage (5MB browser limit)
+            // Companies are 100% persisted in IndexedDB and in-memory AppStorage.companiesMemory
+            return;
+        }
         try {
             if (key === this.KEYS.CALLS && Array.isArray(data) && data.length > 2500) {
                 // Keep local cache under ~1.5MB to permanently prevent QuotaExceededError
@@ -2134,20 +2139,29 @@ const AppStorage = {
 
     _worker: null,
     _workerReady: false,
+    _workerIndexed: false,
+    _workerIndexedLength: 0,
     _workerCallbacks: {},
 
-    initWorker() {
+    initWorker(force = false) {
         if (typeof window === 'undefined' || typeof Worker === 'undefined') return;
+        const currentLength = this.companiesMemory ? this.companiesMemory.length : 0;
+        if (!force && this._worker && this._workerIndexed && this._workerIndexedLength === currentLength) {
+            return;
+        }
         if (this._worker) {
             this._worker.postMessage({ action: 'INIT_INDEX', payload: this.companiesMemory || [] });
+            this._workerIndexedLength = currentLength;
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=319.0');
+            this._worker = new Worker('js/companies-worker.js?v=352.0');
             this._worker.onmessage = (e) => {
-                const { action, queryId, items, total, totalPages, page, pageSize } = e.data || {};
+                const { action, queryId, items, total, totalPages, page, pageSize, totalCount } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
                     this._workerReady = true;
+                    this._workerIndexed = true;
+                    this._workerIndexedLength = totalCount || (this.companiesMemory ? this.companiesMemory.length : 0);
                 } else if (action === 'FILTER_RESULT' && queryId && this._workerCallbacks[queryId]) {
                     this._workerCallbacks[queryId]({ items, total, totalPages, page, pageSize });
                     delete this._workerCallbacks[queryId];
@@ -2158,6 +2172,7 @@ const AppStorage = {
                 this._workerReady = false;
             };
             this._worker.postMessage({ action: 'INIT_INDEX', payload: this.companiesMemory || [] });
+            this._workerIndexedLength = currentLength;
         } catch (e) {
             console.warn('Worker initialization fallback:', e);
         }
@@ -2805,21 +2820,21 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v351.0_comprehensive_light_mode_fix';
+                    const currentVersionTag = 'v352.0_perf_optimization';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 
-                    // If dataset version changed, clear stale IDB cache to load 100% clean verified baseline
-                    if (storedVersionTag !== currentVersionTag) {
+                    // If dataset version changed and IDB has invalid/empty data, clear to reload
+                    if (storedVersionTag !== currentVersionTag && (!idbData || idbData.length < 21225)) {
                         try {
                             const clearTx = db.transaction(['companies'], 'readwrite');
                             clearTx.objectStore('companies').clear();
                         } catch(e) {}
                     }
 
-                    // Fast-path: When IndexedDB already contains the full dataset (21,225 items)
+                    // Fast-path: When IndexedDB already contains the full dataset (>= 21,225 items)
                     // Loads instantly in ~10ms with zero object re-creation or main-thread freezing
-                    if (storedVersionTag === currentVersionTag && idbData && idbData.length === 21225) {
+                    if (idbData && idbData.length >= 21225) {
                         const genuineCalls = this.getCalls() || [];
                         const callCompIds = new Set(genuineCalls.map(cl => cl && String(cl.companyId).trim()).filter(Boolean));
 
@@ -5636,9 +5651,9 @@ const AppStorage = {
         const canViewAll = this.canViewAll(currentUser);
         const currentUserId = currentUser ? (currentUser.id || currentUser.username) : '';
 
-        // Check 3-second cache
+        // Check cached stats (invalidated automatically whenever companies/calls mutate)
         const now = Date.now();
-        if (this._statsCache && this._statsCacheUserId === currentUserId && (now - this._statsCacheTime < 3000)) {
+        if (this._statsCache && this._statsCacheUserId === currentUserId && (now - this._statsCacheTime < 60000)) {
             return this._statsCache;
         }
 

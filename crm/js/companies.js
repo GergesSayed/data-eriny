@@ -1146,7 +1146,7 @@ const Companies = {
 
     async render() {
         const compPage = document.getElementById('page-companies');
-        if (compPage && !compPage.classList.contains('active') && compPage.style.display === 'none') {
+        if (!compPage || !compPage.classList.contains('active')) {
             return;
         }
         this.refreshUserFilter();

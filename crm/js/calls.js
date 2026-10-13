@@ -96,6 +96,10 @@ const Calls = {
     },
 
     render() {
+        const callsPage = document.getElementById('page-calls');
+        if (!callsPage || !callsPage.classList.contains('active')) {
+            return;
+        }
         this.renderStats();
         this.renderTable();
     },

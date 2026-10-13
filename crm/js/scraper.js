@@ -42,6 +42,8 @@ const ScraperPage = {
     ],
 
     render() {
+        const scraperPage = document.getElementById('page-scraper');
+        if (!scraperPage || !scraperPage.classList.contains('active')) return;
         const main = document.getElementById('scraper-content');
         if (!main) return;
         const totalComps = (window.AppStorage && window.AppStorage.getCompanies) ? window.AppStorage.getCompanies().length : 0;

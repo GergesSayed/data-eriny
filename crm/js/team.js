@@ -86,7 +86,7 @@ const Team = {
         try {
             const currentUser = window.AppStorage.getCurrentUser();
             const teamPage = document.getElementById('page-team');
-            if (!teamPage || (!teamPage.classList.contains('active') && teamPage.style.display === 'none')) return;
+            if (!teamPage || !teamPage.classList.contains('active')) return;
             this.startPresencePolling();
 
             const isRestricted = currentUser && currentUser.role === 'agent';
@@ -312,7 +312,7 @@ const Team = {
         try {
             const currentUser = window.AppStorage.getCurrentUser();
             const empPage = document.getElementById('page-employees');
-            if (!empPage) return;
+            if (!empPage || !empPage.classList.contains('active')) return;
             this.startPresencePolling();
 
             const isRestricted = currentUser && currentUser.role === 'agent';

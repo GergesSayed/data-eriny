@@ -130,10 +130,7 @@ const App = {
                     _lastSyncTs = now;
                     window.AppStorage.pullFromCloud().then(wasUpdated => {
                         if (wasUpdated) {
-                            const active = this.currentPage || window.location.hash.replace('#', '') || 'companies';
-                            if (typeof Companies !== 'undefined' && active === 'companies') Companies.render();
-                            if (typeof Dashboard !== 'undefined' && active === 'dashboard') Dashboard.render();
-                            if (typeof Team !== 'undefined' && active === 'team') Team.render();
+                            this.refreshCurrentPage();
                         }
                     }).catch(() => {});
                 };
@@ -184,7 +181,7 @@ const App = {
                     console.log('[SW] Service worker controller updated and active.');
                 });
 
-                navigator.serviceWorker.register('sw.js?v=313.0').then(reg => {
+                navigator.serviceWorker.register('sw.js?v=352.0').then(reg => {
                     reg.update().catch(() => {});
                     // Detect when a new SW version is waiting — show update notification
                     reg.addEventListener('updatefound', () => {
