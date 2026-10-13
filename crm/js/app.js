@@ -949,15 +949,13 @@ const App = {
     syncSearchBoxPlacement() {
         try {
             const searchBox = document.getElementById('global-search-box');
+            const toggleBtn = document.getElementById('toggle-sidebar');
             const topbarRight = document.querySelector('.topbar-right');
-            const topbarLeft = document.querySelector('.topbar-left');
-            if (!searchBox || !topbarRight || !topbarLeft) return;
-            if (window.innerWidth <= 1024) {
-                if (searchBox.parentElement !== topbarLeft) {
-                    topbarLeft.insertBefore(searchBox, topbarLeft.firstChild);
-                }
-            } else {
-                if (searchBox.parentElement !== topbarRight) {
+            if (!searchBox || !topbarRight) return;
+            if (searchBox.parentElement !== topbarRight) {
+                if (toggleBtn && toggleBtn.nextSibling) {
+                    topbarRight.insertBefore(searchBox, toggleBtn.nextSibling);
+                } else {
                     topbarRight.appendChild(searchBox);
                 }
             }
@@ -2081,8 +2079,8 @@ const App = {
             }
         } catch(e) {}
         try {
-            localStorage.setItem('fleetcrm_app_version', '347.0');
-            localStorage.setItem('fleetcrm_dataset_version', 'v347.0_perfect_mobile_employee_topbar');
+            localStorage.setItem('fleetcrm_app_version', '348.0');
+            localStorage.setItem('fleetcrm_dataset_version', 'v348.0_search_next_to_menu_mobile');
             localStorage.setItem('fleetcrm_company_count', '21,225');
             sessionStorage.clear();
         } catch(e) {}

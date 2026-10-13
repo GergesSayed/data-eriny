@@ -2602,17 +2602,11 @@ a:hover { color: var(--accent); }
         flex: 0 0 auto;
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 4px;
         min-width: 0;
     }
     .topbar-brand-mobile {
-        display: flex !important;
-        align-items: center;
-        font-weight: 800;
-        font-size: 13.5px;
-        color: var(--text-primary);
-        letter-spacing: -0.2px;
-        white-space: nowrap;
+        display: none !important;
     }
     #toggle-sidebar {
         display: inline-flex !important;
