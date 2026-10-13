@@ -918,7 +918,9 @@ const App = {
     },
 
     toggleMobileSearch(e) {
-        if (e && e.stopPropagation) { try { e.stopPropagation(); } catch(err){} }
+        if (e) {
+            try { e.preventDefault(); e.stopPropagation(); } catch(err){}
+        }
         const box = document.getElementById('global-search-box');
         const input = document.getElementById('global-search');
         if (!box) return;
@@ -927,23 +929,33 @@ const App = {
             this.closeMobileSearch(e);
         } else {
             box.classList.add('mobile-active');
+            // Close notifications dropdown if open
+            const notifDropdown = document.getElementById('notifications-dropdown');
+            if (notifDropdown) notifDropdown.classList.remove('show');
             if (input) {
-                input.focus();
+                setTimeout(() => {
+                    try { input.focus(); } catch(_) {}
+                }, 50);
             }
         }
     },
 
     closeMobileSearch(e) {
-        if (e && e.stopPropagation) { try { e.stopPropagation(); } catch(err){} }
+        if (e) {
+            try { e.preventDefault(); e.stopPropagation(); } catch(err){}
+        }
         const box = document.getElementById('global-search-box');
         const input = document.getElementById('global-search');
         const dropdown = document.getElementById('search-results');
         if (box) box.classList.remove('mobile-active');
         if (input) {
             input.value = '';
-            input.blur();
+            try { input.blur(); } catch(_) {}
         }
-        if (dropdown) dropdown.classList.remove('show');
+        if (dropdown) {
+            dropdown.classList.remove('show');
+            dropdown.innerHTML = '';
+        }
     },
 
     syncSearchBoxPlacement() {
@@ -1272,7 +1284,7 @@ const App = {
             setTimeout(() => searchResults?.classList.remove('show'), 200);
         });
 
-        // Close notifications dropdown on outside click
+        // Close notifications dropdown and mobile search on outside click
         document.addEventListener('click', (e) => {
             const btn = document.getElementById('btn-notifications');
             const dropdown = document.getElementById('notifications-dropdown');
@@ -1284,6 +1296,14 @@ const App = {
                     dropdown.classList.remove('show');
                 }
             }
+
+            // Close mobile search on outside click
+            const searchBox = document.getElementById('global-search-box');
+            if (searchBox && searchBox.classList.contains('mobile-active')) {
+                if (!searchBox.contains(e.target)) {
+                    this.closeMobileSearch(e);
+                }
+            }
         });
 
         // ESC to close modals and dropdowns
@@ -1293,6 +1313,7 @@ const App = {
                 if (openModal) this.closeModal(openModal.id);
                 const notifDropdown = document.getElementById('notifications-dropdown');
                 if (notifDropdown) notifDropdown.classList.remove('show');
+                this.closeMobileSearch();
             }
         });
 
@@ -2079,8 +2100,8 @@ const App = {
             }
         } catch(e) {}
         try {
-            localStorage.setItem('fleetcrm_app_version', '349.0');
-            localStorage.setItem('fleetcrm_dataset_version', 'v349.0_hide_menu_toggle_on_desktop');
+            localStorage.setItem('fleetcrm_app_version', '350.0');
+            localStorage.setItem('fleetcrm_dataset_version', 'v350.0_fix_mobile_notif_and_search');
             localStorage.setItem('fleetcrm_company_count', '21,225');
             sessionStorage.clear();
         } catch(e) {}

@@ -11,8 +11,8 @@
     <script>
         // Clean storage initialization
         (function() {
-            var CURRENT_VER = '349.0';
-            var DATASET_VER = 'v349.0_hide_menu_toggle_on_desktop';
+            var CURRENT_VER = '350.0';
+            var DATASET_VER = 'v350.0_fix_mobile_notif_and_search';
             try {
                 localStorage.removeItem('fleetcrm_deals');
                 localStorage.removeItem('fleetcrm_deals_count');
@@ -224,6 +224,19 @@
                 visibility: visible !important;
                 pointer-events: auto !important;
             }
+            .topbar {
+                overflow: visible !important;
+            }
+            .notifications-panel {
+                position: fixed !important;
+                top: 56px !important;
+                left: 8px !important;
+                right: 8px !important;
+                width: auto !important;
+                max-width: calc(100vw - 16px) !important;
+                max-height: calc(85vh - 56px) !important;
+                z-index: 100000 !important;
+            }
             html.user-logged-in .main-wrapper,
             .main-wrapper {
                 margin-right: 0 !important;
@@ -417,7 +430,7 @@
                 <div class="search-box" id="global-search-box">
                     <i class="fas fa-search" id="search-box-icon" onclick="App.toggleMobileSearch(event)"></i>
                     <input type="text" id="global-search" placeholder="بحث عن شركة، جهة اتصال...">
-                    <button type="button" class="btn-close-search" onclick="App.closeMobileSearch(event)" title="إغلاق البحث"><i class="fas fa-times"></i></button>
+                    <button type="button" class="btn-close-search" onclick="App.closeMobileSearch(event)" ontouchend="App.closeMobileSearch(event)" title="إغلاق البحث"><i class="fas fa-times"></i></button>
                     <div id="search-results" class="search-dropdown"></div>
                 </div>
                 <div class="topbar-brand-mobile">
@@ -1671,7 +1684,7 @@
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid var(--border-light);">
                         <span style="font-size: 12.5px; color: var(--text-secondary);"><i class="fas fa-layer-group" style="color: #0284c7; margin-left: 6px;"></i> واجهة وأكواد النظام (App Shell):</span>
-                        <span id="pwa-modal-appshell-status" style="font-size: 12px; font-weight: 800; color: #10b981;">✅ مخزنة بالكامل (v349.0)</span>
+                        <span id="pwa-modal-appshell-status" style="font-size: 12px; font-weight: 800; color: #10b981;">✅ مخزنة بالكامل (v350.0)</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid var(--border-light);">
                         <span style="font-size: 12.5px; color: var(--text-secondary);"><i class="fas fa-database" style="color: #10b981; margin-left: 6px;"></i> قاعدة الشركات المحلية (IndexedDB):</span>

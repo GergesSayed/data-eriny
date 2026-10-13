@@ -2805,7 +2805,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v349.0_hide_menu_toggle_on_desktop';
+                    const currentVersionTag = 'v350.0_fix_mobile_notif_and_search';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 

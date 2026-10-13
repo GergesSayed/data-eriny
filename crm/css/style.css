@@ -2605,9 +2605,7 @@ a:hover { color: var(--accent); }
         position: sticky;
         top: 0;
         z-index: 900;
-        overflow: hidden !important;
-        transform: translateZ(0);
-        will-change: transform;
+        overflow: visible !important;
     }
     .topbar-right {
         flex: 0 0 auto;
@@ -2696,73 +2694,108 @@ a:hover { color: var(--accent); }
         box-sizing: border-box !important;
     }
     .search-box input {
-        width: 100% !important;
+        display: none !important;
+        width: 0 !important;
         height: 32px !important;
         opacity: 0;
-        cursor: pointer;
         padding: 0 !important;
-        border: 1px solid transparent !important;
+        border: none !important;
         background: transparent !important;
     }
-
-    /* Full-width overlay expansion when active / focused */
-    .search-box:focus-within,
-    .search-box.mobile-active {
-        position: absolute !important;
-        right: 8px !important;
-        left: 8px !important;
-        top: 8px !important;
-        width: calc(100% - 16px) !important;
-        max-width: none !important;
-        height: 38px !important;
-        z-index: 9999 !important;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.5) !important;
-        border-radius: 10px !important;
+    .search-box .btn-close-search {
+        display: none !important;
     }
-    .search-box:focus-within input,
-    .search-box.mobile-active input {
-        opacity: 1 !important;
-        cursor: text !important;
+
+    /* Active Search on Mobile — Expands nicely in topbar without covering other icons */
+    .search-box.mobile-active {
+        position: relative !important;
+        display: flex !important;
+        align-items: center !important;
+        flex: 1 1 auto !important;
+        width: auto !important;
+        min-width: 140px !important;
+        max-width: min(230px, calc(100vw - 170px)) !important;
+        height: 34px !important;
         background: var(--bg-surface, #1e293b) !important;
         border: 1.5px solid var(--primary, #7c3aed) !important;
-        padding: 0 38px 0 34px !important;
+        border-radius: 10px !important;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.4) !important;
+        z-index: 50 !important;
+        overflow: visible !important;
+    }
+    .search-box.mobile-active input {
+        display: block !important;
+        opacity: 1 !important;
+        cursor: text !important;
+        pointer-events: auto !important;
+        width: 100% !important;
+        height: 100% !important;
+        background: transparent !important;
+        border: none !important;
+        outline: none !important;
+        padding: 0 30px 0 30px !important;
         font-size: 13px !important;
         border-radius: 10px !important;
         color: var(--text-primary) !important;
+        box-sizing: border-box !important;
     }
-    .search-box:focus-within i.fa-search,
     .search-box.mobile-active i.fa-search {
-        right: 10px !important;
-        height: 38px !important;
-        color: var(--primary) !important;
+        position: absolute !important;
+        right: 5px !important;
+        left: auto !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        width: 24px !important;
+        height: 24px !important;
+        color: var(--primary-light, #a78bfa) !important;
+        pointer-events: none !important;
+        font-size: 12px !important;
     }
-    .search-box .btn-close-search {
-        display: none;
-    }
-    .search-box:focus-within .btn-close-search,
     .search-box.mobile-active .btn-close-search {
-        display: flex !important;
-        position: absolute;
-        left: 8px;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 24px;
-        height: 24px;
-        align-items: center;
-        justify-content: center;
-        background: rgba(148, 163, 184, 0.2);
-        border: none;
-        border-radius: 50%;
-        color: var(--text-primary);
-        font-size: 11px;
-        cursor: pointer;
-        z-index: 3;
+        display: inline-flex !important;
+        position: absolute !important;
+        left: 4px !important;
+        right: auto !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        width: 26px !important;
+        height: 26px !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: rgba(239, 68, 68, 0.2) !important;
+        border: 1px solid rgba(239, 68, 68, 0.45) !important;
+        border-radius: 50% !important;
+        color: #fca5a5 !important;
+        font-size: 11px !important;
+        cursor: pointer !important;
+        z-index: 10 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
+        pointer-events: auto !important;
+    }
+    .search-box.mobile-active .btn-close-search:hover,
+    .search-box.mobile-active .btn-close-search:active {
+        background: #ef4444 !important;
+        color: #ffffff !important;
+    }
+    .search-box .btn-close-search i {
+        pointer-events: none !important;
     }
     .search-box .search-dropdown {
-        width: 100% !important;
-        top: 42px !important;
-        right: 0 !important;
-        max-height: 65vh !important;
+        position: fixed !important;
+        top: 56px !important;
+        right: 8px !important;
+        left: 8px !important;
+        width: auto !important;
+        max-width: calc(100vw - 16px) !important;
+        max-height: 70vh !important;
+        background: #0f172a !important;
+        border: 1px solid rgba(124, 58, 237, 0.4) !important;
+        border-radius: 14px !important;
+        box-shadow: 0 16px 40px rgba(0,0,0,0.8) !important;
+        z-index: 99999 !important;
+        overflow-y: auto !important;
     }
 
     /* Live Presence Pill on Mobile: Compact Badge (🟢 2) */
@@ -4689,10 +4722,18 @@ html.user-role-agent #cloud-sync-indicator {
     border-top: 1px solid #e2e8f0 !important;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
     .notifications-panel {
-        width: 320px;
-        left: -80px;
+        position: fixed !important;
+        top: 56px !important;
+        left: 8px !important;
+        right: 8px !important;
+        width: auto !important;
+        max-width: calc(100vw - 16px) !important;
+        max-height: calc(85vh - 56px) !important;
+        border-radius: 14px !important;
+        box-shadow: 0 16px 45px rgba(0, 0, 0, 0.85) !important;
+        z-index: 100000 !important;
     }
 }
 
