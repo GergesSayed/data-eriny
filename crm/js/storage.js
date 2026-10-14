@@ -416,6 +416,8 @@ const AppStorage = {
             localStorage.removeItem(this.KEYS.CURRENT_USER);
         }
         this.invalidateScopedCache();
+        this.invalidateStatsCache();
+        this.invalidateCallsCache();
         this.addActivity('user', uid, 'تغيير المستخدم النشط', this.getUser(uid)?.name || uid);
     },
 
@@ -432,6 +434,8 @@ const AppStorage = {
             }
             this._set(this.KEYS.USERS, users);
         }
+        this.invalidateStatsCache();
+        this.invalidateCallsCache();
         this.setCurrentUser('admin', false);
         return this.DEFAULT_USERS[0];
     },
@@ -2155,7 +2159,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=354.0');
+            this._worker = new Worker('js/companies-worker.js?v=355.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize, totalCount } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -2820,7 +2824,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v354.0_instant_smooth_calls_and_zero_lag';
+                    const currentVersionTag = 'v355.0_instant_zero_delay_delta_sync';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 
@@ -5274,6 +5278,29 @@ const AppStorage = {
             this._callsCacheTs = Date.now();
             this._set(this.KEYS.CALLS, merged);
             this.invalidateStatsCache();
+
+            // ⚡ Instant synchronization of company lastCallResult & status in memory
+            merged.forEach(call => {
+                if (call && call.companyId) {
+                    const comp = this.getCompany(call.companyId);
+                    if (comp) {
+                        const existingDate = comp.lastCallDate || '';
+                        if (!existingDate || (call.date && call.date >= existingDate)) {
+                            comp.lastCallResult = call.result;
+                            comp.lastCallDate = call.date;
+                            comp.lastCallNotes = call.notes || comp.lastCallNotes;
+                            if (['interested', 'meeting_scheduled', 'proposal_sent'].includes(call.result)) {
+                                comp.status = 'interested';
+                            } else if (['not_interested', 'wrong_number'].includes(call.result)) {
+                                comp.status = 'unqualified';
+                            } else if (call.result === 'callback') {
+                                comp.status = 'contacted';
+                            }
+                        }
+                    }
+                }
+            });
+
             return merged;
         } catch(e) {
             return [];
@@ -5723,7 +5750,7 @@ const AppStorage = {
 
         // Check cached stats (invalidated automatically whenever companies/calls mutate)
         const now = Date.now();
-        if (this._statsCache && this._statsCacheUserId === currentUserId && (now - this._statsCacheTime < 60000)) {
+        if (this._statsCache && this._statsCacheUserId === currentUserId && (now - this._statsCacheTime < 2000)) {
             return this._statsCache;
         }
 

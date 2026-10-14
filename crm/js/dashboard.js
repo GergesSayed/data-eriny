@@ -587,6 +587,7 @@ const Dashboard = {
             return s;
         });
 
+        const calledCompanyIds = new Set(allCalls.map(c => c && c.companyId ? String(c.companyId) : null).filter(Boolean));
         let totalAssignedAll = 0;
         let totalContactedAll = 0;
 
@@ -599,7 +600,7 @@ const Dashboard = {
                 s.assignedCount++;
                 s.assignedCompanies.push(c);
 
-                const isContacted = Boolean(c.lastCallResult || c.status === 'interested' || c.status === 'contacted' || c.status === 'unqualified');
+                const isContacted = Boolean(c.lastCallResult || c.status === 'interested' || c.status === 'contacted' || c.status === 'unqualified' || calledCompanyIds.has(String(c.id)));
                 if (isContacted) {
                     s.contactedCount++;
                     totalContactedAll++;

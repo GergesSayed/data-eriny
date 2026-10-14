@@ -880,6 +880,24 @@ window.SupabaseClient = (function() {
         return null;
     }
 
+    async function fetchSingleCallAndIngest(callId) {
+        if (!callId) return;
+        try {
+            const resp = await fetch(`${FIREBASE_DB_URL}/calls/${encodeURIComponent(String(callId))}.json`);
+            if (resp.ok) {
+                const call = await resp.json();
+                if (call && call.id) {
+                    if (window.AppStorage && typeof window.AppStorage.ingestSingleCall === 'function') {
+                        window.AppStorage.ingestSingleCall(call);
+                    }
+                    if (window.App && typeof window.App.refreshCurrentPage === 'function') {
+                        window.App.refreshCurrentPage();
+                    }
+                }
+            }
+        } catch(e) {}
+    }
+
     /**
      * Real-time ultra-fast SSE & metadata-driven sync on Firebase
      * Connects persistent EventSource stream for sub-100ms push with smart polling fallback
@@ -932,31 +950,29 @@ window.SupabaseClient = (function() {
             if (typeof EventSource !== 'undefined') {
                 sseSource = new EventSource(`${FIREBASE_DB_URL}/metadata.json`);
 
-                sseSource.addEventListener('put', (e) => {
+                const handleSSE = (e) => {
                     try {
                         const parsed = JSON.parse(e.data || '{}');
                         const data = (parsed && parsed.data !== undefined) ? parsed.data : parsed;
-                        if (data && data.updated_by && data.updated_by === currentClientId) return;
-                        const ts = Number(data && data.sync_timestamp) || 0;
-                        if (lastSyncTimestamp > 0 && ts > lastSyncTimestamp) {
-                            scheduleDeltaCheck(true, 300);
-                        } else if (lastSyncTimestamp === 0 && ts > 0) {
-                            lastSyncTimestamp = ts;
-                        }
-                    } catch(err) {}
-                });
+                        if (!data) return;
+                        if (data.updated_by && data.updated_by === currentClientId) return;
+                        const ts = Number(data.sync_timestamp) || 0;
+                        if (lastSyncTimestamp > 0 && ts <= lastSyncTimestamp) return;
+                        if (ts > 0) lastSyncTimestamp = ts;
 
-                sseSource.addEventListener('patch', (e) => {
-                    try {
-                        const parsed = JSON.parse(e.data || '{}');
-                        const data = (parsed && parsed.data !== undefined) ? parsed.data : parsed;
-                        if (data && data.updated_by && data.updated_by === currentClientId) return;
-                        const ts = Number(data && data.sync_timestamp) || 0;
-                        if (lastSyncTimestamp > 0 && ts > lastSyncTimestamp) {
-                            scheduleDeltaCheck(true, 300);
+                        // ⚡ SUPER-FAST DELTA PATH (< 50ms): Single Call Update
+                        if (data.delta_type === 'call' && data.call_id) {
+                            fetchSingleCallAndIngest(data.call_id);
+                            return;
                         }
+
+                        // Normal debounced check for full metadata shifts
+                        scheduleDeltaCheck(true, 300);
                     } catch(err) {}
-                });
+                };
+
+                sseSource.addEventListener('put', handleSSE);
+                sseSource.addEventListener('patch', handleSSE);
 
                 sseSource.onopen = () => {
                     setStatus('synced', { realTimeMode: 'SSE_LIVE' });
@@ -1465,14 +1481,16 @@ window.SupabaseClient = (function() {
                 body: JSON.stringify(payload)
             });
 
-            // 2. Broadcast metadata update to trigger SSE on all connected clients
+            // 2. Broadcast metadata update with delta info to trigger fast SSE on all connected clients
             fetch(`${FIREBASE_DB_URL}/metadata.json`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     updated_at: new Date(now).toISOString(),
                     sync_timestamp: now,
-                    updated_by: currentClientId
+                    updated_by: currentClientId,
+                    delta_type: 'call',
+                    call_id: sId
                 })
             }).catch(() => {});
 

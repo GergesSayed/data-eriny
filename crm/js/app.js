@@ -181,7 +181,7 @@ const App = {
                     console.log('[SW] Service worker controller updated and active.');
                 });
 
-                navigator.serviceWorker.register('sw.js?v=354.0').then(reg => {
+                navigator.serviceWorker.register('sw.js?v=355.0').then(reg => {
                     reg.update().catch(() => {});
                     // Detect when a new SW version is waiting — show update notification
                     reg.addEventListener('updatefound', () => {
@@ -767,10 +767,11 @@ const App = {
             window.AppStorage.setCurrentUser(userId);
         }
         this.updateUserUI();
-        window.AppStorage.updateLiveCounters();
-        if (typeof Companies !== 'undefined') {
-            Companies.refreshUserFilter();
-            Companies.render();
+        if (window.AppStorage) {
+            if (typeof window.AppStorage.invalidateStatsCache === 'function') window.AppStorage.invalidateStatsCache();
+            if (typeof window.AppStorage.invalidateCallsCache === 'function') window.AppStorage.invalidateCallsCache();
+            if (typeof window.AppStorage.invalidateScopedCache === 'function') window.AppStorage.invalidateScopedCache();
+            window.AppStorage.updateLiveCounters();
         }
         if (typeof Calls !== 'undefined') {
             Calls.activeFilter = 'all';
@@ -778,8 +779,8 @@ const App = {
             Calls.currentPage = 1;
             if (typeof Calls.updateFilterUI === 'function') Calls.updateFilterUI();
         }
-        if (window.AppStorage && typeof window.AppStorage.invalidateCallsCache === 'function') {
-            window.AppStorage.invalidateCallsCache();
+        if (typeof Companies !== 'undefined') {
+            Companies.refreshUserFilter();
         }
         const user = window.AppStorage.getCurrentUser();
         const isAdmin = user && user.role === 'admin';
