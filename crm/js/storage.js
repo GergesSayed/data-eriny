@@ -2155,7 +2155,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=352.0');
+            this._worker = new Worker('js/companies-worker.js?v=353.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize, totalCount } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -2820,7 +2820,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v352.0_perf_optimization';
+                    const currentVersionTag = 'v353.0_cloud_calls_realtime_sync';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 
@@ -5208,6 +5208,76 @@ const AppStorage = {
             const timeB = new Date(b.createdAt || (b.date || '')).getTime() || 0;
             return timeB - timeA;
         });
+    },
+
+    ingestSingleCall(call) {
+        if (!call || !call.id) return;
+        const sId = String(call.id);
+        const calls = this.getCalls() || [];
+        const index = calls.findIndex(c => c && String(c.id) === sId);
+        if (index >= 0) {
+            calls[index] = { ...calls[index], ...call };
+        } else {
+            calls.unshift(call);
+        }
+        this._callsCache = calls;
+        this._callsCacheTs = Date.now();
+        this._set(this.KEYS.CALLS, calls);
+        this.saveCallToDB(call);
+        this.invalidateStatsCache();
+
+        if (call.companyId) {
+            const company = this.getCompany(call.companyId);
+            if (company) {
+                company.lastCallResult = call.result;
+                company.lastCallDate = call.date;
+                company.lastCallNotes = call.notes;
+                company.lastUpdated = new Date().toISOString().split('T')[0];
+                if (['interested', 'meeting_scheduled', 'proposal_sent'].includes(call.result)) {
+                    company.status = 'interested';
+                } else if (['not_interested', 'wrong_number'].includes(call.result)) {
+                    company.status = 'unqualified';
+                } else if (call.result === 'callback') {
+                    company.status = 'contacted';
+                }
+                this.saveBatchToIDB([company]);
+            }
+        }
+    },
+
+    async pullCallsFromCloud() {
+        if (typeof window === 'undefined' || !navigator.onLine) return [];
+        try {
+            const resp = await fetch('https://fleet-crm-38ba6-default-rtdb.firebaseio.com/calls.json?t=' + Date.now());
+            if (!resp.ok) return [];
+            const data = await resp.json();
+            if (!data) return [];
+            const cloudCalls = Array.isArray(data) ? data.filter(Boolean) : Object.values(data).filter(Boolean);
+            const deletedCallIds = this.getDeletedIds ? this.getDeletedIds('calls') : new Set();
+            const cleanCloudCalls = cloudCalls.filter(c => c && c.id && !deletedCallIds.has(String(c.id)));
+
+            const localRawCalls = this._get(this.KEYS.CALLS) || [];
+            const localCalls = localRawCalls.filter(c => c && c.id && !deletedCallIds.has(String(c.id)));
+            const callMap = new Map();
+
+            // 1. Authoritative cloud calls
+            cleanCloudCalls.forEach(c => callMap.set(String(c.id), c));
+            // 2. Local unsynced calls
+            localCalls.forEach(c => {
+                if (!callMap.has(String(c.id))) {
+                    callMap.set(String(c.id), c);
+                }
+            });
+
+            const merged = Array.from(callMap.values());
+            this._callsCache = merged;
+            this._callsCacheTs = Date.now();
+            this._set(this.KEYS.CALLS, merged);
+            this.invalidateStatsCache();
+            return merged;
+        } catch(e) {
+            return [];
+        }
     },
 
     saveCall(call) {

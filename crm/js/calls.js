@@ -95,6 +95,8 @@ const Calls = {
         }
     },
 
+    _lastCloudPullTs: 0,
+
     render() {
         const callsPage = document.getElementById('page-calls');
         if (!callsPage || !callsPage.classList.contains('active')) {
@@ -102,6 +104,21 @@ const Calls = {
         }
         this.renderStats();
         this.renderTable();
+
+        // ⚡ Automatic background sync: pull calls from cloud if not pulled in last 10s
+        const now = Date.now();
+        if (now - this._lastCloudPullTs > 10000 && window.AppStorage && typeof window.AppStorage.pullCallsFromCloud === 'function') {
+            this._lastCloudPullTs = now;
+            window.AppStorage.pullCallsFromCloud().then(calls => {
+                if (calls && calls.length > 0) {
+                    const page = document.getElementById('page-calls');
+                    if (page && page.classList.contains('active')) {
+                        this.renderStats();
+                        this.renderTable();
+                    }
+                }
+            }).catch(() => {});
+        }
     },
 
     clearAllCalls() {

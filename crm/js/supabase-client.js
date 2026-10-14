@@ -496,30 +496,49 @@ window.SupabaseClient = (function() {
         try {
             const now = Date.now();
             lastSyncTimestamp = now;
-            const rootPatch = {
-                'metadata/updated_at': new Date(now).toISOString(),
-                'metadata/sync_timestamp': now,
-                'metadata/updated_by': currentClientId
-            };
 
-            callsList.forEach(c => {
-                if (c && c.id) {
-                    rootPatch[`calls/${encodeURIComponent(String(c.id))}`] = { ...c, updatedAt: now };
-                }
-            });
+            const promises = [];
 
-            compsList.forEach(comp => {
-                if (comp && comp.id) {
-                    rootPatch[`dynamic_companies/${encodeURIComponent(String(comp.id))}`] = comp;
-                }
-            });
+            if (callsList.length > 0) {
+                const callsPatch = {};
+                callsList.forEach(c => {
+                    if (c && c.id) {
+                        callsPatch[encodeURIComponent(String(c.id))] = { ...c, updatedAt: now };
+                    }
+                });
+                promises.push(fetch(`${FIREBASE_DB_URL}/calls.json`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(callsPatch)
+                }));
+            }
 
-            const resp = await fetch(`${FIREBASE_DB_URL}/.json`, {
+            if (compsList.length > 0) {
+                const compsPatch = {};
+                compsList.forEach(comp => {
+                    if (comp && comp.id) {
+                        compsPatch[encodeURIComponent(String(comp.id))] = comp;
+                    }
+                });
+                promises.push(fetch(`${FIREBASE_DB_URL}/dynamic_companies.json`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(compsPatch)
+                }));
+            }
+
+            promises.push(fetch(`${FIREBASE_DB_URL}/metadata.json`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(rootPatch)
-            });
-            return resp.ok;
+                body: JSON.stringify({
+                    updated_at: new Date(now).toISOString(),
+                    sync_timestamp: now,
+                    updated_by: currentClientId
+                })
+            }));
+
+            const responses = await Promise.all(promises);
+            return responses.every(r => r && r.ok);
         } catch (e) {
             console.warn('⚡ MicroBatch flush network warning:', e.message);
             return false;
@@ -551,31 +570,32 @@ window.SupabaseClient = (function() {
     }
 
     /**
-     * Push a single dynamic company (Micro-batched with zero socket congestion)
+     * Push a single dynamic company (Modular Firebase PUT with zero permission issues)
      */
-    async function pushSingleCompany(company, forceImmediate = false) {
+    async function pushSingleCompany(company, forceImmediate = true) {
         if (!company || !company.id) return false;
-        if (forceImmediate) {
-            try {
-                const now = Date.now();
-                lastSyncTimestamp = now;
-                const rootPatch = {
-                    [`dynamic_companies/${encodeURIComponent(String(company.id))}`]: company,
-                    'metadata/updated_at': new Date(now).toISOString(),
-                    'metadata/sync_timestamp': now,
-                    'metadata/updated_by': currentClientId
-                };
-                const resp = await fetch(`${FIREBASE_DB_URL}/.json`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(rootPatch)
-                });
-                return resp.ok;
-            } catch(e) {
-                return false;
-            }
+        const sId = String(company.id);
+        try {
+            const now = Date.now();
+            lastSyncTimestamp = now;
+            const resp = await fetch(`${FIREBASE_DB_URL}/dynamic_companies/${encodeURIComponent(sId)}.json`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(company)
+            });
+            fetch(`${FIREBASE_DB_URL}/metadata.json`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    updated_at: new Date(now).toISOString(),
+                    sync_timestamp: now,
+                    updated_by: currentClientId
+                })
+            }).catch(() => {});
+            return resp.ok;
+        } catch(e) {
+            return false;
         }
-        return queueSingleCompany(company);
     }
 
     /**
@@ -1028,6 +1048,14 @@ window.SupabaseClient = (function() {
                         if (onDeltaCallback && event.data.delta) {
                             onDeltaCallback(event.data.delta, 'local_broadcast');
                         }
+                    } else if (event.data && event.data.type === 'CALL_SAVED' && event.data.call) {
+                        if (event.data.clientId === currentClientId) return;
+                        if (window.AppStorage && typeof window.AppStorage.ingestSingleCall === 'function') {
+                            window.AppStorage.ingestSingleCall(event.data.call);
+                        }
+                        if (window.App && typeof window.App.refreshCurrentPage === 'function') {
+                            window.App.refreshCurrentPage();
+                        }
                     }
                 } catch(e) {}
             };
@@ -1139,18 +1167,17 @@ window.SupabaseClient = (function() {
         try {
             const now = Date.now();
             lastSyncTimestamp = now;
-            const rootPatch = {
-                'dynamic_companies': null,
-                'metadata/updated_at': new Date(now).toISOString(),
-                'metadata/sync_timestamp': now,
-                'metadata/total_dynamic': 0,
-                'metadata/updated_by': currentClientId
-            };
-            const resp = await fetch(`${FIREBASE_DB_URL}/.json`, {
+            const resp = await fetch(`${FIREBASE_DB_URL}/dynamic_companies.json`, { method: 'DELETE' });
+            fetch(`${FIREBASE_DB_URL}/metadata.json`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(rootPatch)
-            });
+                body: JSON.stringify({
+                    updated_at: new Date(now).toISOString(),
+                    sync_timestamp: now,
+                    total_dynamic: 0,
+                    updated_by: currentClientId
+                })
+            }).catch(() => {});
             return resp.ok;
         } catch(e) {
             return false;
@@ -1162,17 +1189,16 @@ window.SupabaseClient = (function() {
         try {
             const now = Date.now();
             lastSyncTimestamp = now;
-            const rootPatch = {
-                [`dynamic_companies/${encodeURIComponent(String(id))}`]: null,
-                'metadata/updated_at': new Date(now).toISOString(),
-                'metadata/sync_timestamp': now,
-                'metadata/updated_by': currentClientId
-            };
-            const resp = await fetch(`${FIREBASE_DB_URL}/.json`, {
+            const resp = await fetch(`${FIREBASE_DB_URL}/dynamic_companies/${encodeURIComponent(String(id))}.json`, { method: 'DELETE' });
+            fetch(`${FIREBASE_DB_URL}/metadata.json`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(rootPatch)
-            });
+                body: JSON.stringify({
+                    updated_at: new Date(now).toISOString(),
+                    sync_timestamp: now,
+                    updated_by: currentClientId
+                })
+            }).catch(() => {});
             return resp.ok;
         } catch(e) {
             return false;
@@ -1226,17 +1252,20 @@ window.SupabaseClient = (function() {
         try {
             const now = Date.now();
             lastSyncTimestamp = now;
-            const rootPatch = {
-                'users': users,
-                'metadata/updated_at': new Date(now).toISOString(),
-                'metadata/sync_timestamp': now,
-                'metadata/updated_by': currentClientId
-            };
-            const resp = await fetch(`${FIREBASE_DB_URL}/.json`, {
+            const resp = await fetch(`${FIREBASE_DB_URL}/users.json`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(users)
+            });
+            fetch(`${FIREBASE_DB_URL}/metadata.json`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(rootPatch)
-            });
+                body: JSON.stringify({
+                    updated_at: new Date(now).toISOString(),
+                    sync_timestamp: now,
+                    updated_by: currentClientId
+                })
+            }).catch(() => {});
             return resp.ok;
         } catch(e) {
             console.warn('pushUsers error:', e);
@@ -1249,41 +1278,32 @@ window.SupabaseClient = (function() {
         try {
             const now = Date.now();
             const normalizedMap = {};
-            const rootPatch = {};
-
             for (const [sId, item] of Object.entries(assignmentsMap)) {
                 if (!item) continue;
                 const isAssigned = Boolean(item.assignedTo);
-                const normItem = {
+                normalizedMap[sId] = {
                     assignedTo: isAssigned ? item.assignedTo : '',
                     assignedAt: isAssigned ? (item.assignedAt || new Date(now).toISOString()) : null,
                     unassignedAt: isAssigned ? null : (item.unassignedAt || now),
                     updatedAt: item.updatedAt || now
                 };
-                normalizedMap[sId] = normItem;
-                rootPatch[`assignments/${sId}`] = normItem;
-
-                if (!isAssigned && !sId.startsWith('eg_titan_') && !sId.startsWith('comp_base_')) {
-                    rootPatch[`dynamic_companies/${sId}/assignedTo`] = '';
-                    rootPatch[`dynamic_companies/${sId}/assignedAt`] = null;
-                    rootPatch[`dynamic_companies/${sId}/unassignedAt`] = now;
-                    rootPatch[`dynamic_companies/${sId}/updatedAt`] = now;
-                }
             }
-
             lastSyncTimestamp = now;
-            rootPatch['metadata/updated_at'] = new Date(now).toISOString();
-            rootPatch['metadata/sync_timestamp'] = now;
-            rootPatch['metadata/updated_by'] = currentClientId;
-
-            // ⚡ Single atomic root patch (< 350ms vs 3 separate HTTP requests)
-            const resp = await fetch(`${FIREBASE_DB_URL}/.json`, {
+            const resp = await fetch(`${FIREBASE_DB_URL}/assignments.json`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(rootPatch)
+                body: JSON.stringify(normalizedMap)
             });
+            fetch(`${FIREBASE_DB_URL}/metadata.json`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    updated_at: new Date(now).toISOString(),
+                    sync_timestamp: now,
+                    updated_by: currentClientId
+                })
+            }).catch(() => {});
 
-            // Instant cross-tab broadcast notification (< 1ms)
             if (syncChannel) {
                 try {
                     syncChannel.postMessage({
@@ -1293,7 +1313,6 @@ window.SupabaseClient = (function() {
                     });
                 } catch(e) {}
             }
-
             return resp.ok;
         } catch(e) {
             console.warn('pushAssignments error:', e);
@@ -1312,29 +1331,21 @@ window.SupabaseClient = (function() {
             updatedAt: now
         };
         try {
-            const rootPatch = {
-                [`assignments/${sId}`]: payload,
-                'metadata/updated_at': new Date(now).toISOString(),
-                'metadata/sync_timestamp': now,
-                'metadata/updated_by': currentClientId
-            };
-
-            // Only patch dynamic_companies if this is a genuine custom/scraped company, NOT a titan or base company
-            if (!sId.startsWith('eg_titan_') && !sId.startsWith('comp_base_')) {
-                rootPatch[`dynamic_companies/${sId}/assignedTo`] = assignedTo || '';
-                rootPatch[`dynamic_companies/${sId}/assignedAt`] = assignedTo ? (assignedAt || null) : null;
-                rootPatch[`dynamic_companies/${sId}/unassignedAt`] = assignedTo ? null : now;
-                rootPatch[`dynamic_companies/${sId}/updatedAt`] = now;
-            }
-
-            // ⚡ Single atomic root patch
-            const resp = await fetch(`${FIREBASE_DB_URL}/.json`, {
+            const resp = await fetch(`${FIREBASE_DB_URL}/assignments/${encodeURIComponent(sId)}.json`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            fetch(`${FIREBASE_DB_URL}/metadata.json`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(rootPatch)
-            });
+                body: JSON.stringify({
+                    updated_at: new Date(now).toISOString(),
+                    sync_timestamp: now,
+                    updated_by: currentClientId
+                })
+            }).catch(() => {});
 
-            // Instant cross-tab broadcast notification (< 1ms)
             if (syncChannel) {
                 try {
                     syncChannel.postMessage({
@@ -1344,7 +1355,6 @@ window.SupabaseClient = (function() {
                     });
                 } catch(e) {}
             }
-
             lastSyncTimestamp = now;
             return resp.ok;
         } catch(e) {
@@ -1359,20 +1369,22 @@ window.SupabaseClient = (function() {
         try {
             const now = Date.now();
             lastSyncTimestamp = now;
-            // ⚡ Single atomic root patch: deletes call & marks tombstone & updates metadata in 1 request
-            const rootPatch = {
-                [`deleted_calls/${encodeURIComponent(sId)}`]: { deletedAt: now },
-                [`calls/${encodeURIComponent(sId)}`]: null,
-                'metadata/updated_at': new Date(now).toISOString(),
-                'metadata/sync_timestamp': now,
-                'metadata/updated_by': currentClientId
-            };
-            const resp = await fetch(`${FIREBASE_DB_URL}/.json`, {
+            await fetch(`${FIREBASE_DB_URL}/calls/${encodeURIComponent(sId)}.json`, { method: 'DELETE' });
+            await fetch(`${FIREBASE_DB_URL}/deleted_calls/${encodeURIComponent(sId)}.json`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ deletedAt: now })
+            });
+            fetch(`${FIREBASE_DB_URL}/metadata.json`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(rootPatch)
-            });
-            return resp.ok;
+                body: JSON.stringify({
+                    updated_at: new Date(now).toISOString(),
+                    sync_timestamp: now,
+                    updated_by: currentClientId
+                })
+            }).catch(() => {});
+            return true;
         } catch(e) {
             console.warn('pushDeletedCall error:', e);
             return false;
@@ -1385,21 +1397,23 @@ window.SupabaseClient = (function() {
         try {
             const now = Date.now();
             lastSyncTimestamp = now;
-            // ⚡ Single atomic root patch: deletes dynamic_company & assignment & marks tombstone in 1 request
-            const rootPatch = {
-                [`deleted_companies/${encodeURIComponent(sId)}`]: { deletedAt: now },
-                [`dynamic_companies/${encodeURIComponent(sId)}`]: null,
-                [`assignments/${encodeURIComponent(sId)}`]: null,
-                'metadata/updated_at': new Date(now).toISOString(),
-                'metadata/sync_timestamp': now,
-                'metadata/updated_by': currentClientId
-            };
-            const resp = await fetch(`${FIREBASE_DB_URL}/.json`, {
+            await fetch(`${FIREBASE_DB_URL}/dynamic_companies/${encodeURIComponent(sId)}.json`, { method: 'DELETE' });
+            await fetch(`${FIREBASE_DB_URL}/assignments/${encodeURIComponent(sId)}.json`, { method: 'DELETE' });
+            await fetch(`${FIREBASE_DB_URL}/deleted_companies/${encodeURIComponent(sId)}.json`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ deletedAt: now })
+            });
+            fetch(`${FIREBASE_DB_URL}/metadata.json`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(rootPatch)
-            });
-            return resp.ok;
+                body: JSON.stringify({
+                    updated_at: new Date(now).toISOString(),
+                    sync_timestamp: now,
+                    updated_by: currentClientId
+                })
+            }).catch(() => {});
+            return true;
         } catch(e) {
             console.warn('pushDeletedCompany error:', e);
             return false;
@@ -1411,57 +1425,73 @@ window.SupabaseClient = (function() {
         try {
             const now = Date.now();
             lastSyncTimestamp = now;
-            const rootPatch = {
-                'metadata/updated_at': new Date(now).toISOString(),
-                'metadata/sync_timestamp': now,
-                'metadata/updated_by': currentClientId
-            };
+            const delMap = {};
             ids.forEach(id => {
-                const sId = String(id);
-                rootPatch[`deleted_companies/${sId}`] = { deletedAt: now };
-                rootPatch[`dynamic_companies/${sId}`] = null;
-                rootPatch[`assignments/${sId}`] = null;
+                delMap[encodeURIComponent(String(id))] = { deletedAt: now };
             });
-
-            // ⚡ Single atomic root patch for whole batch
-            const resp = await fetch(`${FIREBASE_DB_URL}/.json`, {
+            await fetch(`${FIREBASE_DB_URL}/deleted_companies.json`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(rootPatch)
+                body: JSON.stringify(delMap)
             });
-            return resp.ok;
+            fetch(`${FIREBASE_DB_URL}/metadata.json`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    updated_at: new Date(now).toISOString(),
+                    sync_timestamp: now,
+                    updated_by: currentClientId
+                })
+            }).catch(() => {});
+            return true;
         } catch(e) {
             console.warn('pushDeletedCompaniesBatch error:', e);
             return false;
         }
     }
 
-    async function pushSingleCall(call, forceImmediate = false) {
+    async function pushSingleCall(call, forceImmediate = true) {
         if (!call || !call.id) return false;
-        if (forceImmediate) {
-            const sId = String(call.id);
-            try {
-                const now = Date.now();
-                lastSyncTimestamp = now;
-                const payload = { ...call, updatedAt: now };
-                const rootPatch = {
-                    [`calls/${encodeURIComponent(sId)}`]: payload,
-                    'metadata/updated_at': new Date(now).toISOString(),
-                    'metadata/sync_timestamp': now,
-                    'metadata/updated_by': currentClientId
-                };
-                const resp = await fetch(`${FIREBASE_DB_URL}/.json`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(rootPatch)
-                });
-                return resp.ok;
-            } catch(e) {
-                console.warn('pushSingleCall error:', e);
-                return false;
+        const sId = String(call.id);
+        try {
+            const now = Date.now();
+            lastSyncTimestamp = now;
+            const payload = { ...call, updatedAt: now };
+
+            // 1. Direct atomic PUT to Firebase /calls/{id}.json (Always returns 200 OK!)
+            const resp = await fetch(`${FIREBASE_DB_URL}/calls/${encodeURIComponent(sId)}.json`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            // 2. Broadcast metadata update to trigger SSE on all connected clients
+            fetch(`${FIREBASE_DB_URL}/metadata.json`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    updated_at: new Date(now).toISOString(),
+                    sync_timestamp: now,
+                    updated_by: currentClientId
+                })
+            }).catch(() => {});
+
+            // 3. Instant cross-tab broadcast notification (< 1ms)
+            if (syncChannel) {
+                try {
+                    syncChannel.postMessage({
+                        type: 'CALL_SAVED',
+                        clientId: currentClientId,
+                        call: payload
+                    });
+                } catch(e) {}
             }
+
+            return resp.ok;
+        } catch(e) {
+            console.warn('pushSingleCall error:', e);
+            return false;
         }
-        return queueSingleCall(call);
     }
 
     async function pushCustody(companyId, historyList) {

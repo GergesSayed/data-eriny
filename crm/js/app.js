@@ -181,7 +181,7 @@ const App = {
                     console.log('[SW] Service worker controller updated and active.');
                 });
 
-                navigator.serviceWorker.register('sw.js?v=352.0').then(reg => {
+                navigator.serviceWorker.register('sw.js?v=353.0').then(reg => {
                     reg.update().catch(() => {});
                     // Detect when a new SW version is waiting — show update notification
                     reg.addEventListener('updatefound', () => {
@@ -771,6 +771,15 @@ const App = {
         if (typeof Companies !== 'undefined') {
             Companies.refreshUserFilter();
             Companies.render();
+        }
+        if (typeof Calls !== 'undefined') {
+            Calls.activeFilter = 'all';
+            Calls.searchQuery = '';
+            Calls.currentPage = 1;
+            if (typeof Calls.updateFilterUI === 'function') Calls.updateFilterUI();
+        }
+        if (window.AppStorage && typeof window.AppStorage.invalidateCallsCache === 'function') {
+            window.AppStorage.invalidateCallsCache();
         }
         const user = window.AppStorage.getCurrentUser();
         const isAdmin = user && user.role === 'admin';
@@ -1721,7 +1730,10 @@ const App = {
             }
             if (typeof Companies !== 'undefined' && this.currentPage === 'companies') Companies.render();
             if (typeof Dashboard !== 'undefined' && this.currentPage === 'dashboard') Dashboard.render();
+            if (typeof Calls !== 'undefined' && this.currentPage === 'calls') Calls.render();
+            if (typeof Reports !== 'undefined' && this.currentPage === 'reports') Reports.render();
             if (window.AppStorage && window.AppStorage.updateLiveCounters) window.AppStorage.updateLiveCounters();
+            this.refreshCurrentPage();
 
             if (icon) { icon.className = 'fas fa-check-circle'; }
             if (label) { label.textContent = 'متزامن سحابياً'; }
