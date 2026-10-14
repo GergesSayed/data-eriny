@@ -119,6 +119,14 @@ const ExcelHandler = {
     },
 
     exportCompanies(companies, filename = 'fleet_crm_companies') {
+        const currentUser = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
+        if (!window.AppStorage || !window.AppStorage.canViewAll(currentUser)) {
+            if (typeof App !== 'undefined' && App.showToast) {
+                App.showToast('⛔ عذراً، تصدير ملفات الإكسيل مقتصر على المدير العام والمشرفين فقط!', 'error');
+            }
+            return;
+        }
+
         if (!Array.isArray(companies)) {
             filename = typeof filename === 'string' ? filename : 'fleet_crm_companies';
             companies = (typeof Companies !== 'undefined' && Companies.getFilteredCompanies) ? Companies.getFilteredCompanies() : window.AppStorage.getCompanies();

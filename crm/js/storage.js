@@ -466,7 +466,7 @@ const AppStorage = {
             const user = this.getUserByUsername(query);
             if (!user) return { success: false, message: 'اسم المستخدم أو البريد الإلكتروني غير موجود' };
 
-            let isMatch = password === user.password || password === '123456' || password === 'fleet123';
+            let isMatch = password === user.password;
             if (!isMatch && user.password) {
                 try { isMatch = await this.checkPw(password, user.password); } catch (e) { isMatch = false; }
             }
@@ -2159,7 +2159,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=357.0');
+            this._worker = new Worker('js/companies-worker.js?v=358.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize, totalCount } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -2824,7 +2824,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v357.0_pre_launch_production_release';
+                    const currentVersionTag = 'v358.0_strict_individual_passwords_and_export_lock';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 
