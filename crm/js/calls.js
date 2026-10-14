@@ -105,12 +105,13 @@ const Calls = {
         this.renderStats();
         this.renderTable();
 
-        // ⚡ Automatic background sync: pull calls from cloud if not pulled in last 10s
+        // ⚡ Debounced silent background check (only once per 30s)
         const now = Date.now();
-        if (now - this._lastCloudPullTs > 10000 && window.AppStorage && typeof window.AppStorage.pullCallsFromCloud === 'function') {
+        if (now - this._lastCloudPullTs > 30000 && window.AppStorage && typeof window.AppStorage.pullCallsFromCloud === 'function') {
             this._lastCloudPullTs = now;
+            const currentCallsCount = (window.AppStorage.getCalls() || []).length;
             window.AppStorage.pullCallsFromCloud().then(calls => {
-                if (calls && calls.length > 0) {
+                if (calls && calls.length !== currentCallsCount) {
                     const page = document.getElementById('page-calls');
                     if (page && page.classList.contains('active')) {
                         this.renderStats();
@@ -579,9 +580,15 @@ const Calls = {
             App.closeModal('modal-call');
             App.showToast(id ? 'تم تحديث المكالمة' : 'تم تسجيل المكالمة بنجاح', 'success');
 
-            try { this.render(); } catch (e) { console.warn('Calls.render skipped:', e); }
-            try { if (typeof Dashboard !== 'undefined') Dashboard.render(); } catch (e) {}
-            try { if (typeof Companies !== 'undefined') Companies.render(); } catch (e) {}
+            const activePage = window.App ? window.App.currentPage : 'calls';
+            if (activePage === 'calls') {
+                this.renderStats();
+                this.renderTable();
+            } else if (activePage === 'companies' && typeof Companies !== 'undefined') {
+                Companies.render();
+            } else if (activePage === 'dashboard' && typeof Dashboard !== 'undefined') {
+                Dashboard.render();
+            }
             try { if (window.App && typeof window.App.updateNotificationBadge === 'function') window.App.updateNotificationBadge(); } catch (e) {}
         } catch (err) {
             console.error('Calls.save() error:', err);
@@ -593,7 +600,7 @@ const Calls = {
                     saveBtn.disabled = false;
                     saveBtn.innerHTML = '<i class="fas fa-save"></i> حفظ المكالمة';
                 }
-            }, 600);
+            }, 120);
         }
     },
 

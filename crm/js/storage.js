@@ -2155,7 +2155,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=353.0');
+            this._worker = new Worker('js/companies-worker.js?v=354.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize, totalCount } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -2820,7 +2820,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v353.0_cloud_calls_realtime_sync';
+                    const currentVersionTag = 'v354.0_instant_smooth_calls_and_zero_lag';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 
@@ -3211,20 +3211,20 @@ const AppStorage = {
 
     _pullInFlight: null,
     _lastPullTs: 0,
-    async pullFromCloud(force = false) {
+    async pullFromCloud(force = false, preloadedData = null) {
         if (!window.SupabaseClient) return false;
         const now = Date.now();
-        if (!force && (now - this._lastPullTs < 3000)) {
+        if (!force && !preloadedData && (now - this._lastPullTs < 3000)) {
             return false;
         }
-        if (this._pullInFlight) {
+        if (this._pullInFlight && !preloadedData) {
             return this._pullInFlight;
         }
 
         this._pullInFlight = (async () => {
             this._lastPullTs = Date.now();
             try {
-                const data = await window.SupabaseClient.fetchMasterData();
+                const data = preloadedData || await window.SupabaseClient.fetchMasterData();
                 if (!data) return false;
 
             let updated = false;
@@ -5362,11 +5362,11 @@ const AppStorage = {
 
         call.updatedAt = Date.now();
 
-        // Immediate atomic cloud sync of call & company
+        // Immediate atomic cloud sync of call (and company only if custom/scraped)
         if (window.SupabaseClient && window.SupabaseClient.pushSingleCall) {
             window.SupabaseClient.pushSingleCall(call).catch(() => { });
         }
-        if (company && window.SupabaseClient && window.SupabaseClient.pushSingleCompany) {
+        if (company && window.SupabaseClient && window.SupabaseClient.pushSingleCompany && (company.source === 'scraper' || company.isCustom)) {
             window.SupabaseClient.pushSingleCompany(company).catch(() => { });
         }
 
