@@ -7,6 +7,7 @@ const Calls = {
     pageSize: 20,
     groupMode: 'company', // 'company' or 'flat'
     activeFilter: 'all', // 'all' | 'today' | 'interested' | 'followup' | 'not_interested'
+    selectedEmployee: '', // Filter by specific employee ID or name
     searchQuery: '',
 
     init() {
@@ -32,6 +33,15 @@ const Calls = {
         }
         this.currentPage = 1;
         this.updateFilterUI();
+        this.renderStats();
+        this.renderTable();
+    },
+
+    setEmployeeFilter(val) {
+        this.selectedEmployee = val ? String(val).trim() : '';
+        this.currentPage = 1;
+        this.updateFilterUI();
+        this.renderStats();
         this.renderTable();
     },
 
@@ -45,11 +55,59 @@ const Calls = {
     clearFilter() {
         this.activeFilter = 'all';
         this.searchQuery = '';
+        this.selectedEmployee = '';
         const input = document.getElementById('calls-search-input');
         if (input) input.value = '';
+        const select = document.getElementById('calls-filter-employee');
+        if (select) select.value = '';
         this.currentPage = 1;
         this.updateFilterUI();
+        this.renderStats();
         this.renderTable();
+    },
+
+    populateEmployeeFilter() {
+        const select = document.getElementById('calls-filter-employee');
+        const container = document.getElementById('calls-employee-filter-container');
+        if (!select) return;
+
+        const currentUser = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
+        const canViewAll = window.AppStorage ? window.AppStorage.canViewAll(currentUser) : false;
+
+        // Only show to Admin & Supervisors
+        if (!canViewAll) {
+            if (container) container.style.display = 'none';
+            return;
+        }
+        if (container) container.style.display = 'inline-flex';
+
+        const users = (window.AppStorage && window.AppStorage.getUsers) ? window.AppStorage.getUsers() : [];
+        const allCalls = (window.AppStorage && window.AppStorage.getCalls) ? window.AppStorage.getCalls() : [];
+
+        // Count calls per user
+        const callCountsByUser = new Map();
+        allCalls.forEach(c => {
+            if (!c) return;
+            const uid = String(c.userId || '').toLowerCase();
+            const uname = String(c.createdByName || '').toLowerCase();
+            if (uid) callCountsByUser.set(uid, (callCountsByUser.get(uid) || 0) + 1);
+            if (uname && uname !== uid) callCountsByUser.set(uname, (callCountsByUser.get(uname) || 0) + 1);
+        });
+
+        const currentVal = this.selectedEmployee || '';
+        let html = `<option value="">👤 جميع الموظفين (${allCalls.length} مكالمة)</option>`;
+
+        users.forEach(u => {
+            if (!u) return;
+            const uid = String(u.id || '').toLowerCase();
+            const uname = String(u.name || u.username || '');
+            const count = (callCountsByUser.get(uid) || callCountsByUser.get(uname.toLowerCase()) || 0);
+            const roleBadge = u.role === 'admin' ? '👑' : (u.role === 'supervisor' ? '⭐' : '💼');
+            html += `<option value="${u.id}">${roleBadge} ${uname} (${count} مكالمة)</option>`;
+        });
+
+        select.innerHTML = html;
+        select.value = currentVal;
     },
 
     updateFilterUI() {
@@ -74,18 +132,29 @@ const Calls = {
             }
         });
 
+        const select = document.getElementById('calls-filter-employee');
+        if (select && select.value !== this.selectedEmployee) {
+            select.value = this.selectedEmployee || '';
+        }
+
         const filterBadge = document.getElementById('calls-active-filter-badge');
         if (filterBadge) {
-            if (this.activeFilter !== 'all' || this.searchQuery) {
-                let label = '';
-                if (this.activeFilter === 'today') label = '📅 مكالمات اليوم';
-                else if (this.activeFilter === 'interested') label = '👍 العملاء المهتمين';
-                else if (this.activeFilter === 'followup') label = '🔔 المتابعات المستحقة';
-                else if (this.activeFilter === 'not_interested') label = '❌ غير مهتمين';
-                if (this.searchQuery) label += (label ? ' + ' : '') + `🔍 "${this.searchQuery}"`;
-                filterBadge.innerHTML = `<span class="active-filter-chip chip-primary">
-                    تصفية نشطة: ${label}
-                    <button onclick="Calls.clearFilter()" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:14px; padding:0 2px; font-weight:800;" title="إلغاء التصفية">✕</button>
+            if (this.activeFilter !== 'all' || this.searchQuery || this.selectedEmployee) {
+                const parts = [];
+                if (this.selectedEmployee) {
+                    const u = window.AppStorage.getUser(this.selectedEmployee);
+                    const empName = u ? u.name : this.selectedEmployee;
+                    parts.push(`👤 الموظف: ${empName}`);
+                }
+                if (this.activeFilter === 'today') parts.push('📅 مكالمات اليوم');
+                else if (this.activeFilter === 'interested') parts.push('👍 العملاء المهتمين');
+                else if (this.activeFilter === 'followup') parts.push('🔔 المتابعات المستحقة');
+                else if (this.activeFilter === 'not_interested') parts.push('❌ غير مهتمين');
+                if (this.searchQuery) parts.push(`🔍 "${this.searchQuery}"`);
+
+                filterBadge.innerHTML = `<span class="active-filter-chip chip-primary" style="display:inline-flex; align-items:center; gap:8px; padding:6px 14px; font-weight:700; border-radius:10px; background:rgba(124,58,237,0.12); color:#7c3aed; border:1px solid rgba(124,58,237,0.3); font-size:12.5px;">
+                    <span>تصفية نشطة: <strong>${parts.join(' + ')}</strong></span>
+                    <button onclick="Calls.clearFilter()" style="background:none; border:none; color:var(--danger, #ef4444); cursor:pointer; font-size:14px; padding:0 4px; font-weight:800;" title="إلغاء التصفية">✕ إلغاء التصفية</button>
                 </span>`;
                 filterBadge.style.display = 'inline-block';
             } else {
@@ -102,6 +171,7 @@ const Calls = {
         if (!callsPage || !callsPage.classList.contains('active')) {
             return;
         }
+        this.populateEmployeeFilter();
         this.renderStats();
         this.renderTable();
 
@@ -114,6 +184,7 @@ const Calls = {
                 if (calls && calls.length !== currentCallsCount) {
                     const page = document.getElementById('page-calls');
                     if (page && page.classList.contains('active')) {
+                        this.populateEmployeeFilter();
                         this.renderStats();
                         this.renderTable();
                     }
@@ -139,7 +210,21 @@ const Calls = {
 
     renderStats() {
         const today = new Date().toISOString().split('T')[0];
-        const calls = window.AppStorage.getScopedCalls();
+        let calls = window.AppStorage.getScopedCalls();
+
+        // Filter stats by selected employee if active
+        if (this.selectedEmployee) {
+            const target = this.selectedEmployee.toLowerCase();
+            const u = window.AppStorage.getUser(this.selectedEmployee);
+            const targetName = u ? String(u.name || '').toLowerCase() : '';
+            calls = calls.filter(c => {
+                if (!c) return false;
+                const uid = String(c.userId || '').toLowerCase();
+                const uname = String(c.createdByName || '').toLowerCase();
+                return uid === target || (targetName && uname === targetName) || uname === target;
+            });
+        }
+
         const todayCalls = calls.filter(c => c.date === today);
 
         const totalEl = document.getElementById('calls-total-today');
@@ -149,7 +234,7 @@ const Calls = {
         if (intEl) intEl.textContent = calls.filter(c => ['interested', 'meeting_scheduled', 'proposal_sent'].includes(c.result)).length;
 
         const folEl = document.getElementById('calls-followup');
-        const followupsCount = (window.AppStorage && window.AppStorage.getTodaysFollowUps) ? window.AppStorage.getTodaysFollowUps().length : calls.filter(c => c.result === 'callback').length;
+        const followupsCount = calls.filter(c => c.result === 'callback' || (c.followUpDate && c.followUpDate === today)).length;
         if (folEl) folEl.textContent = followupsCount;
 
         const notIntEl = document.getElementById('calls-not-interested');
@@ -185,7 +270,20 @@ const Calls = {
         const today = new Date().toISOString().split('T')[0];
         let calls = allCalls;
 
-        // Apply active filter
+        // Apply employee filter
+        if (this.selectedEmployee) {
+            const target = this.selectedEmployee.toLowerCase();
+            const u = window.AppStorage.getUser(this.selectedEmployee);
+            const targetName = u ? String(u.name || '').toLowerCase() : '';
+            calls = calls.filter(c => {
+                if (!c) return false;
+                const uid = String(c.userId || '').toLowerCase();
+                const uname = String(c.createdByName || '').toLowerCase();
+                return uid === target || (targetName && uname === targetName) || uname === target;
+            });
+        }
+
+        // Apply active outcome filter
         if (this.activeFilter === 'today') {
             calls = calls.filter(c => c.date === today);
         } else if (this.activeFilter === 'interested') {
@@ -212,7 +310,15 @@ const Calls = {
         const total = calls.length;
         const countDisplay = document.getElementById('calls-count-display');
         if (countDisplay) {
-            if (this.activeFilter !== 'all' || this.searchQuery) {
+            if (this.selectedEmployee) {
+                const u = window.AppStorage.getUser(this.selectedEmployee);
+                const empName = u ? u.name : 'الموظف المحدد';
+                if (this.activeFilter !== 'all' || this.searchQuery) {
+                    countDisplay.textContent = `📊 معروض: ${total} مكالمة للموظف ${empName} (من إجمالي ${allCalls.length} مكالمة بالسيستم)`;
+                } else {
+                    countDisplay.textContent = `👤 معروض: جميع مكالمات ${empName} (${total} مكالمة) من إجمالي ${allCalls.length} بالسيستم`;
+                }
+            } else if (this.activeFilter !== 'all' || this.searchQuery) {
                 countDisplay.textContent = `📊 تم العثور على ${total} مكالمة (من إجمالي ${allCalls.length})`;
             } else {
                 countDisplay.textContent = `${total} مكالمة مسجلة`;
