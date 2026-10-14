@@ -2159,7 +2159,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=358.0');
+            this._worker = new Worker('js/companies-worker.js?v=359.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize, totalCount } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -2824,7 +2824,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v358.0_strict_individual_passwords_and_export_lock';
+                    const currentVersionTag = 'v359.0_instant_call_deletion_and_zero_resurrection';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 
@@ -5249,15 +5249,93 @@ const AppStorage = {
         }
     },
 
+    purgeDeletedCallLocally(callId) {
+        if (!callId) return;
+        const sId = String(callId);
+        const targetCall = (this._get(this.KEYS.CALLS) || []).find(c => c && String(c.id) === sId);
+        this.recordDeletedId('calls', sId);
+        const calls = (this._get(this.KEYS.CALLS) || []).filter(c => c && String(c.id) !== sId);
+        this._callsCache = calls;
+        this._callsCacheTs = Date.now();
+        this._set(this.KEYS.CALLS, calls);
+        this.invalidateStatsCache();
+        this.invalidateCallsCache();
+
+        // Also clean IndexedDB
+        try {
+            if (typeof indexedDB !== 'undefined') {
+                const req = indexedDB.open('FleetCRM_DB', 6);
+                req.onsuccess = (e) => {
+                    const db = e.target.result;
+                    if (db.objectStoreNames.contains('calls')) {
+                        const tx = db.transaction('calls', 'readwrite');
+                        tx.objectStore('calls').delete(sId);
+                    }
+                };
+            }
+        } catch(e) {}
+
+        const companyId = targetCall ? targetCall.companyId : null;
+        if (companyId) {
+            const company = this.getCompany(companyId);
+            if (company) {
+                const remainingCalls = calls.filter(c => c && String(c.companyId) === String(companyId)).sort((a, b) => {
+                    const timeA = new Date(a.createdAt || a.date || '').getTime() || 0;
+                    const timeB = new Date(b.createdAt || b.date || '').getTime() || 0;
+                    return timeB - timeA;
+                });
+
+                if (remainingCalls.length > 0) {
+                    const latest = remainingCalls[0];
+                    company.lastCallResult = latest.result;
+                    company.lastCallDate = latest.date;
+                    company.lastCallNotes = latest.notes;
+                } else {
+                    delete company.lastCallResult;
+                    delete company.lastCallDate;
+                    delete company.lastCallNotes;
+                    company.lastCallResult = '';
+                    company.lastCallDate = '';
+                    company.lastCallNotes = '';
+                    if (['interested', 'unqualified', 'contacted'].includes(company.status)) {
+                        company.status = 'new';
+                    }
+                }
+                this.saveBatchToIDB([company]);
+                if (this._worker) {
+                    this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: [company] });
+                }
+            }
+        }
+        this.syncCallsToCompanies();
+    },
+
     async pullCallsFromCloud() {
         if (typeof window === 'undefined' || !navigator.onLine) return [];
         try {
-            const resp = await fetch('https://fleet-crm-38ba6-default-rtdb.firebaseio.com/calls.json?t=' + Date.now());
+            const [resp, deletedResp] = await Promise.all([
+                fetch('https://fleet-crm-38ba6-default-rtdb.firebaseio.com/calls.json?t=' + Date.now()),
+                fetch('https://fleet-crm-38ba6-default-rtdb.firebaseio.com/deleted_calls.json?t=' + Date.now())
+            ]);
             if (!resp.ok) return [];
             const data = await resp.json();
             if (!data) return [];
             const cloudCalls = Array.isArray(data) ? data.filter(Boolean) : Object.values(data).filter(Boolean);
+
+            // Ingest cloud deleted call tombstones (Permanent - ZERO resurrection!)
             const deletedCallIds = this.getDeletedIds ? this.getDeletedIds('calls') : new Set();
+            if (deletedResp && deletedResp.ok) {
+                const delData = await deletedResp.json();
+                if (delData) {
+                    const delIds = Array.isArray(delData) ? delData.filter(Boolean) : Object.keys(delData);
+                    delIds.forEach(id => {
+                        const sId = String(id);
+                        deletedCallIds.add(sId);
+                        this.recordDeletedId('calls', sId);
+                    });
+                }
+            }
+
             const cleanCloudCalls = cloudCalls.filter(c => c && c.id && !deletedCallIds.has(String(c.id)));
 
             const localRawCalls = this._get(this.KEYS.CALLS) || [];
@@ -5266,10 +5344,16 @@ const AppStorage = {
 
             // 1. Authoritative cloud calls
             cleanCloudCalls.forEach(c => callMap.set(String(c.id), c));
-            // 2. Local unsynced calls
+
+            // 2. Local unsynced calls (ONLY if created locally within last 120 seconds and NOT deleted)
+            const now = Date.now();
             localCalls.forEach(c => {
-                if (!callMap.has(String(c.id))) {
-                    callMap.set(String(c.id), c);
+                const cId = String(c.id);
+                if (!callMap.has(cId) && !deletedCallIds.has(cId)) {
+                    const createdTs = c.createdAt ? new Date(c.createdAt).getTime() : (c.updatedAt || 0);
+                    if (now - createdTs < 120000) {
+                        callMap.set(cId, c);
+                    }
                 }
             });
 

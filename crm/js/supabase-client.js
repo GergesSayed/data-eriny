@@ -966,6 +966,17 @@ window.SupabaseClient = (function() {
                             return;
                         }
 
+                        // ⚡ SUPER-FAST DELTA PATH (< 5ms): Single Call Deletion
+                        if (data.delta_type === 'delete_call' && data.call_id) {
+                            if (window.AppStorage && typeof window.AppStorage.purgeDeletedCallLocally === 'function') {
+                                window.AppStorage.purgeDeletedCallLocally(data.call_id);
+                            }
+                            if (window.App && typeof window.App.refreshCurrentPage === 'function') {
+                                window.App.refreshCurrentPage();
+                            }
+                            return;
+                        }
+
                         // Normal debounced check for full metadata shifts
                         scheduleDeltaCheck(true, 300);
                     } catch(err) {}
@@ -1068,6 +1079,14 @@ window.SupabaseClient = (function() {
                         if (event.data.clientId === currentClientId) return;
                         if (window.AppStorage && typeof window.AppStorage.ingestSingleCall === 'function') {
                             window.AppStorage.ingestSingleCall(event.data.call);
+                        }
+                        if (window.App && typeof window.App.refreshCurrentPage === 'function') {
+                            window.App.refreshCurrentPage();
+                        }
+                    } else if (event.data && event.data.type === 'CALL_DELETED' && event.data.callId) {
+                        if (event.data.clientId === currentClientId) return;
+                        if (window.AppStorage && typeof window.AppStorage.purgeDeletedCallLocally === 'function') {
+                            window.AppStorage.purgeDeletedCallLocally(event.data.callId);
                         }
                         if (window.App && typeof window.App.refreshCurrentPage === 'function') {
                             window.App.refreshCurrentPage();
@@ -1391,13 +1410,26 @@ window.SupabaseClient = (function() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ deletedAt: now })
             });
+            // 3. Instant cross-tab broadcast notification (< 0.1ms)
+            if (syncChannel) {
+                try {
+                    syncChannel.postMessage({
+                        type: 'CALL_DELETED',
+                        clientId: currentClientId,
+                        callId: sId
+                    });
+                } catch(e) {}
+            }
+
             fetch(`${FIREBASE_DB_URL}/metadata.json`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     updated_at: new Date(now).toISOString(),
                     sync_timestamp: now,
-                    updated_by: currentClientId
+                    updated_by: currentClientId,
+                    delta_type: 'delete_call',
+                    call_id: sId
                 })
             }).catch(() => {});
             return true;
