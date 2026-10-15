@@ -756,6 +756,9 @@ const Companies = {
         }
 
         const sel = document.getElementById('filter-assigned');
+        if (!canViewAll && sel) {
+            sel.value = '';
+        }
         const bulkSel = document.getElementById('bulk-assign-user-select');
 
         // Avoid rebuilding DOM if already populated with same user count
@@ -971,7 +974,7 @@ const Companies = {
         const fleetSize = document.getElementById('filter-fleet-size')?.value;
         const addedDate = document.getElementById('filter-added-date')?.value;
         const sortMode = document.getElementById('filter-sort')?.value || 'priority_fleet';
-        const assigned = document.getElementById('filter-assigned')?.value;
+        const assigned = canViewAll ? (document.getElementById('filter-assigned')?.value || '') : '';
         const search = document.getElementById('filter-search')?.value?.toLowerCase().trim();
         const now = Date.now();
         const todayStr = new Date().toISOString().split('T')[0];
@@ -1036,7 +1039,7 @@ const Companies = {
                 if (!matchesMy) return false;
             }
 
-            if (assigned) {
+            if (canViewAll && assigned) {
                 if (assigned === 'my_leads') {
                     if (!c.assignedTo) return false;
                     const matchesMy = c.assignedTo === currentUser?.id || c.assignedTo === currentUser?.username || c.assignedTo === currentUser?.email || c.assignedTo === currentUser?.name;

@@ -182,7 +182,7 @@ const App = {
                     console.log('[SW] Service worker controller updated and active.');
                 });
 
-                navigator.serviceWorker.register('sw.js?v=363.0').then(reg => {
+                navigator.serviceWorker.register('sw.js?v=364.0').then(reg => {
                     reg.update().catch(() => {});
                     // Detect when a new SW version is waiting — show update notification
                     reg.addEventListener('updatefound', () => {
@@ -781,6 +781,11 @@ const App = {
             if (typeof Calls.updateFilterUI === 'function') Calls.updateFilterUI();
         }
         if (typeof Companies !== 'undefined') {
+            Companies.myPortfolioOnly = false;
+            Companies.statusFilter = null;
+            Companies.currentPage = 1;
+            const filterAssigned = document.getElementById('filter-assigned');
+            if (filterAssigned) filterAssigned.value = '';
             Companies.refreshUserFilter();
         }
         const user = window.AppStorage.getCurrentUser();
