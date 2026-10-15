@@ -2159,7 +2159,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=372.0');
+            this._worker = new Worker('js/companies-worker.js?v=373.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize, totalCount } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -2824,7 +2824,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v372.0_universal_reversion_guard_and_awaited_push_assignments';
+                    const currentVersionTag = 'v373.0_universal_reversion_guard_and_awaited_push_assignments';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 
@@ -3347,38 +3347,30 @@ const AppStorage = {
                         const targetUser = typeof assignData === 'string' ? assignData : (assignData.assignedTo || '');
                         const targetAt = targetUser ? (assignData.assignedAt || null) : null;
                         
-                        let cloudUpdatedAt = Number(assignData.updatedAt) || 0;
+                        let cloudUpdatedAt = 0;
+                        if (assignData.updatedAt) {
+                            cloudUpdatedAt = typeof assignData.updatedAt === 'number' ? assignData.updatedAt : new Date(assignData.updatedAt).getTime();
+                        }
                         if (!cloudUpdatedAt && assignData.assignedAt) {
-                            const parsed = new Date(assignData.assignedAt).getTime();
-                            if (!isNaN(parsed) && parsed > 0) cloudUpdatedAt = parsed;
+                            cloudUpdatedAt = new Date(assignData.assignedAt).getTime();
                         }
-                        if (!cloudUpdatedAt && assignData.unassignedAt) {
-                            const parsed = Number(assignData.unassignedAt) || new Date(assignData.unassignedAt).getTime();
-                            if (!isNaN(parsed) && parsed > 0) cloudUpdatedAt = parsed;
-                        }
-                        if (!cloudUpdatedAt && targetUser) {
-                            cloudUpdatedAt = 1;
+                        if (isNaN(cloudUpdatedAt) || !cloudUpdatedAt) {
+                            cloudUpdatedAt = Date.now();
                         }
 
                         const localAssign = storedAssignments[sId];
                         const localUpdatedAt = Number(localAssign ? localAssign.updatedAt : 0) || 0;
-                        const localUser = localAssign ? (localAssign.assignedTo || '') : '';
-                        const localUnassignedAt = Number(localAssign ? localAssign.unassignedAt : 0) || 0;
 
-                        // 🛡️ UNIVERSAL REVERSION GUARD (Zero race conditions on any account):
-                        // Never accept stale cloud data that is older than local unassignment or assignment timestamp
-                        if (!localUser && localUnassignedAt > 0 && localUnassignedAt > cloudUpdatedAt) {
-                            continue;
-                        }
-                        if (localUser && localUser !== targetUser && localUpdatedAt > cloudUpdatedAt) {
+                        // 🛡️ UNIVERSAL LWW CONFLICT-FREE RESOLUTION:
+                        // Only ignore cloud record if local assignment was explicitly updated strictly after cloudUpdatedAt
+                        if (localUpdatedAt > 0 && cloudUpdatedAt > 0 && localUpdatedAt > cloudUpdatedAt) {
                             continue;
                         }
 
                         storedAssignments[sId] = {
                             assignedTo: targetUser,
                             assignedAt: targetAt,
-                            updatedAt: cloudUpdatedAt || Date.now(),
-                            unassignedAt: assignData.unassignedAt || null
+                            updatedAt: cloudUpdatedAt || Date.now()
                         };
 
                         const comp = idMap.get(sId);
@@ -3807,38 +3799,33 @@ const AppStorage = {
             } else if (assignData && typeof assignData === 'object') {
                 targetUser = assignData.assignedTo || '';
                 targetAt = targetUser ? (assignData.assignedAt || new Date().toISOString()) : null;
-                updatedAt = Number(assignData.updatedAt) || 0;
-                if (!updatedAt && assignData.assignedAt) {
-                    const p = new Date(assignData.assignedAt).getTime();
-                    if (!isNaN(p) && p > 0) updatedAt = p;
+                updatedAt = 0;
+                if (assignData.updatedAt) {
+                    updatedAt = typeof assignData.updatedAt === 'number' ? assignData.updatedAt : new Date(assignData.updatedAt).getTime();
                 }
-                if (!updatedAt) updatedAt = now;
-                unassignedAt = targetUser ? null : (assignData.unassignedAt || updatedAt);
+                if (!updatedAt && assignData.assignedAt) {
+                    updatedAt = new Date(assignData.assignedAt).getTime();
+                }
+                if (isNaN(updatedAt) || !updatedAt) updatedAt = now;
             } else if (assignData === null) {
                 targetUser = '';
                 targetAt = null;
                 updatedAt = now;
-                unassignedAt = now;
             }
 
             const localAssign = storedAssignments[sId];
             const localUpdatedAt = Number(localAssign ? localAssign.updatedAt : 0) || 0;
-            const localUser = localAssign ? (localAssign.assignedTo || '') : '';
-            const localUnassignedAt = Number(localAssign ? localAssign.unassignedAt : 0) || 0;
 
-            // 🛡️ UNIVERSAL REVERSION GUARD (LWW Conflict-Free Protection):
-            if (!localUser && localUnassignedAt > 0 && localUnassignedAt > updatedAt) {
-                continue;
-            }
-            if (localUser && localUser !== targetUser && localUpdatedAt > updatedAt) {
+            // 🛡️ UNIVERSAL LWW CONFLICT-FREE RESOLUTION:
+            // Only skip if local assignment was explicitly updated strictly after incoming delta
+            if (localUpdatedAt > 0 && updatedAt > 0 && localUpdatedAt > updatedAt) {
                 continue;
             }
 
             storedAssignments[sId] = {
                 assignedTo: targetUser,
                 assignedAt: targetAt,
-                updatedAt: updatedAt,
-                unassignedAt: unassignedAt
+                updatedAt: updatedAt
             };
 
             const comp = idMap.get(sId);
@@ -4661,8 +4648,7 @@ const AppStorage = {
         storedAssignments[String(companyId)] = {
             assignedTo: userId || '',
             assignedAt: company.assignedAt,
-            updatedAt: now,
-            unassignedAt: userId ? null : now
+            updatedAt: now
         };
         this.setStoredAssignments(storedAssignments);
 
@@ -4678,8 +4664,7 @@ const AppStorage = {
             [String(companyId)]: {
                 assignedTo: userId || '',
                 assignedAt: company.assignedAt,
-                updatedAt: now,
-                unassignedAt: userId ? null : now
+                updatedAt: now
             }
         };
         if (window.SupabaseClient && typeof window.SupabaseClient.setAssignment === 'function') {
@@ -4776,8 +4761,7 @@ const AppStorage = {
             assignmentsMap[sId] = {
                 assignedTo: targetUserId,
                 assignedAt: comp.assignedAt,
-                updatedAt: nowMs,
-                unassignedAt: targetUserId ? null : nowMs
+                updatedAt: nowMs
             };
         });
 

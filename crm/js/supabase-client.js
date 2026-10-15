@@ -1372,7 +1372,6 @@ window.SupabaseClient = (function() {
                 normalizedMap[sId] = {
                     assignedTo: isAssigned ? item.assignedTo : '',
                     assignedAt: isAssigned ? (item.assignedAt || new Date(now).toISOString()) : null,
-                    unassignedAt: isAssigned ? null : (item.unassignedAt || now),
                     updatedAt: item.updatedAt || now
                 };
             }
@@ -1417,7 +1416,6 @@ window.SupabaseClient = (function() {
         const payload = {
             assignedTo: assignedTo || '',
             assignedAt: assignedTo ? (assignedAt || new Date(now).toISOString()) : null,
-            unassignedAt: assignedTo ? null : now,
             updatedAt: now
         };
         try {
