@@ -116,6 +116,7 @@ const App = {
                     if (typeof Companies !== 'undefined' && active === 'companies') Companies.render();
                     if (typeof Dashboard !== 'undefined' && active === 'dashboard') Dashboard.render();
                     if (typeof Team !== 'undefined' && active === 'team') Team.render();
+                    if (typeof Calls !== 'undefined' && active === 'calls') Calls.render();
                 }
             }).catch(() => {});
 
@@ -181,7 +182,7 @@ const App = {
                     console.log('[SW] Service worker controller updated and active.');
                 });
 
-                navigator.serviceWorker.register('sw.js?v=360.0').then(reg => {
+                navigator.serviceWorker.register('sw.js?v=361.0').then(reg => {
                     reg.update().catch(() => {});
                     // Detect when a new SW version is waiting — show update notification
                     reg.addEventListener('updatefound', () => {

@@ -2159,7 +2159,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=360.0');
+            this._worker = new Worker('js/companies-worker.js?v=361.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize, totalCount } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -2824,7 +2824,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v360.0_instant_call_deletion_and_zero_resurrection';
+                    const currentVersionTag = 'v361.0_cross_client_call_deletion_complete_sync';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 
@@ -3264,6 +3264,22 @@ const AppStorage = {
                 });
                 if (callListChanged) {
                     localStorage.setItem(callKey, JSON.stringify(localCallList));
+                }
+
+                if (cloudDeletedCalls.size > 0 && typeof indexedDB !== 'undefined') {
+                    try {
+                        const req = indexedDB.open('FleetCRM_DB', 6);
+                        req.onsuccess = (e) => {
+                            const db = e.target.result;
+                            if (db && db.objectStoreNames.contains('calls')) {
+                                const tx = db.transaction('calls', 'readwrite');
+                                const store = tx.objectStore('calls');
+                                cloudDeletedCalls.forEach(id => {
+                                    try { store.delete(String(id)); } catch(err) {}
+                                });
+                            }
+                        };
+                    } catch(e) {}
                 }
             } catch (e) { }
 
