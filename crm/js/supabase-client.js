@@ -952,8 +952,7 @@ window.SupabaseClient = (function() {
                         if (!data) return;
                         if (data.updated_by && data.updated_by === currentClientId) return;
                         const ts = Number(data.sync_timestamp) || 0;
-                        if (lastSyncTimestamp > 0 && ts <= lastSyncTimestamp) return;
-                        if (ts > 0) lastSyncTimestamp = ts;
+                        if (ts > 0) lastSyncTimestamp = Math.max(lastSyncTimestamp, ts);
 
                         // ⚡ SUPER-FAST DELTA PATH (< 50ms): Single Call Update
                         if (data.delta_type === 'call' && data.call_id) {
@@ -965,6 +964,28 @@ window.SupabaseClient = (function() {
                         if (data.delta_type === 'delete_call' && data.call_id) {
                             if (window.AppStorage && typeof window.AppStorage.purgeDeletedCallLocally === 'function') {
                                 window.AppStorage.purgeDeletedCallLocally(data.call_id);
+                            }
+                            if (window.App && typeof window.App.refreshCurrentPage === 'function') {
+                                window.App.refreshCurrentPage();
+                            }
+                            return;
+                        }
+
+                        // ⚡ SUPER-FAST DELTA PATH (< 5ms): Single Company Deletion
+                        if (data.delta_type === 'delete_company' && data.company_id) {
+                            if (window.AppStorage && typeof window.AppStorage.purgeDeletedCompanyLocally === 'function') {
+                                window.AppStorage.purgeDeletedCompanyLocally(data.company_id);
+                            }
+                            if (window.App && typeof window.App.refreshCurrentPage === 'function') {
+                                window.App.refreshCurrentPage();
+                            }
+                            return;
+                        }
+
+                        // ⚡ SUPER-FAST DELTA PATH (< 5ms): Batch Companies Deletion
+                        if (data.delta_type === 'delete_companies_batch' && data.company_ids) {
+                            if (window.AppStorage && typeof window.AppStorage.purgeDeletedCompanyLocally === 'function') {
+                                data.company_ids.forEach(id => window.AppStorage.purgeDeletedCompanyLocally(id));
                             }
                             if (window.App && typeof window.App.refreshCurrentPage === 'function') {
                                 window.App.refreshCurrentPage();
@@ -1113,6 +1134,22 @@ window.SupabaseClient = (function() {
                         if (event.data.clientId === currentClientId) return;
                         if (window.AppStorage && typeof window.AppStorage.purgeDeletedCallLocally === 'function') {
                             window.AppStorage.purgeDeletedCallLocally(event.data.callId);
+                        }
+                        if (window.App && typeof window.App.refreshCurrentPage === 'function') {
+                            window.App.refreshCurrentPage();
+                        }
+                    } else if (event.data && event.data.type === 'COMPANY_DELETED' && event.data.companyId) {
+                        if (event.data.clientId === currentClientId) return;
+                        if (window.AppStorage && typeof window.AppStorage.purgeDeletedCompanyLocally === 'function') {
+                            window.AppStorage.purgeDeletedCompanyLocally(event.data.companyId);
+                        }
+                        if (window.App && typeof window.App.refreshCurrentPage === 'function') {
+                            window.App.refreshCurrentPage();
+                        }
+                    } else if (event.data && event.data.type === 'COMPANIES_BATCH_DELETED' && event.data.companyIds) {
+                        if (event.data.clientId === currentClientId) return;
+                        if (window.AppStorage && typeof window.AppStorage.purgeDeletedCompanyLocally === 'function') {
+                            event.data.companyIds.forEach(id => window.AppStorage.purgeDeletedCompanyLocally(id));
                         }
                         if (window.App && typeof window.App.refreshCurrentPage === 'function') {
                             window.App.refreshCurrentPage();
@@ -1484,13 +1521,27 @@ window.SupabaseClient = (function() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ deletedAt: now })
             });
+
+            // Instant cross-tab broadcast notification (< 0.1ms)
+            if (syncChannel) {
+                try {
+                    syncChannel.postMessage({
+                        type: 'COMPANY_DELETED',
+                        clientId: currentClientId,
+                        companyId: sId
+                    });
+                } catch(e) {}
+            }
+
             fetch(`${FIREBASE_DB_URL}/metadata.json`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     updated_at: new Date(now).toISOString(),
                     sync_timestamp: now,
-                    updated_by: currentClientId
+                    updated_by: currentClientId,
+                    delta_type: 'delete_company',
+                    company_id: sId
                 })
             }).catch(() => {});
             return true;
@@ -1514,13 +1565,27 @@ window.SupabaseClient = (function() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(delMap)
             });
+
+            // Instant cross-tab broadcast notification (< 0.1ms)
+            if (syncChannel) {
+                try {
+                    syncChannel.postMessage({
+                        type: 'COMPANIES_BATCH_DELETED',
+                        clientId: currentClientId,
+                        companyIds: ids
+                    });
+                } catch(e) {}
+            }
+
             fetch(`${FIREBASE_DB_URL}/metadata.json`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     updated_at: new Date(now).toISOString(),
                     sync_timestamp: now,
-                    updated_by: currentClientId
+                    updated_by: currentClientId,
+                    delta_type: 'delete_companies_batch',
+                    company_ids: ids
                 })
             }).catch(() => {});
             return true;

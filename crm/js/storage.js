@@ -2159,7 +2159,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=368.0');
+            this._worker = new Worker('js/companies-worker.js?v=369.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize, totalCount } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -2452,7 +2452,7 @@ const AppStorage = {
                 const chunk = records.slice(i, i + chunkSize);
                 await new Promise((resolve) => {
                     try {
-                        const request = indexedDB.open('FleetCRM_DB', 5);
+                        const request = indexedDB.open('FleetCRM_DB', 6);
                         request.onsuccess = (e) => {
                             const db = e.target.result;
                             if (!db.objectStoreNames.contains('companies')) { resolve(); return; }
@@ -2474,7 +2474,7 @@ const AppStorage = {
         } else {
             await new Promise((resolve) => {
                 try {
-                    const request = indexedDB.open('FleetCRM_DB', 5);
+                    const request = indexedDB.open('FleetCRM_DB', 6);
                     request.onsuccess = (e) => {
                         const db = e.target.result;
                         if (!db.objectStoreNames.contains('companies')) { resolve(); return; }
@@ -2648,7 +2648,7 @@ const AppStorage = {
         localStorage.setItem('fleetcrm_user_wiped_companies', 'true');
 
         try {
-            const request = indexedDB.open('FleetCRM_DB', 5);
+            const request = indexedDB.open('FleetCRM_DB', 6);
             request.onsuccess = (event) => {
                 const db = event.target.result;
                 if (!db.objectStoreNames.contains('companies')) return;
@@ -2824,7 +2824,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v368.0_fix_presence_loading_and_instant_heartbeat_sync';
+                    const currentVersionTag = 'v369.0_fix_idb_version_mismatch_and_instant_company_deletion';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 
@@ -4275,7 +4275,7 @@ const AppStorage = {
 
         // 2. Fast single-record deletion in IndexedDB (0.5ms instead of writing 27,000 records)
         try {
-            const request = indexedDB.open('FleetCRM_DB', 5);
+            const request = indexedDB.open('FleetCRM_DB', 6);
             request.onsuccess = (e) => {
                 const db = e.target.result;
                 if (db.objectStoreNames.contains('companies')) {
@@ -4290,17 +4290,52 @@ const AppStorage = {
             this._worker.postMessage({ action: 'DELETE_COMPANY', payload: sId });
         }
 
-        // 4. Cloud sync in background (non-blocking)
-        setTimeout(() => {
-            if (window.SupabaseClient && window.SupabaseClient.pushDeletedCompany) {
-                window.SupabaseClient.pushDeletedCompany(sId).catch(() => { });
-            }
-            if (this.autoSyncToCloud) {
-                this.autoSyncToCloud(this.companiesMemory, false);
-            }
-        }, 30);
+        // 4. Cloud sync immediately (Zero delay!)
+        if (window.SupabaseClient && window.SupabaseClient.pushDeletedCompany) {
+            window.SupabaseClient.pushDeletedCompany(sId).catch(() => { });
+        }
+        if (this.autoSyncToCloud) {
+            this.autoSyncToCloud(this.companiesMemory, false);
+        }
 
         return true;
+    },
+
+    purgeDeletedCompanyLocally(id) {
+        if (!id) return;
+        const sId = String(id);
+        this.recordDeletedId('companies', sId);
+
+        const companies = this.companiesMemory || [];
+        const idx = companies.findIndex(c => c && String(c.id) === sId);
+        if (idx >= 0) {
+            companies.splice(idx, 1);
+        }
+        this.companiesMemory = companies;
+        this.invalidateScopedCache();
+        this.invalidateStatsCache();
+        this.updateLiveCounters();
+
+        const storedAssignments = this.getStoredAssignments() || {};
+        if (storedAssignments[sId]) {
+            delete storedAssignments[sId];
+            this.setStoredAssignments(storedAssignments);
+        }
+
+        try {
+            const request = indexedDB.open('FleetCRM_DB', 6);
+            request.onsuccess = (e) => {
+                const db = e.target.result;
+                if (db.objectStoreNames.contains('companies')) {
+                    const tx = db.transaction(['companies'], 'readwrite');
+                    tx.objectStore('companies').delete(sId);
+                }
+            };
+        } catch (e) { }
+
+        if (this._worker) {
+            this._worker.postMessage({ action: 'DELETE_COMPANY', payload: sId });
+        }
     },
 
     bulkDeleteCompanies(ids) {
@@ -4334,7 +4369,7 @@ const AppStorage = {
 
         // 4. Batch delete from IndexedDB
         try {
-            const request = indexedDB.open('FleetCRM_DB', 5);
+            const request = indexedDB.open('FleetCRM_DB', 6);
             request.onsuccess = (e) => {
                 const db = e.target.result;
                 if (db.objectStoreNames.contains('companies')) {
@@ -4359,21 +4394,19 @@ const AppStorage = {
             localStorage.setItem('fleetcrm_user_wiped_companies', 'true');
         }
 
-        // 7. Background cloud sync
-        setTimeout(() => {
-            if (window.SupabaseClient) {
-                if (typeof window.SupabaseClient.pushDeletedCompaniesBatch === 'function') {
-                    window.SupabaseClient.pushDeletedCompaniesBatch(Array.from(idSet)).catch(() => {});
-                } else if (typeof window.SupabaseClient.pushDeletedCompany === 'function') {
-                    Array.from(idSet).forEach(sId => {
-                        window.SupabaseClient.pushDeletedCompany(sId).catch(() => {});
-                    });
-                }
+        // 7. Instant cloud sync (Zero delay!)
+        if (window.SupabaseClient) {
+            if (typeof window.SupabaseClient.pushDeletedCompaniesBatch === 'function') {
+                window.SupabaseClient.pushDeletedCompaniesBatch(Array.from(idSet)).catch(() => {});
+            } else if (typeof window.SupabaseClient.pushDeletedCompany === 'function') {
+                Array.from(idSet).forEach(sId => {
+                    window.SupabaseClient.pushDeletedCompany(sId).catch(() => {});
+                });
             }
-            if (this.autoSyncToCloud) {
-                this.autoSyncToCloud(this.companiesMemory, false);
-            }
-        }, 50);
+        }
+        if (this.autoSyncToCloud) {
+            this.autoSyncToCloud(this.companiesMemory, false);
+        }
 
         return idSet.size;
     },
@@ -5768,7 +5801,7 @@ const AppStorage = {
     saveActivityToDB(act) {
         if (!act || !act.id) return;
         try {
-            const req = indexedDB.open('FleetCRM_DB', 5);
+            const req = indexedDB.open('FleetCRM_DB', 6);
             req.onsuccess = (e) => {
                 const db = e.target.result;
                 if (db.objectStoreNames.contains('activities')) {
