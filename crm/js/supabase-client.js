@@ -977,6 +977,34 @@ window.SupabaseClient = (function() {
                             return;
                         }
 
+                        // ⚡ SUPER-FAST DELTA PATH (< 5ms): Single Assignment Update
+                        if (data.delta_type === 'assignment' && data.company_id) {
+                            if (window.AppStorage && typeof window.AppStorage.applyRealtimeAssignmentsDelta === 'function') {
+                                window.AppStorage.applyRealtimeAssignmentsDelta({
+                                    [data.company_id]: {
+                                        assignedTo: data.assigned_to || '',
+                                        assignedAt: data.assigned_at || null,
+                                        updatedAt: data.sync_timestamp || Date.now()
+                                    }
+                                }, 'cloud_sse');
+                            }
+                            if (window.App && typeof window.App.refreshCurrentPage === 'function') {
+                                window.App.refreshCurrentPage();
+                            }
+                            return;
+                        }
+
+                        // ⚡ SUPER-FAST DELTA PATH (< 5ms): Batch Assignments Update
+                        if (data.delta_type === 'assignments_batch' && data.assignments_delta) {
+                            if (window.AppStorage && typeof window.AppStorage.applyRealtimeAssignmentsDelta === 'function') {
+                                window.AppStorage.applyRealtimeAssignmentsDelta(data.assignments_delta, 'cloud_sse');
+                            }
+                            if (window.App && typeof window.App.refreshCurrentPage === 'function') {
+                                window.App.refreshCurrentPage();
+                            }
+                            return;
+                        }
+
                         // Normal debounced check for full metadata shifts
                         scheduleDeltaCheck(true, 300);
                     } catch(err) {}
@@ -1072,8 +1100,11 @@ window.SupabaseClient = (function() {
                 try {
                     if (event.data && event.data.type === 'ASSIGNMENTS_DELTA') {
                         if (event.data.clientId === currentClientId) return; // ignore self
-                        if (onDeltaCallback && event.data.delta) {
-                            onDeltaCallback(event.data.delta, 'local_broadcast');
+                        if (window.AppStorage && typeof window.AppStorage.applyRealtimeAssignmentsDelta === 'function' && event.data.delta) {
+                            window.AppStorage.applyRealtimeAssignmentsDelta(event.data.delta, 'local_broadcast');
+                        }
+                        if (window.App && typeof window.App.refreshCurrentPage === 'function') {
+                            window.App.refreshCurrentPage();
                         }
                     } else if (event.data && event.data.type === 'CALL_SAVED' && event.data.call) {
                         if (event.data.clientId === currentClientId) return;
@@ -1335,7 +1366,9 @@ window.SupabaseClient = (function() {
                 body: JSON.stringify({
                     updated_at: new Date(now).toISOString(),
                     sync_timestamp: now,
-                    updated_by: currentClientId
+                    updated_by: currentClientId,
+                    delta_type: 'assignments_batch',
+                    assignments_delta: normalizedMap
                 })
             }).catch(() => {});
 
@@ -1377,7 +1410,11 @@ window.SupabaseClient = (function() {
                 body: JSON.stringify({
                     updated_at: new Date(now).toISOString(),
                     sync_timestamp: now,
-                    updated_by: currentClientId
+                    updated_by: currentClientId,
+                    delta_type: 'assignment',
+                    company_id: sId,
+                    assigned_to: assignedTo || '',
+                    assigned_at: assignedTo ? (assignedAt || new Date(now).toISOString()) : null
                 })
             }).catch(() => {});
 
