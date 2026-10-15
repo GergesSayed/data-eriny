@@ -843,7 +843,6 @@ const Companies = {
         document.getElementById('btn-view-cards')?.addEventListener('click', () => this.setView('cards'));
 
         // Bulk assignment listeners
-        document.getElementById('btn-apply-bulk-assign')?.addEventListener('click', () => this.applyBulkAssign());
         document.getElementById('btn-cancel-bulk-selection')?.addEventListener('click', () => this.clearSelection());
 
         // Sort
@@ -1786,12 +1785,13 @@ const Companies = {
     },
 
     applyBulkAssign() {
+        if (this._isBulkAssigning) return;
         const currentUser = window.AppStorage.getCurrentUser();
         if (!window.AppStorage.isAdmin(currentUser)) {
             App.showToast('⚠️ التخصيص الجماعي مسموح فقط للمدير العام', 'error');
             return;
         }
-        if (this.selectedCompanies.size === 0) {
+        if (!this.selectedCompanies || this.selectedCompanies.size === 0) {
             App.showToast('⚠️ يرجى تحديد شركة واحدة على الأقل أولاً', 'warning');
             return;
         }
@@ -1803,33 +1803,44 @@ const Companies = {
             return;
         }
 
-        const ids = Array.from(this.selectedCompanies);
-        const count = window.AppStorage.bulkAssignCompanies(ids, userId);
-        const targetUser = window.AppStorage.getUser(userId);
-        const userName = targetUser ? targetUser.name : userId;
+        this._isBulkAssigning = true;
+        try {
+            const ids = Array.from(this.selectedCompanies);
+            const count = window.AppStorage.bulkAssignCompanies(ids, userId);
+            const targetUser = window.AppStorage.getUser(userId);
+            const userName = targetUser ? targetUser.name : userId;
 
-        App.showToast(`✅ تم بنجاح إسناد وتخصيص ${count} شركة إلى: ${userName}`, 'success');
-        this.clearSelection();
-        this.refreshUserFilter();
-        this.render();
+            App.showToast(`✅ تم بنجاح إسناد وتخصيص ${count} شركة إلى: ${userName}`, 'success');
+            this.clearSelection();
+            this.refreshUserFilter();
+            this.render();
+        } finally {
+            setTimeout(() => { this._isBulkAssigning = false; }, 300);
+        }
     },
 
     applyBulkUnassign() {
+        if (this._isBulkUnassigning) return;
         const currentUser = window.AppStorage.getCurrentUser();
         if (!window.AppStorage.isAdmin(currentUser)) {
             App.showToast('⚠️ إلغاء التخصيص الجماعي مسموح فقط للمدير العام', 'error');
             return;
         }
-        if (this.selectedCompanies.size === 0) {
+        if (!this.selectedCompanies || this.selectedCompanies.size === 0) {
             App.showToast('⚠️ يرجى تحديد شركة واحدة على الأقل أولاً', 'warning');
             return;
         }
-        const ids = Array.from(this.selectedCompanies);
-        const count = window.AppStorage.bulkAssignCompanies(ids, '');
-        App.showToast(`⚪ تم بنجاح إلغاء تخصيص ${count} شركة وأصبحت متاحة للجميع`, 'info');
-        this.clearSelection();
-        this.refreshUserFilter();
-        this.render();
+        this._isBulkUnassigning = true;
+        try {
+            const ids = Array.from(this.selectedCompanies);
+            const count = window.AppStorage.bulkAssignCompanies(ids, '');
+            App.showToast(`⚪ تم بنجاح إلغاء تخصيص ${count} شركة وأصبحت متاحة للجميع`, 'info');
+            this.clearSelection();
+            this.refreshUserFilter();
+            this.render();
+        } finally {
+            setTimeout(() => { this._isBulkUnassigning = false; }, 300);
+        }
     },
 
     removeDuplicatesNow() {
