@@ -2159,7 +2159,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=359.0');
+            this._worker = new Worker('js/companies-worker.js?v=360.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize, totalCount } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -2824,7 +2824,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v359.0_instant_call_deletion_and_zero_resurrection';
+                    const currentVersionTag = 'v360.0_instant_call_deletion_and_zero_resurrection';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 
@@ -3439,13 +3439,17 @@ const AppStorage = {
                     callMap.set(String(c.id), c);
                 });
 
-                // B. Reconcile local calls (preserve unsynced local calls, push them to cloud)
+                // B. Reconcile local calls (ONLY if created locally in last 60s and definitely not deleted)
+                const now = Date.now();
                 localCalls.forEach(c => {
                     const cId = String(c.id);
                     if (!deletedCallIds.has(cId) && !cloudIdSet.has(cId)) {
-                        callMap.set(cId, c);
-                        if (window.SupabaseClient && window.SupabaseClient.pushSingleCall) {
-                            window.SupabaseClient.pushSingleCall(c).catch(() => {});
+                        const createdTs = c.createdAt ? new Date(c.createdAt).getTime() : (c.updatedAt || 0);
+                        if (now - createdTs < 60000) {
+                            callMap.set(cId, c);
+                            if (window.SupabaseClient && window.SupabaseClient.pushSingleCall) {
+                                window.SupabaseClient.pushSingleCall(c).catch(() => {});
+                            }
                         }
                     }
                 });
@@ -5491,9 +5495,25 @@ const AppStorage = {
         this.recordDeletedId('calls', sId);
 
         const calls = (this._get(this.KEYS.CALLS) || []).filter(c => c && String(c.id) !== sId);
+        this._callsCache = calls;
+        this._callsCacheTs = Date.now();
         this._set(this.KEYS.CALLS, calls);
         this.invalidateStatsCache();
-        this.invalidateCallsCache();
+
+        // Also delete from IndexedDB to prevent resurrection on page refresh
+        try {
+            if (typeof indexedDB !== 'undefined') {
+                const req = indexedDB.open('FleetCRM_DB', 6);
+                req.onsuccess = (e) => {
+                    const db = e.target.result;
+                    if (db.objectStoreNames.contains('calls')) {
+                        const tx = db.transaction('calls', 'readwrite');
+                        tx.objectStore('calls').delete(sId);
+                    }
+                };
+                req.onerror = () => {};
+            }
+        } catch(e) {}
 
         // Remove associated activity
         const activities = (this._get(this.KEYS.ACTIVITIES) || []).filter(a => a && String(a.refId) !== sId);
@@ -5739,15 +5759,36 @@ const AppStorage = {
                 req.onsuccess = () => {
                     const idbCalls = req.result || [];
                     if (Array.isArray(idbCalls) && idbCalls.length > 0) {
+                        // Filter out deleted tombstones BEFORE merging (prevent resurrection!)
+                        const deletedCallIds = this.getDeletedIds ? this.getDeletedIds('calls') : new Set();
                         const localCalls = this._get(this.KEYS.CALLS) || [];
                         const map = new Map();
-                        idbCalls.forEach(c => { if (c && c.id) map.set(String(c.id), c); });
-                        localCalls.forEach(c => { if (c && c.id) map.set(String(c.id), c); });
+                        idbCalls.forEach(c => {
+                            if (c && c.id && !deletedCallIds.has(String(c.id))) {
+                                map.set(String(c.id), c);
+                            }
+                        });
+                        localCalls.forEach(c => {
+                            if (c && c.id && !deletedCallIds.has(String(c.id))) {
+                                map.set(String(c.id), c);
+                            }
+                        });
                         const merged = Array.from(map.values())
                             .sort((a, b) => new Date(b.createdAt || (b.date || 0)) - new Date(a.createdAt || (a.date || 0)));
                         this._callsCache = merged;
                         this._callsCacheTs = Date.now();
                         this._set(this.KEYS.CALLS, merged);
+
+                        // Clean deleted calls from IDB in background
+                        if (deletedCallIds.size > 0) {
+                            try {
+                                const cleanTx = db.transaction('calls', 'readwrite');
+                                const cleanStore = cleanTx.objectStore('calls');
+                                deletedCallIds.forEach(delId => {
+                                    try { cleanStore.delete(delId); } catch(e) {}
+                                });
+                            } catch(e) {}
+                        }
                     }
                     resolve();
                 };
