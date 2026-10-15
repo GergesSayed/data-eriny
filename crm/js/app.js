@@ -182,7 +182,7 @@ const App = {
                     console.log('[SW] Service worker controller updated and active.');
                 });
 
-                navigator.serviceWorker.register('sw.js?v=367.0').then(reg => {
+                navigator.serviceWorker.register('sw.js?v=368.0').then(reg => {
                     reg.update().catch(() => {});
                     // Detect when a new SW version is waiting — show update notification
                     reg.addEventListener('updatefound', () => {
@@ -1763,7 +1763,21 @@ const App = {
         this.sendPresenceHeartbeat();
         this._presenceInterval = setInterval(() => {
             this.sendPresenceHeartbeat();
-        }, 25000); // 25s heartbeat
+        }, 15000); // 15s heartbeat for reliable presence
+
+        if (!this._presenceListenersBound && typeof window !== 'undefined') {
+            this._presenceListenersBound = true;
+            window.addEventListener('focus', () => this.sendPresenceHeartbeat());
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') this.sendPresenceHeartbeat();
+            });
+            window.addEventListener('beforeunload', () => {
+                const user = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
+                if (user && window.SupabaseClient && window.SupabaseClient.setUserOffline) {
+                    window.SupabaseClient.setUserOffline(user.id, user.username);
+                }
+            });
+        }
     },
 
     stopPresenceHeartbeat() {
@@ -1798,7 +1812,15 @@ const App = {
             if (modal && modal.classList.contains('show')) {
                 this.renderTeamPresenceModalContent();
             }
-        }, 20000); // 20s update
+        }, 12000); // 12s update
+
+        if (!this._teamWatcherListenersBound && typeof window !== 'undefined') {
+            this._teamWatcherListenersBound = true;
+            window.addEventListener('focus', () => this.updateTeamPresencePill());
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') this.updateTeamPresencePill();
+            });
+        }
     },
 
     async updateTeamPresencePill() {
@@ -1822,23 +1844,29 @@ const App = {
             const presences = await window.SupabaseClient.getAllUsersPresence();
             const allUsers = (window.AppStorage && window.AppStorage.getUsers) ? (window.AppStorage.getUsers() || []) : [];
             let onlineCount = 0;
+            const onlineNames = [];
 
             allUsers.forEach(u => {
                 const p = (window.SupabaseClient && window.SupabaseClient.getUserPresence)
                     ? window.SupabaseClient.getUserPresence(presences, u)
                     : (presences[u.id] || presences[String(u.id).toLowerCase()] || (u.username && presences[u.username.toLowerCase()]));
-                if (p && p.isOnline) onlineCount++;
+                if (p && p.isOnline) {
+                    onlineCount++;
+                    onlineNames.push(u.name || u.username || 'موظف');
+                }
             });
 
             if (onlineCount > 0) {
                 pill.style.background = 'rgba(16, 185, 129, 0.14)';
                 pill.style.borderColor = 'rgba(16, 185, 129, 0.45)';
                 pill.style.color = '#10b981';
+                pill.title = 'المتصلون بالمنظومة الآن:\n• ' + onlineNames.join('\n• ') + '\n\nاضغط لفتح شاشة المراقبة اللحظية';
                 label.innerHTML = `🟢 <b>${onlineCount}</b> <span class="presence-text-label">${onlineCount === 1 ? 'متصل الآن' : 'متصلين الآن'}</span>`;
             } else {
                 pill.style.background = 'rgba(148, 163, 184, 0.12)';
                 pill.style.borderColor = 'rgba(148, 163, 184, 0.3)';
                 pill.style.color = 'var(--text-muted)';
+                pill.title = 'لا يوجد أي موظفين متصلين حالياً. اضغط لفتح شاشة المراقبة اللحظية';
                 label.innerHTML = `⚪ <span class="presence-text-label">لا يوجد متصلين</span>`;
             }
         } catch(e) {

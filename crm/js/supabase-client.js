@@ -742,10 +742,9 @@ window.SupabaseClient = (function() {
             const bodyStr = JSON.stringify(payload);
             const headers = { 'Content-Type': 'application/json' };
 
-            // Primary endpoint (permitted under presence node) + secondary user_presence endpoint
+            // Primary endpoint under /presence/users node
             const writes = [
-                fetch(`${FIREBASE_DB_URL}/presence/users/${safeId}.json`, { method: 'PUT', headers, body: bodyStr }),
-                fetch(`${FIREBASE_DB_URL}/user_presence/${safeId}.json`, { method: 'PUT', headers, body: bodyStr })
+                fetch(`${FIREBASE_DB_URL}/presence/users/${safeId}.json`, { method: 'PUT', headers, body: bodyStr })
             ];
             if (safeUsername && safeUsername !== safeId) {
                 writes.push(fetch(`${FIREBASE_DB_URL}/presence/users/${safeUsername}.json`, { method: 'PUT', headers, body: bodyStr }));
@@ -771,8 +770,7 @@ window.SupabaseClient = (function() {
 
             if (typeof fetch === 'function') {
                 const calls = [
-                    fetch(`${FIREBASE_DB_URL}/presence/users/${safeId}.json`, { method: 'PATCH', headers, body, keepalive: true }),
-                    fetch(`${FIREBASE_DB_URL}/user_presence/${safeId}.json`, { method: 'PATCH', headers, body, keepalive: true })
+                    fetch(`${FIREBASE_DB_URL}/presence/users/${safeId}.json`, { method: 'PATCH', headers, body, keepalive: true })
                 ];
                 if (safeUsername && safeUsername !== safeId) {
                     calls.push(fetch(`${FIREBASE_DB_URL}/presence/users/${safeUsername}.json`, { method: 'PATCH', headers, body, keepalive: true }));
@@ -786,24 +784,21 @@ window.SupabaseClient = (function() {
         if (typeof navigator !== 'undefined' && navigator.onLine === false) return {};
         try {
             const now = Date.now();
-            const safeFetch = async (path) => {
-                try {
-                    const resp = await fetch(`${FIREBASE_DB_URL}${path}?t=${now}`);
-                    if (!resp.ok) return null;
-                    return await resp.json();
-                } catch(e) {
-                    return null;
+            let combined = {};
+            try {
+                const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+                const timeoutId = controller ? setTimeout(() => controller.abort(), 4000) : null;
+                const resp = await fetch(`${FIREBASE_DB_URL}/presence/users.json?t=${now}`, {
+                    signal: controller ? controller.signal : undefined
+                });
+                if (timeoutId) clearTimeout(timeoutId);
+                if (resp && resp.ok) {
+                    const data = await resp.json();
+                    if (data && typeof data === 'object') combined = data;
                 }
-            };
-
-            const [p1, p2] = await Promise.allSettled([
-                safeFetch('/presence/users.json'),
-                safeFetch('/user_presence.json')
-            ]);
-
-            const raw1 = (p1.status === 'fulfilled' && p1.value && typeof p1.value === 'object') ? p1.value : {};
-            const raw2 = (p2.status === 'fulfilled' && p2.value && typeof p2.value === 'object') ? p2.value : {};
-            const combined = Object.assign({}, raw2, raw1); // raw1 takes priority
+            } catch(fetchErr) {
+                console.warn('Presence fetch error:', fetchErr.message);
+            }
 
             const result = {};
             const ACTIVE_WINDOW_MS = 180000; // 3 minutes window (handles tab throttling & sleep)
