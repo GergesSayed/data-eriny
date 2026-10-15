@@ -740,20 +740,18 @@ const Calls = {
                 }
             } catch(e) {}
 
-            // 3. Storage deletion and re-render only active page
-            setTimeout(() => {
-                window.AppStorage.deleteCall(id);
-                const activePage = window.App ? window.App.currentPage : 'calls';
-                if (activePage === 'calls') {
-                    this.renderStats();
-                    this.renderTable();
-                } else if (activePage === 'companies' && typeof Companies !== 'undefined') {
-                    Companies.render();
-                } else if (activePage === 'dashboard' && typeof Dashboard !== 'undefined') {
-                    Dashboard.render();
-                }
-                try { if (window.App && typeof window.App.updateNotificationBadge === 'function') window.App.updateNotificationBadge(); } catch (e) {}
-            }, 10);
+            // 3. Storage deletion and re-render immediately (0ms delay!)
+            window.AppStorage.deleteCall(id);
+            const activePage = window.App ? window.App.currentPage : 'calls';
+            if (activePage === 'calls') {
+                this.renderStats();
+                this.renderTable();
+            } else if (activePage === 'companies' && typeof Companies !== 'undefined') {
+                Companies.render();
+            } else if (activePage === 'dashboard' && typeof Dashboard !== 'undefined') {
+                Dashboard.render();
+            }
+            try { if (window.App && typeof window.App.updateNotificationBadge === 'function') window.App.updateNotificationBadge(); } catch (e) {}
         };
         App.openModal('modal-confirm');
     }

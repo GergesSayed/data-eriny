@@ -2159,7 +2159,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=361.0');
+            this._worker = new Worker('js/companies-worker.js?v=362.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize, totalCount } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -2824,7 +2824,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v361.0_cross_client_call_deletion_complete_sync';
+                    const currentVersionTag = 'v362.0_immediate_cloud_delete_and_clean_calls_sync';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 
@@ -5573,12 +5573,10 @@ const AppStorage = {
         }
         this.syncCallsToCompanies();
 
-        // Push deletion tombstone to cloud in background
-        setTimeout(() => {
-            if (window.SupabaseClient && window.SupabaseClient.pushDeletedCall) {
-                window.SupabaseClient.pushDeletedCall(sId).catch(() => { });
-            }
-        }, 20);
+        // Push deletion tombstone to cloud immediately (Zero delay!)
+        if (window.SupabaseClient && window.SupabaseClient.pushDeletedCall) {
+            window.SupabaseClient.pushDeletedCall(sId).catch(() => { });
+        }
     },
 
     clearAllCalls() {
