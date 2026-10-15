@@ -41,8 +41,8 @@ scriptMatches.forEach(src => {
   const cleanPath = src.split('?')[0];
   const fullPath = path.join('crm', cleanPath);
   assert(fs.existsSync(fullPath), `HTML script reference exists on disk: ${src}`);
-  if (src.includes('js/') && !src.includes('?v=362.0')) {
-    warn(`Script tag version query mismatch: ${src} (Expected ?v=362.0)`);
+  if (src.includes('js/') && !src.includes('?v=363.0')) {
+    warn(`Script tag version query mismatch: ${src} (Expected ?v=363.0)`);
   }
 });
 

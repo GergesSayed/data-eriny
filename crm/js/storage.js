@@ -2159,7 +2159,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=362.0');
+            this._worker = new Worker('js/companies-worker.js?v=363.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize, totalCount } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -2824,7 +2824,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v362.0_immediate_cloud_delete_and_clean_calls_sync';
+                    const currentVersionTag = 'v363.0_fix_null_cloud_calls_and_force_employee_purge';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 
@@ -5339,8 +5339,7 @@ const AppStorage = {
             ]);
             if (!resp.ok) return [];
             const data = await resp.json();
-            if (!data) return [];
-            const cloudCalls = Array.isArray(data) ? data.filter(Boolean) : Object.values(data).filter(Boolean);
+            const cloudCalls = !data ? [] : (Array.isArray(data) ? data.filter(Boolean) : Object.values(data).filter(Boolean));
 
             // Ingest cloud deleted call tombstones (Permanent - ZERO resurrection!)
             const deletedCallIds = this.getDeletedIds ? this.getDeletedIds('calls') : new Set();
@@ -5382,6 +5381,23 @@ const AppStorage = {
             this._callsCacheTs = Date.now();
             this._set(this.KEYS.CALLS, merged);
             this.invalidateStatsCache();
+
+            // Also clean IndexedDB of any deleted calls
+            if (deletedCallIds.size > 0 && typeof indexedDB !== 'undefined') {
+                try {
+                    const req = indexedDB.open('FleetCRM_DB', 6);
+                    req.onsuccess = (e) => {
+                        const db = e.target.result;
+                        if (db && db.objectStoreNames.contains('calls')) {
+                            const tx = db.transaction('calls', 'readwrite');
+                            const store = tx.objectStore('calls');
+                            deletedCallIds.forEach(id => {
+                                try { store.delete(String(id)); } catch(err) {}
+                            });
+                        }
+                    };
+                } catch(e) {}
+            }
 
             // ⚡ Instant synchronization of company lastCallResult & status in memory
             merged.forEach(call => {
