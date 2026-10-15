@@ -370,8 +370,8 @@ const AppStorage = {
 
     canModify(user) {
         const u = user || this.getCurrentUser();
-        if (!u) return true;
-        return this.isAdmin(u) || this.isSupervisor(u) || u.role === 'admin' || u.role === 'supervisor' || !u.role;
+        if (!u) return false;
+        return this.isAdmin(u) || this.isSupervisor(u) || u.role === 'admin' || u.role === 'supervisor';
     },
 
     isLoggedIn() {
@@ -2159,7 +2159,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=365.0');
+            this._worker = new Worker('js/companies-worker.js?v=366.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize, totalCount } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -2824,7 +2824,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v365.0_instant_subsecond_assignment_delta_sync';
+                    const currentVersionTag = 'v366.0_fix_assignment_reversion_guard_and_agent_lockout';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 
@@ -3115,9 +3115,9 @@ const AppStorage = {
                 // Extract dynamic companies (custom / newly scraped or modified)
                 const dynamicCompanies = [];
                 const assignmentsMap = {};
-                const canModifyAssignments = this.canModify ? this.canModify() : true;
+                const canModifyAssignments = this.canModify ? this.canModify() : false;
 
-                // Load stored assignments so explicit unassignments and fresh assignments are preserved and pushed to cloud
+                // Load stored assignments so explicit unassignments and fresh assignments are preserved and pushed to cloud (Admin only!)
                 const storedAssignments = this.getStoredAssignments() || {};
                 for (const [sId, ass] of Object.entries(storedAssignments)) {
                     if (!ass || deletedCompIds.has(sId)) continue;
@@ -3126,7 +3126,7 @@ const AppStorage = {
                             assignedTo: '',
                             assignedAt: null,
                             updatedAt: ass.updatedAt || Date.now(),
-                            unassignedAt: ass.unassignedAt || Date.now()
+                            unassignedAt: ass.unassignedAt || null
                         };
                     } else {
                         assignmentsMap[sId] = {
@@ -3152,7 +3152,7 @@ const AppStorage = {
                                 assignedTo: '',
                                 assignedAt: null,
                                 updatedAt: explicitStored.updatedAt || Date.now(),
-                                unassignedAt: explicitStored.unassignedAt || Date.now()
+                                unassignedAt: explicitStored.unassignedAt || null
                             };
                         } else {
                             c.assignedTo = explicitStored.assignedTo;
@@ -3365,14 +3365,14 @@ const AppStorage = {
                         const localUser = localAssign ? (localAssign.assignedTo || '') : '';
                         const localUnassignedAt = Number(localAssign ? localAssign.unassignedAt : 0) || 0;
 
-                        // 🛡️ REVERSION GUARD:
-                        // 1. If local user explicitly unassigned this on this client AFTER cloud assigned it:
-                        if (!localUser && localUnassignedAt > 0 && localUnassignedAt > cloudUpdatedAt) {
-                            continue;
-                        }
-                        // 2. If local user reassigned to a DIFFERENT user AFTER cloud record:
-                        if (localUser && localUser !== targetUser && localUpdatedAt > cloudUpdatedAt) {
-                            continue;
+                        // 🛡️ REVERSION GUARD (Only applies to Admin/Supervisor who explicitly modified locally):
+                        if (this.canModify && this.canModify()) {
+                            if (!localUser && localUnassignedAt > 0 && localUnassignedAt > cloudUpdatedAt) {
+                                continue;
+                            }
+                            if (localUser && localUser !== targetUser && localUpdatedAt > cloudUpdatedAt) {
+                                continue;
+                            }
                         }
 
                         storedAssignments[sId] = {
