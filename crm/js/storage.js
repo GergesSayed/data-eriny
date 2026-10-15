@@ -2159,7 +2159,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=371.0');
+            this._worker = new Worker('js/companies-worker.js?v=372.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize, totalCount } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -2824,7 +2824,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v371.0_universal_reversion_guard_and_awaited_push_assignments';
+                    const currentVersionTag = 'v372.0_universal_reversion_guard_and_awaited_push_assignments';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 
@@ -4696,7 +4696,7 @@ const AppStorage = {
         return company;
     },
 
-    async bulkAssignCompanies(companyIds, userId) {
+    bulkAssignCompanies(companyIds, userId) {
         if (!Array.isArray(companyIds) || companyIds.length === 0) return 0;
         const nowMs = Date.now();
         const now = new Date(nowMs).toISOString();
@@ -4800,11 +4800,9 @@ const AppStorage = {
                 this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: updatedBatch });
             }
 
-            // 5. Send single atomic batch PATCH to Firebase assignments (Awaited to eliminate in-flight race conditions!)
+            // 5. Send single atomic batch PATCH to Firebase assignments (fire-and-forget for instant UI)
             if (window.SupabaseClient && window.SupabaseClient.pushAssignments) {
-                try {
-                    await window.SupabaseClient.pushAssignments(assignmentsMap);
-                } catch(e) {}
+                window.SupabaseClient.pushAssignments(assignmentsMap).catch(() => {});
             }
 
             // 6. Push custody in background batch if supported

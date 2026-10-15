@@ -1785,7 +1785,7 @@ const Companies = {
         this.updateBulkBar();
     },
 
-    async applyBulkAssign() {
+    applyBulkAssign() {
         const currentUser = window.AppStorage.getCurrentUser();
         if (!window.AppStorage.isAdmin(currentUser)) {
             App.showToast('⚠️ التخصيص الجماعي مسموح فقط للمدير العام', 'error');
@@ -1804,7 +1804,7 @@ const Companies = {
         }
 
         const ids = Array.from(this.selectedCompanies);
-        const count = await window.AppStorage.bulkAssignCompanies(ids, userId);
+        const count = window.AppStorage.bulkAssignCompanies(ids, userId);
         const targetUser = window.AppStorage.getUser(userId);
         const userName = targetUser ? targetUser.name : userId;
 
@@ -1814,7 +1814,7 @@ const Companies = {
         this.render();
     },
 
-    async applyBulkUnassign() {
+    applyBulkUnassign() {
         const currentUser = window.AppStorage.getCurrentUser();
         if (!window.AppStorage.isAdmin(currentUser)) {
             App.showToast('⚠️ إلغاء التخصيص الجماعي مسموح فقط للمدير العام', 'error');
@@ -1825,7 +1825,7 @@ const Companies = {
             return;
         }
         const ids = Array.from(this.selectedCompanies);
-        const count = await window.AppStorage.bulkAssignCompanies(ids, '');
+        const count = window.AppStorage.bulkAssignCompanies(ids, '');
         App.showToast(`⚪ تم بنجاح إلغاء تخصيص ${count} شركة وأصبحت متاحة للجميع`, 'info');
         this.clearSelection();
         this.refreshUserFilter();
