@@ -182,7 +182,7 @@ const App = {
                     console.log('[SW] Service worker controller updated and active.');
                 });
 
-                navigator.serviceWorker.register('sw.js?v=374.0').then(reg => {
+                navigator.serviceWorker.register('sw.js?v=375.0').then(reg => {
                     reg.update().catch(() => {});
                     // Detect when a new SW version is waiting — show update notification
                     reg.addEventListener('updatefound', () => {
@@ -281,17 +281,25 @@ const App = {
                 this.startTeamPresenceWatcher();
             }
 
-            // Immediate startup cloud sync pull
-            window.AppStorage.pullFromCloud(true).then(pulled => {
-                if (pulled) this.refreshCurrentPage();
+            // Immediate startup cloud sync pull (both companies & calls)
+            Promise.all([
+                window.AppStorage.pullFromCloud(true),
+                window.AppStorage.pullCallsFromCloud ? window.AppStorage.pullCallsFromCloud() : Promise.resolve([])
+            ]).then(() => {
+                this.refreshCurrentPage();
             }).catch(() => {});
 
-            // Rapid 5s cloud sync pull — check for remote changes in near real-time
+            // Rapid 5s cloud sync pull — check for remote companies & calls in near real-time
             if (!this._cloudSyncInterval) {
                 this._cloudSyncInterval = setInterval(() => {
                     if (typeof document === 'undefined' || document.visibilityState === 'visible') {
-                        window.AppStorage.pullFromCloud().then(pulled => {
-                            if (pulled) this.refreshCurrentPage();
+                        Promise.all([
+                            window.AppStorage.pullFromCloud(),
+                            window.AppStorage.pullCallsFromCloud ? window.AppStorage.pullCallsFromCloud() : Promise.resolve([])
+                        ]).then(([pulled, calls]) => {
+                            if (pulled || (calls && calls.length > 0)) {
+                                this.refreshCurrentPage();
+                            }
                         }).catch(() => {});
                     }
                 }, 5000);
@@ -301,8 +309,11 @@ const App = {
             if (!this._cloudSyncFocusBound && typeof window !== 'undefined') {
                 this._cloudSyncFocusBound = true;
                 const instantPull = () => {
-                    window.AppStorage.pullFromCloud(true).then(pulled => {
-                        if (pulled) this.refreshCurrentPage();
+                    Promise.all([
+                        window.AppStorage.pullFromCloud(true),
+                        window.AppStorage.pullCallsFromCloud ? window.AppStorage.pullCallsFromCloud() : Promise.resolve([])
+                    ]).then(() => {
+                        this.refreshCurrentPage();
                     }).catch(() => {});
                 };
                 window.addEventListener('focus', instantPull);
@@ -796,6 +807,7 @@ const App = {
             window.AppStorage.updateLiveCounters();
         }
         if (typeof Calls !== 'undefined') {
+            Calls.selectedEmployee = '';
             Calls.activeFilter = 'all';
             Calls.searchQuery = '';
             Calls.currentPage = 1;
@@ -815,11 +827,12 @@ const App = {
         this.navigateTo(isAdmin ? 'dashboard' : 'companies', true);
         this.startPresenceHeartbeat();
         this.startTeamPresenceWatcher();
-        if (window.AppStorage && typeof window.AppStorage.pullFromCloud === 'function') {
-            window.AppStorage.pullFromCloud(true).then(wasUpdated => {
-                if (wasUpdated) this.refreshCurrentPage();
-            }).catch(() => {});
-        }
+        Promise.all([
+            window.AppStorage && typeof window.AppStorage.pullFromCloud === 'function' ? window.AppStorage.pullFromCloud(true) : Promise.resolve(false),
+            window.AppStorage && typeof window.AppStorage.pullCallsFromCloud === 'function' ? window.AppStorage.pullCallsFromCloud() : Promise.resolve([])
+        ]).then(() => {
+            this.refreshCurrentPage();
+        }).catch(() => {});
     },
 
     async autoImportScrapedData() {

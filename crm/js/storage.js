@@ -2159,7 +2159,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=374.0');
+            this._worker = new Worker('js/companies-worker.js?v=375.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize, totalCount } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -2824,7 +2824,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v374.0_universal_reversion_guard_and_awaited_push_assignments';
+                    const currentVersionTag = 'v375.0_universal_reversion_guard_and_awaited_push_assignments';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 
@@ -5280,6 +5280,9 @@ const AppStorage = {
                     company.status = 'contacted';
                 }
                 this.saveBatchToIDB([company]);
+                if (this._worker) {
+                    this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: [company] });
+                }
             }
         }
     },
@@ -5379,14 +5382,13 @@ const AppStorage = {
             // 1. Authoritative cloud calls
             cleanCloudCalls.forEach(c => callMap.set(String(c.id), c));
 
-            // 2. Local unsynced calls (ONLY if created locally within last 120 seconds and NOT deleted)
-            const now = Date.now();
+            // 2. Local unsynced calls (Preserve all local calls and auto-push to cloud if missing)
             localCalls.forEach(c => {
                 const cId = String(c.id);
                 if (!callMap.has(cId) && !deletedCallIds.has(cId)) {
-                    const createdTs = c.createdAt ? new Date(c.createdAt).getTime() : (c.updatedAt || 0);
-                    if (now - createdTs < 120000) {
-                        callMap.set(cId, c);
+                    callMap.set(cId, c);
+                    if (window.SupabaseClient && typeof window.SupabaseClient.pushSingleCall === 'function') {
+                        window.SupabaseClient.pushSingleCall(c).catch(() => {});
                     }
                 }
             });

@@ -175,19 +175,14 @@ const Calls = {
         this.renderStats();
         this.renderTable();
 
-        // ⚡ Debounced silent background check (only once per 30s)
-        const now = Date.now();
-        if (now - this._lastCloudPullTs > 30000 && window.AppStorage && typeof window.AppStorage.pullCallsFromCloud === 'function') {
-            this._lastCloudPullTs = now;
-            const currentCallsCount = (window.AppStorage.getCalls() || []).length;
+        // ⚡ Immediate cloud calls refresh whenever page is active
+        if (window.AppStorage && typeof window.AppStorage.pullCallsFromCloud === 'function') {
             window.AppStorage.pullCallsFromCloud().then(calls => {
-                if (calls && calls.length !== currentCallsCount) {
-                    const page = document.getElementById('page-calls');
-                    if (page && page.classList.contains('active')) {
-                        this.populateEmployeeFilter();
-                        this.renderStats();
-                        this.renderTable();
-                    }
+                const page = document.getElementById('page-calls');
+                if (page && page.classList.contains('active')) {
+                    this.populateEmployeeFilter();
+                    this.renderStats();
+                    this.renderTable();
                 }
             }).catch(() => {});
         }
