@@ -1228,9 +1228,6 @@ window.SupabaseClient = (function() {
         // 3. Fallback polling ONLY when SSE is inactive (15s gentle interval)
         let lastPollJson = '';
         const pollAssignments = async () => {
-            if (sseAssignments && sseAssignments.readyState === EventSource.OPEN) {
-                return; // SSE active, skip polling completely
-            }
             try {
                 const resp = await fetch(`${FIREBASE_DB_URL}/assignments.json?t=${Date.now()}`);
                 if (!resp.ok) return;
@@ -1244,7 +1241,7 @@ window.SupabaseClient = (function() {
             } catch(e) {}
         };
 
-        assignPollInterval = setInterval(pollAssignments, 15000);
+        assignPollInterval = setInterval(pollAssignments, 5000);
 
         // Instant poll on focus / visibility change
         if (typeof window !== 'undefined' && !_assignFocusBound) {

@@ -2159,7 +2159,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=369.0');
+            this._worker = new Worker('js/companies-worker.js?v=370.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize, totalCount } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -2824,7 +2824,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v369.0_fix_idb_version_mismatch_and_instant_company_deletion';
+                    const currentVersionTag = 'v370.0_instant_zero_lag_assignment_and_unassign_sync';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 
@@ -3854,18 +3854,18 @@ const AppStorage = {
             }
         }
 
+        this.setStoredAssignments(storedAssignments);
+        this.invalidateScopedCache();
+        this.invalidateStatsCache();
+        this.updateLiveCounters();
+
         if (changedComps.length > 0) {
-            this.setStoredAssignments(storedAssignments);
-            this.invalidateScopedCache();
-            this.invalidateStatsCache();
             this.saveBatchToIDB(changedComps);
             if (this._worker) {
                 this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: changedComps });
             }
-            this.updateLiveCounters();
-            return true;
         }
-        return false;
+        return true;
     },
 
     applyCallsToCompanies(target) {

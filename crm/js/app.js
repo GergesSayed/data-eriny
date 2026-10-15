@@ -182,7 +182,7 @@ const App = {
                     console.log('[SW] Service worker controller updated and active.');
                 });
 
-                navigator.serviceWorker.register('sw.js?v=369.0').then(reg => {
+                navigator.serviceWorker.register('sw.js?v=370.0').then(reg => {
                     reg.update().catch(() => {});
                     // Detect when a new SW version is waiting — show update notification
                     reg.addEventListener('updatefound', () => {
@@ -281,13 +281,34 @@ const App = {
                 this.startTeamPresenceWatcher();
             }
 
-            // Periodic cloud sync pull — check for remote changes every 60 seconds
+            // Immediate startup cloud sync pull
+            window.AppStorage.pullFromCloud(true).then(pulled => {
+                if (pulled) this.refreshCurrentPage();
+            }).catch(() => {});
+
+            // Rapid 5s cloud sync pull — check for remote changes in near real-time
             if (!this._cloudSyncInterval) {
                 this._cloudSyncInterval = setInterval(() => {
-                    window.AppStorage.pullFromCloud().then(pulled => {
+                    if (typeof document === 'undefined' || document.visibilityState === 'visible') {
+                        window.AppStorage.pullFromCloud().then(pulled => {
+                            if (pulled) this.refreshCurrentPage();
+                        }).catch(() => {});
+                    }
+                }, 5000);
+            }
+
+            // Instant cloud pull whenever user switches back to this window or tab
+            if (!this._cloudSyncFocusBound && typeof window !== 'undefined') {
+                this._cloudSyncFocusBound = true;
+                const instantPull = () => {
+                    window.AppStorage.pullFromCloud(true).then(pulled => {
                         if (pulled) this.refreshCurrentPage();
                     }).catch(() => {});
-                }, 60000);
+                };
+                window.addEventListener('focus', instantPull);
+                document.addEventListener('visibilitychange', () => {
+                    if (document.visibilityState === 'visible') instantPull();
+                });
             }
 
             // Real-time Cloud subscription for instant cross-device sync
@@ -794,6 +815,11 @@ const App = {
         this.navigateTo(isAdmin ? 'dashboard' : 'companies', true);
         this.startPresenceHeartbeat();
         this.startTeamPresenceWatcher();
+        if (window.AppStorage && typeof window.AppStorage.pullFromCloud === 'function') {
+            window.AppStorage.pullFromCloud(true).then(wasUpdated => {
+                if (wasUpdated) this.refreshCurrentPage();
+            }).catch(() => {});
+        }
     },
 
     async autoImportScrapedData() {
