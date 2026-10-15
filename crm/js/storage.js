@@ -2159,7 +2159,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=370.0');
+            this._worker = new Worker('js/companies-worker.js?v=371.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize, totalCount } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -2824,7 +2824,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v370.0_instant_zero_lag_assignment_and_unassign_sync';
+                    const currentVersionTag = 'v371.0_universal_reversion_guard_and_awaited_push_assignments';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 
@@ -3365,14 +3365,13 @@ const AppStorage = {
                         const localUser = localAssign ? (localAssign.assignedTo || '') : '';
                         const localUnassignedAt = Number(localAssign ? localAssign.unassignedAt : 0) || 0;
 
-                        // 🛡️ REVERSION GUARD (Only applies to Admin/Supervisor who explicitly modified locally):
-                        if (this.canModify && this.canModify()) {
-                            if (!localUser && localUnassignedAt > 0 && localUnassignedAt > cloudUpdatedAt) {
-                                continue;
-                            }
-                            if (localUser && localUser !== targetUser && localUpdatedAt > cloudUpdatedAt) {
-                                continue;
-                            }
+                        // 🛡️ UNIVERSAL REVERSION GUARD (Zero race conditions on any account):
+                        // Never accept stale cloud data that is older than local unassignment or assignment timestamp
+                        if (!localUser && localUnassignedAt > 0 && localUnassignedAt > cloudUpdatedAt) {
+                            continue;
+                        }
+                        if (localUser && localUser !== targetUser && localUpdatedAt > cloudUpdatedAt) {
+                            continue;
                         }
 
                         storedAssignments[sId] = {
@@ -3827,13 +3826,12 @@ const AppStorage = {
             const localUser = localAssign ? (localAssign.assignedTo || '') : '';
             const localUnassignedAt = Number(localAssign ? localAssign.unassignedAt : 0) || 0;
 
-            if (source === 'cloud') {
-                if (!localUser && localUnassignedAt > 0 && localUnassignedAt > updatedAt) {
-                    continue;
-                }
-                if (localUser && localUser !== targetUser && localUpdatedAt > updatedAt) {
-                    continue;
-                }
+            // 🛡️ UNIVERSAL REVERSION GUARD (LWW Conflict-Free Protection):
+            if (!localUser && localUnassignedAt > 0 && localUnassignedAt > updatedAt) {
+                continue;
+            }
+            if (localUser && localUser !== targetUser && localUpdatedAt > updatedAt) {
+                continue;
             }
 
             storedAssignments[sId] = {
@@ -4698,7 +4696,7 @@ const AppStorage = {
         return company;
     },
 
-    bulkAssignCompanies(companyIds, userId) {
+    async bulkAssignCompanies(companyIds, userId) {
         if (!Array.isArray(companyIds) || companyIds.length === 0) return 0;
         const nowMs = Date.now();
         const now = new Date(nowMs).toISOString();
@@ -4802,9 +4800,11 @@ const AppStorage = {
                 this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: updatedBatch });
             }
 
-            // 5. Send single atomic batch PATCH to Firebase assignments
+            // 5. Send single atomic batch PATCH to Firebase assignments (Awaited to eliminate in-flight race conditions!)
             if (window.SupabaseClient && window.SupabaseClient.pushAssignments) {
-                window.SupabaseClient.pushAssignments(assignmentsMap).catch(() => { });
+                try {
+                    await window.SupabaseClient.pushAssignments(assignmentsMap);
+                } catch(e) {}
             }
 
             // 6. Push custody in background batch if supported

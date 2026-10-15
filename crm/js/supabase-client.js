@@ -252,6 +252,17 @@ window.SupabaseClient = (function() {
             );
         }
 
+        if (data.assignments && typeof data.assignments === 'object' && Object.keys(data.assignments).length > 0) {
+            promises.push(
+                fetch(`${FIREBASE_DB_URL}/assignments.json`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data.assignments),
+                    signal
+                }).catch(() => {})
+            );
+        }
+
         if (data.custody && typeof data.custody === 'object' && Object.keys(data.custody).length > 0) {
             promises.push(
                 fetch(`${FIREBASE_DB_URL}/custody.json`, {
@@ -266,7 +277,7 @@ window.SupabaseClient = (function() {
         const now = Date.now();
         promises.push(
             fetch(`${FIREBASE_DB_URL}/metadata.json`, {
-                method: 'PUT',
+                method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     updated_at: new Date().toISOString(),
@@ -390,36 +401,18 @@ window.SupabaseClient = (function() {
                 rootPatch['metadata/total_dynamic'] = data.dynamicCompanies.length;
             }
 
-            // ⚡ Execute Single Atomic HTTP PATCH (< 400ms)
-            const resp = await fetch(`${FIREBASE_DB_URL}/.json`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(rootPatch),
-                signal: controller.signal
-            });
-
-            if (!resp.ok) {
-                throw new Error(`Firebase push failed with status ${resp.status}`);
-            }
-
             clearTimeout(timeoutId);
+            const ok = await pushMasterDataModularFallback(data, controller.signal);
             setStatus('synced');
             isPushing = false;
-            return true;
+            return ok;
         } catch (err) {
             clearTimeout(timeoutId);
-            console.warn('⚡ Fast root push encountered error, activating modular fallback:', err);
-            try {
-                const ok = await pushMasterDataModularFallback(data, controller.signal);
-                setStatus('synced');
-                isPushing = false;
-                return ok;
-            } catch (fallbackErr) {
-                setStatus('local', { error: fallbackErr.message });
-                isPushing = false;
-                enqueueOffline(data);
-                return false;
-            }
+            console.warn('⚡ Push master data error:', err);
+            setStatus('local', { error: err.message });
+            isPushing = false;
+            enqueueOffline(data);
+            return false;
         }
     }
 
