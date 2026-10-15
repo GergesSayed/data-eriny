@@ -637,7 +637,7 @@ const Calls = {
 
     _isSaving: false,
 
-    save() {
+    async save() {
         if (this._isSaving) return;
         this._isSaving = true;
 
@@ -677,7 +677,7 @@ const Calls = {
             const id = document.getElementById('call-id')?.value;
             if (id) call.id = id;
 
-            window.AppStorage.saveCall(call);
+            await window.AppStorage.saveCall(call);
             App.closeModal('modal-call');
             App.showToast(id ? 'تم تحديث المكالمة' : 'تم تسجيل المكالمة بنجاح', 'success');
 

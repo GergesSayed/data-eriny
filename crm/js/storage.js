@@ -2159,7 +2159,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=375.0');
+            this._worker = new Worker('js/companies-worker.js?v=376.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize, totalCount } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -2824,7 +2824,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v375.0_universal_reversion_guard_and_awaited_push_assignments';
+                    const currentVersionTag = 'v376.0_universal_reversion_guard_and_awaited_push_assignments';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 
@@ -3436,8 +3436,9 @@ const AppStorage = {
             const localRawCalls = this._get(this.KEYS.CALLS) || [];
             const localCalls = localRawCalls.filter(c => c && c.id && !deletedCallIds.has(String(c.id)));
 
-            if (data.calls && Array.isArray(data.calls)) {
-                const cleanCloudCalls = data.calls.filter(c => c && c.id && !deletedCallIds.has(String(c.id)));
+            if (data.calls) {
+                const rawCloudCalls = Array.isArray(data.calls) ? data.calls : Object.values(data.calls);
+                const cleanCloudCalls = rawCloudCalls.filter(c => c && c.id && !deletedCallIds.has(String(c.id)));
                 const cloudIdSet = new Set(cleanCloudCalls.map(c => String(c.id)));
                 const callMap = new Map();
 
@@ -3446,17 +3447,13 @@ const AppStorage = {
                     callMap.set(String(c.id), c);
                 });
 
-                // B. Reconcile local calls (ONLY if created locally in last 60s and definitely not deleted)
-                const now = Date.now();
+                // B. Reconcile local calls (Preserve ALL local calls and auto-push to cloud if missing!)
                 localCalls.forEach(c => {
                     const cId = String(c.id);
-                    if (!deletedCallIds.has(cId) && !cloudIdSet.has(cId)) {
-                        const createdTs = c.createdAt ? new Date(c.createdAt).getTime() : (c.updatedAt || 0);
-                        if (now - createdTs < 60000) {
-                            callMap.set(cId, c);
-                            if (window.SupabaseClient && window.SupabaseClient.pushSingleCall) {
-                                window.SupabaseClient.pushSingleCall(c).catch(() => {});
-                            }
+                    if (!deletedCallIds.has(cId) && !callMap.has(cId)) {
+                        callMap.set(cId, c);
+                        if (window.SupabaseClient && window.SupabaseClient.pushSingleCall) {
+                            window.SupabaseClient.pushSingleCall(c).catch(() => {});
                         }
                     }
                 });
@@ -5444,7 +5441,7 @@ const AppStorage = {
         }
     },
 
-    saveCall(call) {
+    async saveCall(call) {
         const currentUser = this.getCurrentUser();
         if (!call.userId && currentUser) call.userId = currentUser.id;
         if (!call.createdByName && currentUser) call.createdByName = currentUser.name;
@@ -5528,7 +5525,9 @@ const AppStorage = {
 
         // Immediate atomic cloud sync of call (and company only if custom/scraped)
         if (window.SupabaseClient && window.SupabaseClient.pushSingleCall) {
-            window.SupabaseClient.pushSingleCall(call).catch(() => { });
+            try {
+                await window.SupabaseClient.pushSingleCall(call);
+            } catch (e) { }
         }
         if (company && window.SupabaseClient && window.SupabaseClient.pushSingleCompany && (company.source === 'scraper' || company.isCustom)) {
             window.SupabaseClient.pushSingleCompany(company).catch(() => { });
