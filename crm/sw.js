@@ -1,29 +1,29 @@
 /* ============================================
    Fleet CRM — Full Offline PWA Service Worker
-   v387.0 — Pre-cache App Shell for Offline Use
+   v388.0 — Pre-cache App Shell for Offline Use
    ============================================ */
 
-const CACHE_NAME = 'fleetcrm-v387-0-shell';
+const CACHE_NAME = 'fleetcrm-v388-0-shell';
 const OFFLINE_FALLBACK = './index.html';
 
 // ── App Shell: Pre-cached on install for full offline support ──
 const APP_SHELL = [
     './index.html',
-    './css/style.css?v=387.0',
-    './js/supabase-client.js?v=387.0',
-    './js/egypt_verified_titans.js?v=387.0',
-    './js/egypt_enterprises_pool.js?v=387.0',
-    './js/companies-worker.js?v=387.0',
-    './js/storage.js?v=387.0',
-    './js/excel-handler.js?v=387.0',
-    './js/dashboard.js?v=387.0',
-    './js/companies.js?v=387.0',
-    './js/calls.js?v=387.0',
-    './js/reports.js?v=387.0',
-    './js/scraper.js?v=387.0',
-    './js/team.js?v=387.0',
-    './js/settings.js?v=387.0',
-    './js/app.js?v=387.0',
+    './css/style.css?v=388.0',
+    './js/supabase-client.js?v=388.0',
+    './js/egypt_verified_titans.js?v=388.0',
+    './js/egypt_enterprises_pool.js?v=388.0',
+    './js/companies-worker.js?v=388.0',
+    './js/storage.js?v=388.0',
+    './js/excel-handler.js?v=388.0',
+    './js/dashboard.js?v=388.0',
+    './js/companies.js?v=388.0',
+    './js/calls.js?v=388.0',
+    './js/reports.js?v=388.0',
+    './js/scraper.js?v=388.0',
+    './js/team.js?v=388.0',
+    './js/settings.js?v=388.0',
+    './js/app.js?v=388.0',
 ];
 
 // ── Install: Pre-cache app shell ──
@@ -118,40 +118,44 @@ self.addEventListener('fetch', (e) => {
     }
 
     // ── Strategy 2: Network-First with Offline Fallback for navigation ──
-    // Always try network for fresh HTML; fall back to cached shell when offline
+    // Always try network for fresh HTML; fall back to cached shell when offline or on network error
     if (isNavigation) {
         e.respondWith(
             fetch(e.request)
                 .then((networkResponse) => {
                     if (networkResponse && networkResponse.status === 200) {
                         const cloned = networkResponse.clone();
-                        caches.open(CACHE_NAME).then((cache) =>
-                            cache.put(e.request, cloned)
-                        );
+                        caches.open(CACHE_NAME).then((cache) => {
+                            cache.put('/index.html', cloned.clone());
+                            cache.put('./index.html', cloned.clone());
+                            cache.put(e.request, cloned);
+                        });
                     }
                     return networkResponse;
                 })
-                .catch(() => {
-                    // Offline: serve the cached app shell
-                    return caches.match(OFFLINE_FALLBACK).then(cached => {
-                        if (cached) return cached;
-                        // Last resort: minimal offline page
-                        return new Response(
-                            `<!DOCTYPE html><html dir="rtl" lang="ar">
-                            <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-                            <title>Fleet CRM — غير متصل</title>
-                            <style>body{font-family:'Cairo',sans-serif;background:#0b0e17;color:#f1f5f9;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;text-align:center}
-                            .box{padding:2rem;max-width:340px}h1{color:#6366f1;font-size:1.5rem}p{color:#94a3b8;margin:.5rem 0}
-                            button{background:#6366f1;color:#fff;border:none;padding:.75rem 2rem;border-radius:10px;font-size:1rem;cursor:pointer;margin-top:1rem}</style></head>
-                            <body><div class="box">
-                            <h1>📡 لا يوجد اتصال</h1>
-                            <p>Fleet CRM يعمل في وضع عدم الاتصال.</p>
-                            <p>بياناتك محفوظة محلياً وجاهزة للعمل.</p>
-                            <button onclick="location.reload()">🔄 إعادة المحاولة</button>
-                            </div></body></html>`,
-                            { headers: { 'Content-Type': 'text/html; charset=utf-8' } }
-                        );
-                    });
+                .catch(async () => {
+                    // Try to match the cached index.html with ignoreSearch: true so query params like ?t=999 still hit cache
+                    const cached = (await caches.match('/index.html', { ignoreSearch: true })) ||
+                                   (await caches.match('./index.html', { ignoreSearch: true })) ||
+                                   (await caches.match(e.request, { ignoreSearch: true }));
+                    if (cached) return cached;
+
+                    // Last resort: minimal offline page
+                    return new Response(
+                        `<!DOCTYPE html><html dir="rtl" lang="ar">
+                        <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+                        <title>Fleet CRM — جاري استعادة الاتصال</title>
+                        <style>body{font-family:'Cairo',sans-serif;background:#0b0e17;color:#f1f5f9;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;text-align:center}
+                        .box{padding:2rem;max-width:380px}h1{color:#6366f1;font-size:1.5rem}p{color:#94a3b8;margin:.5rem 0}
+                        button{background:#6366f1;color:#fff;border:none;padding:.75rem 2rem;border-radius:10px;font-size:1rem;cursor:pointer;margin-top:1rem}</style></head>
+                        <body><div class="box">
+                        <h1>📡 لا يوجد اتصال بالإنترنت</h1>
+                        <p>انقطع الاتصال بالسيرفر مؤقتاً أثناء التحديث.</p>
+                        <p>اضغط على الزر أدناه للدخول إلى النظام مباشرة:</p>
+                        <button onclick="window.location.href='/'">🔄 الدخول إلى Fleet CRM</button>
+                        </div></body></html>`,
+                        { headers: { 'Content-Type': 'text/html; charset=utf-8' } }
+                    );
                 })
         );
         return;
