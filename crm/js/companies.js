@@ -1377,6 +1377,8 @@ const Companies = {
             const subName = (rawSub && rawSub.toLowerCase() !== mainName.toLowerCase()) ? rawSub : '';
 
             const latestCall = latestCallsMap.get(String(c.id).trim());
+            const callResult = (latestCall && latestCall.result) || c.lastCallResult || '';
+            const callDate = (latestCall && latestCall.date) || c.lastCallDate || '';
             if (latestCall) {
                 c.lastCallResult = latestCall.result;
                 c.lastCallDate = latestCall.date;
@@ -1569,6 +1571,8 @@ const Companies = {
             const assignedBadge = this.buildAssignedWidget(c);
 
             const latestCall = latestCallsMap.get(String(c.id).trim());
+            const callResult = (latestCall && latestCall.result) || c.lastCallResult || '';
+            const callDate = (latestCall && latestCall.date) || c.lastCallDate || '';
             if (latestCall) {
                 c.lastCallResult = latestCall.result;
                 c.lastCallDate = latestCall.date;
