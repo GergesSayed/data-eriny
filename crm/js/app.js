@@ -182,7 +182,7 @@ const App = {
                     console.log('[SW] Service worker controller updated and active.');
                 });
 
-                navigator.serviceWorker.register('sw.js?v=380.0').then(reg => {
+                navigator.serviceWorker.register('sw.js?v=381.0').then(reg => {
                     reg.update().catch(() => {});
                     // Detect when a new SW version is waiting — show update notification
                     reg.addEventListener('updatefound', () => {
@@ -1889,7 +1889,11 @@ const App = {
                 const p = (window.SupabaseClient && window.SupabaseClient.getUserPresence)
                     ? window.SupabaseClient.getUserPresence(presences, u)
                     : (presences[u.id] || presences[String(u.id).toLowerCase()] || (u.username && presences[u.username.toLowerCase()]));
-                if (p && p.isOnline) {
+                let isOnline = Boolean(p && p.isOnline);
+                if (user && (u.id === user.id || u.username === user.username || (u.email && user.email && u.email === user.email))) {
+                    isOnline = true;
+                }
+                if (isOnline) {
                     onlineCount++;
                     onlineNames.push(u.name || u.username || 'موظف');
                 }
@@ -1934,6 +1938,7 @@ const App = {
             const allUsers = (window.AppStorage && window.AppStorage.getUsers) ? (window.AppStorage.getUsers() || []) : [];
             const filter = this._teamPresenceModalFilter || 'all';
             const query = (this._teamPresenceSearchQuery || '').trim().toLowerCase();
+            const currentUser = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
 
             let onlineList = [];
             let offlineList = [];
@@ -1942,9 +1947,12 @@ const App = {
                 const p = (window.SupabaseClient && window.SupabaseClient.getUserPresence)
                     ? window.SupabaseClient.getUserPresence(presences, u)
                     : (presences[u.id] || presences[String(u.id).toLowerCase()] || (u.username && presences[u.username.toLowerCase()]));
-                const isOnline = Boolean(p && p.isOnline);
-                const lastSeenText = p ? p.lastSeenArabic : 'لم يسجل الدخول بعد';
-                const pageLabel = p ? p.pageLabelArabic : '—';
+                let isOnline = Boolean(p && p.isOnline);
+                if (currentUser && (u.id === currentUser.id || u.username === currentUser.username || (u.email && currentUser.email && u.email === currentUser.email))) {
+                    isOnline = true;
+                }
+                const lastSeenText = isOnline ? 'متصل الآن' : (p ? p.lastSeenArabic : 'لم يسجل الدخول بعد');
+                const pageLabel = isOnline ? ((p && p.pageLabelArabic) || (this.currentPage || 'الرئيسية')) : (p ? p.pageLabelArabic : '—');
                 const uName = (u.name && u.name !== 'undefined') ? u.name : ((u.id === 'admin' || u.role === 'admin') ? 'Admin' : (u.username || 'موظف'));
                 const uEmail = (u.email && u.email !== 'undefined') ? u.email : (u.username && u.username.includes('@') ? u.username : ((u.id === 'admin' || u.role === 'admin') ? 'admin@fleet.com' : (u.username ? u.username + '@fleet.com' : 'admin@fleet.com')));
 

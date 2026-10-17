@@ -47,6 +47,9 @@ window.SupabaseClient = (function() {
     let _lastCustodyFetch = 0;
     const CUSTODY_TTL = 300000; // 5 minutes cache
 
+    let _cachedUsersPresence = {};
+    let _lastPresenceFetch = 0;
+
     /**
      * Fetch all dynamic data from Firebase (< 40KB total) via high-speed modular GET
      */
@@ -716,7 +719,7 @@ window.SupabaseClient = (function() {
     }
 
     async function sendUserHeartbeat(user, pageName) {
-        if (!user || !user.id || (typeof navigator !== 'undefined' && navigator.onLine === false)) return null;
+        if (!user || !user.id) return null;
         try {
             const username = user.username || (user.email ? user.email.split('@')[0] : '');
             const payload = {
@@ -743,6 +746,16 @@ window.SupabaseClient = (function() {
                 writes.push(fetch(`${FIREBASE_DB_URL}/presence/users/${safeUsername}.json`, { method: 'PUT', headers, body: bodyStr }));
             }
 
+            // Cross-tab broadcast for instant presence sync
+            if (syncChannel) {
+                try {
+                    syncChannel.postMessage({
+                        type: 'USER_HEARTBEAT',
+                        payload
+                    });
+                } catch(e) {}
+            }
+
             await Promise.allSettled(writes);
             return payload;
         } catch(e) {
@@ -751,7 +764,7 @@ window.SupabaseClient = (function() {
     }
 
     async function setUserOffline(userId, username) {
-        if (!userId || (typeof navigator !== 'undefined' && navigator.onLine === false)) return;
+        if (!userId) return;
         try {
             const safeId = encodeURIComponent(String(userId).trim().replace(/[.$#[\]/]/g, '_'));
             const safeUsername = username ? encodeURIComponent(String(username).trim().replace(/[.$#[\]/]/g, '_')) : '';
@@ -774,13 +787,12 @@ window.SupabaseClient = (function() {
     }
 
     async function getAllUsersPresence() {
-        if (typeof navigator !== 'undefined' && navigator.onLine === false) return {};
+        const now = Date.now();
         try {
-            const now = Date.now();
-            let combined = {};
+            let combined = null;
             try {
                 const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
-                const timeoutId = controller ? setTimeout(() => controller.abort(), 4000) : null;
+                const timeoutId = controller ? setTimeout(() => controller.abort(), 8000) : null;
                 const resp = await fetch(`${FIREBASE_DB_URL}/presence/users.json?t=${now}`, {
                     signal: controller ? controller.signal : undefined
                 });
@@ -790,20 +802,27 @@ window.SupabaseClient = (function() {
                     if (data && typeof data === 'object') combined = data;
                 }
             } catch(fetchErr) {
-                console.warn('Presence fetch error:', fetchErr.message);
+                console.warn('Presence fetch warning:', fetchErr.message);
             }
 
+            // If fetch failed or network was down, fallback to memory cache if available
+            if (!combined && _cachedUsersPresence && Object.keys(_cachedUsersPresence).length > 0) {
+                return _cachedUsersPresence;
+            }
+            if (!combined) combined = {};
+
             const result = {};
-            const ACTIVE_WINDOW_MS = 180000; // 3 minutes window (handles tab throttling & sleep)
+            const ACTIVE_WINDOW_MS = 360000; // 6 minutes window (handles tab throttling, mobile sleep, and clock skew)
 
             for (const [key, item] of Object.entries(combined)) {
                 if (!item || !item.lastSeen) continue;
-                const ageMs = now - Number(item.lastSeen);
-                const isOnline = (item.status === 'online') && (ageMs < ACTIVE_WINDOW_MS);
+                const diffMs = now - Number(item.lastSeen);
+                const absDiffMs = Math.abs(diffMs);
+                const isOnline = (item.status === 'online') && (absDiffMs < ACTIVE_WINDOW_MS);
                 const processed = {
                     ...item,
                     isOnline: isOnline,
-                    ageSeconds: Math.round(ageMs / 1000),
+                    ageSeconds: Math.round(absDiffMs / 1000),
                     lastSeenArabic: formatArabicLastSeen(item.lastSeen),
                     pageLabelArabic: getPageLabelArabic(item.currentPage)
                 };
@@ -826,12 +845,53 @@ window.SupabaseClient = (function() {
                 if (item.email) addKey(item.email);
 
                 aliasSet.forEach(k => {
+                    // Do not overwrite an active online presence with an older offline presence
+                    if (result[k] && result[k].isOnline && !processed.isOnline) {
+                        return;
+                    }
                     result[k] = processed;
                 });
             }
+
+            // Guarantee that the current logged-in user in this session is ALWAYS online
+            try {
+                const currentUser = (window.AppStorage && typeof window.AppStorage.getCurrentUser === 'function') ? window.AppStorage.getCurrentUser() : null;
+                if (currentUser && currentUser.id) {
+                    const selfPage = (window.App && window.App.currentPage) || 'dashboard';
+                    const selfProcessed = {
+                        userId: String(currentUser.id),
+                        username: currentUser.username || (currentUser.email ? currentUser.email.split('@')[0] : ''),
+                        userName: currentUser.name || currentUser.username || 'Admin',
+                        role: currentUser.role || 'admin',
+                        status: 'online',
+                        isOnline: true,
+                        lastSeen: now,
+                        ageSeconds: 0,
+                        lastSeenArabic: 'متصل الآن',
+                        currentPage: selfPage,
+                        pageLabelArabic: getPageLabelArabic(selfPage)
+                    };
+                    const selfKeys = [
+                        currentUser.id,
+                        currentUser.username,
+                        currentUser.email,
+                        currentUser.name
+                    ];
+                    selfKeys.forEach(k => {
+                        if (k) {
+                            const s = String(k).trim().toLowerCase();
+                            result[s] = selfProcessed;
+                            result[s.replace(/[.$#[\]/]/g, '_')] = selfProcessed;
+                            result[s.replace(/_/g, '.')] = selfProcessed;
+                        }
+                    });
+                }
+            } catch (selfErr) {}
+
+            _cachedUsersPresence = result;
             return result;
         } catch(e) {
-            return {};
+            return _cachedUsersPresence || {};
         }
     }
 

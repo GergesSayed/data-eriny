@@ -1203,6 +1203,12 @@ const Companies = {
             }
         }
 
+        if (window.AppStorage && (!window.AppStorage.companiesMemory || window.AppStorage.companiesMemory.length === 0)) {
+            if (typeof window.AppStorage.hydrateMemoryFromBaseline === 'function') {
+                window.AppStorage.hydrateMemoryFromBaseline();
+            }
+        }
+
         const result = await window.AppStorage.queryCompanies({
             search,
             sector: finalSectors.length === 1 ? finalSectors[0] : '',
@@ -1225,14 +1231,31 @@ const Companies = {
 
         this.renderActiveFilterChips();
 
-        const pageCompanies = result.items || [];
-        const total = result.total || 0;
-        const totalPages = result.totalPages || 1;
+        let pageCompanies = result.items || [];
+        let total = result.total || 0;
+        let totalPages = result.totalPages || 1;
         this.currentPage = result.page || 1;
 
-        // Update count & view mode toggle buttons
         const currentUser = window.AppStorage.getCurrentUser();
         const canViewAll = window.AppStorage.canViewAll(currentUser);
+
+        // Auto-heal empty view for admin if filters are clean
+        if (total === 0 && canViewAll && !search && finalSectors.length === 0 && finalGovs.length === 0 && finalCities.length === 0 && !contactType && !priority && !vip && !fleetType && !fleetSize && !assigned && !addedDate) {
+            if (window.AppStorage && typeof window.AppStorage.hydrateMemoryFromBaseline === 'function') {
+                window.AppStorage.hydrateMemoryFromBaseline();
+                const recheck = await window.AppStorage.queryCompanies({
+                    page: 1,
+                    pageSize: this.pageSize,
+                    sortMode
+                });
+                if (recheck && recheck.total > 0) {
+                    pageCompanies = recheck.items || [];
+                    total = recheck.total;
+                    totalPages = recheck.totalPages || 1;
+                    this.currentPage = 1;
+                }
+            }
+        }
         const masterTotal = window.AppStorage.companiesMemory ? window.AppStorage.companiesMemory.length : total;
         const countDisplay = document.getElementById('companies-count-display');
         if (countDisplay) {

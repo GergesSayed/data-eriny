@@ -2000,10 +2000,49 @@ const AppStorage = {
 
     hydrateMemoryFromBaseline() {
         try {
-            if (this.companiesMemory && this.companiesMemory.length >= 21225) return;
-            if (localStorage.getItem('fleetcrm_user_wiped_companies') === 'true') return;
-            this._fallbackHydrateBaseline();
-        } catch (e) { }
+            if (this.companiesMemory && Array.isArray(this.companiesMemory) && this.companiesMemory.length >= 21225) {
+                return this.companiesMemory;
+            }
+            if (localStorage.getItem('fleetcrm_user_wiped_companies') === 'true') {
+                this.companiesMemory = [];
+                return [];
+            }
+            const syncMap = new Map();
+            const deletedCompIds = this.getDeletedIds ? this.getDeletedIds('companies') : new Set();
+            const titansPool = this.getVerifiedTitans ? this.getVerifiedTitans() : [];
+            titansPool.forEach(t => {
+                if (t && t.id && !deletedCompIds.has(String(t.id))) {
+                    syncMap.set(t.id, this._normalizeCompanyData ? this._normalizeCompanyData(t) : t);
+                }
+            });
+            const pool = this.getBaselineEnterprisesPool ? this.getBaselineEnterprisesPool() : [];
+            if (pool && pool.length > 0) {
+                pool.forEach((c, idx) => {
+                    const sId = c.id || `comp_base_${idx}`;
+                    if (c && !deletedCompIds.has(String(sId))) {
+                        syncMap.set(sId, this._normalizeCompanyData ? this._normalizeCompanyData(c, idx) : c);
+                    }
+                });
+            }
+            if (this.applyStoredAssignments) this.applyStoredAssignments(syncMap);
+            if (this.applyCallsToCompanies) this.applyCallsToCompanies(syncMap);
+            if (syncMap.size > 0) {
+                this.companiesMemory = Array.from(syncMap.values());
+                this.invalidateScopedCache();
+                const totalCount = this.companiesMemory.length;
+                localStorage.setItem('fleetcrm_company_count', totalCount.toLocaleString());
+                this.updateLiveCounters(totalCount);
+                this.initWorker(true);
+            }
+            return this.companiesMemory || [];
+        } catch (e) {
+            console.warn('hydrateMemoryFromBaseline error:', e);
+            return this.companiesMemory || [];
+        }
+    },
+
+    _fallbackHydrateBaseline() {
+        return this.hydrateMemoryFromBaseline();
     },
 
     // ---- IndexedDB helper functions ----
@@ -2150,7 +2189,7 @@ const AppStorage = {
     initWorker(force = false) {
         if (typeof window === 'undefined' || typeof Worker === 'undefined') return;
         const currentLength = this.companiesMemory ? this.companiesMemory.length : 0;
-        if (!force && this._worker && this._workerIndexed && this._workerIndexedLength === currentLength) {
+        if (!force && this._worker && this._workerIndexed && this._workerIndexedLength === currentLength && currentLength > 0) {
             return;
         }
         if (this._worker) {
@@ -2159,13 +2198,26 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=380.0');
+            this._worker = new Worker('js/companies-worker.js?v=381.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize, totalCount } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
                     this._workerReady = true;
                     this._workerIndexed = true;
                     this._workerIndexedLength = totalCount || (this.companiesMemory ? this.companiesMemory.length : 0);
+                    // If companies page is active and table/cards are currently empty, auto-render!
+                    if (typeof window !== 'undefined' && window.Companies && typeof window.Companies.render === 'function') {
+                        const compPage = document.getElementById('page-companies');
+                        if (compPage && compPage.classList.contains('active')) {
+                            const tbody = document.getElementById('companies-tbody');
+                            const cards = document.getElementById('companies-cards-container');
+                            const hasRows = tbody && tbody.children && tbody.children.length > 0;
+                            const hasCards = cards && cards.children && cards.children.length > 0;
+                            if (!hasRows && !hasCards) {
+                                window.Companies.render();
+                            }
+                        }
+                    }
                 } else if (action === 'FILTER_RESULT' && queryId && this._workerCallbacks[queryId]) {
                     this._workerCallbacks[queryId]({ items, total, totalPages, page, pageSize });
                     delete this._workerCallbacks[queryId];
@@ -2183,7 +2235,17 @@ const AppStorage = {
     },
 
     queryCompanies(options = {}) {
-        return new Promise((resolve) => {
+        return new Promise(async (resolve) => {
+            // 0. Guarantee companies memory baseline is fully loaded before querying
+            if (!this.companiesMemory || !Array.isArray(this.companiesMemory) || this.companiesMemory.length === 0) {
+                if (this._dbInitPromise) {
+                    try { await this._dbInitPromise; } catch (e) { }
+                }
+                if (!this.companiesMemory || this.companiesMemory.length === 0) {
+                    this.hydrateMemoryFromBaseline();
+                }
+            }
+
             const {
                 search = '',
                 sector = '',
@@ -2222,6 +2284,13 @@ const AppStorage = {
 
             // 1. Try Web Worker first for non-blocking 60fps search
             const executeWorkerQuery = () => {
+                const memLen = this.companiesMemory ? this.companiesMemory.length : 0;
+                // If worker index is missing or under-indexed compared to memory, re-index and fallback immediately
+                if (memLen > 0 && this._workerIndexedLength < memLen) {
+                    this.initWorker(true);
+                    return false;
+                }
+
                 if (this._worker && this._workerReady) {
                     const queryId = 'q_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6);
                     const timeout = setTimeout(() => {
@@ -2824,7 +2893,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v380.0_universal_reversion_guard_and_awaited_push_assignments';
+                    const currentVersionTag = 'v381.0_restored_companies_baseline_and_presence_resilience';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 

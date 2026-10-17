@@ -360,13 +360,17 @@ const Dashboard = {
             let onlineUsers = [];
             let offlineUsers = [];
 
+            const currentUser = (window.AppStorage && typeof window.AppStorage.getCurrentUser === 'function') ? window.AppStorage.getCurrentUser() : null;
             allUsers.forEach(u => {
                 const p = (window.SupabaseClient && window.SupabaseClient.getUserPresence) 
                     ? window.SupabaseClient.getUserPresence(presences, u) 
                     : (presences[u.id] || presences[String(u.id).toLowerCase()] || (u.username && presences[u.username.toLowerCase()]));
-                const isOnline = Boolean(p && p.isOnline);
-                const lastSeenText = p ? p.lastSeenArabic : 'لم يسجل الدخول بعد';
-                const pageLabel = (p && p.pageLabelArabic) ? p.pageLabelArabic : 'لوحة القيادة';
+                let isOnline = Boolean(p && p.isOnline);
+                if (currentUser && (u.id === currentUser.id || u.username === currentUser.username || (u.email && currentUser.email && u.email === currentUser.email))) {
+                    isOnline = true;
+                }
+                const lastSeenText = isOnline ? 'متصل الآن' : (p ? p.lastSeenArabic : 'لم يسجل الدخول بعد');
+                const pageLabel = isOnline ? ((p && p.pageLabelArabic) || 'لوحة القيادة') : ((p && p.pageLabelArabic) ? p.pageLabelArabic : 'لوحة القيادة');
                 const uName = (u.name && u.name !== 'undefined') ? u.name : ((u.id === 'admin' || u.role === 'admin') ? 'Admin' : (u.username || 'موظف'));
 
                 const info = {
