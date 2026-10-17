@@ -26,22 +26,15 @@ const Team = {
 
     _presencePollTimer: null,
     startPresencePolling() {
-        if (this._presencePollTimer) clearInterval(this._presencePollTimer);
-        this._presencePollTimer = setInterval(() => {
-            if (typeof App !== 'undefined' && (App.currentPage === 'team' || App.currentPage === 'employees')) {
-                if (window.SupabaseClient && typeof window.SupabaseClient.getAllUsersPresence === 'function') {
-                    window.SupabaseClient.getAllUsersPresence().then(p => {
-                        if (p && typeof p === 'object') {
-                            this._presencesCache = p;
-                            this.updateLivePresenceBadgesInDom();
-                        }
-                    }).catch(() => {});
+        // Master sync loop in App handles periodic presence refreshes; here we do an immediate gentle check
+        if (window.SupabaseClient && typeof window.SupabaseClient.getAllUsersPresence === 'function') {
+            window.SupabaseClient.getAllUsersPresence().then(p => {
+                if (p && typeof p === 'object') {
+                    this._presencesCache = p;
+                    this.updateLivePresenceBadgesInDom();
                 }
-            } else {
-                clearInterval(this._presencePollTimer);
-                this._presencePollTimer = null;
-            }
-        }, 20000);
+            }).catch(() => {});
+        }
     },
 
     updateLivePresenceBadgesInDom() {

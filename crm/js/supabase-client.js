@@ -12,14 +12,88 @@ window.SupabaseClient = (function() {
     let currentStatus = 'local'; // 'synced' | 'syncing' | 'offline' | 'local'
     let statusCallbacks = [];
     let sseSource = null;
-    let sseAssignments = null;
     let pollInterval = null;
-    let assignPollInterval = null;
     const syncChannel = (typeof window !== 'undefined' && typeof window.BroadcastChannel !== 'undefined') ? new BroadcastChannel('fleetcrm_realtime_sync') : null;
+    let _assignmentsDeltaCallback = null;
     let isPushing = false;
     let lastSyncTimestamp = 0;
     let _mobileFocusBound = false;
-    let _assignFocusBound = false;
+
+    // Cross-tab broadcast listener (Instant 0.1ms sync within same browser across tabs/windows)
+    if (syncChannel) {
+        syncChannel.onmessage = (event) => {
+            try {
+                const data = event.data;
+                if (!data || data.clientId === currentClientId) return;
+
+                if (data.type === 'ASSIGNMENTS_DELTA' && data.delta) {
+                    if (window.AppStorage && typeof window.AppStorage.applyRealtimeAssignmentsDelta === 'function') {
+                        window.AppStorage.applyRealtimeAssignmentsDelta(data.delta, 'local_broadcast');
+                    }
+                    if (_assignmentsDeltaCallback) {
+                        try { _assignmentsDeltaCallback(data.delta, 'local_broadcast'); } catch(e) {}
+                    }
+                    if (window.App && typeof window.App.refreshCurrentPage === 'function') {
+                        window.App.refreshCurrentPage();
+                    }
+                } else if (data.type === 'CALL_SAVED' && data.call) {
+                    if (window.AppStorage && typeof window.AppStorage.ingestSingleCall === 'function') {
+                        window.AppStorage.ingestSingleCall(data.call);
+                    }
+                    if (window.App && typeof window.App.refreshCurrentPage === 'function') {
+                        window.App.refreshCurrentPage();
+                    }
+                } else if (data.type === 'CALL_DELETED' && data.callId) {
+                    if (window.AppStorage && typeof window.AppStorage.purgeDeletedCallLocally === 'function') {
+                        window.AppStorage.purgeDeletedCallLocally(data.callId);
+                    }
+                    if (window.App && typeof window.App.refreshCurrentPage === 'function') {
+                        window.App.refreshCurrentPage();
+                    }
+                } else if (data.type === 'CALLS_CLEARED') {
+                    if (window.AppStorage && typeof window.AppStorage.purgeAllCallsLocally === 'function') {
+                        window.AppStorage.purgeAllCallsLocally();
+                    }
+                    if (window.App && typeof window.App.refreshCurrentPage === 'function') {
+                        window.App.refreshCurrentPage();
+                    }
+                } else if (data.type === 'COMPANY_DELETED' && data.companyId) {
+                    if (window.AppStorage && typeof window.AppStorage.purgeDeletedCompanyLocally === 'function') {
+                        window.AppStorage.purgeDeletedCompanyLocally(data.companyId);
+                    }
+                    if (window.App && typeof window.App.refreshCurrentPage === 'function') {
+                        window.App.refreshCurrentPage();
+                    }
+                } else if (data.type === 'USER_HEARTBEAT' && data.payload) {
+                    const p = data.payload;
+                    if (p && p.userId) {
+                        if (!_cachedUsersPresence) _cachedUsersPresence = {};
+                        const safeId = String(p.userId);
+                        const safeUname = p.username ? String(p.username) : '';
+                        const processed = {
+                            ...p,
+                            isOnline: p.status === 'online',
+                            ageSeconds: 0,
+                            lastSeenArabic: p.status === 'online' ? 'متصل الآن' : 'غير متصل',
+                            pageLabelArabic: getPageLabelArabic(p.currentPage)
+                        };
+                        _cachedUsersPresence[safeId] = processed;
+                        _cachedUsersPresence[safeId.toLowerCase()] = processed;
+                        if (safeUname) {
+                            _cachedUsersPresence[safeUname] = processed;
+                            _cachedUsersPresence[safeUname.toLowerCase()] = processed;
+                        }
+                        if (typeof Team !== 'undefined' && Team.updateLivePresenceBadgesInDom) {
+                            Team.updateLivePresenceBadgesInDom();
+                        }
+                        if (window.App && typeof window.App.updateTeamPresencePill === 'function') {
+                            window.App.updateTeamPresencePill();
+                        }
+                    }
+                }
+            } catch(e) {}
+        };
+    }
 
     function onStatusChange(callback) {
         if (typeof callback === 'function') {
@@ -797,11 +871,14 @@ window.SupabaseClient = (function() {
 
     async function getAllUsersPresence() {
         const now = Date.now();
+        if (_cachedUsersPresence && Object.keys(_cachedUsersPresence).length > 0 && (now - _lastPresenceFetch < 6000)) {
+            return _cachedUsersPresence;
+        }
         try {
             let combined = null;
             try {
                 const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
-                const timeoutId = controller ? setTimeout(() => controller.abort(), 8000) : null;
+                const timeoutId = controller ? setTimeout(() => controller.abort(), 6000) : null;
                 const resp = await fetch(`${FIREBASE_DB_URL}/presence/users.json?t=${now}`, {
                     signal: controller ? controller.signal : undefined
                 });
@@ -820,6 +897,7 @@ window.SupabaseClient = (function() {
             }
             if (!combined) combined = {};
 
+            _lastPresenceFetch = now;
             const result = {};
 
             for (const [key, item] of Object.entries(combined)) {
@@ -827,15 +905,15 @@ window.SupabaseClient = (function() {
                 const diffMs = now - Number(item.lastSeen);
                 const absDiffMs = Math.abs(diffMs);
                 // Smart presence calculation:
-                // 1. If heartbeat was sent within last 90 seconds, the user is DEFINITIVELY online (heartbeat interval is 15s)
+                // 1. If heartbeat was sent within last 120 seconds (2 mins), the user is DEFINITIVELY online
                 // 2. If status === 'online', active window is up to 4 minutes (handles background tab throttling)
                 // 3. Otherwise offline
-                const isOnline = (absDiffMs < 90000) || (item.status === 'online' && absDiffMs < 240000);
+                const isOnline = (absDiffMs < 120000) || (item.status === 'online' && absDiffMs < 240000);
                 const processed = {
                     ...item,
                     isOnline: isOnline,
                     ageSeconds: Math.round(absDiffMs / 1000),
-                    lastSeenArabic: formatArabicLastSeen(item.lastSeen),
+                    lastSeenArabic: isOnline ? 'متصل الآن' : formatArabicLastSeen(item.lastSeen),
                     pageLabelArabic: getPageLabelArabic(item.currentPage)
                 };
 
@@ -1166,236 +1244,21 @@ window.SupabaseClient = (function() {
             try { sseSource.close(); } catch(e) {}
             sseSource = null;
         }
-        if (sseAssignments) {
-            try { sseAssignments.close(); } catch(e) {}
-            sseAssignments = null;
-        }
         if (pollInterval) {
             clearInterval(pollInterval);
             pollInterval = null;
         }
-        if (assignPollInterval) {
-            clearInterval(assignPollInterval);
-            assignPollInterval = null;
-        }
     }
 
     /**
-     * Dedicated ultra-fast Real-time assignments stream (< 100ms sync across devices)
+     * Dedicated assignments stream registration (sync handled via metadata deltas and broadcast)
      */
     function subscribeToAssignments(onDeltaCallback) {
-        if (sseAssignments) {
-            try { sseAssignments.close(); } catch(e) {}
-            sseAssignments = null;
-        }
-        if (assignPollInterval) {
-            clearInterval(assignPollInterval);
-            assignPollInterval = null;
-        }
-
-        // 1. Cross-tab BroadcastChannel listener (Instant 0.1ms for same browser)
-        if (syncChannel) {
-            syncChannel.onmessage = (event) => {
-                try {
-                    if (event.data && event.data.type === 'ASSIGNMENTS_DELTA') {
-                        if (event.data.clientId === currentClientId) return; // ignore self
-                        if (window.AppStorage && typeof window.AppStorage.applyRealtimeAssignmentsDelta === 'function' && event.data.delta) {
-                            window.AppStorage.applyRealtimeAssignmentsDelta(event.data.delta, 'local_broadcast');
-                        }
-                        if (window.App && typeof window.App.refreshCurrentPage === 'function') {
-                            window.App.refreshCurrentPage();
-                        }
-                    } else if (event.data && event.data.type === 'CALL_SAVED' && event.data.call) {
-                        if (event.data.clientId === currentClientId) return;
-                        if (window.AppStorage && typeof window.AppStorage.ingestSingleCall === 'function') {
-                            window.AppStorage.ingestSingleCall(event.data.call);
-                        }
-                        if (window.App && typeof window.App.refreshCurrentPage === 'function') {
-                            window.App.refreshCurrentPage();
-                        }
-                    } else if (event.data && event.data.type === 'CALL_DELETED' && event.data.callId) {
-                        if (event.data.clientId === currentClientId) return;
-                        if (window.AppStorage && typeof window.AppStorage.purgeDeletedCallLocally === 'function') {
-                            window.AppStorage.purgeDeletedCallLocally(event.data.callId);
-                        }
-                        if (window.App && typeof window.App.refreshCurrentPage === 'function') {
-                            window.App.refreshCurrentPage();
-                        }
-                    } else if (event.data && event.data.type === 'CALLS_CLEARED') {
-                        if (event.data.clientId === currentClientId) return;
-                        if (window.AppStorage && typeof window.AppStorage.purgeAllCallsLocally === 'function') {
-                            window.AppStorage.purgeAllCallsLocally();
-                        }
-                        if (window.App && typeof window.App.refreshCurrentPage === 'function') {
-                            window.App.refreshCurrentPage();
-                        }
-                    } else if (event.data && event.data.type === 'COMPANY_DELETED' && event.data.companyId) {
-                        if (event.data.clientId === currentClientId) return;
-                        if (window.AppStorage && typeof window.AppStorage.purgeDeletedCompanyLocally === 'function') {
-                            window.AppStorage.purgeDeletedCompanyLocally(event.data.companyId);
-                        }
-                        if (window.App && typeof window.App.refreshCurrentPage === 'function') {
-                            window.App.refreshCurrentPage();
-                        }
-                    } else if (event.data && event.data.type === 'COMPANIES_BATCH_DELETED' && event.data.companyIds) {
-                        if (event.data.clientId === currentClientId) return;
-                        if (window.AppStorage && typeof window.AppStorage.purgeDeletedCompanyLocally === 'function') {
-                            event.data.companyIds.forEach(id => window.AppStorage.purgeDeletedCompanyLocally(id));
-                        }
-                        if (window.App && typeof window.App.refreshCurrentPage === 'function') {
-                            window.App.refreshCurrentPage();
-                        }
-                    } else if (event.data && event.data.type === 'USER_HEARTBEAT' && event.data.payload) {
-                        const p = event.data.payload;
-                        if (p && p.userId) {
-                            if (!_cachedUsersPresence) _cachedUsersPresence = {};
-                            const safeId = String(p.userId);
-                            const safeUname = p.username ? String(p.username) : '';
-                            const isOnline = p.status === 'online';
-                            const processed = {
-                                ...p,
-                                isOnline: isOnline,
-                                ageSeconds: 0,
-                                lastSeenArabic: isOnline ? 'متصل الآن' : 'غير متصل',
-                                pageLabelArabic: getPageLabelArabic(p.currentPage)
-                            };
-                            _cachedUsersPresence[safeId] = processed;
-                            _cachedUsersPresence[safeId.toLowerCase()] = processed;
-                            if (safeUname) {
-                                _cachedUsersPresence[safeUname] = processed;
-                                _cachedUsersPresence[safeUname.toLowerCase()] = processed;
-                            }
-                            if (typeof Dashboard !== 'undefined' && Dashboard.renderLivePresence && window.App && window.App.currentPage === 'dashboard') {
-                                Dashboard.renderLivePresence();
-                            }
-                            if (typeof Team !== 'undefined' && Team.updateLivePresenceBadgesInDom) {
-                                Team.updateLivePresenceBadgesInDom();
-                            }
-                            if (window.App && typeof window.App.updateTeamPresencePill === 'function') {
-                                window.App.updateTeamPresencePill();
-                            }
-                        }
-                    }
-                } catch(e) {}
-            };
-        }
-
-        // 2. Real-time Firebase RTDB SSE connection directly on /assignments.json
-        try {
-            if (typeof EventSource !== 'undefined') {
-                sseAssignments = new EventSource(`${FIREBASE_DB_URL}/assignments.json`);
-
-                const handleEvent = (e) => {
-                    try {
-                        const parsed = JSON.parse(e.data || '{}');
-                        const path = parsed.path || '/';
-                        const data = parsed.data;
-
-                        if (data === undefined) return;
-
-                        // Initial connection full snapshot — apply all current cloud assignments
-                        if (path === '/') {
-                            window.__assignmentsInitialSeeded = true;
-                        }
-
-                        const delta = {};
-                        if (path === '/') {
-                            if (data && typeof data === 'object') {
-                                Object.assign(delta, data);
-                            }
-                        } else {
-                            const parts = path.split('/').filter(Boolean);
-                            if (parts.length === 1) {
-                                const compId = parts[0];
-                                delta[compId] = data || { assignedTo: '' };
-                            } else if (parts.length >= 2) {
-                                const compId = parts[0];
-                                const prop = parts[1];
-                                delta[compId] = { [prop]: data };
-                            }
-                        }
-
-                        if (Object.keys(delta).length > 0 && onDeltaCallback) {
-                            onDeltaCallback(delta, 'cloud_sse');
-                        }
-                    } catch(err) {
-                        console.warn('Assignments SSE parse err:', err);
-                    }
-                };
-
-                sseAssignments.addEventListener('put', handleEvent);
-                sseAssignments.addEventListener('patch', handleEvent);
-
-                sseAssignments.onerror = () => {
-                    if (sseAssignments) {
-                        try { sseAssignments.close(); } catch(e) {}
-                        sseAssignments = null;
-                    }
-                    // Auto-reconnect SSE after 4s
-                    setTimeout(() => {
-                        if (!sseAssignments && typeof EventSource !== 'undefined') {
-                            subscribeToAssignments(onDeltaCallback);
-                        }
-                    }, 4000);
-                };
-            }
-        } catch(e) {
-            console.warn('Assignments SSE init error:', e);
-        }
-
-        // 3. Fallback polling ONLY when SSE is inactive (15s gentle interval)
-        let lastPollJson = '';
-        const pollAssignments = async () => {
-            try {
-                const resp = await fetch(`${FIREBASE_DB_URL}/assignments.json?t=${Date.now()}`);
-                if (!resp.ok) return;
-                const text = await resp.text();
-                if (text === lastPollJson) return; // zero changes, exit early
-                lastPollJson = text;
-                const parsed = JSON.parse(text || '{}');
-                if (parsed && typeof parsed === 'object' && onDeltaCallback) {
-                    onDeltaCallback(parsed, 'cloud_poll');
-                }
-            } catch(e) {}
-        };
-
-        assignPollInterval = setInterval(pollAssignments, 15000);
-
-        // Instant poll on focus / visibility change
-        if (typeof window !== 'undefined' && !_assignFocusBound) {
-            _assignFocusBound = true;
-            window.addEventListener('focus', pollAssignments);
-            document.addEventListener('visibilitychange', () => {
-                if (document.visibilityState === 'visible') {
-                    pollAssignments();
-                    if (!sseAssignments && typeof EventSource !== 'undefined') {
-                        subscribeToAssignments(onDeltaCallback);
-                    }
-                }
-            });
-        }
+        _assignmentsDeltaCallback = onDeltaCallback;
     }
 
-    let presencePollInterval = null;
-
     function subscribeToPresence() {
-        if (!presencePollInterval) {
-            presencePollInterval = setInterval(() => {
-                if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
-                    getAllUsersPresence().then(() => {
-                        if (typeof Dashboard !== 'undefined' && Dashboard.renderLivePresence && window.App && window.App.currentPage === 'dashboard') {
-                            Dashboard.renderLivePresence();
-                        }
-                        if (typeof Team !== 'undefined' && Team.updateLivePresenceBadgesInDom) {
-                            Team.updateLivePresenceBadgesInDom();
-                        }
-                        if (window.App && typeof window.App.updateTeamPresencePill === 'function') {
-                            window.App.updateTeamPresencePill();
-                        }
-                    }).catch(() => {});
-                }
-            }, 20000);
-        }
+        // Presence is polled centrally and cleanly by App master heartbeat tick
     }
 
     async function wipeDynamicCompanies() {

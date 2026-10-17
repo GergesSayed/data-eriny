@@ -511,17 +511,7 @@ const Dashboard = {
                 </div>
             `;
 
-            // Start auto refresh while user is on dashboard
-            if (!this._presencePollTimer) {
-                this._presencePollTimer = setInterval(() => {
-                    if (typeof App !== 'undefined' && App.currentPage === 'dashboard') {
-                        this.renderLivePresence();
-                    } else {
-                        clearInterval(this._presencePollTimer);
-                        this._presencePollTimer = null;
-                    }
-                }, 20000);
-            }
+            // Auto refresh is driven centrally by App.initMasterSyncEngine() every 20s
 
         } catch(e) {
             console.error('renderLivePresence error:', e);

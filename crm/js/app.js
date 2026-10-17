@@ -120,39 +120,7 @@ const App = {
                 }
             }).catch(() => {});
 
-            // Throttled sync on focus/visibility — max once every 90s to prevent hammering mobile connections
-            if (!this._syncListenersAttached) {
-                this._syncListenersAttached = true;
-                let _lastSyncTs = 0;
-                const SYNC_THROTTLE_MS = 90000; // 90 seconds minimum between syncs
-                const handleInstantSync = () => {
-                    const now = Date.now();
-                    if (now - _lastSyncTs < SYNC_THROTTLE_MS) return; // already synced recently
-                    _lastSyncTs = now;
-                    window.AppStorage.pullFromCloud().then(wasUpdated => {
-                        if (wasUpdated) {
-                            this.refreshCurrentPage();
-                        }
-                    }).catch(() => {});
-                };
-                window.addEventListener('focus', () => {
-                    handleInstantSync();
-                    this.sendPresenceHeartbeat();
-                });
-                document.addEventListener('visibilitychange', () => {
-                    if (document.visibilityState === 'visible') {
-                        handleInstantSync();
-                        this.sendPresenceHeartbeat();
-                        if (this.currentPage === 'dashboard' && typeof Dashboard !== 'undefined' && Dashboard.renderLivePresence) {
-                            Dashboard.renderLivePresence();
-                        }
-                        if (this.currentPage === 'team' && typeof Team !== 'undefined' && Team.updateLivePresenceBadgesInDom) {
-                            Team.updateLivePresenceBadgesInDom();
-                        }
-                        this.updateTeamPresencePill();
-                    }
-                });
-            }
+            // Master sync and presence are managed centrally by this.initMasterSyncEngine()
 
             // Mark legacy canonical keys migration as complete
             try { localStorage.setItem('fleetcrm_city_sector_mapped_v7', 'true'); } catch(e) {}
@@ -181,7 +149,7 @@ const App = {
                     console.log('[SW] Service worker controller updated and active.');
                 });
 
-                navigator.serviceWorker.register('sw.js?v=388.0').then(reg => {
+                navigator.serviceWorker.register('sw.js?v=389.0').then(reg => {
                     reg.update().catch(() => {});
                     // Detect when a new SW version is waiting — show update notification
                     reg.addEventListener('updatefound', () => {
@@ -276,8 +244,7 @@ const App = {
             this.navigateTo(targetPage, true);
 
             if (currentUser) {
-                this.startPresenceHeartbeat();
-                this.startTeamPresenceWatcher();
+                this.initMasterSyncEngine();
             }
 
             // Immediate startup cloud sync pull (both companies & calls)
@@ -287,39 +254,6 @@ const App = {
             ]).then(() => {
                 this.refreshCurrentPage();
             }).catch(() => {});
-
-            // Periodic background sync check (non-blocking 25s poll - only refreshes if cloud data actually changed!)
-            if (!this._cloudSyncInterval) {
-                this._cloudSyncInterval = setInterval(() => {
-                    if (typeof document === 'undefined' || document.visibilityState === 'visible') {
-                        Promise.all([
-                            window.AppStorage.pullFromCloud(false),
-                            window.AppStorage.pullCallsFromCloud ? window.AppStorage.pullCallsFromCloud() : Promise.resolve(false)
-                        ]).then(([compUpdated, callsUpdated]) => {
-                            if (compUpdated === true || callsUpdated === true) {
-                                this.refreshCurrentPage();
-                            }
-                        }).catch(() => {});
-                    }
-                }, 25000);
-            }
-
-            // Instant cloud pull whenever user switches back to this window or tab
-            if (!this._cloudSyncFocusBound && typeof window !== 'undefined') {
-                this._cloudSyncFocusBound = true;
-                const instantPull = () => {
-                    Promise.all([
-                        window.AppStorage.pullFromCloud(true),
-                        window.AppStorage.pullCallsFromCloud ? window.AppStorage.pullCallsFromCloud() : Promise.resolve([])
-                    ]).then(() => {
-                        this.refreshCurrentPage();
-                    }).catch(() => {});
-                };
-                window.addEventListener('focus', instantPull);
-                document.addEventListener('visibilitychange', () => {
-                    if (document.visibilityState === 'visible') instantPull();
-                });
-            }
 
             // Real-time Cloud subscription for instant cross-device sync
             if (!this._supabaseSubscribed && window.SupabaseClient) {
@@ -824,8 +758,7 @@ const App = {
         const isAdmin = user && user.role === 'admin';
         this.showToast(isAdmin ? `👑 تم تفعيل حساب: ${user.name} - تحكم كامل بالمأذونيات` : `👤 تم التبديل إلى حساب: ${user.name}`, 'success');
         this.navigateTo(isAdmin ? 'dashboard' : 'companies', true);
-        this.startPresenceHeartbeat();
-        this.startTeamPresenceWatcher();
+        this.initMasterSyncEngine();
         Promise.all([
             window.AppStorage && typeof window.AppStorage.pullFromCloud === 'function' ? window.AppStorage.pullFromCloud(true) : Promise.resolve(false),
             window.AppStorage && typeof window.AppStorage.pullCallsFromCloud === 'function' ? window.AppStorage.pullCallsFromCloud() : Promise.resolve([])
@@ -1792,31 +1725,120 @@ const App = {
 
     // ---- Live Team Presence Engine (Online / Offline Tracker) ----
     _presenceInterval: null,
-    _teamPresenceInterval: null,
+    _masterSyncTimer: null,
+    _masterFocusBound: false,
+    _lastFocusSyncTs: 0,
     _teamPresenceModalFilter: 'all',
     _teamPresenceSearchQuery: '',
 
-    startPresenceHeartbeat() {
-        this.stopPresenceHeartbeat();
-        this.sendPresenceHeartbeat();
-        this._presenceInterval = setInterval(() => {
-            this.sendPresenceHeartbeat();
-        }, 15000); // 15s heartbeat for reliable presence
+    initMasterSyncEngine() {
+        if (this._masterSyncTimer) {
+            clearInterval(this._masterSyncTimer);
+            this._masterSyncTimer = null;
+        }
 
-        if (!this._presenceListenersBound && typeof window !== 'undefined') {
-            this._presenceListenersBound = true;
-            window.addEventListener('focus', () => this.sendPresenceHeartbeat());
+        // 1. Immediate initial tick
+        this._masterSyncTick();
+
+        // 2. Single master background interval (20s)
+        this._masterSyncTimer = setInterval(() => {
+            this._masterSyncTick();
+        }, 20000);
+
+        // 3. Single unified focus & visibility listener (with 12s cooldown on cloud pull)
+        if (!this._masterFocusBound && typeof window !== 'undefined') {
+            this._masterFocusBound = true;
+            const handleUnifiedFocusSync = () => {
+                if (document.visibilityState === 'hidden') return;
+
+                // Always send active presence heartbeat immediately
+                this.sendPresenceHeartbeat();
+
+                const user = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
+                if (user && window.AppStorage.canViewAll(user)) {
+                    this.updateTeamPresencePill();
+                    if (this.currentPage === 'dashboard' && typeof Dashboard !== 'undefined' && Dashboard.renderLivePresence) {
+                        Dashboard.renderLivePresence();
+                    }
+                    if (this.currentPage === 'team' && typeof Team !== 'undefined' && Team.updateLivePresenceBadgesInDom) {
+                        Team.updateLivePresenceBadgesInDom();
+                    }
+                }
+
+                // Throttle cloud network requests: maximum once every 12 seconds
+                const now = Date.now();
+                if (now - this._lastFocusSyncTs < 12000) return;
+                this._lastFocusSyncTs = now;
+
+                Promise.all([
+                    window.AppStorage ? window.AppStorage.pullFromCloud(false) : Promise.resolve(false),
+                    (window.AppStorage && window.AppStorage.pullCallsFromCloud) ? window.AppStorage.pullCallsFromCloud() : Promise.resolve(false)
+                ]).then(([compUpdated, callsUpdated]) => {
+                    // CRITICAL: Only refresh the page if cloud data actually updated! Zero needless layout re-renders!
+                    if (compUpdated === true || callsUpdated === true) {
+                        this.refreshCurrentPage();
+                    }
+                }).catch(() => {});
+            };
+
+            window.addEventListener('focus', handleUnifiedFocusSync);
             document.addEventListener('visibilitychange', () => {
-                if (document.visibilityState === 'visible') this.sendPresenceHeartbeat();
+                if (document.visibilityState === 'visible') {
+                    handleUnifiedFocusSync();
+                }
             });
         }
     },
 
-    stopPresenceHeartbeat() {
-        if (this._presenceInterval) {
-            clearInterval(this._presenceInterval);
-            this._presenceInterval = null;
+    async _masterSyncTick() {
+        try {
+            // A. Send user active heartbeat
+            this.sendPresenceHeartbeat();
+
+            // B. If supervisor/admin: update team presence pill & badges
+            const user = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
+            if (user && window.AppStorage.canViewAll(user)) {
+                this.updateTeamPresencePill();
+                const modal = document.getElementById('modal-team-presence');
+                if (modal && modal.classList.contains('show')) {
+                    this.renderTeamPresenceModalContent();
+                }
+                if (this.currentPage === 'dashboard' && typeof Dashboard !== 'undefined' && Dashboard.renderLivePresence) {
+                    Dashboard.renderLivePresence();
+                }
+                if (this.currentPage === 'team' && typeof Team !== 'undefined' && Team.updateLivePresenceBadgesInDom) {
+                    Team.updateLivePresenceBadgesInDom();
+                }
+            }
+
+            // C. Background cloud delta pull (only when tab is visible to conserve CPU & battery)
+            if (typeof document === 'undefined' || document.visibilityState === 'visible') {
+                const [compUpdated, callsUpdated] = await Promise.all([
+                    window.AppStorage ? window.AppStorage.pullFromCloud(false) : Promise.resolve(false),
+                    (window.AppStorage && window.AppStorage.pullCallsFromCloud) ? window.AppStorage.pullCallsFromCloud() : Promise.resolve(false)
+                ]);
+                if (compUpdated === true || callsUpdated === true) {
+                    this.refreshCurrentPage();
+                }
+            }
+        } catch (e) {
+            console.warn('Master sync tick notice:', e);
         }
+    },
+
+    startPresenceHeartbeat() {
+        this.initMasterSyncEngine();
+    },
+
+    stopPresenceHeartbeat() {
+        if (this._masterSyncTimer) {
+            clearInterval(this._masterSyncTimer);
+            this._masterSyncTimer = null;
+        }
+    },
+
+    startTeamPresenceWatcher() {
+        this.initMasterSyncEngine();
     },
 
     sendPresenceHeartbeat() {
@@ -1827,32 +1849,6 @@ const App = {
                 window.SupabaseClient.sendUserHeartbeat(user, this.currentPage || 'dashboard');
             }
         } catch (e) {}
-    },
-
-    startTeamPresenceWatcher() {
-        if (this._teamPresenceInterval) {
-            clearInterval(this._teamPresenceInterval);
-            this._teamPresenceInterval = null;
-        }
-        const user = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
-        if (!user || !window.AppStorage.canViewAll(user)) return;
-
-        this.updateTeamPresencePill();
-        this._teamPresenceInterval = setInterval(() => {
-            this.updateTeamPresencePill();
-            const modal = document.getElementById('modal-team-presence');
-            if (modal && modal.classList.contains('show')) {
-                this.renderTeamPresenceModalContent();
-            }
-        }, 20000); // 20s update
-
-        if (!this._teamWatcherListenersBound && typeof window !== 'undefined') {
-            this._teamWatcherListenersBound = true;
-            window.addEventListener('focus', () => this.updateTeamPresencePill());
-            document.addEventListener('visibilitychange', () => {
-                if (document.visibilityState === 'visible') this.updateTeamPresencePill();
-            });
-        }
     },
 
     async updateTeamPresencePill() {
