@@ -2159,7 +2159,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=376.0');
+            this._worker = new Worker('js/companies-worker.js?v=380.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize, totalCount } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -2824,7 +2824,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v376.0_universal_reversion_guard_and_awaited_push_assignments';
+                    const currentVersionTag = 'v380.0_universal_reversion_guard_and_awaited_push_assignments';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 
@@ -3358,15 +3358,6 @@ const AppStorage = {
                             cloudUpdatedAt = Date.now();
                         }
 
-                        const localAssign = storedAssignments[sId];
-                        const localUpdatedAt = Number(localAssign ? localAssign.updatedAt : 0) || 0;
-
-                        // 🛡️ UNIVERSAL LWW CONFLICT-FREE RESOLUTION:
-                        // Only ignore cloud record if local assignment was explicitly updated strictly after cloudUpdatedAt
-                        if (localUpdatedAt > 0 && cloudUpdatedAt > 0 && localUpdatedAt > cloudUpdatedAt) {
-                            continue;
-                        }
-
                         storedAssignments[sId] = {
                             assignedTo: targetUser,
                             assignedAt: targetAt,
@@ -3808,15 +3799,6 @@ const AppStorage = {
                 targetUser = '';
                 targetAt = null;
                 updatedAt = now;
-            }
-
-            const localAssign = storedAssignments[sId];
-            const localUpdatedAt = Number(localAssign ? localAssign.updatedAt : 0) || 0;
-
-            // 🛡️ UNIVERSAL LWW CONFLICT-FREE RESOLUTION:
-            // Only skip if local assignment was explicitly updated strictly after incoming delta
-            if (localUpdatedAt > 0 && updatedAt > 0 && localUpdatedAt > updatedAt) {
-                continue;
             }
 
             storedAssignments[sId] = {
@@ -4627,7 +4609,7 @@ const AppStorage = {
         }
     },
 
-    assignCompany(companyId, userId) {
+    async assignCompany(companyId, userId) {
         const company = this.getCompany(companyId);
         if (!company) return null;
 
@@ -4665,9 +4647,13 @@ const AppStorage = {
             }
         };
         if (window.SupabaseClient && typeof window.SupabaseClient.setAssignment === 'function') {
-            window.SupabaseClient.setAssignment(companyId, userId, company.assignedAt, now).catch(() => { });
+            try {
+                await window.SupabaseClient.setAssignment(companyId, userId, company.assignedAt, now);
+            } catch (e) { }
         } else if (window.SupabaseClient && window.SupabaseClient.pushAssignments) {
-            window.SupabaseClient.pushAssignments(assignmentsMap).catch(() => { });
+            try {
+                await window.SupabaseClient.pushAssignments(assignmentsMap);
+            } catch (e) { }
         }
 
         this.updateLiveCounters();
@@ -4678,7 +4664,7 @@ const AppStorage = {
         return company;
     },
 
-    bulkAssignCompanies(companyIds, userId) {
+    async bulkAssignCompanies(companyIds, userId) {
         if (!Array.isArray(companyIds) || companyIds.length === 0) return 0;
         const nowMs = Date.now();
         const now = new Date(nowMs).toISOString();
@@ -4781,9 +4767,11 @@ const AppStorage = {
                 this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: updatedBatch });
             }
 
-            // 5. Send single atomic batch PATCH to Firebase assignments (fire-and-forget for instant UI)
+            // 5. Send single atomic batch PATCH to Firebase assignments (awaited to prevent race reversion)
             if (window.SupabaseClient && window.SupabaseClient.pushAssignments) {
-                window.SupabaseClient.pushAssignments(assignmentsMap).catch(() => {});
+                try {
+                    await window.SupabaseClient.pushAssignments(assignmentsMap);
+                } catch (e) { }
             }
 
             // 6. Push custody in background batch if supported
@@ -5413,7 +5401,8 @@ const AppStorage = {
                 } catch(e) {}
             }
 
-            // ⚡ Instant synchronization of company lastCallResult & status in memory
+            // ⚡ Instant synchronization of company lastCallResult & status in memory, worker, and IDB
+            const changedCallComps = [];
             merged.forEach(call => {
                 if (call && call.companyId) {
                     const comp = this.getCompany(call.companyId);
@@ -5430,10 +5419,18 @@ const AppStorage = {
                             } else if (call.result === 'callback') {
                                 comp.status = 'contacted';
                             }
+                            changedCallComps.push(comp);
                         }
                     }
                 }
             });
+
+            if (changedCallComps.length > 0) {
+                this.saveBatchToIDB(changedCallComps);
+                if (this._worker) {
+                    this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: changedCallComps });
+                }
+            }
 
             return merged;
         } catch(e) {

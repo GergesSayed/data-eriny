@@ -182,7 +182,7 @@ const App = {
                     console.log('[SW] Service worker controller updated and active.');
                 });
 
-                navigator.serviceWorker.register('sw.js?v=376.0').then(reg => {
+                navigator.serviceWorker.register('sw.js?v=380.0').then(reg => {
                     reg.update().catch(() => {});
                     // Detect when a new SW version is waiting — show update notification
                     reg.addEventListener('updatefound', () => {
@@ -302,7 +302,7 @@ const App = {
                             }
                         }).catch(() => {});
                     }
-                }, 5000);
+                }, 3000);
             }
 
             // Instant cloud pull whenever user switches back to this window or tab
@@ -2162,11 +2162,17 @@ const App = {
         document.body.appendChild(banner);
     },
 
-    _activateUpdate() {
-        if (navigator.serviceWorker.controller) {
+    async _activateUpdate() {
+        if ('caches' in window) {
+            try {
+                const keys = await caches.keys();
+                await Promise.all(keys.map(k => caches.delete(k)));
+            } catch(e) {}
+        }
+        if (navigator.serviceWorker && navigator.serviceWorker.controller) {
             navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
         }
-        location.reload();
+        window.location.reload(true);
     },
 
     async forceHardReload() {

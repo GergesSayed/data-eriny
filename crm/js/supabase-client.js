@@ -1165,12 +1165,9 @@ window.SupabaseClient = (function() {
 
                         if (data === undefined) return;
 
-                        // Initial connection full snapshot — do not fire heavy UI cascades on first connect
+                        // Initial connection full snapshot — apply all current cloud assignments
                         if (path === '/') {
-                            if (!window.__assignmentsInitialSeeded) {
-                                window.__assignmentsInitialSeeded = true;
-                                return;
-                            }
+                            window.__assignmentsInitialSeeded = true;
                         }
 
                         const delta = {};

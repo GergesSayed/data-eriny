@@ -257,9 +257,9 @@ const Calls = {
     renderTable() {
         const currentUser = window.AppStorage.getCurrentUser();
         const allCalls = window.AppStorage.getScopedCalls().sort((a, b) => {
-            const dateA = new Date(a.date + 'T' + (a.time || '23:59'));
-            const dateB = new Date(b.date + 'T' + (b.time || '23:59'));
-            return dateB - dateA;
+            const timeA = new Date(a.createdAt || (a.date ? (a.date + 'T' + (a.time || '00:00')) : 0)).getTime() || 0;
+            const timeB = new Date(b.createdAt || (b.date ? (b.date + 'T' + (b.time || '00:00')) : 0)).getTime() || 0;
+            return timeB - timeA;
         });
 
         const today = new Date().toISOString().split('T')[0];

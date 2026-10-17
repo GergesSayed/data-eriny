@@ -1354,26 +1354,14 @@ const Companies = {
             const subName = (rawSub && rawSub.toLowerCase() !== mainName.toLowerCase()) ? rawSub : '';
 
             const latestCall = latestCallsMap.get(String(c.id).trim());
-            const callResult = latestCall ? latestCall.result : null;
-            const callDate = latestCall ? latestCall.date : null;
-            if (!latestCall) {
-                if (c.lastCallResult) delete c.lastCallResult;
-                if (c.lastCallDate) delete c.lastCallDate;
-                if (c.lastCallNotes) delete c.lastCallNotes;
-                c.lastCallResult = '';
-                c.lastCallDate = '';
-                c.lastCallNotes = '';
-                if (['interested', 'unqualified', 'contacted'].includes(c.status)) {
-                    c.status = 'new';
-                }
-            } else {
-                c.lastCallResult = callResult;
-                c.lastCallDate = callDate;
-                if (['interested', 'meeting_scheduled', 'proposal_sent'].includes(callResult)) {
+            if (latestCall) {
+                c.lastCallResult = latestCall.result;
+                c.lastCallDate = latestCall.date;
+                if (['interested', 'meeting_scheduled', 'proposal_sent'].includes(latestCall.result)) {
                     c.status = 'interested';
-                } else if (['not_interested', 'wrong_number'].includes(callResult)) {
+                } else if (['not_interested', 'wrong_number'].includes(latestCall.result)) {
                     c.status = 'unqualified';
-                } else if (callResult === 'callback') {
+                } else if (latestCall.result === 'callback') {
                     c.status = 'contacted';
                 }
             }
@@ -1558,26 +1546,14 @@ const Companies = {
             const assignedBadge = this.buildAssignedWidget(c);
 
             const latestCall = latestCallsMap.get(String(c.id).trim());
-            const callResult = latestCall ? latestCall.result : null;
-            const callDate = latestCall ? latestCall.date : null;
-            if (!latestCall) {
-                if (c.lastCallResult) delete c.lastCallResult;
-                if (c.lastCallDate) delete c.lastCallDate;
-                if (c.lastCallNotes) delete c.lastCallNotes;
-                c.lastCallResult = '';
-                c.lastCallDate = '';
-                c.lastCallNotes = '';
-                if (['interested', 'unqualified', 'contacted'].includes(c.status)) {
-                    c.status = 'new';
-                }
-            } else {
-                c.lastCallResult = callResult;
-                c.lastCallDate = callDate;
-                if (['interested', 'meeting_scheduled', 'proposal_sent'].includes(callResult)) {
+            if (latestCall) {
+                c.lastCallResult = latestCall.result;
+                c.lastCallDate = latestCall.date;
+                if (['interested', 'meeting_scheduled', 'proposal_sent'].includes(latestCall.result)) {
                     c.status = 'interested';
-                } else if (['not_interested', 'wrong_number'].includes(callResult)) {
+                } else if (['not_interested', 'wrong_number'].includes(latestCall.result)) {
                     c.status = 'unqualified';
-                } else if (callResult === 'callback') {
+                } else if (latestCall.result === 'callback') {
                     c.status = 'contacted';
                 }
             }
@@ -1784,7 +1760,7 @@ const Companies = {
         this.updateBulkBar();
     },
 
-    applyBulkAssign() {
+    async applyBulkAssign() {
         if (this._isBulkAssigning) return;
         const currentUser = window.AppStorage.getCurrentUser();
         if (!window.AppStorage.isAdmin(currentUser)) {
@@ -1803,10 +1779,16 @@ const Companies = {
             return;
         }
 
+        const btn = document.getElementById('btn-apply-bulk-assign');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التخصيص...';
+        }
+
         this._isBulkAssigning = true;
         try {
             const ids = Array.from(this.selectedCompanies);
-            const count = window.AppStorage.bulkAssignCompanies(ids, userId);
+            const count = await window.AppStorage.bulkAssignCompanies(ids, userId);
             const targetUser = window.AppStorage.getUser(userId);
             const userName = targetUser ? targetUser.name : userId;
 
@@ -1814,12 +1796,19 @@ const Companies = {
             this.clearSelection();
             this.refreshUserFilter();
             this.render();
+        } catch(err) {
+            console.error('applyBulkAssign error:', err);
+            App.showToast('خطأ أثناء تخصيص الشركات: ' + err.message, 'error');
         } finally {
-            setTimeout(() => { this._isBulkAssigning = false; }, 300);
+            this._isBulkAssigning = false;
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-user-check"></i> تطبيق التعيين';
+            }
         }
     },
 
-    applyBulkUnassign() {
+    async applyBulkUnassign() {
         if (this._isBulkUnassigning) return;
         const currentUser = window.AppStorage.getCurrentUser();
         if (!window.AppStorage.isAdmin(currentUser)) {
@@ -1830,16 +1819,30 @@ const Companies = {
             App.showToast('⚠️ يرجى تحديد شركة واحدة على الأقل أولاً', 'warning');
             return;
         }
+
+        const btn = document.getElementById('btn-bulk-unassign');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإلغاء...';
+        }
+
         this._isBulkUnassigning = true;
         try {
             const ids = Array.from(this.selectedCompanies);
-            const count = window.AppStorage.bulkAssignCompanies(ids, '');
+            const count = await window.AppStorage.bulkAssignCompanies(ids, '');
             App.showToast(`⚪ تم بنجاح إلغاء تخصيص ${count} شركة وأصبحت متاحة للجميع`, 'info');
             this.clearSelection();
             this.refreshUserFilter();
             this.render();
+        } catch(err) {
+            console.error('applyBulkUnassign error:', err);
+            App.showToast('خطأ أثناء إلغاء التخصيص: ' + err.message, 'error');
         } finally {
-            setTimeout(() => { this._isBulkUnassigning = false; }, 300);
+            this._isBulkUnassigning = false;
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-user-times"></i> إلغاء تخصيص';
+            }
         }
     },
 
@@ -3046,7 +3049,7 @@ const Companies = {
         }
     },
 
-    assignToUser(companyId, userId) {
+    async assignToUser(companyId, userId) {
         const currentUser = window.AppStorage.getCurrentUser();
         let targetUserId = userId;
 
@@ -3062,10 +3065,10 @@ const Companies = {
         const activeFilterAssigned = document.getElementById('filter-assigned')?.value;
 
         if (!targetUserId) {
-            window.AppStorage.assignCompany(companyId, '');
+            await window.AppStorage.assignCompany(companyId, '');
             App.showToast(`🗑️ تم إلغاء حجز وإسناد شركة "${compName}"`, 'info');
         } else {
-            window.AppStorage.assignCompany(companyId, targetUserId);
+            await window.AppStorage.assignCompany(companyId, targetUserId);
             const targetUser = window.AppStorage.getUser(targetUserId);
             const targetName = targetUser ? targetUser.name : targetUserId;
             App.showToast(`✅ تم إسناد وتخصيص شركة "${compName}" بنجاح إلى: ${targetName}`, 'success');
