@@ -1256,6 +1256,41 @@ const Companies = {
                 }
             }
         }
+
+        // Auto-heal Employee View: If worker returned 0 companies for employee, check authoritative scoped memory
+        if (!canViewAll && total === 0 && !search && finalSectors.length === 0 && finalGovs.length === 0 && finalCities.length === 0 && !contactType && !priority && !vip && !fleetType && !fleetSize && !assigned && !addedDate) {
+            const scoped = window.AppStorage ? (window.AppStorage.getScopedCompanies(currentUser) || []) : [];
+            if (scoped.length > 0) {
+                if (window.AppStorage && window.AppStorage._worker) {
+                    window.AppStorage._worker.postMessage({ action: 'INIT_INDEX', payload: window.AppStorage.companiesMemory || [] });
+                }
+                const fallbackResult = window.AppStorage._queryCompaniesFallback({
+                    search,
+                    sector: finalSectors[0] || '',
+                    sectors: finalSectors,
+                    governorate: finalGovs[0] || '',
+                    governorates: finalGovs,
+                    city: finalCities[0] || '',
+                    cities: finalCities,
+                    contactType,
+                    priority,
+                    vip,
+                    fleetType,
+                    fleetSize,
+                    assigned,
+                    addedDate,
+                    sortMode,
+                    page: 1,
+                    pageSize: this.pageSize
+                });
+                if (fallbackResult && fallbackResult.total > 0) {
+                    pageCompanies = fallbackResult.items || [];
+                    total = fallbackResult.total;
+                    totalPages = fallbackResult.totalPages || 1;
+                    this.currentPage = 1;
+                }
+            }
+        }
         const masterTotal = window.AppStorage.companiesMemory ? window.AppStorage.companiesMemory.length : total;
         const countDisplay = document.getElementById('companies-count-display');
         if (countDisplay) {
@@ -3159,9 +3194,7 @@ const Companies = {
         }
 
         this.refreshUserFilter();
-        if (needsFullRender) {
-            this.render();
-        }
+        this.render();
 
         // If company detail modal is currently open, re-render it immediately!
         const detailModal = document.getElementById('modal-company-detail');

@@ -2198,7 +2198,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=382.0');
+            this._worker = new Worker('js/companies-worker.js?v=383.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize, totalCount } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -2893,7 +2893,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v382.0_fix_render_call_result_reference_and_guaranteed_companies_paint';
+                    const currentVersionTag = 'v383.0_guaranteed_cloud_assignments_sync_lifecycle_and_worker_realtime_healing';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 
@@ -2942,6 +2942,7 @@ const AppStorage = {
                         this.invalidateScopedCache();
                         localStorage.setItem('fleetcrm_company_count', (21225).toLocaleString());
                         this.updateLiveCounters(21225);
+                        this.initWorker(true);
                         complete(idbData);
                         return;
                     }
@@ -3056,7 +3057,7 @@ const AppStorage = {
                     if (modifiedEntities.length > 0) {
                         this.saveBatchToIDB(modifiedEntities);
                     }
-
+                    this.initWorker(true);
                     complete(this.companiesMemory);
                 };
 
@@ -3297,6 +3298,14 @@ const AppStorage = {
         this._pullInFlight = (async () => {
             this._lastPullTs = Date.now();
             try {
+                if (!this.companiesMemory || !Array.isArray(this.companiesMemory) || this.companiesMemory.length === 0) {
+                    if (this._dbInitPromise) {
+                        try { await this._dbInitPromise; } catch (e) { }
+                    }
+                    if (!this.companiesMemory || this.companiesMemory.length === 0) {
+                        this.hydrateMemoryFromBaseline();
+                    }
+                }
                 const data = preloadedData || await window.SupabaseClient.fetchMasterData();
                 if (!data) return false;
 
@@ -3442,9 +3451,30 @@ const AppStorage = {
                         }
                     }
 
+                    // Also reconcile and clear any local assignments that were unassigned or deleted in cloud
+                    for (const [sId, localData] of Object.entries(storedAssignments)) {
+                        if (localData && localData.assignedTo && (!data.assignments[sId] || !data.assignments[sId].assignedTo)) {
+                            storedAssignments[sId] = {
+                                assignedTo: '',
+                                assignedAt: null,
+                                updatedAt: Date.now()
+                            };
+                            const comp = idMap.get(sId);
+                            if (comp && comp.assignedTo) {
+                                comp.assignedTo = '';
+                                comp.assignedAt = null;
+                                anyChanged = true;
+                                changedComps.push(comp);
+                            }
+                        }
+                    }
+
                     this.setStoredAssignments(storedAssignments);
                     if (changedComps.length > 0) {
                         this.saveBatchToIDB(changedComps);
+                        if (this._worker) {
+                            this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: changedComps });
+                        }
                     }
                 }
 
@@ -3833,6 +3863,10 @@ const AppStorage = {
         if (!assignmentsDelta || typeof assignmentsDelta !== 'object') return false;
         const entries = Object.entries(assignmentsDelta);
         if (entries.length === 0) return false;
+
+        if (!this.companiesMemory || !Array.isArray(this.companiesMemory) || this.companiesMemory.length === 0) {
+            this.hydrateMemoryFromBaseline();
+        }
 
         const storedAssignments = this.getStoredAssignments() || {};
         const changedComps = [];
@@ -5405,6 +5439,14 @@ const AppStorage = {
     async pullCallsFromCloud() {
         if (typeof window === 'undefined' || !navigator.onLine) return [];
         try {
+            if (!this.companiesMemory || !Array.isArray(this.companiesMemory) || this.companiesMemory.length === 0) {
+                if (this._dbInitPromise) {
+                    try { await this._dbInitPromise; } catch (e) { }
+                }
+                if (!this.companiesMemory || this.companiesMemory.length === 0) {
+                    this.hydrateMemoryFromBaseline();
+                }
+            }
             const [resp, deletedResp] = await Promise.all([
                 fetch('https://fleet-crm-38ba6-default-rtdb.firebaseio.com/calls.json?t=' + Date.now()),
                 fetch('https://fleet-crm-38ba6-default-rtdb.firebaseio.com/deleted_calls.json?t=' + Date.now())

@@ -546,6 +546,18 @@ self.onmessage = function(e) {
                     for (let j = 0; j < arr.length; j++) seenCandidateIdx.add(arr[j]);
                 }
             }
+            if (seenCandidateIdx.size === 0 && _companiesIndex && _companiesIndex.length > 0) {
+                // Authoritative safety scan across index in case assignment buckets are currently refreshing
+                for (let i = 0; i < _companiesIndex.length; i++) {
+                    const c = _companiesIndex[i];
+                    if (c && c.assignedTo) {
+                        const asgn = String(c.assignedTo).trim().toLowerCase();
+                        if (userKeys.includes(asgn) || (currentUserId && asgn === String(currentUserId).trim().toLowerCase())) {
+                            seenCandidateIdx.add(i);
+                        }
+                    }
+                }
+            }
             candidateIndices = Array.from(seenCandidateIdx);
         } else if (vip === 'vip_only' && (!sectorSet || sectorSet.size > 2) && (!citySet || citySet.size > 2)) {
             candidateIndices = _titanIndices;
