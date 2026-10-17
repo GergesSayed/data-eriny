@@ -143,15 +143,14 @@ const App = {
                     if (document.visibilityState === 'visible') {
                         handleInstantSync();
                         this.sendPresenceHeartbeat();
-                    }
-                });
-                window.addEventListener('beforeunload', () => {
-                    try {
-                        const u = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
-                        if (u && u.id && window.SupabaseClient && typeof window.SupabaseClient.setUserOffline === 'function') {
-                            window.SupabaseClient.setUserOffline(u.id, u.username);
+                        if (this.currentPage === 'dashboard' && typeof Dashboard !== 'undefined' && Dashboard.renderLivePresence) {
+                            Dashboard.renderLivePresence();
                         }
-                    } catch(e) {}
+                        if (this.currentPage === 'team' && typeof Team !== 'undefined' && Team.updateLivePresenceBadgesInDom) {
+                            Team.updateLivePresenceBadgesInDom();
+                        }
+                        this.updateTeamPresencePill();
+                    }
                 });
             }
 
@@ -182,7 +181,7 @@ const App = {
                     console.log('[SW] Service worker controller updated and active.');
                 });
 
-                navigator.serviceWorker.register('sw.js?v=384.0').then(reg => {
+                navigator.serviceWorker.register('sw.js?v=385.0').then(reg => {
                     reg.update().catch(() => {});
                     // Detect when a new SW version is waiting — show update notification
                     reg.addEventListener('updatefound', () => {
@@ -355,6 +354,11 @@ const App = {
                             }
                         }
                     });
+                }
+
+                // Real-time instant team presence watcher (sub-100ms push on online/offline)
+                if (typeof window.SupabaseClient.subscribeToPresence === 'function') {
+                    window.SupabaseClient.subscribeToPresence();
                 }
             }
         } catch (err) {
@@ -647,7 +651,7 @@ const App = {
             const current = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
             this.stopPresenceHeartbeat();
             if (current && current.id && window.SupabaseClient && typeof window.SupabaseClient.setUserOffline === 'function') {
-                window.SupabaseClient.setUserOffline(current.id);
+                window.SupabaseClient.setUserOffline(current.id, current.username);
             }
             const db = window.AppStorage;
             if (db && typeof db.logout === 'function') {
@@ -1809,12 +1813,6 @@ const App = {
             window.addEventListener('focus', () => this.sendPresenceHeartbeat());
             document.addEventListener('visibilitychange', () => {
                 if (document.visibilityState === 'visible') this.sendPresenceHeartbeat();
-            });
-            window.addEventListener('beforeunload', () => {
-                const user = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
-                if (user && window.SupabaseClient && window.SupabaseClient.setUserOffline) {
-                    window.SupabaseClient.setUserOffline(user.id, user.username);
-                }
             });
         }
     },

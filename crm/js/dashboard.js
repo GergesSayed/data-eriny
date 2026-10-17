@@ -520,7 +520,7 @@ const Dashboard = {
                         clearInterval(this._presencePollTimer);
                         this._presencePollTimer = null;
                     }
-                }, 20000);
+                }, 6000);
             }
 
         } catch(e) {

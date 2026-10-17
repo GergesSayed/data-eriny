@@ -821,13 +821,16 @@ window.SupabaseClient = (function() {
             if (!combined) combined = {};
 
             const result = {};
-            const ACTIVE_WINDOW_MS = 360000; // 6 minutes window (handles tab throttling, mobile sleep, and clock skew)
 
             for (const [key, item] of Object.entries(combined)) {
                 if (!item || !item.lastSeen) continue;
                 const diffMs = now - Number(item.lastSeen);
                 const absDiffMs = Math.abs(diffMs);
-                const isOnline = (item.status === 'online') && (absDiffMs < ACTIVE_WINDOW_MS);
+                // Smart presence calculation:
+                // 1. If heartbeat was sent within last 90 seconds, the user is DEFINITIVELY online (heartbeat interval is 15s)
+                // 2. If status === 'online', active window is up to 4 minutes (handles background tab throttling)
+                // 3. Otherwise offline
+                const isOnline = (absDiffMs < 90000) || (item.status === 'online' && absDiffMs < 240000);
                 const processed = {
                     ...item,
                     isOnline: isOnline,
@@ -931,10 +934,17 @@ window.SupabaseClient = (function() {
             user.name && String(user.name).toLowerCase()
         ];
 
+        let best = null;
         for (const k of keys) {
-            if (k && presences[k]) return presences[k];
+            if (k && presences[k]) {
+                const item = presences[k];
+                if (item.isOnline) return item; // Prefer active online immediately!
+                if (!best || (item.lastSeen && item.lastSeen > (best.lastSeen || 0))) {
+                    best = item;
+                }
+            }
         }
-        return null;
+        return best;
     }
 
     async function fetchSingleCallAndIngest(callId) {
@@ -1235,6 +1245,36 @@ window.SupabaseClient = (function() {
                         if (window.App && typeof window.App.refreshCurrentPage === 'function') {
                             window.App.refreshCurrentPage();
                         }
+                    } else if (event.data && event.data.type === 'USER_HEARTBEAT' && event.data.payload) {
+                        const p = event.data.payload;
+                        if (p && p.userId) {
+                            if (!_cachedUsersPresence) _cachedUsersPresence = {};
+                            const safeId = String(p.userId);
+                            const safeUname = p.username ? String(p.username) : '';
+                            const isOnline = p.status === 'online';
+                            const processed = {
+                                ...p,
+                                isOnline: isOnline,
+                                ageSeconds: 0,
+                                lastSeenArabic: isOnline ? 'متصل الآن' : 'غير متصل',
+                                pageLabelArabic: getPageLabelArabic(p.currentPage)
+                            };
+                            _cachedUsersPresence[safeId] = processed;
+                            _cachedUsersPresence[safeId.toLowerCase()] = processed;
+                            if (safeUname) {
+                                _cachedUsersPresence[safeUname] = processed;
+                                _cachedUsersPresence[safeUname.toLowerCase()] = processed;
+                            }
+                            if (typeof Dashboard !== 'undefined' && Dashboard.renderLivePresence && window.App && window.App.currentPage === 'dashboard') {
+                                Dashboard.renderLivePresence();
+                            }
+                            if (typeof Team !== 'undefined' && Team.updateLivePresenceBadgesInDom) {
+                                Team.updateLivePresenceBadgesInDom();
+                            }
+                            if (window.App && typeof window.App.updateTeamPresencePill === 'function') {
+                                window.App.updateTeamPresencePill();
+                            }
+                        }
                     }
                 } catch(e) {}
             };
@@ -1333,6 +1373,57 @@ window.SupabaseClient = (function() {
                     }
                 }
             });
+        }
+    }
+
+    let ssePresence = null;
+    let presencePollInterval = null;
+
+    function subscribeToPresence() {
+        if (typeof EventSource !== 'undefined' && !ssePresence) {
+            try {
+                ssePresence = new EventSource(`${FIREBASE_DB_URL}/presence/users.json`);
+                ssePresence.onmessage = (e) => {
+                    try {
+                        const parsed = JSON.parse(e.data || '{}');
+                        const data = parsed.data;
+                        if (data === undefined) return;
+                        getAllUsersPresence().then(() => {
+                            if (typeof Dashboard !== 'undefined' && Dashboard.renderLivePresence && window.App && window.App.currentPage === 'dashboard') {
+                                Dashboard.renderLivePresence();
+                            }
+                            if (typeof Team !== 'undefined' && Team.updateLivePresenceBadgesInDom) {
+                                Team.updateLivePresenceBadgesInDom();
+                            }
+                            if (window.App && typeof window.App.updateTeamPresencePill === 'function') {
+                                window.App.updateTeamPresencePill();
+                            }
+                        }).catch(() => {});
+                    } catch(err) {}
+                };
+                ssePresence.onerror = () => {
+                    try { ssePresence.close(); } catch(c) {}
+                    ssePresence = null;
+                };
+            } catch(e) {}
+        }
+
+        if (!presencePollInterval) {
+            presencePollInterval = setInterval(() => {
+                if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
+                    getAllUsersPresence().then(() => {
+                        if (typeof Dashboard !== 'undefined' && Dashboard.renderLivePresence && window.App && window.App.currentPage === 'dashboard') {
+                            Dashboard.renderLivePresence();
+                        }
+                        if (typeof Team !== 'undefined' && Team.updateLivePresenceBadgesInDom) {
+                            Team.updateLivePresenceBadgesInDom();
+                        }
+                        if (window.App && typeof window.App.updateTeamPresencePill === 'function') {
+                            window.App.updateTeamPresencePill();
+                        }
+                    }).catch(() => {});
+                }
+            }, 6000);
         }
     }
 
@@ -1795,6 +1886,7 @@ window.SupabaseClient = (function() {
         wipeDynamicCompanies,
         subscribeToChanges,
         subscribeToAssignments,
+        subscribeToPresence,
         unsubscribe,
         acquireCompanyLock,
         releaseCompanyLock,

@@ -41,7 +41,7 @@ const Team = {
                 clearInterval(this._presencePollTimer);
                 this._presencePollTimer = null;
             }
-        }, 15000);
+        }, 6000);
     },
 
     updateLivePresenceBadgesInDom() {
