@@ -2198,7 +2198,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=383.0');
+            this._worker = new Worker('js/companies-worker.js?v=384.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize, totalCount } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -2893,7 +2893,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v383.0_guaranteed_cloud_assignments_sync_lifecycle_and_worker_realtime_healing';
+                    const currentVersionTag = 'v384.0_atomic_cloud_call_deletion_clear_and_authoritative_assignment_sync';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 
@@ -3537,13 +3537,25 @@ const AppStorage = {
                     callMap.set(String(c.id), c);
                 });
 
-                // B. Reconcile local calls (Preserve ALL local calls and auto-push to cloud if missing!)
+                // B. Reconcile local calls: ONLY keep and push recent offline calls created by current user within 60s
+                const currentUser = this.getCurrentUser();
+                const curUserId = currentUser ? String(currentUser.id || currentUser.username || '') : '';
+                const nowMs = Date.now();
                 localCalls.forEach(c => {
                     const cId = String(c.id);
-                    if (!deletedCallIds.has(cId) && !callMap.has(cId)) {
-                        callMap.set(cId, c);
-                        if (window.SupabaseClient && window.SupabaseClient.pushSingleCall) {
-                            window.SupabaseClient.pushSingleCall(c).catch(() => {});
+                    if (!callMap.has(cId)) {
+                        const cUserId = String(c.userId || c.createdBy || '');
+                        const cAge = c.createdAt ? (nowMs - new Date(c.createdAt).getTime()) : Infinity;
+                        const isRecentSelfCreated = (curUserId && cUserId === curUserId) && cAge < 60000;
+                        if (isRecentSelfCreated && !deletedCallIds.has(cId)) {
+                            callMap.set(cId, c);
+                            if (window.SupabaseClient && window.SupabaseClient.pushSingleCall) {
+                                window.SupabaseClient.pushSingleCall(c).catch(() => {});
+                            }
+                        } else {
+                            // Cloud deleted this call — purge locally and prevent resurrection
+                            deletedCallIds.add(cId);
+                            this.recordDeletedId('calls', cId);
                         }
                     }
                 });
@@ -4749,14 +4761,21 @@ const AppStorage = {
                 updatedAt: now
             }
         };
+        let cloudOk = true;
         if (window.SupabaseClient && typeof window.SupabaseClient.setAssignment === 'function') {
             try {
-                await window.SupabaseClient.setAssignment(companyId, userId, company.assignedAt, now);
-            } catch (e) { }
+                cloudOk = await window.SupabaseClient.setAssignment(companyId, userId, company.assignedAt, now);
+            } catch (e) {
+                console.warn('assignCompany cloud push error:', e);
+                cloudOk = false;
+            }
         } else if (window.SupabaseClient && window.SupabaseClient.pushAssignments) {
             try {
-                await window.SupabaseClient.pushAssignments(assignmentsMap);
-            } catch (e) { }
+                cloudOk = await window.SupabaseClient.pushAssignments(assignmentsMap);
+            } catch (e) {
+                console.warn('assignCompany cloud push error:', e);
+                cloudOk = false;
+            }
         }
 
         this.updateLiveCounters();
@@ -5478,13 +5497,25 @@ const AppStorage = {
             // 1. Authoritative cloud calls
             cleanCloudCalls.forEach(c => callMap.set(String(c.id), c));
 
-            // 2. Local unsynced calls (Preserve all local calls and auto-push to cloud if missing)
+            // 2. Local unsynced calls: ONLY keep and push recent offline calls created by current user within 60s
+            const currentUser = this.getCurrentUser();
+            const curUserId = currentUser ? String(currentUser.id || currentUser.username || '') : '';
+            const nowMs = Date.now();
             localCalls.forEach(c => {
                 const cId = String(c.id);
-                if (!callMap.has(cId) && !deletedCallIds.has(cId)) {
-                    callMap.set(cId, c);
-                    if (window.SupabaseClient && typeof window.SupabaseClient.pushSingleCall === 'function') {
-                        window.SupabaseClient.pushSingleCall(c).catch(() => {});
+                if (!callMap.has(cId)) {
+                    const cUserId = String(c.userId || c.createdBy || '');
+                    const cAge = c.createdAt ? (nowMs - new Date(c.createdAt).getTime()) : Infinity;
+                    const isRecentSelfCreated = (curUserId && cUserId === curUserId) && cAge < 60000;
+                    if (isRecentSelfCreated && !deletedCallIds.has(cId)) {
+                        callMap.set(cId, c);
+                        if (window.SupabaseClient && typeof window.SupabaseClient.pushSingleCall === 'function') {
+                            window.SupabaseClient.pushSingleCall(c).catch(() => {});
+                        }
+                    } else {
+                        // Cloud deleted this call — purge locally and prevent resurrection
+                        deletedCallIds.add(cId);
+                        this.recordDeletedId('calls', cId);
                     }
                 }
             });
@@ -5644,8 +5675,8 @@ const AppStorage = {
         return call;
     },
 
-    deleteCall(id) {
-        if (!id) return;
+    async deleteCall(id) {
+        if (!id) return false;
         const sId = String(id);
         const targetCall = this.getCall ? this.getCall(sId) : null;
         this.recordDeletedId('calls', sId);
@@ -5655,6 +5686,7 @@ const AppStorage = {
         this._callsCacheTs = Date.now();
         this._set(this.KEYS.CALLS, calls);
         this.invalidateStatsCache();
+        this.invalidateCallsCache();
 
         // Also delete from IndexedDB to prevent resurrection on page refresh
         try {
@@ -5662,7 +5694,7 @@ const AppStorage = {
                 const req = indexedDB.open('FleetCRM_DB', 6);
                 req.onsuccess = (e) => {
                     const db = e.target.result;
-                    if (db.objectStoreNames.contains('calls')) {
+                    if (db && db.objectStoreNames.contains('calls')) {
                         const tx = db.transaction('calls', 'readwrite');
                         tx.objectStore('calls').delete(sId);
                     }
@@ -5713,13 +5745,63 @@ const AppStorage = {
         }
         this.syncCallsToCompanies();
 
-        // Push deletion tombstone to cloud immediately (Zero delay!)
+        // Push deletion tombstone to cloud immediately and AWAIT IT!
         if (window.SupabaseClient && window.SupabaseClient.pushDeletedCall) {
-            window.SupabaseClient.pushDeletedCall(sId).catch(() => { });
+            try {
+                await window.SupabaseClient.pushDeletedCall(sId);
+            } catch (e) {
+                console.warn('deleteCall cloud push error:', e);
+            }
         }
+        return true;
     },
 
-    clearAllCalls() {
+    purgeAllCallsLocally() {
+        this._set(this.KEYS.CALLS, []);
+        this._callsCache = [];
+        this._callsCacheTs = Date.now();
+        this.invalidateStatsCache();
+        this.invalidateCallsCache();
+
+        // Wipe from IndexedDB
+        try {
+            if (typeof indexedDB !== 'undefined') {
+                const req = indexedDB.open('FleetCRM_DB', 6);
+                req.onsuccess = (e) => {
+                    const db = e.target.result;
+                    if (db && db.objectStoreNames.contains('calls')) {
+                        const tx = db.transaction('calls', 'readwrite');
+                        tx.objectStore('calls').clear();
+                    }
+                };
+            }
+        } catch (e) {}
+
+        // Reset lastCall fields on all companies in memory
+        if (this.companiesMemory && Array.isArray(this.companiesMemory)) {
+            const changed = [];
+            this.companiesMemory.forEach(comp => {
+                if (comp && (comp.lastCallResult || comp.lastCallDate || comp.lastCallNotes)) {
+                    comp.lastCallResult = '';
+                    comp.lastCallDate = '';
+                    comp.lastCallNotes = '';
+                    if (['interested', 'unqualified', 'contacted'].includes(comp.status)) {
+                        comp.status = 'new';
+                    }
+                    changed.push(comp);
+                }
+            });
+            if (changed.length > 0) {
+                this.saveBatchToIDB(changed);
+                if (this._worker) {
+                    this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: changed });
+                }
+            }
+        }
+        this.invalidateScopedCache();
+    },
+
+    async clearAllCalls() {
         const existing = this.getCalls() || [];
         const deletedIds = [];
         existing.forEach(c => {
@@ -5727,23 +5809,34 @@ const AppStorage = {
                 const sId = String(c.id);
                 deletedIds.push(sId);
                 this.recordDeletedId('calls', sId);
-                if (window.SupabaseClient && window.SupabaseClient.pushDeletedCall) {
-                    window.SupabaseClient.pushDeletedCall(sId).catch(() => { });
-                }
             }
         });
-        this._set(this.KEYS.CALLS, []);
-        this.invalidateStatsCache();
-        this.invalidateCallsCache(); // ⚡ flush call cache after clear
-        this.syncCallsToCompanies();
-        if (window.SupabaseClient && window.SupabaseClient.pushMasterData) {
-            window.SupabaseClient.pushMasterData({
-                calls: [],
-                deletedCalls: deletedIds,
-                activities: this.getActivities()
-            }).catch(() => { });
+
+        // 1. Local instant purge
+        this.purgeAllCallsLocally();
+
+        // 2. Authoritative Cloud wipe
+        if (window.SupabaseClient && typeof window.SupabaseClient.clearAllCalls === 'function') {
+            try {
+                await window.SupabaseClient.clearAllCalls();
+            } catch (e) {
+                console.warn('clearAllCalls cloud error:', e);
+            }
+        } else if (window.SupabaseClient && window.SupabaseClient.pushMasterData) {
+            try {
+                await window.SupabaseClient.pushMasterData({
+                    calls: [],
+                    clearCalls: true,
+                    deletedCalls: deletedIds,
+                    activities: this.getActivities()
+                });
+            } catch (e) {}
         }
-        this.autoSyncToCloud(this.companiesMemory, true);
+
+        if (this.autoSyncToCloud) {
+            this.autoSyncToCloud(this.companiesMemory, true);
+        }
+        return true;
     },
 
     getTodaysCalls() {

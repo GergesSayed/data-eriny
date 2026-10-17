@@ -2319,7 +2319,7 @@ const Companies = {
         });
     },
 
-    deleteCallFromDetail(callId, companyId, btnEl) {
+    async deleteCallFromDetail(callId, companyId, btnEl) {
         if (!callId) return;
         const callItem = btnEl ? btnEl.closest('.detail-call-item') : null;
         if (callItem) {
@@ -2343,15 +2343,17 @@ const Companies = {
         }
         App.showToast('تم حذف المكالمة بنجاح', 'success');
 
-        setTimeout(() => {
-            window.AppStorage.deleteCall(callId);
-            if (typeof Calls !== 'undefined') {
-                try { Calls.render(); } catch(e) {}
-            }
-            if (typeof Dashboard !== 'undefined') {
-                try { Dashboard.render(); } catch(e) {}
-            }
-        }, 10);
+        try {
+            await window.AppStorage.deleteCall(callId);
+        } catch (e) {
+            console.warn('deleteCallFromDetail error:', e);
+        }
+        if (typeof Calls !== 'undefined') {
+            try { Calls.render(); } catch(e) {}
+        }
+        if (typeof Dashboard !== 'undefined') {
+            try { Dashboard.render(); } catch(e) {}
+        }
     },
 
     showDetail(id) {

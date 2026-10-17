@@ -195,11 +195,21 @@ const Calls = {
         }
         App.openModal('modal-confirm');
         document.getElementById('confirm-message').textContent = 'هل أنت متأكد من مسح جميع المكالمات المسجلة من السجل؟';
-        document.getElementById('btn-confirm-action').onclick = () => {
-            window.AppStorage.clearAllCalls();
-            App.closeModal('modal-confirm');
-            this.render();
-            App.showToast('🗑️ تم مسح سجل المكالمات بنجاح');
+        const confirmBtn = document.getElementById('btn-confirm-action');
+        confirmBtn.onclick = async () => {
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري المسح...';
+            try {
+                await window.AppStorage.clearAllCalls();
+                App.closeModal('modal-confirm');
+                this.render();
+                App.showToast('🗑️ تم مسح سجل المكالمات بنجاح من جميع الأجهزة', 'success');
+            } catch (err) {
+                App.showToast('حدث خطأ أثناء مسح المكالمات: ' + err.message, 'error');
+            } finally {
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = 'تأكيد';
+            }
         };
     },
 
@@ -709,7 +719,7 @@ const Calls = {
         document.getElementById('confirm-message').textContent = 'هل أنت متأكد من حذف هذه المكالمة؟';
 
         const confirmBtn = document.getElementById('btn-confirm-action');
-        confirmBtn.onclick = () => {
+        confirmBtn.onclick = async () => {
             // 1. Instant close and toast (0ms latency!)
             App.closeModal('modal-confirm');
             App.showToast('تم حذف المكالمة بنجاح', 'success');
@@ -735,8 +745,12 @@ const Calls = {
                 }
             } catch(e) {}
 
-            // 3. Storage deletion and re-render immediately (0ms delay!)
-            window.AppStorage.deleteCall(id);
+            // 3. Storage deletion and cloud push (fully awaited)
+            try {
+                await window.AppStorage.deleteCall(id);
+            } catch (err) {
+                console.warn('deleteCall error:', err);
+            }
             const activePage = window.App ? window.App.currentPage : 'calls';
             if (activePage === 'calls') {
                 this.renderStats();

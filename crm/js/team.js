@@ -1245,17 +1245,22 @@ const Team = {
         `;
     },
 
-    quickChangeAssign(companyId, newUserId, currentModalTargetUserId) {
+    async quickChangeAssign(companyId, newUserId, currentModalTargetUserId) {
         const comp = window.AppStorage.getCompany(companyId);
         const compName = comp ? (comp.nameAr || comp.nameEn || 'الشركة') : 'الشركة';
         const user = newUserId ? window.AppStorage.getUser(newUserId) : null;
         const userName = user ? user.name : newUserId;
 
-        window.AppStorage.assignCompany(companyId, newUserId);
-        if (newUserId) {
-            App.showToast(`✅ تم إسناد شركة "${compName}" بنجاح إلى: ${userName}`, 'success');
-        } else {
-            App.showToast(`🗑️ تم إلغاء إسناد شركة "${compName}" وتفريغها`, 'info');
+        try {
+            await window.AppStorage.assignCompany(companyId, newUserId);
+            if (newUserId) {
+                App.showToast(`✅ تم إسناد شركة "${compName}" بنجاح إلى: ${userName}`, 'success');
+            } else {
+                App.showToast(`🗑️ تم إلغاء إسناد شركة "${compName}" وتفريغها بنجاح`, 'info');
+            }
+        } catch (e) {
+            console.error('quickChangeAssign error:', e);
+            App.showToast('خطأ أثناء تحديث التعيين: ' + e.message, 'error');
         }
 
         this.renderAssignList(currentModalTargetUserId);

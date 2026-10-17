@@ -173,17 +173,26 @@ window.SupabaseClient = (function() {
         }
 
         const promises = [];
-        if (data.calls && Array.isArray(data.calls) && data.calls.length > 0) {
-            const callsMap = {};
-            data.calls.forEach(c => {
-                if (c && c.id) callsMap[String(c.id)] = c;
-            });
-            if (Object.keys(callsMap).length > 0) {
+        if (data.calls && Array.isArray(data.calls)) {
+            if (data.calls.length > 0) {
+                const callsMap = {};
+                data.calls.forEach(c => {
+                    if (c && c.id) callsMap[String(c.id)] = c;
+                });
+                if (Object.keys(callsMap).length > 0) {
+                    promises.push(
+                        fetch(`${FIREBASE_DB_URL}/calls.json`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(callsMap),
+                            signal
+                        })
+                    );
+                }
+            } else if (data.clearCalls) {
                 promises.push(
                     fetch(`${FIREBASE_DB_URL}/calls.json`, {
-                        method: 'PATCH',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(callsMap),
+                        method: 'DELETE',
                         signal
                     })
                 );
@@ -1024,6 +1033,17 @@ window.SupabaseClient = (function() {
                             return;
                         }
 
+                        // ⚡ SUPER-FAST DELTA PATH (< 5ms): Clear All Calls Wiped
+                        if (data.delta_type === 'clear_calls') {
+                            if (window.AppStorage && typeof window.AppStorage.purgeAllCallsLocally === 'function') {
+                                window.AppStorage.purgeAllCallsLocally();
+                            }
+                            if (window.App && typeof window.App.refreshCurrentPage === 'function') {
+                                window.App.refreshCurrentPage();
+                            }
+                            return;
+                        }
+
                         // ⚡ SUPER-FAST DELTA PATH (< 5ms): Single Company Deletion
                         if (data.delta_type === 'delete_company' && data.company_id) {
                             if (window.AppStorage && typeof window.AppStorage.purgeDeletedCompanyLocally === 'function') {
@@ -1187,6 +1207,14 @@ window.SupabaseClient = (function() {
                         if (event.data.clientId === currentClientId) return;
                         if (window.AppStorage && typeof window.AppStorage.purgeDeletedCallLocally === 'function') {
                             window.AppStorage.purgeDeletedCallLocally(event.data.callId);
+                        }
+                        if (window.App && typeof window.App.refreshCurrentPage === 'function') {
+                            window.App.refreshCurrentPage();
+                        }
+                    } else if (event.data && event.data.type === 'CALLS_CLEARED') {
+                        if (event.data.clientId === currentClientId) return;
+                        if (window.AppStorage && typeof window.AppStorage.purgeAllCallsLocally === 'function') {
+                            window.AppStorage.purgeAllCallsLocally();
                         }
                         if (window.App && typeof window.App.refreshCurrentPage === 'function') {
                             window.App.refreshCurrentPage();
@@ -1553,6 +1581,36 @@ window.SupabaseClient = (function() {
         }
     }
 
+    async function clearAllCalls() {
+        const now = Date.now();
+        lastSyncTimestamp = now;
+        try {
+            await fetch(`${FIREBASE_DB_URL}/calls.json`, { method: 'DELETE' });
+            if (syncChannel) {
+                try {
+                    syncChannel.postMessage({
+                        type: 'CALLS_CLEARED',
+                        clientId: currentClientId
+                    });
+                } catch(e) {}
+            }
+            fetch(`${FIREBASE_DB_URL}/metadata.json`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    updated_at: new Date(now).toISOString(),
+                    sync_timestamp: now,
+                    updated_by: currentClientId,
+                    delta_type: 'clear_calls'
+                })
+            }).catch(() => {});
+            return true;
+        } catch(e) {
+            console.warn('clearAllCalls cloud error:', e);
+            return false;
+        }
+    }
+
     async function pushDeletedCompany(id) {
         if (!id) return false;
         const sId = String(id);
@@ -1729,6 +1787,7 @@ window.SupabaseClient = (function() {
         pushCustody,
         pushCustodyBatch,
         pushDeletedCall,
+        clearAllCalls,
         pushDeletedCompany,
         pushDeletedCompaniesBatch,
         pushSingleCall,
