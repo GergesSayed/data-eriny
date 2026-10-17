@@ -1139,21 +1139,25 @@ const Team = {
             );
         }
 
-        // Apply Status Filter
+        // Apply Status Filter with flexible user key matching
         if (statusVal === 'assigned_to_user') {
-            companies = companies.filter(c => c.assignedTo === targetUserId);
+            companies = companies.filter(c => c.assignedTo && (c.assignedTo === targetUserId || (targetUser && (c.assignedTo === targetUser.username || c.assignedTo === targetUser.name))));
         } else if (statusVal === 'unassigned') {
             companies = companies.filter(c => !c.assignedTo);
         } else if (statusVal === 'assigned_others') {
-            companies = companies.filter(c => c.assignedTo && c.assignedTo !== targetUserId);
+            companies = companies.filter(c => c.assignedTo && c.assignedTo !== targetUserId && (!targetUser || (c.assignedTo !== targetUser.username && c.assignedTo !== targetUser.name)));
         }
 
-        const totalAssignedToTarget = window.AppStorage.getCompanies().filter(c => c.assignedTo === targetUserId).length;
+        const totalAssignedToTarget = window.AppStorage.getCompanies().filter(c => c.assignedTo && (c.assignedTo === targetUserId || (targetUser && (c.assignedTo === targetUser.username || c.assignedTo === targetUser.name)))).length;
+        const totalMatches = companies.length;
+        const maxDisplay = 50;
+        const displayCompanies = companies.slice(0, maxDisplay);
+
         if (countEl) {
-            countEl.innerHTML = `📌 الموظف <b>${targetUser ? targetUser.name : ''}</b> لديه الآن: <b style="font-size:16px;">${totalAssignedToTarget}</b> شركة مسندة (معروض ${companies.length} شركة)`;
+            countEl.innerHTML = `📌 الموظف <b>${targetUser ? targetUser.name : ''}</b> لديه الآن: <b style="font-size:16px;">${totalAssignedToTarget}</b> شركة مسندة (معروض ${displayCompanies.length} من إجمالي ${totalMatches} مطابقة)`;
         }
 
-        if (companies.length === 0) {
+        if (displayCompanies.length === 0) {
             listEl.innerHTML = `
                 <div class="empty-state" style="padding:40px 20px;">
                     <i class="fas fa-search" style="font-size:36px; color:var(--text-muted); margin-bottom:12px;"></i>
@@ -1174,8 +1178,8 @@ const Team = {
                     </tr>
                 </thead>
                 <tbody>
-                    ${companies.map(c => {
-                        const isTargetUser = c.assignedTo === targetUserId;
+                    ${displayCompanies.map(c => {
+                        const isTargetUser = Boolean(c.assignedTo && (c.assignedTo === targetUserId || (targetUser && (c.assignedTo === targetUser.username || c.assignedTo === targetUser.name))));
                         const custodyHistory = (window.AppStorage && window.AppStorage.getCustodyHistory) ? window.AppStorage.getCustodyHistory(c.id) : [];
                         const targetRecords = custodyHistory.filter(h => String(h.toUserId) === String(targetUserId));
                         const wasWithTarget = targetRecords.length > 0;
@@ -1240,6 +1244,13 @@ const Team = {
                             </tr>
                         `;
                     }).join('')}
+                    ${totalMatches > maxDisplay ? `
+                        <tr>
+                            <td colspan="5" style="text-align:center; padding:12px; background:var(--bg-surface); color:var(--text-muted); font-size:12px;">
+                                💡 تم عرض أول ${maxDisplay} شركة من إجمالي ${totalMatches} شركة للمحافظة على أقصى سرعة واستجابة. استخدم شريط البحث أعلاه للوصول السريع لأي شركة بالاسم أو المدينة.
+                            </td>
+                        </tr>
+                    ` : ''}
                 </tbody>
             </table>
         `;

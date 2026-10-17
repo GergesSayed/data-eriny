@@ -2198,7 +2198,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=386.0');
+            this._worker = new Worker('js/companies-worker.js?v=387.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize, totalCount } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -2893,7 +2893,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v386.0_realtime_stream_user_presence_and_anti_false_offline';
+                    const currentVersionTag = 'v387.0_realtime_stream_user_presence_and_anti_false_offline';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 
@@ -3412,11 +3412,12 @@ const AppStorage = {
                     });
                 }
 
-                // B. Apply assignments directly from cloud (Authoritative single source of truth!)
+                // B. Apply assignments directly from cloud (Timestamp-aware single source of truth!)
                 if (data.assignments && typeof data.assignments === 'object') {
                     const storedAssignments = this.getStoredAssignments() || {};
                     const changedComps = [];
 
+                    // 1. Process cloud assignments and compare timestamps with local assignments
                     for (const [compId, assignData] of Object.entries(data.assignments)) {
                         if (!assignData) continue;
                         const sId = String(compId);
@@ -3436,6 +3437,18 @@ const AppStorage = {
                             cloudUpdatedAt = Date.now();
                         }
 
+                        const local = storedAssignments[sId];
+                        const localUpdatedAt = (local && typeof local.updatedAt === 'number') ? local.updatedAt : 0;
+
+                        // If local assignment was updated strictly after this cloud record, local wins!
+                        if (local && localUpdatedAt > cloudUpdatedAt) {
+                            // Sync newer local assignment up to cloud in background
+                            if (window.SupabaseClient && typeof window.SupabaseClient.setAssignment === 'function') {
+                                window.SupabaseClient.setAssignment(sId, local.assignedTo, local.assignedAt, localUpdatedAt).catch(() => {});
+                            }
+                            continue;
+                        }
+
                         storedAssignments[sId] = {
                             assignedTo: targetUser,
                             assignedAt: targetAt,
@@ -3451,20 +3464,12 @@ const AppStorage = {
                         }
                     }
 
-                    // Also reconcile and clear any local assignments that were unassigned or deleted in cloud
+                    // 2. For local assignments missing from cloud: push them to cloud rather than blindly wiping them!
                     for (const [sId, localData] of Object.entries(storedAssignments)) {
-                        if (localData && localData.assignedTo && (!data.assignments[sId] || !data.assignments[sId].assignedTo)) {
-                            storedAssignments[sId] = {
-                                assignedTo: '',
-                                assignedAt: null,
-                                updatedAt: Date.now()
-                            };
-                            const comp = idMap.get(sId);
-                            if (comp && comp.assignedTo) {
-                                comp.assignedTo = '';
-                                comp.assignedAt = null;
-                                anyChanged = true;
-                                changedComps.push(comp);
+                        if (localData && localData.assignedTo && !data.assignments[sId]) {
+                            // Cloud doesn't have this assignment yet — push to cloud to persist it!
+                            if (window.SupabaseClient && typeof window.SupabaseClient.setAssignment === 'function') {
+                                window.SupabaseClient.setAssignment(sId, localData.assignedTo, localData.assignedAt, localData.updatedAt || Date.now()).catch(() => {});
                             }
                         }
                     }
@@ -3835,12 +3840,9 @@ const AppStorage = {
     setStoredAssignments(map) {
         if (!map || typeof map !== 'object') return;
         this._storedAssignmentsCache = map;
-        if (this._saveAssignmentsTimeout) clearTimeout(this._saveAssignmentsTimeout);
-        this._saveAssignmentsTimeout = setTimeout(() => {
-            try {
-                localStorage.setItem('fleetcrm_assignments', JSON.stringify(this._storedAssignmentsCache || {}));
-            } catch (e) { }
-        }, 150);
+        try {
+            localStorage.setItem('fleetcrm_assignments', JSON.stringify(map));
+        } catch (e) { }
     },
 
     applyStoredAssignments(target) {
