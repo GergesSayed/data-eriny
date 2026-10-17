@@ -2198,7 +2198,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=385.0');
+            this._worker = new Worker('js/companies-worker.js?v=386.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize, totalCount } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -2893,7 +2893,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v385.0_realtime_stream_user_presence_and_anti_false_offline';
+                    const currentVersionTag = 'v386.0_realtime_stream_user_presence_and_anti_false_offline';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 
@@ -3470,6 +3470,9 @@ const AppStorage = {
                     }
 
                     this.setStoredAssignments(storedAssignments);
+                    this.invalidateScopedCache();
+                    this.invalidateStatsCache();
+                    this.updateLiveCounters();
                     if (changedComps.length > 0) {
                         this.saveBatchToIDB(changedComps);
                         if (this._worker) {
@@ -3943,8 +3946,9 @@ const AppStorage = {
             if (this._worker) {
                 this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: changedComps });
             }
+            return true;
         }
-        return true;
+        return false;
     },
 
     applyCallsToCompanies(target) {
@@ -4151,11 +4155,6 @@ const AppStorage = {
             return allCompanies; // Admin & Supervisor can view all companies
         }
 
-        const uKey = String(currentUser.id || currentUser.username || '').toLowerCase();
-        if (this._scopedCacheByUser.has(uKey)) {
-            return this._scopedCacheByUser.get(uKey);
-        }
-
         // Match all user keys (id, username, email, name)
         const matchedUser = this.getUser(currentUser.id) || this.getUserByUsername(currentUser.username) || this.getUserByEmail(currentUser.email) || currentUser;
         const myKeys = new Set([
@@ -4176,7 +4175,6 @@ const AppStorage = {
                 res.push(c);
             }
         }
-        this._scopedCacheByUser.set(uKey, res);
         return res;
     },
 
@@ -5456,7 +5454,7 @@ const AppStorage = {
     },
 
     async pullCallsFromCloud() {
-        if (typeof window === 'undefined' || !navigator.onLine) return [];
+        if (typeof window === 'undefined' || !navigator.onLine) return false;
         try {
             if (!this.companiesMemory || !Array.isArray(this.companiesMemory) || this.companiesMemory.length === 0) {
                 if (this._dbInitPromise) {
@@ -5470,7 +5468,7 @@ const AppStorage = {
                 fetch('https://fleet-crm-38ba6-default-rtdb.firebaseio.com/calls.json?t=' + Date.now()),
                 fetch('https://fleet-crm-38ba6-default-rtdb.firebaseio.com/deleted_calls.json?t=' + Date.now())
             ]);
-            if (!resp.ok) return [];
+            if (!resp.ok) return false;
             const data = await resp.json();
             const cloudCalls = !data ? [] : (Array.isArray(data) ? data.filter(Boolean) : Object.values(data).filter(Boolean));
 
@@ -5488,30 +5486,35 @@ const AppStorage = {
                 }
             }
 
-            const cleanCloudCalls = cloudCalls.filter(c => c && c.id && !deletedCallIds.has(String(c.id)));
-
             const localRawCalls = this._get(this.KEYS.CALLS) || [];
-            const localCalls = localRawCalls.filter(c => c && c.id && !deletedCallIds.has(String(c.id)));
+
+            // If cloud has zero calls (e.g. Admin wiped all calls)
+            if (cloudCalls.length === 0 && localRawCalls.length > 0) {
+                this.purgeAllCallsLocally();
+                return true;
+            }
+
+            const cleanCloudCalls = cloudCalls.filter(c => c && c.id && !deletedCallIds.has(String(c.id)));
             const callMap = new Map();
 
             // 1. Authoritative cloud calls
             cleanCloudCalls.forEach(c => callMap.set(String(c.id), c));
 
-            // 2. Local unsynced calls: ONLY keep and push recent offline calls created by current user within 60s
-            const currentUser = this.getCurrentUser();
-            const curUserId = currentUser ? String(currentUser.id || currentUser.username || '') : '';
-            const nowMs = Date.now();
-            localCalls.forEach(c => {
+            // 2. Local unsynced calls: ONLY keep calls that are explicitly in the pending offline queue
+            let offlineQueueCalls = [];
+            try {
+                const q = JSON.parse(localStorage.getItem('fleetcrm_offline_queue') || '[]');
+                offlineQueueCalls = q.filter(item => item && item.data && item.data.type === 'call').map(item => item.data);
+            } catch(e) {}
+
+            localRawCalls.forEach(c => {
+                if (!c || !c.id) return;
                 const cId = String(c.id);
+                if (deletedCallIds.has(cId)) return;
                 if (!callMap.has(cId)) {
-                    const cUserId = String(c.userId || c.createdBy || '');
-                    const cAge = c.createdAt ? (nowMs - new Date(c.createdAt).getTime()) : Infinity;
-                    const isRecentSelfCreated = (curUserId && cUserId === curUserId) && cAge < 60000;
-                    if (isRecentSelfCreated && !deletedCallIds.has(cId)) {
+                    const isQueued = offlineQueueCalls.some(qc => String(qc.id) === cId);
+                    if (isQueued) {
                         callMap.set(cId, c);
-                        if (window.SupabaseClient && typeof window.SupabaseClient.pushSingleCall === 'function') {
-                            window.SupabaseClient.pushSingleCall(c).catch(() => {});
-                        }
                     } else {
                         // Cloud deleted this call — purge locally and prevent resurrection
                         deletedCallIds.add(cId);
@@ -5521,10 +5524,32 @@ const AppStorage = {
             });
 
             const merged = Array.from(callMap.values());
+
+            // Check if anything actually changed compared to current cache
+            const prevCalls = this._callsCache || localRawCalls;
+            let wasUpdated = false;
+            if (prevCalls.length !== merged.length) {
+                wasUpdated = true;
+            } else {
+                const prevMap = new Map(prevCalls.map(c => [String(c.id), c]));
+                for (const c of merged) {
+                    const p = prevMap.get(String(c.id));
+                    if (!p || p.result !== c.result || p.date !== c.date || p.notes !== c.notes) {
+                        wasUpdated = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!wasUpdated) {
+                return false;
+            }
+
             this._callsCache = merged;
             this._callsCacheTs = Date.now();
             this._set(this.KEYS.CALLS, merged);
             this.invalidateStatsCache();
+            this.invalidateCallsCache();
 
             // Also clean IndexedDB of any deleted calls
             if (deletedCallIds.size > 0 && typeof indexedDB !== 'undefined') {
@@ -5574,9 +5599,9 @@ const AppStorage = {
                 }
             }
 
-            return merged;
+            return true;
         } catch(e) {
-            return [];
+            return false;
         }
     },
 

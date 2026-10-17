@@ -181,7 +181,7 @@ const App = {
                     console.log('[SW] Service worker controller updated and active.');
                 });
 
-                navigator.serviceWorker.register('sw.js?v=385.0').then(reg => {
+                navigator.serviceWorker.register('sw.js?v=386.0').then(reg => {
                     reg.update().catch(() => {});
                     // Detect when a new SW version is waiting — show update notification
                     reg.addEventListener('updatefound', () => {
@@ -288,20 +288,20 @@ const App = {
                 this.refreshCurrentPage();
             }).catch(() => {});
 
-            // Rapid 5s cloud sync pull — check for remote companies & calls in near real-time
+            // Periodic background sync check (non-blocking 25s poll - only refreshes if cloud data actually changed!)
             if (!this._cloudSyncInterval) {
                 this._cloudSyncInterval = setInterval(() => {
                     if (typeof document === 'undefined' || document.visibilityState === 'visible') {
                         Promise.all([
-                            window.AppStorage.pullFromCloud(),
-                            window.AppStorage.pullCallsFromCloud ? window.AppStorage.pullCallsFromCloud() : Promise.resolve([])
-                        ]).then(([pulled, calls]) => {
-                            if (pulled || (calls && calls.length > 0)) {
+                            window.AppStorage.pullFromCloud(false),
+                            window.AppStorage.pullCallsFromCloud ? window.AppStorage.pullCallsFromCloud() : Promise.resolve(false)
+                        ]).then(([compUpdated, callsUpdated]) => {
+                            if (compUpdated === true || callsUpdated === true) {
                                 this.refreshCurrentPage();
                             }
                         }).catch(() => {});
                     }
-                }, 3000);
+                }, 25000);
             }
 
             // Instant cloud pull whenever user switches back to this window or tab
@@ -354,11 +354,6 @@ const App = {
                             }
                         }
                     });
-                }
-
-                // Real-time instant team presence watcher (sub-100ms push on online/offline)
-                if (typeof window.SupabaseClient.subscribeToPresence === 'function') {
-                    window.SupabaseClient.subscribeToPresence();
                 }
             }
         } catch (err) {
@@ -1849,7 +1844,7 @@ const App = {
             if (modal && modal.classList.contains('show')) {
                 this.renderTeamPresenceModalContent();
             }
-        }, 12000); // 12s update
+        }, 20000); // 20s update
 
         if (!this._teamWatcherListenersBound && typeof window !== 'undefined') {
             this._teamWatcherListenersBound = true;

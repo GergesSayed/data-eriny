@@ -1133,7 +1133,7 @@ window.SupabaseClient = (function() {
             pollInterval = setInterval(() => {
                 if (typeof document !== 'undefined' && document.hidden) return;
                 checkMetadataDelta();
-            }, 6000);
+            }, 15000);
         };
         startPolling();
 
@@ -1359,7 +1359,7 @@ window.SupabaseClient = (function() {
             } catch(e) {}
         };
 
-        assignPollInterval = setInterval(pollAssignments, 5000);
+        assignPollInterval = setInterval(pollAssignments, 15000);
 
         // Instant poll on focus / visibility change
         if (typeof window !== 'undefined' && !_assignFocusBound) {
@@ -1376,38 +1376,9 @@ window.SupabaseClient = (function() {
         }
     }
 
-    let ssePresence = null;
     let presencePollInterval = null;
 
     function subscribeToPresence() {
-        if (typeof EventSource !== 'undefined' && !ssePresence) {
-            try {
-                ssePresence = new EventSource(`${FIREBASE_DB_URL}/presence/users.json`);
-                ssePresence.onmessage = (e) => {
-                    try {
-                        const parsed = JSON.parse(e.data || '{}');
-                        const data = parsed.data;
-                        if (data === undefined) return;
-                        getAllUsersPresence().then(() => {
-                            if (typeof Dashboard !== 'undefined' && Dashboard.renderLivePresence && window.App && window.App.currentPage === 'dashboard') {
-                                Dashboard.renderLivePresence();
-                            }
-                            if (typeof Team !== 'undefined' && Team.updateLivePresenceBadgesInDom) {
-                                Team.updateLivePresenceBadgesInDom();
-                            }
-                            if (window.App && typeof window.App.updateTeamPresencePill === 'function') {
-                                window.App.updateTeamPresencePill();
-                            }
-                        }).catch(() => {});
-                    } catch(err) {}
-                };
-                ssePresence.onerror = () => {
-                    try { ssePresence.close(); } catch(c) {}
-                    ssePresence = null;
-                };
-            } catch(e) {}
-        }
-
         if (!presencePollInterval) {
             presencePollInterval = setInterval(() => {
                 if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
@@ -1423,7 +1394,7 @@ window.SupabaseClient = (function() {
                         }
                     }).catch(() => {});
                 }
-            }, 6000);
+            }, 20000);
         }
     }
 
