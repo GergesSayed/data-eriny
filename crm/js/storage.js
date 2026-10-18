@@ -2198,7 +2198,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=389.0');
+            this._worker = new Worker('js/companies-worker.js?v=390.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize, totalCount } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -2893,7 +2893,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v389.0_realtime_stream_user_presence_and_anti_false_offline';
+                    const currentVersionTag = 'v390.0_realtime_stream_user_presence_and_anti_false_offline';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 
@@ -3924,9 +3924,9 @@ const AppStorage = {
             const comp = idMap.get(sId);
             if (comp) {
                 const prevUser = comp.assignedTo || '';
-                if (prevUser !== targetUser) {
-                    comp.assignedTo = targetUser;
-                    comp.assignedAt = targetAt;
+                comp.assignedTo = targetUser;
+                comp.assignedAt = targetAt;
+                if (prevUser !== targetUser || source === 'cloud_sse' || source === 'local_broadcast') {
                     changedComps.push(comp);
                 }
             }
@@ -3944,7 +3944,7 @@ const AppStorage = {
             }
             return true;
         }
-        return false;
+        return true;
     },
 
     applyCallsToCompanies(target) {

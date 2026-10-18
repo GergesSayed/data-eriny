@@ -1184,7 +1184,9 @@ const Companies = {
         const fleetSize = document.getElementById('filter-fleet-size')?.value || '';
         const addedDate = document.getElementById('filter-added-date')?.value || '';
         const sortMode = document.getElementById('filter-sort')?.value || 'priority_fleet';
-        const assigned = document.getElementById('filter-assigned')?.value || '';
+        const currentUser = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
+        const canViewAll = window.AppStorage ? window.AppStorage.canViewAll(currentUser) : true;
+        const assigned = canViewAll ? (document.getElementById('filter-assigned')?.value || '') : '';
         const search = document.getElementById('filter-search')?.value?.trim() || '';
 
         // Synchronize Quick VIP Toggle Button UI
@@ -1236,9 +1238,6 @@ const Companies = {
         let totalPages = result.totalPages || 1;
         this.currentPage = result.page || 1;
 
-        const currentUser = window.AppStorage.getCurrentUser();
-        const canViewAll = window.AppStorage.canViewAll(currentUser);
-
         // Auto-heal empty view for admin if filters are clean
         if (total === 0 && canViewAll && !search && finalSectors.length === 0 && finalGovs.length === 0 && finalCities.length === 0 && !contactType && !priority && !vip && !fleetType && !fleetSize && !assigned && !addedDate) {
             if (window.AppStorage && typeof window.AppStorage.hydrateMemoryFromBaseline === 'function') {
@@ -1253,6 +1252,28 @@ const Companies = {
                     total = recheck.total;
                     totalPages = recheck.totalPages || 1;
                     this.currentPage = 1;
+                }
+            }
+        } else if (total === 0 && !canViewAll && !search && finalSectors.length === 0 && finalGovs.length === 0 && finalCities.length === 0 && !contactType && !priority && !vip && !fleetType && !fleetSize && !addedDate) {
+            // Auto-heal empty view for employee: sync assignments from cloud in case they just landed
+            if (window.AppStorage && typeof window.AppStorage.pullFromCloud === 'function' && !this._employeeAutoHealInFlight) {
+                this._employeeAutoHealInFlight = true;
+                try {
+                    await window.AppStorage.pullFromCloud(true);
+                    this._employeeAutoHealInFlight = false;
+                    const recheck = await window.AppStorage.queryCompanies({
+                        page: 1,
+                        pageSize: this.pageSize,
+                        sortMode
+                    });
+                    if (recheck && recheck.total > 0) {
+                        pageCompanies = recheck.items || [];
+                        total = recheck.total;
+                        totalPages = recheck.totalPages || 1;
+                        this.currentPage = 1;
+                    }
+                } catch(e) {
+                    this._employeeAutoHealInFlight = false;
                 }
             }
         }

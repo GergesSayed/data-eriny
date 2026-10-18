@@ -149,7 +149,7 @@ const App = {
                     console.log('[SW] Service worker controller updated and active.');
                 });
 
-                navigator.serviceWorker.register('sw.js?v=389.0').then(reg => {
+                navigator.serviceWorker.register('sw.js?v=390.0').then(reg => {
                     reg.update().catch(() => {});
                     // Detect when a new SW version is waiting — show update notification
                     reg.addEventListener('updatefound', () => {
@@ -722,7 +722,7 @@ const App = {
         try { this.updateNotificationBadge(); } catch(e) {}
     },
 
-    switchUser(userId) {
+    async switchUser(userId) {
         if (userId === 'logout') {
             this.logoutSystem();
             return;
@@ -750,21 +750,31 @@ const App = {
             Companies.myPortfolioOnly = false;
             Companies.statusFilter = null;
             Companies.currentPage = 1;
+            Companies._countsCache = null;
+            if (Companies.selectedSectors) Companies.selectedSectors.clear();
+            if (Companies.selectedGovs) Companies.selectedGovs.clear();
+            if (Companies.selectedCities) Companies.selectedCities.clear();
             const filterAssigned = document.getElementById('filter-assigned');
             if (filterAssigned) filterAssigned.value = '';
+            const searchEl = document.getElementById('filter-search');
+            if (searchEl) searchEl.value = '';
             Companies.refreshUserFilter();
         }
         const user = window.AppStorage.getCurrentUser();
         const isAdmin = user && user.role === 'admin';
         this.showToast(isAdmin ? `👑 تم تفعيل حساب: ${user.name} - تحكم كامل بالمأذونيات` : `👤 تم التبديل إلى حساب: ${user.name}`, 'success');
+
+        // Immediately synchronize cloud assignments before navigating so memory & worker have latest data
+        try {
+            await Promise.all([
+                window.AppStorage && typeof window.AppStorage.pullFromCloud === 'function' ? window.AppStorage.pullFromCloud(true) : Promise.resolve(false),
+                window.AppStorage && typeof window.AppStorage.pullCallsFromCloud === 'function' ? window.AppStorage.pullCallsFromCloud() : Promise.resolve([])
+            ]);
+        } catch(e) {}
+
         this.navigateTo(isAdmin ? 'dashboard' : 'companies', true);
         this.initMasterSyncEngine();
-        Promise.all([
-            window.AppStorage && typeof window.AppStorage.pullFromCloud === 'function' ? window.AppStorage.pullFromCloud(true) : Promise.resolve(false),
-            window.AppStorage && typeof window.AppStorage.pullCallsFromCloud === 'function' ? window.AppStorage.pullCallsFromCloud() : Promise.resolve([])
-        ]).then(() => {
-            this.refreshCurrentPage();
-        }).catch(() => {});
+        this.refreshCurrentPage();
     },
 
     async autoImportScrapedData() {

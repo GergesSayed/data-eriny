@@ -33,9 +33,11 @@ window.SupabaseClient = (function() {
                     if (_assignmentsDeltaCallback) {
                         try { _assignmentsDeltaCallback(data.delta, 'local_broadcast'); } catch(e) {}
                     }
-                    if (window.App && typeof window.App.refreshCurrentPage === 'function') {
-                        window.App.refreshCurrentPage();
-                    }
+                    setTimeout(() => {
+                        if (window.App && typeof window.App.refreshCurrentPage === 'function') {
+                            window.App.refreshCurrentPage();
+                        }
+                    }, 50);
                 } else if (data.type === 'CALL_SAVED' && data.call) {
                     if (window.AppStorage && typeof window.AppStorage.ingestSingleCall === 'function') {
                         window.AppStorage.ingestSingleCall(data.call);
@@ -216,7 +218,7 @@ window.SupabaseClient = (function() {
                 users: Array.isArray(usersData) ? usersData : (usersData ? Object.values(usersData) : []),
                 activities: Array.isArray(actsData) ? actsData : (actsData ? Object.values(actsData) : []),
                 custody: (custodyObj && typeof custodyObj === 'object') ? custodyObj : {},
-                updated_at: (rootData && rootData.metadata && rootData.metadata.updated_at) ? rootData.metadata.updated_at : new Date().toISOString()
+                updated_at: new Date().toISOString()
             };
         } catch (err) {
             clearTimeout(timeoutId);
@@ -1165,9 +1167,11 @@ window.SupabaseClient = (function() {
                                     }
                                 }, 'cloud_sse');
                             }
-                            if (window.App && typeof window.App.refreshCurrentPage === 'function') {
-                                window.App.refreshCurrentPage();
-                            }
+                            setTimeout(() => {
+                                if (window.App && typeof window.App.refreshCurrentPage === 'function') {
+                                    window.App.refreshCurrentPage();
+                                }
+                            }, 50);
                             return;
                         }
 
@@ -1176,9 +1180,11 @@ window.SupabaseClient = (function() {
                             if (window.AppStorage && typeof window.AppStorage.applyRealtimeAssignmentsDelta === 'function') {
                                 window.AppStorage.applyRealtimeAssignmentsDelta(data.assignments_delta, 'cloud_sse');
                             }
-                            if (window.App && typeof window.App.refreshCurrentPage === 'function') {
-                                window.App.refreshCurrentPage();
-                            }
+                            setTimeout(() => {
+                                if (window.App && typeof window.App.refreshCurrentPage === 'function') {
+                                    window.App.refreshCurrentPage();
+                                }
+                            }, 50);
                             return;
                         }
 

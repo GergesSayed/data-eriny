@@ -425,6 +425,10 @@ self.onmessage = function(e) {
                             if (!arr) { arr = []; _assignedBuckets.set(newAsgn, arr); }
                             if (!arr.includes(existingIdx)) arr.push(existingIdx);
                         }
+                    } else if (newAsgn) {
+                        let arr = _assignedBuckets.get(newAsgn);
+                        if (!arr) { arr = []; _assignedBuckets.set(newAsgn, arr); }
+                        if (!arr.includes(existingIdx)) arr.push(existingIdx);
                     }
                 }
                 _companiesIndex[existingIdx] = indexed;
@@ -546,8 +550,8 @@ self.onmessage = function(e) {
                     for (let j = 0; j < arr.length; j++) seenCandidateIdx.add(arr[j]);
                 }
             }
-            if (seenCandidateIdx.size === 0 && _companiesIndex && _companiesIndex.length > 0) {
-                // Authoritative safety scan across index in case assignment buckets are currently refreshing
+            // Authoritative completeness scan across index so no assigned company is ever missed
+            if (_companiesIndex && _companiesIndex.length > 0) {
                 for (let i = 0; i < _companiesIndex.length; i++) {
                     const c = _companiesIndex[i];
                     if (c && c.assignedTo) {
