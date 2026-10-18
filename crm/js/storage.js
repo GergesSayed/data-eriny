@@ -2198,7 +2198,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=390.0');
+            this._worker = new Worker('js/companies-worker.js?v=391.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize, totalCount } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -2893,7 +2893,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v390.0_realtime_stream_user_presence_and_anti_false_offline';
+                    const currentVersionTag = 'v391.0_realtime_stream_user_presence_and_anti_false_offline';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 
@@ -3416,8 +3416,10 @@ const AppStorage = {
                 if (data.assignments && typeof data.assignments === 'object') {
                     const storedAssignments = this.getStoredAssignments() || {};
                     const changedComps = [];
+                    const now = Date.now();
+                    const GRACE_PERIOD_MS = 60000; // 60s protection for fresh local writes against cloud race conditions
 
-                    // 1. Process cloud assignments and compare timestamps with local assignments
+                    // 1. Process cloud assignments and compare timestamps with local assignments (True LWW)
                     for (const [compId, assignData] of Object.entries(data.assignments)) {
                         if (!assignData) continue;
                         const sId = String(compId);
@@ -3434,13 +3436,28 @@ const AppStorage = {
                             cloudUpdatedAt = new Date(assignData.assignedAt).getTime();
                         }
                         if (isNaN(cloudUpdatedAt) || !cloudUpdatedAt) {
-                            cloudUpdatedAt = Date.now();
+                            cloudUpdatedAt = 0; // Legacy or untimestamped cloud records must not overwrite newer local writes
+                        }
+
+                        const localEntry = storedAssignments[sId];
+                        const localUpdatedAt = localEntry ? (typeof localEntry.updatedAt === 'number' ? localEntry.updatedAt : new Date(localEntry.updatedAt || 0).getTime()) : 0;
+                        const localAssignedTo = localEntry ? (localEntry.assignedTo || '') : '';
+
+                        // 🛡️ LWW Protection: If local assignment is newer than cloud, do NOT overwrite it!
+                        if (localAssignedTo && localUpdatedAt > cloudUpdatedAt) {
+                            // If local assignment was made recently and cloud hasn't caught up, re-push to cloud
+                            if (now - localUpdatedAt < GRACE_PERIOD_MS && localAssignedTo !== targetUser) {
+                                if (window.SupabaseClient && typeof window.SupabaseClient.setAssignment === 'function') {
+                                    window.SupabaseClient.setAssignment(sId, localAssignedTo, localEntry.assignedAt, localUpdatedAt).catch(() => {});
+                                }
+                            }
+                            continue;
                         }
 
                         storedAssignments[sId] = {
                             assignedTo: targetUser,
                             assignedAt: targetAt,
-                            updatedAt: cloudUpdatedAt || Date.now()
+                            updatedAt: cloudUpdatedAt || now
                         };
 
                         const comp = idMap.get(sId);
@@ -3452,12 +3469,26 @@ const AppStorage = {
                         }
                     }
 
-                    // Authoritative Sync: If an assignment was cleared/removed in cloud, clear it locally too (ZERO resurrection!)
+                    // 2. Authoritative Sync: If an assignment was cleared/removed in cloud, clear it locally ONLY IF it is not a fresh local write
                     for (const [sId, localData] of Object.entries(storedAssignments)) {
                         if (localData && localData.assignedTo && !data.assignments[sId]) {
+                            const localUpdatedAt = typeof localData.updatedAt === 'number' ? localData.updatedAt : new Date(localData.updatedAt || 0).getTime();
+                            const localAgeMs = now - (localUpdatedAt || 0);
+
+                            // 🛡️ FRESHNESS PROTECTION:
+                            // If local assignment was made recently (< 60s), cloud probably hasn't propagated yet or sync read raced!
+                            // NEVER wipe fresh local assignment! Re-push to cloud to guarantee persistence.
+                            if (localAgeMs < GRACE_PERIOD_MS) {
+                                if (window.SupabaseClient && typeof window.SupabaseClient.setAssignment === 'function') {
+                                    window.SupabaseClient.setAssignment(sId, localData.assignedTo, localData.assignedAt, localUpdatedAt).catch(() => {});
+                                }
+                                continue; // DO NOT WIPE!
+                            }
+
+                            // Otherwise, assignment was genuinely removed from cloud
                             localData.assignedTo = '';
                             localData.assignedAt = null;
-                            localData.updatedAt = Date.now();
+                            localData.updatedAt = now;
                             const comp = idMap.get(sId);
                             if (comp && comp.assignedTo) {
                                 comp.assignedTo = '';
@@ -5447,6 +5478,53 @@ const AppStorage = {
             }
         }
         this.syncCallsToCompanies();
+    },
+
+    applyRealtimeAssignmentsDelta(delta, source = 'realtime') {
+        if (!delta || typeof delta !== 'object') return;
+        const storedAssignments = this.getStoredAssignments() || {};
+        const changedComps = [];
+        const now = Date.now();
+
+        for (const [sId, assignInfo] of Object.entries(delta)) {
+            if (!sId || !assignInfo) continue;
+            const targetUser = typeof assignInfo === 'string' ? assignInfo : (assignInfo.assignedTo || '');
+            const targetAt = targetUser ? (assignInfo.assignedAt || null) : null;
+            const deltaTs = typeof assignInfo.updatedAt === 'number' ? assignInfo.updatedAt : (assignInfo.updatedAt ? new Date(assignInfo.updatedAt).getTime() : now);
+
+            const localEntry = storedAssignments[sId];
+            const localTs = localEntry ? (typeof localEntry.updatedAt === 'number' ? localEntry.updatedAt : new Date(localEntry.updatedAt || 0).getTime()) : 0;
+
+            // 🛡️ LWW Protection: If local assignment is strictly newer, do NOT overwrite with older incoming delta!
+            if (localEntry && localEntry.assignedTo && localTs > deltaTs) {
+                continue;
+            }
+
+            storedAssignments[sId] = {
+                assignedTo: targetUser,
+                assignedAt: targetAt,
+                updatedAt: deltaTs
+            };
+
+            const comp = this.getCompany(sId);
+            if (comp && (comp.assignedTo || '') !== targetUser) {
+                comp.assignedTo = targetUser;
+                comp.assignedAt = targetAt;
+                changedComps.push(comp);
+            }
+        }
+
+        this.setStoredAssignments(storedAssignments);
+        this.invalidateScopedCache();
+        this.invalidateStatsCache();
+        this.updateLiveCounters();
+
+        if (changedComps.length > 0) {
+            this.saveBatchToIDB(changedComps);
+            if (this._worker) {
+                this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: changedComps });
+            }
+        }
     },
 
     async pullCallsFromCloud() {

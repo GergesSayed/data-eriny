@@ -1702,10 +1702,10 @@ const Companies = {
         this.render();
     },
 
-    claimLead(companyId) {
+    async claimLead(companyId) {
         const currentUser = window.AppStorage.getCurrentUser();
         if (!currentUser) return;
-        window.AppStorage.assignCompany(companyId, currentUser.id);
+        await window.AppStorage.assignCompany(companyId, currentUser.id);
         App.showToast(`✅ تم حجز هذه الشركة لـ: ${currentUser.name}`);
         this.render();
     },
@@ -3138,27 +3138,55 @@ const Companies = {
 
         if (activeFilterAssigned === 'unassigned' && targetUserId) {
             if (tr) {
-                tr.style.transition = 'all 0.2s ease-out';
+                tr.style.transition = 'all 0.25s ease-out';
                 tr.style.opacity = '0';
                 tr.style.transform = 'translateX(20px)';
-                setTimeout(() => { if (tr.parentNode) tr.remove(); }, 200);
+                setTimeout(() => { 
+                    if (tr.parentNode) tr.remove(); 
+                    this.refreshUserFilter();
+                    const tbody = document.getElementById('companies-tbody');
+                    if (tbody && tbody.children.length === 0) {
+                        this.render();
+                    }
+                }, 250);
             } else if (card) {
-                card.style.transition = 'all 0.2s ease-out';
+                card.style.transition = 'all 0.25s ease-out';
                 card.style.opacity = '0';
                 card.style.transform = 'scale(0.95)';
-                setTimeout(() => { if (card.parentNode) card.remove(); }, 200);
+                setTimeout(() => { 
+                    if (card.parentNode) card.remove(); 
+                    this.refreshUserFilter();
+                    const grid = document.getElementById('companies-grid');
+                    if (grid && grid.children.length === 0) {
+                        this.render();
+                    }
+                }, 250);
             } else {
                 needsFullRender = true;
             }
         } else if (activeFilterAssigned && activeFilterAssigned !== 'unassigned' && activeFilterAssigned !== targetUserId) {
             if (tr) {
-                tr.style.transition = 'all 0.2s ease-out';
+                tr.style.transition = 'all 0.25s ease-out';
                 tr.style.opacity = '0';
-                setTimeout(() => { if (tr.parentNode) tr.remove(); }, 200);
+                setTimeout(() => { 
+                    if (tr.parentNode) tr.remove(); 
+                    this.refreshUserFilter();
+                    const tbody = document.getElementById('companies-tbody');
+                    if (tbody && tbody.children.length === 0) {
+                        this.render();
+                    }
+                }, 250);
             } else if (card) {
-                card.style.transition = 'all 0.2s ease-out';
+                card.style.transition = 'all 0.25s ease-out';
                 card.style.opacity = '0';
-                setTimeout(() => { if (card.parentNode) card.remove(); }, 200);
+                setTimeout(() => { 
+                    if (card.parentNode) card.remove(); 
+                    this.refreshUserFilter();
+                    const grid = document.getElementById('companies-grid');
+                    if (grid && grid.children.length === 0) {
+                        this.render();
+                    }
+                }, 250);
             } else {
                 needsFullRender = true;
             }
@@ -3183,7 +3211,9 @@ const Companies = {
         }
 
         this.refreshUserFilter();
-        this.render();
+        if (needsFullRender) {
+            this.render();
+        }
 
         // If company detail modal is currently open, re-render it immediately!
         const detailModal = document.getElementById('modal-company-detail');
