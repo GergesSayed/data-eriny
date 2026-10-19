@@ -2274,7 +2274,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=393.0');
+            this._worker = new Worker('js/companies-worker.js?v=394.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize, totalCount } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -2381,6 +2381,15 @@ const AppStorage = {
 
                     this._workerCallbacks[queryId] = (result) => {
                         clearTimeout(timeout);
+                        if (result && Array.isArray(result.items)) {
+                            const stored = this.getStoredAssignments() || {};
+                            result.items.forEach(c => {
+                                if (c && c.id && stored[c.id] && stored[c.id].assignedTo !== undefined) {
+                                    c.assignedTo = stored[c.id].assignedTo;
+                                    c.assignedAt = stored[c.id].assignedAt || null;
+                                }
+                            });
+                        }
                         resolve(result);
                     };
 
@@ -2942,7 +2951,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v393.0_realtime_stream_user_presence_and_anti_false_offline';
+                    const currentVersionTag = 'v394.0_realtime_stream_user_presence_and_anti_false_offline';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 
@@ -3537,21 +3546,26 @@ const AppStorage = {
                     }
 
                     // 2. Preservative Cloud Sync:
-                    // Absence of a key in the sparse cloud assignments table must NEVER wipe local assignments!
-                    // If local has an assignment not yet present in cloud, push it to cloud to guarantee persistence across all devices.
-                    const missingInCloud = {};
-                    for (const [sId, localData] of Object.entries(storedAssignments)) {
-                        if (localData && localData.assignedTo && (!data.assignments || !data.assignments[sId])) {
-                            const localUpdatedAt = typeof localData.updatedAt === 'number' ? localData.updatedAt : new Date(localData.updatedAt || 0).getTime();
-                            missingInCloud[sId] = {
-                                assignedTo: localData.assignedTo,
-                                assignedAt: localData.assignedAt || new Date().toISOString(),
-                                updatedAt: localUpdatedAt || now
-                            };
+                    // Only Admin can push missing offline assignments to cloud, and only if made recently (< 15 minutes)
+                    const currentUser = this.getCurrentUser();
+                    if (this.isAdmin(currentUser)) {
+                        const missingInCloud = {};
+                        const fifteenMinsAgo = now - (15 * 60 * 1000);
+                        for (const [sId, localData] of Object.entries(storedAssignments)) {
+                            if (localData && localData.assignedTo && (!data.assignments || !data.assignments[sId])) {
+                                const localUpdatedAt = typeof localData.updatedAt === 'number' ? localData.updatedAt : new Date(localData.updatedAt || 0).getTime();
+                                if (localUpdatedAt > fifteenMinsAgo) {
+                                    missingInCloud[sId] = {
+                                        assignedTo: localData.assignedTo,
+                                        assignedAt: localData.assignedAt || new Date().toISOString(),
+                                        updatedAt: localUpdatedAt || now
+                                    };
+                                }
+                            }
                         }
-                    }
-                    if (Object.keys(missingInCloud).length > 0 && window.SupabaseClient && typeof window.SupabaseClient.pushAssignments === 'function') {
-                        window.SupabaseClient.pushAssignments(missingInCloud).catch(() => {});
+                        if (Object.keys(missingInCloud).length > 0 && window.SupabaseClient && typeof window.SupabaseClient.pushAssignments === 'function') {
+                            window.SupabaseClient.pushAssignments(missingInCloud).catch(() => {});
+                        }
                     }
 
                     this.setStoredAssignments(storedAssignments);
@@ -3934,8 +3948,7 @@ const AppStorage = {
                 if (!assignData) continue;
                 const comp = target.get(String(compId));
                 if (comp) {
-                    let asgn = typeof assignData === 'string' ? assignData : (assignData.assignedTo || '');
-                    if (asgn && (String(asgn).startsWith('usr_agent_') || asgn === 'usr_rep1')) asgn = '';
+                    const asgn = typeof assignData === 'string' ? assignData : (assignData.assignedTo || '');
                     comp.assignedTo = asgn;
                     comp.assignedAt = comp.assignedTo ? (assignData.assignedAt || comp.assignedAt || null) : null;
                 }
@@ -3947,8 +3960,7 @@ const AppStorage = {
                 if (!comp || !comp.id) continue;
                 const assignData = assignMap.get(String(comp.id));
                 if (assignData) {
-                    let asgn = typeof assignData === 'string' ? assignData : (assignData.assignedTo || '');
-                    if (asgn && (String(asgn).startsWith('usr_agent_') || asgn === 'usr_rep1')) asgn = '';
+                    const asgn = typeof assignData === 'string' ? assignData : (assignData.assignedTo || '');
                     comp.assignedTo = asgn;
                     comp.assignedAt = comp.assignedTo ? (assignData.assignedAt || comp.assignedAt || null) : null;
                 }
@@ -3956,82 +3968,6 @@ const AppStorage = {
         }
     },
 
-    applyRealtimeAssignmentsDelta(assignmentsDelta, source = 'cloud') {
-        if (!assignmentsDelta || typeof assignmentsDelta !== 'object') return false;
-        const entries = Object.entries(assignmentsDelta);
-        if (entries.length === 0) return false;
-
-        if (!this.companiesMemory || !Array.isArray(this.companiesMemory) || this.companiesMemory.length === 0) {
-            this.hydrateMemoryFromBaseline();
-        }
-
-        const storedAssignments = this.getStoredAssignments() || {};
-        const changedComps = [];
-        const now = Date.now();
-        const idMap = this._getCompanyIdMap();
-
-        for (const [compId, assignData] of entries) {
-            if (!compId) continue;
-            const sId = String(compId).replace(/^\//, '');
-            if (!sId) continue;
-
-            let targetUser = '';
-            let targetAt = null;
-            let updatedAt = 0;
-            let unassignedAt = null;
-
-            if (typeof assignData === 'string') {
-                targetUser = assignData;
-                targetAt = targetUser ? new Date().toISOString() : null;
-                updatedAt = now;
-            } else if (assignData && typeof assignData === 'object') {
-                targetUser = assignData.assignedTo || '';
-                targetAt = targetUser ? (assignData.assignedAt || new Date().toISOString()) : null;
-                updatedAt = 0;
-                if (assignData.updatedAt) {
-                    updatedAt = typeof assignData.updatedAt === 'number' ? assignData.updatedAt : new Date(assignData.updatedAt).getTime();
-                }
-                if (!updatedAt && assignData.assignedAt) {
-                    updatedAt = new Date(assignData.assignedAt).getTime();
-                }
-                if (isNaN(updatedAt) || !updatedAt) updatedAt = now;
-            } else if (assignData === null) {
-                targetUser = '';
-                targetAt = null;
-                updatedAt = now;
-            }
-
-            storedAssignments[sId] = {
-                assignedTo: targetUser,
-                assignedAt: targetAt,
-                updatedAt: updatedAt
-            };
-
-            const comp = idMap.get(sId);
-            if (comp) {
-                const prevUser = comp.assignedTo || '';
-                comp.assignedTo = targetUser;
-                comp.assignedAt = targetAt;
-                if (prevUser !== targetUser || source === 'cloud_sse' || source === 'local_broadcast') {
-                    changedComps.push(comp);
-                }
-            }
-        }
-
-        this.setStoredAssignments(storedAssignments);
-        this.invalidateScopedCache();
-        this.invalidateStatsCache();
-        this.updateLiveCounters();
-
-        if (changedComps.length > 0) {
-            this.saveBatchToIDB(changedComps);
-            if (this._worker) {
-                this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: changedComps });
-            }
-            return true;
-        }
-        return true;
-    },
 
     applyCallsToCompanies(target) {
         const calls = this.getCalls() || [];
@@ -4235,10 +4171,16 @@ const AppStorage = {
             String(currentUser.name || '').trim().toLowerCase()
         ].filter(Boolean));
 
+        const storedAssignments = this.getStoredAssignments() || {};
         const res = [];
         for (let i = 0; i < allCompanies.length; i++) {
             const c = allCompanies[i];
-            if (c && c.assignedTo && myKeys.has(String(c.assignedTo).trim().toLowerCase())) {
+            if (!c) continue;
+            const sId = String(c.id);
+            const assignEntry = storedAssignments[sId];
+            const asgn = assignEntry ? assignEntry.assignedTo : (c.assignedTo || '');
+            if (asgn && myKeys.has(String(asgn).trim().toLowerCase())) {
+                if (c.assignedTo !== asgn) c.assignedTo = asgn;
                 res.push(c);
             }
         }
@@ -4264,7 +4206,16 @@ const AppStorage = {
     getCompany(id) {
         if (!id) return null;
         const map = this._getCompanyIdMap();
-        return map.get(String(id)) || null;
+        const c = map.get(String(id)) || null;
+        if (c) {
+            const storedAssignments = this.getStoredAssignments() || {};
+            const entry = storedAssignments[String(c.id)];
+            if (entry && entry.assignedTo !== undefined) {
+                c.assignedTo = entry.assignedTo;
+                c.assignedAt = entry.assignedAt || null;
+            }
+        }
+        return c;
     },
 
     setCompanies(companies) {
@@ -4831,7 +4782,7 @@ const AppStorage = {
             try {
                 await Promise.race([
                     window.SupabaseClient.setAssignment(companyId, userId, company.assignedAt, now),
-                    new Promise(resolve => setTimeout(resolve, 1500))
+                    new Promise(resolve => setTimeout(resolve, 300))
                 ]);
             } catch (e) {
                 console.warn('assignCompany cloud push error:', e);
@@ -4840,7 +4791,7 @@ const AppStorage = {
             try {
                 await Promise.race([
                     window.SupabaseClient.pushAssignments(assignmentsMap),
-                    new Promise(resolve => setTimeout(resolve, 1500))
+                    new Promise(resolve => setTimeout(resolve, 300))
                 ]);
             } catch (e) {
                 console.warn('assignCompany cloud push error:', e);
@@ -4958,12 +4909,12 @@ const AppStorage = {
                 this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: updatedBatch });
             }
 
-            // 5. Send single atomic batch PATCH to Firebase assignments (bounded await up to 1.5s to ensure cloud commits before navigation)
+            // 5. Send single atomic batch PATCH to Firebase assignments (bounded await up to 300ms to ensure cloud commits before navigation)
             if (window.SupabaseClient && window.SupabaseClient.pushAssignments) {
                 try {
                     await Promise.race([
                         window.SupabaseClient.pushAssignments(assignmentsMap),
-                        new Promise(resolve => setTimeout(resolve, 1500))
+                        new Promise(resolve => setTimeout(resolve, 300))
                     ]);
                 } catch(e) {}
             }

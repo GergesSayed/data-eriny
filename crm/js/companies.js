@@ -1254,21 +1254,6 @@ const Companies = {
                     totalPages = recheck.totalPages || 1;
                     this.currentPage = 1;
                 }
-            }
-        } else if (total === 0 && !canViewAll && !search && finalSectors.length === 0 && finalGovs.length === 0 && finalCities.length === 0 && !contactType && !priority && !vip && !fleetType && !fleetSize && !addedDate) {
-            // Auto-heal empty view for employee in background: sync assignments from cloud in case they just landed
-            if (window.AppStorage && typeof window.AppStorage.pullFromCloud === 'function' && !this._employeeAutoHealInFlight) {
-                this._employeeAutoHealInFlight = true;
-                window.AppStorage.pullFromCloud(true).then(() => {
-                    this._employeeAutoHealInFlight = false;
-                    const compPage = document.getElementById('page-companies');
-                    if (compPage && compPage.classList.contains('active')) {
-                        this.render();
-                    }
-                }).catch(() => {
-                    this._employeeAutoHealInFlight = false;
-                });
-            }
         }
 
         const masterTotal = window.AppStorage.companiesMemory ? window.AppStorage.companiesMemory.length : total;
