@@ -1254,6 +1254,7 @@ const Companies = {
                     totalPages = recheck.totalPages || 1;
                     this.currentPage = 1;
                 }
+            }
         }
 
         const masterTotal = window.AppStorage.companiesMemory ? window.AppStorage.companiesMemory.length : total;
