@@ -1238,16 +1238,17 @@ const Companies = {
         let totalPages = result.totalPages || 1;
         this.currentPage = result.page || 1;
 
-        // Auto-heal empty view for admin if filters are clean
-        if (total === 0 && canViewAll && !search && finalSectors.length === 0 && finalGovs.length === 0 && finalCities.length === 0 && !contactType && !priority && !vip && !fleetType && !fleetSize && !assigned && !addedDate) {
-            if (window.AppStorage && typeof window.AppStorage.hydrateMemoryFromBaseline === 'function') {
-                window.AppStorage.hydrateMemoryFromBaseline();
+        // Auto-heal empty or partial view for admin if filters are clean
+        if (total < 21000 && canViewAll && !search && finalSectors.length === 0 && finalGovs.length === 0 && finalCities.length === 0 && !contactType && !priority && !vip && !fleetType && !fleetSize && !assigned && !addedDate) {
+            if (window.AppStorage && typeof window.AppStorage.ensureBaselinePoolReady === 'function') {
+                await window.AppStorage.ensureBaselinePoolReady(6000);
+                window.AppStorage.hydrateMemoryFromBaseline(true);
                 const recheck = await window.AppStorage.queryCompanies({
                     page: 1,
                     pageSize: this.pageSize,
                     sortMode
                 });
-                if (recheck && recheck.total > 0) {
+                if (recheck && recheck.total >= 21000) {
                     pageCompanies = recheck.items || [];
                     total = recheck.total;
                     totalPages = recheck.totalPages || 1;
@@ -1255,26 +1256,18 @@ const Companies = {
                 }
             }
         } else if (total === 0 && !canViewAll && !search && finalSectors.length === 0 && finalGovs.length === 0 && finalCities.length === 0 && !contactType && !priority && !vip && !fleetType && !fleetSize && !addedDate) {
-            // Auto-heal empty view for employee: sync assignments from cloud in case they just landed
+            // Auto-heal empty view for employee in background: sync assignments from cloud in case they just landed
             if (window.AppStorage && typeof window.AppStorage.pullFromCloud === 'function' && !this._employeeAutoHealInFlight) {
                 this._employeeAutoHealInFlight = true;
-                try {
-                    await window.AppStorage.pullFromCloud(true);
+                window.AppStorage.pullFromCloud(true).then(() => {
                     this._employeeAutoHealInFlight = false;
-                    const recheck = await window.AppStorage.queryCompanies({
-                        page: 1,
-                        pageSize: this.pageSize,
-                        sortMode
-                    });
-                    if (recheck && recheck.total > 0) {
-                        pageCompanies = recheck.items || [];
-                        total = recheck.total;
-                        totalPages = recheck.totalPages || 1;
-                        this.currentPage = 1;
+                    const compPage = document.getElementById('page-companies');
+                    if (compPage && compPage.classList.contains('active')) {
+                        this.render();
                     }
-                } catch(e) {
+                }).catch(() => {
                     this._employeeAutoHealInFlight = false;
-                }
+                });
             }
         }
 

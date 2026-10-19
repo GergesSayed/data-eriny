@@ -32,6 +32,55 @@ const AppStorage = {
         return [];
     },
 
+    _poolReadyPromise: null,
+    ensureBaselinePoolReady(timeoutMs = 15000) {
+        const pool = this.getBaselineEnterprisesPool();
+        const titans = this.getVerifiedTitans();
+        if (pool && pool.length >= 20000 && titans && titans.length >= 1000) {
+            return Promise.resolve(true);
+        }
+        if (this._poolReadyPromise) return this._poolReadyPromise;
+
+        this._poolReadyPromise = new Promise((resolve) => {
+            const check = () => {
+                const p = this.getBaselineEnterprisesPool();
+                const t = this.getVerifiedTitans();
+                return (p && p.length >= 20000 && t && t.length >= 1000);
+            };
+
+            if (check()) {
+                this._poolReadyPromise = null;
+                resolve(true);
+                return;
+            }
+
+            const startTime = Date.now();
+            const timer = setInterval(() => {
+                if (check()) {
+                    clearInterval(timer);
+                    this._poolReadyPromise = null;
+                    resolve(true);
+                } else if (Date.now() - startTime > timeoutMs) {
+                    clearInterval(timer);
+                    console.warn('[Storage] ensureBaselinePoolReady timed out after ' + timeoutMs + 'ms');
+                    this._poolReadyPromise = null;
+                    resolve(false);
+                }
+            }, 30);
+
+            if (typeof window !== 'undefined' && window.addEventListener) {
+                window.addEventListener('egypt_pool_ready', () => {
+                    if (check()) {
+                        clearInterval(timer);
+                        this._poolReadyPromise = null;
+                        resolve(true);
+                    }
+                }, { once: true });
+            }
+        });
+        return this._poolReadyPromise;
+    },
+
     _baseIdsSet: null,
     getBaseIdsSet() {
         if (!this._baseIdsSet) {
@@ -1998,9 +2047,9 @@ const AppStorage = {
         return `${prefix}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     },
 
-    hydrateMemoryFromBaseline() {
+    hydrateMemoryFromBaseline(force = false) {
         try {
-            if (this.companiesMemory && Array.isArray(this.companiesMemory) && this.companiesMemory.length >= 21225) {
+            if (!force && this.companiesMemory && Array.isArray(this.companiesMemory) && this.companiesMemory.length >= 21225) {
                 return this.companiesMemory;
             }
             if (localStorage.getItem('fleetcrm_user_wiped_companies') === 'true') {
@@ -2026,13 +2075,34 @@ const AppStorage = {
             }
             if (this.applyStoredAssignments) this.applyStoredAssignments(syncMap);
             if (this.applyCallsToCompanies) this.applyCallsToCompanies(syncMap);
-            if (syncMap.size > 0) {
+
+            // 🛡️ CRITICAL INTEGRITY GUARD:
+            // Never accept a partial pool (< 21,000) as the full system baseline!
+            if (syncMap.size >= 21000) {
                 this.companiesMemory = Array.from(syncMap.values());
                 this.invalidateScopedCache();
                 const totalCount = this.companiesMemory.length;
                 localStorage.setItem('fleetcrm_company_count', totalCount.toLocaleString());
                 this.updateLiveCounters(totalCount);
                 this.initWorker(true);
+            } else {
+                // Keep authoritative count 21,225 in localStorage
+                localStorage.setItem('fleetcrm_company_count', (21225).toLocaleString());
+                this.updateLiveCounters(21225);
+                // Pool is still parsing in background: await readiness and automatically re-hydrate!
+                if (typeof this.ensureBaselinePoolReady === 'function') {
+                    this.ensureBaselinePoolReady().then(ready => {
+                        if (ready) {
+                            this.hydrateMemoryFromBaseline(true);
+                            if (typeof window !== 'undefined' && window.Companies && typeof window.Companies.render === 'function') {
+                                const compPage = document.getElementById('page-companies');
+                                if (compPage && compPage.classList.contains('active')) {
+                                    window.Companies.render();
+                                }
+                            }
+                        }
+                    });
+                }
             }
             return this.companiesMemory || [];
         } catch (e) {
@@ -2041,8 +2111,11 @@ const AppStorage = {
         }
     },
 
-    _fallbackHydrateBaseline() {
-        return this.hydrateMemoryFromBaseline();
+    async _fallbackHydrateBaseline() {
+        if (typeof this.ensureBaselinePoolReady === 'function') {
+            await this.ensureBaselinePoolReady(4000);
+        }
+        return this.hydrateMemoryFromBaseline(true);
     },
 
     // ---- IndexedDB helper functions ----
@@ -2061,16 +2134,19 @@ const AppStorage = {
                 }
             };
 
-            // Hard safety timeout: under no circumstance can DB initialization stall the app for > 1500ms
-            const timeoutId = setTimeout(() => {
+            // Safety timeout: DB initialization must not stall the app
+            const timeoutId = setTimeout(async () => {
                 console.warn('[Storage] initDB safety timeout reached, falling back safely to baseline memory');
                 if (!this.companiesMemory || !Array.isArray(this.companiesMemory) || this.companiesMemory.length < 21225) {
-                    this.hydrateMemoryFromBaseline();
+                    if (typeof this.ensureBaselinePoolReady === 'function') {
+                        await this.ensureBaselinePoolReady(4000);
+                    }
+                    this.hydrateMemoryFromBaseline(true);
                 }
                 this.updateLiveCounters();
                 this.initWorker();
                 complete();
-            }, 1500);
+            }, 4000);
 
             if (typeof indexedDB === 'undefined') {
                 clearTimeout(timeoutId);
@@ -2198,7 +2274,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=391.0');
+            this._worker = new Worker('js/companies-worker.js?v=392.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize, totalCount } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -2237,12 +2313,17 @@ const AppStorage = {
     queryCompanies(options = {}) {
         return new Promise(async (resolve) => {
             // 0. Guarantee companies memory baseline is fully loaded before querying
-            if (!this.companiesMemory || !Array.isArray(this.companiesMemory) || this.companiesMemory.length === 0) {
-                if (this._dbInitPromise) {
-                    try { await this._dbInitPromise; } catch (e) { }
-                }
-                if (!this.companiesMemory || this.companiesMemory.length === 0) {
-                    this.hydrateMemoryFromBaseline();
+            if (!this.companiesMemory || !Array.isArray(this.companiesMemory) || this.companiesMemory.length < 21000) {
+                if (localStorage.getItem('fleetcrm_user_wiped_companies') !== 'true') {
+                    if (this._dbInitPromise) {
+                        try { await this._dbInitPromise; } catch (e) { }
+                    }
+                    if (!this.companiesMemory || this.companiesMemory.length < 21000) {
+                        if (typeof this.ensureBaselinePoolReady === 'function') {
+                            await this.ensureBaselinePoolReady(5000);
+                        }
+                        this.hydrateMemoryFromBaseline(true);
+                    }
                 }
             }
 
@@ -2803,13 +2884,15 @@ const AppStorage = {
                 }
             });
 
-            this.companiesMemory = Array.from(masterMap.values());
-            this._set(this.KEYS.COMPANIES, this.companiesMemory);
-            this.saveAllCompaniesToDB(this.companiesMemory);
-            localStorage.setItem('fleetcrm_company_count', this.companiesMemory.length);
+            if (masterMap.size >= 21000) {
+                this.companiesMemory = Array.from(masterMap.values());
+                this._set(this.KEYS.COMPANIES, this.companiesMemory);
+                this.saveAllCompaniesToDB(this.companiesMemory);
+                localStorage.setItem('fleetcrm_company_count', this.companiesMemory.length);
 
-            const sideCounter = document.getElementById('sidebar-total-companies');
-            if (sideCounter) sideCounter.textContent = this.companiesMemory.length.toLocaleString();
+                const sideCounter = document.getElementById('sidebar-total-companies');
+                if (sideCounter) sideCounter.textContent = this.companiesMemory.length.toLocaleString();
+            }
             return;
         }
 
@@ -2819,45 +2902,11 @@ const AppStorage = {
         }
     },
 
-    _fallbackHydrateBaseline() {
-        const syncMap = new Map();
-        const deletedCompIds = this.getDeletedIds('companies');
-        // 1. Add 1,000 Verified Titans FIRST
-        const titans = this.getVerifiedTitans ? this.getVerifiedTitans() : [];
-        for (let i = 0; i < titans.length; i++) {
-            const t = titans[i];
-            if (t && t.id && !deletedCompIds.has(String(t.id))) {
-                if (t.sector === 'rental') t.sector = 'transport';
-                if (t.contactPerson && this.isRoleTitle(t.contactPerson)) {
-                    t.contactPerson = '';
-                    t.contactTitle = '';
-                }
-                syncMap.set(t.id, t);
-            }
+    async _fallbackHydrateBaseline() {
+        if (typeof this.ensureBaselinePoolReady === 'function') {
+            await this.ensureBaselinePoolReady(4000);
         }
-        // 2. Add Baseline Pool (17,707 real enterprises)
-        const basePool = this.getBaselineEnterprisesPool ? this.getBaselineEnterprisesPool() : [];
-        for (let i = 0; i < basePool.length; i++) {
-            const c = basePool[i];
-            if (c) {
-                const id = c.id || `comp_base_${i}`;
-                if (!deletedCompIds.has(String(id))) {
-                    if (c.sector === 'rental') c.sector = 'transport';
-                    if (c.contactPerson && this.isRoleTitle(c.contactPerson)) {
-                        c.contactPerson = '';
-                        c.contactTitle = '';
-                    }
-                    syncMap.set(id, c);
-                }
-            }
-        }
-        // Never replace a fuller memory pool with an incomplete partial pool (e.g. 1000 titans only)
-        if (syncMap.size >= 15000 || !this.companiesMemory || this.companiesMemory.length === 0) {
-            this.companiesMemory = Array.from(syncMap.values());
-        }
-        const count = (this.companiesMemory && this.companiesMemory.length >= 15000) ? this.companiesMemory.length : 21225;
-        localStorage.setItem('fleetcrm_company_count', count.toLocaleString());
-        this.updateLiveCounters(count);
+        return this.hydrateMemoryFromBaseline(true);
     },
 
     loadCompaniesFromDB(db) {
@@ -2878,12 +2927,12 @@ const AppStorage = {
                 }
             };
 
-            // Hard 1200ms timeout so IDB reads never block the application
-            const timeoutId = setTimeout(() => {
+            // Safety timeout so IDB reads never block the application
+            const timeoutId = setTimeout(async () => {
                 console.warn('[Storage] loadCompaniesFromDB timeout reached, falling back to memory baseline');
-                this._fallbackHydrateBaseline();
+                await this._fallbackHydrateBaseline();
                 complete(this.companiesMemory);
-            }, 1200);
+            }, 4000);
 
             try {
                 const transaction = db.transaction(['companies'], 'readonly');
@@ -2893,7 +2942,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v391.0_realtime_stream_user_presence_and_anti_false_offline';
+                    const currentVersionTag = 'v392.0_realtime_stream_user_presence_and_anti_false_offline';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 
@@ -3044,20 +3093,35 @@ const AppStorage = {
                     this.applyCallsToCompanies(masterMap);
 
                     const merged = Array.from(masterMap.values());
-                    if (merged.length >= 15000 || !this.companiesMemory || this.companiesMemory.length === 0) {
+                    if (merged.length >= 21000) {
                         this.companiesMemory = merged;
+                        this.invalidateScopedCache();
+                        const finalCount = this.companiesMemory.length;
+                        localStorage.setItem('fleetcrm_company_count', finalCount.toLocaleString());
+                        this.updateLiveCounters(finalCount);
+                        this.initWorker(true);
+                    } else {
+                        // Pool is still loading: do NOT overwrite memory with partial 1,000 titans!
+                        localStorage.setItem('fleetcrm_company_count', (21225).toLocaleString());
+                        this.updateLiveCounters(21225);
+                        if (typeof this.ensureBaselinePoolReady === 'function') {
+                            this.ensureBaselinePoolReady().then(() => {
+                                this.hydrateMemoryFromBaseline(true);
+                                if (typeof window !== 'undefined' && window.Companies && typeof window.Companies.render === 'function') {
+                                    const compPage = document.getElementById('page-companies');
+                                    if (compPage && compPage.classList.contains('active')) {
+                                        window.Companies.render();
+                                    }
+                                }
+                            });
+                        }
                     }
-                    this.invalidateScopedCache();
-                    const finalCount = (this.companiesMemory && this.companiesMemory.length >= 15000) ? this.companiesMemory.length : 21225;
-                    localStorage.setItem('fleetcrm_company_count', finalCount.toLocaleString());
-                    this.updateLiveCounters(finalCount);
 
                     // Persist only modified/custom entities immediately; baseline is already in memory
                     const modifiedEntities = merged.filter(c => c && (c.isCustom || c.lastCallDate || c.assignedTo || (c.status && c.status !== 'new')));
                     if (modifiedEntities.length > 0) {
                         this.saveBatchToIDB(modifiedEntities);
                     }
-                    this.initWorker(true);
                     complete(this.companiesMemory);
                 };
 
@@ -3093,11 +3157,14 @@ const AppStorage = {
     },
 
     updateLiveCounters(overrideCount) {
-        const currentUser = this.getCurrentUser();
-        const canViewAll = this.canViewAll(currentUser);
-        const scopedComps = this.getScopedCompanies();
+        const currentUser = this.getCurrentUser ? this.getCurrentUser() : null;
+        const canViewAll = this.canViewAll ? this.canViewAll(currentUser) : true;
         const rawCount = (this.companiesMemory && Array.isArray(this.companiesMemory)) ? this.companiesMemory.length : 0;
-        const userVisibleCount = canViewAll ? rawCount : (scopedComps ? scopedComps.length : 0);
+        let userVisibleCount = rawCount;
+        if (!canViewAll && typeof overrideCount !== 'number') {
+            const scopedComps = this.getScopedCompanies ? this.getScopedCompanies(currentUser) : null;
+            userVisibleCount = scopedComps ? scopedComps.length : 0;
+        }
         let count = (typeof overrideCount === 'number' && overrideCount >= 0) ? overrideCount : userVisibleCount;
 
         // Anti-flash guard: Never flash partial titan count (e.g. 1,000) on refresh before enterprises pool is bound
@@ -3469,34 +3536,22 @@ const AppStorage = {
                         }
                     }
 
-                    // 2. Authoritative Sync: If an assignment was cleared/removed in cloud, clear it locally ONLY IF it is not a fresh local write
+                    // 2. Preservative Cloud Sync:
+                    // Absence of a key in the sparse cloud assignments table must NEVER wipe local assignments!
+                    // If local has an assignment not yet present in cloud, push it to cloud to guarantee persistence across all devices.
+                    const missingInCloud = {};
                     for (const [sId, localData] of Object.entries(storedAssignments)) {
-                        if (localData && localData.assignedTo && !data.assignments[sId]) {
+                        if (localData && localData.assignedTo && (!data.assignments || !data.assignments[sId])) {
                             const localUpdatedAt = typeof localData.updatedAt === 'number' ? localData.updatedAt : new Date(localData.updatedAt || 0).getTime();
-                            const localAgeMs = now - (localUpdatedAt || 0);
-
-                            // 🛡️ FRESHNESS PROTECTION:
-                            // If local assignment was made recently (< 60s), cloud probably hasn't propagated yet or sync read raced!
-                            // NEVER wipe fresh local assignment! Re-push to cloud to guarantee persistence.
-                            if (localAgeMs < GRACE_PERIOD_MS) {
-                                if (window.SupabaseClient && typeof window.SupabaseClient.setAssignment === 'function') {
-                                    window.SupabaseClient.setAssignment(sId, localData.assignedTo, localData.assignedAt, localUpdatedAt).catch(() => {});
-                                }
-                                continue; // DO NOT WIPE!
-                            }
-
-                            // Otherwise, assignment was genuinely removed from cloud
-                            localData.assignedTo = '';
-                            localData.assignedAt = null;
-                            localData.updatedAt = now;
-                            const comp = idMap.get(sId);
-                            if (comp && comp.assignedTo) {
-                                comp.assignedTo = '';
-                                comp.assignedAt = null;
-                                anyChanged = true;
-                                changedComps.push(comp);
-                            }
+                            missingInCloud[sId] = {
+                                assignedTo: localData.assignedTo,
+                                assignedAt: localData.assignedAt || new Date().toISOString(),
+                                updatedAt: localUpdatedAt || now
+                            };
                         }
+                    }
+                    if (Object.keys(missingInCloud).length > 0 && window.SupabaseClient && typeof window.SupabaseClient.pushAssignments === 'function') {
+                        window.SupabaseClient.pushAssignments(missingInCloud).catch(() => {});
                     }
 
                     this.setStoredAssignments(storedAssignments);
@@ -4137,30 +4192,15 @@ const AppStorage = {
         return latest;
     },
 
+    _isHydrating: false,
     getCompanies() {
-        if (!this.companiesMemory || !Array.isArray(this.companiesMemory) || this.companiesMemory.length === 0) {
-            if (localStorage.getItem('fleetcrm_user_wiped_companies') !== 'true') {
-                const syncMap = new Map();
-                const deletedCompIds = this.getDeletedIds('companies');
-                const titansPool = this.getVerifiedTitans();
-                titansPool.forEach(t => {
-                    if (t && t.id && !deletedCompIds.has(String(t.id))) {
-                        syncMap.set(t.id, this._normalizeCompanyData(t));
-                    }
-                });
-                const pool = this.getBaselineEnterprisesPool();
-                if (pool && pool.length > 0) {
-                    pool.forEach((c, idx) => {
-                        const sId = c.id || `comp_base_${idx}`;
-                        if (c && !deletedCompIds.has(String(sId))) {
-                            syncMap.set(sId, this._normalizeCompanyData(c, idx));
-                        }
-                    });
-                }
-                this.applyStoredAssignments(syncMap);
-                if (syncMap.size > 0) {
-                    this.companiesMemory = Array.from(syncMap.values());
-                    this.invalidateScopedCache();
+        if (!this.companiesMemory || !Array.isArray(this.companiesMemory) || this.companiesMemory.length < 21000) {
+            if (!this._isHydrating && localStorage.getItem('fleetcrm_user_wiped_companies') !== 'true') {
+                this._isHydrating = true;
+                try {
+                    this.hydrateMemoryFromBaseline();
+                } finally {
+                    this._isHydrating = false;
                 }
             }
         }
@@ -4788,19 +4828,9 @@ const AppStorage = {
         };
         let cloudOk = true;
         if (window.SupabaseClient && typeof window.SupabaseClient.setAssignment === 'function') {
-            try {
-                cloudOk = await window.SupabaseClient.setAssignment(companyId, userId, company.assignedAt, now);
-            } catch (e) {
-                console.warn('assignCompany cloud push error:', e);
-                cloudOk = false;
-            }
+            window.SupabaseClient.setAssignment(companyId, userId, company.assignedAt, now).catch(() => {});
         } else if (window.SupabaseClient && window.SupabaseClient.pushAssignments) {
-            try {
-                cloudOk = await window.SupabaseClient.pushAssignments(assignmentsMap);
-            } catch (e) {
-                console.warn('assignCompany cloud push error:', e);
-                cloudOk = false;
-            }
+            window.SupabaseClient.pushAssignments(assignmentsMap).catch(() => {});
         }
 
         this.updateLiveCounters();
@@ -4914,11 +4944,9 @@ const AppStorage = {
                 this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: updatedBatch });
             }
 
-            // 5. Send single atomic batch PATCH to Firebase assignments (awaited to prevent race reversion)
+            // 5. Send single atomic batch PATCH to Firebase assignments in background (zero UI latency)
             if (window.SupabaseClient && window.SupabaseClient.pushAssignments) {
-                try {
-                    await window.SupabaseClient.pushAssignments(assignmentsMap);
-                } catch (e) { }
+                window.SupabaseClient.pushAssignments(assignmentsMap).catch(() => {});
             }
 
             // 6. Push custody in background batch if supported

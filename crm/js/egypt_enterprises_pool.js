@@ -4,6 +4,10 @@
   if (typeof window !== 'undefined') {
     window.EGYPT_ENTERPRISES_POOL = data;
     window.__EGYPT_ENTERPRISES_POOL = data;
+    window.__EGYPT_POOL_LOADED = true;
+    try {
+      window.dispatchEvent(new CustomEvent('egypt_pool_ready', { detail: { count: data.length } }));
+    } catch(e) {}
   }
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = data;

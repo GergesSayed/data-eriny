@@ -57,10 +57,16 @@ const App = {
             setTimeout(() => {
                 try {
                     if (window.AppStorage) {
-                        window.AppStorage.hydrateMemoryFromBaseline();
-                        if (typeof window.AppStorage.initDB === 'function') {
-                            window.AppStorage.initDB().catch(() => {});
-                        }
+                        const prewarm = async () => {
+                            if (typeof window.AppStorage.ensureBaselinePoolReady === 'function') {
+                                await window.AppStorage.ensureBaselinePoolReady(10000);
+                            }
+                            window.AppStorage.hydrateMemoryFromBaseline();
+                            if (typeof window.AppStorage.initDB === 'function') {
+                                window.AppStorage.initDB().catch(() => {});
+                            }
+                        };
+                        prewarm();
                     }
                 } catch(e) {}
             }, 60);
@@ -103,6 +109,9 @@ const App = {
 
             // Initialize Database and hydrate baseline into RAM memory FIRST
             try {
+                if (window.AppStorage && typeof window.AppStorage.ensureBaselinePoolReady === 'function') {
+                    await window.AppStorage.ensureBaselinePoolReady(8000);
+                }
                 await window.AppStorage.initDB();
             } catch(dbErr) {
                 console.warn('DB Init notice:', dbErr);
@@ -149,7 +158,7 @@ const App = {
                     console.log('[SW] Service worker controller updated and active.');
                 });
 
-                navigator.serviceWorker.register('sw.js?v=391.0').then(reg => {
+                navigator.serviceWorker.register('sw.js?v=392.0').then(reg => {
                     reg.update().catch(() => {});
                     // Detect when a new SW version is waiting — show update notification
                     reg.addEventListener('updatefound', () => {
@@ -737,6 +746,9 @@ const App = {
             if (typeof window.AppStorage.invalidateStatsCache === 'function') window.AppStorage.invalidateStatsCache();
             if (typeof window.AppStorage.invalidateCallsCache === 'function') window.AppStorage.invalidateCallsCache();
             if (typeof window.AppStorage.invalidateScopedCache === 'function') window.AppStorage.invalidateScopedCache();
+            if (typeof window.AppStorage.applyStoredAssignments === 'function' && window.AppStorage.companiesMemory) {
+                window.AppStorage.applyStoredAssignments(window.AppStorage.companiesMemory);
+            }
             window.AppStorage.updateLiveCounters();
         }
         if (typeof Calls !== 'undefined') {
@@ -764,17 +776,20 @@ const App = {
         const isAdmin = user && user.role === 'admin';
         this.showToast(isAdmin ? `👑 تم تفعيل حساب: ${user.name} - تحكم كامل بالمأذونيات` : `👤 تم التبديل إلى حساب: ${user.name}`, 'success');
 
-        // Immediately synchronize cloud assignments before navigating so memory & worker have latest data
-        try {
-            await Promise.all([
-                window.AppStorage && typeof window.AppStorage.pullFromCloud === 'function' ? window.AppStorage.pullFromCloud(true) : Promise.resolve(false),
-                window.AppStorage && typeof window.AppStorage.pullCallsFromCloud === 'function' ? window.AppStorage.pullCallsFromCloud() : Promise.resolve([])
-            ]);
-        } catch(e) {}
-
+        // Instant navigation with zero UI freeze (< 10ms)
         this.navigateTo(isAdmin ? 'dashboard' : 'companies', true);
         this.initMasterSyncEngine();
         this.refreshCurrentPage();
+
+        // Non-blocking background cloud sync
+        if (window.AppStorage) {
+            Promise.all([
+                typeof window.AppStorage.pullFromCloud === 'function' ? window.AppStorage.pullFromCloud(true) : Promise.resolve(false),
+                typeof window.AppStorage.pullCallsFromCloud === 'function' ? window.AppStorage.pullCallsFromCloud() : Promise.resolve([])
+            ]).then(() => {
+                if (typeof this.refreshCurrentPage === 'function') this.refreshCurrentPage();
+            }).catch(() => {});
+        }
     },
 
     async autoImportScrapedData() {
