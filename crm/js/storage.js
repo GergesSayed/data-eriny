@@ -2363,6 +2363,14 @@ const AppStorage = {
                 String(currentUser ? currentUser.name : '').trim().toLowerCase()
             ].filter(Boolean)));
 
+            // 0.1 Strict Employee Fast-Path: Non-admin users only ever see their scoped portfolio (< 200 items max).
+            // Evaluating this on main thread with getScopedCompanies() takes < 0.1ms,
+            // strictly enforces storedAssignments SSOT, and eliminates worker async thread lag!
+            if (!isAdmin) {
+                resolve(this._queryCompaniesFallback(options));
+                return;
+            }
+
             // 1. Try Web Worker first for non-blocking 60fps search
             const executeWorkerQuery = () => {
                 const memLen = this.companiesMemory ? this.companiesMemory.length : 0;
@@ -3065,9 +3073,6 @@ const AppStorage = {
                             const existing = masterMap.get(c.id);
                             if (existing) {
                                 const userState = {};
-                                if (c.assignedTo && !String(c.assignedTo).startsWith('usr_agent_') && c.assignedTo !== 'usr_rep1') {
-                                    userState.assignedTo = c.assignedTo;
-                                }
                                 if (genuineCallContacts.has(String(c.id))) {
                                     if (c.lastCallResult) userState.lastCallResult = c.lastCallResult;
                                     if (c.lastCallDate) userState.lastCallDate = c.lastCallDate;
@@ -3521,8 +3526,8 @@ const AppStorage = {
 
                         // 🛡️ True LWW Protection: If local record is newer than cloud (whether assigned OR unassigned), local wins!
                         if (localEntry && localUpdatedAt > cloudUpdatedAt) {
-                            // If local state differs from cloud, re-push local to cloud so cloud catches up
-                            if (localAssignedTo !== targetUser && window.SupabaseClient) {
+                            // If local state differs from cloud, re-push local to cloud so cloud catches up (Admin ONLY!)
+                            if (this.isAdmin(currentUser) && localAssignedTo !== targetUser && window.SupabaseClient) {
                                 if (typeof window.SupabaseClient.setAssignment === 'function') {
                                     window.SupabaseClient.setAssignment(sId, localAssignedTo, localEntry.assignedAt || null, localUpdatedAt).catch(() => {});
                                 }
@@ -3565,6 +3570,22 @@ const AppStorage = {
                         }
                         if (Object.keys(missingInCloud).length > 0 && window.SupabaseClient && typeof window.SupabaseClient.pushAssignments === 'function') {
                             window.SupabaseClient.pushAssignments(missingInCloud).catch(() => {});
+                        }
+                    } else if (data.assignments) {
+                        // For non-admin, clean any local assignments that no longer exist in cloud
+                        for (const [sId, localEntry] of Object.entries(storedAssignments)) {
+                            if (localEntry && localEntry.assignedTo && (!data.assignments[sId] || !data.assignments[sId].assignedTo)) {
+                                localEntry.assignedTo = '';
+                                localEntry.assignedAt = null;
+                                localEntry.updatedAt = now;
+                                const comp = idMap.get(sId);
+                                if (comp) {
+                                    comp.assignedTo = '';
+                                    comp.assignedAt = null;
+                                    changedComps.push(comp);
+                                    anyChanged = true;
+                                }
+                            }
                         }
                     }
 
@@ -3940,30 +3961,23 @@ const AppStorage = {
     },
 
     applyStoredAssignments(target) {
-        const assignments = this.getStoredAssignments();
-        if (!assignments || typeof assignments !== 'object' || Object.keys(assignments).length === 0) return;
-
+        const assignments = this.getStoredAssignments() || {};
         if (target instanceof Map) {
-            for (const [compId, assignData] of Object.entries(assignments)) {
-                if (!assignData) continue;
-                const comp = target.get(String(compId));
-                if (comp) {
-                    const asgn = typeof assignData === 'string' ? assignData : (assignData.assignedTo || '');
-                    comp.assignedTo = asgn;
-                    comp.assignedAt = comp.assignedTo ? (assignData.assignedAt || comp.assignedAt || null) : null;
-                }
-            }
+            target.forEach((comp, compId) => {
+                if (!comp) return;
+                const assignData = assignments[String(compId)];
+                const asgn = (assignData && typeof assignData === 'object') ? (assignData.assignedTo || '') : (typeof assignData === 'string' ? assignData : '');
+                comp.assignedTo = asgn;
+                comp.assignedAt = asgn ? (assignData.assignedAt || comp.assignedAt || null) : null;
+            });
         } else if (Array.isArray(target)) {
-            const assignMap = new Map(Object.entries(assignments));
             for (let i = 0; i < target.length; i++) {
                 const comp = target[i];
                 if (!comp || !comp.id) continue;
-                const assignData = assignMap.get(String(comp.id));
-                if (assignData) {
-                    const asgn = typeof assignData === 'string' ? assignData : (assignData.assignedTo || '');
-                    comp.assignedTo = asgn;
-                    comp.assignedAt = comp.assignedTo ? (assignData.assignedAt || comp.assignedAt || null) : null;
-                }
+                const assignData = assignments[String(comp.id)];
+                const asgn = (assignData && typeof assignData === 'object') ? (assignData.assignedTo || '') : (typeof assignData === 'string' ? assignData : '');
+                comp.assignedTo = asgn;
+                comp.assignedAt = asgn ? (assignData.assignedAt || comp.assignedAt || null) : null;
             }
         }
     },
@@ -4178,7 +4192,7 @@ const AppStorage = {
             if (!c) continue;
             const sId = String(c.id);
             const assignEntry = storedAssignments[sId];
-            const asgn = assignEntry ? assignEntry.assignedTo : (c.assignedTo || '');
+            const asgn = (assignEntry && assignEntry.assignedTo) ? assignEntry.assignedTo : '';
             if (asgn && myKeys.has(String(asgn).trim().toLowerCase())) {
                 if (c.assignedTo !== asgn) c.assignedTo = asgn;
                 res.push(c);
@@ -4210,9 +4224,12 @@ const AppStorage = {
         if (c) {
             const storedAssignments = this.getStoredAssignments() || {};
             const entry = storedAssignments[String(c.id)];
-            if (entry && entry.assignedTo !== undefined) {
+            if (entry && entry.assignedTo) {
                 c.assignedTo = entry.assignedTo;
                 c.assignedAt = entry.assignedAt || null;
+            } else {
+                c.assignedTo = '';
+                c.assignedAt = null;
             }
         }
         return c;
@@ -5523,6 +5540,22 @@ const AppStorage = {
                 this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: changedComps });
             }
         }
+
+        // ⚡ Reactive Realtime Trigger: Re-render UI immediately across all tabs and devices
+        if (typeof window !== 'undefined') {
+            const activePage = window.App ? window.App.currentPage : null;
+            if (typeof Companies !== 'undefined' && (!activePage || activePage === 'companies')) {
+                Companies.refreshUserFilter();
+                Companies.render();
+            }
+            if (typeof Dashboard !== 'undefined' && activePage === 'dashboard') {
+                Dashboard.render();
+            }
+            if (typeof Team !== 'undefined' && activePage === 'team') {
+                Team.render();
+            }
+        }
+        return true;
     },
 
     async pullCallsFromCloud() {

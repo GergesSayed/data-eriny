@@ -424,6 +424,11 @@ self.onmessage = function(e) {
                             let arr = _assignedBuckets.get(newAsgn);
                             if (!arr) { arr = []; _assignedBuckets.set(newAsgn, arr); }
                             if (!arr.includes(existingIdx)) arr.push(existingIdx);
+                        } else {
+                            _assignedBuckets.forEach(arr => {
+                                const p = arr.indexOf(existingIdx);
+                                if (p !== -1) arr.splice(p, 1);
+                            });
                         }
                     } else if (newAsgn) {
                         let arr = _assignedBuckets.get(newAsgn);

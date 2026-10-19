@@ -792,6 +792,7 @@ const Companies = {
             ).join('');
             bulkSel.innerHTML = `
                 <option value="" disabled ${!currentVal ? 'selected' : ''}>اختر الموظف للتخصيص...</option>
+                <option value="__UNASSIGN__">⚪ إلغاء التعيين (سحب العهدة وإتاحتها للعامة)</option>
                 ${optionsHtml}
             `;
             if (currentVal) bulkSel.value = currentVal;
@@ -1801,6 +1802,9 @@ const Companies = {
         }
         const select = document.getElementById('bulk-assign-user-select');
         const userId = select ? select.value : '';
+        if (userId === '__UNASSIGN__') {
+            return this.applyBulkUnassign();
+        }
         if (!userId) {
             App.showToast('⚠️ يرجى اختيار الموظف أولاً من القائمة المنسدلة لتخصيص الشركات له', 'warning');
             if (select) select.focus();
@@ -1862,6 +1866,9 @@ const Companies = {
             this.clearSelection();
             this.refreshUserFilter();
             this.render();
+            if (typeof Dashboard !== 'undefined' && typeof Dashboard.render === 'function') {
+                Dashboard.render();
+            }
         } catch(err) {
             console.error('applyBulkUnassign error:', err);
             App.showToast('خطأ أثناء إلغاء التخصيص: ' + err.message, 'error');
