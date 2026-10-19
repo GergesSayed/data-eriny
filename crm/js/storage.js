@@ -2274,7 +2274,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=392.0');
+            this._worker = new Worker('js/companies-worker.js?v=393.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize, totalCount } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -2942,7 +2942,7 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v392.0_realtime_stream_user_presence_and_anti_false_offline';
+                    const currentVersionTag = 'v393.0_realtime_stream_user_presence_and_anti_false_offline';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 
@@ -3510,12 +3510,12 @@ const AppStorage = {
                         const localUpdatedAt = localEntry ? (typeof localEntry.updatedAt === 'number' ? localEntry.updatedAt : new Date(localEntry.updatedAt || 0).getTime()) : 0;
                         const localAssignedTo = localEntry ? (localEntry.assignedTo || '') : '';
 
-                        // 🛡️ LWW Protection: If local assignment is newer than cloud, do NOT overwrite it!
-                        if (localAssignedTo && localUpdatedAt > cloudUpdatedAt) {
-                            // If local assignment was made recently and cloud hasn't caught up, re-push to cloud
-                            if (now - localUpdatedAt < GRACE_PERIOD_MS && localAssignedTo !== targetUser) {
-                                if (window.SupabaseClient && typeof window.SupabaseClient.setAssignment === 'function') {
-                                    window.SupabaseClient.setAssignment(sId, localAssignedTo, localEntry.assignedAt, localUpdatedAt).catch(() => {});
+                        // 🛡️ True LWW Protection: If local record is newer than cloud (whether assigned OR unassigned), local wins!
+                        if (localEntry && localUpdatedAt > cloudUpdatedAt) {
+                            // If local state differs from cloud, re-push local to cloud so cloud catches up
+                            if (localAssignedTo !== targetUser && window.SupabaseClient) {
+                                if (typeof window.SupabaseClient.setAssignment === 'function') {
+                                    window.SupabaseClient.setAssignment(sId, localAssignedTo, localEntry.assignedAt || null, localUpdatedAt).catch(() => {});
                                 }
                             }
                             continue;
@@ -4828,9 +4828,23 @@ const AppStorage = {
         };
         let cloudOk = true;
         if (window.SupabaseClient && typeof window.SupabaseClient.setAssignment === 'function') {
-            window.SupabaseClient.setAssignment(companyId, userId, company.assignedAt, now).catch(() => {});
+            try {
+                await Promise.race([
+                    window.SupabaseClient.setAssignment(companyId, userId, company.assignedAt, now),
+                    new Promise(resolve => setTimeout(resolve, 1500))
+                ]);
+            } catch (e) {
+                console.warn('assignCompany cloud push error:', e);
+            }
         } else if (window.SupabaseClient && window.SupabaseClient.pushAssignments) {
-            window.SupabaseClient.pushAssignments(assignmentsMap).catch(() => {});
+            try {
+                await Promise.race([
+                    window.SupabaseClient.pushAssignments(assignmentsMap),
+                    new Promise(resolve => setTimeout(resolve, 1500))
+                ]);
+            } catch (e) {
+                console.warn('assignCompany cloud push error:', e);
+            }
         }
 
         this.updateLiveCounters();
@@ -4944,9 +4958,14 @@ const AppStorage = {
                 this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: updatedBatch });
             }
 
-            // 5. Send single atomic batch PATCH to Firebase assignments in background (zero UI latency)
+            // 5. Send single atomic batch PATCH to Firebase assignments (bounded await up to 1.5s to ensure cloud commits before navigation)
             if (window.SupabaseClient && window.SupabaseClient.pushAssignments) {
-                window.SupabaseClient.pushAssignments(assignmentsMap).catch(() => {});
+                try {
+                    await Promise.race([
+                        window.SupabaseClient.pushAssignments(assignmentsMap),
+                        new Promise(resolve => setTimeout(resolve, 1500))
+                    ]);
+                } catch(e) {}
             }
 
             // 6. Push custody in background batch if supported
@@ -5523,8 +5542,8 @@ const AppStorage = {
             const localEntry = storedAssignments[sId];
             const localTs = localEntry ? (typeof localEntry.updatedAt === 'number' ? localEntry.updatedAt : new Date(localEntry.updatedAt || 0).getTime()) : 0;
 
-            // 🛡️ LWW Protection: If local assignment is strictly newer, do NOT overwrite with older incoming delta!
-            if (localEntry && localEntry.assignedTo && localTs > deltaTs) {
+            // 🛡️ True LWW Protection: If local record is strictly newer (assigned or unassigned), do NOT overwrite with older incoming delta!
+            if (localEntry && localTs > deltaTs) {
                 continue;
             }
 
