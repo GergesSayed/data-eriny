@@ -29,7 +29,9 @@ const windowMock = {
     localStorage,
     sessionStorage,
     document: documentMock,
-    navigator: { onLine: true }
+    navigator: { onLine: true },
+    EGYPT_VERIFIED_TITANS: [],
+    EGYPT_ENTERPRISES_POOL: []
 };
 
 const context = {
@@ -37,7 +39,7 @@ const context = {
     document: documentMock,
     localStorage,
     sessionStorage,
-    setInterval: (fn) => setInterval(fn, 10),
+    setInterval: () => 1,
     clearInterval: () => {},
     console,
     setTimeout: (fn) => setTimeout(fn, 0),
@@ -135,6 +137,7 @@ async function runTest() {
     if (peterQuery.total !== 0) throw new Error(`Resurrection detected! Expected 0, got ${peterQuery.total}`);
 
     console.log('✅ ALL PETER CYCLE CHECKS PASSED WITH 100% SUCCESS! ZERO RESURRECTION!');
+    process.exit(0);
 }
 
 runTest().catch(err => {

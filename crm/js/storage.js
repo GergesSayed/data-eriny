@@ -4799,7 +4799,7 @@ const AppStorage = {
             try {
                 await Promise.race([
                     window.SupabaseClient.setAssignment(companyId, userId, company.assignedAt, now),
-                    new Promise(resolve => setTimeout(resolve, 300))
+                    new Promise(resolve => setTimeout(resolve, 2000))
                 ]);
             } catch (e) {
                 console.warn('assignCompany cloud push error:', e);
@@ -4808,7 +4808,7 @@ const AppStorage = {
             try {
                 await Promise.race([
                     window.SupabaseClient.pushAssignments(assignmentsMap),
-                    new Promise(resolve => setTimeout(resolve, 300))
+                    new Promise(resolve => setTimeout(resolve, 2000))
                 ]);
             } catch (e) {
                 console.warn('assignCompany cloud push error:', e);
@@ -4931,7 +4931,7 @@ const AppStorage = {
                 try {
                     await Promise.race([
                         window.SupabaseClient.pushAssignments(assignmentsMap),
-                        new Promise(resolve => setTimeout(resolve, 300))
+                        new Promise(resolve => setTimeout(resolve, 2000))
                     ]);
                 } catch(e) {}
             }
