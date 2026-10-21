@@ -4131,9 +4131,12 @@ html.user-role-agent #btn-clear-calls,
 html.user-role-agent #filter-assigned-group,
 html.user-role-agent #team-presence-indicator,
 body.user-role-agent #team-presence-indicator,
-html.user-role-agent .team-presence-pill,
-body.user-role-agent .team-presence-pill,
-html.user-role-agent #modal-team-presence {
+html.user-role-agent #modal-team-presence,
+html.user-role-agent #modal-company-custody,
+body.user-role-agent #modal-company-custody,
+html.user-role-agent .custody-card-active,
+html.user-role-agent .custody-history-item,
+html.user-role-agent [onclick*="showCustodyModal"] {
     display: none !important;
 }
 

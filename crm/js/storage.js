@@ -427,7 +427,7 @@ const AppStorage = {
     canViewCustody(user) {
         const u = user || this.getCurrentUser();
         if (!u) return false;
-        return true; // Any authenticated user / sales rep can view custody details & their own assignment
+        return this.isAdmin(u);
     },
 
     canModify(user) {
@@ -2324,7 +2324,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=404.0');
+            this._worker = new Worker('js/companies-worker.js?v=405.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize, totalCount } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -4695,6 +4695,7 @@ const AppStorage = {
     },
 
     getCustodyHistory(companyId) {
+        if (!this.canViewCustody()) return [];
         if (!companyId) return [];
         const sId = String(companyId);
         const allHistory = this.getCustodyHistoryMap();
