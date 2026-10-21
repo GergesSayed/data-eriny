@@ -12,6 +12,19 @@
             window.__EGYPT_ENTERPRISES_POOL = pool;
             window.EGYPT_ENTERPRISE_POOL = pool;
         }
+        // One-time prune of legacy stress tombstones from localStorage
+        try {
+            const rawDelCalls = localStorage.getItem('fleetcrm_deleted_calls');
+            if (rawDelCalls) {
+                const parsed = JSON.parse(rawDelCalls);
+                if (Array.isArray(parsed)) {
+                    const cleaned = parsed.filter(id => id && !String(id).startsWith('call_stress_'));
+                    if (cleaned.length !== parsed.length || cleaned.length > 150) {
+                        localStorage.setItem('fleetcrm_deleted_calls', JSON.stringify(cleaned.slice(-150)));
+                    }
+                }
+            }
+        } catch (e) {}
     }
 })();
 
@@ -3222,12 +3235,14 @@ const AppStorage = {
     recordDeletedId(type, id) {
         if (!type || !id) return;
         try {
+            const sId = String(id);
+            if (type === 'calls' && sId.startsWith('call_stress_')) return;
             const key = `fleetcrm_deleted_${type}`;
             const list = JSON.parse(localStorage.getItem(key) || '[]');
-            const sId = String(id);
             if (!list.includes(sId)) {
                 list.push(sId);
-                localStorage.setItem(key, JSON.stringify(list));
+                const pruned = list.length > 150 ? list.slice(-150) : list;
+                localStorage.setItem(key, JSON.stringify(pruned));
             }
             if (type === 'calls' && window.SupabaseClient && window.SupabaseClient.pushDeletedCall) {
                 window.SupabaseClient.pushDeletedCall(sId).catch(() => { });
@@ -3240,7 +3255,8 @@ const AppStorage = {
     getDeletedIds(type) {
         try {
             const list = JSON.parse(localStorage.getItem(`fleetcrm_deleted_${type}`) || '[]');
-            return new Set(list.map(String));
+            const filtered = list.filter(id => id && !String(id).startsWith('call_stress_'));
+            return new Set(filtered.map(String));
         } catch (e) {
             return new Set();
         }
@@ -4192,7 +4208,7 @@ const AppStorage = {
             if (!c) continue;
             const sId = String(c.id);
             const assignEntry = storedAssignments[sId];
-            const asgn = (assignEntry && assignEntry.assignedTo) ? assignEntry.assignedTo : '';
+            const asgn = (assignEntry && assignEntry.assignedTo !== undefined) ? assignEntry.assignedTo : (c.assignedTo || '');
             if (asgn && myKeys.has(String(asgn).trim().toLowerCase())) {
                 if (c.assignedTo !== asgn) c.assignedTo = asgn;
                 res.push(c);

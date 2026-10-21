@@ -276,57 +276,77 @@ window.SupabaseClient = (function() {
         }
 
         if (data.deletedCalls && Array.isArray(data.deletedCalls) && data.deletedCalls.length > 0) {
-            const delMap = {};
-            data.deletedCalls.forEach(id => {
-                if (id) {
-                    const sId = String(id);
-                    delMap[sId] = { deletedAt: Date.now() };
-                    promises.push(
-                        fetch(`${FIREBASE_DB_URL}/calls/${sId}.json`, {
-                            method: 'DELETE',
+            const chunkSize = 200;
+            for (let i = 0; i < data.deletedCalls.length; i += chunkSize) {
+                const chunk = data.deletedCalls.slice(i, i + chunkSize);
+                const callsNullMap = {};
+                const delMap = {};
+                const now = Date.now();
+                chunk.forEach(id => {
+                    if (id) {
+                        const sId = String(id);
+                        callsNullMap[sId] = null;
+                        delMap[sId] = { deletedAt: now };
+                    }
+                });
+                if (Object.keys(callsNullMap).length > 0) {
+                    try {
+                        await fetch(`${FIREBASE_DB_URL}/calls.json`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(callsNullMap),
                             signal
-                        }).catch(() => {})
-                    );
+                        });
+                        await fetch(`${FIREBASE_DB_URL}/deleted_calls.json`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(delMap),
+                            signal
+                        });
+                    } catch (e) {}
                 }
-            });
-            promises.push(
-                fetch(`${FIREBASE_DB_URL}/deleted_calls.json`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(delMap),
-                    signal
-                })
-            );
+            }
         }
 
         if (data.deletedCompanies && Array.isArray(data.deletedCompanies) && data.deletedCompanies.length > 0) {
-            const delCompMap = {};
-            data.deletedCompanies.forEach(id => {
-                if (id) {
-                    const sId = String(id);
-                    delCompMap[sId] = { deletedAt: Date.now() };
-                    promises.push(
-                        fetch(`${FIREBASE_DB_URL}/dynamic_companies/${sId}.json`, {
-                            method: 'DELETE',
+            const chunkSize = 200;
+            for (let i = 0; i < data.deletedCompanies.length; i += chunkSize) {
+                const chunk = data.deletedCompanies.slice(i, i + chunkSize);
+                const dynNullMap = {};
+                const assignNullMap = {};
+                const delCompMap = {};
+                const now = Date.now();
+                chunk.forEach(id => {
+                    if (id) {
+                        const sId = String(id);
+                        dynNullMap[sId] = null;
+                        assignNullMap[sId] = null;
+                        delCompMap[sId] = { deletedAt: now };
+                    }
+                });
+                if (Object.keys(dynNullMap).length > 0) {
+                    try {
+                        await fetch(`${FIREBASE_DB_URL}/dynamic_companies.json`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(dynNullMap),
                             signal
-                        }).catch(() => {})
-                    );
-                    promises.push(
-                        fetch(`${FIREBASE_DB_URL}/assignments/${sId}.json`, {
-                            method: 'DELETE',
+                        });
+                        await fetch(`${FIREBASE_DB_URL}/assignments.json`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(assignNullMap),
                             signal
-                        }).catch(() => {})
-                    );
+                        });
+                        await fetch(`${FIREBASE_DB_URL}/deleted_companies.json`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(delCompMap),
+                            signal
+                        });
+                    } catch (e) {}
                 }
-            });
-            promises.push(
-                fetch(`${FIREBASE_DB_URL}/deleted_companies.json`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(delCompMap),
-                    signal
-                })
-            );
+            }
         }
 
         if (data.users && Array.isArray(data.users) && data.users.length > 0) {
