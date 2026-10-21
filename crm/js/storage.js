@@ -4799,7 +4799,7 @@ const AppStorage = {
             try {
                 await Promise.race([
                     window.SupabaseClient.setAssignment(companyId, userId, company.assignedAt, now),
-                    new Promise(resolve => setTimeout(resolve, 2000))
+                    new Promise(resolve => setTimeout(resolve, 5000))
                 ]);
             } catch (e) {
                 console.warn('assignCompany cloud push error:', e);
@@ -4808,7 +4808,7 @@ const AppStorage = {
             try {
                 await Promise.race([
                     window.SupabaseClient.pushAssignments(assignmentsMap),
-                    new Promise(resolve => setTimeout(resolve, 2000))
+                    new Promise(resolve => setTimeout(resolve, 5000))
                 ]);
             } catch (e) {
                 console.warn('assignCompany cloud push error:', e);
@@ -4926,12 +4926,12 @@ const AppStorage = {
                 this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: updatedBatch });
             }
 
-            // 5. Send single atomic batch PATCH to Firebase assignments (bounded await up to 300ms to ensure cloud commits before navigation)
+            // 5. Send single atomic batch PATCH to Firebase assignments (bounded await up to 5000ms to ensure cloud commits before navigation)
             if (window.SupabaseClient && window.SupabaseClient.pushAssignments) {
                 try {
                     await Promise.race([
                         window.SupabaseClient.pushAssignments(assignmentsMap),
-                        new Promise(resolve => setTimeout(resolve, 2000))
+                        new Promise(resolve => setTimeout(resolve, 5000))
                     ]);
                 } catch(e) {}
             }

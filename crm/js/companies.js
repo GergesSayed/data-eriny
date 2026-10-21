@@ -1735,10 +1735,19 @@ const Companies = {
     },
 
     toggleSelectAll(isChecked, pageIds) {
+        if (!pageIds || !Array.isArray(pageIds) || pageIds.length === 0) {
+            pageIds = Array.from(document.querySelectorAll('.company-checkbox'))
+                .map(cb => cb.dataset.id || cb.getAttribute('data-id'))
+                .filter(Boolean);
+        }
         if (isChecked) {
-            (pageIds || []).forEach(id => this.selectedCompanies.add(id));
+            pageIds.forEach(id => this.selectedCompanies.add(id));
         } else {
-            (pageIds || []).forEach(id => this.selectedCompanies.delete(id));
+            if (pageIds && pageIds.length > 0) {
+                pageIds.forEach(id => this.selectedCompanies.delete(id));
+            } else {
+                this.selectedCompanies.clear();
+            }
         }
 
         // Direct DOM update — 0ms instant without expensive table re-render!
@@ -1827,7 +1836,7 @@ const Companies = {
             App.showToast(`✅ تم بنجاح إسناد وتخصيص ${count} شركة إلى: ${userName}`, 'success');
             this.clearSelection();
             this.refreshUserFilter();
-            this.render();
+            await this.render();
         } catch(err) {
             console.error('applyBulkAssign error:', err);
             App.showToast('خطأ أثناء تخصيص الشركات: ' + err.message, 'error');
@@ -1865,7 +1874,7 @@ const Companies = {
             App.showToast(`⚪ تم بنجاح إلغاء تخصيص ${count} شركة وأصبحت متاحة للجميع`, 'info');
             this.clearSelection();
             this.refreshUserFilter();
-            this.render();
+            await this.render();
             if (typeof Dashboard !== 'undefined' && typeof Dashboard.render === 'function') {
                 Dashboard.render();
             }
