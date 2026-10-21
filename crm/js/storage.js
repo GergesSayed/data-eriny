@@ -3566,12 +3566,13 @@ const AppStorage = {
                         }
                     }
 
-                    // 2. Preservative Cloud Sync:
-                    // Only Admin can push missing offline assignments to cloud, and only if made recently (< 15 minutes)
+                    // 2. Preservative Cloud Sync & Conflict Resolution:
                     const currentUser = this.getCurrentUser();
+                    const fifteenMinsAgo = now - (15 * 60 * 1000);
+
+                    // A. Admin re-pushes recent local assignments that cloud doesn't have yet
                     if (this.isAdmin(currentUser)) {
                         const missingInCloud = {};
-                        const fifteenMinsAgo = now - (15 * 60 * 1000);
                         for (const [sId, localData] of Object.entries(storedAssignments)) {
                             if (localData && localData.assignedTo && (!data.assignments || !data.assignments[sId])) {
                                 const localUpdatedAt = typeof localData.updatedAt === 'number' ? localData.updatedAt : new Date(localData.updatedAt || 0).getTime();
@@ -3588,18 +3589,33 @@ const AppStorage = {
                             window.SupabaseClient.pushAssignments(missingInCloud).catch(() => {});
                         }
                     } else if (data.assignments) {
-                        // For non-admin, clean any local assignments that no longer exist in cloud
+                        // B. Non-admin: ONLY purge if cloud explicitly recorded an unassignment that is strictly NEWER than local
+                        // NEVER purge recently created local assignments (< 15 mins), as they may be in flight or shared locally!
                         for (const [sId, localEntry] of Object.entries(storedAssignments)) {
-                            if (localEntry && localEntry.assignedTo && (!data.assignments[sId] || !data.assignments[sId].assignedTo)) {
-                                localEntry.assignedTo = '';
-                                localEntry.assignedAt = null;
-                                localEntry.updatedAt = now;
-                                const comp = idMap.get(sId);
-                                if (comp) {
-                                    comp.assignedTo = '';
-                                    comp.assignedAt = null;
-                                    changedComps.push(comp);
-                                    anyChanged = true;
+                            if (!localEntry || !localEntry.assignedTo) continue;
+                            const localUpdatedAt = typeof localEntry.updatedAt === 'number' ? localEntry.updatedAt : new Date(localEntry.updatedAt || 0).getTime();
+
+                            // If local assignment is fresh (< 15 mins), protect it unconditionally against cloud race conditions!
+                            if ((now - localUpdatedAt) < (15 * 60 * 1000)) {
+                                continue;
+                            }
+
+                            // Only unassign if cloud explicitly says unassigned AND cloud is newer than local
+                            const cloudRecord = data.assignments[sId];
+                            if (cloudRecord) {
+                                const cloudTarget = typeof cloudRecord === 'string' ? cloudRecord : (cloudRecord.assignedTo || '');
+                                const cloudTs = typeof cloudRecord.updatedAt === 'number' ? cloudRecord.updatedAt : (cloudRecord.updatedAt ? new Date(cloudRecord.updatedAt).getTime() : 0);
+                                if (!cloudTarget && cloudTs >= localUpdatedAt) {
+                                    localEntry.assignedTo = '';
+                                    localEntry.assignedAt = null;
+                                    localEntry.updatedAt = cloudTs;
+                                    const comp = idMap.get(sId);
+                                    if (comp) {
+                                        comp.assignedTo = '';
+                                        comp.assignedAt = null;
+                                        changedComps.push(comp);
+                                        anyChanged = true;
+                                    }
                                 }
                             }
                         }
