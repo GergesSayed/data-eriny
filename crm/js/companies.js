@@ -1478,9 +1478,6 @@ const Companies = {
                                 <i class="fas fa-phone"></i>
                             </button>
                             ${isAdmin ? `
-                                <button class="btn-icon" onclick="event.stopPropagation(); Companies.confirmUnassign('${c.id}')" style="color:#b91c1c; background:#fee2e2;" title="إلغاء التعيين وسحب العهدة">
-                                    <i class="fas fa-user-slash"></i>
-                                </button>
                                 <button class="btn-icon btn-edit" onclick="event.stopPropagation(); Companies.edit('${c.id}')" title="تعديل">
                                     <i class="fas fa-edit"></i>
                                 </button>
@@ -1636,7 +1633,6 @@ const Companies = {
                         <div class="table-actions" onclick="event.stopPropagation();">
                             <button class="btn-icon btn-view" onclick="event.stopPropagation(); Companies.showDetail('${c.id}')" title="تفاصيل"><i class="fas fa-eye"></i></button>
                             ${isAdmin ? `
-                                <button class="btn-icon" onclick="event.stopPropagation(); Companies.confirmUnassign('${c.id}')" style="color:#b91c1c; background:#fee2e2;" title="إلغاء التعيين وسحب العهدة"><i class="fas fa-user-slash"></i></button>
                                 <button class="btn-icon btn-edit" onclick="event.stopPropagation(); Companies.edit('${c.id}')" title="تعديل"><i class="fas fa-edit"></i></button>
                                 <button class="btn-icon btn-delete" onclick="event.stopPropagation(); Companies.confirmDelete('${c.id}')" title="حذف"><i class="fas fa-trash"></i></button>
                             ` : ''}
