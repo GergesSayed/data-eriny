@@ -158,7 +158,7 @@ const App = {
                     console.log('[SW] Service worker controller updated and active.');
                 });
 
-                navigator.serviceWorker.register('sw.js?v=400.0').then(reg => {
+                navigator.serviceWorker.register('sw.js?v=401.0').then(reg => {
                     reg.update().catch(() => {});
                     // Detect when a new SW version is waiting — show update notification
                     reg.addEventListener('updatefound', () => {
@@ -656,7 +656,7 @@ const App = {
         const btnTeam = document.getElementById('btn-team-management');
         const btnQuickAdd = document.getElementById('btn-quick-add');
 
-        if (btnAddComp) btnAddComp.style.display = canModify ? 'inline-flex' : 'none';
+        if (btnAddComp) btnAddComp.style.display = 'inline-flex';
         if (btnImportExcel) btnImportExcel.style.display = canModify ? 'inline-flex' : 'none';
         if (btnExportExcel) btnExportExcel.style.display = canViewAll ? 'inline-flex' : 'none';
         if (btnTeam) btnTeam.style.display = canViewAll ? 'inline-flex' : 'none';

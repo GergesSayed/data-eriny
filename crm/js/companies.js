@@ -2151,10 +2151,6 @@ const Companies = {
     openAddModal() {
         const currentUser = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
         const isAdmin = window.AppStorage ? window.AppStorage.isAdmin(currentUser) : false;
-        if (!isAdmin) {
-            App.showToast('🔒 إضافة شركات جديدة مقتصرة على المدير العام فقط', 'warning');
-            return;
-        }
         document.getElementById('form-company').reset();
         document.getElementById('company-id').value = '';
         const titanCb = document.getElementById('company-isTitan');
@@ -2250,13 +2246,23 @@ const Companies = {
             }
         }
 
+        // If creating new company by non-admin employee, auto-assign to employee!
+        if (!id && !company.assignedTo && currentUser) {
+            if (!isAdmin) {
+                company.assignedTo = currentUser.id;
+                company.assignedAt = new Date().toISOString();
+            }
+        }
+        company.isCustom = true;
+
         // Convert numbers
         company.fleetSize = parseInt(company.fleetSize) || 0;
         company.branchesCount = parseInt(company.branchesCount) || 0;
 
         window.AppStorage.saveCompany(company);
         App.closeModal('modal-company');
-        App.showToast(id ? 'تم تحديث بيانات الشركة' : 'تم إضافة الشركة بنجاح', 'success');
+        const toastMsg = id ? 'تم تحديث بيانات الشركة' : (isAdmin ? 'تم إضافة الشركة بنجاح' : `تم إضافة شركة "${company.nameAr || company.nameEn}" وإسنادها لعهدتك بنجاح!`);
+        App.showToast(toastMsg, 'success');
         this.render();
         Dashboard.render();
     },
@@ -2713,6 +2719,7 @@ const Companies = {
         const currentRepId = company.assignedTo;
         const currentRep = currentRepId ? window.AppStorage.getUser(currentRepId) : null;
         const currentRepName = currentRep ? currentRep.name : (currentRepId || 'غير مسندة');
+        const isMyCustody = Boolean(currentUser && currentRepId && (String(currentUser.id) === String(currentRepId) || String(currentUser.username) === String(currentRepId)));
         // 1. Current Custody Card
         let currentCustodyHtml = '';
         if (currentRepId) {
@@ -2769,10 +2776,12 @@ const Companies = {
                             <span class="badge" style="background:#dcfce7; color:#15803d; border:1px solid #86efac; font-size:12px; font-weight:800; padding:6px 14px; border-radius:20px; display:inline-flex; align-items:center; gap:6px;">
                                 <i class="fas fa-check-circle"></i> في عهدته حالياً (نشط)
                             </span>
-                            ${canModify ? `
-                                <button type="button" onclick="Companies.assignToUser('${company.id}', '')" style="background:#fee2e2; border:1px solid #fca5a5; color:#b91c1c; font-size:12px; font-weight:800; padding:6px 12px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:5px;" title="إلغاء تعيين هذه الشركة وسحب عهدتها فوراً">
-                                    <i class="fas fa-user-slash"></i> سحب العهدة / إلغاء التعيين
+                            ${(canModify || isMyCustody) ? `
+                                <button type="button" onclick="Companies.assignToUser('${company.id}', '')" style="background:#fee2e2; border:1px solid #fca5a5; color:#b91c1c; font-size:12px; font-weight:800; padding:6px 12px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:5px;" title="${isMyCustody && !canModify ? 'التنازل عن عهدة هذه الشركة وإعادتها لقاعدة البيانات العامة' : 'إلغاء تعيين هذه الشركة وسحب عهدتها فوراً'}">
+                                    <i class="fas fa-user-slash"></i> ${isMyCustody && !canModify ? 'تنازل عن العهدة / تفريغ الشركة' : 'سحب العهدة / إلغاء التعيين'}
                                 </button>
+                            ` : ''}
+                            ${canModify ? `
                                 <select onchange="Companies.assignToUser('${company.id}', this.value)" style="padding:5px 8px; border-radius:8px; border:1px solid #cbd5e1; background:var(--bg-surface); color:var(--text-primary); font-size:12px; font-weight:700; cursor:pointer;" title="تحويل العهدة إلى موظف آخر">
                                     <option value="" disabled selected>🔄 تحويل العهدة لموظف...</option>
                                     <option value="">⚪ إلغاء التعيين (متاحة للعامة)</option>
@@ -3026,6 +3035,7 @@ const Companies = {
 
     buildAssignedWidget(c) {
         const currentUser = (window.AppStorage && typeof window.AppStorage.getCurrentUser === 'function') ? window.AppStorage.getCurrentUser() : null;
+        const currentUserId = currentUser ? String(currentUser.id || currentUser.username) : '';
         const currentName = (currentUser && currentUser.name) ? String(currentUser.name).split(' ')[0] : (currentUser?.username || 'أنا');
         const users = (window.AppStorage && typeof window.AppStorage.getUsers === 'function') ? (window.AppStorage.getUsers() || []) : [];
         const assignedUser = (window.AppStorage && typeof window.AppStorage.getUser === 'function') 
@@ -3042,6 +3052,7 @@ const Companies = {
 
         if (assignedUser) {
             const userName = assignedUser.name || assignedUser.username || 'موظف';
+            const isMe = Boolean(currentUserId && (currentUserId === String(assignedUser.id) || currentUserId === String(assignedUser.username)));
             if (window.AppStorage.canModify()) {
                 return `
                     <div onclick="event.stopPropagation();" style="display:inline-flex; align-items:center; justify-content:center; gap:5px;">
@@ -3050,6 +3061,15 @@ const Companies = {
                             <option value="${assignedUser.id}" selected>👤 ${userName}</option>
                             <option value="">⚪ إلغاء التعيين</option>
                             ${users.filter(u => u && u.id !== assignedUser.id).map(u => `<option value="${u.id}">👤 ${u.name || u.username || 'موظف'}</option>`).join('')}
+                        </select>
+                    </div>`;
+            } else if (isMe) {
+                return `
+                    <div onclick="event.stopPropagation();" style="display:inline-flex; align-items:center; justify-content:center; gap:5px;">
+                        ${custodyBtnHtml}
+                        <select onchange="Companies.assignToUser('${c.id}', this.value)" style="padding:3px 6px; border-radius:6px; border:1px solid ${assignedUser.color || '#3b82f6'}66; background:${assignedUser.color || '#3b82f6'}15; color:${assignedUser.color || '#3b82f6'}; font-size:0.75rem; font-weight:700; width:125px; cursor:pointer; text-align:center; direction:ltr;" title="الشركة في عهدتك - يمكنك التنازل عنها وسحبها">
+                            <option value="${assignedUser.id}" selected>👤 أنا (${userName})</option>
+                            <option value="">⚪ تنازل عن العهدة</option>
                         </select>
                     </div>`;
             } else {
@@ -3061,6 +3081,7 @@ const Companies = {
             }
         } else if (c.assignedTo) {
             const fallbackName = c.assignedTo;
+            const isMeFallback = Boolean(currentUserId && (currentUserId === String(c.assignedTo)));
             if (window.AppStorage.canModify()) {
                 return `
                     <div onclick="event.stopPropagation();" style="display:inline-flex; align-items:center; justify-content:center; gap:5px;">
@@ -3069,6 +3090,15 @@ const Companies = {
                             <option value="${c.assignedTo}" selected>👤 ${fallbackName}</option>
                             <option value="">⚪ إلغاء التعيين</option>
                             ${users.map(u => `<option value="${u.id}">👤 ${u.name || u.username || 'موظف'}</option>`).join('')}
+                        </select>
+                    </div>`;
+            } else if (isMeFallback) {
+                return `
+                    <div onclick="event.stopPropagation();" style="display:inline-flex; align-items:center; justify-content:center; gap:5px;">
+                        ${custodyBtnHtml}
+                        <select onchange="Companies.assignToUser('${c.id}', this.value)" style="padding:3px 6px; border-radius:6px; border:1px solid #3b82f666; background:rgba(59, 130, 246, 0.15); color:#93c5fd; font-size:0.75rem; font-weight:700; width:125px; cursor:pointer; text-align:center; direction:ltr;" title="الشركة في عهدتك - يمكنك التنازل عنها وسحبها">
+                            <option value="${c.assignedTo}" selected>👤 أنا (${fallbackName})</option>
+                            <option value="">⚪ تنازل عن العهدة</option>
                         </select>
                     </div>`;
             } else {
@@ -3131,7 +3161,8 @@ const Companies = {
         let needsFullRender = false;
         const updatedComp = window.AppStorage.getCompany(companyId);
 
-        if (activeFilterAssigned === 'unassigned' && targetUserId) {
+        const isEmployeePortfolio = !window.AppStorage.canViewAll();
+        if ((!targetUserId && isEmployeePortfolio) || (activeFilterAssigned === 'unassigned' && targetUserId)) {
             if (tr) {
                 tr.style.transition = 'all 0.25s ease-out';
                 tr.style.opacity = '0';

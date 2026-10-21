@@ -3511,6 +3511,7 @@ const AppStorage = {
 
                 // B. Apply assignments directly from cloud (Timestamp-aware single source of truth!)
                 if (data.assignments && typeof data.assignments === 'object') {
+                    const currentUser = this.getCurrentUser();
                     const storedAssignments = this.getStoredAssignments() || {};
                     const changedComps = [];
                     const now = Date.now();
@@ -3567,7 +3568,6 @@ const AppStorage = {
                     }
 
                     // 2. Preservative Cloud Sync & Conflict Resolution:
-                    const currentUser = this.getCurrentUser();
                     const fifteenMinsAgo = now - (15 * 60 * 1000);
 
                     // A. Admin re-pushes recent local assignments that cloud doesn't have yet
@@ -3775,9 +3775,26 @@ const AppStorage = {
                 localStorage.setItem('fleetcrm_last_sync_time', cloudTimestamp);
             }
 
+            // ⚡ Reactive render trigger if dataset or assignments were updated from cloud
+            if (updated && typeof window !== 'undefined') {
+                try {
+                    const activePage = window.App ? (window.App.currentPage || window.location.hash.replace('#', '')) : 'companies';
+                    if (typeof Companies !== 'undefined' && (!activePage || activePage === 'companies')) {
+                        Companies.refreshUserFilter();
+                        Companies.render();
+                    }
+                    if (typeof Dashboard !== 'undefined' && activePage === 'dashboard') {
+                        Dashboard.render();
+                    }
+                    if (typeof Team !== 'undefined' && activePage === 'team') {
+                        Team.render();
+                    }
+                } catch(e) {}
+            }
+
             return updated;
         } catch (err) {
-            // Offline
+            console.warn('pullFromCloud sync error:', err);
             return false;
         }
     })().finally(() => {
@@ -3795,7 +3812,7 @@ const AppStorage = {
             const comp = nameOrComp;
             name = comp.nameAr || comp.name || comp.nameEn || '';
             if (typeof name !== 'string' || name.trim().length < 3) return false;
-            if (comp.isTitan || (comp.id && (String(comp.id).startsWith('eg_titan_') || String(comp.id).startsWith('eg_b2b_fleet_') || String(comp.id).startsWith('comp_base_')))) {
+            if (comp.isCustom || comp.isTitan || (comp.id && (String(comp.id).startsWith('comp_') || String(comp.id).startsWith('dyn_') || String(comp.id).startsWith('eg_titan_') || String(comp.id).startsWith('eg_b2b_fleet_')))) {
                 return true;
             }
         }
@@ -4377,6 +4394,21 @@ const AppStorage = {
 
         if (this._worker) {
             this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: [updatedItem] });
+        }
+
+        // Ensure newly assigned or created company assignment is permanently registered in storedAssignments
+        if (updatedItem.assignedTo) {
+            const storedAssignments = this.getStoredAssignments() || {};
+            const nowMs = Date.now();
+            storedAssignments[String(updatedItem.id)] = {
+                assignedTo: updatedItem.assignedTo,
+                assignedAt: updatedItem.assignedAt || new Date(nowMs).toISOString(),
+                updatedAt: nowMs
+            };
+            this.setStoredAssignments(storedAssignments);
+            if (window.SupabaseClient && typeof window.SupabaseClient.setAssignment === 'function') {
+                window.SupabaseClient.setAssignment(updatedItem.id, updatedItem.assignedTo, updatedItem.assignedAt, nowMs).catch(() => {});
+            }
         }
 
         if (window.SupabaseClient && window.SupabaseClient.pushSingleCompany && (company.source === 'scraper' || company.isCustom || !String(company.id).startsWith('eg_b2b_fleet_'))) {
