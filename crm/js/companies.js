@@ -1298,7 +1298,7 @@ const Companies = {
         const isAdmin = window.AppStorage.isAdmin(currentUser);
 
         const thSelectAll = document.getElementById('th-select-all-companies');
-        if (thSelectAll) thSelectAll.style.display = 'table-cell';
+        if (thSelectAll) thSelectAll.style.display = isAdmin ? 'table-cell' : 'none';
 
         if (!tbody || !tableView) return;
         tableView.style.display = 'block';
@@ -1426,9 +1426,11 @@ const Companies = {
 
             return `
                 <tr data-id="${c.id}" class="${isChecked ? 'row-selected' : ''}" onclick="Companies.showDetail('${c.id}')" style="cursor: pointer;">
-                    <td style="text-align:center;" onclick="event.stopPropagation();">
-                        <input type="checkbox" class="company-checkbox" data-id="${c.id}" ${isChecked} onchange="Companies.toggleSelectCompany('${c.id}', this.checked)" onclick="event.stopPropagation();">
-                    </td>
+                    ${isAdmin ? `
+                        <td class="td-company-select" style="text-align:center;" onclick="event.stopPropagation();">
+                            <input type="checkbox" class="company-checkbox" data-id="${c.id}" ${isChecked} onchange="Companies.toggleSelectCompany('${c.id}', this.checked)" onclick="event.stopPropagation();">
+                        </td>
+                    ` : ''}
                     <td>
                         <div class="company-name-cell" style="display:flex; flex-direction:column; justify-content:center; gap:2px;">
                             <div class="company-title-row" style="display:flex; align-items:center; gap:6px; white-space:nowrap; overflow:hidden;">
@@ -1475,17 +1477,13 @@ const Companies = {
                             <button class="btn-icon btn-call" onclick="event.stopPropagation(); App.logCallForCompany('${c.id}')" title="مكالمة">
                                 <i class="fas fa-phone"></i>
                             </button>
-                            ${(isAdmin || isAssignedToMe) ? `
-                                <button class="btn-icon" onclick="event.stopPropagation(); Companies.confirmUnassign('${c.id}')" style="color:#b91c1c; background:#fee2e2;" title="${isAssignedToMe && !isAdmin ? 'التنازل عن عهدة هذه الشركة وإعادتها للعامة' : 'إلغاء التعيين وسحب العهدة'}">
+                            ${isAdmin ? `
+                                <button class="btn-icon" onclick="event.stopPropagation(); Companies.confirmUnassign('${c.id}')" style="color:#b91c1c; background:#fee2e2;" title="إلغاء التعيين وسحب العهدة">
                                     <i class="fas fa-user-slash"></i>
                                 </button>
-                            ` : ''}
-                            ${(window.AppStorage.canModify(currentUser) || isAssignedToMe) ? `
                                 <button class="btn-icon btn-edit" onclick="event.stopPropagation(); Companies.edit('${c.id}')" title="تعديل">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                            ` : ''}
-                            ${isAdmin ? `
                                 <button class="btn-icon btn-delete" onclick="event.stopPropagation(); Companies.confirmDelete('${c.id}')" title="حذف">
                                     <i class="fas fa-trash"></i>
                                 </button>
@@ -1637,13 +1635,9 @@ const Companies = {
                         </div>
                         <div class="table-actions" onclick="event.stopPropagation();">
                             <button class="btn-icon btn-view" onclick="event.stopPropagation(); Companies.showDetail('${c.id}')" title="تفاصيل"><i class="fas fa-eye"></i></button>
-                            ${(isAdmin || isAssignedToMe) ? `
-                                <button class="btn-icon" onclick="event.stopPropagation(); Companies.confirmUnassign('${c.id}')" style="color:#b91c1c; background:#fee2e2;" title="${isAssignedToMe && !isAdmin ? 'التنازل عن عهدة هذه الشركة وإعادتها للعامة' : 'إلغاء التعيين وسحب العهدة'}"><i class="fas fa-user-slash"></i></button>
-                            ` : ''}
-                            ${(window.AppStorage.canModify(currentUser) || isAssignedToMe) ? `
-                                <button class="btn-icon btn-edit" onclick="event.stopPropagation(); Companies.edit('${c.id}')" title="تعديل"><i class="fas fa-edit"></i></button>
-                            ` : ''}
                             ${isAdmin ? `
+                                <button class="btn-icon" onclick="event.stopPropagation(); Companies.confirmUnassign('${c.id}')" style="color:#b91c1c; background:#fee2e2;" title="إلغاء التعيين وسحب العهدة"><i class="fas fa-user-slash"></i></button>
+                                <button class="btn-icon btn-edit" onclick="event.stopPropagation(); Companies.edit('${c.id}')" title="تعديل"><i class="fas fa-edit"></i></button>
                                 <button class="btn-icon btn-delete" onclick="event.stopPropagation(); Companies.confirmDelete('${c.id}')" title="حذف"><i class="fas fa-trash"></i></button>
                             ` : ''}
                         </div>
@@ -1783,6 +1777,11 @@ const Companies = {
         const bulkBar = document.getElementById('bulk-actions-bar');
         if (!bulkBar) return;
 
+        if (!isAdmin) {
+            bulkBar.style.display = 'none';
+            return;
+        }
+
         const count = this.selectedCompanies.size;
         bulkBar.style.display = count > 0 ? 'flex' : 'none';
 
@@ -1793,7 +1792,7 @@ const Companies = {
 
         const adminControls = document.getElementById('bulk-admin-controls');
         if (adminControls) {
-            adminControls.style.display = isAdmin ? 'inline-flex' : 'none';
+            adminControls.style.display = 'inline-flex';
         }
 
         const btnUnassign = document.getElementById('btn-bulk-unassign');
@@ -1801,9 +1800,7 @@ const Companies = {
         if (btnUnassign) {
             btnUnassign.style.display = 'inline-flex';
             if (btnUnassignText) {
-                btnUnassignText.textContent = isAdmin 
-                    ? `إلغاء تخصيص وسحب عهدة (${count})` 
-                    : `التنازل عن عهدة الشركات المحددة (${count})`;
+                btnUnassignText.textContent = `إلغاء تخصيص وسحب عهدة (${count})`;
             }
         }
     },
@@ -1878,6 +1875,10 @@ const Companies = {
         if (this._isBulkUnassigning) return;
         const currentUser = window.AppStorage.getCurrentUser();
         const isAdmin = window.AppStorage.isAdmin(currentUser);
+        if (!isAdmin) {
+            App.showToast('🔒 إلغاء تخصيص وسحب عهدة الشركات مقتصر على المدير العام فقط', 'warning');
+            return;
+        }
         if (!this.selectedCompanies || this.selectedCompanies.size === 0) {
             App.showToast('⚠️ يرجى تحديد شركة واحدة على الأقل أولاً', 'warning');
             return;
@@ -1886,35 +1887,14 @@ const Companies = {
         const btn = document.getElementById('btn-bulk-unassign');
         if (btn) {
             btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التنازل وإلغاء التخصيص...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري إلغاء التخصيص...';
         }
 
         this._isBulkUnassigning = true;
         try {
             const ids = Array.from(this.selectedCompanies);
-            let targetIds = ids;
-            if (!isAdmin && currentUser) {
-                const myId = String(currentUser.id || currentUser.username || '');
-                targetIds = ids.filter(id => {
-                    const c = window.AppStorage.getCompany(id);
-                    return c && (String(c.assignedTo) === myId || String(c.assignedTo) === String(currentUser.username) || String(c.assignedTo) === String(currentUser.id));
-                });
-                if (targetIds.length === 0) {
-                    App.showToast('⚠️ لم يتم العثور على شركات مسندة لعهدتك ضمن التحديد للتنازل عنها', 'warning');
-                    this._isBulkUnassigning = false;
-                    if (btn) {
-                        btn.disabled = false;
-                        btn.innerHTML = '<i class="fas fa-user-slash"></i> <span id="btn-bulk-unassign-text">التنازل عن عهدة الشركات المحددة</span>';
-                    }
-                    return;
-                }
-            }
-
-            const count = await window.AppStorage.bulkAssignCompanies(targetIds, '');
-            const msg = isAdmin 
-                ? `⚪ تم بنجاح إلغاء تخصيص ${count} شركة وأصبحت متاحة للجميع`
-                : `⚪ تم بنجاح التنازل عن عهدة ${count} شركة وإعادتها لقاعدة البيانات العامة`;
-            App.showToast(msg, 'info');
+            const count = await window.AppStorage.bulkAssignCompanies(ids, '');
+            App.showToast(`⚪ تم بنجاح إلغاء تخصيص ${count} شركة وأصبحت متاحة للجميع`, 'info');
             this.clearSelection();
             this.refreshUserFilter();
             await this.render();
@@ -2238,13 +2218,9 @@ const Companies = {
     edit(id) {
         const currentUser = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
         const isAdmin = window.AppStorage ? window.AppStorage.isAdmin(currentUser) : false;
-        if (window.AppStorage && !window.AppStorage.canModify(currentUser) && !isAdmin) {
-            const company = window.AppStorage.getCompany(id);
-            const myId = currentUser ? String(currentUser.id || currentUser.username) : '';
-            if (!company || (company.assignedTo && company.assignedTo !== myId)) {
-                App.showToast('🔒 تعديل بيانات الشركة مقتصر على المشرفين أو المندوب المسندة إليه الشركة', 'warning');
-                return;
-            }
+        if (!isAdmin) {
+            App.showToast('🔒 تعديل بيانات الشركة مقتصر على المدير العام فقط', 'warning');
+            return;
         }
         const company = window.AppStorage.getCompany(id);
         if (!company) return;
@@ -2370,16 +2346,16 @@ const Companies = {
     },
 
     confirmUnassign(companyId) {
-        const comp = window.AppStorage.getCompany(companyId);
-        const compName = comp ? (comp.nameAr || comp.nameEn || 'الشركة') : 'الشركة';
         const currentUser = window.AppStorage.getCurrentUser();
         const isAdmin = window.AppStorage.isAdmin(currentUser);
-        const title = isAdmin ? '⚠️ إلغاء تخصيص وسحب عهدة' : '⚪ تنازل عن عهدة الشركة';
-        const msg = isAdmin 
-            ? `هل أنت متأكد من إلغاء تخصيص شركة "${compName}" وسحب عهدتها وإتاحتها للجميع؟`
-            : `هل أنت متأكد من التنازل عن عهدة شركة "${compName}" وإعادتها لقاعدة البيانات العامة؟`;
+        if (!isAdmin) {
+            App.showToast('🔒 إلغاء تخصيص وسحب عهدة الشركات مقتصر على المدير العام فقط', 'warning');
+            return;
+        }
+        const comp = window.AppStorage.getCompany(companyId);
+        const compName = comp ? (comp.nameAr || comp.nameEn || 'الشركة') : 'الشركة';
 
-        App.confirm(title, msg, async () => {
+        App.confirm('⚠️ إلغاء تخصيص وسحب عهدة', `هل أنت متأكد من إلغاء تخصيص شركة "${compName}" وسحب عهدتها وإتاحتها للجميع؟`, async () => {
             App.closeModal('modal-confirm');
             await this.assignToUser(companyId, '');
         });
@@ -2749,10 +2725,14 @@ const Companies = {
             App.closeModal('modal-company-detail');
             App.logCallForCompany(id);
         };
-        document.getElementById('btn-detail-edit').onclick = () => {
-            App.closeModal('modal-company-detail');
-            this.edit(id);
-        };
+        const btnDetailEdit = document.getElementById('btn-detail-edit');
+        if (btnDetailEdit) {
+            btnDetailEdit.style.display = isAdmin ? 'inline-flex' : 'none';
+            btnDetailEdit.onclick = () => {
+                App.closeModal('modal-company-detail');
+                this.edit(id);
+            };
+        }
 
         App.openModal('modal-company-detail');
     },
@@ -3227,6 +3207,11 @@ const Companies = {
 
     async assignToUser(companyId, userId) {
         const currentUser = window.AppStorage.getCurrentUser();
+        const isAdmin = window.AppStorage.isAdmin(currentUser);
+        if (!isAdmin) {
+            App.showToast('🔒 تعيين أو إلغاء تعيين الشركات مقتصر على المدير العام فقط', 'warning');
+            return;
+        }
         let targetUserId = userId;
 
         if (userId === 'current_user') {
