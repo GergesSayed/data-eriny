@@ -125,6 +125,8 @@ window.SupabaseClient = (function() {
 
     let _cachedUsersPresence = {};
     let _lastPresenceFetch = 0;
+    let _cachedCompanyLocks = {};
+    let _lastLocksFetch = 0;
 
     /**
      * Fetch all dynamic data from Firebase (< 40KB total) via high-speed modular GET
@@ -755,13 +757,21 @@ window.SupabaseClient = (function() {
     }
 
     async function getAllCompanyLocks() {
-        if (!navigator.onLine) return {};
+        if (!navigator.onLine) return _cachedCompanyLocks || {};
+        const now = Date.now();
+        if (_cachedCompanyLocks && Object.keys(_cachedCompanyLocks).length > 0 && (now - _lastLocksFetch < 8000)) {
+            return _cachedCompanyLocks;
+        }
         try {
-            const resp = await fetch(`${FIREBASE_DB_URL}/presence.json?t=${Date.now()}`);
-            if (!resp.ok) return {};
+            const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+            const timeoutId = controller ? setTimeout(() => controller.abort(), 3500) : null;
+            const resp = await fetch(`${FIREBASE_DB_URL}/presence.json?t=${now}`, {
+                signal: controller ? controller.signal : undefined
+            });
+            if (timeoutId) clearTimeout(timeoutId);
+            if (!resp.ok) return _cachedCompanyLocks || {};
             const raw = await resp.json();
-            if (!raw || typeof raw !== 'object') return {};
-            const now = Date.now();
+            if (!raw || typeof raw !== 'object') return _cachedCompanyLocks || {};
             const activeLocks = {};
             for (const [compId, item] of Object.entries(raw)) {
                 if (compId === 'users' || compId.startsWith('user_')) continue;
@@ -773,9 +783,11 @@ window.SupabaseClient = (function() {
                     };
                 }
             }
+            _lastLocksFetch = now;
+            _cachedCompanyLocks = activeLocks;
             return activeLocks;
         } catch (e) {
-            return {};
+            return _cachedCompanyLocks || {};
         }
     }
 
@@ -843,7 +855,7 @@ window.SupabaseClient = (function() {
             const bodyStr = JSON.stringify(payload);
             const headers = { 'Content-Type': 'application/json' };
 
-            // Primary endpoint under /presence/users node
+            // Primary canonical endpoint under /presence/users node
             const writes = [
                 fetch(`${FIREBASE_DB_URL}/presence/users/${safeId}.json`, { method: 'PUT', headers, body: bodyStr })
             ];
@@ -861,7 +873,7 @@ window.SupabaseClient = (function() {
                 } catch(e) {}
             }
 
-            await Promise.allSettled(writes);
+            Promise.allSettled(writes).catch(() => {});
             return payload;
         } catch(e) {
             return null;
@@ -893,14 +905,14 @@ window.SupabaseClient = (function() {
 
     async function getAllUsersPresence() {
         const now = Date.now();
-        if (_cachedUsersPresence && Object.keys(_cachedUsersPresence).length > 0 && (now - _lastPresenceFetch < 6000)) {
+        if (_cachedUsersPresence && Object.keys(_cachedUsersPresence).length > 0 && (now - _lastPresenceFetch < 8000)) {
             return _cachedUsersPresence;
         }
         try {
             let combined = null;
             try {
                 const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
-                const timeoutId = controller ? setTimeout(() => controller.abort(), 6000) : null;
+                const timeoutId = controller ? setTimeout(() => controller.abort(), 3500) : null;
                 const resp = await fetch(`${FIREBASE_DB_URL}/presence/users.json?t=${now}`, {
                     signal: controller ? controller.signal : undefined
                 });
@@ -910,7 +922,7 @@ window.SupabaseClient = (function() {
                     if (data && typeof data === 'object') combined = data;
                 }
             } catch(fetchErr) {
-                console.warn('Presence fetch warning:', fetchErr.message);
+                // Silently fallback to cache
             }
 
             // If fetch failed or network was down, fallback to memory cache if available
@@ -922,15 +934,36 @@ window.SupabaseClient = (function() {
             _lastPresenceFetch = now;
             const result = {};
 
+            // 1. Group records by normalized user ID and keep the freshest record
+            const userRecords = new Map();
             for (const [key, item] of Object.entries(combined)) {
                 if (!item || !item.lastSeen) continue;
+                const uid = String(item.userId || key).trim();
+                const existing = userRecords.get(uid);
+                if (!existing || Number(item.lastSeen) > Number(existing.lastSeen || 0)) {
+                    userRecords.set(uid, item);
+                }
+            }
+
+            // 2. Process each consolidated user record
+            for (const [uid, item] of userRecords.entries()) {
                 const diffMs = now - Number(item.lastSeen);
                 const absDiffMs = Math.abs(diffMs);
-                // Smart presence calculation:
-                // 1. If heartbeat was sent within last 120 seconds (2 mins), the user is DEFINITIVELY online
-                // 2. If status === 'online', active window is up to 4 minutes (handles background tab throttling)
-                // 3. Otherwise offline
-                const isOnline = (absDiffMs < 120000) || (item.status === 'online' && absDiffMs < 240000);
+                
+                // Presence evaluation:
+                // - Explicit logout: offline immediately!
+                // - Active online status: stays online for up to 8 minutes to accommodate phone standby,
+                //   tab background throttling, and reasonable clock skew across devices.
+                // - Otherwise online if heartbeat sent within 4 minutes.
+                let isOnline = false;
+                if (item.status === 'offline') {
+                    isOnline = false;
+                } else if (item.status === 'online') {
+                    isOnline = absDiffMs < 480000; // 8 minutes
+                } else {
+                    isOnline = absDiffMs < 240000; // 4 minutes
+                }
+
                 const processed = {
                     ...item,
                     isOnline: isOnline,
@@ -950,22 +983,28 @@ window.SupabaseClient = (function() {
                     aliasSet.add(s.replace(/_/g, '.'));
                 };
 
-                addKey(key);
+                addKey(uid);
                 if (item.userId) addKey(item.userId);
                 if (item.username) addKey(item.username);
                 if (item.userName) addKey(item.userName);
                 if (item.email) addKey(item.email);
 
                 aliasSet.forEach(k => {
-                    // Do not overwrite an active online presence with an older offline presence
-                    if (result[k] && result[k].isOnline && !processed.isOnline) {
-                        return;
+                    const existing = result[k];
+                    if (existing) {
+                        // Never overwrite an active online user with an older offline record
+                        if (existing.isOnline && !processed.isOnline && (now - (existing.lastSeen || 0) < 480000)) {
+                            return;
+                        }
+                        if (existing.isOnline === processed.isOnline && (existing.lastSeen || 0) >= (processed.lastSeen || 0)) {
+                            return;
+                        }
                     }
                     result[k] = processed;
                 });
             }
 
-            // Guarantee that the current logged-in user in this session is ALWAYS online
+            // 3. Guarantee that the current logged-in user in this session is ALWAYS online
             try {
                 const currentUser = (window.AppStorage && typeof window.AppStorage.getCurrentUser === 'function') ? window.AppStorage.getCurrentUser() : null;
                 if (currentUser && currentUser.id) {

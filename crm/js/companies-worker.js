@@ -361,7 +361,7 @@ self.onmessage = function(e) {
                 createdAt: c.createdAt || '',
                 createdTs: c.createdAt ? new Date(c.createdAt).getTime() : 0,
                 isTitan,
-                isCustom: Boolean(c.isCustom || (c.id && String(c.id).startsWith('comp_'))),
+                isCustom: Boolean(c.isCustom === true || (c.id && String(c.id).startsWith('comp_user_'))),
                 raw: c
             };
             _companiesIndex[idx] = indexed;
@@ -406,7 +406,7 @@ self.onmessage = function(e) {
                 createdAt: c.createdAt || '',
                 createdTs: c.createdAt ? new Date(c.createdAt).getTime() : 0,
                 isTitan,
-                isCustom: Boolean(c.isCustom || (c.id && String(c.id).startsWith('comp_'))),
+                isCustom: Boolean(c.isCustom === true || (c.id && String(c.id).startsWith('comp_user_'))),
                 raw: c
             };
 
@@ -678,16 +678,18 @@ self.onmessage = function(e) {
 
         // 3. Ultra-Fast In-Place Sort — Custom companies first, then Titans!
         filtered.sort((a, b) => {
-            const customA = a.isCustom ? 1 : 0;
-            const customB = b.isCustom ? 1 : 0;
-            if (customA !== customB) {
-                return customB - customA; // 🌟 Newly added custom companies at the very top!
-            }
-
+            // 👑 1. VIP / Titans ALWAYS at the very top!
             const titanA = a.isTitan ? 1 : 0;
             const titanB = b.isTitan ? 1 : 0;
             if (titanA !== titanB) {
-                return titanB - titanA; // 👑 Titans next!
+                return titanB - titanA; // 👑 VIP companies at the very top!
+            }
+
+            // 🌟 2. Truly custom user-added companies next
+            const customA = a.isCustom ? 1 : 0;
+            const customB = b.isCustom ? 1 : 0;
+            if (customA !== customB) {
+                return customB - customA;
             }
 
             if (sortMode === 'priority_fleet') {

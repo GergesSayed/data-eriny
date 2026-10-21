@@ -329,21 +329,33 @@ const Dashboard = {
     },
 
     _presencePollTimer: null,
+    _isRenderingPresence: false,
+    _lastRenderedPresenceHtml: '',
     activeLocksCache: {},
     activePresencesCache: {},
 
-    async renderLivePresence() {
+    async renderLivePresence(isManual = false) {
         const container = document.getElementById('dash-live-presence-list');
         const icon = document.getElementById('dash-presence-reload-icon');
         if (!container) return;
-        if (icon) icon.classList.add('fa-spin');
+
+        // Only spin reload icon if the user explicitly clicked the reload button!
+        if (isManual && icon) icon.classList.add('fa-spin');
+
+        // Prevent overlapping parallel fetches
+        if (this._isRenderingPresence) return;
+        this._isRenderingPresence = true;
+
+        // If container is showing the raw spinner and we have cached rendered HTML, show it immediately!
+        if (this._lastRenderedPresenceHtml && container.innerHTML.includes('fa-spinner')) {
+            container.innerHTML = this._lastRenderedPresenceHtml;
+        }
 
         const esc = (s) => String(s || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 
         try {
             if (!window.SupabaseClient) {
                 container.innerHTML = `<div style="color:var(--text-muted); font-size:12.5px;"><i class="fas fa-info-circle"></i> ميزة المراقبة اللحظية غير متاحة بدون اتصال بالإنترنت.</div>`;
-                if (icon) icon.classList.remove('fa-spin');
                 return;
             }
 
@@ -503,7 +515,7 @@ const Dashboard = {
                     </div>`;
             }
 
-            container.innerHTML = `
+            const finalHtml = `
                 <div style="width:100%; display:flex; flex-direction:column;">
                     ${presenceSummaryHeader}
                     ${usersChipsHtml}
@@ -511,12 +523,16 @@ const Dashboard = {
                 </div>
             `;
 
-            // Auto refresh is driven centrally by App.initMasterSyncEngine() every 20s
+            container.innerHTML = finalHtml;
+            this._lastRenderedPresenceHtml = finalHtml;
 
         } catch(e) {
             console.error('renderLivePresence error:', e);
-            container.innerHTML = `<div style="color:var(--text-muted); font-size:12.5px;"><i class="fas fa-exclamation-triangle"></i> تعذر جلب التواجد اللحظي.</div>`;
+            if (!this._lastRenderedPresenceHtml) {
+                container.innerHTML = `<div style="color:var(--text-muted); font-size:12.5px;"><i class="fas fa-exclamation-triangle"></i> تعذر جلب التواجد اللحظي.</div>`;
+            }
         } finally {
+            this._isRenderingPresence = false;
             if (icon) icon.classList.remove('fa-spin');
         }
     },

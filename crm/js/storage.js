@@ -2324,7 +2324,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=406.0');
+            this._worker = new Worker('js/companies-worker.js?v=407.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize, totalCount } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -2612,18 +2612,20 @@ const AppStorage = {
             return true;
         });
 
-        // Fast Sort — Custom / newly added prospect companies come FIRST, then Titans!
+        // Fast Sort — VIP / Titans ALWAYS at the very top, then custom prospect companies!
         filtered.sort((a, b) => {
-            const customA = (a.isCustom || (a.id && String(a.id).startsWith('comp_'))) ? 1 : 0;
-            const customB = (b.isCustom || (b.id && String(b.id).startsWith('comp_'))) ? 1 : 0;
-            if (customA !== customB) {
-                return customB - customA; // 🌟 Newly added custom companies at the very top!
-            }
-
+            // 👑 1. VIP / Titans ALWAYS first!
             const titanA = a._isTitan ? 1 : (a.isTitan || (a.id && String(a.id).startsWith('eg_titan_')) || a.isVIP || a.vip ? 1 : 0);
             const titanB = b._isTitan ? 1 : (b.isTitan || (b.id && String(b.id).startsWith('eg_titan_')) || b.isVIP || b.vip ? 1 : 0);
             if (titanA !== titanB) {
-                return titanB - titanA; // 👑 Titans next!
+                return titanB - titanA; // 👑 VIP companies first!
+            }
+
+            // 🌟 2. Truly custom user-added companies next
+            const customA = (a.isCustom === true || (a.id && String(a.id).startsWith('comp_user_'))) ? 1 : 0;
+            const customB = (b.isCustom === true || (b.id && String(b.id).startsWith('comp_user_'))) ? 1 : 0;
+            if (customA !== customB) {
+                return customB - customA;
             }
 
             if (sortMode === 'fleet_desc') {
