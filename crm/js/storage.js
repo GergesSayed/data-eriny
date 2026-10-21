@@ -427,7 +427,7 @@ const AppStorage = {
     canViewCustody(user) {
         const u = user || this.getCurrentUser();
         if (!u) return false;
-        return this.isAdmin(u) || this.isSupervisor(u);
+        return true; // Any authenticated user / sales rep can view custody details & their own assignment
     },
 
     canModify(user) {
@@ -2060,6 +2060,33 @@ const AppStorage = {
         return `${prefix}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     },
 
+    getCustomCompanies() {
+        try {
+            const raw = localStorage.getItem('fleetcrm_custom_companies');
+            return raw ? JSON.parse(raw) : {};
+        } catch (e) {
+            return {};
+        }
+    },
+
+    setCustomCompany(comp) {
+        if (!comp || !comp.id) return;
+        try {
+            const map = this.getCustomCompanies();
+            map[String(comp.id)] = comp;
+            localStorage.setItem('fleetcrm_custom_companies', JSON.stringify(map));
+        } catch (e) {}
+    },
+
+    removeCustomCompany(id) {
+        if (!id) return;
+        try {
+            const map = this.getCustomCompanies();
+            delete map[String(id)];
+            localStorage.setItem('fleetcrm_custom_companies', JSON.stringify(map));
+        } catch (e) {}
+    },
+
     hydrateMemoryFromBaseline(force = false) {
         try {
             if (!force && this.companiesMemory && Array.isArray(this.companiesMemory) && this.companiesMemory.length >= 21225) {
@@ -2086,6 +2113,16 @@ const AppStorage = {
                     }
                 });
             }
+            // Load and preserve all user-created custom companies (prospects)
+            const customComps = this.getCustomCompanies ? this.getCustomCompanies() : {};
+            if (customComps && typeof customComps === 'object') {
+                for (const [cId, comp] of Object.entries(customComps)) {
+                    if (comp && comp.id && !deletedCompIds.has(String(cId))) {
+                        syncMap.set(String(cId), this._normalizeCompanyData ? this._normalizeCompanyData(comp) : comp);
+                    }
+                }
+            }
+
             if (this.applyStoredAssignments) this.applyStoredAssignments(syncMap);
             if (this.applyCallsToCompanies) this.applyCallsToCompanies(syncMap);
 
@@ -2287,7 +2324,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=395.0');
+            this._worker = new Worker('js/companies-worker.js?v=402.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize, totalCount } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -2575,12 +2612,18 @@ const AppStorage = {
             return true;
         });
 
-        // Fast Sort — Titans ALWAYS pinned to the very top!
+        // Fast Sort — Custom / newly added prospect companies come FIRST, then Titans!
         filtered.sort((a, b) => {
+            const customA = (a.isCustom || (a.id && String(a.id).startsWith('comp_'))) ? 1 : 0;
+            const customB = (b.isCustom || (b.id && String(b.id).startsWith('comp_'))) ? 1 : 0;
+            if (customA !== customB) {
+                return customB - customA; // 🌟 Newly added custom companies at the very top!
+            }
+
             const titanA = a._isTitan ? 1 : (a.isTitan || (a.id && String(a.id).startsWith('eg_titan_')) || a.isVIP || a.vip ? 1 : 0);
             const titanB = b._isTitan ? 1 : (b.isTitan || (b.id && String(b.id).startsWith('eg_titan_')) || b.isVIP || b.vip ? 1 : 0);
             if (titanA !== titanB) {
-                return titanB - titanA; // 👑 Titans ALWAYS first!
+                return titanB - titanA; // 👑 Titans next!
             }
 
             if (sortMode === 'fleet_desc') {
@@ -4411,6 +4454,10 @@ const AppStorage = {
             }
         }
 
+        if (updatedItem.isCustom || String(updatedItem.id).startsWith('comp_')) {
+            this.setCustomCompany(updatedItem);
+        }
+
         if (window.SupabaseClient && window.SupabaseClient.pushSingleCompany && (company.source === 'scraper' || company.isCustom || !String(company.id).startsWith('eg_b2b_fleet_'))) {
             window.SupabaseClient.pushSingleCompany(updatedItem).catch(() => { });
         }
@@ -4426,6 +4473,7 @@ const AppStorage = {
         }
         const sId = String(id);
         this.recordDeletedId('companies', sId);
+        this.removeCustomCompany(sId);
 
         // 1. Instant in-memory deletion (O(1) search & splice)
         const companies = this.companiesMemory || [];

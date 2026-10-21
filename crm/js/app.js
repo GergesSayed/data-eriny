@@ -158,7 +158,7 @@ const App = {
                     console.log('[SW] Service worker controller updated and active.');
                 });
 
-                navigator.serviceWorker.register('sw.js?v=401.0').then(reg => {
+                navigator.serviceWorker.register('sw.js?v=402.0').then(reg => {
                     reg.update().catch(() => {});
                     // Detect when a new SW version is waiting — show update notification
                     reg.addEventListener('updatefound', () => {
@@ -660,8 +660,10 @@ const App = {
         if (btnImportExcel) btnImportExcel.style.display = canModify ? 'inline-flex' : 'none';
         if (btnExportExcel) btnExportExcel.style.display = canViewAll ? 'inline-flex' : 'none';
         if (btnTeam) btnTeam.style.display = canViewAll ? 'inline-flex' : 'none';
-        if (btnQuickAdd) btnQuickAdd.style.display = canModify ? 'inline-flex' : 'none';
-        if (bulkBar && !canModify) bulkBar.style.display = 'none';
+        if (btnQuickAdd) btnQuickAdd.style.display = 'inline-flex';
+        if (bulkBar && (!window.Companies || !window.Companies.selectedCompanies || window.Companies.selectedCompanies.size === 0)) {
+            bulkBar.style.display = 'none';
+        }
 
         // Strictly restrict Data Audit, Deduplication, Data Wipe, Cloud Sync, and Clear Log buttons to Admin ONLY
         const btnRemoveDuplicates = document.getElementById('btn-remove-duplicates');

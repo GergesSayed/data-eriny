@@ -1373,6 +1373,8 @@ const Companies = {
 
             const isChecked = this.selectedCompanies && this.selectedCompanies.has(c.id) ? 'checked' : '';
             const assignedBadge = this.buildAssignedWidget(c);
+            const myUserId = currentUser ? String(currentUser.id || currentUser.username || '') : '';
+            const isAssignedToMe = Boolean(myUserId && (String(c.assignedTo) === myUserId || String(c.assignedTo) === String(currentUser?.username)));
 
             const mainName = esc(c.nameAr || c.nameEn || 'شركة بدون اسم');
             const rawSub = (c.nameEn && c.nameEn.trim() !== (c.nameAr || '').trim()) ? esc(c.nameEn.trim()) : '';
@@ -1424,11 +1426,9 @@ const Companies = {
 
             return `
                 <tr data-id="${c.id}" class="${isChecked ? 'row-selected' : ''}" onclick="Companies.showDetail('${c.id}')" style="cursor: pointer;">
-                    ${isAdmin ? `
-                        <td style="text-align:center;" onclick="event.stopPropagation();">
-                            <input type="checkbox" class="company-checkbox" data-id="${c.id}" ${isChecked} onchange="Companies.toggleSelectCompany('${c.id}', this.checked)" onclick="event.stopPropagation();">
-                        </td>
-                    ` : ''}
+                    <td style="text-align:center;" onclick="event.stopPropagation();">
+                        <input type="checkbox" class="company-checkbox" data-id="${c.id}" ${isChecked} onchange="Companies.toggleSelectCompany('${c.id}', this.checked)" onclick="event.stopPropagation();">
+                    </td>
                     <td>
                         <div class="company-name-cell" style="display:flex; flex-direction:column; justify-content:center; gap:2px;">
                             <div class="company-title-row" style="display:flex; align-items:center; gap:6px; white-space:nowrap; overflow:hidden;">
@@ -1475,6 +1475,11 @@ const Companies = {
                             <button class="btn-icon btn-call" onclick="event.stopPropagation(); App.logCallForCompany('${c.id}')" title="مكالمة">
                                 <i class="fas fa-phone"></i>
                             </button>
+                            ${(isAdmin || isAssignedToMe) ? `
+                                <button class="btn-icon" onclick="event.stopPropagation(); Companies.confirmUnassign('${c.id}')" style="color:#b91c1c; background:#fee2e2;" title="${isAssignedToMe && !isAdmin ? 'التنازل عن عهدة هذه الشركة وإعادتها للعامة' : 'إلغاء التعيين وسحب العهدة'}">
+                                    <i class="fas fa-user-slash"></i>
+                                </button>
+                            ` : ''}
                             ${window.AppStorage.canModify(currentUser) ? `
                                 <button class="btn-icon btn-edit" onclick="event.stopPropagation(); Companies.edit('${c.id}')" title="تعديل">
                                     <i class="fas fa-edit"></i>
@@ -1589,6 +1594,8 @@ const Companies = {
 
             const isTitan = Boolean(c.isTitan || (c.id && String(c.id).startsWith('eg_titan_')));
             const titanBadge = isTitan ? `<span class="badge" style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#fff; font-size:9px; padding:1px 6px; border-radius:4px; font-weight:900; letter-spacing:0.5px; display:inline-flex; align-items:center; gap:3px;" title="عميل كبار الشخصيات VIP"><i class="fas fa-crown"></i> VIP</span>` : '';
+            const myUserId = currentUser ? String(currentUser.id || currentUser.username || '') : '';
+            const isAssignedToMe = Boolean(myUserId && (String(c.assignedTo) === myUserId || String(c.assignedTo) === String(currentUser?.username)));
 
             return `
                 <div class="company-card" data-card-id="${c.id}" data-priority="${c.priority || 'B'}" onclick="Companies.showDetail('${c.id}')" style="cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: rgba(99, 102, 241, 0.2);">
@@ -1628,6 +1635,9 @@ const Companies = {
                         </div>
                         <div class="table-actions" onclick="event.stopPropagation();">
                             <button class="btn-icon btn-view" onclick="event.stopPropagation(); Companies.showDetail('${c.id}')" title="تفاصيل"><i class="fas fa-eye"></i></button>
+                            ${(isAdmin || isAssignedToMe) ? `
+                                <button class="btn-icon" onclick="event.stopPropagation(); Companies.confirmUnassign('${c.id}')" style="color:#b91c1c; background:#fee2e2;" title="${isAssignedToMe && !isAdmin ? 'التنازل عن عهدة هذه الشركة وإعادتها للعامة' : 'إلغاء التعيين وسحب العهدة'}"><i class="fas fa-user-slash"></i></button>
+                            ` : ''}
                             ${window.AppStorage.canModify(currentUser) ? `
                                 <button class="btn-icon btn-edit" onclick="event.stopPropagation(); Companies.edit('${c.id}')" title="تعديل"><i class="fas fa-edit"></i></button>
                                 <button class="btn-icon btn-delete" onclick="event.stopPropagation(); Companies.confirmDelete('${c.id}')" title="حذف"><i class="fas fa-trash"></i></button>
@@ -1767,19 +1777,30 @@ const Companies = {
         const currentUser = window.AppStorage.getCurrentUser();
         const isAdmin = window.AppStorage.isAdmin(currentUser);
         const bulkBar = document.getElementById('bulk-actions-bar');
-
-        if (!isAdmin) {
-            if (bulkBar) bulkBar.style.display = 'none';
-            return;
-        }
+        if (!bulkBar) return;
 
         const count = this.selectedCompanies.size;
+        bulkBar.style.display = count > 0 ? 'flex' : 'none';
+
         const countDisplay = document.getElementById('selected-companies-count');
-        if (bulkBar) {
-            bulkBar.style.display = count > 0 ? 'flex' : 'none';
-        }
         if (countDisplay) {
             countDisplay.textContent = `${count} شركة محددة`;
+        }
+
+        const adminControls = document.getElementById('bulk-admin-controls');
+        if (adminControls) {
+            adminControls.style.display = isAdmin ? 'inline-flex' : 'none';
+        }
+
+        const btnUnassign = document.getElementById('btn-bulk-unassign');
+        const btnUnassignText = document.getElementById('btn-bulk-unassign-text');
+        if (btnUnassign) {
+            btnUnassign.style.display = 'inline-flex';
+            if (btnUnassignText) {
+                btnUnassignText.textContent = isAdmin 
+                    ? `إلغاء تخصيص وسحب عهدة (${count})` 
+                    : `التنازل عن عهدة الشركات المحددة (${count})`;
+            }
         }
     },
 
@@ -1852,10 +1873,7 @@ const Companies = {
     async applyBulkUnassign() {
         if (this._isBulkUnassigning) return;
         const currentUser = window.AppStorage.getCurrentUser();
-        if (!window.AppStorage.isAdmin(currentUser)) {
-            App.showToast('⚠️ إلغاء التخصيص الجماعي مسموح فقط للمدير العام', 'error');
-            return;
-        }
+        const isAdmin = window.AppStorage.isAdmin(currentUser);
         if (!this.selectedCompanies || this.selectedCompanies.size === 0) {
             App.showToast('⚠️ يرجى تحديد شركة واحدة على الأقل أولاً', 'warning');
             return;
@@ -1864,14 +1882,35 @@ const Companies = {
         const btn = document.getElementById('btn-bulk-unassign');
         if (btn) {
             btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإلغاء...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التنازل وإلغاء التخصيص...';
         }
 
         this._isBulkUnassigning = true;
         try {
             const ids = Array.from(this.selectedCompanies);
-            const count = await window.AppStorage.bulkAssignCompanies(ids, '');
-            App.showToast(`⚪ تم بنجاح إلغاء تخصيص ${count} شركة وأصبحت متاحة للجميع`, 'info');
+            let targetIds = ids;
+            if (!isAdmin && currentUser) {
+                const myId = String(currentUser.id || currentUser.username || '');
+                targetIds = ids.filter(id => {
+                    const c = window.AppStorage.getCompany(id);
+                    return c && (String(c.assignedTo) === myId || String(c.assignedTo) === String(currentUser.username) || String(c.assignedTo) === String(currentUser.id));
+                });
+                if (targetIds.length === 0) {
+                    App.showToast('⚠️ لم يتم العثور على شركات مسندة لعهدتك ضمن التحديد للتنازل عنها', 'warning');
+                    this._isBulkUnassigning = false;
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-user-slash"></i> <span id="btn-bulk-unassign-text">التنازل عن عهدة الشركات المحددة</span>';
+                    }
+                    return;
+                }
+            }
+
+            const count = await window.AppStorage.bulkAssignCompanies(targetIds, '');
+            const msg = isAdmin 
+                ? `⚪ تم بنجاح إلغاء تخصيص ${count} شركة وأصبحت متاحة للجميع`
+                : `⚪ تم بنجاح التنازل عن عهدة ${count} شركة وإعادتها لقاعدة البيانات العامة`;
+            App.showToast(msg, 'info');
             this.clearSelection();
             this.refreshUserFilter();
             await this.render();
@@ -1885,7 +1924,7 @@ const Companies = {
             this._isBulkUnassigning = false;
             if (btn) {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-user-times"></i> إلغاء تخصيص';
+                btn.innerHTML = '<i class="fas fa-user-slash"></i> <span id="btn-bulk-unassign-text">' + (isAdmin ? 'إلغاء تخصيص وسحب عهدة' : 'التنازل عن عهدة الشركات المحددة') + '</span>';
             }
         }
     },
@@ -2153,6 +2192,34 @@ const Companies = {
         const isAdmin = window.AppStorage ? window.AppStorage.isAdmin(currentUser) : false;
         document.getElementById('form-company').reset();
         document.getElementById('company-id').value = '';
+
+        // Populate Assign To dropdown
+        const assignSel = document.getElementById('company-assignedTo');
+        const assignGroup = document.getElementById('company-assign-group');
+        if (assignSel) {
+            const allUsers = (window.AppStorage && window.AppStorage.getUsers) ? window.AppStorage.getUsers() : [];
+            const activeFilter = document.getElementById('filter-assigned')?.value || '';
+            if (isAdmin) {
+                if (assignGroup) assignGroup.style.display = 'block';
+                assignSel.disabled = false;
+                assignSel.innerHTML = `
+                    <option value="">⚪ غير مسندة (متاحة للعامة)</option>
+                    ${allUsers.map(u => `<option value="${u.id}">${u.role === 'admin' ? '👑' : (u.avatar || '👨‍💼')} ${u.name} (${u.role === 'admin' ? 'مدير' : 'مبيعات'})</option>`).join('')}
+                `;
+                if (activeFilter && activeFilter !== 'unassigned' && activeFilter !== 'my_leads') {
+                    assignSel.value = activeFilter;
+                } else {
+                    assignSel.value = '';
+                }
+            } else {
+                if (assignGroup) assignGroup.style.display = 'block';
+                const myId = currentUser ? currentUser.id : '';
+                const myName = currentUser ? (currentUser.name || currentUser.username) : 'أنا';
+                assignSel.innerHTML = `<option value="${myId}" selected>👤 في عهدتي أنا (${myName})</option>`;
+                assignSel.disabled = true;
+            }
+        }
+
         const titanCb = document.getElementById('company-isTitan');
         if (titanCb) {
             titanCb.checked = false;
@@ -2194,6 +2261,27 @@ const Companies = {
             if (el) el.value = company[field] || '';
         });
 
+        const assignSel = document.getElementById('company-assignedTo');
+        const assignGroup = document.getElementById('company-assign-group');
+        if (assignSel) {
+            const allUsers = (window.AppStorage && window.AppStorage.getUsers) ? window.AppStorage.getUsers() : [];
+            if (isAdmin) {
+                if (assignGroup) assignGroup.style.display = 'block';
+                assignSel.disabled = false;
+                assignSel.innerHTML = `
+                    <option value="">⚪ غير مسندة (متاحة للعامة)</option>
+                    ${allUsers.map(u => `<option value="${u.id}">${u.role === 'admin' ? '👑' : (u.avatar || '👨‍💼')} ${u.name} (${u.role === 'admin' ? 'مدير' : 'مبيعات'})</option>`).join('')}
+                `;
+                assignSel.value = company.assignedTo || '';
+            } else {
+                if (assignGroup) assignGroup.style.display = 'block';
+                const asgnUser = company.assignedTo ? window.AppStorage.getUser(company.assignedTo) : null;
+                const asgnName = asgnUser ? asgnUser.name : (company.assignedTo || 'غير مسندة');
+                assignSel.innerHTML = `<option value="${company.assignedTo || ''}" selected>👤 ${asgnName}</option>`;
+                assignSel.disabled = true;
+            }
+        }
+
         const titanCb = document.getElementById('company-isTitan');
         if (titanCb) {
             titanCb.checked = Boolean(company.isTitan || (company.id && String(company.id).startsWith('eg_titan_')) || company.isVIP || company.vip);
@@ -2232,12 +2320,26 @@ const Companies = {
             if (el) company[field] = el.value;
         });
 
+        const assignedEl = document.getElementById('company-assignedTo');
+        const assignedVal = assignedEl ? assignedEl.value : '';
+
+        if (!isAdmin) {
+            company.assignedTo = currentUser ? currentUser.id : '';
+            company.assignedAt = new Date().toISOString();
+        } else {
+            company.assignedTo = assignedVal || '';
+            company.assignedAt = assignedVal ? new Date().toISOString() : null;
+        }
+
+        // Defaults for sector and city if not specified
+        if (!company.sector) company.sector = 'transport';
+        if (!company.city) company.city = 'cairo';
+
         const titanCb = document.getElementById('company-isTitan');
         if (titanCb && isAdmin) {
             company.isTitan = titanCb.checked;
             company.isVIP = titanCb.checked;
         } else if (id) {
-            // Keep original VIP status intact if non-admin is editing
             const existingComp = window.AppStorage.getCompany(id);
             if (existingComp) {
                 const wasVip = Boolean(existingComp.isTitan || (existingComp.id && String(existingComp.id).startsWith('eg_titan_')) || existingComp.isVIP || existingComp.vip);
@@ -2246,25 +2348,37 @@ const Companies = {
             }
         }
 
-        // If creating new company by non-admin employee, auto-assign to employee!
-        if (!id && !company.assignedTo && currentUser) {
-            if (!isAdmin) {
-                company.assignedTo = currentUser.id;
-                company.assignedAt = new Date().toISOString();
-            }
-        }
         company.isCustom = true;
-
-        // Convert numbers
         company.fleetSize = parseInt(company.fleetSize) || 0;
         company.branchesCount = parseInt(company.branchesCount) || 0;
 
         window.AppStorage.saveCompany(company);
         App.closeModal('modal-company');
-        const toastMsg = id ? 'تم تحديث بيانات الشركة' : (isAdmin ? 'تم إضافة الشركة بنجاح' : `تم إضافة شركة "${company.nameAr || company.nameEn}" وإسنادها لعهدتك بنجاح!`);
+
+        const targetUser = company.assignedTo ? window.AppStorage.getUser(company.assignedTo) : null;
+        const asgnName = targetUser ? targetUser.name : (company.assignedTo ? 'الموظف' : 'العامة (متاحة للجميع)');
+        const toastMsg = id ? '✅ تم تحديث بيانات الشركة بنجاح' : `✅ تم إضافة شركة "${company.nameAr || company.nameEn}" بنجاح وإسنادها إلى: ${asgnName}`;
         App.showToast(toastMsg, 'success');
+
+        this.currentPage = 1;
         this.render();
         Dashboard.render();
+    },
+
+    confirmUnassign(companyId) {
+        const comp = window.AppStorage.getCompany(companyId);
+        const compName = comp ? (comp.nameAr || comp.nameEn || 'الشركة') : 'الشركة';
+        const currentUser = window.AppStorage.getCurrentUser();
+        const isAdmin = window.AppStorage.isAdmin(currentUser);
+        const title = isAdmin ? '⚠️ إلغاء تخصيص وسحب عهدة' : '⚪ تنازل عن عهدة الشركة';
+        const msg = isAdmin 
+            ? `هل أنت متأكد من إلغاء تخصيص شركة "${compName}" وسحب عهدتها وإتاحتها للجميع؟`
+            : `هل أنت متأكد من التنازل عن عهدة شركة "${compName}" وإعادتها لقاعدة البيانات العامة؟`;
+
+        App.confirm(title, msg, async () => {
+            App.closeModal('modal-confirm');
+            await this.assignToUser(companyId, '');
+        });
     },
 
     confirmDelete(id) {
