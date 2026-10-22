@@ -378,10 +378,21 @@ const AppStorage = {
     getUserByUsername(username) {
         if (!username) return null;
         const query = username.toLowerCase().trim();
-        return this.getUsers().find(u =>
-            (u.email && u.email.toLowerCase().trim() === query) ||
-            (u.username && u.username.toLowerCase().trim() === query)
-        ) || null;
+        const cleanQuery = query.replace(/[._\- ]/g, '');
+        return this.getUsers().find(u => {
+            if (!u) return false;
+            const uname = (u.username || '').toLowerCase().trim();
+            const email = (u.email || '').toLowerCase().trim();
+            const name = (u.name || '').toLowerCase().trim();
+            const firstName = (u.firstName || '').toLowerCase().trim();
+            const cleanUname = uname.replace(/[._\- ]/g, '');
+            return email === query ||
+                   uname === query ||
+                   name === query ||
+                   firstName === query ||
+                   (cleanUname && cleanQuery && cleanUname === cleanQuery) ||
+                   (email.split('@')[0] === query);
+        }) || null;
     },
 
     getUserByEmail(email) {
@@ -2324,7 +2335,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=407.0');
+            this._worker = new Worker('js/companies-worker.js?v=408.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize, totalCount } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {

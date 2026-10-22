@@ -158,7 +158,7 @@ const App = {
                     console.log('[SW] Service worker controller updated and active.');
                 });
 
-                navigator.serviceWorker.register('sw.js?v=407.0').then(reg => {
+                navigator.serviceWorker.register('sw.js?v=408.0').then(reg => {
                     reg.update().catch(() => {});
                     // Detect when a new SW version is waiting — show update notification
                     reg.addEventListener('updatefound', () => {
@@ -526,6 +526,7 @@ const App = {
                 document.documentElement.classList.add('user-logged-in');
 
                 this.checkAuth();
+                this.sendPresenceHeartbeat();
 
                 // Initialize the full workspace seamlessly (non-blocking for UI)
                 this.initWorkspace().catch(err => {
@@ -581,7 +582,7 @@ const App = {
         }
     },
 
-    logoutSystem(skipConfirm = false) {
+    async logoutSystem(skipConfirm = false) {
         if (!skipConfirm && !confirm('هل تريد بالتأكيد تسجيل الخروج من الحساب؟')) {
             return;
         }
@@ -589,7 +590,7 @@ const App = {
             const current = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
             this.stopPresenceHeartbeat();
             if (current && current.id && window.SupabaseClient && typeof window.SupabaseClient.setUserOffline === 'function') {
-                window.SupabaseClient.setUserOffline(current.id, current.username);
+                await window.SupabaseClient.setUserOffline(current.id, current.username);
             }
             const db = window.AppStorage;
             if (db && typeof db.logout === 'function') {
@@ -1767,10 +1768,10 @@ const App = {
         // 1. Immediate initial tick
         this._masterSyncTick();
 
-        // 2. Single master background interval (20s)
+        // 2. Single master background interval (15s for snappier live updates)
         this._masterSyncTimer = setInterval(() => {
             this._masterSyncTick();
-        }, 20000);
+        }, 15000);
 
         // 3. Single unified focus & visibility listener (with 12s cooldown on cloud pull)
         if (!this._masterFocusBound && typeof window !== 'undefined') {
@@ -1878,7 +1879,7 @@ const App = {
         } catch (e) {}
     },
 
-    async updateTeamPresencePill() {
+    async updateTeamPresencePill(forceRefresh = false) {
         const pill = document.getElementById('team-presence-indicator');
         const label = document.getElementById('team-presence-label');
         if (!pill || !label) return;
@@ -1896,7 +1897,7 @@ const App = {
         }
 
         try {
-            const presences = await window.SupabaseClient.getAllUsersPresence();
+            const presences = await window.SupabaseClient.getAllUsersPresence(forceRefresh);
             const allUsers = (window.AppStorage && window.AppStorage.getUsers) ? (window.AppStorage.getUsers() || []) : [];
             let onlineCount = 0;
             const onlineNames = [];

@@ -84,6 +84,15 @@ window.SupabaseClient = (function() {
                         if (safeUname) {
                             _cachedUsersPresence[safeUname] = processed;
                             _cachedUsersPresence[safeUname.toLowerCase()] = processed;
+                            _cachedUsersPresence[safeUname.replace(/[._\- ]/g, '').toLowerCase()] = processed;
+                        }
+                        if (p.userName) {
+                            _cachedUsersPresence[p.userName] = processed;
+                            _cachedUsersPresence[p.userName.toLowerCase()] = processed;
+                        }
+                        _lastPresenceFetch = Date.now();
+                        if (typeof Dashboard !== 'undefined' && typeof Dashboard.renderLivePresence === 'function') {
+                            Dashboard.renderLivePresence();
                         }
                         if (typeof Team !== 'undefined' && Team.updateLivePresenceBadgesInDom) {
                             Team.updateLivePresenceBadgesInDom();
@@ -91,6 +100,36 @@ window.SupabaseClient = (function() {
                         if (window.App && typeof window.App.updateTeamPresencePill === 'function') {
                             window.App.updateTeamPresencePill();
                         }
+                    }
+                } else if (data.type === 'USER_LOGOUT' && data.userId) {
+                    if (_cachedUsersPresence) {
+                        const safeId = String(data.userId);
+                        const safeUname = data.username ? String(data.username) : '';
+                        const markOffline = (k) => {
+                            if (!k) return;
+                            const prev = _cachedUsersPresence[k];
+                            _cachedUsersPresence[k] = {
+                                ...(prev || {}),
+                                status: 'offline',
+                                isOnline: false,
+                                lastSeen: Date.now(),
+                                lastSeenArabic: 'منذ لحظات'
+                            };
+                        };
+                        markOffline(safeId);
+                        markOffline(safeId.toLowerCase());
+                        markOffline(safeUname);
+                        markOffline(safeUname.toLowerCase());
+                    }
+                    _lastPresenceFetch = Date.now();
+                    if (typeof Dashboard !== 'undefined' && typeof Dashboard.renderLivePresence === 'function') {
+                        Dashboard.renderLivePresence();
+                    }
+                    if (typeof Team !== 'undefined' && Team.updateLivePresenceBadgesInDom) {
+                        Team.updateLivePresenceBadgesInDom();
+                    }
+                    if (window.App && typeof window.App.updateTeamPresencePill === 'function') {
+                        window.App.updateTeamPresencePill();
                     }
                 }
             } catch(e) {}
@@ -756,15 +795,15 @@ window.SupabaseClient = (function() {
         }
     }
 
-    async function getAllCompanyLocks() {
+    async function getAllCompanyLocks(forceRefresh = false) {
         if (!navigator.onLine) return _cachedCompanyLocks || {};
         const now = Date.now();
-        if (_cachedCompanyLocks && Object.keys(_cachedCompanyLocks).length > 0 && (now - _lastLocksFetch < 8000)) {
+        if (!forceRefresh && _cachedCompanyLocks && Object.keys(_cachedCompanyLocks).length > 0 && (now - _lastLocksFetch < 8000)) {
             return _cachedCompanyLocks;
         }
         try {
             const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
-            const timeoutId = controller ? setTimeout(() => controller.abort(), 3500) : null;
+            const timeoutId = controller ? setTimeout(() => controller.abort(), 7000) : null;
             const resp = await fetch(`${FIREBASE_DB_URL}/presence.json?t=${now}`, {
                 signal: controller ? controller.signal : undefined
             });
@@ -799,13 +838,13 @@ window.SupabaseClient = (function() {
         const ts = Number(timestamp);
         const now = Date.now();
         const diffMs = now - ts;
-        if (diffMs < 0) return 'متصل الآن';
+        if (diffMs < 0) return 'منذ لحظات';
         const diffSec = Math.round(diffMs / 1000);
         const diffMin = Math.round(diffSec / 60);
         const diffHour = Math.round(diffMin / 60);
         const diffDay = Math.round(diffHour / 24);
 
-        if (diffSec < 75) return 'متصل الآن';
+        if (diffSec < 60) return 'منذ لحظات';
         if (diffSec < 120) return 'منذ دقيقة واحدة';
         if (diffMin === 2) return 'منذ دقيقتين';
         if (diffMin >= 3 && diffMin <= 10) return `منذ ${diffMin} دقائق`;
@@ -852,16 +891,20 @@ window.SupabaseClient = (function() {
             };
             const safeId = encodeURIComponent(String(user.id).trim().replace(/[.$#[\]/]/g, '_'));
             const safeUsername = username ? encodeURIComponent(String(username).trim().replace(/[.$#[\]/]/g, '_')) : '';
-            const bodyStr = JSON.stringify(payload);
             const headers = { 'Content-Type': 'application/json' };
 
-            // Primary canonical endpoint under /presence/users node
-            const writes = [
-                fetch(`${FIREBASE_DB_URL}/presence/users/${safeId}.json`, { method: 'PUT', headers, body: bodyStr })
-            ];
+            // Single atomic write under /presence/users node
+            const patchObj = { [safeId]: payload };
             if (safeUsername && safeUsername !== safeId) {
-                writes.push(fetch(`${FIREBASE_DB_URL}/presence/users/${safeUsername}.json`, { method: 'PUT', headers, body: bodyStr }));
+                patchObj[safeUsername] = payload;
             }
+            try {
+                await fetch(`${FIREBASE_DB_URL}/presence/users.json`, {
+                    method: 'PATCH',
+                    headers,
+                    body: JSON.stringify(patchObj)
+                });
+            } catch(e) {}
 
             // Cross-tab broadcast for instant presence sync
             if (syncChannel) {
@@ -873,7 +916,22 @@ window.SupabaseClient = (function() {
                 } catch(e) {}
             }
 
-            Promise.allSettled(writes).catch(() => {});
+            // Immediately prime local memory cache
+            if (!_cachedUsersPresence) _cachedUsersPresence = {};
+            const selfProcessed = {
+                ...payload,
+                isOnline: true,
+                ageSeconds: 0,
+                lastSeenArabic: 'متصل الآن',
+                pageLabelArabic: getPageLabelArabic(payload.currentPage)
+            };
+            _cachedUsersPresence[safeId] = selfProcessed;
+            _cachedUsersPresence[safeId.toLowerCase()] = selfProcessed;
+            if (safeUsername) {
+                _cachedUsersPresence[safeUsername] = selfProcessed;
+                _cachedUsersPresence[safeUsername.toLowerCase()] = selfProcessed;
+            }
+
             return payload;
         } catch(e) {
             return null;
@@ -885,34 +943,69 @@ window.SupabaseClient = (function() {
         try {
             const safeId = encodeURIComponent(String(userId).trim().replace(/[.$#[\]/]/g, '_'));
             const safeUsername = username ? encodeURIComponent(String(username).trim().replace(/[.$#[\]/]/g, '_')) : '';
-            const body = JSON.stringify({
-                status: 'offline',
-                lastSeen: Date.now()
-            });
+            const now = Date.now();
             const headers = { 'Content-Type': 'application/json' };
 
-            if (typeof fetch === 'function') {
-                const calls = [
-                    fetch(`${FIREBASE_DB_URL}/presence/users/${safeId}.json`, { method: 'PATCH', headers, body, keepalive: true })
-                ];
-                if (safeUsername && safeUsername !== safeId) {
-                    calls.push(fetch(`${FIREBASE_DB_URL}/presence/users/${safeUsername}.json`, { method: 'PATCH', headers, body, keepalive: true }));
+            // Cross-tab broadcast for instant presence sync
+            if (syncChannel) {
+                try {
+                    syncChannel.postMessage({
+                        type: 'USER_LOGOUT',
+                        userId: String(userId),
+                        username: username
+                    });
+                } catch(e) {}
+            }
+
+            // Immediately mark local memory cache as offline
+            if (_cachedUsersPresence) {
+                const markOffline = (k) => {
+                    if (!k) return;
+                    const prev = _cachedUsersPresence[k];
+                    _cachedUsersPresence[k] = {
+                        ...(prev || {}),
+                        status: 'offline',
+                        isOnline: false,
+                        lastSeen: now,
+                        lastSeenArabic: 'منذ لحظات'
+                    };
+                };
+                markOffline(String(userId));
+                markOffline(String(userId).toLowerCase());
+                if (username) {
+                    markOffline(String(username));
+                    markOffline(String(username).toLowerCase());
                 }
-                Promise.allSettled(calls).catch(() => {});
+            }
+
+            if (typeof fetch === 'function') {
+                const patchObj = {
+                    [`${safeId}/status`]: 'offline',
+                    [`${safeId}/lastSeen`]: now
+                };
+                if (safeUsername && safeUsername !== safeId) {
+                    patchObj[`${safeUsername}/status`] = 'offline';
+                    patchObj[`${safeUsername}/lastSeen`] = now;
+                }
+                await fetch(`${FIREBASE_DB_URL}/presence/users.json`, {
+                    method: 'PATCH',
+                    headers,
+                    body: JSON.stringify(patchObj)
+                }).catch(() => {});
             }
         } catch(e) {}
     }
 
-    async function getAllUsersPresence() {
+    async function getAllUsersPresence(forceRefresh = false) {
         const now = Date.now();
-        if (_cachedUsersPresence && Object.keys(_cachedUsersPresence).length > 0 && (now - _lastPresenceFetch < 8000)) {
+        if (!forceRefresh && _cachedUsersPresence && Object.keys(_cachedUsersPresence).length > 0 && (now - _lastPresenceFetch < 8000)) {
             return _cachedUsersPresence;
         }
         try {
             let combined = null;
             try {
                 const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
-                const timeoutId = controller ? setTimeout(() => controller.abort(), 3500) : null;
+                const timeoutId = controller ? setTimeout(() => controller.abort(), 7000) : null;
                 const resp = await fetch(`${FIREBASE_DB_URL}/presence/users.json?t=${now}`, {
                     signal: controller ? controller.signal : undefined
                 });
@@ -934,14 +1027,62 @@ window.SupabaseClient = (function() {
             _lastPresenceFetch = now;
             const result = {};
 
-            // 1. Group records by normalized user ID and keep the freshest record
+            // Get known system users for exact canonical identity resolution
+            const allUsers = (window.AppStorage && typeof window.AppStorage.getUsers === 'function') 
+                ? (window.AppStorage.getUsers() || []) 
+                : [];
+
+            function resolveCanonicalUserId(item, key) {
+                if (!item) return key;
+                const rawUid = String(item.userId || '').trim().toLowerCase();
+                const rawUser = String(item.username || '').trim().toLowerCase();
+                const rawEmail = String(item.email || '').trim().toLowerCase();
+                const cleanKey = String(key || '').trim().toLowerCase().replace(/[._\- ]/g, '');
+
+                for (const u of allUsers) {
+                    if (!u) continue;
+                    const uId = String(u.id || '').trim().toLowerCase();
+                    const uUsername = String(u.username || '').trim().toLowerCase();
+                    const uEmail = String(u.email || '').trim().toLowerCase();
+                    const cleanId = uId.replace(/[._\- ]/g, '');
+                    const cleanUser = uUsername.replace(/[._\- ]/g, '');
+                    const cleanMail = uEmail.replace(/[._\- ]/g, '');
+
+                    if (rawUid && uId && rawUid === uId) return u.id;
+                    if (rawUser && uUsername && rawUser === uUsername) return u.id;
+                    if (rawEmail && uEmail && rawEmail === uEmail) return u.id;
+                    if (cleanKey) {
+                        if (cleanId && cleanKey === cleanId) return u.id;
+                        if (cleanUser && cleanKey === cleanUser) return u.id;
+                        if (cleanMail && cleanKey === cleanMail) return u.id;
+                    }
+                }
+                return String(item.userId || key).trim();
+            }
+
+            // 1. Group records by canonical user ID and keep the freshest, most accurate record
             const userRecords = new Map();
             for (const [key, item] of Object.entries(combined)) {
                 if (!item || !item.lastSeen) continue;
-                const uid = String(item.userId || key).trim();
-                const existing = userRecords.get(uid);
-                if (!existing || Number(item.lastSeen) > Number(existing.lastSeen || 0)) {
-                    userRecords.set(uid, item);
+                const canonicalId = resolveCanonicalUserId(item, key);
+                const existing = userRecords.get(canonicalId);
+                if (!existing) {
+                    userRecords.set(canonicalId, item);
+                } else {
+                    const existingTs = Number(existing.lastSeen || 0);
+                    const itemTs = Number(item.lastSeen || 0);
+                    // Explicit offline action wins if within 60 seconds of each other
+                    if (item.status === 'offline' && existing.status === 'online') {
+                        if (itemTs >= existingTs - 60000) {
+                            userRecords.set(canonicalId, item);
+                        }
+                    } else if (existing.status === 'offline' && item.status === 'online') {
+                        if (existingTs < itemTs - 60000) {
+                            userRecords.set(canonicalId, item);
+                        }
+                    } else if (itemTs > existingTs) {
+                        userRecords.set(canonicalId, item);
+                    }
                 }
             }
 
@@ -950,18 +1091,13 @@ window.SupabaseClient = (function() {
                 const diffMs = now - Number(item.lastSeen);
                 const absDiffMs = Math.abs(diffMs);
                 
-                // Presence evaluation:
-                // - Explicit logout: offline immediately!
-                // - Active online status: stays online for up to 8 minutes to accommodate phone standby,
-                //   tab background throttling, and reasonable clock skew across devices.
-                // - Otherwise online if heartbeat sent within 4 minutes.
                 let isOnline = false;
                 if (item.status === 'offline') {
                     isOnline = false;
                 } else if (item.status === 'online') {
-                    isOnline = absDiffMs < 480000; // 8 minutes
+                    isOnline = absDiffMs < 300000; // 5 minutes
                 } else {
-                    isOnline = absDiffMs < 240000; // 4 minutes
+                    isOnline = absDiffMs < 180000; // 3 minutes
                 }
 
                 const processed = {
@@ -981,25 +1117,28 @@ window.SupabaseClient = (function() {
                     aliasSet.add(s.toLowerCase());
                     aliasSet.add(s.replace(/[.$#[\]/]/g, '_'));
                     aliasSet.add(s.replace(/_/g, '.'));
+                    aliasSet.add(s.replace(/[._\- ]/g, '').toLowerCase());
                 };
 
                 addKey(uid);
                 if (item.userId) addKey(item.userId);
                 if (item.username) addKey(item.username);
                 if (item.userName) addKey(item.userName);
-                if (item.email) addKey(item.email);
+                if (item.email) {
+                    addKey(item.email);
+                    addKey(item.email.split('@')[0]);
+                }
+
+                const matchedUser = allUsers.find(u => u && (u.id === uid || u.id === item.userId || u.username === item.username || u.email === item.email));
+                if (matchedUser) {
+                    addKey(matchedUser.id);
+                    addKey(matchedUser.username);
+                    addKey(matchedUser.email);
+                    addKey(matchedUser.name);
+                    addKey(matchedUser.firstName);
+                }
 
                 aliasSet.forEach(k => {
-                    const existing = result[k];
-                    if (existing) {
-                        // Never overwrite an active online user with an older offline record
-                        if (existing.isOnline && !processed.isOnline && (now - (existing.lastSeen || 0) < 480000)) {
-                            return;
-                        }
-                        if (existing.isOnline === processed.isOnline && (existing.lastSeen || 0) >= (processed.lastSeen || 0)) {
-                            return;
-                        }
-                    }
                     result[k] = processed;
                 });
             }
@@ -1055,6 +1194,7 @@ window.SupabaseClient = (function() {
                    presences[lower] ||
                    presences[lower.replace(/[.$#[\]/]/g, '_')] ||
                    presences[lower.replace(/_/g, '.')] ||
+                   presences[lower.replace(/[._\- ]/g, '')] ||
                    null;
         }
 
@@ -1066,11 +1206,14 @@ window.SupabaseClient = (function() {
             user.username && String(user.username).toLowerCase(),
             user.username && String(user.username).replace(/[.$#[\]/]/g, '_'),
             user.username && String(user.username).replace(/_/g, '.'),
+            user.username && String(user.username).replace(/[._\- ]/g, '').toLowerCase(),
             user.email,
             user.email && String(user.email).toLowerCase(),
             user.email && String(user.email).split('@')[0],
             user.name,
-            user.name && String(user.name).toLowerCase()
+            user.name && String(user.name).toLowerCase(),
+            user.firstName,
+            user.firstName && String(user.firstName).toLowerCase()
         ];
 
         let best = null;

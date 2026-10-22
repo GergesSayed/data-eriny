@@ -360,8 +360,8 @@ const Dashboard = {
             }
 
             const [locks, presences] = await Promise.all([
-                (typeof window.SupabaseClient.getAllCompanyLocks === 'function') ? window.SupabaseClient.getAllCompanyLocks() : {},
-                (typeof window.SupabaseClient.getAllUsersPresence === 'function') ? window.SupabaseClient.getAllUsersPresence() : {}
+                (typeof window.SupabaseClient.getAllCompanyLocks === 'function') ? window.SupabaseClient.getAllCompanyLocks(isManual) : {},
+                (typeof window.SupabaseClient.getAllUsersPresence === 'function') ? window.SupabaseClient.getAllUsersPresence(isManual) : {}
             ]);
 
             this.activeLocksCache = locks || {};
