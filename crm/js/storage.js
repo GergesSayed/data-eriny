@@ -5623,11 +5623,27 @@ const AppStorage = {
         const changedComps = [];
         const now = Date.now();
 
+        // ⚡ Full Snapshot Reconciliation: Remove any deleted assignments if full poll/snapshot
+        if (source === 'cloud_assignments_poll' || source === 'full_snapshot') {
+            for (const existingId of Object.keys(storedAssignments)) {
+                if (!(existingId in delta)) {
+                    const comp = this.getCompany(existingId);
+                    if (comp && comp.assignedTo) {
+                        comp.assignedTo = '';
+                        comp.assignedAt = null;
+                        changedComps.push(comp);
+                    }
+                    delete storedAssignments[existingId];
+                }
+            }
+        }
+
         for (const [sId, assignInfo] of Object.entries(delta)) {
-            if (!sId || !assignInfo) continue;
-            const targetUser = typeof assignInfo === 'string' ? assignInfo : (assignInfo.assignedTo || '');
-            const targetAt = targetUser ? (assignInfo.assignedAt || null) : null;
-            const deltaTs = typeof assignInfo.updatedAt === 'number' ? assignInfo.updatedAt : (assignInfo.updatedAt ? new Date(assignInfo.updatedAt).getTime() : now);
+            if (!sId) continue;
+            // Handle null, undefined, string, or object info cleanly
+            const targetUser = (!assignInfo) ? '' : (typeof assignInfo === 'string' ? assignInfo : (assignInfo.assignedTo || ''));
+            const targetAt = targetUser ? (assignInfo.assignedAt || new Date(now).toISOString()) : null;
+            const deltaTs = (assignInfo && typeof assignInfo.updatedAt === 'number') ? assignInfo.updatedAt : ((assignInfo && assignInfo.updatedAt) ? new Date(assignInfo.updatedAt).getTime() : now);
 
             const localEntry = storedAssignments[sId];
             const localTs = localEntry ? (typeof localEntry.updatedAt === 'number' ? localEntry.updatedAt : new Date(localEntry.updatedAt || 0).getTime()) : 0;
@@ -5670,6 +5686,26 @@ const AppStorage = {
 
         // ⚡ Reactive Realtime Trigger: Re-render UI immediately across all tabs and devices
         if (typeof window !== 'undefined') {
+            const currentUser = this.getCurrentUser();
+            const isAdmin = this.canViewAll(currentUser);
+            const myId = currentUser ? String(currentUser.id || currentUser.username).toLowerCase() : '';
+
+            // ⚡ Instant DOM removal on employee screen (Desktop table & Mobile cards)
+            if (!isAdmin && changedComps.length > 0) {
+                changedComps.forEach(c => {
+                    const asgn = String(c.assignedTo || '').toLowerCase();
+                    if (asgn !== myId) {
+                        const elements = document.querySelectorAll(`tr[data-id="${c.id}"], tr[onclick*="${c.id}"], .company-card[onclick*="${c.id}"]`);
+                        elements.forEach(el => {
+                            el.style.transition = 'opacity 0.15s ease, transform 0.15s ease';
+                            el.style.opacity = '0';
+                            el.style.transform = 'scale(0.95)';
+                            setTimeout(() => { try { el.remove(); } catch(e) {} }, 150);
+                        });
+                    }
+                });
+            }
+
             const activePage = window.App ? window.App.currentPage : null;
             const compPage = document.getElementById('page-companies');
             const isCompaniesVisible = (compPage && compPage.classList.contains('active')) || (!activePage || activePage === 'companies' || (window.location.hash && window.location.hash.includes('companies')));

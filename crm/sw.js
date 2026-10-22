@@ -1,9 +1,9 @@
 /* ============================================
    Fleet CRM — Full Offline PWA Service Worker
-   v411.0 — Pre-cache App Shell for Offline Use
+   v412.0 — Pre-cache App Shell for Offline Use
    ============================================ */
 
-const CACHE_NAME = 'fleetcrm-v411-0-shell';
+const CACHE_NAME = 'fleetcrm-v412-0-shell';
 const OFFLINE_FALLBACK = './index.html';
 
 // ── App Shell: Pre-cached on install for full offline support ──
@@ -82,7 +82,7 @@ self.addEventListener('fetch', (e) => {
         url.origin.includes('gstatic');
     const isStaticAsset = url.pathname.match(/\.(png|jpg|jpeg|svg|webp|woff2|woff|ttf|ico|css|js)$/i);
     // ── Strategy 0: Network-First for core logic scripts to guarantee instant zero-stale client code ──
-    const isCoreLogic = url.pathname.includes('/supabase-client.js') || url.pathname.includes('/storage.js') || url.pathname.includes('/app.js') || url.pathname.includes('/companies.js');
+    const isCoreLogic = url.pathname.includes('/supabase-client.js') || url.pathname.includes('/storage.js') || url.pathname.includes('/app.js') || url.pathname.includes('/companies.js') || url.pathname.includes('/team.js') || url.pathname.includes('/dashboard.js') || url.pathname.includes('/calls.js');
     if (isCoreLogic) {
         e.respondWith(
             fetch(e.request).then((networkResponse) => {

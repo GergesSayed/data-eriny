@@ -1462,7 +1462,7 @@ window.SupabaseClient = (function() {
 
     function computeAssignmentsHash(map) {
         if (!map || typeof map !== 'object') return '';
-        const keys = Object.keys(map);
+        const keys = Object.keys(map).sort();
         let h = keys.length + ':';
         for (let i = 0; i < keys.length; i++) {
             const k = keys[i];
@@ -1474,7 +1474,7 @@ window.SupabaseClient = (function() {
 
     function initAssignmentsStream() {
         if (typeof EventSource === 'undefined') return;
-        if (assignmentsSSESource && assignmentsSSESource.readyState !== EventSource.CLOSED) {
+        if (assignmentsSSESource && assignmentsSSESource.readyState === EventSource.OPEN) {
             return;
         }
 
@@ -1572,6 +1572,11 @@ window.SupabaseClient = (function() {
         if (!assignmentsPollInterval) {
             assignmentsPollInterval = setInterval(async () => {
                 if (typeof document !== 'undefined' && document.hidden) return;
+
+                // Watchdog: If SSE stream isn't connected and active, revive it immediately
+                if (!assignmentsSSESource || assignmentsSSESource.readyState !== EventSource.OPEN) {
+                    initAssignmentsStream();
+                }
                 try {
                     const resp = await fetch(`${FIREBASE_DB_URL}/assignments.json?t=${Date.now()}`);
                     if (resp.ok) {
@@ -1590,7 +1595,7 @@ window.SupabaseClient = (function() {
                         }
                     }
                 } catch(e) {}
-            }, 750);
+            }, 350);
         }
 
         // 3. Instant trigger on user interaction, screen touch, or tab focus
@@ -1599,7 +1604,7 @@ window.SupabaseClient = (function() {
             let _lastInteractFetch = 0;
             const fastInteractSync = () => {
                 const now = Date.now();
-                if (now - _lastInteractFetch < 1000) return;
+                if (now - _lastInteractFetch < 250) return;
                 _lastInteractFetch = now;
                 if (!assignmentsSSESource || assignmentsSSESource.readyState === EventSource.CLOSED) {
                     initAssignmentsStream();
@@ -1788,22 +1793,24 @@ window.SupabaseClient = (function() {
                 } catch(e) {}
             }
 
-            const resp = await fetch(`${FIREBASE_DB_URL}/assignments.json`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(normalizedMap)
-            });
-            fetch(`${FIREBASE_DB_URL}/metadata.json`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    updated_at: new Date(now).toISOString(),
-                    sync_timestamp: now,
-                    updated_by: currentClientId,
-                    delta_type: 'assignments_batch',
-                    assignments_delta: normalizedMap
-                })
-            }).catch(() => {});
+            const [resp] = await Promise.all([
+                fetch(`${FIREBASE_DB_URL}/assignments.json`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(normalizedMap)
+                }),
+                fetch(`${FIREBASE_DB_URL}/metadata.json`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        updated_at: new Date(now).toISOString(),
+                        sync_timestamp: now,
+                        updated_by: currentClientId,
+                        delta_type: 'assignments_batch',
+                        assignments_delta: normalizedMap
+                    })
+                }).catch(() => {})
+            ]);
 
             return resp.ok;
         } catch(e) {
@@ -1834,24 +1841,26 @@ window.SupabaseClient = (function() {
         }
 
         try {
-            const resp = await fetch(`${FIREBASE_DB_URL}/assignments/${encodeURIComponent(sId)}.json`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            fetch(`${FIREBASE_DB_URL}/metadata.json`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    updated_at: new Date(now).toISOString(),
-                    sync_timestamp: now,
-                    updated_by: currentClientId,
-                    delta_type: 'assignment',
-                    company_id: sId,
-                    assigned_to: assignedTo || '',
-                    assigned_at: assignedTo ? (assignedAt || new Date(now).toISOString()) : null
-                })
-            }).catch(() => {});
+            const [resp] = await Promise.all([
+                fetch(`${FIREBASE_DB_URL}/assignments/${encodeURIComponent(sId)}.json`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                }),
+                fetch(`${FIREBASE_DB_URL}/metadata.json`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        updated_at: new Date(now).toISOString(),
+                        sync_timestamp: now,
+                        updated_by: currentClientId,
+                        delta_type: 'assignment',
+                        company_id: sId,
+                        assigned_to: assignedTo || '',
+                        assigned_at: assignedTo ? (assignedAt || new Date(now).toISOString()) : null
+                    })
+                }).catch(() => {})
+            ]);
 
             lastSyncTimestamp = now;
             return resp.ok;
