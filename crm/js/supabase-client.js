@@ -1403,9 +1403,16 @@ window.SupabaseClient = (function() {
                 };
 
                 sseSource.onerror = () => {
-                    if (sseSource) {
+                    // Do not kill stream immediately; allow native EventSource to auto-reconnect.
+                    // If permanently closed, re-init after 3s:
+                    if (sseSource && sseSource.readyState === EventSource.CLOSED) {
                         try { sseSource.close(); } catch(e) {}
                         sseSource = null;
+                        setTimeout(() => {
+                            if (!sseSource && typeof subscribeToChanges === 'function') {
+                                subscribeToChanges(onChangeCallback);
+                            }
+                        }, 3000);
                     }
                 };
             }
@@ -1413,7 +1420,7 @@ window.SupabaseClient = (function() {
             console.warn('SSE stream init skipped, using smart polling fallback:', e);
         }
 
-        // 3. Smart visibility-aware polling fallback (every 6s when active)
+        // 3. Smart visibility-aware polling fallback (every 15s when active)
         const startPolling = () => {
             if (pollInterval) clearInterval(pollInterval);
             pollInterval = setInterval(() => {
@@ -1447,22 +1454,181 @@ window.SupabaseClient = (function() {
         }
     }
 
+    let assignmentsSSESource = null;
+    let assignmentsPollInterval = null;
+    let _lastAssignmentsSSEHeartbeat = Date.now();
+    let _lastAssignmentsHash = '';
+    let _assignmentsVisibilityBound = false;
+
+    function computeAssignmentsHash(map) {
+        if (!map || typeof map !== 'object') return '';
+        const keys = Object.keys(map).sort();
+        let h = keys.length + ':';
+        for (let i = 0; i < Math.min(keys.length, 100); i++) {
+            const k = keys[i];
+            const item = map[k];
+            h += k + '=' + (item ? (item.assignedTo || '') : '') + ';';
+        }
+        return h;
+    }
+
+    function initAssignmentsStream() {
+        if (typeof EventSource === 'undefined') return;
+        if (assignmentsSSESource && assignmentsSSESource.readyState !== EventSource.CLOSED) {
+            return;
+        }
+
+        try {
+            if (assignmentsSSESource) {
+                try { assignmentsSSESource.close(); } catch(e) {}
+                assignmentsSSESource = null;
+            }
+
+            // ⚡ Dedicated Realtime SSE Stream directly on assignments endpoint (< 50ms delivery)
+            assignmentsSSESource = new EventSource(`${FIREBASE_DB_URL}/assignments.json`);
+
+            const handleAssignmentSSE = (e) => {
+                _lastAssignmentsSSEHeartbeat = Date.now();
+                try {
+                    const parsed = JSON.parse(e.data || '{}');
+                    if (!parsed) return;
+                    const path = parsed.path || '/';
+                    const data = parsed.data;
+                    if (data === undefined || data === null) return;
+
+                    let delta = {};
+                    if (path === '/' || path === '') {
+                        if (typeof data === 'object') {
+                            delta = data;
+                        }
+                    } else {
+                        // Subpath e.g. "/eg_titan_01" or "/eg_titan_01/assignedTo"
+                        const cleanPath = path.replace(/^\//, '');
+                        const parts = cleanPath.split('/');
+                        const companyId = parts[0];
+                        if (companyId) {
+                            if (parts.length === 1) {
+                                delta[companyId] = typeof data === 'object' ? data : { assignedTo: data };
+                            } else if (parts[1] === 'assignedTo') {
+                                delta[companyId] = { assignedTo: data || '' };
+                            }
+                        }
+                    }
+
+                    if (Object.keys(delta).length > 0) {
+                        if (window.AppStorage && typeof window.AppStorage.applyRealtimeAssignmentsDelta === 'function') {
+                            window.AppStorage.applyRealtimeAssignmentsDelta(delta, 'cloud_assignments_stream');
+                        }
+                        if (_assignmentsDeltaCallback) {
+                            try { _assignmentsDeltaCallback(delta, 'cloud_assignments_stream'); } catch(err) {}
+                        }
+                    }
+                } catch(err) {
+                    console.warn('Assignments SSE parse error:', err);
+                }
+            };
+
+            assignmentsSSESource.addEventListener('put', handleAssignmentSSE);
+            assignmentsSSESource.addEventListener('patch', handleAssignmentSSE);
+
+            assignmentsSSESource.onopen = () => {
+                _lastAssignmentsSSEHeartbeat = Date.now();
+            };
+
+            assignmentsSSESource.onerror = () => {
+                if (assignmentsSSESource && assignmentsSSESource.readyState === EventSource.CLOSED) {
+                    try { assignmentsSSESource.close(); } catch(e) {}
+                    assignmentsSSESource = null;
+                    setTimeout(() => {
+                        initAssignmentsStream();
+                    }, 2500);
+                }
+            };
+        } catch(err) {
+            console.warn('Failed to initialize assignments SSE stream:', err);
+        }
+    }
+
+    /**
+     * Dedicated assignments stream registration with automatic SSE stream and fast 2.5s fallback poll
+     */
+    function subscribeToAssignments(onDeltaCallback) {
+        if (onDeltaCallback) {
+            _assignmentsDeltaCallback = onDeltaCallback;
+        }
+
+        // 1. Start dedicated real-time assignments SSE stream (< 50ms)
+        initAssignmentsStream();
+
+        // 2. High-speed lightweight fallback poller (checks ONLY assignments.json ~2KB every 2.5s)
+        if (!assignmentsPollInterval) {
+            assignmentsPollInterval = setInterval(async () => {
+                if (typeof document !== 'undefined' && document.hidden) return;
+                // If SSE is connected and healthy (received heartbeat in last 12s), skip poll
+                if (assignmentsSSESource && assignmentsSSESource.readyState === EventSource.OPEN && (Date.now() - _lastAssignmentsSSEHeartbeat < 12000)) {
+                    return;
+                }
+                try {
+                    const resp = await fetch(`${FIREBASE_DB_URL}/assignments.json?t=${Date.now()}`);
+                    if (resp.ok) {
+                        const cloudAssignments = await resp.json();
+                        if (cloudAssignments && typeof cloudAssignments === 'object') {
+                            const newHash = computeAssignmentsHash(cloudAssignments);
+                            if (newHash !== _lastAssignmentsHash) {
+                                _lastAssignmentsHash = newHash;
+                                if (window.AppStorage && typeof window.AppStorage.applyRealtimeAssignmentsDelta === 'function') {
+                                    window.AppStorage.applyRealtimeAssignmentsDelta(cloudAssignments, 'cloud_assignments_poll');
+                                }
+                                if (_assignmentsDeltaCallback) {
+                                    try { _assignmentsDeltaCallback(cloudAssignments, 'cloud_assignments_poll'); } catch(e) {}
+                                }
+                            }
+                        }
+                    }
+                } catch(e) {}
+            }, 2500);
+        }
+
+        // 3. Instant refresh on tab focus / wake up
+        if (typeof document !== 'undefined' && !_assignmentsVisibilityBound) {
+            _assignmentsVisibilityBound = true;
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') {
+                    if (!assignmentsSSESource || assignmentsSSESource.readyState === EventSource.CLOSED) {
+                        initAssignmentsStream();
+                    }
+                    fetch(`${FIREBASE_DB_URL}/assignments.json?t=${Date.now()}`).then(r => r.json()).then(data => {
+                        if (data && typeof data === 'object') {
+                            if (window.AppStorage && typeof window.AppStorage.applyRealtimeAssignmentsDelta === 'function') {
+                                window.AppStorage.applyRealtimeAssignmentsDelta(data, 'visibility_wake');
+                            }
+                            if (_assignmentsDeltaCallback) {
+                                try { _assignmentsDeltaCallback(data, 'visibility_wake'); } catch(e) {}
+                            }
+                        }
+                    }).catch(() => {});
+                }
+            });
+        }
+    }
+
     function unsubscribe() {
         if (sseSource) {
             try { sseSource.close(); } catch(e) {}
             sseSource = null;
         }
+        if (assignmentsSSESource) {
+            try { assignmentsSSESource.close(); } catch(e) {}
+            assignmentsSSESource = null;
+        }
         if (pollInterval) {
             clearInterval(pollInterval);
             pollInterval = null;
         }
-    }
-
-    /**
-     * Dedicated assignments stream registration (sync handled via metadata deltas and broadcast)
-     */
-    function subscribeToAssignments(onDeltaCallback) {
-        _assignmentsDeltaCallback = onDeltaCallback;
+        if (assignmentsPollInterval) {
+            clearInterval(assignmentsPollInterval);
+            assignmentsPollInterval = null;
+        }
     }
 
     function subscribeToPresence() {

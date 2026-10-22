@@ -448,13 +448,25 @@ const AppStorage = {
     },
 
     isLoggedIn() {
-        const userId = sessionStorage.getItem(this.KEYS.CURRENT_USER) || localStorage.getItem(this.KEYS.CURRENT_USER);
+        let userId = sessionStorage.getItem(this.KEYS.CURRENT_USER) || localStorage.getItem(this.KEYS.CURRENT_USER);
+        if (typeof userId === 'string' && userId.startsWith('{')) {
+            try {
+                const parsed = JSON.parse(userId);
+                userId = parsed.id || parsed.username || userId;
+            } catch(e) {}
+        }
         return !!userId && !!this.getUser(userId);
     },
 
     getCurrentUser() {
-        const userId = sessionStorage.getItem(this.KEYS.CURRENT_USER) || localStorage.getItem(this.KEYS.CURRENT_USER);
+        let userId = sessionStorage.getItem(this.KEYS.CURRENT_USER) || localStorage.getItem(this.KEYS.CURRENT_USER);
         if (!userId) return null;
+        if (typeof userId === 'string' && userId.startsWith('{')) {
+            try {
+                const parsed = JSON.parse(userId);
+                userId = parsed.id || parsed.username || userId;
+            } catch(e) {}
+        }
         let user = this.getUser(userId);
         if (!user) {
             const isAdm = (userId === 'admin' || userId === 'admin@fleet.com');
@@ -5620,8 +5632,13 @@ const AppStorage = {
             const localEntry = storedAssignments[sId];
             const localTs = localEntry ? (typeof localEntry.updatedAt === 'number' ? localEntry.updatedAt : new Date(localEntry.updatedAt || 0).getTime()) : 0;
 
-            // 🛡️ True LWW Protection: If local record is strictly newer (assigned or unassigned), do NOT overwrite with older incoming delta!
-            if (localEntry && localTs > deltaTs) {
+            // If already matches targetUser, skip
+            if (localEntry && (localEntry.assignedTo || '') === targetUser) {
+                continue;
+            }
+
+            // Only protect if modified locally on this device within the last 2 seconds
+            if (localEntry && (now - localTs < 2000) && (localTs > deltaTs)) {
                 continue;
             }
 
@@ -5654,14 +5671,17 @@ const AppStorage = {
         // ⚡ Reactive Realtime Trigger: Re-render UI immediately across all tabs and devices
         if (typeof window !== 'undefined') {
             const activePage = window.App ? window.App.currentPage : null;
-            if (typeof Companies !== 'undefined' && (!activePage || activePage === 'companies')) {
+            const compPage = document.getElementById('page-companies');
+            const isCompaniesVisible = (compPage && compPage.classList.contains('active')) || (!activePage || activePage === 'companies' || (window.location.hash && window.location.hash.includes('companies')));
+
+            if (typeof Companies !== 'undefined' && isCompaniesVisible) {
                 Companies.refreshUserFilter();
                 Companies.render();
             }
-            if (typeof Dashboard !== 'undefined' && activePage === 'dashboard') {
+            if (typeof Dashboard !== 'undefined' && (activePage === 'dashboard' || (window.location.hash && window.location.hash.includes('dashboard')))) {
                 Dashboard.render();
             }
-            if (typeof Team !== 'undefined' && activePage === 'team') {
+            if (typeof Team !== 'undefined' && (activePage === 'team' || (window.location.hash && window.location.hash.includes('team')))) {
                 Team.render();
             }
         }
