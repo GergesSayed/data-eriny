@@ -1852,9 +1852,13 @@ const Companies = {
             const userName = targetUser ? targetUser.name : userId;
 
             App.showToast(`✅ تم بنجاح إسناد وتخصيص ${count} شركة إلى: ${userName}`, 'success');
+            if (select) select.value = '';
             this.clearSelection();
             this.refreshUserFilter();
             await this.render();
+            if (typeof Dashboard !== 'undefined' && typeof Dashboard.render === 'function') {
+                Dashboard.render();
+            }
         } catch(err) {
             console.error('applyBulkAssign error:', err);
             App.showToast('خطأ أثناء تخصيص الشركات: ' + err.message, 'error');

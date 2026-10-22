@@ -2335,7 +2335,7 @@ const AppStorage = {
             return;
         }
         try {
-            this._worker = new Worker('js/companies-worker.js?v=408.0');
+            this._worker = new Worker('js/companies-worker.js?v=409.0');
             this._worker.onmessage = (e) => {
                 const { action, queryId, items, total, totalPages, page, pageSize, totalCount } = e.data || {};
                 if (action === 'INDEX_READY' || action === 'UPDATE_DONE') {
@@ -4920,24 +4920,13 @@ const AppStorage = {
                 updatedAt: now
             }
         };
-        let cloudOk = true;
-        if (window.SupabaseClient && typeof window.SupabaseClient.setAssignment === 'function') {
-            try {
-                await Promise.race([
-                    window.SupabaseClient.setAssignment(companyId, userId, company.assignedAt, now),
-                    new Promise(resolve => setTimeout(resolve, 5000))
-                ]);
-            } catch (e) {
-                console.warn('assignCompany cloud push error:', e);
-            }
-        } else if (window.SupabaseClient && window.SupabaseClient.pushAssignments) {
-            try {
-                await Promise.race([
-                    window.SupabaseClient.pushAssignments(assignmentsMap),
-                    new Promise(resolve => setTimeout(resolve, 5000))
-                ]);
-            } catch (e) {
-                console.warn('assignCompany cloud push error:', e);
+
+        // Fire-and-forget background cloud sync (Optimistic UI - instant local execution)
+        if (window.SupabaseClient) {
+            if (typeof window.SupabaseClient.setAssignment === 'function') {
+                window.SupabaseClient.setAssignment(companyId, userId, company.assignedAt, now).catch(e => console.warn('assignCompany cloud push error:', e));
+            } else if (typeof window.SupabaseClient.pushAssignments === 'function') {
+                window.SupabaseClient.pushAssignments(assignmentsMap).catch(e => console.warn('assignCompany cloud push error:', e));
             }
         }
 
@@ -5052,14 +5041,9 @@ const AppStorage = {
                 this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: updatedBatch });
             }
 
-            // 5. Send single atomic batch PATCH to Firebase assignments (bounded await up to 5000ms to ensure cloud commits before navigation)
-            if (window.SupabaseClient && window.SupabaseClient.pushAssignments) {
-                try {
-                    await Promise.race([
-                        window.SupabaseClient.pushAssignments(assignmentsMap),
-                        new Promise(resolve => setTimeout(resolve, 5000))
-                    ]);
-                } catch(e) {}
+            // 5. Send single atomic batch PATCH to Firebase assignments (non-blocking background sync - Optimistic UI <5ms)
+            if (window.SupabaseClient && typeof window.SupabaseClient.pushAssignments === 'function') {
+                window.SupabaseClient.pushAssignments(assignmentsMap).catch(e => console.warn('bulkAssign cloud push error:', e));
             }
 
             // 6. Push custody in background batch if supported
