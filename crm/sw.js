@@ -1,29 +1,29 @@
 /* ============================================
    Fleet CRM — Full Offline PWA Service Worker
-   v410.0 — Pre-cache App Shell for Offline Use
+   v411.0 — Pre-cache App Shell for Offline Use
    ============================================ */
 
-const CACHE_NAME = 'fleetcrm-v410-0-shell';
+const CACHE_NAME = 'fleetcrm-v411-0-shell';
 const OFFLINE_FALLBACK = './index.html';
 
 // ── App Shell: Pre-cached on install for full offline support ──
 const APP_SHELL = [
     './index.html',
-    './css/style.css?v=410.0',
-    './js/supabase-client.js?v=410.0',
-    './js/egypt_verified_titans.js?v=410.0',
-    './js/egypt_enterprises_pool.js?v=410.0',
-    './js/companies-worker.js?v=410.0',
-    './js/storage.js?v=410.0',
-    './js/excel-handler.js?v=410.0',
-    './js/dashboard.js?v=410.0',
-    './js/companies.js?v=410.0',
-    './js/calls.js?v=410.0',
-    './js/reports.js?v=410.0',
-    './js/scraper.js?v=410.0',
-    './js/team.js?v=410.0',
-    './js/settings.js?v=410.0',
-    './js/app.js?v=410.0',
+    './css/style.css?v=411.0',
+    './js/supabase-client.js?v=411.0',
+    './js/egypt_verified_titans.js?v=411.0',
+    './js/egypt_enterprises_pool.js?v=411.0',
+    './js/companies-worker.js?v=411.0',
+    './js/storage.js?v=411.0',
+    './js/excel-handler.js?v=411.0',
+    './js/dashboard.js?v=411.0',
+    './js/companies.js?v=411.0',
+    './js/calls.js?v=411.0',
+    './js/reports.js?v=411.0',
+    './js/scraper.js?v=411.0',
+    './js/team.js?v=411.0',
+    './js/settings.js?v=411.0',
+    './js/app.js?v=411.0',
 ];
 
 // ── Install: Pre-cache app shell ──
@@ -81,7 +81,20 @@ self.addEventListener('fetch', (e) => {
         url.origin.includes('googleapis') ||
         url.origin.includes('gstatic');
     const isStaticAsset = url.pathname.match(/\.(png|jpg|jpeg|svg|webp|woff2|woff|ttf|ico|css|js)$/i);
-    const isNavigation = e.request.mode === 'navigate';
+    // ── Strategy 0: Network-First for core logic scripts to guarantee instant zero-stale client code ──
+    const isCoreLogic = url.pathname.includes('/supabase-client.js') || url.pathname.includes('/storage.js') || url.pathname.includes('/app.js') || url.pathname.includes('/companies.js');
+    if (isCoreLogic) {
+        e.respondWith(
+            fetch(e.request).then((networkResponse) => {
+                if (networkResponse && networkResponse.status === 200) {
+                    const cloned = networkResponse.clone();
+                    caches.open(CACHE_NAME).then((cache) => cache.put(e.request, cloned));
+                }
+                return networkResponse;
+            }).catch(() => caches.match(e.request))
+        );
+        return;
+    }
 
     // ── Strategy 1: Cache-First for versioned/CDN/static assets ──
     // Instant 0-1ms response from cache; revalidates in background (Stale-While-Revalidate)

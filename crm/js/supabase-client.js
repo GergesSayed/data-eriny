@@ -1462,12 +1462,12 @@ window.SupabaseClient = (function() {
 
     function computeAssignmentsHash(map) {
         if (!map || typeof map !== 'object') return '';
-        const keys = Object.keys(map).sort();
+        const keys = Object.keys(map);
         let h = keys.length + ':';
-        for (let i = 0; i < Math.min(keys.length, 100); i++) {
+        for (let i = 0; i < keys.length; i++) {
             const k = keys[i];
             const item = map[k];
-            h += k + '=' + (item ? (item.assignedTo || '') : '') + ';';
+            h += k + '=' + (item ? ((item.assignedTo || '') + ':' + (item.updatedAt || '')) : '') + ';';
         }
         return h;
     }
@@ -1494,10 +1494,18 @@ window.SupabaseClient = (function() {
                     if (!parsed) return;
                     const path = parsed.path || '/';
                     const data = parsed.data;
-                    if (data === undefined || data === null) return;
 
                     let delta = {};
-                    if (path === '/' || path === '') {
+                    if (data === null || data === undefined) {
+                        // Firebase sends null when a node is deleted or cleared
+                        if (path && path !== '/' && path !== '') {
+                            const cleanPath = path.replace(/^\//, '');
+                            const companyId = cleanPath.split('/')[0];
+                            if (companyId) {
+                                delta[companyId] = { assignedTo: '', assignedAt: null, updatedAt: Date.now() };
+                            }
+                        }
+                    } else if (path === '/' || path === '') {
                         if (typeof data === 'object') {
                             delta = data;
                         }
@@ -1541,7 +1549,7 @@ window.SupabaseClient = (function() {
                     assignmentsSSESource = null;
                     setTimeout(() => {
                         initAssignmentsStream();
-                    }, 2500);
+                    }, 1500);
                 }
             };
         } catch(err) {
@@ -1550,7 +1558,7 @@ window.SupabaseClient = (function() {
     }
 
     /**
-     * Dedicated assignments stream registration with automatic SSE stream and fast 2.5s fallback poll
+     * Dedicated assignments stream registration with automatic SSE stream and fast 750ms micro-poll
      */
     function subscribeToAssignments(onDeltaCallback) {
         if (onDeltaCallback) {
@@ -1560,14 +1568,10 @@ window.SupabaseClient = (function() {
         // 1. Start dedicated real-time assignments SSE stream (< 50ms)
         initAssignmentsStream();
 
-        // 2. High-speed lightweight fallback poller (checks ONLY assignments.json ~2KB every 2.5s)
+        // 2. High-speed featherweight micro-poller (checks ONLY assignments.json ~3KB every 750ms)
         if (!assignmentsPollInterval) {
             assignmentsPollInterval = setInterval(async () => {
                 if (typeof document !== 'undefined' && document.hidden) return;
-                // If SSE is connected and healthy (received heartbeat in last 12s), skip poll
-                if (assignmentsSSESource && assignmentsSSESource.readyState === EventSource.OPEN && (Date.now() - _lastAssignmentsSSEHeartbeat < 12000)) {
-                    return;
-                }
                 try {
                     const resp = await fetch(`${FIREBASE_DB_URL}/assignments.json?t=${Date.now()}`);
                     if (resp.ok) {
@@ -1586,19 +1590,25 @@ window.SupabaseClient = (function() {
                         }
                     }
                 } catch(e) {}
-            }, 2500);
+            }, 750);
         }
 
-        // 3. Instant refresh on tab focus / wake up
+        // 3. Instant trigger on user interaction, screen touch, or tab focus
         if (typeof document !== 'undefined' && !_assignmentsVisibilityBound) {
             _assignmentsVisibilityBound = true;
-            document.addEventListener('visibilitychange', () => {
-                if (document.visibilityState === 'visible') {
-                    if (!assignmentsSSESource || assignmentsSSESource.readyState === EventSource.CLOSED) {
-                        initAssignmentsStream();
-                    }
-                    fetch(`${FIREBASE_DB_URL}/assignments.json?t=${Date.now()}`).then(r => r.json()).then(data => {
-                        if (data && typeof data === 'object') {
+            let _lastInteractFetch = 0;
+            const fastInteractSync = () => {
+                const now = Date.now();
+                if (now - _lastInteractFetch < 1000) return;
+                _lastInteractFetch = now;
+                if (!assignmentsSSESource || assignmentsSSESource.readyState === EventSource.CLOSED) {
+                    initAssignmentsStream();
+                }
+                fetch(`${FIREBASE_DB_URL}/assignments.json?t=${now}`).then(r => r.json()).then(data => {
+                    if (data && typeof data === 'object') {
+                        const newHash = computeAssignmentsHash(data);
+                        if (newHash !== _lastAssignmentsHash) {
+                            _lastAssignmentsHash = newHash;
                             if (window.AppStorage && typeof window.AppStorage.applyRealtimeAssignmentsDelta === 'function') {
                                 window.AppStorage.applyRealtimeAssignmentsDelta(data, 'visibility_wake');
                             }
@@ -1606,9 +1616,15 @@ window.SupabaseClient = (function() {
                                 try { _assignmentsDeltaCallback(data, 'visibility_wake'); } catch(e) {}
                             }
                         }
-                    }).catch(() => {});
-                }
+                    }
+                }).catch(() => {});
+            };
+
+            window.addEventListener('focus', fastInteractSync);
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') fastInteractSync();
             });
+            document.addEventListener('touchstart', fastInteractSync, { passive: true });
         }
     }
 
@@ -1760,6 +1776,18 @@ window.SupabaseClient = (function() {
                 };
             }
             lastSyncTimestamp = now;
+
+            // ⚡ ZERO-LATENCY LOCAL BROADCAST (< 0.1ms) — Send BEFORE awaiting network!
+            if (syncChannel) {
+                try {
+                    syncChannel.postMessage({
+                        type: 'ASSIGNMENTS_DELTA',
+                        clientId: currentClientId,
+                        delta: normalizedMap
+                    });
+                } catch(e) {}
+            }
+
             const resp = await fetch(`${FIREBASE_DB_URL}/assignments.json`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
@@ -1777,15 +1805,6 @@ window.SupabaseClient = (function() {
                 })
             }).catch(() => {});
 
-            if (syncChannel) {
-                try {
-                    syncChannel.postMessage({
-                        type: 'ASSIGNMENTS_DELTA',
-                        clientId: currentClientId,
-                        delta: normalizedMap
-                    });
-                } catch(e) {}
-            }
             return resp.ok;
         } catch(e) {
             console.warn('pushAssignments error:', e);
@@ -1802,6 +1821,18 @@ window.SupabaseClient = (function() {
             assignedAt: assignedTo ? (assignedAt || new Date(now).toISOString()) : null,
             updatedAt: now
         };
+
+        // ⚡ ZERO-LATENCY LOCAL BROADCAST (< 0.1ms) — Send BEFORE awaiting network!
+        if (syncChannel) {
+            try {
+                syncChannel.postMessage({
+                    type: 'ASSIGNMENTS_DELTA',
+                    clientId: currentClientId,
+                    delta: { [sId]: payload }
+                });
+            } catch(e) {}
+        }
+
         try {
             const resp = await fetch(`${FIREBASE_DB_URL}/assignments/${encodeURIComponent(sId)}.json`, {
                 method: 'PUT',
@@ -1822,15 +1853,6 @@ window.SupabaseClient = (function() {
                 })
             }).catch(() => {});
 
-            if (syncChannel) {
-                try {
-                    syncChannel.postMessage({
-                        type: 'ASSIGNMENTS_DELTA',
-                        clientId: currentClientId,
-                        delta: { [sId]: payload }
-                    });
-                } catch(e) {}
-            }
             lastSyncTimestamp = now;
             return resp.ok;
         } catch(e) {
