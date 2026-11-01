@@ -1,9 +1,9 @@
 /* ============================================
    Fleet CRM — Full Offline PWA Service Worker
-   v412.0 — Pre-cache App Shell for Offline Use
+   v413.0 — Pre-cache App Shell for Offline Use
    ============================================ */
 
-const CACHE_NAME = 'fleetcrm-v412-0-shell';
+const CACHE_NAME = 'fleetcrm-v413-0-shell';
 const OFFLINE_FALLBACK = './index.html';
 
 // ── App Shell: Pre-cached on install for full offline support ──

@@ -6739,8 +6739,9 @@ const AppStorage = {
     },
 
     getCallResultLabel(resultKey) {
+        if (!resultKey) return 'مكالمة';
         const r = this.CALL_RESULTS[resultKey];
-        return r ? `${r.icon} ${r.ar}` : resultKey;
+        return (r ? `${r.icon} ${r.ar}` : resultKey) || 'مكالمة';
     },
 
     getGoogleMapsUrl(c) {

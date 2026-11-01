@@ -1513,6 +1513,7 @@ const Companies = {
             if (empty) {
                 empty.style.display = 'block';
                 const currentUser = (window.AppStorage && typeof window.AppStorage.getCurrentUser === 'function') ? window.AppStorage.getCurrentUser() : null;
+        const isAdmin = window.AppStorage ? window.AppStorage.isAdmin(currentUser) : false;
                 if (currentUser && !window.AppStorage.canViewAll(currentUser)) {
                     empty.innerHTML = `
                         <i class="fas fa-user-shield" style="font-size:3rem; color:#818cf8; margin-bottom:1rem; display:block;"></i>
@@ -1526,6 +1527,7 @@ const Companies = {
         if (empty) empty.style.display = 'none';
 
         const currentUser = (window.AppStorage && typeof window.AppStorage.getCurrentUser === 'function') ? window.AppStorage.getCurrentUser() : null;
+        const isAdmin = window.AppStorage ? window.AppStorage.isAdmin(currentUser) : false;
 
         const targetCompIds = new Set(companies.map(c => String(c.id)));
         const allCalls = (window.AppStorage && window.AppStorage.getCalls) ? window.AppStorage.getCalls() : [];
@@ -2562,7 +2564,9 @@ const Companies = {
         
         // Add manual calls to timeline
         calls.forEach(call => {
-            timelineList.push({ date: call.date, event: `تم تسجيل اتصال مبيعات: نتيجة (${window.AppStorage.getCallResultLabel(call.result).replace(/<\/?[^>]+(>|$)/g, "")})` });
+            const callResLabel = (window.AppStorage && window.AppStorage.getCallResultLabel) ? window.AppStorage.getCallResultLabel(call.result) : (call.outcomeLabel || 'مكالمة');
+            const cleanLabel = String(callResLabel || 'مكالمة').replace(/<\/?[^>]+(>|$)/g, "");
+            timelineList.push({ date: call.date, event: `تم تسجيل اتصال مبيعات: نتيجة (${cleanLabel})` });
         });
         
         // Sort descending
@@ -2770,6 +2774,7 @@ const Companies = {
 
     toggleCompanyVip(id) {
         const currentUser = (window.AppStorage && typeof window.AppStorage.getCurrentUser === 'function') ? window.AppStorage.getCurrentUser() : null;
+        const isAdmin = window.AppStorage ? window.AppStorage.isAdmin(currentUser) : false;
         if (window.AppStorage && !window.AppStorage.isAdmin(currentUser)) {
             App.showToast('🔒 تعديل أو إلغاء تصنيف VIP متاح فقط لمدير النظام', 'warning');
             return;
@@ -2812,6 +2817,7 @@ const Companies = {
         const canModify = (window.AppStorage && typeof window.AppStorage.canModify === 'function') ? window.AppStorage.canModify() : false;
         const users = (window.AppStorage && typeof window.AppStorage.getUsers === 'function') ? (window.AppStorage.getUsers() || []) : [];
         const currentUser = (window.AppStorage && typeof window.AppStorage.getCurrentUser === 'function') ? window.AppStorage.getCurrentUser() : null;
+        const isAdmin = window.AppStorage ? window.AppStorage.isAdmin(currentUser) : false;
         const currentName = (currentUser && currentUser.name) ? String(currentUser.name).split(' ')[0] : (currentUser?.username || 'أنا');
         const custodyList = (window.AppStorage && window.AppStorage.getCustodyHistory) ? window.AppStorage.getCustodyHistory(company.id) : [];
         const currentRepId = company.assignedTo;
@@ -3133,6 +3139,7 @@ const Companies = {
 
     buildAssignedWidget(c) {
         const currentUser = (window.AppStorage && typeof window.AppStorage.getCurrentUser === 'function') ? window.AppStorage.getCurrentUser() : null;
+        const isAdmin = window.AppStorage ? window.AppStorage.isAdmin(currentUser) : false;
         const currentUserId = currentUser ? String(currentUser.id || currentUser.username) : '';
         const currentName = (currentUser && currentUser.name) ? String(currentUser.name).split(' ')[0] : (currentUser?.username || 'أنا');
         const users = (window.AppStorage && typeof window.AppStorage.getUsers === 'function') ? (window.AppStorage.getUsers() || []) : [];
