@@ -117,17 +117,6 @@ const App = {
                 console.warn('DB Init notice:', dbErr);
             }
 
-            // Immediately pull and merge latest cloud dataset (including all harvested companies)
-            window.AppStorage.pullFromCloud().then(wasUpdated => {
-                window.AppStorage.updateLiveCounters();
-                if (wasUpdated) {
-                    const active = this.currentPage || window.location.hash.replace('#', '') || 'companies';
-                    if (typeof Companies !== 'undefined' && active === 'companies') Companies.render();
-                    if (typeof Dashboard !== 'undefined' && active === 'dashboard') Dashboard.render();
-                    if (typeof Team !== 'undefined' && active === 'team') Team.render();
-                    if (typeof Calls !== 'undefined' && active === 'calls') Calls.render();
-                }
-            }).catch(() => {});
 
             // Master sync and presence are managed centrally by this.initMasterSyncEngine()
 
@@ -158,7 +147,7 @@ const App = {
                     console.log('[SW] Service worker controller updated and active.');
                 });
 
-                navigator.serviceWorker.register('sw.js?v=412.0').then(reg => {
+                navigator.serviceWorker.register('sw.js?v=416.0').then(reg => {
                     reg.update().catch(() => {});
                     // Detect when a new SW version is waiting — show update notification
                     reg.addEventListener('updatefound', () => {

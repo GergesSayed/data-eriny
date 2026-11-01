@@ -1478,11 +1478,17 @@ window.SupabaseClient = (function() {
         return h;
     }
 
+    let _assignmentsConnectStartTime = 0;
+
     function initAssignmentsStream() {
         if (typeof EventSource === 'undefined') return;
-        // 🛡️ Guard: NEVER close or restart an active OPEN or CONNECTING EventSource!
-        if (assignmentsSSESource && (assignmentsSSESource.readyState === EventSource.OPEN || assignmentsSSESource.readyState === EventSource.CONNECTING)) {
-            return;
+        const now = Date.now();
+        // 🛡️ Guard: If actively CONNECTING for less than 4 seconds, or already OPEN, leave it alone!
+        if (assignmentsSSESource) {
+            if (assignmentsSSESource.readyState === EventSource.OPEN) return;
+            if (assignmentsSSESource.readyState === EventSource.CONNECTING && (now - _assignmentsConnectStartTime < 4000)) {
+                return;
+            }
         }
 
         try {
@@ -1491,6 +1497,7 @@ window.SupabaseClient = (function() {
                 assignmentsSSESource = null;
             }
 
+            _assignmentsConnectStartTime = now;
             // ⚡ Dedicated Realtime SSE Stream directly on assignments endpoint (< 50ms delivery)
             assignmentsSSESource = new EventSource(`${FIREBASE_DB_URL}/assignments.json`);
 
@@ -1576,24 +1583,23 @@ window.SupabaseClient = (function() {
         // 1. Start dedicated real-time assignments SSE stream (< 50ms)
         initAssignmentsStream();
 
-        // 2. High-speed fallback poller (runs every 1000ms, throttled to 5000ms when SSE is OPEN)
+        // 2. High-speed dual-layer poller (runs every 1000ms active, 2500ms in background)
         if (!assignmentsPollInterval) {
             assignmentsPollInterval = setInterval(async () => {
-                if (typeof document !== 'undefined' && document.hidden) return;
+                const now = Date.now();
+                const isHidden = typeof document !== 'undefined' && document.hidden;
 
-                // Watchdog: If SSE stream is permanently CLOSED, revive it
-                if (!assignmentsSSESource || assignmentsSSESource.readyState === EventSource.CLOSED) {
+                // When in background, poll every 2500ms so backgrounded/sleeping tabs stay fresh!
+                if (isHidden && (now - _lastAssignmentsPollFetch < 2500)) return;
+
+                // Watchdog: If SSE stream is permanently CLOSED, or hung in CONNECTING > 4s, revive it
+                if (!assignmentsSSESource || assignmentsSSESource.readyState === EventSource.CLOSED ||
+                   (assignmentsSSESource.readyState === EventSource.CONNECTING && (now - _assignmentsConnectStartTime > 4000))) {
                     initAssignmentsStream();
                 }
 
-                // If SSE is OPEN, SSE stream delivers all updates in < 50ms!
-                // Polling is only an occasional safety fallback (every 5000ms).
-                // If SSE is NOT open, poll every 1000ms as an active fallback.
-                const isSSEOpen = assignmentsSSESource && assignmentsSSESource.readyState === EventSource.OPEN;
-                const now = Date.now();
-                if (isSSEOpen && (now - _lastAssignmentsPollFetch < 5000)) {
-                    return;
-                }
+                // Polling runs every 1000ms active (or 2500ms in background)
+                if (now - _lastAssignmentsPollFetch < 1000) return;
                 _lastAssignmentsPollFetch = now;
 
                 try {
@@ -1614,7 +1620,7 @@ window.SupabaseClient = (function() {
                         }
                     }
                 } catch(e) {}
-            }, 1000);
+            }, 500);
         }
 
         // 3. Instant trigger on user interaction, screen touch, or tab focus

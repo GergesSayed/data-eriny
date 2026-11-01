@@ -3609,14 +3609,10 @@ const AppStorage = {
                         const localUpdatedAt = localEntry ? (typeof localEntry.updatedAt === 'number' ? localEntry.updatedAt : new Date(localEntry.updatedAt || 0).getTime()) : 0;
                         const localAssignedTo = localEntry ? (localEntry.assignedTo || '') : '';
 
-                        // 🛡️ True LWW Protection: If local record is newer than cloud (whether assigned OR unassigned), local wins!
-                        if (localEntry && (localUpdatedAt > cloudUpdatedAt || (localUpdatedAt > 0 && (now - localUpdatedAt < GRACE_PERIOD_MS) && cloudUpdatedAt <= localUpdatedAt))) {
-                            // If local state differs from cloud, re-push local to cloud so cloud catches up (Admin ONLY!)
-                            if (this.isAdmin(currentUser) && localAssignedTo !== targetUser && window.SupabaseClient) {
-                                if (typeof window.SupabaseClient.setAssignment === 'function') {
-                                    window.SupabaseClient.setAssignment(sId, localAssignedTo, localEntry.assignedAt || null, localUpdatedAt).catch(() => {});
-                                }
-                            }
+                        // 🛡️ Device-Specific LWW Protection: Only protect against older cloud snapshots if THIS DEVICE modified it in the last 10s!
+                        const localWriteTime = (this._localAssignedAtThisDevice && this._localAssignedAtThisDevice.get(sId)) || 0;
+                        const isFreshLocalWriteOnThisDevice = localWriteTime > 0 && (now - localWriteTime < 10000);
+                        if (isFreshLocalWriteOnThisDevice && cloudUpdatedAt <= localWriteTime) {
                             continue;
                         }
 
@@ -4464,18 +4460,25 @@ const AppStorage = {
             this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: [updatedItem] });
         }
 
-        // Ensure newly assigned or created company assignment is permanently registered in storedAssignments
-        if (updatedItem.assignedTo) {
+        // Ensure newly assigned, updated, or unassigned company is permanently registered in storedAssignments
+        if (updatedItem.id) {
             const storedAssignments = this.getStoredAssignments() || {};
+            const sId = String(updatedItem.id);
             const nowMs = Date.now();
-            storedAssignments[String(updatedItem.id)] = {
-                assignedTo: updatedItem.assignedTo,
-                assignedAt: updatedItem.assignedAt || new Date(nowMs).toISOString(),
+            const targetAsgn = updatedItem.assignedTo || '';
+            const targetAt = targetAsgn ? (updatedItem.assignedAt || new Date(nowMs).toISOString()) : null;
+
+            if (!this._localAssignedAtThisDevice) this._localAssignedAtThisDevice = new Map();
+            this._localAssignedAtThisDevice.set(sId, nowMs);
+
+            storedAssignments[sId] = {
+                assignedTo: targetAsgn,
+                assignedAt: targetAt,
                 updatedAt: nowMs
             };
             this.setStoredAssignments(storedAssignments);
             if (window.SupabaseClient && typeof window.SupabaseClient.setAssignment === 'function') {
-                window.SupabaseClient.setAssignment(updatedItem.id, updatedItem.assignedTo, updatedItem.assignedAt, nowMs).catch(() => {});
+                window.SupabaseClient.setAssignment(updatedItem.id, targetAsgn, targetAt, nowMs).catch(() => {});
             }
         }
 
@@ -4908,6 +4911,10 @@ const AppStorage = {
         company.assignedAt = userId ? isoNow : null;
         company.lastUpdated = isoNow.split('T')[0];
 
+        // Track local write on this specific device to protect against stale poller echoes
+        if (!this._localAssignedAtThisDevice) this._localAssignedAtThisDevice = new Map();
+        this._localAssignedAtThisDevice.set(String(companyId), now);
+
         // Update local persistent assignments store
         const storedAssignments = this.getStoredAssignments();
         storedAssignments[String(companyId)] = {
@@ -5035,6 +5042,11 @@ const AppStorage = {
         });
 
         if (updatedBatch.length > 0) {
+            if (!this._localAssignedAtThisDevice) this._localAssignedAtThisDevice = new Map();
+            companyIds.forEach(id => {
+                this._localAssignedAtThisDevice.set(String(id), nowMs);
+            });
+
             // 1. Save custody once in localStorage
             this.setCustodyHistoryMap(allHistory);
 
@@ -5673,15 +5685,13 @@ const AppStorage = {
                 continue;
             }
 
-            // 🛡️ Rock-solid Last-Write-Wins & Stale Poller Echo Protection:
-            // If modified locally on this device within the last 10s (e.g. unassigned or assigned),
-            // REJECT any stale cloud echo unless cloud timestamp is strictly newer than local!
-            const isFreshLocalWrite = localTs > 0 && (now - localTs < GRACE_WINDOW_MS);
-            if (isFreshLocalWrite && localTs >= deltaTs) {
-                continue;
-            }
-            if (!isFreshLocalWrite && localTs > deltaTs && deltaTs > 0) {
-                continue;
+            // 🛡️ Rock-solid Device-Specific Stale Poller Echo Protection:
+            // Only protect against stale echoes if THIS SPECIFIC DEVICE performed a local write on this company in the last 10s!
+            // Any other device (such as employee screens) receives and applies updates INSTANTLY with zero clock-skew delay!
+            const localWriteTime = (this._localAssignedAtThisDevice && this._localAssignedAtThisDevice.get(sId)) || 0;
+            const isFreshLocalWriteOnThisDevice = localWriteTime > 0 && (now - localWriteTime < 10000);
+            if (isFreshLocalWriteOnThisDevice && deltaTs <= localWriteTime) {
+                continue; // Ignore stale or untimestamped echo of our own write
             }
 
             const comp = this.getCompany(sId);
