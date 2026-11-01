@@ -3610,7 +3610,7 @@ const AppStorage = {
                         const localAssignedTo = localEntry ? (localEntry.assignedTo || '') : '';
 
                         // 🛡️ True LWW Protection: If local record is newer than cloud (whether assigned OR unassigned), local wins!
-                        if (localEntry && localUpdatedAt > cloudUpdatedAt) {
+                        if (localEntry && (localUpdatedAt > cloudUpdatedAt || (localUpdatedAt > 0 && (now - localUpdatedAt < GRACE_PERIOD_MS) && cloudUpdatedAt <= localUpdatedAt))) {
                             // If local state differs from cloud, re-push local to cloud so cloud catches up (Admin ONLY!)
                             if (this.isAdmin(currentUser) && localAssignedTo !== targetUser && window.SupabaseClient) {
                                 if (typeof window.SupabaseClient.setAssignment === 'function') {
@@ -5618,15 +5618,23 @@ const AppStorage = {
     },
 
     applyRealtimeAssignmentsDelta(delta, source = 'realtime') {
-        if (!delta || typeof delta !== 'object') return;
+        if (!delta || typeof delta !== 'object') return false;
         const storedAssignments = this.getStoredAssignments() || {};
         const changedComps = [];
+        let anyAssignmentChanged = false;
         const now = Date.now();
+        const GRACE_WINDOW_MS = 10000; // 10s grace window protects optimistic local writes against stale cloud echoes
 
         // ⚡ Full Snapshot Reconciliation: Remove any deleted assignments if full poll/snapshot
         if (source === 'cloud_assignments_poll' || source === 'full_snapshot') {
             for (const existingId of Object.keys(storedAssignments)) {
                 if (!(existingId in delta)) {
+                    const localEntry = storedAssignments[existingId];
+                    const localTs = localEntry ? (typeof localEntry.updatedAt === 'number' ? localEntry.updatedAt : new Date(localEntry.updatedAt || 0).getTime()) : 0;
+                    // 🛡️ Do NOT delete fresh local writes (< 15 seconds) that may still be in transit to Firebase!
+                    if (localTs && (now - localTs < 15000)) {
+                        continue;
+                    }
                     const comp = this.getCompany(existingId);
                     if (comp && comp.assignedTo) {
                         comp.assignedTo = '';
@@ -5643,33 +5651,62 @@ const AppStorage = {
             // Handle null, undefined, string, or object info cleanly
             const targetUser = (!assignInfo) ? '' : (typeof assignInfo === 'string' ? assignInfo : (assignInfo.assignedTo || ''));
             const targetAt = targetUser ? (assignInfo.assignedAt || new Date(now).toISOString()) : null;
-            const deltaTs = (assignInfo && typeof assignInfo.updatedAt === 'number') ? assignInfo.updatedAt : ((assignInfo && assignInfo.updatedAt) ? new Date(assignInfo.updatedAt).getTime() : now);
+
+            let deltaTs = 0;
+            if (assignInfo && typeof assignInfo.updatedAt === 'number') {
+                deltaTs = assignInfo.updatedAt;
+            } else if (assignInfo && assignInfo.updatedAt) {
+                deltaTs = new Date(assignInfo.updatedAt).getTime();
+            } else if (assignInfo && assignInfo.assignedAt) {
+                deltaTs = new Date(assignInfo.assignedAt).getTime();
+            }
+            if (isNaN(deltaTs) || !deltaTs) {
+                deltaTs = 0; // Legacy or untimestamped cloud records must never overwrite fresh local writes
+            }
 
             const localEntry = storedAssignments[sId];
             const localTs = localEntry ? (typeof localEntry.updatedAt === 'number' ? localEntry.updatedAt : new Date(localEntry.updatedAt || 0).getTime()) : 0;
+            const localAssignedTo = localEntry ? (localEntry.assignedTo || '') : '';
 
-            // If already matches targetUser, skip
-            if (localEntry && (localEntry.assignedTo || '') === targetUser) {
+            // If local state already matches targetUser exactly, skip!
+            if (localEntry && localAssignedTo === targetUser) {
                 continue;
             }
 
-            // Only protect if modified locally on this device within the last 2 seconds
-            if (localEntry && (now - localTs < 2000) && (localTs > deltaTs)) {
+            // 🛡️ Rock-solid Last-Write-Wins & Stale Poller Echo Protection:
+            // If modified locally on this device within the last 10s (e.g. unassigned or assigned),
+            // REJECT any stale cloud echo unless cloud timestamp is strictly newer than local!
+            const isFreshLocalWrite = localTs > 0 && (now - localTs < GRACE_WINDOW_MS);
+            if (isFreshLocalWrite && localTs >= deltaTs) {
                 continue;
             }
+            if (!isFreshLocalWrite && localTs > deltaTs && deltaTs > 0) {
+                continue;
+            }
+
+            const comp = this.getCompany(sId);
+            const prevAssigned = comp ? (comp.assignedTo || '') : localAssignedTo;
 
             storedAssignments[sId] = {
                 assignedTo: targetUser,
                 assignedAt: targetAt,
-                updatedAt: deltaTs
+                updatedAt: deltaTs || now
             };
 
-            const comp = this.getCompany(sId);
-            if (comp && (comp.assignedTo || '') !== targetUser) {
+            if (comp) {
                 comp.assignedTo = targetUser;
                 comp.assignedAt = targetAt;
-                changedComps.push(comp);
+                if (prevAssigned !== targetUser) {
+                    changedComps.push(comp);
+                }
+            } else if (prevAssigned !== targetUser) {
+                anyAssignmentChanged = true;
             }
+        }
+
+        // If no assignments actually changed in local state, exit early with ZERO UI overhead!
+        if (changedComps.length === 0 && !anyAssignmentChanged) {
+            return false;
         }
 
         this.setStoredAssignments(storedAssignments);
@@ -5677,21 +5714,19 @@ const AppStorage = {
         this.invalidateStatsCache();
         this.updateLiveCounters();
 
-        if (changedComps.length > 0) {
-            this.saveBatchToIDB(changedComps);
-            if (this._worker) {
-                this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: changedComps });
-            }
+        this.saveBatchToIDB(changedComps);
+        if (this._worker) {
+            this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: changedComps });
         }
 
-        // ⚡ Reactive Realtime Trigger: Re-render UI immediately across all tabs and devices
+        // ⚡ Reactive Realtime Trigger: Re-render UI cleanly across all tabs and devices
         if (typeof window !== 'undefined') {
             const currentUser = this.getCurrentUser();
             const isAdmin = this.canViewAll(currentUser);
             const myId = currentUser ? String(currentUser.id || currentUser.username).toLowerCase() : '';
 
             // ⚡ Instant DOM removal on employee screen (Desktop table & Mobile cards)
-            if (!isAdmin && changedComps.length > 0) {
+            if (!isAdmin) {
                 changedComps.forEach(c => {
                     const asgn = String(c.assignedTo || '').toLowerCase();
                     if (asgn !== myId) {
@@ -5706,20 +5741,46 @@ const AppStorage = {
                 });
             }
 
-            const activePage = window.App ? window.App.currentPage : null;
-            const compPage = document.getElementById('page-companies');
-            const isCompaniesVisible = (compPage && compPage.classList.contains('active')) || (!activePage || activePage === 'companies' || (window.location.hash && window.location.hash.includes('companies')));
+            // ⚡ Instant in-place DOM update for small batches (prevents full table refresh & stutter)
+            if (isAdmin && changedComps.length <= 5 && typeof Companies !== 'undefined') {
+                changedComps.forEach(c => {
+                    const tr = document.querySelector(`tr[data-id="${c.id}"]`);
+                    const card = document.querySelector(`.company-card[data-card-id="${c.id}"]`);
+                    if (tr) {
+                        const cell = tr.querySelector('td[data-cell="assigned"]');
+                        if (cell && typeof Companies.buildAssignedWidget === 'function') {
+                            cell.innerHTML = Companies.buildAssignedWidget(c);
+                        }
+                    }
+                    if (card) {
+                        const cell = card.querySelector('[data-cell="assigned"]');
+                        if (cell && typeof Companies.buildAssignedWidget === 'function') {
+                            cell.innerHTML = '<i class="fas fa-user-tag"></i> المسند إليه: ' + Companies.buildAssignedWidget(c);
+                        }
+                    }
+                });
+            }
 
-            if (typeof Companies !== 'undefined' && isCompaniesVisible) {
-                Companies.refreshUserFilter();
-                Companies.render();
+            // Debounced UI re-render (35ms debounce collapses rapid delta bursts into 1 smooth frame)
+            if (this._realtimeRenderTimer) {
+                clearTimeout(this._realtimeRenderTimer);
             }
-            if (typeof Dashboard !== 'undefined' && (activePage === 'dashboard' || (window.location.hash && window.location.hash.includes('dashboard')))) {
-                Dashboard.render();
-            }
-            if (typeof Team !== 'undefined' && (activePage === 'team' || (window.location.hash && window.location.hash.includes('team')))) {
-                Team.render();
-            }
+            this._realtimeRenderTimer = setTimeout(() => {
+                const activePage = window.App ? window.App.currentPage : null;
+                const compPage = document.getElementById('page-companies');
+                const isCompaniesVisible = (compPage && compPage.classList.contains('active')) || (!activePage || activePage === 'companies' || (window.location.hash && window.location.hash.includes('companies')));
+
+                if (typeof Companies !== 'undefined' && isCompaniesVisible) {
+                    Companies.refreshUserFilter();
+                    Companies.render();
+                }
+                if (typeof Dashboard !== 'undefined' && (activePage === 'dashboard' || (window.location.hash && window.location.hash.includes('dashboard')))) {
+                    Dashboard.render();
+                }
+                if (typeof Team !== 'undefined' && (activePage === 'team' || (window.location.hash && window.location.hash.includes('team')))) {
+                    Team.render();
+                }
+            }, 35);
         }
         return true;
     },
