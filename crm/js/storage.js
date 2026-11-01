@@ -3616,6 +3616,15 @@ const AppStorage = {
                             continue;
                         }
 
+                        // 🛡️ True Timestamp Last-Write-Wins (LWW) Protection:
+                        // A stale cloud snapshot must NEVER overwrite a newer assignment record already present locally!
+                        if (localUpdatedAt > 0 && cloudUpdatedAt > 0 && cloudUpdatedAt < localUpdatedAt) {
+                            continue;
+                        }
+                        if (localUpdatedAt > 0 && !cloudUpdatedAt && (now - localUpdatedAt < 60000)) {
+                            continue;
+                        }
+
                         storedAssignments[sId] = {
                             assignedTo: targetUser,
                             assignedAt: targetAt,
@@ -5692,6 +5701,11 @@ const AppStorage = {
             const isFreshLocalWriteOnThisDevice = localWriteTime > 0 && (now - localWriteTime < 10000);
             if (isFreshLocalWriteOnThisDevice && deltaTs <= localWriteTime) {
                 continue; // Ignore stale or untimestamped echo of our own write
+            }
+
+            // 🛡️ True Timestamp Protection against stale polls or delayed echoes:
+            if (localTs > 0 && deltaTs > 0 && deltaTs < localTs) {
+                continue; // Older packet must never overwrite newer local state!
             }
 
             const comp = this.getCompany(sId);

@@ -1619,6 +1619,14 @@ window.SupabaseClient = (function() {
                 if (!assignmentsSSESource || assignmentsSSESource.readyState === EventSource.CLOSED) {
                     initAssignmentsStream();
                 }
+
+                // If SSE is OPEN and healthy (received heartbeat in last 30s), stream is already delivering real-time deltas!
+                // Do not fire a competing GET that might read a stale read-replica snapshot:
+                const isSSEOpen = assignmentsSSESource && assignmentsSSESource.readyState === EventSource.OPEN;
+                if (isSSEOpen && (now - _lastAssignmentsSSEHeartbeat < 30000)) {
+                    return;
+                }
+
                 fetch(`${FIREBASE_DB_URL}/assignments.json?t=${now}`).then(r => r.json()).then(data => {
                     if (data && typeof data === 'object') {
                         const newHash = computeAssignmentsHash(data);
@@ -1803,24 +1811,13 @@ window.SupabaseClient = (function() {
                 } catch(e) {}
             }
 
-            const [resp] = await Promise.all([
-                fetch(`${FIREBASE_DB_URL}/assignments.json`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(normalizedMap)
-                }),
-                fetch(`${FIREBASE_DB_URL}/metadata.json`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        updated_at: new Date(now).toISOString(),
-                        sync_timestamp: now,
-                        updated_by: currentClientId,
-                        delta_type: 'assignments_batch',
-                        assignments_delta: normalizedMap
-                    })
-                }).catch(() => {})
-            ]);
+            // ⚡ DIRECT WRITE to assignments node ONLY!
+            // Do NOT touch metadata.json here. That avoids triggering redundant full fetchMasterData / pullFromCloud across all clients!
+            const resp = await fetch(`${FIREBASE_DB_URL}/assignments.json`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(normalizedMap)
+            });
 
             return resp.ok;
         } catch(e) {
