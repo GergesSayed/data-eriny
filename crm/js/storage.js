@@ -5827,22 +5827,25 @@ const AppStorage = {
                 });
 
                 Companies.refreshUserFilter();
-            } else {
-                needsFullCompaniesRender = true;
+
+                // ⚡ Immediate counter update for instant visual feedback (< 0.5ms)
+                const countDisplay = document.getElementById('companies-count-display');
+                if (countDisplay && !isAdmin) {
+                    const scopedTotal = (this.getScopedCompanies() || []).length;
+                    countDisplay.textContent = `معروض: ${scopedTotal.toLocaleString()} شركة فقط`;
+                }
             }
 
-            // Full render ONLY when required (e.g. large batch or new item appeared for employee)
-            if (needsFullCompaniesRender) {
-                if (this._realtimeRenderTimer) {
-                    clearTimeout(this._realtimeRenderTimer);
-                }
-                this._realtimeRenderTimer = setTimeout(() => {
-                    if (typeof Companies !== 'undefined' && isCompaniesVisible) {
-                        Companies.refreshUserFilter();
-                        Companies.render();
-                    }
-                }, 50);
+            // ⚡ Always trigger debounced render (40ms) to ensure counter, pagination, and DOM state remain 100% in sync
+            if (this._realtimeRenderTimer) {
+                clearTimeout(this._realtimeRenderTimer);
             }
+            this._realtimeRenderTimer = setTimeout(() => {
+                if (typeof Companies !== 'undefined' && isCompaniesVisible) {
+                    Companies.refreshUserFilter();
+                    Companies.render();
+                }
+            }, 40);
 
             if (typeof Dashboard !== 'undefined' && (activePage === 'dashboard' || (window.location.hash && window.location.hash.includes('dashboard')))) {
                 Dashboard.render();

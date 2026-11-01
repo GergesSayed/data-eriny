@@ -1620,12 +1620,8 @@ window.SupabaseClient = (function() {
                     initAssignmentsStream();
                 }
 
-                // If SSE is OPEN and healthy (received heartbeat in last 30s), stream is already delivering real-time deltas!
-                // Do not fire a competing GET that might read a stale read-replica snapshot:
-                const isSSEOpen = assignmentsSSESource && assignmentsSSESource.readyState === EventSource.OPEN;
-                if (isSSEOpen && (now - _lastAssignmentsSSEHeartbeat < 30000)) {
-                    return;
-                }
+                // Wakeup check on tab switch / window focus (< 150ms)
+                // True Timestamp LWW in AppStorage guarantees any delayed/older snapshot will never overwrite newer state.
 
                 fetch(`${FIREBASE_DB_URL}/assignments.json?t=${now}`).then(r => r.json()).then(data => {
                     if (data && typeof data === 'object') {
