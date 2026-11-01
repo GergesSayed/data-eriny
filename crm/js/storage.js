@@ -5734,63 +5734,108 @@ const AppStorage = {
             const currentUser = this.getCurrentUser();
             const isAdmin = this.canViewAll(currentUser);
             const myId = currentUser ? String(currentUser.id || currentUser.username).toLowerCase() : '';
+            const activePage = window.App ? window.App.currentPage : null;
+            const compPage = document.getElementById('page-companies');
+            const isCompaniesVisible = (compPage && compPage.classList.contains('active')) || (!activePage || activePage === 'companies' || (window.location.hash && window.location.hash.includes('companies')));
 
-            // ⚡ Instant DOM removal on employee screen (Desktop table & Mobile cards)
-            if (!isAdmin) {
+            let needsFullCompaniesRender = false;
+
+            // ⚡ Surgical In-Place DOM Updates for small batches (zero freeze, zero table flash)
+            if (changedComps.length <= 10 && typeof Companies !== 'undefined') {
+                const activeFilterAssigned = document.getElementById('filter-assigned')?.value;
+
                 changedComps.forEach(c => {
                     const asgn = String(c.assignedTo || '').toLowerCase();
-                    if (asgn !== myId) {
-                        const elements = document.querySelectorAll(`tr[data-id="${c.id}"], tr[onclick*="${c.id}"], .company-card[onclick*="${c.id}"]`);
-                        elements.forEach(el => {
-                            el.style.transition = 'opacity 0.15s ease, transform 0.15s ease';
-                            el.style.opacity = '0';
-                            el.style.transform = 'scale(0.95)';
-                            setTimeout(() => { try { el.remove(); } catch(e) {} }, 150);
-                        });
-                    }
-                });
-            }
-
-            // ⚡ Instant in-place DOM update for small batches (prevents full table refresh & stutter)
-            if (isAdmin && changedComps.length <= 5 && typeof Companies !== 'undefined') {
-                changedComps.forEach(c => {
                     const tr = document.querySelector(`tr[data-id="${c.id}"]`);
                     const card = document.querySelector(`.company-card[data-card-id="${c.id}"]`);
-                    if (tr) {
-                        const cell = tr.querySelector('td[data-cell="assigned"]');
-                        if (cell && typeof Companies.buildAssignedWidget === 'function') {
-                            cell.innerHTML = Companies.buildAssignedWidget(c);
+
+                    if (!isAdmin) {
+                        // Employee view:
+                        if (asgn !== myId) {
+                            // Unassigned or transferred away -> remove instantly from DOM!
+                            const elements = document.querySelectorAll(`tr[data-id="${c.id}"], tr[onclick*="${c.id}"], .company-card[onclick*="${c.id}"]`);
+                            elements.forEach(el => {
+                                el.style.transition = 'opacity 0.15s ease, transform 0.15s ease';
+                                el.style.opacity = '0';
+                                el.style.transform = 'scale(0.95)';
+                                setTimeout(() => { try { el.remove(); } catch(e) {} }, 150);
+                            });
+                        } else {
+                            // Newly assigned TO this employee:
+                            if (tr) {
+                                const cell = tr.querySelector('td[data-cell="assigned"]');
+                                if (cell && typeof Companies.buildAssignedWidget === 'function') {
+                                    cell.innerHTML = Companies.buildAssignedWidget(c);
+                                }
+                            } else {
+                                needsFullCompaniesRender = true;
+                            }
+                        }
+                    } else {
+                        // Admin view:
+                        const isFilteredOut = (activeFilterAssigned && activeFilterAssigned !== 'unassigned' && activeFilterAssigned !== c.assignedTo) ||
+                                              (activeFilterAssigned === 'unassigned' && c.assignedTo);
+
+                        if (isFilteredOut) {
+                            if (tr) {
+                                tr.style.transition = 'opacity 0.15s ease, transform 0.15s ease';
+                                tr.style.opacity = '0';
+                                setTimeout(() => { try { tr.remove(); } catch(e) {} }, 150);
+                            }
+                            if (card) {
+                                card.style.transition = 'opacity 0.15s ease, transform 0.15s ease';
+                                card.style.opacity = '0';
+                                setTimeout(() => { try { card.remove(); } catch(e) {} }, 150);
+                            }
+                        } else {
+                            if (tr) {
+                                const cell = tr.querySelector('td[data-cell="assigned"]');
+                                if (cell && typeof Companies.buildAssignedWidget === 'function') {
+                                    cell.innerHTML = Companies.buildAssignedWidget(c);
+                                }
+                            }
+                            if (card) {
+                                const cell = card.querySelector('[data-cell="assigned"]');
+                                if (cell && typeof Companies.buildAssignedWidget === 'function') {
+                                    cell.innerHTML = '<i class="fas fa-user-tag"></i> المسند إليه: ' + Companies.buildAssignedWidget(c);
+                                }
+                            }
                         }
                     }
-                    if (card) {
-                        const cell = card.querySelector('[data-cell="assigned"]');
-                        if (cell && typeof Companies.buildAssignedWidget === 'function') {
-                            cell.innerHTML = '<i class="fas fa-user-tag"></i> المسند إليه: ' + Companies.buildAssignedWidget(c);
+
+                    // If company detail modal is currently open, refresh it in-place
+                    const detailModal = document.getElementById('modal-company-detail');
+                    if (detailModal && (detailModal.classList.contains('active') || detailModal.style.display === 'flex' || detailModal.style.display === 'block')) {
+                        if (Companies.currentDetailId === c.id) {
+                            Companies.showDetail(c.id);
                         }
                     }
                 });
+
+                Companies.refreshUserFilter();
+            } else {
+                needsFullCompaniesRender = true;
             }
 
-            // Debounced UI re-render (35ms debounce collapses rapid delta bursts into 1 smooth frame)
-            if (this._realtimeRenderTimer) {
-                clearTimeout(this._realtimeRenderTimer);
+            // Full render ONLY when required (e.g. large batch or new item appeared for employee)
+            if (needsFullCompaniesRender) {
+                if (this._realtimeRenderTimer) {
+                    clearTimeout(this._realtimeRenderTimer);
+                }
+                this._realtimeRenderTimer = setTimeout(() => {
+                    if (typeof Companies !== 'undefined' && isCompaniesVisible) {
+                        Companies.refreshUserFilter();
+                        Companies.render();
+                    }
+                }, 50);
             }
-            this._realtimeRenderTimer = setTimeout(() => {
-                const activePage = window.App ? window.App.currentPage : null;
-                const compPage = document.getElementById('page-companies');
-                const isCompaniesVisible = (compPage && compPage.classList.contains('active')) || (!activePage || activePage === 'companies' || (window.location.hash && window.location.hash.includes('companies')));
 
-                if (typeof Companies !== 'undefined' && isCompaniesVisible) {
-                    Companies.refreshUserFilter();
-                    Companies.render();
-                }
-                if (typeof Dashboard !== 'undefined' && (activePage === 'dashboard' || (window.location.hash && window.location.hash.includes('dashboard')))) {
-                    Dashboard.render();
-                }
-                if (typeof Team !== 'undefined' && (activePage === 'team' || (window.location.hash && window.location.hash.includes('team')))) {
-                    Team.render();
-                }
-            }, 35);
+            if (typeof Dashboard !== 'undefined' && (activePage === 'dashboard' || (window.location.hash && window.location.hash.includes('dashboard')))) {
+                Dashboard.render();
+            }
+            if (typeof Team !== 'undefined' && (activePage === 'team' || (window.location.hash && window.location.hash.includes('team')))) {
+                Team.render();
+            }
         }
         return true;
     },

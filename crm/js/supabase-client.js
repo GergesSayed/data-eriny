@@ -32,11 +32,6 @@ window.SupabaseClient = (function() {
                     if (_assignmentsDeltaCallback) {
                         try { _assignmentsDeltaCallback(data.delta, 'local_broadcast'); } catch(e) {}
                     }
-                    setTimeout(() => {
-                        if (window.App && typeof window.App.refreshCurrentPage === 'function') {
-                            window.App.refreshCurrentPage();
-                        }
-                    }, 50);
                 } else if (data.type === 'CALL_SAVED' && data.call) {
                     if (window.AppStorage && typeof window.AppStorage.ingestSingleCall === 'function') {
                         window.AppStorage.ingestSingleCall(data.call);
@@ -1375,11 +1370,6 @@ window.SupabaseClient = (function() {
                                     }
                                 }, 'cloud_sse');
                             }
-                            setTimeout(() => {
-                                if (window.App && typeof window.App.refreshCurrentPage === 'function') {
-                                    window.App.refreshCurrentPage();
-                                }
-                            }, 50);
                             return;
                         }
 
@@ -1388,11 +1378,6 @@ window.SupabaseClient = (function() {
                             if (window.AppStorage && typeof window.AppStorage.applyRealtimeAssignmentsDelta === 'function') {
                                 window.AppStorage.applyRealtimeAssignmentsDelta(data.assignments_delta, 'cloud_sse');
                             }
-                            setTimeout(() => {
-                                if (window.App && typeof window.App.refreshCurrentPage === 'function') {
-                                    window.App.refreshCurrentPage();
-                                }
-                            }, 50);
                             return;
                         }
 
@@ -1583,14 +1568,10 @@ window.SupabaseClient = (function() {
         // 1. Start dedicated real-time assignments SSE stream (< 50ms)
         initAssignmentsStream();
 
-        // 2. High-speed dual-layer poller (runs every 1000ms active, 2500ms in background)
+        // 2. Passive safety fallback poller (zero network overhead when SSE is OPEN)
         if (!assignmentsPollInterval) {
             assignmentsPollInterval = setInterval(async () => {
                 const now = Date.now();
-                const isHidden = typeof document !== 'undefined' && document.hidden;
-
-                // When in background, poll every 2500ms so backgrounded/sleeping tabs stay fresh!
-                if (isHidden && (now - _lastAssignmentsPollFetch < 2500)) return;
 
                 // Watchdog: If SSE stream is permanently CLOSED, or hung in CONNECTING > 4s, revive it
                 if (!assignmentsSSESource || assignmentsSSESource.readyState === EventSource.CLOSED ||
@@ -1598,8 +1579,12 @@ window.SupabaseClient = (function() {
                     initAssignmentsStream();
                 }
 
-                // Polling runs every 1000ms active (or 2500ms in background)
-                if (now - _lastAssignmentsPollFetch < 1000) return;
+                // When SSE stream is OPEN, all changes are pushed instantly in <50ms natively!
+                // Polling is only an occasional sanity heartbeat (every 30s) to keep zero network noise.
+                // If SSE is NOT open, poll every 2000ms as an active safety fallback.
+                const isSSEOpen = assignmentsSSESource && assignmentsSSESource.readyState === EventSource.OPEN;
+                if (isSSEOpen && (now - _lastAssignmentsPollFetch < 30000)) return;
+                if (!isSSEOpen && (now - _lastAssignmentsPollFetch < 2000)) return;
                 _lastAssignmentsPollFetch = now;
 
                 try {
@@ -1866,26 +1851,11 @@ window.SupabaseClient = (function() {
         }
 
         try {
-            const [resp] = await Promise.all([
-                fetch(`${FIREBASE_DB_URL}/assignments/${encodeURIComponent(sId)}.json`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                }),
-                fetch(`${FIREBASE_DB_URL}/metadata.json`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        updated_at: new Date(now).toISOString(),
-                        sync_timestamp: now,
-                        updated_by: currentClientId,
-                        delta_type: 'assignment',
-                        company_id: sId,
-                        assigned_to: assignedTo || '',
-                        assigned_at: assignedTo ? (assignedAt || new Date(now).toISOString()) : null
-                    })
-                }).catch(() => {})
-            ]);
+            const resp = await fetch(FIREBASE_DB_URL + '/assignments/' + encodeURIComponent(sId) + '.json', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
 
             lastSyncTimestamp = now;
             return resp.ok;
