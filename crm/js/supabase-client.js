@@ -14,7 +14,6 @@ window.SupabaseClient = (function() {
     let sseSource = null;
     let pollInterval = null;
     const syncChannel = (typeof window !== 'undefined' && typeof window.BroadcastChannel !== 'undefined') ? new BroadcastChannel('fleetcrm_realtime_sync') : null;
-    let _assignmentsDeltaCallback = null;
     let isPushing = false;
     let lastSyncTimestamp = 0;
     let _mobileFocusBound = false;
@@ -1297,6 +1296,13 @@ window.SupabaseClient = (function() {
         // 2. Connect native SSE Stream for sub-100ms real-time push
         try {
             if (typeof EventSource !== 'undefined') {
+                if (sseSource && (sseSource.readyState === EventSource.OPEN || sseSource.readyState === EventSource.CONNECTING)) {
+                    return;
+                }
+                if (sseSource) {
+                    try { sseSource.close(); } catch(e) {}
+                    sseSource = null;
+                }
                 sseSource = new EventSource(`${FIREBASE_DB_URL}/metadata.json`);
 
                 const handleSSE = (e) => {
@@ -1435,10 +1441,8 @@ window.SupabaseClient = (function() {
             _mobileFocusBound = true;
             const handleMobileFocus = () => {
                 checkMetadataDelta();
-                if (!sseSource && typeof EventSource !== 'undefined') {
-                    try {
-                        sseSource = new EventSource(`${FIREBASE_DB_URL}/metadata.json`);
-                    } catch(e) {}
+                if ((!sseSource || sseSource.readyState === EventSource.CLOSED) && typeof subscribeToChanges === 'function') {
+                    subscribeToChanges(onChangeCallback);
                 }
                 startPolling();
             };
@@ -1459,6 +1463,8 @@ window.SupabaseClient = (function() {
     let _lastAssignmentsSSEHeartbeat = Date.now();
     let _lastAssignmentsHash = '';
     let _assignmentsVisibilityBound = false;
+    let _assignmentsDeltaCallback = null;
+    let _lastAssignmentsPollFetch = 0;
 
     function computeAssignmentsHash(map) {
         if (!map || typeof map !== 'object') return '';
@@ -1474,7 +1480,8 @@ window.SupabaseClient = (function() {
 
     function initAssignmentsStream() {
         if (typeof EventSource === 'undefined') return;
-        if (assignmentsSSESource && assignmentsSSESource.readyState === EventSource.OPEN) {
+        // 🛡️ Guard: NEVER close or restart an active OPEN or CONNECTING EventSource!
+        if (assignmentsSSESource && (assignmentsSSESource.readyState === EventSource.OPEN || assignmentsSSESource.readyState === EventSource.CONNECTING)) {
             return;
         }
 
@@ -1506,7 +1513,7 @@ window.SupabaseClient = (function() {
                             }
                         }
                     } else if (path === '/' || path === '') {
-                        if (typeof data === 'object') {
+                        if (typeof data === 'object' && data !== null) {
                             delta = data;
                         }
                     } else {
@@ -1516,9 +1523,9 @@ window.SupabaseClient = (function() {
                         const companyId = parts[0];
                         if (companyId) {
                             if (parts.length === 1) {
-                                delta[companyId] = typeof data === 'object' ? data : { assignedTo: data };
+                                delta[companyId] = (typeof data === 'object' && data !== null) ? data : { assignedTo: data || '', updatedAt: Date.now() };
                             } else if (parts[1] === 'assignedTo') {
-                                delta[companyId] = { assignedTo: data || '' };
+                                delta[companyId] = { assignedTo: data || '', updatedAt: Date.now() };
                             }
                         }
                     }
@@ -1544,12 +1551,13 @@ window.SupabaseClient = (function() {
             };
 
             assignmentsSSESource.onerror = () => {
+                // EventSource auto-reconnects natively. Only recreate if permanently closed:
                 if (assignmentsSSESource && assignmentsSSESource.readyState === EventSource.CLOSED) {
                     try { assignmentsSSESource.close(); } catch(e) {}
                     assignmentsSSESource = null;
                     setTimeout(() => {
                         initAssignmentsStream();
-                    }, 1500);
+                    }, 2000);
                 }
             };
         } catch(err) {
@@ -1558,7 +1566,7 @@ window.SupabaseClient = (function() {
     }
 
     /**
-     * Dedicated assignments stream registration with automatic SSE stream and fast 750ms micro-poll
+     * Dedicated assignments stream registration with automatic SSE stream and smart fallback poll
      */
     function subscribeToAssignments(onDeltaCallback) {
         if (onDeltaCallback) {
@@ -1568,17 +1576,28 @@ window.SupabaseClient = (function() {
         // 1. Start dedicated real-time assignments SSE stream (< 50ms)
         initAssignmentsStream();
 
-        // 2. High-speed featherweight micro-poller (checks ONLY assignments.json ~3KB every 750ms)
+        // 2. High-speed fallback poller (runs every 1000ms, throttled to 5000ms when SSE is OPEN)
         if (!assignmentsPollInterval) {
             assignmentsPollInterval = setInterval(async () => {
                 if (typeof document !== 'undefined' && document.hidden) return;
 
-                // Watchdog: If SSE stream isn't connected and active, revive it immediately
-                if (!assignmentsSSESource || assignmentsSSESource.readyState !== EventSource.OPEN) {
+                // Watchdog: If SSE stream is permanently CLOSED, revive it
+                if (!assignmentsSSESource || assignmentsSSESource.readyState === EventSource.CLOSED) {
                     initAssignmentsStream();
                 }
+
+                // If SSE is OPEN, SSE stream delivers all updates in < 50ms!
+                // Polling is only an occasional safety fallback (every 5000ms).
+                // If SSE is NOT open, poll every 1000ms as an active fallback.
+                const isSSEOpen = assignmentsSSESource && assignmentsSSESource.readyState === EventSource.OPEN;
+                const now = Date.now();
+                if (isSSEOpen && (now - _lastAssignmentsPollFetch < 5000)) {
+                    return;
+                }
+                _lastAssignmentsPollFetch = now;
+
                 try {
-                    const resp = await fetch(`${FIREBASE_DB_URL}/assignments.json?t=${Date.now()}`);
+                    const resp = await fetch(`${FIREBASE_DB_URL}/assignments.json?t=${now}`);
                     if (resp.ok) {
                         const cloudAssignments = await resp.json();
                         if (cloudAssignments && typeof cloudAssignments === 'object') {
@@ -1595,7 +1614,7 @@ window.SupabaseClient = (function() {
                         }
                     }
                 } catch(e) {}
-            }, 350);
+            }, 1000);
         }
 
         // 3. Instant trigger on user interaction, screen touch, or tab focus
@@ -1604,7 +1623,7 @@ window.SupabaseClient = (function() {
             let _lastInteractFetch = 0;
             const fastInteractSync = () => {
                 const now = Date.now();
-                if (now - _lastInteractFetch < 250) return;
+                if (now - _lastInteractFetch < 500) return;
                 _lastInteractFetch = now;
                 if (!assignmentsSSESource || assignmentsSSESource.readyState === EventSource.CLOSED) {
                     initAssignmentsStream();
@@ -2126,6 +2145,7 @@ window.SupabaseClient = (function() {
         subscribeToChanges,
         subscribeToAssignments,
         subscribeToPresence,
+        getSSEState: () => ({ metadataSSE: sseSource ? sseSource.readyState : null, assignmentsSSE: assignmentsSSESource ? assignmentsSSESource.readyState : null }),
         unsubscribe,
         acquireCompanyLock,
         releaseCompanyLock,
