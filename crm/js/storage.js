@@ -3420,7 +3420,8 @@ const AppStorage = {
                     }
                 });
 
-                const quickHash = `${dynamicCompanies.length}_${Object.keys(assignmentsMap).length}_${calls.length}_${users.length}`;
+                const latestActTs = (activities && activities.length > 0 && activities[0]) ? (activities[0].timestamp || '') : '';
+                const quickHash = `${dynamicCompanies.length}_${Object.keys(assignmentsMap).length}_${calls.length}_${users.length}_${activities.length}_${latestActTs}`;
                 if (!forceSync && quickHash === localStorage.getItem('fleetcrm_last_synced_hash')) return true;
 
                 const ok = await window.SupabaseClient.pushMasterData({
@@ -3836,8 +3837,38 @@ const AppStorage = {
             }
 
             if (data.activities && Array.isArray(data.activities)) {
-                const cleanActivities = data.activities.filter(a => !a || !a.refId || (!deletedCallIds.has(String(a.refId)) && !deletedCompIds.has(String(a.refId))));
-                this._set(this.KEYS.ACTIVITIES, cleanActivities);
+                const cleanCloudActs = data.activities.filter(a => a && a.id && (!a.refId || (!deletedCallIds.has(String(a.refId)) && !deletedCompIds.has(String(a.refId)))));
+                const localActs = this._get(this.KEYS.ACTIVITIES) || [];
+                const actMap = new Map();
+
+                // 1. Ingest existing local activities first (never lose local actions)
+                localActs.forEach(a => {
+                    if (a && a.id) actMap.set(String(a.id), a);
+                });
+
+                // 2. Bidirectional merge with cloud activities
+                cleanCloudActs.forEach(a => {
+                    const id = String(a.id);
+                    if (!actMap.has(id)) {
+                        actMap.set(id, a);
+                    } else {
+                        const existing = actMap.get(id);
+                        if (new Date(a.timestamp || 0) > new Date(existing.timestamp || 0)) {
+                            actMap.set(id, { ...existing, ...a });
+                        }
+                    }
+                });
+
+                const mergedActs = Array.from(actMap.values())
+                    .sort((a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0))
+                    .slice(0, 500);
+
+                this._set(this.KEYS.ACTIVITIES, mergedActs);
+                mergedActs.forEach(a => this.saveActivityToDB(a));
+
+                if (typeof Dashboard !== 'undefined' && typeof Dashboard.renderActivities === 'function') {
+                    try { Dashboard.renderActivities(); } catch(e) {}
+                }
             }
 
             const cloudTimestamp = (data && data.updated_at) ? new Date(data.updated_at).getTime() : Date.now();
@@ -6473,7 +6504,7 @@ const AppStorage = {
     },
 
     addActivity(type, refId, action, detail) {
-        const activities = this._get(this.KEYS.ACTIVITIES);
+        const activities = this._get(this.KEYS.ACTIVITIES) || [];
         const act = {
             id: this._generateId('act'),
             type,
@@ -6483,8 +6514,8 @@ const AppStorage = {
             timestamp: new Date().toISOString()
         };
 
-        // De-duplicate in memory
-        const exists = activities.some(a => a.action === action && a.detail === detail && (Date.now() - new Date(a.timestamp).getTime()) < 3000);
+        // De-duplicate in memory (prevent duplicate identical events within 3 seconds)
+        const exists = activities.some(a => a && a.action === action && a.detail === detail && (Date.now() - new Date(a.timestamp).getTime()) < 3000);
         if (exists) return;
 
         activities.unshift(act);
@@ -6496,9 +6527,39 @@ const AppStorage = {
         // Save to IndexedDB permanently
         this.saveActivityToDB(act);
 
+        // Immediate atomic cloud push to Firebase (< 250ms)
+        if (window.SupabaseClient && window.SupabaseClient.pushSingleActivity) {
+            window.SupabaseClient.pushSingleActivity(act).catch(() => {});
+        }
+
+        // Live dashboard update if viewing dashboard
+        if (typeof Dashboard !== 'undefined' && typeof Dashboard.renderActivities === 'function') {
+            try { Dashboard.renderActivities(); } catch(e) {}
+        }
+
         // Auto sync to cloud
         if (this.autoSyncToCloud) {
             this.autoSyncToCloud(this.companiesMemory);
+        }
+    },
+
+    ingestSingleActivity(act) {
+        if (!act || !act.id) return;
+        const sId = String(act.id);
+        const activities = this._get(this.KEYS.ACTIVITIES) || [];
+        const index = activities.findIndex(a => a && String(a.id) === sId);
+        if (index >= 0) {
+            activities[index] = { ...activities[index], ...act };
+        } else {
+            activities.unshift(act);
+        }
+        activities.sort((a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0));
+        if (activities.length > 500) activities.length = 500;
+        this._set(this.KEYS.ACTIVITIES, activities);
+        this.saveActivityToDB(act);
+
+        if (typeof Dashboard !== 'undefined' && typeof Dashboard.renderActivities === 'function') {
+            try { Dashboard.renderActivities(); } catch(e) {}
         }
     },
 

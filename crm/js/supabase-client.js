@@ -32,6 +32,10 @@ window.SupabaseClient = (function() {
                     if (_assignmentsDeltaCallback) {
                         try { _assignmentsDeltaCallback(data.delta, 'local_broadcast'); } catch(e) {}
                     }
+                } else if (data.type === 'ACTIVITY_SAVED' && data.activity) {
+                    if (window.AppStorage && typeof window.AppStorage.ingestSingleActivity === 'function') {
+                        window.AppStorage.ingestSingleActivity(data.activity);
+                    }
                 } else if (data.type === 'CALL_SAVED' && data.call) {
                     if (window.AppStorage && typeof window.AppStorage.ingestSingleCall === 'function') {
                         window.AppStorage.ingestSingleCall(data.call);
@@ -417,6 +421,23 @@ window.SupabaseClient = (function() {
             );
         }
 
+        if (data.activities && Array.isArray(data.activities) && data.activities.length > 0) {
+            const actsMap = {};
+            data.activities.slice(0, 100).forEach(a => {
+                if (a && a.id) actsMap[String(a.id)] = a;
+            });
+            if (Object.keys(actsMap).length > 0) {
+                promises.push(
+                    fetch(`${FIREBASE_DB_URL}/activities.json`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(actsMap),
+                        signal
+                    }).catch(() => {})
+                );
+            }
+        }
+
         const now = Date.now();
         promises.push(
             fetch(`${FIREBASE_DB_URL}/metadata.json`, {
@@ -531,9 +552,13 @@ window.SupabaseClient = (function() {
                 rootPatch['custody'] = data.custody;
             }
 
-            // 8. Activities (limit to latest 50 to avoid bloat)
+            // 8. Activities (keyed format to prevent overwriting whole tree)
             if (data.activities && Array.isArray(data.activities) && data.activities.length > 0) {
-                rootPatch['activities'] = data.activities.slice(0, 50);
+                data.activities.slice(0, 100).forEach(a => {
+                    if (a && a.id) {
+                        rootPatch[`activities/${String(a.id)}`] = a;
+                    }
+                });
             }
 
             // 9. Metadata
@@ -1241,6 +1266,21 @@ window.SupabaseClient = (function() {
         } catch(e) {}
     }
 
+    async function fetchSingleActivityAndIngest(activityId) {
+        if (!activityId) return;
+        try {
+            const resp = await fetch(`${FIREBASE_DB_URL}/activities/${encodeURIComponent(String(activityId))}.json`);
+            if (resp.ok) {
+                const act = await resp.json();
+                if (act && act.id) {
+                    if (window.AppStorage && typeof window.AppStorage.ingestSingleActivity === 'function') {
+                        window.AppStorage.ingestSingleActivity(act);
+                    }
+                }
+            }
+        } catch(e) {}
+    }
+
     /**
      * Real-time ultra-fast SSE & metadata-driven sync on Firebase
      * Connects persistent EventSource stream for sub-100ms push with smart polling fallback
@@ -1312,6 +1352,12 @@ window.SupabaseClient = (function() {
                         // ⚡ SUPER-FAST DELTA PATH (< 50ms): Single Call Update
                         if (data.delta_type === 'call' && data.call_id) {
                             fetchSingleCallAndIngest(data.call_id);
+                            return;
+                        }
+
+                        // ⚡ SUPER-FAST DELTA PATH (< 50ms): Single Activity Update
+                        if (data.delta_type === 'activity' && data.activity_id) {
+                            fetchSingleActivityAndIngest(data.activity_id);
                             return;
                         }
 
@@ -2062,6 +2108,52 @@ window.SupabaseClient = (function() {
         }
     }
 
+    async function pushSingleActivity(activity) {
+        if (!activity || !activity.id) return false;
+        const aId = String(activity.id);
+        try {
+            const now = Date.now();
+            lastSyncTimestamp = now;
+            const payload = { ...activity, timestamp: activity.timestamp || new Date(now).toISOString() };
+
+            // 1. Direct atomic PUT to Firebase /activities/{id}.json
+            const resp = await fetch(`${FIREBASE_DB_URL}/activities/${encodeURIComponent(aId)}.json`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            // 2. Broadcast metadata update with delta info to trigger fast SSE on all connected clients
+            fetch(`${FIREBASE_DB_URL}/metadata.json`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    updated_at: new Date(now).toISOString(),
+                    sync_timestamp: now,
+                    updated_by: currentClientId,
+                    delta_type: 'activity',
+                    activity_id: aId
+                })
+            }).catch(() => {});
+
+            // 3. Instant cross-tab broadcast notification (< 1ms)
+            if (syncChannel) {
+                try {
+                    syncChannel.postMessage({
+                        type: 'ACTIVITY_SAVED',
+                        clientId: currentClientId,
+                        activity: payload
+                    });
+                } catch(e) {}
+            }
+
+            return resp.ok;
+        } catch(e) {
+            console.warn('pushSingleActivity error:', e);
+            return false;
+        }
+    }
+
     async function pushCustody(companyId, historyList) {
         if (!companyId || !Array.isArray(historyList)) return true;
         try {
@@ -2109,6 +2201,7 @@ window.SupabaseClient = (function() {
         pushDeletedCompany,
         pushDeletedCompaniesBatch,
         pushSingleCall,
+        pushSingleActivity,
         deleteDynamicCompany,
         wipeDynamicCompanies,
         subscribeToChanges,
