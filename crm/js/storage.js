@@ -3300,7 +3300,7 @@ const AppStorage = {
     },
 
     // ---- Tombstone Deleted Items Registry ----
-    recordDeletedId(type, id) {
+    recordDeletedId(type, id, pushToCloud = false) {
         if (!type || !id) return;
         try {
             const sId = String(id);
@@ -3309,13 +3309,15 @@ const AppStorage = {
             const list = JSON.parse(localStorage.getItem(key) || '[]');
             if (!list.includes(sId)) {
                 list.push(sId);
-                const pruned = list.length > 150 ? list.slice(-150) : list;
+                const pruned = list.length > 200 ? list.slice(-200) : list;
                 localStorage.setItem(key, JSON.stringify(pruned));
             }
-            if (type === 'calls' && window.SupabaseClient && window.SupabaseClient.pushDeletedCall) {
-                window.SupabaseClient.pushDeletedCall(sId).catch(() => { });
-            } else if (type === 'companies' && window.SupabaseClient && window.SupabaseClient.pushDeletedCompany) {
-                window.SupabaseClient.pushDeletedCompany(sId).catch(() => { });
+            if (pushToCloud) {
+                if (type === 'calls' && window.SupabaseClient && window.SupabaseClient.pushDeletedCall) {
+                    window.SupabaseClient.pushDeletedCall(sId).catch(() => { });
+                } else if (type === 'companies' && window.SupabaseClient && window.SupabaseClient.pushDeletedCompany) {
+                    window.SupabaseClient.pushDeletedCompany(sId).catch(() => { });
+                }
             }
         } catch (e) { }
     },
@@ -3765,25 +3767,15 @@ const AppStorage = {
                     callMap.set(String(c.id), c);
                 });
 
-                // B. Reconcile local calls: ONLY keep and push recent offline calls created by current user within 60s
-                const currentUser = this.getCurrentUser();
-                const curUserId = currentUser ? String(currentUser.id || currentUser.username || '') : '';
-                const nowMs = Date.now();
+                // B. Reconcile local calls: Safely keep any non-deleted local call (offline/in-transit)
                 localCalls.forEach(c => {
                     const cId = String(c.id);
+                    if (deletedCallIds.has(cId)) return;
                     if (!callMap.has(cId)) {
-                        const cUserId = String(c.userId || c.createdBy || '');
-                        const cAge = c.createdAt ? (nowMs - new Date(c.createdAt).getTime()) : Infinity;
-                        const isRecentSelfCreated = (curUserId && cUserId === curUserId) && cAge < 60000;
-                        if (isRecentSelfCreated && !deletedCallIds.has(cId)) {
-                            callMap.set(cId, c);
-                            if (window.SupabaseClient && window.SupabaseClient.pushSingleCall) {
-                                window.SupabaseClient.pushSingleCall(c).catch(() => {});
-                            }
-                        } else {
-                            // Cloud deleted this call — purge locally and prevent resurrection
-                            deletedCallIds.add(cId);
-                            this.recordDeletedId('calls', cId);
+                        callMap.set(cId, c);
+                        // If it is a valid local call not yet on cloud, push it safely to cloud
+                        if (window.SupabaseClient && window.SupabaseClient.pushSingleCall) {
+                            window.SupabaseClient.pushSingleCall(c).catch(() => {});
                         }
                     }
                 });
@@ -5892,37 +5884,21 @@ const AppStorage = {
 
             const localRawCalls = this._get(this.KEYS.CALLS) || [];
 
-            // If cloud has zero calls (e.g. Admin wiped all calls)
-            if (cloudCalls.length === 0 && localRawCalls.length > 0) {
-                this.purgeAllCallsLocally();
-                return true;
-            }
-
             const cleanCloudCalls = cloudCalls.filter(c => c && c.id && !deletedCallIds.has(String(c.id)));
             const callMap = new Map();
 
             // 1. Authoritative cloud calls
             cleanCloudCalls.forEach(c => callMap.set(String(c.id), c));
 
-            // 2. Local unsynced calls: ONLY keep calls that are explicitly in the pending offline queue
-            let offlineQueueCalls = [];
-            try {
-                const q = JSON.parse(localStorage.getItem('fleetcrm_offline_queue') || '[]');
-                offlineQueueCalls = q.filter(item => item && item.data && item.data.type === 'call').map(item => item.data);
-            } catch(e) {}
-
+            // 2. Local calls: keep any local call not deleted
             localRawCalls.forEach(c => {
                 if (!c || !c.id) return;
                 const cId = String(c.id);
                 if (deletedCallIds.has(cId)) return;
                 if (!callMap.has(cId)) {
-                    const isQueued = offlineQueueCalls.some(qc => String(qc.id) === cId);
-                    if (isQueued) {
-                        callMap.set(cId, c);
-                    } else {
-                        // Cloud deleted this call — purge locally and prevent resurrection
-                        deletedCallIds.add(cId);
-                        this.recordDeletedId('calls', cId);
+                    callMap.set(cId, c);
+                    if (window.SupabaseClient && window.SupabaseClient.pushSingleCall) {
+                        window.SupabaseClient.pushSingleCall(c).catch(() => {});
                     }
                 }
             });
@@ -6167,7 +6143,7 @@ const AppStorage = {
                 if (this._worker) {
                     this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: [company] });
                 }
-                if (window.SupabaseClient && window.SupabaseClient.pushSingleCompany) {
+                if (company && window.SupabaseClient && window.SupabaseClient.pushSingleCompany && (company.source === 'scraper' || company.isCustom)) {
                     window.SupabaseClient.pushSingleCompany(company).catch(() => { });
                 }
             }

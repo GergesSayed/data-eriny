@@ -11,8 +11,8 @@
     <script>
         // Clean storage initialization
         (function() {
-            var CURRENT_VER = '419.0';
-            var DATASET_VER = 'v419.0_zero_latency_sync';
+            var CURRENT_VER = '420.0';
+            var DATASET_VER = 'v420.0_robust_call_reconciliation';
             try {
                 localStorage.removeItem('fleetcrm_deals');
                 localStorage.removeItem('fleetcrm_deals_count');
@@ -23,6 +23,7 @@
                     localStorage.setItem('fleetcrm_app_version', CURRENT_VER);
                     localStorage.setItem('fleetcrm_company_count', '21,225');
                     localStorage.setItem('fleetcrm_dataset_version', DATASET_VER);
+                    localStorage.removeItem('fleetcrm_deleted_calls');
                     if (!localStorage.getItem('fleetcrm_theme_explicit')) {
                         localStorage.setItem('fleetcrm_theme', 'light');
                     }
@@ -364,7 +365,7 @@
             </div>
             <div class="brand-text">
                 <h2>Fleet CRM</h2>
-                <span>إدارة بيع الإطارات <small class="brand-ver-badge" style="background:#7c3aed33; color:#a78bfa; padding:1px 6px; border-radius:6px; font-size:10px; font-weight:700;">v419.0</small></span>
+                <span>إدارة بيع الإطارات <small class="brand-ver-badge" style="background:#7c3aed33; color:#a78bfa; padding:1px 6px; border-radius:6px; font-size:10px; font-weight:700;">v420.0</small></span>
             </div>
         </div>
 
