@@ -3081,6 +3081,11 @@ const AppStorage = {
                                     comp.contactPerson = '';
                                     comp.contactTitle = '';
                                 }
+                                if (comp.id && String(comp.id).startsWith('eg_titan_')) {
+                                    if (comp.contactPerson === 'أحمد' || comp.contactPerson === 'محمد') {
+                                        comp.contactPerson = '';
+                                    }
+                                }
                             }
                         }
                         this.applyStoredAssignments(idbData);
@@ -3557,7 +3562,7 @@ const AppStorage = {
 
                 // A. Apply dynamic companies (newly scraped/custom)
                 if (data.dynamicCompanies && Array.isArray(data.dynamicCompanies)) {
-                    const cloudDynamic = data.dynamicCompanies.filter(c => c && c.id && !deletedCompIds.has(String(c.id)) && this.isStrictB2BEntity(c));
+                    const cloudDynamic = data.dynamicCompanies.filter(c => c && c.id && !deletedCompIds.has(String(c.id)) && !String(c.id).startsWith('eg_titan_') && this.isStrictB2BEntity(c));
 
                     cloudDynamic.forEach(c => {
                         if (!c || !c.id) return;
@@ -6049,9 +6054,11 @@ const AppStorage = {
                     company.status = 'contacted';
                 }
 
-                // Sync contact person from call → company (if user entered a genuine person name)
+                // Sync contact person from call → company ONLY for custom prospects without an official contact
                 if (call.contactPerson && call.contactPerson.trim() && !this.isRoleTitle(call.contactPerson)) {
-                    company.contactPerson = call.contactPerson.trim();
+                    if ((company.source === 'scraper' || company.isCustom) && !company.contactPerson) {
+                        company.contactPerson = call.contactPerson.trim();
+                    }
                 }
 
                 this.saveBatchToIDB([company]);
