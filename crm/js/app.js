@@ -554,8 +554,44 @@ const App = {
         }
     },
 
+    openLogoutModal() {
+        const modal = document.getElementById('modal-logout');
+        if (!modal) {
+            this.logoutSystem(true);
+            return;
+        }
+        const user = window.AppStorage ? window.AppStorage.getCurrentUser() : null;
+        const previewContainer = document.getElementById('logout-user-preview');
+        if (previewContainer && user) {
+            const esc = (s) => String(s || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+            const avatar = user.avatar || '👤';
+            const name = esc(user.name || user.username || 'مستخدم');
+            const roleLabel = (user.role === 'admin' || user.id === 'admin') ? 'مدير عام' : (user.role === 'supervisor' ? 'مشرف' : 'فريق المبيعات');
+            const roleColor = (user.role === 'admin' || user.id === 'admin') ? '#7c3aed' : '#2563eb';
+            previewContainer.innerHTML = `
+                <div class="logout-user-avatar" style="background:${esc(user.color || roleColor)}22; color:${esc(user.color || roleColor)}; border:1px solid ${esc(user.color || roleColor)}44;">
+                    <span>${avatar}</span>
+                </div>
+                <div class="logout-user-details">
+                    <div class="logout-user-name">${name}</div>
+                    <div class="logout-user-role" style="color:${esc(user.color || roleColor)};">${roleLabel}</div>
+                </div>
+            `;
+            previewContainer.style.display = 'flex';
+        } else if (previewContainer) {
+            previewContainer.style.display = 'none';
+        }
+        this.openModal('modal-logout');
+    },
+
+    async confirmLogout() {
+        this.closeModal('modal-logout');
+        await this.logoutSystem(true);
+    },
+
     async logoutSystem(skipConfirm = false) {
-        if (!skipConfirm && !confirm('هل تريد بالتأكيد تسجيل الخروج من الحساب؟')) {
+        if (!skipConfirm) {
+            this.openLogoutModal();
             return;
         }
         try {

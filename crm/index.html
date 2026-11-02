@@ -11,8 +11,8 @@
     <script>
         // Clean storage initialization
         (function() {
-            var CURRENT_VER = '422.0';
-            var DATASET_VER = 'v422.0_persistent_activities';
+            var CURRENT_VER = '423.0';
+            var DATASET_VER = 'v423.0_custom_logout_modal';
             try {
                 localStorage.removeItem('fleetcrm_deals');
                 localStorage.removeItem('fleetcrm_deals_count');
@@ -365,7 +365,7 @@
             </div>
             <div class="brand-text">
                 <h2>Fleet CRM</h2>
-                <span>إدارة بيع الإطارات <small class="brand-ver-badge" style="background:#7c3aed33; color:#a78bfa; padding:1px 6px; border-radius:6px; font-size:10px; font-weight:700;">v422.0</small></span>
+                <span>إدارة بيع الإطارات <small class="brand-ver-badge" style="background:#7c3aed33; color:#a78bfa; padding:1px 6px; border-radius:6px; font-size:10px; font-weight:700;">v423.0</small></span>
             </div>
         </div>
 
@@ -1603,6 +1603,34 @@
             <div class="modal-footer">
                 <button class="btn btn-ghost" data-modal="modal-call" onclick="App.closeModal('modal-call')">إلغاء</button>
                 <button class="btn btn-primary" type="button" id="btn-save-call" onclick="Calls.save()"><i class="fas fa-save"></i> حفظ المكالمة</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Logout Confirmation Modal (Ultra-Premium SaaS Dialog) -->
+    <div id="modal-logout" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-logout-title">
+        <div class="modal-overlay" onclick="App.closeModal('modal-logout')"></div>
+        <div class="modal-dialog logout-modal-dialog">
+            <div class="logout-modal-body">
+                <div class="logout-icon-wrap">
+                    <div class="logout-icon-pulse"></div>
+                    <i class="fas fa-sign-out-alt"></i>
+                </div>
+                <h3 id="modal-logout-title" class="logout-modal-title">تسجيل الخروج من الحساب</h3>
+                <p class="logout-modal-subtitle">هل تريد بالتأكيد إنهاء الجلسة الحالية؟ سيتم حفظ كافة أعمالك وجلساتك الحالية بأمان.</p>
+                
+                <div id="logout-user-preview" class="logout-user-preview"></div>
+
+                <div class="logout-modal-actions">
+                    <button type="button" class="btn logout-btn-confirm" id="btn-confirm-logout" onclick="App.confirmLogout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>تأكيد الخروج</span>
+                    </button>
+                    <button type="button" class="btn logout-btn-cancel" onclick="App.closeModal('modal-logout')">
+                        <span>البقاء في الحساب</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
