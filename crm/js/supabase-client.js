@@ -32,6 +32,10 @@ window.SupabaseClient = (function() {
                     if (_assignmentsDeltaCallback) {
                         try { _assignmentsDeltaCallback(data.delta, 'local_broadcast'); } catch(e) {}
                     }
+                } else if (data.type === 'CLIENTS_DELTA' && data.delta) {
+                    if (window.AppStorage && typeof window.AppStorage.applyRealtimeClientsDelta === 'function') {
+                        window.AppStorage.applyRealtimeClientsDelta(data.delta, 'local_broadcast');
+                    }
                 } else if (data.type === 'ACTIVITY_SAVED' && data.activity) {
                     if (window.AppStorage && typeof window.AppStorage.ingestSingleActivity === 'function') {
                         window.AppStorage.ingestSingleActivity(data.activity);
@@ -207,7 +211,7 @@ window.SupabaseClient = (function() {
                 })
                 : Promise.resolve(_cachedCustody || {});
 
-            const [dynamicCompaniesObj, assignmentsObj, callsData, usersData, actsData, deletedCallsObj, deletedCompaniesObj, custodyObj] = await Promise.all([
+            const [dynamicCompaniesObj, assignmentsObj, callsData, usersData, actsData, deletedCallsObj, deletedCompaniesObj, custodyObj, clientsObj] = await Promise.all([
                 dynamicPromise,
                 safeFetch(`${FIREBASE_DB_URL}/assignments.json?t=${now}`, {}),
                 safeFetch(`${FIREBASE_DB_URL}/calls.json?t=${now}`, []),
@@ -215,7 +219,8 @@ window.SupabaseClient = (function() {
                 safeFetch(`${FIREBASE_DB_URL}/activities.json?t=${now}`, []),
                 safeFetch(`${FIREBASE_DB_URL}/deleted_calls.json?t=${now}`, {}),
                 safeFetch(`${FIREBASE_DB_URL}/deleted_companies.json?t=${now}`, {}),
-                custodyPromise
+                custodyPromise,
+                safeFetch(`${FIREBASE_DB_URL}/clients.json?t=${now}`, {})
             ]);
             clearTimeout(timeoutId);
 
@@ -257,6 +262,7 @@ window.SupabaseClient = (function() {
                 users: Array.isArray(usersData) ? usersData : (usersData ? Object.values(usersData) : []),
                 activities: Array.isArray(actsData) ? actsData : (actsData ? Object.values(actsData) : []),
                 custody: (custodyObj && typeof custodyObj === 'object') ? custodyObj : {},
+                clients: (clientsObj && typeof clientsObj === 'object') ? clientsObj : {},
                 updated_at: new Date().toISOString()
             };
         } catch (err) {
@@ -405,6 +411,17 @@ window.SupabaseClient = (function() {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data.assignments),
+                    signal
+                }).catch(() => {})
+            );
+        }
+
+        if (data.clients && typeof data.clients === 'object' && Object.keys(data.clients).length > 0) {
+            promises.push(
+                fetch(`${FIREBASE_DB_URL}/clients.json`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data.clients),
                     signal
                 }).catch(() => {})
             );
@@ -2184,6 +2201,107 @@ window.SupabaseClient = (function() {
         }
     }
 
+
+    async function pushClientRecord(companyId, clientData) {
+        if (!companyId) return false;
+        const sId = String(companyId);
+        const now = Date.now();
+        const payload = Object.assign({}, clientData, {
+            companyId: sId,
+            isClient: true,
+            updatedAt: clientData.updatedAt || now
+        });
+
+        // Instant local cross-tab broadcast (< 0.1ms)
+        if (syncChannel) {
+            try {
+                syncChannel.postMessage({
+                    type: 'CLIENTS_DELTA',
+                    clientId: currentClientId,
+                    delta: { [sId]: payload }
+                });
+            } catch(e) {}
+        }
+
+        try {
+            const resp = await fetch(FIREBASE_DB_URL + '/clients/' + encodeURIComponent(sId) + '.json', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            lastSyncTimestamp = now;
+            return resp.ok;
+        } catch(e) {
+            console.warn('pushClientRecord error:', e);
+            return false;
+        }
+    }
+
+    async function removeClientRecord(companyId) {
+        if (!companyId) return false;
+        const sId = String(companyId);
+        const now = Date.now();
+
+        // Broadcast null deletion to all tabs
+        if (syncChannel) {
+            try {
+                syncChannel.postMessage({
+                    type: 'CLIENTS_DELTA',
+                    clientId: currentClientId,
+                    delta: { [sId]: null }
+                });
+            } catch(e) {}
+        }
+
+        try {
+            const resp = await fetch(FIREBASE_DB_URL + '/clients/' + encodeURIComponent(sId) + '.json', {
+                method: 'DELETE'
+            });
+            lastSyncTimestamp = now;
+            return resp.ok;
+        } catch(e) {
+            console.warn('removeClientRecord error:', e);
+            return false;
+        }
+    }
+
+    async function pushClients(clientsMap) {
+        if (!clientsMap || typeof clientsMap !== 'object' || Object.keys(clientsMap).length === 0) return true;
+        try {
+            const now = Date.now();
+            if (syncChannel) {
+                try {
+                    syncChannel.postMessage({
+                        type: 'CLIENTS_DELTA',
+                        clientId: currentClientId,
+                        delta: clientsMap
+                    });
+                } catch(e) {}
+            }
+            const resp = await fetch(`${FIREBASE_DB_URL}/clients.json`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(clientsMap)
+            });
+            lastSyncTimestamp = now;
+            return resp.ok;
+        } catch(e) {
+            console.warn('pushClients error:', e);
+            return false;
+        }
+    }
+
+    async function fetchClients() {
+        try {
+            const resp = await fetch(`${FIREBASE_DB_URL}/clients.json?t=${Date.now()}`);
+            if (!resp.ok) return {};
+            const data = await resp.json();
+            return (data && typeof data === 'object') ? data : {};
+        } catch(e) {
+            return {};
+        }
+    }
+
     return {
         getStatus,
         onStatusChange,
@@ -2194,6 +2312,10 @@ window.SupabaseClient = (function() {
         pushUsers,
         pushAssignments,
         setAssignment,
+        pushClientRecord,
+        removeClientRecord,
+        pushClients,
+        fetchClients,
         pushCustody,
         pushCustodyBatch,
         pushDeletedCall,

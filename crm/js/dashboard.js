@@ -58,9 +58,13 @@ const Dashboard = {
         if (kpiPercentEl) kpiPercentEl.textContent = `${pct}%`;
         if (kpiProgressEl) kpiProgressEl.style.width = `${pct}%`;
 
-        // Sidebar stats
+        // Sidebar & Active Clients stats
         const sideComp = document.getElementById('sidebar-total-companies');
         if (sideComp) sideComp.textContent = totalComps.toLocaleString('en-US');
+
+        if (window.AppStorage && typeof window.AppStorage.updateSidebarBadge === 'function') {
+            window.AppStorage.updateSidebarBadge();
+        }
     },
 
     renderSectorChart(stats) {

@@ -3,7 +3,7 @@
    v424.0 — Pre-cache App Shell for Offline Use
    ============================================ */
 
-const CACHE_NAME = 'fleetcrm-v424-0-shell';
+const CACHE_NAME = 'fleetcrm-v425-0-shell';
 const OFFLINE_FALLBACK = './index.html';
 
 // ── App Shell: Pre-cached on install for full offline support ──
@@ -17,8 +17,9 @@ const APP_SHELL = [
     './js/storage.js?v=414.0',
     './js/excel-handler.js?v=414.0',
     './js/dashboard.js?v=414.0',
-    './js/companies.js?v=414.0',
-    './js/calls.js?v=414.0',
+    './js/companies.js?v=425.0',
+    './js/clients.js?v=425.0',
+    './js/calls.js?v=425.0',
     './js/reports.js?v=414.0',
     './js/scraper.js?v=414.0',
     './js/team.js?v=414.0',

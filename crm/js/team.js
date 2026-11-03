@@ -1117,7 +1117,7 @@ const Team = {
 
         const users = window.AppStorage.getUsers() || [];
         const targetUser = window.AppStorage.getUser(targetUserId);
-        let companies = window.AppStorage.getCompanies() || [];
+        let companies = (window.AppStorage.getCompanies() || []).filter(c => !(window.AppStorage && window.AppStorage.isClient(c.id)));
 
         const searchVal = (document.getElementById('modal-assign-search')?.value || '').toLowerCase().trim();
         const statusVal = document.getElementById('modal-assign-filter-status')?.value || 'all';

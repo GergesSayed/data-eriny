@@ -642,7 +642,7 @@ const App = {
             const page = link.dataset.page;
             
             if (!canViewAll) {
-                if (page === 'companies' || page === 'calls') {
+                if (page === 'companies' || page === 'calls' || page === 'clients') {
                     link.style.display = 'flex';
                 } else {
                     link.style.display = 'none';
@@ -653,7 +653,7 @@ const App = {
         });
 
         // Strict Enforcement: If Sales Agent is currently on any non-allowed page, instantly redirect to 'companies'
-        if (!canViewAll && this.currentPage !== 'companies' && this.currentPage !== 'calls') {
+        if (!canViewAll && this.currentPage !== 'companies' && this.currentPage !== 'calls' && this.currentPage !== 'clients') {
             this.navigateTo('companies');
         }
 
@@ -1018,13 +1018,13 @@ const App = {
         const currentUser = (window.AppStorage && typeof window.AppStorage.getCurrentUser === 'function') ? window.AppStorage.getCurrentUser() : null;
         const canViewAll = (window.AppStorage && typeof window.AppStorage.canViewAll === 'function') ? window.AppStorage.canViewAll(currentUser) : true;
 
-        // Role-based restrictions: Sales Agents CAN ONLY access companies & calls
-        if (!canViewAll && page !== 'companies' && page !== 'calls') {
+        // Role-based restrictions: Sales Agents CAN access companies, calls & clients
+        if (!canViewAll && page !== 'companies' && page !== 'calls' && page !== 'clients') {
             this.showToast('🔒 هذه الشاشة مخصصة للمشرفين والمدير العام فقط.', 'warning');
             page = 'companies'; // Default page for sales agents
         }
 
-        const validPages = ['dashboard', 'companies', 'calls', 'reports', 'scraper', 'team', 'employees'];
+        const validPages = ['dashboard', 'companies', 'calls', 'reports', 'scraper', 'team', 'employees', 'clients'];
         if (!validPages.includes(page)) page = canViewAll ? 'dashboard' : 'companies';
 
         this.currentPage = page;
@@ -1077,6 +1077,7 @@ const App = {
                     case 'calls': if (typeof Calls !== 'undefined') Calls.render(); break;
                     case 'reports': if (typeof Reports !== 'undefined') Reports.render(); break;
                     case 'scraper': if (typeof ScraperPage !== 'undefined') ScraperPage.render(); break;
+                    case 'clients': if (typeof Clients !== 'undefined') Clients.render(); break;
                     case 'team': if (typeof Team !== 'undefined') Team.render(); break;
                     case 'employees': if (typeof Team !== 'undefined') Team.renderEmployeesPage(); break;
                 }
@@ -1100,6 +1101,8 @@ const App = {
                 Calls.render();
             } else if (active === 'reports' && typeof Reports !== 'undefined') {
                 Reports.render();
+            } else if (active === 'clients' && typeof Clients !== 'undefined') {
+                Clients.render();
             } else if (active === 'scraper' && typeof ScraperPage !== 'undefined') {
                 ScraperPage.render();
             }
@@ -1652,7 +1655,7 @@ const App = {
         }
         const modal = document.getElementById(modalId);
         if (modal) {
-            modal.classList.add('show');
+            modal.classList.add('active', 'show');
             modal.style.display = 'flex';
             modal.style.pointerEvents = 'auto';
             document.body.style.overflow = 'hidden';
@@ -1666,7 +1669,7 @@ const App = {
         }
         const modal = document.getElementById(modalId);
         if (modal) {
-            modal.classList.remove('show');
+            modal.classList.remove('active', 'show');
             modal.style.display = 'none';
             modal.style.pointerEvents = 'none';
         }

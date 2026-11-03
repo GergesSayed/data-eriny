@@ -62,7 +62,7 @@
             } catch(e) {}
         })();
     </script>
-    <link rel="manifest" href="manifest.json?v=417.0">
+    <link rel="manifest" href="manifest.json?v=425.0">
     <meta name="theme-color" content="#7c3aed">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -73,7 +73,7 @@
     <link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap"></noscript>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=417.0">
+    <link rel="stylesheet" href="css/style.css?v=425.0">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
     <script>
         (function() {
@@ -130,7 +130,7 @@
 
                     var defaultPage = isAdm ? 'dashboard' : 'companies';
                     var targetPage = (hash && hash !== 'login') ? hash : (storedActivePage || defaultPage);
-                    if (!isAdm && targetPage !== 'companies' && targetPage !== 'calls') {
+                    if (!isAdm && targetPage !== 'companies' && targetPage !== 'calls' && targetPage !== 'clients') {
                         targetPage = 'companies';
                     }
                     window.__INITIAL_TARGET_PAGE = targetPage;
@@ -361,7 +361,7 @@
             </div>
             <div class="brand-text">
                 <h2>Fleet CRM</h2>
-                <span>إدارة بيع الإطارات <small class="brand-ver-badge" style="background:#7c3aed33; color:#a78bfa; padding:1px 6px; border-radius:6px; font-size:10px; font-weight:700;">v424.0</small></span>
+                <span>إدارة بيع الإطارات <small class="brand-ver-badge" style="background:#7c3aed33; color:#a78bfa; padding:1px 6px; border-radius:6px; font-size:10px; font-weight:700;">v425.0</small></span>
             </div>
         </div>
 
@@ -376,6 +376,14 @@
                 <i class="fas fa-building"></i>
                 <span>الشركات والمصانع</span>
                 <small>Companies & Fleets</small>
+            </a>
+            <a href="#clients" class="nav-link" data-page="clients">
+                <i class="fas fa-handshake" style="color: #10b981;"></i>
+                <div style="display:flex; align-items:center; justify-content:space-between; width:100%;">
+                    <span>الشركات المتعاقدة</span>
+                    <span id="sidebar-clients-count" class="badge" style="background:rgba(16, 185, 129, 0.2); color:#10b981; border:1px solid rgba(16, 185, 129, 0.4); font-size:11px; padding:1px 6px; border-radius:10px; display:none;">0</span>
+                </div>
+                <small>Active Clients</small>
             </a>
             <a href="#calls" class="nav-link" data-page="calls">
                 <i class="fas fa-phone-alt"></i>
@@ -596,6 +604,16 @@
                             <div style="width: 100%; height: 5px; background: rgba(255,255,255,0.08); border-radius: 8px; overflow: hidden; margin-top: 6px;">
                                 <div id="dash-team-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #10b981, #06b6d4); border-radius: 8px; transition: width 0.4s ease;"></div>
                             </div>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-card--emerald" onclick="App.navigateTo('clients')" style="cursor: pointer; border: 1px solid rgba(16, 185, 129, 0.35); background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(6, 182, 212, 0.08));">
+                        <div class="stat-card__icon" style="background: rgba(16, 185, 129, 0.2); color: #10b981;"><i class="fas fa-handshake"></i></div>
+                        <div class="stat-card__info">
+                            <h3 id="dash-active-clients" style="color: #10b981;">0</h3>
+                            <p>الشركات المتعاقدة <br><small>Active Clients</small></p>
+                        </div>
+                        <div class="stat-card__trend up" style="color: #10b981;">
+                            <i class="fas fa-arrow-up"></i>
                         </div>
                     </div>
                 </div>
@@ -958,6 +976,88 @@
 
                 <!-- Pagination -->
                 <div class="pagination" id="companies-pagination"></div>
+            </section>
+
+            <!-- ===================== ACTIVE CLIENTS PAGE ===================== -->
+            <section id="page-clients" class="page">
+                <div class="page-header">
+                    <div>
+                        <h1><i class="fas fa-handshake" style="color: #10b981;"></i> الشركات المتعاقدة <small>Active Clients</small></h1>
+                        <p class="page-subtitle">إدارة الشركات والعملاء الفعليين وعقود التوريد والأساطيل الجارية</p>
+                    </div>
+                    <div class="page-header-actions" style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+                        <button class="btn btn-outline btn-sm" onclick="Clients.exportExcel()" style="gap:6px;">
+                            <i class="fas fa-file-excel" style="color: #10b981;"></i> تصدير Excel
+                        </button>
+                        <button class="btn btn-primary btn-sm" onclick="Clients.openConvertModal()" style="background: linear-gradient(135deg, #10b981, #059669); border: none; font-weight: 700; gap:6px;">
+                            <i class="fas fa-plus"></i> إضافة شركة متعاقدة 🤝
+                        </button>
+                    </div>
+                </div>
+
+                <!-- KPI Cards for Clients -->
+                <div class="stats-grid" style="margin-bottom: 20px;">
+                    <div class="stat-card" style="border: 1px solid rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.06);">
+                        <div class="stat-card__icon" style="background: rgba(16, 185, 129, 0.15); color: #10b981;"><i class="fas fa-handshake"></i></div>
+                        <div class="stat-card__info">
+                            <h3 id="client-kpi-total" style="color: #10b981;">0</h3>
+                            <p>إجمالي الشركات المتعاقدة <br><small>Total Active Accounts</small></p>
+                        </div>
+                    </div>
+                    <div class="stat-card" style="border: 1px solid rgba(6, 182, 212, 0.3); background: rgba(6, 182, 212, 0.06);">
+                        <div class="stat-card__icon" style="background: rgba(6, 182, 212, 0.15); color: #06b6d4;"><i class="fas fa-file-contract"></i></div>
+                        <div class="stat-card__info">
+                            <h3 id="client-kpi-annual" style="color: #06b6d4;">0</h3>
+                            <p>عقود توريد سنوية / دورية <br><small>Annual Supply Contracts</small></p>
+                        </div>
+                    </div>
+                    <div class="stat-card" style="border: 1px solid rgba(245, 158, 11, 0.3); background: rgba(245, 158, 11, 0.06);">
+                        <div class="stat-card__icon" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;"><i class="fas fa-crown"></i></div>
+                        <div class="stat-card__info">
+                            <h3 id="client-kpi-vip" style="color: #f59e0b;">0</h3>
+                            <p>عملاء كبار الشخصيات VIP <br><small>Strategic VIP Clients</small></p>
+                        </div>
+                    </div>
+                    <div class="stat-card" style="border: 1px solid rgba(139, 92, 246, 0.3); background: rgba(139, 92, 246, 0.06);">
+                        <div class="stat-card__icon" style="background: rgba(139, 92, 246, 0.15); color: #8b5cf6;"><i class="fas fa-truck-moving"></i></div>
+                        <div class="stat-card__info">
+                            <h3 id="client-kpi-fleet" style="color: #8b5cf6;">0</h3>
+                            <p>إجمالي أسطول العملاء <br><small>Total Client Fleet</small></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filter Bar -->
+                <div class="filters-bar" style="margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; background: var(--bg-surface); padding: 14px 18px; border-radius: 12px; border: 1px solid var(--border-color);">
+                    <div class="filter-group search-filter" style="flex: 1 1 240px; min-width: 200px;">
+                        <i class="fas fa-search" style="color: #10b981;"></i>
+                        <input type="text" id="filter-client-search" placeholder="🔍 بحث في اسم الشركة، جهة الاتصال، الهاتف، أو الملاحظات..." style="width: 100%; padding: 9px 12px 9px 36px; border-radius: 8px; font-size: 13px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); outline: none;">
+                    </div>
+                    <div class="filter-group" style="flex: 0 1 190px;">
+                        <select id="filter-client-agent" class="form-control" style="width: 100%; padding: 8px 12px; border-radius: 8px; font-size: 12.5px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary);">
+                            <option value="">جميع مسؤولي الحسابات</option>
+                        </select>
+                    </div>
+                    <div class="filter-group" style="flex: 0 1 180px;">
+                        <select id="filter-client-type" class="form-control" style="width: 100%; padding: 8px 12px; border-radius: 8px; font-size: 12.5px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary);">
+                            <option value="">جميع أنواع التعاقد</option>
+                            <option value="contract">عقد توريد سنوي / دوري</option>
+                            <option value="active_orders">طلبيات وتوريد مستمر</option>
+                            <option value="vip">عميل استراتيجي VIP</option>
+                            <option value="trial">فترة تجربة أولى</option>
+                        </select>
+                    </div>
+                    <div class="filter-group" style="flex: 0 1 160px;">
+                        <select id="filter-client-gov" class="form-control" style="width: 100%; padding: 8px 12px; border-radius: 8px; font-size: 12.5px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary);">
+                            <option value="">كل المحافظات</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Clients Table / Cards Container -->
+                <div id="clients-list-container">
+                    <!-- Rendered dynamically by Clients.renderList() -->
+                </div>
             </section>
 
             <!-- ===================== CALLS PAGE ===================== -->
@@ -1669,6 +1769,7 @@
                 <button class="btn btn-ghost" data-modal="modal-company-detail" onclick="App.closeModal('modal-company-detail')">إغلاق</button>
                 <button class="btn btn-outline" id="btn-detail-toggle-vip" onclick="Companies.toggleCurrentCompanyVip()" style="display:none;"><i class="fas fa-crown"></i> <span>تصنيف VIP</span></button>
                 <button class="btn btn-outline" onclick="Companies.printCompanyCard()"><i class="fas fa-print"></i> طباعة / PDF</button>
+                <button class="btn btn-emerald" id="btn-detail-convert-client" onclick="Clients.openConvertModal(Companies.currentDetailId)" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; font-weight:700;"><i class="fas fa-handshake"></i> <span>تحويل إلى عميل متعاقد 🤝</span></button>
                 <button class="btn btn-accent" id="btn-detail-call"><i class="fas fa-phone"></i> تسجيل مكالمة</button>
                 <button class="btn btn-primary" id="btn-detail-edit"><i class="fas fa-edit"></i> تعديل</button>
             </div>
@@ -1882,6 +1983,102 @@
         </div>
     </div>
 
+
+    <!-- Convert to Active Client Modal -->
+    <div id="modal-convert-client" class="modal">
+        <div class="modal-overlay" onclick="App.closeModal('modal-convert-client')"></div>
+        <div class="modal-dialog modal-md" style="max-width: 600px;">
+            <div class="modal-header" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(6, 182, 212, 0.15)); border-bottom: 1px solid rgba(16, 185, 129, 0.3);">
+                <h2 id="convert-client-modal-title"><i class="fas fa-handshake" style="color: #10b981;"></i> تحويل الشركة إلى عميل متعاقد</h2>
+                <button class="modal-close" data-modal="modal-convert-client" onclick="App.closeModal('modal-convert-client')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" style="padding: 22px;">
+                <!-- Company selection display or search -->
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label style="font-weight: 700; margin-bottom: 6px; display: block;">الشركة المستهدفة للتعاقد *</label>
+                    <div id="convert-client-comp-display" style="display: none;"></div>
+                    <div id="convert-client-comp-search-wrap" style="position: relative;">
+                        <input type="text" id="convert-search-company-input" class="form-control" placeholder="🔍 اكتب اسم الشركة للبحث والاختيار من قاعدة البيانات..." oninput="Clients.searchCompaniesForConversion(this.value)" autocomplete="off">
+                        <div id="convert-company-results" style="position: absolute; top: 100%; right: 0; left: 0; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 8px; max-height: 200px; overflow-y: auto; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.25);"></div>
+                    </div>
+                </div>
+
+                <!-- Account Manager / Assigned Employee -->
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label for="convert-client-assigned" style="font-weight: 700; margin-bottom: 6px; display: block;">المسؤول عن الحساب (Account Manager) *</label>
+                    <select id="convert-client-assigned" class="form-control" required style="width: 100%; padding: 10px; border-radius: 8px;">
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+
+                <!-- Contract Type & Start Date -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px;">
+                    <div class="form-group">
+                        <label for="convert-client-type" style="font-weight: 700; margin-bottom: 6px; display: block;">نوع التعاقد والتوريد *</label>
+                        <select id="convert-client-type" class="form-control" style="width: 100%; padding: 10px; border-radius: 8px;">
+                            <option value="contract">عقد توريد سنوي / دوري</option>
+                            <option value="active_orders">طلبيات وتوريد مستمر</option>
+                            <option value="vip">عميل استراتيجي VIP</option>
+                            <option value="trial">فترة تجربة وتشغيل أولى</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="convert-client-date" style="font-weight: 700; margin-bottom: 6px; display: block;">تاريخ بدء التعاقد *</label>
+                        <input type="date" id="convert-client-date" class="form-control" style="width: 100%; padding: 10px; border-radius: 8px;">
+                    </div>
+                </div>
+
+                <!-- Fleet & Supply Details -->
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label for="convert-client-deal" style="font-weight: 700; margin-bottom: 6px; display: block;">تفاصيل التوريد والأسطول (مقاسات، كميات، جدول توريد)</label>
+                    <input type="text" id="convert-client-deal" class="form-control" placeholder="مثلاً: توريد شهري 40 إطار مقاس 22.5 لأتوبيسات النقل السياحي..." style="width: 100%; padding: 10px; border-radius: 8px;">
+                </div>
+
+                <!-- Contract Notes -->
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="convert-client-notes" style="font-weight: 700; margin-bottom: 6px; display: block;">ملاحظات وشروط التعاقد والتوريد</label>
+                    <textarea id="convert-client-notes" class="form-control" rows="3" placeholder="شروط الدفع، موعد التوريد القادم، تفاصيل جهة الاستلام..." style="width: 100%; padding: 10px; border-radius: 8px; resize: vertical;"></textarea>
+                </div>
+
+                <div style="background: rgba(16, 185, 129, 0.08); border: 1px dashed rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 10px 14px; font-size: 0.8rem; color: #10b981; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-shield-alt" style="font-size: 16px;"></i>
+                    <span>حماية الحساب: بمجرد التثبيت، سيتم عزل هذه الشركة من قاعدة الاتصال البارد وتخصيصها حصرياً لمسؤول الحساب.</span>
+                </div>
+            </div>
+            <div class="modal-footer" style="padding: 14px 22px; justify-content: space-between;">
+                <button type="button" class="btn btn-ghost" onclick="App.closeModal('modal-convert-client')">إلغاء</button>
+                <button type="button" id="btn-save-convert-client" class="btn btn-primary" onclick="Clients.saveConvertForm()" style="background: linear-gradient(135deg, #10b981, #059669); border: none; font-weight: 700; padding: 8px 20px;">
+                    <i class="fas fa-check"></i> تثبيت التعاقد كعميل رسمي 🤝
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Revert from Active Client Modal -->
+    <div id="modal-revert-client" class="modal">
+        <div class="modal-overlay" onclick="App.closeModal('modal-revert-client')"></div>
+        <div class="modal-dialog modal-sm" style="max-width: 480px;">
+            <div class="modal-header" style="background: rgba(239, 68, 68, 0.1); border-bottom: 1px solid rgba(239, 68, 68, 0.25);">
+                <h2 style="color: #ef4444;"><i class="fas fa-exclamation-triangle"></i> إلغاء التعاقد مع الشركة</h2>
+                <button class="modal-close" data-modal="modal-revert-client" onclick="App.closeModal('modal-revert-client')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" style="padding: 20px; text-align: center;">
+                <p style="font-size: 0.95rem; color: var(--text-primary); margin-bottom: 12px;">
+                    هل أنت متأكد من إلغاء تعاقد شركة <b id="revert-client-comp-name" style="color: #ef4444;"></b>؟
+                </p>
+                <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0;">
+                    سيتم إزالة الشركة من قائمة العملاء المتعاقدين وإعادتها فوراً إلى قائمة الشركات والمصانع العامة.
+                </p>
+            </div>
+            <div class="modal-footer" style="padding: 12px 20px; justify-content: space-between;">
+                <button type="button" class="btn btn-ghost" onclick="App.closeModal('modal-revert-client')">تراجع</button>
+                <button type="button" id="btn-confirm-revert-client" class="btn btn-danger" onclick="Clients.executeRevert()" style="font-weight: 700;">
+                    <i class="fas fa-undo"></i> نعم، إلغاء التعاقد وإعادتها للشركات العامة
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Container -->
     <div id="toast-container"></div>
 
@@ -1919,19 +2116,20 @@
     <!-- External Libraries (Deferred for instant mobile paint) -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
 
-    <script src="js/supabase-client.js?v=417.0" defer></script>
-    <script src="js/egypt_verified_titans.js?v=417.0" defer></script>
-    <script src="js/egypt_enterprises_pool.js?v=417.0" defer></script>
-    <script src="js/storage.js?v=417.0" defer></script>
-    <script src="js/excel-handler.js?v=417.0" defer></script>
-    <script src="js/dashboard.js?v=417.0" defer></script>
-    <script src="js/companies.js?v=417.0" defer></script>
-    <script src="js/calls.js?v=417.0" defer></script>
-    <script src="js/reports.js?v=417.0" defer></script>
-    <script src="js/scraper.js?v=417.0" defer></script>
-    <script src="js/team.js?v=417.0" defer></script>
-    <script src="js/settings.js?v=417.0" defer></script>
-    <script src="js/app.js?v=417.0" defer></script>
+    <script src="js/supabase-client.js?v=425.0" defer></script>
+    <script src="js/egypt_verified_titans.js?v=425.0" defer></script>
+    <script src="js/egypt_enterprises_pool.js?v=425.0" defer></script>
+    <script src="js/storage.js?v=425.0" defer></script>
+    <script src="js/excel-handler.js?v=425.0" defer></script>
+    <script src="js/dashboard.js?v=425.0" defer></script>
+    <script src="js/companies.js?v=425.0" defer></script>
+    <script src="js/clients.js?v=425.0" defer></script>
+    <script src="js/calls.js?v=425.0" defer></script>
+    <script src="js/reports.js?v=425.0" defer></script>
+    <script src="js/scraper.js?v=425.0" defer></script>
+    <script src="js/team.js?v=425.0" defer></script>
+    <script src="js/settings.js?v=425.0" defer></script>
+    <script src="js/app.js?v=425.0" defer></script>
 
     <!-- Cleanup overlay on load - runs once only, does NOT override App.checkAuth -->
     <script>

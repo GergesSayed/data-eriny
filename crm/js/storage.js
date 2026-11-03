@@ -121,7 +121,8 @@ const AppStorage = {
         USERS: 'fleetcrm_users',
         CURRENT_USER: 'fleetcrm_current_user',
         HASH_UPGRADE_KEY: 'fleetcrm_hash_v2',
-        CUSTODY: 'fleetcrm_custody_history'
+        CUSTODY: 'fleetcrm_custody_history',
+        CLIENTS: 'fleetcrm_clients'
     },
 
     /* Crypto & Environment Helpers */
@@ -372,7 +373,7 @@ const AppStorage = {
 
     getUser(id) {
         if (!id) return null;
-        return this.getUsers().find(u => u.id === id) || null;
+        return this.getUsers().find(u => u.id === id || u.username === id) || this.getUserByUsername(id) || null;
     },
 
     getUserByUsername(username) {
@@ -3420,13 +3421,15 @@ const AppStorage = {
                     }
                 });
 
+                const storedClients = this.getStoredClients ? (this.getStoredClients() || {}) : {};
                 const latestActTs = (activities && activities.length > 0 && activities[0]) ? (activities[0].timestamp || '') : '';
-                const quickHash = `${dynamicCompanies.length}_${Object.keys(assignmentsMap).length}_${calls.length}_${users.length}_${activities.length}_${latestActTs}`;
+                const quickHash = `${dynamicCompanies.length}_${Object.keys(assignmentsMap).length}_${Object.keys(storedClients).length}_${calls.length}_${users.length}_${activities.length}_${latestActTs}`;
                 if (!forceSync && quickHash === localStorage.getItem('fleetcrm_last_synced_hash')) return true;
 
                 const ok = await window.SupabaseClient.pushMasterData({
                     dynamicCompanies: dynamicCompanies,
                     assignments: canModifyAssignments ? assignmentsMap : undefined,
+                    clients: storedClients,
                     users: users,
                     calls: calls,
                     deletedCalls: Array.from(deletedCallIds),
@@ -3711,6 +3714,31 @@ const AppStorage = {
                         if (this._worker) {
                             this._worker.postMessage({ action: 'UPDATE_COMPANIES', payload: changedComps });
                         }
+                    }
+                }
+
+                // B.0 Apply clients directly from cloud clients endpoint
+                if (data.clients && typeof data.clients === 'object') {
+                    const localClients = this.getStoredClients ? this.getStoredClients() : {};
+                    let clientsChanged = false;
+                    for (const [compId, cloudClient] of Object.entries(data.clients)) {
+                        if (!cloudClient) continue;
+                        const localClient = localClients[compId];
+                        if (!localClient) {
+                            localClients[compId] = cloudClient;
+                            clientsChanged = true;
+                        } else {
+                            const cloudTs = cloudClient.updatedAt || 0;
+                            const localTs = localClient.updatedAt || 0;
+                            if (cloudTs >= localTs) {
+                                localClients[compId] = cloudClient;
+                                clientsChanged = true;
+                            }
+                        }
+                    }
+                    if (clientsChanged) {
+                        this.setStoredClients(localClients);
+                        this.updateSidebarBadge();
                     }
                 }
 
@@ -4131,6 +4159,224 @@ const AppStorage = {
             }
         }
     },
+    _storedClientsCache: null,
+    getStoredClients() {
+        if (this._storedClientsCache) return this._storedClientsCache;
+        try {
+            const raw = localStorage.getItem(this.KEYS.CLIENTS);
+            const parsed = raw ? JSON.parse(raw) : {};
+            this._storedClientsCache = (parsed && typeof parsed === 'object') ? parsed : {};
+        } catch(e) {
+            this._storedClientsCache = {};
+        }
+        return this._storedClientsCache;
+    },
+
+    setStoredClients(map) {
+        if (!map || typeof map !== 'object') return;
+        this._storedClientsCache = map;
+        try {
+            localStorage.setItem(this.KEYS.CLIENTS, JSON.stringify(map));
+        } catch(e) {}
+    },
+
+    isClient(companyId) {
+        if (!companyId) return false;
+        const clients = this.getStoredClients();
+        const rec = clients[String(companyId)];
+        return Boolean(rec && rec.isClient);
+    },
+
+    getClientRecord(companyId) {
+        if (!companyId) return null;
+        const clients = this.getStoredClients();
+        return clients[String(companyId)] || null;
+    },
+
+    async convertToClient(companyId, clientData = {}) {
+        if (!companyId) return null;
+        const company = this.getCompany(companyId);
+        if (!company) return null;
+
+        const now = Date.now();
+        const isoNow = new Date(now).toISOString();
+        const currentUser = this.getCurrentUser();
+        const operatorId = currentUser ? (currentUser.id || currentUser.username) : 'admin';
+
+        const assignedTo = clientData.assignedTo || company.assignedTo || operatorId;
+        const clientRecord = {
+            companyId: String(companyId),
+            isClient: true,
+            assignedTo: assignedTo,
+            clientType: clientData.clientType || 'contract',
+            contractDate: clientData.contractDate || isoNow.split('T')[0],
+            dealDetails: clientData.dealDetails || '',
+            notes: clientData.notes || '',
+            convertedAt: isoNow,
+            convertedBy: operatorId,
+            updatedAt: now
+        };
+
+        // Save to stored clients
+        const stored = this.getStoredClients();
+        stored[String(companyId)] = clientRecord;
+        this.setStoredClients(stored);
+
+        // Ensure company assignedTo matches client account manager
+        if (company.assignedTo !== assignedTo) {
+            await this.assignCompany(companyId, assignedTo);
+        }
+
+        company.isClient = true;
+        company.clientType = clientRecord.clientType;
+        company.contractDate = clientRecord.contractDate;
+        company.dealDetails = clientRecord.dealDetails;
+        company.lastUpdated = isoNow.split('T')[0];
+
+        this.saveBatchToIDB([company]);
+        this.invalidateScopedCache();
+        this.invalidateStatsCache();
+
+        // Cloud push
+        if (window.SupabaseClient && typeof window.SupabaseClient.pushClientRecord === 'function') {
+            window.SupabaseClient.pushClientRecord(companyId, clientRecord).catch(e => console.warn('convertToClient cloud push error:', e));
+        }
+
+        const targetUser = this.getUser(assignedTo);
+        const targetName = targetUser ? targetUser.name : assignedTo;
+        this.addActivity('client', company.id, 'تعاقد جديد 🤝', `تم تحويل شركة "${company.nameAr || company.nameEn}" إلى عميل متعاقد وتعيين المسؤول: ${targetName}`);
+
+        this.updateSidebarBadge();
+        if (typeof Clients !== 'undefined' && typeof Clients.updateSidebarBadge === 'function') {
+            Clients.updateSidebarBadge();
+        }
+
+        return clientRecord;
+    },
+
+    async revertFromClient(companyId) {
+        if (!companyId) return false;
+        const company = this.getCompany(companyId);
+        const stored = this.getStoredClients();
+        const sId = String(companyId);
+        if (!stored[sId]) return false;
+
+        delete stored[sId];
+        this.setStoredClients(stored);
+
+        if (company) {
+            delete company.isClient;
+            delete company.clientType;
+            delete company.contractDate;
+            delete company.dealDetails;
+            this.saveBatchToIDB([company]);
+        }
+
+        this.invalidateScopedCache();
+        this.invalidateStatsCache();
+
+        // Cloud removal
+        if (window.SupabaseClient && typeof window.SupabaseClient.removeClientRecord === 'function') {
+            window.SupabaseClient.removeClientRecord(companyId).catch(e => console.warn('revertFromClient cloud removal error:', e));
+        }
+
+        const compName = company ? (company.nameAr || company.nameEn) : companyId;
+        this.addActivity('client', companyId, 'إلغاء تعاقد', `تم إلغاء تعاقد شركة "${compName}" وإعادتها لقائمة الشركات العامة.`);
+
+        this.updateSidebarBadge();
+        if (typeof Clients !== 'undefined' && typeof Clients.updateSidebarBadge === 'function') {
+            Clients.updateSidebarBadge();
+        }
+
+        return true;
+    },
+
+    applyRealtimeClientsDelta(delta, source = 'realtime') {
+        if (!delta || typeof delta !== 'object') return false;
+        const storedClients = this.getStoredClients() || {};
+        let changed = false;
+
+        for (const [sId, clientInfo] of Object.entries(delta)) {
+            if (!sId) continue;
+            if (clientInfo === null || (clientInfo && clientInfo.isClient === false)) {
+                if (storedClients[sId]) {
+                    delete storedClients[sId];
+                    changed = true;
+                    const comp = this.getCompany(sId);
+                    if (comp) {
+                        delete comp.isClient;
+                        delete comp.clientType;
+                    }
+                }
+            } else if (typeof clientInfo === 'object') {
+                storedClients[sId] = clientInfo;
+                changed = true;
+                const comp = this.getCompany(sId);
+                if (comp) {
+                    comp.isClient = true;
+                    comp.clientType = clientInfo.clientType;
+                    comp.contractDate = clientInfo.contractDate;
+                    comp.dealDetails = clientInfo.dealDetails;
+                    if (clientInfo.assignedTo) comp.assignedTo = clientInfo.assignedTo;
+                }
+            }
+        }
+
+        if (changed) {
+            this.setStoredClients(storedClients);
+            this.invalidateScopedCache();
+            this.invalidateStatsCache();
+            this.updateSidebarBadge();
+            if (typeof Clients !== 'undefined' && typeof Clients.updateSidebarBadge === 'function') {
+                Clients.updateSidebarBadge();
+            }
+            if (window.App && typeof window.App.refreshCurrentPage === 'function') {
+                window.App.refreshCurrentPage();
+            }
+        }
+        return changed;
+    },
+
+    updateSidebarBadge() {
+        try {
+            const badge = document.getElementById('sidebar-clients-count');
+            const dashCount = document.getElementById('dash-active-clients');
+            const clients = this.getStoredClients ? this.getStoredClients() : {};
+            const currentUser = this.getCurrentUser ? this.getCurrentUser() : null;
+            const canViewAll = this.canViewAll ? this.canViewAll(currentUser) : true;
+            
+            let count = 0;
+            const matchedUser = currentUser ? (this.getUser(currentUser.id) || this.getUserByUsername(currentUser.username) || this.getUserByEmail(currentUser.email) || currentUser) : null;
+            const userKeys = matchedUser ? new Set([
+                String(matchedUser.id || '').trim().toLowerCase(),
+                String(matchedUser.username || '').trim().toLowerCase(),
+                String(matchedUser.email || '').trim().toLowerCase(),
+                String(matchedUser.name || '').trim().toLowerCase(),
+                String(currentUser.id || '').trim().toLowerCase(),
+                String(currentUser.username || '').trim().toLowerCase(),
+                String(currentUser.email || '').trim().toLowerCase(),
+                String(currentUser.name || '').trim().toLowerCase()
+            ].filter(Boolean)) : new Set();
+
+            for (const rec of Object.values(clients)) {
+                if (!rec || !rec.isClient) continue;
+                if (canViewAll) {
+                    count++;
+                } else {
+                    const asgn = String(rec.assignedTo || '').toLowerCase();
+                    if (userKeys.has(asgn)) count++;
+                }
+            }
+
+            if (badge) {
+                badge.textContent = count.toLocaleString('en-US');
+                badge.style.display = count > 0 ? 'inline-block' : 'none';
+            }
+            if (dashCount) {
+                dashCount.textContent = count.toLocaleString('en-US');
+            }
+        } catch(e) {}
+    },
 
 
     applyCallsToCompanies(target) {
@@ -4341,6 +4587,7 @@ const AppStorage = {
             const c = allCompanies[i];
             if (!c) continue;
             const sId = String(c.id);
+            if (this.isClient(sId)) continue; // 🛡️ Strict Isolation: Active clients NEVER appear in cold outreach leads!
             const assignEntry = storedAssignments[sId];
             const asgn = (assignEntry && assignEntry.assignedTo !== undefined) ? assignEntry.assignedTo : (c.assignedTo || '');
             if (asgn && myKeys.has(String(asgn).trim().toLowerCase())) {
@@ -5009,6 +5256,7 @@ const AppStorage = {
         const allHistory = this.getCustodyHistoryMap() || {};
 
         companyIds.forEach(id => {
+            if (this.isClient(id)) return; // 🛡️ Strict Protection: Never overwrite active clients in bulk assignment!
             const comp = this.getCompany(id);
             if (!comp) return;
 

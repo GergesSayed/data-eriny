@@ -39,10 +39,12 @@ const Companies = {
         const sectorCounts = {};
         const cityCounts = {};
         const govCounts = {};
+        const clientsMap = (window.AppStorage && typeof window.AppStorage.getStoredClients === 'function') ? window.AppStorage.getStoredClients() : {};
 
         for (let i = 0; i < allCompanies.length; i++) {
             const c = allCompanies[i];
             if (!c) continue;
+            if (clientsMap[String(c.id)] && clientsMap[String(c.id)].isClient) continue; // Skip active clients in cold lead counts
             const sec = c.sector || 'other';
             const ct = c.city || 'other';
             sectorCounts[sec] = (sectorCounts[sec] || 0) + 1;
@@ -982,8 +984,10 @@ const Companies = {
         const sectorSet = this.selectedSectors.size > 0 ? this.selectedSectors : (legacySector ? new Set([legacySector]) : null);
         const citySet = this.selectedCities.size > 0 ? this.selectedCities : (legacyCity ? new Set([legacyCity]) : null);
 
+        const clientsMap = (window.AppStorage && typeof window.AppStorage.getStoredClients === 'function') ? window.AppStorage.getStoredClients() : {};
         // 1 SINGLE OPTIMIZED PASS FILTER (100X Faster!)
         const companies = rawCompanies.filter(c => {
+            if (clientsMap[String(c.id)] && clientsMap[String(c.id)].isClient) return false; // 🛡️ Active clients are isolated from regular cold pool
             if (vip) {
                 const isVip = Boolean(c.isTitan || (c.id && String(c.id).startsWith('eg_titan_')) || c.isVIP || c.vip);
                 if (vip === 'vip_only' && !isVip) return false;
@@ -2483,6 +2487,40 @@ const Companies = {
 
         const calls = window.AppStorage.getCallsForCompany(id);
 
+        const isClient = window.AppStorage ? window.AppStorage.isClient(id) : false;
+        const clientRecord = isClient ? window.AppStorage.getClientRecord(id) : null;
+        let clientBannerHtml = '';
+        if (isClient && clientRecord) {
+            const clientTypeLabels = {
+                contract: 'عقد توريد سنوي / دوري',
+                active_orders: 'طلبيات وتوريد مستمر',
+                vip: 'عميل استراتيجي VIP',
+                trial: 'فترة تجربة أولى'
+            };
+            const typeLabel = clientTypeLabels[clientRecord.clientType] || 'عميل متعاقد';
+            const asgnUser = window.AppStorage.getUser(clientRecord.assignedTo);
+            const asgnName = asgnUser ? asgnUser.name : (clientRecord.assignedTo || 'غير محدد');
+
+            clientBannerHtml = `
+                <div class="detail-section" style="border: 1.5px solid rgba(16, 185, 129, 0.45); background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(6, 182, 212, 0.08)); padding: 14px 18px; border-radius: 12px; margin-bottom: 20px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <h3 style="color:#10b981; margin:0; font-size:1.1rem; display:flex; align-items:center; gap:8px;">
+                            <i class="fas fa-handshake"></i> <span>عميل متعاقد رسمي</span>
+                        </h3>
+                        <span class="badge" style="background:rgba(16, 185, 129, 0.2); color:#10b981; border:1px solid rgba(16, 185, 129, 0.5); font-size:11px; padding:3px 8px; border-radius:6px; font-weight:700;">
+                            ${typeLabel}
+                        </span>
+                    </div>
+                    <div style="font-size:0.85rem; color:var(--text-secondary); display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:10px; margin-top:8px;">
+                        <div><strong>المسؤول عن الحساب:</strong> <span style="color:#38bdf8; font-weight:700;">${esc(asgnName)}</span></div>
+                        <div><strong>تاريخ بدء التعاقد:</strong> <span style="color:#f8fafc;">${esc(clientRecord.contractDate || 'غير محدد')}</span></div>
+                        ${clientRecord.dealDetails ? `<div><strong>تفاصيل التوريد:</strong> <span>${esc(clientRecord.dealDetails)}</span></div>` : ''}
+                    </div>
+                    ${clientRecord.notes ? `<div style="margin-top:8px; font-size:0.83rem; color:var(--text-muted); border-top:1px dashed rgba(16, 185, 129, 0.25); padding-top:6px;"><strong>ملاحظات التعاقد:</strong> ${esc(clientRecord.notes)}</div>` : ''}
+                </div>
+            `;
+        }
+
         // Permanent closure alert (if applicable)
         let closedWarningHtml = '';
         if (company.operating_status === 'permanently_closed') {
@@ -2574,6 +2612,7 @@ const Companies = {
 
         const body = document.getElementById('company-detail-body');
         body.innerHTML = `
+            ${clientBannerHtml}
             ${closedWarningHtml}
             
             <!-- Lead Score & Data Confidence Gauge Widgets -->
@@ -2723,6 +2762,24 @@ const Companies = {
                     this.toggleCurrentCompanyVip();
                 };
             }
+        }
+
+        const btnConvertClient = document.getElementById('btn-detail-convert-client');
+        if (btnConvertClient) {
+            btnConvertClient.style.display = 'inline-flex';
+            if (isClient) {
+                btnConvertClient.innerHTML = '<i class="fas fa-handshake"></i> <span>إدارة التعاقد 🤝</span>';
+                btnConvertClient.style.background = 'linear-gradient(135deg, #059669, #047857)';
+            } else {
+                btnConvertClient.innerHTML = '<i class="fas fa-handshake"></i> <span>تحويل إلى عميل متعاقد 🤝</span>';
+                btnConvertClient.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+            }
+            btnConvertClient.onclick = () => {
+                App.closeModal('modal-company-detail');
+                if (typeof Clients !== 'undefined') {
+                    Clients.openConvertModal(id);
+                }
+            };
         }
 
         document.getElementById('btn-detail-call').onclick = () => {
