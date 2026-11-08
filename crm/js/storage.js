@@ -3041,21 +3041,21 @@ const AppStorage = {
                 request.onsuccess = (event) => {
                     clearTimeout(timeoutId);
                     const idbData = event.target.result || [];
-                    const currentVersionTag = 'v395.0_realtime_stream_user_presence_and_anti_false_offline';
+                    const currentVersionTag = 'v426.0_data_integrity_cleansing_and_unqualified_sanitization';
                     const storedVersionTag = localStorage.getItem('fleetcrm_dataset_version');
                     localStorage.setItem('fleetcrm_dataset_version', currentVersionTag);
 
-                    // If dataset version changed and IDB has invalid/empty data, clear to reload
-                    if (storedVersionTag !== currentVersionTag && (!idbData || idbData.length < 21225)) {
+                    // If dataset version changed, clear stale cached companies in IDB to reload cleaned dataset
+                    if (storedVersionTag !== currentVersionTag) {
                         try {
                             const clearTx = db.transaction(['companies'], 'readwrite');
                             clearTx.objectStore('companies').clear();
                         } catch(e) {}
                     }
 
-                    // Fast-path: When IndexedDB already contains the full dataset (>= 21,225 items)
+                    // Fast-path: When IndexedDB already contains the full dataset (>= 21,225 items) and version matches
                     // Loads instantly in ~10ms with zero object re-creation or main-thread freezing
-                    if (idbData && idbData.length >= 21225) {
+                    if (storedVersionTag === currentVersionTag && idbData && idbData.length >= 21225) {
                         const genuineCalls = this.getCalls() || [];
                         const callCompIds = new Set(genuineCalls.map(cl => cl && String(cl.companyId).trim()).filter(Boolean));
 
